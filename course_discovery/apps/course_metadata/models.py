@@ -402,6 +402,10 @@ class Course(TimeStampedModel):
         )
     )
 
+    additional_information = models.TextField(
+        default=None, null=True, blank=True, verbose_name=_('Additional Information')
+    )
+
     objects = CourseQuerySet.as_manager()
 
     class Meta:

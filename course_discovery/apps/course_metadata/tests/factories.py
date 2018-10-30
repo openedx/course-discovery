@@ -99,6 +99,7 @@ class CourseFactory(factory.DjangoModelFactory):
     image = factory.django.ImageField()
     canonical_course_run = None
     extra_description = factory.SubFactory(AdditionalPromoAreaFactory)
+    additional_information = FuzzyText()
     faq = FuzzyText()
     learner_testimonials = FuzzyText()
 

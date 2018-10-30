@@ -498,7 +498,7 @@
                                         <label class="field-label ">{{ form.faq.label }}</label>
                                         <input id="id_faq_revision" type="hidden" value="{{ history_object.faq }}" class="history">
                                         {{ form.faq }}
-                                        <p>{% trans "2500 character limit, including spaces." %}</p>
+                                        <p>{% trans "Recommended 2500 character limit, including spaces." %}</p>
                                             {% if form.faq.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">
@@ -601,7 +601,7 @@
                                         <label class="field-label ">{{ form.learner_testimonial.label }}</label>
                                          <input id="id_learner_testimonial_revision" type="hidden" value="{{ history_object.learner_testimonial }}" class="history">
                                         {{ form.learner_testimonial }}
-                                        <p>{% trans "500 character limit, including spaces." %}</p>
+                                        <p>{% trans "Recommended 500 character limit, including spaces." %}</p>
                                             {% if form.learner_testimonial.errors %}
                                                 <div class="field-message has-error">
                                                     <span class="field-message-content">
@@ -611,6 +611,31 @@
                                             {% endif %}
                                     </div>
                                 </div>
+
+                                <div class="field-title">{{ form.additional_information.label }} <span class="optional float-right">Optional for announcement</span></div>
+                                <div class="row show-comparison-container">
+                                    <div class="col col-6 help-text">
+                                        <p>{% trans "Any additional information to be provided to learners." %}</p>
+                                    </div>
+                                        <div id="id_additional_information_parent" class="comparison-container">
+                                            <a id="close-comparison" class="close " href="#!">x</a>
+                                            <div id="id_additional_information_comparison" class="show-comparison-data"></div>
+                                        </div>
+                                    <div class="col col-6 help-text">
+                                        <label class="field-label ">{{ form.additional_information.label }}</label>
+                                        <input id="id_additional_information_revision" type="hidden" value="{{ history_object.additional_information }}" class="history">
+                                        {{ form.additional_information }}
+                                        <p>{% trans "Recommended 2500 character limit, including spaces." %}</p>
+                                            {% if form.additional_information.errors %}
+                                                <div class="field-message has-error">
+                                                    <span class="field-message-content">
+                                                        {{ form.additional_information.errors|escape }}
+                                                    </span>
+                                                </div>
+                                            {% endif %}
+                                    </div>
+                                </div>
+
                                 {% if entitlement_form %}
                                     <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %}</span></div>
                                     <div class="row">

@@ -130,6 +130,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'outcome': publisher_course.expected_learnings,
             'prerequisites_raw': publisher_course.prerequisites,
             'syllabus_raw': publisher_course.syllabus,
+            'additional_information': publisher_course.additional_information,
             'faq': publisher_course.faq,
             'learner_testimonials': publisher_course.learner_testimonial,
         }

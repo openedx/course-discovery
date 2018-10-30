@@ -134,13 +134,15 @@ class CourseForm(BaseForm):
     )
 
     learner_testimonial = forms.CharField(
-        label=_('Learner Testimonial'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=500)]
+        label=_('Learner Testimonial'), widget=forms.Textarea, required=False
     )
 
     faq = forms.CharField(
-        label=_('FAQ'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
+        label=_('FAQ'), widget=forms.Textarea, required=False
+    )
+
+    additional_information = forms.CharField(
+        label=_('Additional Information'), widget=forms.Textarea, required=False
     )
 
     syllabus = forms.CharField(
@@ -160,7 +162,7 @@ class CourseForm(BaseForm):
             'expected_learnings', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'image', 'team_admin',
             'level_type', 'organization', 'is_seo_review', 'syllabus',
-            'learner_testimonial', 'faq', 'video_link',
+            'learner_testimonial', 'faq', 'video_link', 'additional_information'
         )
 
     def __init__(self, *args, **kwargs):
