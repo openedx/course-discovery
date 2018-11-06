@@ -394,6 +394,7 @@ class Course(TimeStampedModel):
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
     learner_testimonials = models.TextField(default=None, null=True, blank=True)
+    has_ofac_restrictions = models.BooleanField(default=False, verbose_name=_('Course Has OFAC Restrictions'))
 
     # TODO Remove this field.
     number = models.CharField(

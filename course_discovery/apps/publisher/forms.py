@@ -152,6 +152,12 @@ class CourseForm(BaseForm):
 
     add_new_run = forms.BooleanField(required=False)
 
+    has_ofac_restrictions = forms.BooleanField(
+        label=_('OFAC Restriction?'),
+        widget=forms.RadioSelect(
+            choices=((True, _("Yes")), (False, _("No")))), initial=False, required=False
+    )
+
     class Meta:
         model = Course
         widgets = {
@@ -162,7 +168,7 @@ class CourseForm(BaseForm):
             'expected_learnings', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'image', 'team_admin',
             'level_type', 'organization', 'is_seo_review', 'syllabus',
-            'learner_testimonial', 'faq', 'video_link', 'additional_information'
+            'learner_testimonial', 'faq', 'video_link', 'additional_information', 'has_ofac_restrictions'
         )
 
     def __init__(self, *args, **kwargs):

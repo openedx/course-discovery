@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-02 13:00+0000\n"
+"POT-Creation-Date: 2018-11-06 18:16+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -271,10 +271,12 @@ msgid "eligible for one-click purchase"
 msgstr "élïgïßlé för öné-çlïçk pürçhäsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
+#: apps/publisher/forms.py
 msgid "Yes"
 msgstr "Ýés Ⱡ'σяєм#"
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
+#: apps/publisher/forms.py
 msgid "No"
 msgstr "Nö Ⱡ'σя#"
 
@@ -414,6 +416,10 @@ msgstr "Àdd thé çöürsé ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
 msgstr "FÀQ Ⱡ'σяєм#"
+
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Course Has OFAC Restrictions"
+msgstr "Çöürsé Häs ÖFÀÇ Réstrïçtïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
@@ -1115,6 +1121,10 @@ msgstr "Léärnér Téstïmönïäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт �
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Syllabus"
 msgstr "Sýlläßüs Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/publisher/forms.py
+msgid "OFAC Restriction?"
+msgstr "ÖFÀÇ Réstrïçtïön? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/forms.py
 msgid ""
@@ -2146,6 +2156,10 @@ msgid "Course Level"
 msgstr "Çöürsé Lévél Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/templates/publisher/course_detail.html
+msgid "Has OFAC Restrictions"
+msgstr "Häs ÖFÀÇ Réstrïçtïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "About Video Link"
 msgstr "Àßöüt Vïdéö Lïnk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
@@ -2611,6 +2625,14 @@ msgid "Recommended 2500 character limit, including spaces."
 msgstr ""
 "Réçömméndéd 2500 çhäräçtér lïmït, ïnçlüdïng späçés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"Checking this box will add the OFAC language to the FAQ on the marketing "
+"page."
+msgstr ""
+"Çhéçkïng thïs ßöx wïll ädd thé ÖFÀÇ längüägé tö thé FÀQ ön thé märkétïng "
+"pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""

@@ -102,6 +102,7 @@ class CourseFactory(factory.DjangoModelFactory):
     additional_information = FuzzyText()
     faq = FuzzyText()
     learner_testimonials = FuzzyText()
+    has_ofac_restrictions = True
 
     class Meta:
         model = Course
