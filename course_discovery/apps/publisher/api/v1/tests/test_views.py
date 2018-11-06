@@ -185,6 +185,7 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course.learner_testimonials == publisher_course.learner_testimonial
         assert discovery_course.faq == publisher_course.faq
         assert discovery_course.additional_information == publisher_course.additional_information
+        assert discovery_course.has_ofac_restrictions == publisher_course.has_ofac_restrictions
         expected = list(publisher_course_run.course.organizations.all())
         assert list(discovery_course.authoring_organizations.all()) == expected
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}

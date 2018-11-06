@@ -661,6 +661,8 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
 
         user = self.request.user
         course = self.object
+        # Because this is a boolean field, our downstream view code needs to render a string
+        course.has_ofac_restrictions = 'Yes' if course.has_ofac_restrictions else 'No'
 
         context['can_edit'] = mixins.check_course_organization_permission(
             user, course, OrganizationExtension.EDIT_COURSE

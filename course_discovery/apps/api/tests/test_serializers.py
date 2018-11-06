@@ -175,6 +175,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'additional_information': course.additional_information,
             'faq': course.faq,
             'learner_testimonials': course.learner_testimonials,
+            'has_ofac_restrictions': course.has_ofac_restrictions,
         })
 
         return expected
