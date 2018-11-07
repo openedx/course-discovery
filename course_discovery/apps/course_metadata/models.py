@@ -545,7 +545,6 @@ class CourseRun(TimeStampedModel):
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     video_translation_languages = models.ManyToManyField(
         LanguageTag, blank=True, related_name='+')
-    learner_testimonials = models.TextField(blank=True, null=True)
     slug = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     hidden = models.BooleanField(default=False)
     mobile_available = models.BooleanField(default=False)
