@@ -183,3 +183,15 @@
 .error-text {
     color: #b20610;
 }
+
+.recommended-text {
+    .icon {
+        display: none;
+    }
+    &.alert-warning {
+        .icon {
+            display: inline;
+            @include margin-right(10px);
+        }
+    }
+}
