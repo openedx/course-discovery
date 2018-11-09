@@ -14,11 +14,6 @@
             @include float(left);
             @include padding(20px, 20px, 20px, 20px);
         }
-
-        .layout-col {
-
-            
-        }
     }
 
     .layout, .layout-flush {
@@ -376,7 +371,7 @@
 
 
 .approval-widget, .course-widgets, .edit-history-widget {
-  
+
     .btn-course-edit, .btn-courserun-edit, .btn-change-state, .btn-preview, .btn-save-preview-url, .btn-edit-preview-url {
         @include padding(2px, 20px, 3px, 20px);
         @include float(right);
@@ -579,6 +574,12 @@
   .select2-selection__choice, .select2-selection__clear{
     display: none;
   }
+}
+
+#select2-id_staff-results {
+  // This makes the instructor search result box a little taller, to hold more instructors.
+  // Default was 200px, which was ~2 instructors. At 400px, it's about 3.5 instructors.
+  max-height: 400px;
 }
 
 .parent-course-history {

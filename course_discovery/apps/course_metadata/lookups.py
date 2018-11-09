@@ -47,20 +47,25 @@ class OrganizationAutocomplete(autocomplete.Select2QuerySetView):
 
 class PersonAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
+        words = self.q and self.q.split()
+        if not words:
+            return []
+
+        # Match each word separately
         queryset = Person.objects.all()
-        if self.q:
-            qs = queryset.filter(Q(given_name__icontains=self.q) | Q(family_name__icontains=self.q))
+        for word in words:
+            # Progressively filter the same queryset - every word must match something
+            queryset = queryset.filter(Q(given_name__icontains=word) | Q(family_name__icontains=word))
 
-            if not qs:
-                try:
-                    q_uuid = uuid.UUID(self.q).hex
-                    qs = queryset.filter(uuid=q_uuid)
-                except ValueError:
-                    pass
+        # No match? Maybe they gave us a UUID...
+        if not queryset:
+            try:
+                q_uuid = uuid.UUID(self.q).hex
+                queryset = Person.objects.filter(uuid=q_uuid)
+            except ValueError:
+                pass
 
-            return qs
-
-        return []
+        return queryset
 
     def get_result_label(self, result):
         http_referer = self.request.META.get('HTTP_REFERER')

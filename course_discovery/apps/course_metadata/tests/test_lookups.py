@@ -96,27 +96,28 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
             self.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
 
         self.user.groups.add(self.organization_extensions[0].group)
-        first_instructor = PersonFactory(given_name="First Instructor")
-        second_instructor = PersonFactory(given_name="Second Instructor")
+        first_instructor = PersonFactory(given_name="First", family_name="Instructor")
+        second_instructor = PersonFactory(given_name="Second", family_name="Instructor")
         self.instructors = [first_instructor, second_instructor]
 
         for instructor in self.instructors:
             PositionFactory(organization=self.organizations[0], title="professor", person=instructor)
 
+    def query(self, q):
+        return self.client.get(
+            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q=q)
+        )
+
     def test_instructor_autocomplete(self):
         """ Verify instructor autocomplete returns the data. """
-        response = self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins')
-        )
+        response = self.query('ins')
         self._assert_response(response, 2)
 
         # update first instructor's name
         self.instructors[0].given_name = 'dummy_name'
         self.instructors[0].save()
 
-        response = self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='dummy')
-        )
+        response = self.query('dummy')
         self._assert_response(response, 1)
 
     def test_instructor_autocomplete_un_authorize_user(self):
@@ -125,13 +126,26 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         response = self.client.get(reverse('admin_metadata:person-autocomplete'))
         self._assert_response(response, 0)
 
+    def test_instructor_autocomplete_spaces(self):
+        """ Verify instructor autocomplete allows spaces. """
+        response = self.query('sec ins')
+        self._assert_response(response, 1)
+
+    def test_instructor_autocomplete_no_results(self):
+        """ Verify instructor autocomplete correctly finds no matches if string doesn't match. """
+        response = self.query('second nope')
+        self._assert_response(response, 0)
+
+    def test_instructor_autocomplete_last_name_first_name(self):
+        """ Verify instructor autocomplete allows last name first. """
+        response = self.query('instructor first')
+        self._assert_response(response, 1)
+
     def test_instructor_position_in_label(self):
         """ Verify that instructor label contains position of instructor if it exists."""
         position_title = 'professor'
 
-        response = self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins')
-        )
+        response = self.query('ins')
 
         self.assertContains(response, '<p>{position} at {organization}</p>'.format(
             position=position_title,
@@ -139,9 +153,7 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
 
     def test_instructor_image_in_label(self):
         """ Verify that instructor label contains profile image url."""
-        response = self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins')
-        )
+        response = self.query('ins')
         self.assertContains(response, self.instructors[0].get_profile_image_url)
         self.assertContains(response, self.instructors[1].get_profile_image_url)
 
@@ -154,17 +166,13 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
     def test_instructor_autocomplete_with_uuid(self):
         """ Verify instructor autocomplete returns the data with valid uuid. """
         uuid = self.instructors[0].uuid
-        response = self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q=uuid)
-        )
+        response = self.query(uuid)
         self._assert_response(response, 1)
 
     def test_instructor_autocomplete_with_invalid_uuid(self):
         """ Verify instructor autocomplete returns empty list without giving error. """
         uuid = 'invalid-uuid'
-        response = self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q=uuid)
-        )
+        response = self.query(uuid)
         self._assert_response(response, 0)
 
     def test_instructor_autocomplete_without_staff_user(self):
@@ -174,9 +182,7 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         self.client.logout()
         self.client.login(username=non_staff_user.username, password=USER_PASSWORD)
 
-        response = self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins')
-        )
+        response = self.query('ins')
         self._assert_response(response, 2)
 
     def test_instructor_autocomplete_without_login(self):
