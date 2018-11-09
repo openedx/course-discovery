@@ -280,7 +280,7 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         expected_values = {
             'given_name': data['field_person_first_middle_name'],
             'family_name': data['field_person_last_name'],
-            'bio': self.loader.clean_html(data['field_person_resume']['value']),
+            'bio': self.loader.clean_html(data['field_person_resume']['value']) if data['field_person_resume'] else '',
             'profile_image_url': data['field_person_image']['url'],
             'slug': data['url'].split('/')[-1],
             'profile_url': data['url']
