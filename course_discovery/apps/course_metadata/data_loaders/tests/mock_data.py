@@ -1198,9 +1198,7 @@ MARKETING_SITE_API_PERSON_BODIES = [
         'field_person_salutation': None,
         'field_person_position': None,
         'field_person_role': '1',
-        'field_person_resume': {
-            'value': '',
-        },
+        'field_person_resume': [],
         'field_person_image': {
             'url': 'https://www.edx.org/sites/default/files/person/image/positionless.jpg',
         },
@@ -1219,9 +1217,7 @@ MARKETING_SITE_API_PERSON_BODIES = [
         'field_person_salutation': None,
         'field_person_position': None,
         'field_person_role': '1',
-        'field_person_resume': {
-            'value': '',
-        },
+        'field_person_resume': [],
         'field_person_image': {
             'url': 'https://www.edx.org/sites/default/files/person/image/titleless.jpg',
         },
@@ -1248,9 +1244,7 @@ MARKETING_SITE_API_PERSON_BODIES = [
         'field_person_salutation': None,
         'field_person_position': None,
         'field_person_role': '1',
-        'field_person_resume': {
-            'value': '',
-        },
+        'field_person_resume': [],
         'field_person_image': {
             'url': 'https://www.edx.org/sites/default/files/person/image/orgless.jpg',
         },
