@@ -88,15 +88,13 @@ class CourseForm(BaseForm):
     )
     short_description = forms.CharField(
         label=_('Short Description'),
-        widget=forms.Textarea, required=False, validators=[validate_text_count(max_length=255)]
+        widget=forms.Textarea, required=False,
     )
     full_description = forms.CharField(
         label=_('Long Description'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
     )
     prerequisites = forms.CharField(
         label=_('Prerequisites'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=1000)]
     )
 
     # users will be loaded through AJAX call based on organization
@@ -130,7 +128,6 @@ class CourseForm(BaseForm):
 
     expected_learnings = forms.CharField(
         label=_('What You Will Learn'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
     )
 
     learner_testimonial = forms.CharField(
@@ -147,7 +144,6 @@ class CourseForm(BaseForm):
 
     syllabus = forms.CharField(
         label=_('Syllabus'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
     )
 
     add_new_run = forms.BooleanField(required=False)

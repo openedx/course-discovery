@@ -198,14 +198,7 @@
                                         <input id="id_short_description_revision" type="hidden" value="{{ history_object.short_description }}" class="history">
                                         <label class="field-label ">{{ form.short_description.label_tag }} <span class="required">*</span></label>
                                         {{ form.short_description }}
-                                        <p>{% trans "255 character limit, including spaces." %}</p>
-                                            {% if form.short_description.errors %}
-                                                <div class="field-message has-error">
-                                                    <span class="field-message-content">
-                                                        {{ form.short_description.errors|escape }}
-                                                    </span>
-                                                </div>
-                                            {% endif %}
+                                        <p class="recommended-text" id="id_short_description_recommended_character_limit" data-character-limit=255><span class="icon fa fa-warning"></span>{% trans "Recommended 255 character limit, including spaces." %}</p>
                                     </div>
                                 </div>
 
@@ -250,14 +243,7 @@
                                         <label class="field-label ">{{ form.full_description.label_tag }} <span class="required">*</span></label>
                                         <input id="id_full_description_revision" type="hidden" value="{{ history_object.full_description }}" class="history">
                                         {{ form.full_description }}
-                                        <p>{% trans "2500 character limit, including spaces." %}</p>
-                                            {% if form.full_description.errors %}
-                                                <div class="field-message has-error">
-                                                    <span class="field-message-content">
-                                                        {{ form.full_description.errors|escape }}
-                                                    </span>
-                                                </div>
-                                            {% endif %}
+                                        <p class="recommended-text" id="id_full_description_recommended_character_limit" data-character-limit=2500><span class="icon fa fa-warning"></span>{% trans "Recommended 2500 character limit, including spaces." %}</p>
                                     </div>
                                 </div>
 
@@ -298,14 +284,7 @@
                                         <label class="field-label ">{{ form.expected_learnings.label_tag }} <span class="required">*</span></label>
                                         <input id="id_expected_learnings_revision" type="hidden" value="{{ history_object.expected_learnings }}" class="history">
                                         {{ form.expected_learnings }}
-                                        <p>{% trans "2500 character limit, including spaces." %}</p>
-                                            {% if form.expected_learnings.errors %}
-                                                <div class="field-message has-error">
-                                                    <span class="field-message-content">
-                                                        {{ form.expected_learnings.errors|escape }}
-                                                    </span>
-                                                </div>
-                                            {% endif %}
+                                        <p class="recommended-text" id="id_expected_learnings_recommended_character_limit" data-character-limit=2500><span class="icon fa fa-warning"></span>{% trans "Recommended 2500 character limit, including spaces." %}</p>
                                     </div>
                                 </div>
 
@@ -391,7 +370,7 @@
                                         </div>
                                         <div id="tab-practices" class="content active">
                                             <ul>
-                                                <li>{% trans "Maximum 1000 characters." %}</li>
+                                                <li>{% trans "Recommended maximum 1000 characters." %}</li>
                                                 <li>{% trans "Specific knowledge learners must have to be successful in the course. If the course has no prerequisites, enter \"None\"." %}</li>
                                             </ul>
 
@@ -408,14 +387,7 @@
                                         <label class="field-label ">{{ form.prerequisites.label_tag }}</label>
                                         <input id="id_prerequisites_revision" type="hidden" value="{{ history_object.prerequisites }}" class="history">
                                         {{ form.prerequisites }}
-                                        <p>{% trans "1000 character limit, including spaces." %}</p>
-                                            {% if form.prerequisites.errors %}
-                                                <div class="field-message has-error">
-                                                    <span class="field-message-content">
-                                                        {{ form.prerequisites.errors|escape }}
-                                                    </span>
-                                                </div>
-                                            {% endif %}
+                                        <p class="recommended-text" id="id_prerequisites_recommended_character_limit" data-character-limit=1000><span class="icon fa fa-warning"></span>{% trans "Recommended 1000 character limit, including spaces." %}</p>
                                     </div>
                                 </div>
 
@@ -459,14 +431,7 @@
                                         <label class="field-label ">{{ form.syllabus.label_tag }}</label>
                                         <input id="id_syllabus_revision" type="hidden" value="{{ history_object.syllabus }}" class="history">
                                         {{ form.syllabus }}
-                                        <p>{% trans "2500 character limit, including spaces." %}</p>
-                                            {% if form.syllabus.errors %}
-                                                <div class="field-message has-error">
-                                                    <span class="field-message-content">
-                                                        {{ form.syllabus.errors|escape }}
-                                                    </span>
-                                                </div>
-                                            {% endif %}
+                                        <p class="recommended-text" id="id_syllabus_recommended_character_limit" data-character-limit=2500><span class="icon fa fa-warning"></span>{% trans "Recommended 2500 character limit, including spaces." %}</p>
                                     </div>
                                 </div>
 
@@ -498,17 +463,10 @@
                                         <label class="field-label ">{{ form.faq.label }}</label>
                                         <input id="id_faq_revision" type="hidden" value="{{ history_object.faq }}" class="history">
                                         {{ form.faq }}
-                                        <p>{% trans "Recommended 2500 character limit, including spaces." %}</p>
-                                            {% if form.faq.errors %}
-                                                <div class="field-message has-error">
-                                                    <span class="field-message-content">
-                                                        {{ form.faq.errors|escape }}
-                                                    </span>
-                                                </div>
-                                            {% endif %}
+                                        <p class="recommended-text" id="id_faq_recommended_character_limit" data-character-limit=2500><span class="icon fa fa-warning"></span>{% trans "Recommended 2500 character limit, including spaces." %}</p>
                                     </div>
                                 </div>
-                            
+
                                 {% if is_internal_user %}
                                     <div class="field-title">{{ form.has_ofac_restrictions.label|upper }} <span class="optional float-right">Optional for announcement</span></div>
                                     <div class="row show-comparison-container">
@@ -615,14 +573,7 @@
                                         <label class="field-label ">{{ form.learner_testimonial.label }}</label>
                                          <input id="id_learner_testimonial_revision" type="hidden" value="{{ history_object.learner_testimonial }}" class="history">
                                         {{ form.learner_testimonial }}
-                                        <p>{% trans "Recommended 500 character limit, including spaces." %}</p>
-                                            {% if form.learner_testimonial.errors %}
-                                                <div class="field-message has-error">
-                                                    <span class="field-message-content">
-                                                        {{ form.learner_testimonial.errors|escape }}
-                                                    </span>
-                                                </div>
-                                            {% endif %}
+                                        <p class="recommended-text" id="id_learner_testimonial_recommended_character_limit" data-character-limit=500><span class="icon fa fa-warning"></span>{% trans "Recommended 500 character limit, including spaces." %}</p>
                                     </div>
                                 </div>
 
@@ -639,14 +590,7 @@
                                         <label class="field-label ">{{ form.additional_information.label }}</label>
                                         <input id="id_additional_information_revision" type="hidden" value="{{ history_object.additional_information }}" class="history">
                                         {{ form.additional_information }}
-                                        <p>{% trans "Recommended 2500 character limit, including spaces." %}</p>
-                                            {% if form.additional_information.errors %}
-                                                <div class="field-message has-error">
-                                                    <span class="field-message-content">
-                                                        {{ form.additional_information.errors|escape }}
-                                                    </span>
-                                                </div>
-                                            {% endif %}
+                                        <p class="recommended-text" id="id_additional_information_recommended_character_limit" data-character-limit=2500><span class="icon fa fa-warning"></span>{% trans "Recommended 2500 character limit, including spaces." %}</p>
                                     </div>
                                 </div>
 

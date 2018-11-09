@@ -2949,51 +2949,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data['title'] = ''
         self.AssertEditFailedWithError(post_data, error='This field is required')
 
-    @ddt.data(
-        ('short_description', 255),
-        ('full_description', 2500),
-        ('prerequisites', 1000),
-        ('expected_learnings', 2500),
-        ('syllabus', 2500)
-    )
-    @ddt.unpack
-    def test_max_length_exceed_error(self, field, max_length):
-        """
-        Verify that page shows error if any text area exceeds the max length.
-        """
-        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-        post_data = self._post_data(self.organization_extension)
-
-        post_data[field] = self._generate_random_html(max_length + 10)
-        self.AssertEditFailedWithError(
-            post_data,
-            'Ensure this value has at most {} characters'.format(max_length)
-        )
-        post_data[field] = self._generate_random_html(max_length)
-        self.AssertEditCourseSuccess(post_data)
-
-    @ddt.data(
-        ('short_description', 255),
-        ('full_description', 2500),
-        ('prerequisites', 1000),
-        ('expected_learnings', 2500),
-        ('learner_testimonial', 500),
-        ('faq', 2500),
-        ('syllabus', 2500)
-    )
-    @ddt.unpack
-    def test_max_length_validation_pass(self, field, max_length):
-        """
-        Verify that page saves the text area html in db.
-        """
-        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
-        post_data = self._post_data(self.organization_extension)
-
-        post_data[field] = self._generate_random_html(max_length)
-        self.AssertEditCourseSuccess(post_data)
-        course = Course.objects.get(id=self.course.id)
-        self.assertEqual(post_data[field].strip(), getattr(course, field).strip())
-
     def test_edit_page_with_revision_changes(self):
         """
         Verify that page contains the history object.

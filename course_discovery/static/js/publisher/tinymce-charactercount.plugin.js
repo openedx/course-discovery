@@ -1,6 +1,6 @@
 /**
  * Credit: https://amystechnotes.com/2015/05/06/tinymce-add-character-count/
- * This is a slightly modified version to work with more recent TinyMCE version, fix some code styling and don't trim 
+ * This is a slightly modified version to work with more recent TinyMCE version, fix some code styling and don't trim
  * trailing and leading whitespaces from count.
  */
 
@@ -34,6 +34,12 @@ tinymce.PluginManager.add('charactercount', function (editor) {
     var decoded = decodeHtml(tx);
     var decodedStripped = decoded.replace(/(<([^>]+)>)/ig, "").trim();
     var tc = decodedStripped.length;
+    var recommendedText = $('#' + editor.id + '_recommended_character_limit')
+    if (tc > recommendedText.data('character-limit')) {
+      recommendedText.addClass('alert alert-warning');
+    } else {
+      recommendedText.removeClass('alert alert-warning');
+    }
     return tc;
   };
 
