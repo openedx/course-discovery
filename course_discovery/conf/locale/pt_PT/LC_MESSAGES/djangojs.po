@@ -5,13 +5,13 @@
 # 
 # Translators:
 # Waldo Luís Ribeiro, 2016
-# MS, 2018
+# MS <manuelarodsilva@gmail.com>, 2018
 # Rui Ribeiro <rui.ribeiro@fccn.pt>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-02 13:00+0000\n"
+"POT-Creation-Date: 2018-11-09 17:52+0000\n"
 "PO-Revision-Date: 2018-10-29 16:10+0000\n"
 "Last-Translator: Rui Ribeiro <rui.ribeiro@fccn.pt>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/open-edx/edx-platform/language/pt_PT/)\n"
