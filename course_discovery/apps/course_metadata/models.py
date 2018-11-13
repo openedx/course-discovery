@@ -514,8 +514,8 @@ class CourseRun(TimeStampedModel):
     enrollment_start = models.DateTimeField(null=True, blank=True)
     enrollment_end = models.DateTimeField(null=True, blank=True, db_index=True)
     announcement = models.DateTimeField(null=True, blank=True)
-    short_description_override = models.CharField(
-        max_length=350, default=None, null=True, blank=True,
+    short_description_override = models.TextField(
+        default=None, null=True, blank=True,
         help_text=_(
             "Short description specific for this run of a course. Leave this value blank to default to "
             "the parent course's short_description attribute."))
