@@ -1205,6 +1205,7 @@ MARKETING_SITE_API_PERSON_BODIES = [
         'field_person_areas_of_expertise': [],
         'field_person_major_works': [],
         'field_person_positions': [],
+        'field_person_social_links': [],
         'type': 'person',
         'title': 'Positionless',
         'url': 'https://www.edx.org/bio/positionless',
@@ -1233,6 +1234,34 @@ MARKETING_SITE_API_PERSON_BODIES = [
                     'title': 'edX',
                     'url': 'http://www.edx.org'
                 },
+            }
+        ],
+        'field_person_social_links': [
+            {
+                'field_person_social_link': {
+                    'title': 'Website',
+                    'url': 'http://ki.mit.edu/people/faculty/cima'
+                },
+                'field_person_social_link_type': 'generic',
+                'item_id': '5711',
+                'revision_id': '7761',
+                'field_name': 'field_person_social_links',
+                'archived': '0',
+                'uuid': 'da41b1e9-da0b-49e3-b207-f619f166b0e8',
+                'url': 'https://www.edx.org/field-collection/field-person-social-links/5711',
+            },
+            {
+                'field_person_social_link': {
+                    'title': '@Mikix',
+                    'url': 'http://twitter.com/edxonlinetesting'
+                },
+                'field_person_social_link_type': 'twitter',
+                'item_id': '5712',
+                'revision_id': '7762',
+                'field_name': 'field_person_social_links',
+                'archived': '0',
+                'uuid': 'da41b1e9-da0b-49e3-b207-f619f166b0e8',
+                'url': 'https://www.edx.org/field-collection/field-person-social-links/5712',
             }
         ],
         'type': 'person',
@@ -1264,6 +1293,7 @@ MARKETING_SITE_API_PERSON_BODIES = [
                 'field_person_position_org_link': []
             }
         ],
+        'field_person_social_links': [],
         'type': 'person',
         'title': 'Orgless',
         'url': 'https://www.edx.org/bio/orgless',

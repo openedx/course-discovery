@@ -43,8 +43,8 @@ from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumFactory,
     DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
     IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory, PersonFactory,
-    PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory,
-    SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
+    RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -1277,15 +1277,16 @@ class MinimalPersonSerializerTests(TestCase):
             'family_name': self.person.family_name,
             'bio': self.person.bio,
             'profile_image': image_field.to_representation(self.person.profile_image),
-            'profile_image_url': self.person.profile_image.url,
+            'profile_image_url': self.person.get_profile_image_url,
             'position': PositionSerializer(position).data,
             'works': [],
             'major_works': self.person.major_works,
             'urls': {
                 'facebook': None,
                 'twitter': None,
-                'blog': None
+                'blog': None,
             },
+            'urls_detailed': [],
             'slug': self.person.slug,
             'email': None,  # always None
         }
@@ -1299,6 +1300,43 @@ class MinimalPersonSerializerTests(TestCase):
         self.expected['profile_image_url'] = self.person.profile_image.url
         serializer = self.serializer(self.person, context=self.context)
         self.assertDictEqual(serializer.data, self.expected)
+
+    def test_social_networks(self):
+        facebook = PersonSocialNetworkFactory(person=self.person, type='facebook')
+        twitter = PersonSocialNetworkFactory(person=self.person, type='twitter', title='@MrTerry')
+        others = PersonSocialNetworkFactory(person=self.person, type='others')
+        self.expected['urls'] = {
+            'facebook': facebook.url,
+            'twitter': twitter.url,
+            'blog': None,
+        }
+        self.expected['urls_detailed'] = [
+            {
+                'type': facebook.type,
+                'url': facebook.url,
+                'title': facebook.display_title,
+            },
+            {
+                'type': twitter.type,
+                'url': twitter.url,
+                'title': twitter.display_title,
+            },
+            {
+                'type': others.type,
+                'url': others.url,
+                'title': others.display_title,
+            },
+        ]
+        serializer = self.serializer(self.person, context=self.context)
+        self.assertDictEqual(serializer.data, self.expected)
+
+        # Test display_title
+        # Test that empty string titles get changed to type when looking at display title for not OTHERS
+        self.assertEqual('Facebook', self.person.person_networks.get(type='facebook', title='').display_title)
+        # Test that defined titles are shown
+        self.assertEqual('@MrTerry', self.person.person_networks.get(type='twitter', title='@MrTerry').display_title)
+        # Test that empty string titles get changed to url when looking at display title for OTHERS
+        self.assertEqual(others.url, self.person.person_networks.get(type='others', title='').display_title)
 
 
 class PersonSerializerTests(MinimalPersonSerializerTests):
@@ -1546,15 +1584,16 @@ class PersonSearchModelSerializerTests(PersonSearchSerializerTest):
             'family_name': person.family_name,
             'bio': person.bio,
             'profile_image': image_field.to_representation(person.profile_image),
-            'profile_image_url': person.profile_image.url,
+            'profile_image_url': person.profile_image_url,
             'position': PositionSerializer(person.position).data,
             'works': [],
             'major_works': person.major_works,
             'urls': {
                 'facebook': None,
                 'twitter': None,
-                'blog': None
+                'blog': None,
             },
+            'urls_detailed': [],
             'slug': person.slug,
             'email': None,  # always None
             'content_type': 'person',

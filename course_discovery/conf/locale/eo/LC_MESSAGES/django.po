@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-27 16:29+0000\n"
+"POT-Creation-Date: 2018-11-28 16:07+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -322,22 +322,6 @@ msgid "Programs can only be activated if they have a banner image."
 msgstr ""
 "Prögräms çän önlý ßé äçtïvätéd ïf théý hävé ä ßännér ïmägé. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/models.py
-msgid "Facebook"
-msgstr "Fäçéßöök Ⱡ'σяєм ιρѕυм ∂#"
-
-#: apps/course_metadata/models.py
-msgid "Twitter"
-msgstr "Twïttér Ⱡ'σяєм ιρѕυм #"
-
-#: apps/course_metadata/models.py
-msgid "Blog"
-msgstr "Blög Ⱡ'σяєм ι#"
-
-#: apps/course_metadata/models.py
-msgid "Others"
-msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
@@ -891,6 +875,22 @@ msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 "Thésé prögräms äré för ä dïfférént pärtnér thän thé päthwäý ïtsélf: {} "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "Facebook"
+msgstr "Fäçéßöök Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/models.py
+msgid "Twitter"
+msgstr "Twïttér Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/models.py
+msgid "Blog"
+msgstr "Blög Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid "Others"
+msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
@@ -1556,27 +1556,12 @@ msgstr ""
 " ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
-msgid "Facebook URL"
-msgstr "Fäçéßöök ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+msgid "Major Works"
+msgstr "Mäjör Wörks Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "optional"
 msgstr "öptïönäl Ⱡ'σяєм ιρѕυм ∂#"
-
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
-msgid "Twitter URL"
-msgstr "Twïttér ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
-msgid "Blog URL"
-msgstr "Blög ÛRL Ⱡ'σяєм ιρѕυм ∂#"
-
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
-msgid "Major Works"
-msgstr "Mäjör Wörks Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "a list in HTML format (consider using &lt;ul&gt; or &lt;br&gt;)"
@@ -3273,18 +3258,6 @@ msgstr "Nämé Ⱡ'σяєм ι#"
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Profile URL "
 msgstr "Pröfïlé ÛRL  Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
-msgid "Facebook URL "
-msgstr "Fäçéßöök ÛRL  Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
-
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
-msgid "Twitter URL "
-msgstr "Twïttér ÛRL  Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
-msgid "Blog URL "
-msgstr "Blög ÛRL  Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Close"

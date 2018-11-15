@@ -224,10 +224,14 @@ class CourseRunWrapper(BaseWrapper):
                 'profile_url': staff.profile_url,
                 'bio': staff.bio,
                 'email': staff.email,
-                'social_networks': {
-                    staff.type: staff.value
+                'social_networks': [
+                    {
+                        'type': staff.type,
+                        'title': staff.title,
+                        'url': staff.url,
+                    }
                     for staff in staff.person_networks.all()
-                },
+                ],
                 'is_new': False if staff.profile_image_url else True
             }
 

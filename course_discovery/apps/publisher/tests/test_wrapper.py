@@ -175,7 +175,7 @@ class CourseRunWrapperTests(TestCase):
         self.course_run.save()
 
         facebook = PersonSocialNetworkFactory(person=staff_2, type='facebook')
-        twitter = PersonSocialNetworkFactory(person=staff_2, type='twitter')
+        twitter = PersonSocialNetworkFactory(person=staff_2, type='twitter', title='@MrTerry')
 
         expected = [
             {
@@ -183,7 +183,7 @@ class CourseRunWrapperTests(TestCase):
                 'full_name': staff.full_name,
                 'image_url': staff.get_profile_image_url,
                 'profile_url': staff.profile_url,
-                'social_networks': {},
+                'social_networks': [],
                 'bio': staff.bio,
                 'is_new': True,
                 'email': staff.email
@@ -196,12 +196,22 @@ class CourseRunWrapperTests(TestCase):
                 'organization': position.organization_name,
                 'profile_url': staff.profile_url,
                 'is_new': False,
-                'social_networks': {'facebook': facebook.value, 'twitter': twitter.value},
+                'social_networks': [
+                    {
+                        'type': facebook.type,
+                        'url': facebook.url,
+                        'title': facebook.title,
+                    },
+                    {
+                        'type': twitter.type,
+                        'url': twitter.url,
+                        'title': twitter.title,
+                    },
+                ],
                 'bio': staff_2.bio,
                 'email': staff_2.email
             }
         ]
-
         self.assertEqual(self.wrapped_course_run.course_staff, expected)
 
     def _change_state_and_owner(self, course_run_state):

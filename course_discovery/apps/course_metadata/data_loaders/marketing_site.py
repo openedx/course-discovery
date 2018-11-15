@@ -16,7 +16,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, Position, Subject
+    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, PersonSocialNetwork, Position, Subject
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -303,6 +303,7 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             person.save()
 
         self.set_position(person, data)
+        self.set_social_network(person, data)
 
         logger.info('Processed person with UUID [%s].', uuid)
         return person
@@ -344,6 +345,31 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
                     Position.objects.update_or_create(person=person, defaults=defaults)
         except:  # pylint: disable=bare-except
             logger.exception('Failed to set position for person with UUID [%s]!', uuid)
+
+    def set_social_network(self, person, data):
+        # Used for error messages
+        uuid = data['uuid']
+        try:
+            data = data.get('field_person_social_links')
+            if data:
+                PersonSocialNetwork.objects.filter(person=person).delete()
+                for social_link in data:
+                    if social_link['field_person_social_link']:
+                        url = social_link['field_person_social_link']['url']
+                        title = social_link['field_person_social_link']['title']
+                        link_type = social_link['field_person_social_link_type']
+                        # remapping from Drupal terminology to discovery
+                        link_type = 'others' if link_type == 'generic' else link_type
+                        defaults = {'url': url}
+                        PersonSocialNetwork.objects.update_or_create(
+                            person=person, type=link_type, title=title, defaults=defaults
+                        )
+        except Exception:  # pylint: disable=broad-except
+            logger.exception(
+                'Failed to set social network for person with UUID [{uuid}] and url [{url}].'.format(
+                    uuid=uuid, url=url
+                )
+            )
 
 
 class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):

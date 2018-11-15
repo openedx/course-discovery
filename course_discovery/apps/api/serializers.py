@@ -252,6 +252,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
     profile_image = StdImageSerializerField(required=False)
     works = serializers.SerializerMethodField()
     urls = serializers.SerializerMethodField()
+    urls_detailed = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
 
     @classmethod
@@ -264,7 +265,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
         model = Person
         fields = (
             'uuid', 'salutation', 'given_name', 'family_name', 'bio', 'slug', 'position',
-            'profile_image', 'partner', 'works', 'urls', 'email', 'profile_image_url', 'major_works',
+            'profile_image', 'partner', 'works', 'urls', 'urls_detailed', 'email', 'profile_image_url', 'major_works',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -279,7 +280,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
         social_networks = [network for network in obj.person_networks.all() if network.type == url_type]
 
         if social_networks:
-            return social_networks[0].value
+            return social_networks[0].url
 
     def get_urls(self, obj):
         return {
@@ -287,6 +288,13 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
             PersonSocialNetwork.TWITTER: self.get_social_network_url(PersonSocialNetwork.TWITTER, obj),
             PersonSocialNetwork.BLOG: self.get_social_network_url(PersonSocialNetwork.BLOG, obj),
         }
+
+    def get_urls_detailed(self, obj):
+        return [{
+            'type': network.type,
+            'title': network.display_title,
+            'url': network.url,
+        } for network in obj.person_networks.all()]
 
     def get_email(self, _obj):
         # For historical reasons, we provide this field. But for privacy reasons, we don't provide a value in this
@@ -307,39 +315,45 @@ class PersonSerializer(MinimalPersonSerializer):
 
     def validate(self, data):
         validated_data = super(PersonSerializer, self).validate(data)
-        validated_data['urls'] = self.initial_data.get('urls')
+        # validated_data['urls_detailed'] = self.initial_data.get('urls_detailed', [])
         return validated_data
 
     def create(self, validated_data):
         position_data = validated_data.pop('position')
-        urls_data = validated_data.pop('urls', {})
+        # urls_detailed_data = validated_data.pop('urls_detailed')
 
         person = Person.objects.create(**validated_data)
         Position.objects.create(person=person, **position_data)
 
-        person_social_networks = []
-        for url_type in [PersonSocialNetwork.FACEBOOK, PersonSocialNetwork.TWITTER, PersonSocialNetwork.BLOG]:
-            value = urls_data.get(url_type)
-            if value:
-                person_social_networks.append(PersonSocialNetwork(person=person, type=url_type, value=value))
-        PersonSocialNetwork.objects.bulk_create(person_social_networks)
+        # This is commented out while we update the UI on the add instructor modal.
+
+        # person_social_networks = []
+        # for url_detailed in urls_detailed_data:
+        #     if url_detailed['url']:
+        #         person_social_networks.append(PersonSocialNetwork(
+        #             person=person, type=url_detailed['type'], title=url_detailed['title'], url=url_detailed['url'],
+        #         ))
+        # PersonSocialNetwork.objects.bulk_create(person_social_networks)
 
         return person
 
     def update(self, instance, validated_data):
         position_data = validated_data.pop('position')
-        urls_data = validated_data.pop('urls', {})
+        # urls_detailed_data = validated_data.pop('urls_detailed', [])
 
         Position.objects.update_or_create(person=instance, defaults=position_data)
 
-        for url_type in [PersonSocialNetwork.FACEBOOK, PersonSocialNetwork.TWITTER, PersonSocialNetwork.BLOG]:
-            value = urls_data.get(url_type)
-            if value:
-                network, __ = PersonSocialNetwork.objects.get_or_create(person=instance, type=url_type)
-                network.value = value
-                network.save()
-            else:
-                PersonSocialNetwork.objects.filter(person=instance, type=url_type).delete()
+        # This is commented out while we update the UI on the edit instructor modal.
+
+        # PersonSocialNetwork.objects.filter(person=instance).delete()
+        # for url_detailed in urls_detailed_data:
+        #     url = url_detailed['url']
+        #     if url:
+        #         network, __ = PersonSocialNetwork.objects.get_or_create(
+        #             person=instance, type=url_detailed['type'], title=url_detailed['title'],
+        #         )
+        #         network.url = url
+        #         network.save()
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

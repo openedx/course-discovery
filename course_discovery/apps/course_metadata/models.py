@@ -86,30 +86,6 @@ class AbstractTitleDescriptionModel(TimeStampedModel):
         abstract = True
 
 
-class AbstractSocialNetworkModel(TimeStampedModel):
-    """ SocialNetwork model. """
-    FACEBOOK = 'facebook'
-    TWITTER = 'twitter'
-    BLOG = 'blog'
-    OTHERS = 'others'
-
-    SOCIAL_NETWORK_CHOICES = (
-        (FACEBOOK, _('Facebook')),
-        (TWITTER, _('Twitter')),
-        (BLOG, _('Blog')),
-        (OTHERS, _('Others')),
-    )
-
-    type = models.CharField(max_length=15, choices=SOCIAL_NETWORK_CHOICES, db_index=True)
-    value = models.CharField(max_length=500)
-
-    def __str__(self):
-        return '{type}: {value}'.format(type=self.type, value=self.value)
-
-    class Meta(object):
-        abstract = True
-
-
 class Image(AbstractMediaModel):
     """ Image model. """
     height = models.IntegerField(null=True, blank=True)
@@ -331,10 +307,15 @@ class Person(TimeStampedModel):
 
     @property
     def get_profile_image_url(self):
-        if self.profile_image and hasattr(self.profile_image, 'url'):
+        # self.profile_image_url comes from Drupal which is currently the source
+        # of truth so we want to prefer that over self.profile_image.url which
+        # comes from discovery
+        if self.profile_image_url:
+            return self.profile_image_url
+        elif self.profile_image and hasattr(self.profile_image, 'url'):
             return self.profile_image.url
         else:
-            return self.profile_image_url
+            return None
 
 
 class Position(TimeStampedModel):
@@ -1661,30 +1642,44 @@ class Pathway(TimeStampedModel):
             raise ValidationError(msg.format(', '.join(bad_programs)))  # pylint: disable=no-member
 
 
-class PersonSocialNetwork(AbstractSocialNetworkModel):
+class PersonSocialNetwork(TimeStampedModel):
     """ Person Social Network model. """
+    FACEBOOK = 'facebook'
+    TWITTER = 'twitter'
+    BLOG = 'blog'
+    OTHERS = 'others'
+
+    SOCIAL_NETWORK_CHOICES = {
+        FACEBOOK: _('Facebook'),
+        TWITTER: _('Twitter'),
+        BLOG: _('Blog'),
+        OTHERS: _('Others'),
+    }
+
+    type = models.CharField(max_length=15, choices=list(SOCIAL_NETWORK_CHOICES.items()), db_index=True)
+    url = models.CharField(max_length=500)
+    title = models.CharField(max_length=255, blank=True)
     person = models.ForeignKey(Person, related_name='person_networks')
 
     class Meta(object):
         verbose_name_plural = 'Person SocialNetwork'
 
         unique_together = (
-            ('person', 'type'),
+            ('person', 'type', 'title'),
         )
         ordering = ['created']
 
+    def __str__(self):
+        return '{title}: {url}'.format(title=self.display_title, url=self.url)
 
-class CourseRunSocialNetwork(AbstractSocialNetworkModel):
-    """ CourseRun Social Network model. """
-    course_run = models.ForeignKey(CourseRun, related_name='course_run_networks')
-
-    class Meta(object):
-        verbose_name_plural = 'CourseRun SocialNetwork'
-
-        unique_together = (
-            ('course_run', 'type'),
-        )
-        ordering = ['created']
+    @property
+    def display_title(self):
+        if self.title:
+            return self.title
+        elif self.type == self.OTHERS:
+            return self.url
+        else:
+            return self.SOCIAL_NETWORK_CHOICES[self.type]
 
 
 class PersonWork(AbstractValueModel):
