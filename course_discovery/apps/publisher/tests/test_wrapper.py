@@ -124,10 +124,10 @@ class CourseRunWrapperTests(TestCase):
 
     def test_is_self_paced(self):
         """ Verify that the wrapper return the is_self_paced. """
-        self.course_run.pacing_type = CourseRunPacing.Instructor
+        self.course_run.pacing_type_temporary = CourseRunPacing.Instructor
         self.course_run.save()
         self.assertFalse(self.wrapped_course_run.is_self_paced)
-        self.course_run.pacing_type = CourseRunPacing.Self
+        self.course_run.pacing_type_temporary = CourseRunPacing.Self
         self.course_run.save()
         self.assertTrue(self.wrapped_course_run.is_self_paced)
 
@@ -135,7 +135,7 @@ class CourseRunWrapperTests(TestCase):
         """ Verify that the wrapper return the mdc_submission_due_date. """
         current_date = datetime.today()
         expected_date = current_date - timedelta(days=10)
-        self.course_run.start = current_date
+        self.course_run.start_date_temporary = current_date
         self.course_run.save()
         self.assertEqual(self.wrapped_course_run.mdc_submission_due_date, expected_date)
 

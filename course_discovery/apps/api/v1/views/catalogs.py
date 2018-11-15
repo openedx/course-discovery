@@ -1,7 +1,7 @@
 import datetime
 
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import StreamingHttpResponse
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route
@@ -90,8 +90,12 @@ class CatalogViewSet(viewsets.ModelViewSet):
         serializer: serializers.CatalogCourseSerializer
         """
         catalog = self.get_object()
-        queryset = catalog.courses().available()
-        course_runs = CourseRun.objects.active().enrollable().marketable()
+
+        queryset = catalog.courses()
+        course_runs = CourseRun.objects.all()
+        if not catalog.include_archived:
+            queryset = queryset.available()
+            course_runs = course_runs.active().enrollable().marketable()
 
         queryset = serializers.CatalogCourseSerializer.prefetch_queryset(
             self.request.site.partner,
@@ -100,7 +104,9 @@ class CatalogViewSet(viewsets.ModelViewSet):
         )
 
         page = self.paginate_queryset(queryset)
-        serializer = serializers.CatalogCourseSerializer(page, many=True, context={'request': request})
+        serializer = serializers.CatalogCourseSerializer(
+            page, many=True, context={'request': request, 'include_archived': catalog.include_archived}
+        )
         return self.get_paginated_response(serializer.data)
 
     @detail_route()
@@ -167,7 +173,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         )
         data = CourseRunCSVRenderer().render(serializer.data)
 
-        response = HttpResponse(data, content_type='text/csv')
+        response = StreamingHttpResponse(data, content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="catalog_{id}_{date}.csv"'.format(
             id=id, date=datetime.datetime.utcnow().strftime('%Y-%m-%d-%H-%M')
         )

@@ -4,7 +4,7 @@ from haystack import indexes
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Degree, Person, Position, Program
 
 BASE_SEARCH_INDEX_FIELDS = (
     'aggregation_key',
@@ -139,7 +139,18 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     model = Course
 
     uuid = indexes.CharField(model_attr='uuid')
+    card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
     org = indexes.CharField()
+
+    status = indexes.CharField(model_attr='course_runs__status')
+    start = indexes.DateTimeField(model_attr='course_runs__start', null=True)
+    end = indexes.DateTimeField(model_attr='course_runs__end', null=True)
+    enrollment_start = indexes.DateTimeField(model_attr='course_runs__enrollment_start', null=True)
+    enrollment_end = indexes.DateTimeField(model_attr='course_runs__enrollment_end', null=True)
+    availability = indexes.CharField(model_attr='course_runs__availability')
+    first_enrollable_paid_seat_price = indexes.IntegerField(null=True)
+    subject_uuids = indexes.MultiValueField()
+
     course_runs = indexes.MultiValueField()
     expected_learning_items = indexes.MultiValueField()
 
@@ -162,6 +173,12 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         if course_run:
             return CourseKey.from_string(course_run.key).org
         return None
+
+    def prepare_first_enrollable_paid_seat_price(self, obj):
+        return obj.first_enrollable_paid_seat_price
+
+    def prepare_subject_uuids(self, obj):
+        return [str(subject.uuid) for subject in obj.subjects.all()]
 
 
 class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
@@ -197,6 +214,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     subject_uuids = indexes.MultiValueField()
     has_enrollable_paid_seats = indexes.BooleanField(null=False)
     first_enrollable_paid_seat_sku = indexes.CharField(null=True)
+    first_enrollable_paid_seat_price = indexes.IntegerField(null=True)
     paid_seat_enrollment_end = indexes.DateTimeField(null=True)
     license = indexes.MultiValueField(model_attr='license', faceted=True)
     has_enrollable_seats = indexes.BooleanField(model_attr='has_enrollable_seats', null=False)
@@ -211,6 +229,9 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_first_enrollable_paid_seat_sku(self, obj):
         return obj.first_enrollable_paid_seat_sku()
+
+    def prepare_first_enrollable_paid_seat_price(self, obj):
+        return obj.first_enrollable_paid_seat_price
 
     def prepare_is_current_and_still_upgradeable(self, obj):
         return obj.is_current_and_still_upgradeable()
@@ -260,6 +281,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     subtitle = indexes.CharField(model_attr='subtitle')
     type = indexes.CharField(model_attr='type__name', faceted=True)
     marketing_url = indexes.CharField(null=True)
+    search_card_display = indexes.MultiValueField()
     organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations = indexes.MultiValueField(faceted=True)
     authoring_organizations_autocomplete = indexes.NgramField(boost=ORG_FIELD_BOOST)
@@ -307,3 +329,38 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
 
     def prepare_language(self, obj):
         return [self._prepare_language(language) for language in obj.languages]
+
+    def prepare_search_card_display(self, obj):
+        try:
+            degree = Degree.objects.get(uuid=obj.uuid)
+        except Degree.DoesNotExist:
+
+            return []
+        return [degree.search_card_ranking, degree.search_card_cost, degree.search_card_courses]
+
+
+class PersonIndex(BaseIndex, indexes.Indexable):
+    model = Person
+    uuid = indexes.CharField(model_attr='uuid')
+    salutation = indexes.CharField(model_attr='salutation', null=True)
+    full_name = indexes.CharField(model_attr='full_name')
+    partner = indexes.CharField(null=True)
+    bio = indexes.CharField(model_attr='bio', null=True)
+    bio_language = indexes.CharField(model_attr='bio_language', null=True)
+    get_profile_image_url = indexes.CharField(model_attr='get_profile_image_url', null=True)
+    position = indexes.MultiValueField()
+
+    def prepare_aggregation_key(self, obj):
+        return 'person:{}'.format(obj.uuid)
+
+    def prepare_position(self, obj):
+        try:
+            position = Position.objects.get(person=obj)
+        except Position.DoesNotExist:
+            return []
+        return [position.title, position.organization_override]
+
+    def prepare_bio_language(self, obj):
+        if obj.bio_language:
+            return obj.bio_language.name
+        return

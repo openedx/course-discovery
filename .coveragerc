@@ -6,6 +6,7 @@ concurrency=multiprocessing
 omit =
     course_discovery/settings*
     course_discovery/conf*
+    course_discovery/apps/course_metadata/tests/factories.py
     *conftest.py
     *wsgi.py
     *migrations*

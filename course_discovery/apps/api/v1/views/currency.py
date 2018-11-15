@@ -10,6 +10,10 @@ from rest_framework_extensions.cache.decorators import cache_response
 logger = logging.getLogger(__name__)
 
 
+def exchange_rate_cache_key(*args, **kwargs):  # pylint: disable=unused-argument
+    return 'exchange_rate_key'
+
+
 class CurrencyView(views.APIView):
     permission_classes = (IsAuthenticated,)
     EXTERNAL_API_URL = 'https://openexchangerates.org/api/latest.json'
@@ -57,7 +61,7 @@ class CurrencyView(views.APIView):
         return [rates, currencies, eurozone_countries]
 
     # Cache exchange rates for 1 day
-    @cache_response(60 * 60 * 24)
+    @cache_response(60 * 60 * 24, key_func=exchange_rate_cache_key)
     def get(self, request, *args, **kwargs):
         rates, currencies, eurozone_countries = self.get_data()
         if not rates:

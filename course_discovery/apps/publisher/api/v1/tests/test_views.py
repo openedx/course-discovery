@@ -8,6 +8,7 @@ from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
@@ -22,6 +23,7 @@ from course_discovery.apps.publisher.api.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
 )
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
+from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.models import CourseEntitlement, Seat
 from course_discovery.apps.publisher.tests.factories import CourseEntitlementFactory, CourseRunFactory, SeatFactory
 
@@ -86,6 +88,7 @@ class CourseRunViewSetTests(APITestCase):
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
     def test_publish(self, mock_access_token):  # pylint: disable=unused-argument,too-many-statements
         publisher_course_run = self._create_course_run_for_publication()
         currency = Currency.objects.get(code='USD')
@@ -121,6 +124,7 @@ class CourseRunViewSetTests(APITestCase):
             log.check((LOGGER_NAME, 'INFO',
                        'Published course run with id: [{}] lms_course_id: [{}], user: [{}], date: [{}]'.format(
                            publisher_course_run.id, publisher_course_run.lms_course_id, self.user, date.today())))
+
         assert len(responses.calls) == 3
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
@@ -139,7 +143,7 @@ class CourseRunViewSetTests(APITestCase):
             serialize_entitlement_for_ecommerce_api(verified_entitlement),
         ]
         assert ecommerce_body['products'] == expected
-        assert ecommerce_body['verification_deadline'] == serialize_datetime(publisher_course_run.end)
+        assert ecommerce_body['verification_deadline'] == serialize_datetime(publisher_course_run.end_date_temporary)
 
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         publisher_course = publisher_course_run.course
@@ -152,14 +156,13 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course_run.title_override == publisher_course_run.title_override
         assert discovery_course_run.short_description_override is None
         assert discovery_course_run.full_description_override is None
-        assert discovery_course_run.start == publisher_course_run.start
-        assert discovery_course_run.end == publisher_course_run.end
-        assert discovery_course_run.pacing_type == publisher_course_run.pacing_type
+        assert discovery_course_run.start == publisher_course_run.start_date_temporary
+        assert discovery_course_run.end == publisher_course_run.end_date_temporary
+        assert discovery_course_run.pacing_type == publisher_course_run.pacing_type_temporary
         assert discovery_course_run.min_effort == publisher_course_run.min_effort
         assert discovery_course_run.max_effort == publisher_course_run.max_effort
         assert discovery_course_run.language == publisher_course_run.language
         assert discovery_course_run.weeks_to_complete == publisher_course_run.length
-        assert discovery_course_run.learner_testimonials == publisher_course.learner_testimonial
         expected = set(publisher_course_run.transcript_languages.all())
         assert set(discovery_course_run.transcript_languages.all()) == expected
         assert set(discovery_course_run.staff.all()) == set(publisher_course_run.staff.all())
@@ -179,6 +182,10 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course.outcome == publisher_course.expected_learnings
         assert discovery_course.prerequisites_raw == publisher_course.prerequisites
         assert discovery_course.syllabus_raw == publisher_course.syllabus
+        assert discovery_course.learner_testimonials == publisher_course.learner_testimonial
+        assert discovery_course.faq == publisher_course.faq
+        assert discovery_course.additional_information == publisher_course.additional_information
+        assert discovery_course.has_ofac_restrictions == publisher_course.has_ofac_restrictions
         expected = list(publisher_course_run.course.organizations.all())
         assert list(discovery_course.authoring_organizations.all()) == expected
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}
@@ -243,6 +250,34 @@ class CourseRunViewSetTests(APITestCase):
             price=verified_seat.price,
             course_run=discovery_course_run
         )
+
+    # pylint: disable=unused-argument
+    @responses.activate
+    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    def test_publish_with_additional_organization(self, mock_access_token):
+        """
+        Test that the publish button does not remove existing organization
+        """
+        publisher_course_run = self._create_course_run_for_publication()
+
+        partner = publisher_course_run.course.organizations.first().partner
+        self._set_test_client_domain_and_login(partner)
+
+        self._mock_studio_api_success(publisher_course_run)
+        self._mock_ecommerce_api(publisher_course_run)
+
+        publish_url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+        response = self.client.post(publish_url, {})
+        assert response.status_code == 200
+        discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
+        publisher_course = publisher_course_run.course
+        discovery_course = discovery_course_run.course
+        assert discovery_course.authoring_organizations.all().count() == 1
+
+        publisher_course.organizations.add(OrganizationFactory())
+        response = self.client.post(publish_url, {})
+        assert response.status_code == 200
+        assert discovery_course.authoring_organizations.all().count() == 2
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')

@@ -157,13 +157,13 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 
     @ddt.data(
         (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 6),
+         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 8),
         (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 6),
+         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 8),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 35),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 37),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 36),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 38),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -195,13 +195,14 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             assert response_data == active_program.type.name
 
     @ddt.data(
-        [{'title': 'Software Testing', 'excluded': True}],
-        [{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}],
-        [{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}],
-        [{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
-         {'title': 'Software Testing 3', 'excluded': False}],
+        ([{'title': 'Software Testing', 'excluded': True}], 6),
+        ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}], 7),
+        ([{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}], 7),
+        ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
+         {'title': 'Software Testing 3', 'excluded': False}], 8),
     )
-    def test_excluded_course_run(self, course_runs):
+    @ddt.unpack
+    def test_excluded_course_run(self, course_runs, expected_queries):
         course_list = []
         course_run_list = []
         excluded_course_run_list = []
@@ -223,7 +224,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         )
         self.reindex_courses(program)
 
-        with self.assertNumQueries(5):
+        with self.assertNumQueries(expected_queries):
             response = self.get_response('software', path=self.list_path)
 
         assert response.status_code == 200
@@ -358,6 +359,33 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             [obj.get('aggregation_key') for obj in response_data['objects']['results']]
         )
         assert expected == actual
+
+
+class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
+                                         mixins.APITestCase):
+    path = reverse('api:v1:search-all-list')
+
+    def test_post(self):
+        """
+        Verify that POST request works as expected for `AggregateSearchViewSet`
+        """
+        CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
+        data = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
+        expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
+        response = self.client.post(self.path, data=data, format='json')
+        assert response.json() == expected
+
+    def test_get(self):
+        """
+        Verify that GET request works as expected for `AggregateSearchViewSet`
+        """
+        CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
+        expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
+        query = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
+        qs = urllib.parse.urlencode(query)
+        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        response = self.client.get(url)
+        assert response.json() == expected
 
 
 class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,

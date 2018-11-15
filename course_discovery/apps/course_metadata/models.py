@@ -9,6 +9,7 @@ import pytz
 import waffle
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
+from django.db.models.functions import Lower
 from django.db.models.query_utils import Q
 from django.utils.functional import cached_property
 from django.utils.text import slugify
@@ -25,6 +26,7 @@ from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
+from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
@@ -65,6 +67,20 @@ class AbstractMediaModel(TimeStampedModel):
 
     def __str__(self):
         return self.src
+
+    class Meta(object):
+        abstract = True
+
+
+class AbstractTitleDescriptionModel(TimeStampedModel):
+    """ Abstract base class for models with a title and description pair. """
+    title = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        if self.title:
+            return self.title
+        return self.description
 
     class Meta(object):
         abstract = True
@@ -131,6 +147,7 @@ class Subject(TranslatableModel, TimeStampedModel):
             ('partner', 'slug'),
             ('partner', 'uuid'),
         )
+        ordering = ['created']
 
     def validate_unique(self, *args, **kwargs):  # pylint: disable=arguments-differ
         super(Subject, self).validate_unique(*args, **kwargs)
@@ -168,6 +185,7 @@ class Topic(TranslatableModel, TimeStampedModel):
             ('partner', 'slug'),
             ('partner', 'uuid'),
         )
+        ordering = ['created']
 
     def validate_unique(self, *args, **kwargs):  # pylint: disable=arguments-differ
         super(Topic, self).validate_unique(*args, **kwargs)
@@ -209,6 +227,11 @@ class SyllabusItem(AbstractValueModel):
     parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
 
 
+class AdditionalPromoArea(AbstractTitleDescriptionModel):
+    """ Additional Promo Area Model """
+    pass
+
+
 class Organization(TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, null=True, blank=False)
@@ -242,6 +265,7 @@ class Organization(TimeStampedModel):
             ('partner', 'key'),
             ('partner', 'uuid'),
         )
+        ordering = ['created']
 
     def __str__(self):
         return '{key}: {name}'.format(key=self.key, name=self.name)
@@ -262,6 +286,7 @@ class Person(TimeStampedModel):
     given_name = models.CharField(max_length=255)
     family_name = models.CharField(max_length=255, null=True, blank=True)
     bio = models.TextField(null=True, blank=True)
+    bio_language = models.ForeignKey(LanguageTag, null=True, blank=True)
     profile_image_url = models.URLField(null=True, blank=True)
     profile_image = StdImageField(
         upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/people/profile_images'),
@@ -280,6 +305,7 @@ class Person(TimeStampedModel):
             ('partner', 'uuid'),
         )
         verbose_name_plural = _('People')
+        ordering = ['created']
 
     def __str__(self):
         return self.full_name
@@ -339,8 +365,11 @@ class Course(TimeStampedModel):
     )
     key = models.CharField(max_length=255)
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
-    short_description = models.CharField(max_length=350, default=None, null=True, blank=True)
+    short_description = models.TextField(default=None, null=True, blank=True)
     full_description = models.TextField(default=None, null=True, blank=True)
+    extra_description = models.ForeignKey(
+        AdditionalPromoArea, default=None, null=True, blank=True, related_name='extra_description'
+    )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     subjects = SortedManyToManyField(Subject, blank=True)
@@ -363,12 +392,19 @@ class Course(TimeStampedModel):
     )
     slug = AutoSlugField(populate_from='key', editable=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
+    faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
+    learner_testimonials = models.TextField(default=None, null=True, blank=True)
+    has_ofac_restrictions = models.BooleanField(default=False, verbose_name=_('Course Has OFAC Restrictions'))
 
     # TODO Remove this field.
     number = models.CharField(
         max_length=50, null=True, blank=True, help_text=_(
             'Course number format e.g CS002x, BIO1.1x, BIO1.2x'
         )
+    )
+
+    additional_information = models.TextField(
+        default=None, null=True, blank=True, verbose_name=_('Additional Information')
     )
 
     objects = CourseQuerySet.as_manager()
@@ -378,6 +414,7 @@ class Course(TimeStampedModel):
             ('partner', 'uuid'),
             ('partner', 'key'),
         )
+        ordering = ['id']
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
@@ -423,6 +460,14 @@ class Course(TimeStampedModel):
             )
         )
 
+    @property
+    def first_enrollable_paid_seat_price(self):
+        for course_run in self.active_course_runs.order_by(Lower('key')):
+            if course_run.has_enrollable_paid_seats():
+                return course_run.first_enrollable_paid_seat_price
+
+        return None
+
     @classmethod
     def search(cls, query):
         """ Queries the search index.
@@ -434,6 +479,13 @@ class Course(TimeStampedModel):
             QuerySet
         """
         query = clean_query(query)
+
+        if query == '(*)':
+            # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
+            # want everything, we don't need to actually query elasticsearch at all.
+            # No point logging if log_course_search_queries is enabled for this wildcard, so skip that too.
+            return cls.objects.all()
+
         results = SearchQuerySet().models(cls).raw_search(query)
         ids = {result.pk for result in results}
 
@@ -451,8 +503,8 @@ class CourseRun(TimeStampedModel):
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, related_name='course_runs')
     key = models.CharField(max_length=255, unique=True)
-    status = models.CharField(max_length=255, null=False, blank=False, db_index=True, choices=CourseRunStatus.choices,
-                              validators=[CourseRunStatus.validator])
+    status = models.CharField(default=CourseRunStatus.Unpublished, max_length=255, null=False, blank=False,
+                              db_index=True, choices=CourseRunStatus.choices, validators=[CourseRunStatus.validator])
     title_override = models.CharField(
         max_length=255, default=None, null=True, blank=True,
         help_text=_(
@@ -493,7 +545,6 @@ class CourseRun(TimeStampedModel):
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     video_translation_languages = models.ManyToManyField(
         LanguageTag, blank=True, related_name='+')
-    learner_testimonials = models.TextField(blank=True, null=True)
     slug = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     hidden = models.BooleanField(default=False)
     mobile_available = models.BooleanField(default=False)
@@ -523,6 +574,16 @@ class CourseRun(TimeStampedModel):
         prerequisites) associated with this CourseRun.
         """
         return self.seats.exclude(type__in=Seat.SEATS_WITH_PREREQUISITES).filter(price__gt=0.0)
+
+    @property
+    def first_enrollable_paid_seat_price(self):
+        seats = list(self._enrollable_paid_seats().order_by('upgrade_deadline'))
+        if not seats:
+            # Enrollable paid seats are not available for this CourseRun.
+            return None
+
+        price = int(seats[0].price) if seats[0].price else None
+        return price
 
     def first_enrollable_paid_seat_sku(self):
         seats = list(self._enrollable_paid_seats().order_by('upgrade_deadline'))
@@ -759,12 +820,20 @@ class CourseRun(TimeStampedModel):
             SearchQuerySet
         """
         query = clean_query(query)
-        return SearchQuerySet().models(cls).raw_search(query).load_all()
+        queryset = SearchQuerySet().models(cls)
+
+        if query == '(*)':
+            # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
+            # want everything, we don't need to actually query elasticsearch at all.
+            return queryset.load_all()
+
+        return queryset.raw_search(query).load_all()
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        is_new_course_run = not self.pk
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
             self.course.partner.has_marketing_site and
@@ -788,6 +857,11 @@ class CourseRun(TimeStampedModel):
         else:
             logger.info('Course run [%s] is not publishable.', self.key)
             super(CourseRun, self).save(*args, **kwargs)
+
+        if is_new_course_run:
+            retired_programs = self.programs.filter(status=ProgramStatus.Retired)
+            for program in retired_programs:
+                program.excluded_course_runs.add(self)
 
 
 class SeatType(TimeStampedModel):
@@ -841,6 +915,7 @@ class Seat(TimeStampedModel):
         unique_together = (
             ('course_run', 'type', 'currency', 'credit_provider')
         )
+        ordering = ['created']
 
 
 class CourseEntitlement(TimeStampedModel):
@@ -863,6 +938,7 @@ class CourseEntitlement(TimeStampedModel):
         unique_together = (
             ('course', 'mode')
         )
+        ordering = ['created']
 
 
 class Endorsement(TimeStampedModel):
@@ -890,6 +966,7 @@ class FAQ(TimeStampedModel):
     class Meta:
         verbose_name = _('FAQ')
         verbose_name_plural = _('FAQs')
+        ordering = ['created']
 
     def __str__(self):
         return self.question
@@ -998,7 +1075,6 @@ class Program(TimeStampedModel):
     hidden = models.BooleanField(
         default=False, db_index=True,
         help_text=_('Hide program on marketing site landing and search pages. This program MAY have a detail page.'))
-
     objects = ProgramQuerySet.as_manager()
 
     def __str__(self):
@@ -1266,6 +1342,316 @@ class Program(TimeStampedModel):
             super(Program, self).save(*args, **kwargs)
 
 
+class Ranking(TimeStampedModel):
+    """
+    Represents the rankings of a program
+    """
+    rank = models.CharField(max_length=10, verbose_name=_('The actual rank number'))
+    description = models.CharField(max_length=255, verbose_name=_('What does the rank number mean'))
+    source = models.CharField(max_length=100, verbose_name=_('From where the rank is obtained'))
+
+    def __str__(self):
+        return self.description
+
+
+class Degree(Program):
+    """
+    This model captures information about a Degree (e.g. a Master's Degree).
+    It mostly stores information relevant to the marketing site's product page for this degree.
+    """
+    apply_url = models.CharField(
+        help_text=_('Callback URL to partner application flow'), max_length=255, blank=True
+    )
+    overall_ranking = models.CharField(
+        help_text=_('Overall program ranking (e.g. "#1 in the U.S.")'),
+        max_length=255,
+        blank=True
+    )
+    banner_border_color = models.CharField(
+        help_text=_("""The 6 character hex value of the color to make the banner borders
+            (e.g. "#ff0000" which equals red) No need to provide the `#`"""),
+        max_length=6,
+        blank=True
+    )
+    campus_image = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a campus image for the header of the degree'),
+    )
+    title_background_image = models.ImageField(
+        upload_to='media/degree_marketing/campus_images/',
+        blank=True,
+        null=True,
+        help_text=_('Provide a background image for the title section of the degree'),
+    )
+    prerequisite_coursework = models.TextField(default='TBD')
+    application_requirements = models.TextField(default='TBD')
+    costs_fine_print = models.TextField(
+        help_text=_('The fine print that displays at the Tuition section\'s bottom'),
+        null=True,
+        blank=True,
+    )
+    deadlines_fine_print = models.TextField(
+        help_text=_('The fine print that displays at the Deadline section\'s bottom'),
+        null=True,
+        blank=True,
+    )
+    rankings = SortedManyToManyField(Ranking, blank=True)
+
+    lead_capture_list_name = models.CharField(
+        help_text=_('The sailthru email list name to capture leads'),
+        max_length=255,
+        default='Master_default',
+    )
+    lead_capture_image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/degree_marketing/lead_capture_images/'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (1440, 480),
+            'medium': (726, 242),
+            'small': (435, 145),
+            'x-small': (348, 116),
+        },
+        help_text=_('Please provide an image file for the lead capture banner.'),
+    )
+
+    micromasters_url = models.URLField(
+        help_text=_('URL to micromasters landing page'),
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    micromasters_long_title = models.CharField(
+        help_text=_('Micromasters verbose title'),
+        max_length=255,
+        blank=True,
+        null=True
+    )
+    micromasters_long_description = models.TextField(
+        help_text=_('Micromasters descriptive paragraph'),
+        blank=True,
+        null=True
+    )
+    micromasters_background_image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/degree_marketing/mm_images/'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (1440, 480),
+            'medium': (726, 242),
+            'small': (435, 145),
+        },
+        help_text=_('Customized background image for the MicroMasters section.'),
+    )
+    search_card_ranking = models.CharField(
+        help_text=_('Ranking display for search card (e.g. "#1 in the U.S."'),
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    search_card_cost = models.CharField(
+        help_text=_('Cost display for search card (e.g. "$9,999"'),
+        max_length=50,
+        blank=True,
+        null=True
+    )
+    search_card_courses = models.CharField(
+        help_text=_('Number of courses for search card (e.g. "11 Courses"'),
+        max_length=50,
+        blank=True,
+        null=True
+    )
+
+    class Meta(object):
+        verbose_name_plural = "Degrees"
+
+    def __str__(self):
+        return str('Degree: {}'.format(self.title))
+
+
+class IconTextPairing(TimeStampedModel):
+    """
+    Represents an icon:text model
+    """
+    BELL = 'fa-bell'
+    CERTIFICATE = 'fa-certificate'
+    CHECK = 'fa-check-circle'
+    CLOCK = 'fa-clock-o'
+    DESKTOP = 'fa-desktop'
+    INFO = 'fa-info-circle'
+    SITEMAP = 'fa-sitemap'
+    USER = 'fa-user'
+    DOLLAR = 'fa-dollar'
+    BOOK = 'fa-book'
+    MORTARBOARD = 'fa-mortar-board'
+    STAR = 'fa-star'
+    TROPHY = 'fa-trophy'
+
+    ICON_CHOICES = (
+        (BELL, _('Bell')),
+        (CERTIFICATE, _('Certificate')),
+        (CHECK, _('Checkmark')),
+        (CLOCK, _('Clock')),
+        (DESKTOP, _('Desktop')),
+        (INFO, _('Info')),
+        (SITEMAP, _('Sitemap')),
+        (USER, _('User')),
+        (DOLLAR, _('Dollar')),
+        (BOOK, _('Book')),
+        (MORTARBOARD, _('Mortar Board')),
+        (STAR, _('Star')),
+        (TROPHY, _('Trophy')),
+    )
+
+    degree = models.ForeignKey(Degree, related_name='quick_facts', on_delete=models.CASCADE)
+    icon = models.CharField(max_length=100, verbose_name=_('Icon FA class'), choices=ICON_CHOICES)
+    text = models.CharField(max_length=255, verbose_name=_('Paired text'))
+
+    class Meta(object):
+        verbose_name_plural = "IconTextPairings"
+
+    def __str__(self):
+        return str('IconTextPairing: {}'.format(self.text))
+
+
+class DegreeDeadline(TimeStampedModel):
+    """
+    DegreeDeadline stores a Degree's important dates. Each DegreeDeadline
+    displays in the Degree product page's "Details" section.
+    """
+    class Meta:
+        ordering = ['created']
+
+    degree = models.ForeignKey(Degree, on_delete=models.CASCADE, related_name='deadlines', null=True)
+    semester = models.CharField(
+        help_text=_('Deadline applies for this semester (e.g. Spring 2019'),
+        max_length=255,
+    )
+    name = models.CharField(
+        help_text=_('Describes the deadline (e.g. Early Admission Deadline)'),
+        max_length=255,
+    )
+    date = models.CharField(
+        help_text=_('The date after which the deadline expires (e.g. January 1, 2019)'),
+        max_length=255,
+    )
+    time = models.CharField(
+        help_text=_('The time after which the deadline expires (e.g. 11:59 PM EST).'),
+        max_length=255,
+    )
+
+    def __str__(self):
+        return "{} {}".format(self.name, self.date)
+
+
+class DegreeCost(TimeStampedModel):
+    """
+    Degree cost stores a Degree's associated costs. Each DegreeCost displays in
+    a Degree product page's "Details" section.
+    """
+    class Meta:
+        ordering = ['created']
+
+    degree = models.ForeignKey(Degree, on_delete=models.CASCADE, related_name='costs', null=True)
+    description = models.CharField(
+        help_text=_('Describes what the cost is for (e.g. Tuition)'),
+        max_length=255,
+    )
+    amount = models.CharField(
+        help_text=_('String-based field stating how much the cost is (e.g. $1000).'),
+        max_length=255,
+    )
+
+    def __str__(self):
+        return str('{}, {}'.format(self.description, self.amount))
+
+
+class Curriculum(TimeStampedModel):
+    """
+    This model links a degree to the curriculum associated with that degree, that is, the
+    courses and programs that compose the degree.
+    """
+    uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
+    degree = models.OneToOneField(Degree, on_delete=models.CASCADE, related_name='curriculum')
+    marketing_text_brief = models.TextField(
+        null=True,
+        blank=True,
+        max_length=750,
+        help_text=_(
+            """A high-level overview of the degree\'s courseware. The "brief"
+            text is the first 750 characters of "marketing_text" and must be
+            valid HTML."""
+        ),
+    )
+    marketing_text = models.TextField(
+        null=True,
+        blank=False,
+        help_text=_('A high-level overview of the degree\'s courseware.'),
+    )
+    program_curriculum = models.ManyToManyField(
+        Program, through='course_metadata.DegreeProgramCurriculum', related_name='degree_program_curricula'
+    )
+    course_curriculum = models.ManyToManyField(
+        Course, through='course_metadata.DegreeCourseCurriculum', related_name='degree_course_curricula'
+    )
+
+    def __str__(self):
+        return str(self.uuid)
+
+
+class DegreeProgramCurriculum(TimeStampedModel):
+    """
+    Represents the Programs that compose the curriculum of a degree.
+    """
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
+
+
+class DegreeCourseCurriculum(TimeStampedModel):
+    """
+    Represents the Courses that compose the curriculum of a degree.
+    """
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+
+class Pathway(TimeStampedModel):
+    """
+    Pathway model
+    """
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
+    partner = models.ForeignKey(Partner, null=True, blank=False)
+    name = models.CharField(max_length=255)
+    # this field doesn't necessarily map to our normal org models, it's just a convenience field for pathways
+    # while we figure them out
+    org_name = models.CharField(max_length=255, verbose_name=_("Organization name"))
+    email = models.EmailField(blank=True)
+    programs = SortedManyToManyField(Program)
+    description = models.TextField(null=True, blank=True)
+    destination_url = models.URLField(null=True, blank=True)
+    pathway_type = models.CharField(
+        max_length=32,
+        choices=[(tag.value, tag.value) for tag in PathwayType],
+        default=PathwayType.CREDIT.value,
+    )
+
+    def __str__(self):
+        return self.name
+
+    # Define a validation method to be used elsewhere - we can't use it in normal model validation flow because
+    # ManyToMany fields are hard to validate (doesn't support validators field kwarg, can't be referenced before
+    # first save(), etc). Instead, this method is used in form validation and we rely on that.
+    @classmethod
+    def validate_partner_programs(cls, partner, programs):
+        """ Throws a ValidationError if any program has a different partner than 'partner' """
+        bad_programs = [str(x) for x in programs if x.partner != partner]
+        if bad_programs:
+            msg = _('These programs are for a different partner than the pathway itself: {}')
+            raise ValidationError(msg.format(', '.join(bad_programs)))  # pylint: disable=no-member
+
+
 class PersonSocialNetwork(AbstractSocialNetworkModel):
     """ Person Social Network model. """
     person = models.ForeignKey(Person, related_name='person_networks')
@@ -1276,6 +1662,7 @@ class PersonSocialNetwork(AbstractSocialNetworkModel):
         unique_together = (
             ('person', 'type'),
         )
+        ordering = ['created']
 
 
 class CourseRunSocialNetwork(AbstractSocialNetworkModel):
@@ -1288,6 +1675,7 @@ class CourseRunSocialNetwork(AbstractSocialNetworkModel):
         unique_together = (
             ('course_run', 'type'),
         )
+        ordering = ['created']
 
 
 class PersonWork(AbstractValueModel):

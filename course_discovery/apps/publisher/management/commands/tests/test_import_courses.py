@@ -347,13 +347,13 @@ class CreateCoursesTests(TestCase):
     def _assert_course_run(self, publisher_course_run, metadata_course_run):
         """ Verify that publisher course-run and metadata course run has correct values."""
 
-        self.assertEqual(publisher_course_run.start, metadata_course_run.start)
-        self.assertEqual(publisher_course_run.end, metadata_course_run.end)
+        self.assertEqual(publisher_course_run.start_date_temporary, metadata_course_run.start)
+        self.assertEqual(publisher_course_run.end_date_temporary, metadata_course_run.end)
         self.assertEqual(publisher_course_run.min_effort, metadata_course_run.min_effort)
         self.assertEqual(publisher_course_run.max_effort, metadata_course_run.max_effort)
         self.assertEqual(publisher_course_run.length, metadata_course_run.weeks_to_complete)
         self.assertEqual(publisher_course_run.language, metadata_course_run.language)
-        self.assertEqual(publisher_course_run.pacing_type, metadata_course_run.pacing_type)
+        self.assertEqual(publisher_course_run.pacing_type_temporary, metadata_course_run.pacing_type)
         self.assertEqual(publisher_course_run.card_image_url, metadata_course_run.card_image_url)
         self.assertEqual(publisher_course_run.language, metadata_course_run.language)
         self.assertEqual(publisher_course_run.lms_course_id, metadata_course_run.key)

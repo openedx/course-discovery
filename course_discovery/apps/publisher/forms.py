@@ -5,6 +5,7 @@ import waffle
 from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxLengthValidator
 from django.db.models.functions import Lower
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
@@ -15,7 +16,9 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.constants import PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS
+from course_discovery.apps.publisher.constants import (
+    PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, PUBLISHER_ENABLE_READ_ONLY_FIELDS
+)
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, get_user_organizations
 from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
@@ -75,22 +78,23 @@ class CourseForm(BaseForm):
         label=_('Organization Name'),
         required=True
     )
-    title = forms.CharField(label=_('Course Title'), required=True)
+    title = forms.CharField(
+        label=_('Course Title'), required=True,
+        validators=[MaxLengthValidator(255)]
+    )
     number = forms.CharField(
         label=_('Course Number'), required=True,
         validators=[validate_text_count(max_length=50)]
     )
     short_description = forms.CharField(
         label=_('Short Description'),
-        widget=forms.Textarea, required=False, validators=[validate_text_count(max_length=255)]
+        widget=forms.Textarea, required=False,
     )
     full_description = forms.CharField(
         label=_('Long Description'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
     )
     prerequisites = forms.CharField(
         label=_('Prerequisites'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=1000)]
     )
 
     # users will be loaded through AJAX call based on organization
@@ -124,25 +128,31 @@ class CourseForm(BaseForm):
 
     expected_learnings = forms.CharField(
         label=_('What You Will Learn'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
     )
 
     learner_testimonial = forms.CharField(
-        label=_('Learner Testimonial'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=500)]
+        label=_('Learner Testimonial'), widget=forms.Textarea, required=False
     )
 
     faq = forms.CharField(
-        label=_('FAQ'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
+        label=_('FAQ'), widget=forms.Textarea, required=False
+    )
+
+    additional_information = forms.CharField(
+        label=_('Additional Information'), widget=forms.Textarea, required=False
     )
 
     syllabus = forms.CharField(
         label=_('Syllabus'), widget=forms.Textarea, required=False,
-        validators=[validate_text_count(max_length=2500)]
     )
 
     add_new_run = forms.BooleanField(required=False)
+
+    has_ofac_restrictions = forms.BooleanField(
+        label=_('OFAC Restriction?'),
+        widget=forms.RadioSelect(
+            choices=((True, _("Yes")), (False, _("No")))), initial=False, required=False
+    )
 
     class Meta:
         model = Course
@@ -154,7 +164,7 @@ class CourseForm(BaseForm):
             'expected_learnings', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'image', 'team_admin',
             'level_type', 'organization', 'is_seo_review', 'syllabus',
-            'learner_testimonial', 'faq', 'video_link',
+            'learner_testimonial', 'faq', 'video_link', 'additional_information', 'has_ofac_restrictions'
         )
 
     def __init__(self, *args, **kwargs):
@@ -241,11 +251,12 @@ class CourseRunForm(BaseForm):
         widget=forms.RadioSelect(
             choices=((1, _("Yes")), (0, _("No")))), initial=0, required=False
     )
+
     pacing_type = forms.ChoiceField(
         label=_('Pacing'),
         widget=forms.RadioSelect,
         choices=CourseRunPacing.choices,
-        required=True
+        required=False
     )
 
     transcript_languages = forms.ModelMultipleChoiceField(
@@ -360,9 +371,18 @@ class CourseRunForm(BaseForm):
 
     def __init__(self, *args, **kwargs):
         self.is_project_coordinator = kwargs.pop('is_project_coordinator', None)
+        self.hide_start_date_field = kwargs.pop('hide_start_date_field', None)
+        self.hide_end_date_field = kwargs.pop('hide_end_date_field', None)
+
         super(CourseRunForm, self).__init__(*args, **kwargs)
         if not self.is_project_coordinator:
             self.fields['lms_course_id'].widget = forms.HiddenInput()
+
+        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
+            if self.hide_start_date_field:
+                self.fields['start'].widget = forms.HiddenInput()
+            if self.hide_end_date_field:
+                self.fields['end'].widget = forms.HiddenInput()
 
 
 class SeatForm(BaseForm):

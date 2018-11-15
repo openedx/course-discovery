@@ -14,7 +14,7 @@ help: ## Display this help message
 
 static: ## Gather all static assets for production
 	$(NODE_BIN)/webpack --config webpack.config.js --display-error-details --progress --optimize-minimize
-	python manage.py collectstatic --noinput
+	python manage.py collectstatic -v 0 --noinput
 	python manage.py compress -v3 --force
 
 static.dev:
@@ -44,7 +44,7 @@ production-requirements: ## Install Python and JS requirements for production
 
 test: clean ## Run tests and generate coverage report
 	## The node_modules .bin directory is added to ensure we have access to Geckodriver.
-	PATH="$(NODE_BIN):$(PATH)" coverage run -m pytest --ds=course_discovery.settings.test --durations=25
+	PATH="$(NODE_BIN):$(PATH)" pytest --ds=course_discovery.settings.test --durations=25
 	coverage combine
 	coverage report
 

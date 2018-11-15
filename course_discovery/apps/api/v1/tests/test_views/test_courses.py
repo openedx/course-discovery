@@ -1,8 +1,8 @@
 import datetime
 
 import ddt
+import pytest
 import pytz
-from django.core.cache import cache
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 
@@ -16,16 +16,14 @@ from course_discovery.apps.course_metadata.tests.factories import (
 
 
 @ddt.ddt
+@pytest.mark.usefixtures('django_cache')
 class CourseViewSetTests(SerializationMixin, APITestCase):
-    maxDiff = None
-
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course = CourseFactory(partner=self.partner)
-        cache.clear()
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
@@ -198,7 +196,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(29):
+        with self.assertNumQueries(32):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(
@@ -214,7 +212,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
-        with self.assertNumQueries(47):
+        with self.assertNumQueries(50):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -225,7 +223,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        with self.assertNumQueries(46):
+        with self.assertNumQueries(49):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -236,7 +234,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(46):
+        with self.assertNumQueries(49):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 

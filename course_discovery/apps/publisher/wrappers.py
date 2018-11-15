@@ -189,15 +189,15 @@ class CourseRunWrapper(BaseWrapper):
 
     @property
     def is_self_paced(self):
-        if self.wrapped_obj.pacing_type == CourseRunPacing.Self:
+        if self.wrapped_obj.pacing_type_temporary == CourseRunPacing.Self:
             return True
 
         return False
 
     @property
     def mdc_submission_due_date(self):
-        if self.wrapped_obj.start:
-            return self.wrapped_obj.start - timedelta(days=10)
+        if self.wrapped_obj.start_date_temporary:
+            return self.wrapped_obj.start_date_temporary - timedelta(days=10)
 
         return None
 

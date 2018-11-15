@@ -103,8 +103,8 @@ class Command(BaseCommand):
             logger.info("Successfully created {site} site".format(site=site_partner))
             partner_data['site'] = site
 
-            logger.info("Creating '{partner}' Partner".format(partner=site_partner))
-            Partner.objects.get_or_create(
+            logger.info("Creating or Updating '{partner}' Partner".format(partner=site_partner))
+            Partner.objects.update_or_create(
                 short_code=site_partner,
                 defaults=partner_data
             )

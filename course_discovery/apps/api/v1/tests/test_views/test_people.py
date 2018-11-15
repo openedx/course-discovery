@@ -6,10 +6,11 @@ from mock import mock
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 
+from course_discovery.apps.api.permissions import ReadOnlyByPublisherUser
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.people import logger as people_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
-from course_discovery.apps.course_metadata.models import Person
+from course_discovery.apps.course_metadata.models import Person, Position
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory, PositionFactory
@@ -27,9 +28,10 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.target_permissions = Permission.objects.filter(
             codename__in=['add_person', 'change_person', 'delete_person']
         )
-        internal_test_group = Group.objects.create(name='internal-test')
-        internal_test_group.permissions.add(*self.target_permissions)
-        self.user.groups.add(internal_test_group)
+        self.permisson_class = ReadOnlyByPublisherUser()
+        self.internal_test_group = Group.objects.create(name='internal-test')
+        self.internal_test_group.permissions.add(*self.target_permissions)
+        self.user.groups.add(self.internal_test_group)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.person = PersonFactory(partner=self.partner)
         self.organization = OrganizationFactory(partner=self.partner)
@@ -125,10 +127,16 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         assert response.status_code == 403
         assert Person.objects.count() == current_people_count
 
-    def test_get(self):
+    def test_get_single_person_without_publisher_user(self):
+        """ Verify the endpoint shows permission error for the details for a single person. """
+        self.user.groups.remove(self.internal_test_group)
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_single_person_with_publisher_user(self):
         """ Verify the endpoint returns the details for a single person. """
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
-
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_person(self.person))
@@ -140,11 +148,17 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
-    def test_list(self):
-        """ Verify the endpoint returns a list of all people. """
+    def test_list_with_publihser_user(self):
+        """ Verify the endpoint returns a list of all people with the publisher user """
         response = self.client.get(self.people_list_url)
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_person(Person.objects.all(), many=True))
+
+    def test_list_without_publisher_user(self):
+        """ Verify the endpoint shows permission error when non-publisher user acccessed """
+        self.user.groups.remove(self.internal_test_group)
+        response = self.client.get(self.people_list_url)
+        self.assertEqual(response.status_code, 403)
 
     def test_list_filter_by_slug(self):
         """ Verify the endpoint allows people to be filtered by slug. """
@@ -264,3 +278,20 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(updated_person.person_networks.get(type='facebook').value, data['urls']['facebook'])
         self.assertEqual(updated_person.person_networks.get(type='twitter').value, data['urls']['twitter'])
         self.assertFalse(updated_person.person_networks.filter(type='blog').exists())
+
+    def test_update_without_position(self):
+        """
+        Verify that if the people has no position a new position is created while updating people
+        """
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+
+        data = self._update_person_data()
+        Position.objects.all().delete()
+
+        with mock.patch.object(MarketingSitePeople, 'update_person', return_value={}):
+            response = self.client.patch(url, data, format='json')
+            self.assertEqual(response.status_code, 200)
+
+        updated_person = Person.objects.get(id=self.person.id)
+
+        self.assertEqual(updated_person.position.title, data['position']['title'])

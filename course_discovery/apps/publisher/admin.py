@@ -120,8 +120,14 @@ class SeatAdmin(SimpleHistoryAdmin):
 
 @admin.register(CourseEntitlement)
 class CourseEntitlementAdmin(SimpleHistoryAdmin):
-    list_display = ['course', 'mode']
+    list_display = ['course', 'get_course_number', 'mode']
+
+    def get_course_number(self, obj):
+        return obj.course.number
+    get_course_number.short_description = 'Course number'
+
     raw_id_fields = ['course']
+    search_fields = ['course__title', 'course__number']
 
 
 @admin.register(PublisherUser)

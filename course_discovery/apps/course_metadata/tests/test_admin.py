@@ -15,11 +15,12 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.admin import PositionAdmin, ProgramEligibilityFilter
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.forms import ProgramAdminForm
+from course_discovery.apps.course_metadata.constants import PathwayType
+from course_discovery.apps.course_metadata.forms import PathwayAdminForm, ProgramAdminForm
 from course_discovery.apps.course_metadata.models import Person, Position, Program, ProgramType, Seat, SeatType
 from course_discovery.apps.course_metadata.tests import factories
 
@@ -157,7 +158,7 @@ class AdminTests(SiteMixin, TestCase):
                 (False, False),
                 (True, True)
             ),
-            ProgramStatus.labels
+            sorted(ProgramStatus.labels)  # We need a consistent ordering to distribute tests with pytest-xdist
         )
     )
     @ddt.unpack
@@ -427,3 +428,47 @@ class PersonPositionAdminTest(TestCase):
     def test_delete_action(self):
         """Tests that user can not have delete action"""
         self.assertNotIn('delete_selected', self.person_position_admin.get_actions(self.request))
+
+
+class PathwayAdminTest(TestCase):
+    """Tests for credit pathway admin."""
+
+    def test_program_with_same_partner(self):
+        """
+        Test happy path with same program partner as parent pathway
+        """
+        partner1 = PartnerFactory()
+        program1 = factories.ProgramFactory(partner=partner1)
+        data = {
+            'partner': partner1.id,
+            'name': 'Name',
+            'org_name': 'Org',
+            'email': 'email@example.com',
+            'programs': [program1.id],
+            'pathway_type': PathwayType.CREDIT.value,
+        }
+        form = PathwayAdminForm(data=data)
+
+        self.assertDictEqual(form.errors, {})
+
+    def test_program_with_different_partner(self):
+        """
+        Tests that contained programs can't be for the wrong partner
+        """
+        partner1 = PartnerFactory()
+        partner2 = PartnerFactory()
+        program1 = factories.ProgramFactory(partner=partner1)
+        program2 = factories.ProgramFactory(partner=partner2, title='partner2 program')
+        data = {
+            'partner': partner1.id,
+            'name': 'Name',
+            'org_name': 'Org',
+            'email': 'email@example.com',
+            'programs': [program1.id, program2.id],
+            'pathway_type': PathwayType.INDUSTRY.value,
+        }
+        form = PathwayAdminForm(data=data)
+
+        self.assertDictEqual(form.errors, {
+            '__all__': ['These programs are for a different partner than the pathway itself: partner2 program']
+        })

@@ -1,0 +1,2 @@
+class CourseRunEditException(Exception):
+    pass

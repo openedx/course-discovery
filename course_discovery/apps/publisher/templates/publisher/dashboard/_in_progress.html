@@ -8,10 +8,10 @@
             <button type="button" class="btn-neutral btn-small btn-filter active" data-filter-column="-1">{% trans "All" %}
                 <span class="filter-count">{{ in_progress_count }}</span>
             </button>
-            <button type="button" class="btn-neutral btn-small btn-filter" data-search-value="{{ course_team_status }}" data-filter-column="5">{% trans "With Course Team" %}
+            <button type="button" class="btn-neutral btn-small btn-filter" data-search-value="{{ course_team_status }}" data-filter-column="4">{% trans "With Course Team" %}
                 <span class="filter-count">{{ course_team_count }}</span>
             </button>
-            <button type="button" class="btn-neutral btn-small btn-filter" data-search-value="{{ internal_user_status }}" data-filter-column="6">{% trans "With" %} {{ site_name }}
+            <button type="button" class="btn-neutral btn-small btn-filter" data-search-value="{{ internal_user_status }}" data-filter-column="5">{% trans "With" %} {{ site_name }}
                 <span class="filter-count">{{ internal_user_count }}</span>
             </button>
         </div>
@@ -27,10 +27,7 @@
                     {% trans "Organization" %}
                 </th>
                 <th role="button">
-                    {% trans "Start" %}
-                </th>
-                <th role="button">
-                    {% trans "End" %}
+                    {% trans "Modified" %}
                 </th>
                 <th role="button">
                     {% trans "Course Team" %}
@@ -53,8 +50,7 @@
                     </td>
                     <td>{{ course_run.number }}</td>
                     <td>{{ course_run.course.organization_name }}</td>
-                    <td>{{ course_run.start|date:"Y-m-d" }}</td>
-                    <td>{{ course_run.end|date:"Y-m-d" }}</td>
+                    <td>{{ course_run.modified|date:"Y-m-d" }}</td>
                     <td>{{ course_run.course_team_status }}</td>
                     <td>{{ course_run.internal_user_status }}</td>
                     <td>{{ course_run.owner_role_last_modified }}</td>

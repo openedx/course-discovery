@@ -13,14 +13,6 @@ from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 logger = logging.getLogger(__name__)
 
 
-def get_related_discovery_course_run(publisher_course_run):
-    try:
-        discovery_course = publisher_course_run.course.discovery_counterpart
-        return discovery_course.course_runs.latest('start')
-    except ObjectDoesNotExist:
-        return
-
-
 @receiver(post_save, sender=CourseRun)
 def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  # pylint: disable=unused-argument
     if created and waffle.switch_is_active('enable_publisher_create_course_run_in_studio'):
@@ -53,7 +45,7 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
         logger.info('Publishing course run [%d] to Studio...', instance.id)
         api = StudioAPI(instance.course.partner.studio_api_client)
 
-        discovery_course_run = get_related_discovery_course_run(instance)
+        discovery_course_run = instance.discovery_counterpart_latest_by_start_date
 
         if discovery_course_run:
             try:

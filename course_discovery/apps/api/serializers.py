@@ -21,9 +21,9 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Endorsement, Image, Organization, Person,
-    PersonSocialNetwork, PersonWork, Position, Prerequisite, Program, ProgramType, Seat, SeatType, Subject, Topic,
-    Video
+    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Curriculum, Degree,
+    DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, Organization, Pathway, Person, PersonSocialNetwork,
+    PersonWork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
 )
 
 User = get_user_model()
@@ -96,6 +96,24 @@ def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False):
         return '{url}?{params}'.format(url=marketing_url, params=params)
 
 
+def get_lms_course_url_for_archived(partner, course_key):
+    """
+    Return the LMS course home URL for archived course runs.
+
+    Arguments:
+        partner (Partner): Partner instance containing information.
+        course_key (String): course key string
+
+    Returns:
+        str | None
+    """
+    lms_url = partner.lms_url
+    if not course_key or not lms_url:
+        return None
+
+    return '{lms_url}/courses/{course_key}/course/'.format(lms_url=lms_url, course_key=course_key)
+
+
 def get_utm_source_for_user(partner, user):
     """
     Return the utm source for the user.
@@ -145,6 +163,18 @@ class NamedModelSerializer(serializers.ModelSerializer):
 
     class Meta(object):
         fields = ('name',)
+
+
+class TitleDescriptionSerializer(serializers.ModelSerializer):
+    """Serializer for models inheriting from ``AbstractTitleDescription``."""
+    class Meta(object):
+        fields = ('title', 'description',)
+
+
+class AdditionalPromoAreaSerializer(TitleDescriptionSerializer):
+    """Serializer for AdditionalPromoArea """
+    class Meta(TitleDescriptionSerializer.Meta):
+        model = AdditionalPromoArea
 
 
 class FAQSerializer(serializers.ModelSerializer):
@@ -266,10 +296,7 @@ class PersonSerializer(serializers.ModelSerializer):
         works_data = validated_data.pop('works', [])
         urls_data = validated_data.pop('urls', {})
 
-        instance.position.title = position_data['title']
-        instance.position.organization = position_data.get('organization')
-        instance.position.organization_override = position_data.get('organization_override')
-        instance.position.save()
+        Position.objects.update_or_create(person=instance, defaults=position_data)
 
         for url_type in [PersonSocialNetwork.FACEBOOK, PersonSocialNetwork.TWITTER, PersonSocialNetwork.BLOG]:
             value = urls_data.get(url_type)
@@ -457,12 +484,19 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
                   'start', 'end', 'enrollment_start', 'enrollment_end', 'pacing_type', 'type', 'status',)
 
     def get_marketing_url(self, obj):
-        return get_marketing_url_for_user(
-            obj.course.partner,
-            self.context['request'].user,
-            obj.marketing_url,
-            exclude_utm=self.context.get('exclude_utm')
-        )
+        include_archived = self.context.get('include_archived')
+        now = datetime.datetime.now(pytz.UTC)
+        if include_archived and obj.end and obj.end <= now:
+            marketing_url = get_lms_course_url_for_archived(obj.course.partner, obj.key)
+        else:
+            marketing_url = get_marketing_url_for_user(
+                obj.course.partner,
+                self.context['request'].user,
+                obj.marketing_url,
+                exclude_utm=self.context.get('exclude_utm')
+            )
+
+        return marketing_url
 
 
 class CourseRunSerializer(MinimalCourseRunSerializer):
@@ -495,6 +529,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'course', 'full_description', 'announcement', 'video', 'seats', 'content_language', 'license', 'outcome',
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
+            'first_enrollable_paid_seat_price',
         )
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
@@ -577,7 +612,9 @@ class CourseSerializer(MinimalCourseSerializer):
     sponsors = OrganizationSerializer(many=True, source='sponsoring_organizations')
     course_runs = CourseRunSerializer(many=True)
     marketing_url = serializers.SerializerMethodField()
+    canonical_course_run_key = serializers.SerializerMethodField()
     original_image = ImageField(read_only=True, source='original_image_url')
+    extra_description = AdditionalPromoAreaSerializer()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
@@ -585,7 +622,7 @@ class CourseSerializer(MinimalCourseSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
 
-        return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
+        return queryset.select_related('level_type', 'video', 'partner', 'extra_description').prefetch_related(
             'expected_learning_items',
             'prerequisites',
             'subjects',
@@ -598,9 +635,10 @@ class CourseSerializer(MinimalCourseSerializer):
     class Meta(MinimalCourseSerializer.Meta):
         model = Course
         fields = MinimalCourseSerializer.Meta.fields + (
-            'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites', 'prerequisites_raw',
-            'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url', 'syllabus_raw', 'outcome',
-            'original_image',
+            'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
+            'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
+            'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
+            'extra_description', 'additional_information', 'faq', 'learner_testimonials', 'has_ofac_restrictions'
         )
 
     def get_marketing_url(self, obj):
@@ -610,6 +648,11 @@ class CourseSerializer(MinimalCourseSerializer):
             obj.marketing_url,
             exclude_utm=self.context.get('exclude_utm')
         )
+
+    def get_canonical_course_run_key(self, obj):
+        if obj.canonical_course_run:
+            return obj.canonical_course_run.key
+        return None
 
 
 class CourseWithProgramsSerializer(CourseSerializer):
@@ -728,11 +771,79 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
+class RankingSerializer(serializers.ModelSerializer):
+    """ Ranking model serializer """
+    class Meta:
+        model = Ranking
+        fields = (
+            'rank', 'description', 'source',
+        )
+
+
+class DegreeDeadlineSerializer(serializers.ModelSerializer):
+    """ DegreeDeadline model serializer """
+    class Meta:
+        model = DegreeDeadline
+        fields = (
+            'semester',
+            'name',
+            'date',
+            'time',
+        )
+
+
+class DegreeCostSerializer(serializers.ModelSerializer):
+    """ DegreeCost model serializer """
+    class Meta:
+        model = DegreeCost
+        fields = (
+            'description',
+            'amount',
+        )
+
+
+class CurriculumSerializer(serializers.ModelSerializer):
+    """ Curriculum model serializer """
+    class Meta:
+        model = Curriculum
+        fields = ('marketing_text', 'marketing_text_brief')
+
+
+class IconTextPairingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IconTextPairing
+        fields = ('text', 'icon',)
+
+
+class DegreeSerializer(serializers.ModelSerializer):
+    """ Degree model serializer """
+    campus_image = serializers.ImageField()
+    title_background_image = serializers.ImageField()
+    costs = DegreeCostSerializer(many=True)
+    curriculum = CurriculumSerializer()
+    quick_facts = IconTextPairingSerializer(many=True)
+    lead_capture_image = StdImageSerializerField()
+    deadlines = DegreeDeadlineSerializer(many=True)
+    rankings = RankingSerializer(many=True)
+    micromasters_background_image = StdImageSerializerField()
+
+    class Meta:
+        model = Degree
+        fields = (
+            'application_requirements', 'apply_url', 'banner_border_color', 'campus_image', 'title_background_image',
+            'costs', 'curriculum', 'deadlines', 'lead_capture_list_name', 'quick_facts',
+            'overall_ranking', 'prerequisite_coursework', 'rankings',
+            'lead_capture_image', 'micromasters_url', 'micromasters_long_title', 'micromasters_long_description',
+            'micromasters_background_image', 'costs_fine_print', 'deadlines_fine_print',
+        )
+
+
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    degree = DegreeSerializer()
 
     @classmethod
     def prefetch_queryset(cls, partner):
@@ -751,6 +862,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         fields = (
             'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image', 'hidden',
             'courses', 'authoring_organizations', 'card_image_url', 'is_program_eligible_for_one_click_purchase',
+            'degree'
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
@@ -899,6 +1011,32 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering'
+        )
+
+
+class PathwaySerializer(serializers.ModelSerializer):
+    """ Serializer for Pathway. """
+    uuid = serializers.CharField()
+    name = serializers.CharField()
+    org_name = serializers.CharField()
+    email = serializers.EmailField()
+    programs = MinimalProgramSerializer(many=True)
+    description = serializers.CharField()
+    destination_url = serializers.CharField()
+    pathway_type = serializers.CharField()
+
+    class Meta:
+        model = Pathway
+        fields = (
+            'id',
+            'uuid',
+            'name',
+            'org_name',
+            'email',
+            'programs',
+            'description',
+            'destination_url',
+            'pathway_type',
         )
 
 
@@ -1148,6 +1286,20 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 
 
 class CourseSearchSerializer(HaystackSerializer):
+    course_runs = serializers.SerializerMethodField()
+
+    def get_course_runs(self, result):
+        return [
+            {
+                'key': course_run.key,
+                'enrollment_start': course_run.enrollment_start,
+                'enrollment_end': course_run.enrollment_end,
+                'start': course_run.start,
+                'end': course_run.end,
+            }
+            for course_run in result.object.course_runs.all()
+        ]
+
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         ignore_fields = COMMON_IGNORED_FIELDS
@@ -1157,6 +1309,8 @@ class CourseSearchSerializer(HaystackSerializer):
             'key',
             'short_description',
             'title',
+            'card_image_url',
+            'course_runs',
         )
 
 
@@ -1174,9 +1328,13 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
 
 class CourseRunSearchSerializer(HaystackSerializer):
     availability = serializers.SerializerMethodField()
+    first_enrollable_paid_seat_price = serializers.SerializerMethodField()
 
     def get_availability(self, result):
         return result.object.availability
+
+    def get_first_enrollable_paid_seat_price(self, result):
+        return result.object.first_enrollable_paid_seat_price
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -1189,6 +1347,7 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'enrollment_end',
             'enrollment_start',
             'first_enrollable_paid_seat_sku',
+            'first_enrollable_paid_seat_price',
             'full_description',
             'has_enrollable_seats',
             'image_url',
@@ -1230,6 +1389,7 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
             'mobile_available': {},
             'organizations': {'size': settings.SEARCH_FACET_LIMIT},
             'pacing_type': {},
+            'first_enrollable_paid_seat_price': {},
             'prerequisites': {},
             'seat_types': {},
             'subjects': {},
@@ -1242,6 +1402,40 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
             'availability_upcoming': {'query': 'start:[now+60d TO *]'},
             'availability_archived': {'query': 'end:<=now'},
         }
+
+
+class PersonSearchSerializer(HaystackSerializer):
+    profile_image_url = serializers.SerializerMethodField()
+
+    def get_profile_image_url(self, result):
+        return result.object.get_profile_image_url
+
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        ignore_fields = COMMON_IGNORED_FIELDS
+        index_classes = [search_indexes.PersonIndex]
+        fields = search_indexes.BASE_SEARCH_INDEX_FIELDS + (
+            'uuid',
+            'salutation',
+            'full_name',
+            'bio',
+            'bio_language',
+            'profile_image_url',
+            'position',
+        )
+
+
+class PersonSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, PersonSerializer):
+    class Meta(PersonSerializer.Meta):
+        fields = ContentTypeSerializer.Meta.fields + PersonSerializer.Meta.fields
+
+
+class PersonFacetSerializer(BaseHaystackFacetSerializer):
+    class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        ignore_fields = COMMON_IGNORED_FIELDS
+        index_classes = [search_indexes.PersonIndex]
+        fields = ()
 
 
 class ProgramSearchSerializer(HaystackSerializer):
@@ -1266,6 +1460,7 @@ class ProgramSearchSerializer(HaystackSerializer):
             'subject_uuids',
             'weeks_to_complete_max',
             'weeks_to_complete_min',
+            'search_card_display'
         )
 
 
@@ -1293,6 +1488,7 @@ class AggregateSearchSerializer(HaystackSerializer):
             search_indexes.CourseRunIndex: CourseRunSearchSerializer,
             search_indexes.CourseIndex: CourseSearchSerializer,
             search_indexes.ProgramIndex: ProgramSearchSerializer,
+            search_indexes.PersonIndex: PersonSearchSerializer,
         }
 
 
@@ -1309,6 +1505,7 @@ class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
             search_indexes.CourseRunIndex: CourseRunFacetSerializer,
             search_indexes.CourseIndex: CourseFacetSerializer,
             search_indexes.ProgramIndex: ProgramFacetSerializer,
+            search_indexes.PersonIndex: PersonFacetSerializer,
         }
 
 

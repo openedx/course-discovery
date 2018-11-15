@@ -1,11 +1,23 @@
 """Custom API throttles."""
+from django.core.cache import InvalidCacheBackendError, caches
 from rest_framework.throttling import UserRateThrottle
 
 from course_discovery.apps.core.models import UserThrottleRate
 
 
+def throttling_cache():
+    """
+    Returns the cache specifically used for throttling.
+    """
+    try:
+        return caches['throttling']
+    except InvalidCacheBackendError:
+        return caches['default']
+
+
 class OverridableUserRateThrottle(UserRateThrottle):
     """Rate throttling of requests, overridable on a per-user basis."""
+    cache = throttling_cache()
 
     def allow_request(self, request, view):
         user = request.user

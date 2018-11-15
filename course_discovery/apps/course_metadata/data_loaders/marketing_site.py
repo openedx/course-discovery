@@ -16,7 +16,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, LevelType, Organization, Person, Position, Subject
+    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, Position, Subject
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -269,7 +269,7 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'salutation': data['field_person_salutation'],
             'given_name': data['field_person_first_middle_name'],
             'family_name': data['field_person_last_name'],
-            'bio': self.clean_html(data['field_person_resume']['value']),
+            'bio': self.clean_html(data['field_person_resume']['value']) if data['field_person_resume'] else '',
             'profile_image_url': self._get_nested_url(data.get('field_person_image')),
             'slug': slug,
             'profile_url': data['url'],
@@ -530,6 +530,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'outcome': (data.get('field_course_what_u_will_learn', {}) or {}).get('value'),
             'syllabus_raw': (data.get('field_course_syllabus', {}) or {}).get('value'),
             'prerequisites_raw': (data.get('field_course_prerequisites', {}) or {}).get('value'),
+            'extra_description': self.get_extra_description(data)
         }
 
         return defaults
@@ -593,6 +594,18 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
     def _extract_language_tags(self, raw_objects_data):
         language_names = [_object['name'].strip() for _object in raw_objects_data]
         return self.get_language_tags_from_names(language_names)
+
+    def get_extra_description(self, raw_objects_data):
+        extra_title = raw_objects_data.get('field_course_extra_desc_title', None)
+        if extra_title == 'null':
+            extra_title = None
+        extra_description = (raw_objects_data.get('field_course_extra_description', {}) or {}).get('value')
+        if extra_title or extra_description:
+            extra, _ = AdditionalPromoArea.objects.get_or_create(
+                title=extra_title,
+                description=extra_description
+            )
+            return extra
 
     def set_authoring_organizations(self, course, data):
         schools = self._get_objects_by_uuid(Organization, data['field_course_school_node'])

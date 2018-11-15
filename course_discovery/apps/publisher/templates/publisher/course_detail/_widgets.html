@@ -23,7 +23,7 @@
                 <div class="layout-col layout-col-b course-run-details">
                     <div class="courserun-details">
                         <a class="courserun-detail-link" href="{% url 'publisher:publisher_course_run_detail' pk=course_run.id %}">
-                            {{ course_run.start.date }} - {{ course_run.get_pacing_type_display }}
+                            {{ course_run.start_date_temporary.date }} - {{ course_run.get_pacing_type_temporary_display }}
                         </a>
                     </div>
                     <div class="studio-url">

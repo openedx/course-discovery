@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-18 11:01+0000\n"
-"PO-Revision-Date: 2018-03-01 14:28+0000\n"
+"POT-Creation-Date: 2018-11-09 17:52+0000\n"
+"PO-Revision-Date: 2018-09-04 09:12+0000\n"
 "Last-Translator: Abstract Technology <stefania.trabucchi@abstract-technology.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
@@ -29,82 +29,82 @@ msgstr "Vorschau"
 
 #: static/js/publisher/change-state.js:15
 msgid "Something went wrong! please try again later."
-msgstr ""
+msgstr "Etwas ist schief gelaufen! Bitte später nochmal versuchen."
 
 #: static/js/publisher/comparing-objects.js:7
 msgid "Hide changes"
-msgstr ""
+msgstr "Änderungen verstecken"
 
 #: static/js/publisher/comparing-objects.js:12
 msgid "Show changes"
-msgstr ""
+msgstr "Änderungen anzeigen"
 
 #: static/js/publisher/image-validation.js:9
 msgid "The image file size cannot exceed 1 MB."
-msgstr ""
+msgstr "Die Dateigröße darf nicht größer sein als 1MB."
 
 #: static/js/publisher/instructors.js:28
 msgid "New Instructor"
-msgstr ""
+msgstr "Neuer Dozent"
 
 #: static/js/publisher/instructors.js:30
 msgid "Add staff member"
-msgstr ""
+msgstr "Mitarbeiter hinzufügen"
 
 #: static/js/publisher/instructors.js:41
 msgid "Please upload a instructor image."
-msgstr ""
+msgstr "Bitte laden Sie ein Bild des Lehrers/Dozenten hoch."
 
 #: static/js/publisher/instructors.js:96 static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
-msgstr ""
+msgstr "Es ist irgendetwas schief gelaufen!"
 
 #: static/js/publisher/instructors.js:129
 msgid "The image size must be smaller than 256kb"
-msgstr ""
+msgstr "Die Bildgröße muss kleiner als 256kb betragen."
 
 #: static/js/publisher/instructors.js:139
 msgid "The image dimensions must be less than 110 x 110"
-msgstr ""
+msgstr "Das Bildseitenverhältnis muss weniger als 110x110 betragen."
 
 #: static/js/publisher/instructors.js:151
 msgid " Unsupported Image extension"
-msgstr ""
+msgstr "Nicht unterstützte Bilderweiterung"
 
 #: static/js/publisher/instructors.js:269
 msgid "Update staff member"
-msgstr ""
+msgstr "Mitarbeiter aktualisieren"
 
 #: static/js/publisher/instructors.js:270
 msgid "Update Instructor"
-msgstr ""
+msgstr "Dozent aktualisieren"
 
 #: static/js/publisher/preview-url.js:25
 msgid "Save"
-msgstr ""
+msgstr "Speichern"
 
 #: static/js/publisher/preview-url.js:57
 msgid "Please enter a valid URL."
-msgstr ""
+msgstr "Bitte geben Sie eine gültige URL ein"
 
-#: static/js/publisher/views/courserun_list.js:22
+#: static/js/publisher/views/courserun_list.js:21
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
-"{courseRunDetail} with a start date of {startDate}"
-msgstr ""
+"{courseRunDetail}"
+msgstr "Sie haben erfolgreich eine URL ({studioLinkTag}) für den Kurs {courseRunDetail} erstellt."
 
-#: static/js/publisher/views/courserun_list.js:52
+#: static/js/publisher/views/courserun_list.js:50
 msgid "There was an error in saving your data."
-msgstr ""
+msgstr "Beim Speichern Ihrer Daten ist ein Fehler aufgetreten."
 
 #: static/js/publisher/views/courses.js:83
 msgid "No courses have been created."
-msgstr ""
+msgstr "Es sind keine Kurse erstellt worden."
 
 #: static/js/publisher/views/navbar.js:33
 msgid "OFF"
-msgstr ""
+msgstr "AUS"
 
 #: static/js/publisher/views/navbar.js:42
 msgid "ON"
-msgstr ""
+msgstr "EIN"

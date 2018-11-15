@@ -26,7 +26,6 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     def get_serializer_class(self):
         if self.action == 'list':
             return serializers.MinimalProgramSerializer
-
         return serializers.ProgramSerializer
 
     def get_queryset(self):

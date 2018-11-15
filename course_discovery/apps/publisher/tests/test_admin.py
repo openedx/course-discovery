@@ -3,13 +3,15 @@ from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import get_group_perms
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import (
-    PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME, REVIEWER_GROUP_NAME
+    PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_ENABLE_READ_ONLY_FIELDS, PUBLISHER_GROUP_NAME,
+    REVIEWER_GROUP_NAME
 )
 from course_discovery.apps.publisher.forms import CourseRunAdminForm
 from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
@@ -36,8 +38,12 @@ class AdminTests(SiteMixin, TestCase):
 
         self.assertFalse(CourseRun.objects.filter(lms_course_id__isnull=True).exists())
 
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
     def test_update_course_form(self):
         """ Verify that admin save the none in case of empty lms-course-id."""
+
+        organization = OrganizationFactory()
+        self.course_run.course.organizations.add(organization)
 
         # in case of empty string no data appears.
         data = self._post_data(self.course_run)
@@ -65,12 +71,12 @@ class AdminTests(SiteMixin, TestCase):
     def _post_data(self, course_run):
         return {
             'lms_course_id': '',
-            'pacing_type': course_run.pacing_type,
+            'pacing_type': course_run.pacing_type_temporary,
             'course': course_run.course.id,
-            'start_0': course_run.start.date(),
-            'start_1': course_run.start.time(),
-            'end_0': course_run.end.date(),
-            'end_1': course_run.end.time(),
+            'start_0': course_run.start_date_temporary.date(),
+            'start_1': course_run.start_date_temporary.time(),
+            'end_0': course_run.end_date_temporary.date(),
+            'end_1': course_run.end_date_temporary.time(),
             'state': self.run_state.id,
             'contacted_partner_manager': course_run.contacted_partner_manager,
             'changed_by': self.user.id,

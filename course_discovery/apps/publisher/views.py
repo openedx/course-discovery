@@ -26,6 +26,7 @@ from course_discovery.apps.core.models import User
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
 from course_discovery.apps.publisher.forms import (
@@ -195,7 +196,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
             if history_object:
                 context['publish_date'] = history_object.modified
 
-        start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
+        start_date = course_run.start_date_temporary.strftime("%B %d, %Y") if course_run.start_date_temporary else None
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), _('Courses')),
@@ -204,11 +205,10 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
                     '{number}: {title}'.format(number=course_run.course.number, title=course_run.course.title)
                 ),
                 (None, '{type}: {start}'.format(
-                    type=course_run.get_pacing_type_display(), start=start_date
+                    type=course_run.get_pacing_type_temporary_display(), start=start_date
                 ))
             ]
         )
-
         context['can_view_all_tabs'] = mixins.check_roles_access(user)
         context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
         context['publisher_comment_widget_feature'] = waffle.switch_is_active('publisher_comment_widget_feature')
@@ -234,7 +234,6 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         context['is_in_preview_review'] = course_run.is_in_preview_review
         context['is_seat_version'] = course_run.is_seat_version
         context['is_entitlement_version'] = course_run.is_entitlement_version
-
         return context
 
 
@@ -379,7 +378,8 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             {
                 'course': self.get_object(),
                 'is_internal_user': is_internal_user(self.request.user),
-                'history_object': history_object
+                'history_object': history_object,
+                'has_course_run': self.object.course_runs.exists()
             }
         )
 
@@ -430,9 +430,10 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
         published_runs = set()
         for course_run in self._get_active_course_runs(course):
             if course_run.course_run_state.is_published:
-                start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
+                course_run_start_date = course_run.start_date_temporary
+                start_date = course_run_start_date.strftime("%B %d, %Y") if course_run_start_date else None
                 published_runs.add('{type} - {start}'.format(
-                    type=course_run.get_pacing_type_display(),
+                    type=course_run.get_pacing_type_temporary_display(),
                     start=start_date
                 ))
         return published_runs
@@ -444,6 +445,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             seats = course_run.seats.all()
             type_is_valid = True
             price_is_valid = True
+            pacing_type = course_run.get_pacing_type_temporary_display()
 
             if seats:
                 if mode == Seat.VERIFIED:
@@ -459,13 +461,13 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
             if not type_is_valid:
                 misconfigured_seat_type_runs.add('{type} - {start}'.format(
-                    type=course_run.get_pacing_type_display(),
-                    start=course_run.start.strftime("%B %d, %Y")
+                    type=pacing_type,
+                    start=course_run.start_date_temporary.strftime("%B %d, %Y")
                 ))
             if not price_is_valid:
                 misconfigured_price_runs.add('{type} - {start}'.format(
-                    type=course_run.get_pacing_type_display(),
-                    start=course_run.start.strftime("%B %d, %Y")
+                    type=pacing_type,
+                    start=course_run.start_date_temporary.strftime("%B %d, %Y")
                 ))
 
         return misconfigured_price_runs, misconfigured_seat_type_runs
@@ -574,7 +576,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                 })
             published_runs = self._get_published_course_runs(self.object)
             # Only check published runs if there are changes to the mode or price
-            if published_runs and (entitlement.mode != entitlement_mode or entitlement.price != entitlement_price):
+            if published_runs and entitlement.mode != entitlement_mode:
                 # pylint: disable=no-member
                 error_message = _(
                     'The following active course run(s) are published: {course_runs}. You cannot change the mode '
@@ -659,6 +661,8 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
 
         user = self.request.user
         course = self.object
+        # Because this is a boolean field, our downstream view code needs to render a string
+        course.has_ofac_restrictions = 'Yes' if course.has_ofac_restrictions else 'No'
 
         context['can_edit'] = mixins.check_course_organization_permission(
             user, course, OrganizationExtension.EDIT_COURSE
@@ -679,6 +683,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context['role_widgets'] = get_course_role_widgets_data(
             user, course, course.course_state, 'publisher:api:change_course_state', parent_course=True
         )
+        context['publisher_enable_read_only_fields'] = waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
 
         # Add warning popup information if user can edit the course but does not own it.
         if context['can_edit'] and not waffle.switch_is_active('disable_publisher_permissions'):
@@ -708,7 +713,6 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
                             current_owner_role.role == PublisherUserRole.CourseTeam and
                             current_owner_role.user == self.request.user
                         )
-
         return context
 
 
@@ -800,8 +804,12 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
     def _initialize_run_form(self, last_run=None):
         run_initial_data = {}
         if last_run:
-            run_initial_data = {'pacing_type': last_run.pacing_type}
-        return self.run_form(initial=run_initial_data)
+            run_initial_data = {'pacing_type': last_run.pacing_type_temporary}
+        return self.run_form(
+            initial=run_initial_data,
+            hide_start_date_field=False,
+            hide_end_date_field=False
+        )
 
     def _entitlement_is_valid_for_seat_creation(self, entitlement):
         if entitlement is None:
@@ -919,7 +927,8 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             'cancel_url': reverse('publisher:publisher_course_detail', kwargs={'pk': parent_course.pk}),
             'run_form': run_form,
             'seat_form': seat_form,
-            'hide_seat_form': parent_course.uses_entitlements
+            'hide_seat_form': parent_course.uses_entitlements,
+            'publisher_enable_read_only_fields': waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
         }
         return context
 
@@ -940,7 +949,8 @@ class CreateRunFromDashboardView(CreateCourseRunView):
             'course_form': self.course_form(),
             'run_form': self.run_form(),
             'seat_form': self.seat_form(),
-            'hide_seat_form': False
+            'hide_seat_form': False,
+            'publisher_enable_read_only_fields': waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
         }
         return context
 
@@ -971,13 +981,15 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
     def get_context_data(self):
         user = self.request.user
+
         return {
             'course_run': self.get_object(),
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
             'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
             'is_internal_user': mixins.check_roles_access(user),
             'is_project_coordinator': is_project_coordinator_user(user),
-            'organizations': mixins.get_user_organizations(user)
+            'organizations': mixins.get_user_organizations(user),
+            'publisher_enable_read_only_fields': waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
         }
 
     def get_latest_course_run_seat(self, course_run):
@@ -998,20 +1010,24 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
         context['course_user_role'] = course_user_role
         context['run_form'] = self.run_form(
-            instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
+            instance=course_run,
+            is_project_coordinator=context.get('is_project_coordinator'),
+            hide_start_date_field=True,
+            hide_end_date_field=True,
+            initial={'start': course_run.start_date_temporary, 'end': course_run.end_date_temporary}
         )
 
         if not course.uses_entitlements:
             course_run_seat = self.get_latest_course_run_seat(course_run)
             context['seat_form'] = self.seat_form(instance=course_run_seat)
 
-        start_date = course_run.start.strftime("%B %d, %Y") if course_run.start else None
+        start_date = course_run.start_date_temporary.strftime("%B %d, %Y") if course_run.start_date_temporary else None
         context['breadcrumbs'] = make_bread_crumbs(
             [
                 (reverse('publisher:publisher_courses'), 'Courses'),
                 (reverse('publisher:publisher_course_detail', kwargs={'pk': course.id}), course.title),
                 (None, '{type}: {start}'.format(
-                    type=course_run.get_pacing_type_display(), start=start_date
+                    type=course_run.get_pacing_type_temporary_display(), start=start_date
                 ))
             ]
         )
@@ -1020,13 +1036,18 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
     def post(self, request, *args, **kwargs):
         user = request.user
-
+        staff = request.POST.getlist('staff')
         context = self.get_context_data()
         course_run = context.get('course_run')
         lms_course_id = course_run.lms_course_id
 
         run_form = self.run_form(
-            request.POST, instance=course_run, is_project_coordinator=context.get('is_project_coordinator')
+            request.POST,
+            instance=course_run,
+            is_project_coordinator=context.get('is_project_coordinator'),
+            hide_start_date_field=True,
+            hide_end_date_field=True,
+            initial={'start': course_run.start_date_temporary, 'end': course_run.end_date_temporary}
         )
         context['run_form'] = run_form
         form_data_is_valid = run_form.is_valid()
@@ -1045,6 +1066,8 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                 with transaction.atomic():
                     course_run = run_form.save(changed_by=user)
                     run_form.save_m2m()
+                    course_run.staff.clear()
+                    course_run.staff.add(*staff)
 
                     # If price-type comes with request then save the seat object.
                     if seat_form and request.POST.get('type'):
@@ -1138,7 +1161,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
         # record can be returned multiple times. We are not doing ordering for these fields
         ordering_fields = {
             0: 'title',
-            # 1: 'organizations__key',
+            1: 'number',
             # 2: 'course_user_roles__user__full_name',
             3: 'course_runs_count',
             4: 'course_state__owner_role_modified',

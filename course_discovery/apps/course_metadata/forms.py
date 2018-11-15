@@ -5,7 +5,7 @@ from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Pathway, Program
 
 
 def filter_choices_to_render_with_order_preserved(self, selected_choices):
@@ -49,6 +49,13 @@ class ProgramAdminForm(forms.ModelForm):
             ),
             'credit_backing_organizations': autocomplete.ModelSelect2Multiple(
                 url='admin_metadata:organisation-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                    'class': 'sortable-select',
+                }
+            ),
+            'instructor_ordering': autocomplete.ModelSelect2Multiple(
+                url='admin_metadata:person-autocomplete',
                 attrs={
                     'data-minimum-input-length': 3,
                     'class': 'sortable-select',
@@ -107,3 +114,19 @@ class CourseAdminForm(forms.ModelForm):
                 }
             ),
         }
+
+
+class PathwayAdminForm(forms.ModelForm):
+    class Meta:
+        model = Pathway
+        fields = '__all__'
+
+    def clean(self):
+        partner = self.cleaned_data.get('partner')
+        programs = self.cleaned_data.get('programs')
+
+        # partner and programs are required. If they are missing, skip this check and just show the required error
+        if partner and programs:
+            Pathway.validate_partner_programs(partner, programs)
+
+        return self.cleaned_data

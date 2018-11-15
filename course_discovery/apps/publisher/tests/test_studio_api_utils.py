@@ -3,12 +3,14 @@ from itertools import product
 
 import mock
 import pytest
+from waffle.testutils import override_switch
 
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory as DiscoveryCourseFactory
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory, CourseUserRoleFactory
 
@@ -54,16 +56,17 @@ def assert_data_generated_correctly(course_run, expected_team_data):
         'number': course.number,
         'run': StudioAPI.calculate_course_run_key_run_value(course_run),
         'schedule': {
-            'start': serialize_datetime(course_run.start),
-            'end': serialize_datetime(course_run.end),
+            'start': serialize_datetime(course_run.start_date_temporary),
+            'end': serialize_datetime(course_run.end_date_temporary),
         },
         'team': expected_team_data,
-        'pacing_type': course_run.pacing_type,
+        'pacing_type': course_run.pacing_type_temporary,
     }
     assert StudioAPI.generate_data_for_studio_api(course_run) == expected
 
 
 @pytest.mark.django_db
+@override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
 def test_generate_data_for_studio_api():
     course_run = CourseRunFactory(course__organizations=[OrganizationFactory()])
     course = course_run.course
@@ -78,6 +81,7 @@ def test_generate_data_for_studio_api():
 
 
 @pytest.mark.django_db
+@override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
 def test_generate_data_for_studio_api_without_team():
     course_run = CourseRunFactory(course__organizations=[OrganizationFactory()])
 

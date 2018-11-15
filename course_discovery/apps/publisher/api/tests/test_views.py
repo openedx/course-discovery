@@ -145,18 +145,21 @@ class OrganizationGroupUserViewTests(SiteMixin, TestCase):
     def setUp(self):
         super(OrganizationGroupUserViewTests, self).setUp()
 
-        user = UserFactory.create(username="test_user", password=USER_PASSWORD)
-        self.client.login(username=user.username, password=USER_PASSWORD)
+        self.user = UserFactory.create(username="test_user", password=USER_PASSWORD)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
 
+        self.internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
+        self.user.groups.add(self.internal_user_group)
         organization_extension = factories.OrganizationExtensionFactory()
         self.org_user1 = UserFactory.create(full_name="org user1")
         self.org_user2 = UserFactory.create(first_name='', last_name='', full_name='')
         organization_extension.group.user_set.add(*[self.org_user1, self.org_user2])
         self.organization = organization_extension.organization
 
-    def test_get_organization_user_group(self):
+    def test_get_organization_user_group_with_publisher_user_permissions(self):
         """
-        Verify that view returns list of users associated with the group related to given organization id.
+        Verify that view returns list of users associated with the group related to given organization id with
+        login users is associated with any publisher group.
         """
         response = self.client.get(
             path=self._get_organization_group_user_url(self.organization.id), content_type=JSON_CONTENT_TYPE
@@ -183,6 +186,17 @@ class OrganizationGroupUserViewTests(SiteMixin, TestCase):
         response = self.client.get(path=self._get_organization_group_user_url(org_id=0000),
                                    content_type=JSON_CONTENT_TYPE)
         self.assertEqual(response.status_code, 404)
+
+    def test_get_organization_user_group_without_publisher_user_permissions(self):
+        """
+        Verify that endpoint returns a permission error with login users not associated
+        with any publisher group.
+        """
+        self.user.groups.remove(self.internal_user_group)
+        response = self.client.get(
+            path=self._get_organization_group_user_url(self.organization.id), content_type=JSON_CONTENT_TYPE
+        )
+        self.assertEqual(response.status_code, 403)
 
     def _get_organization_group_user_url(self, org_id):
         return reverse(

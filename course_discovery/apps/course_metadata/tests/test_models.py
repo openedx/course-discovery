@@ -1,5 +1,6 @@
 import datetime
 import itertools
+import uuid
 from decimal import Decimal
 
 import ddt
@@ -20,8 +21,9 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AbstractMediaModel, AbstractNamedModel, AbstractValueModel, CorporateEndorsement, Course, CourseRun,
-    Endorsement, Seat, SeatType, Subject, Topic
+    FAQ, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel, AbstractValueModel,
+    CorporateEndorsement, Course, CourseRun, Curriculum, DegreeCost, DegreeDeadline, Endorsement,
+    Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -45,6 +47,10 @@ class TestCourse:
         query = 'title:' + title
         assert set(Course.search(query)) == expected
 
+    def test_wildcard_search(self):
+        expected = set(factories.CourseFactory.create_batch(3))
+        assert set(Course.search('*')) == expected
+
     def test_image_url(self):
         course = factories.CourseFactory()
         assert course.image_url == course.image.small.url
@@ -58,6 +64,35 @@ class TestCourse:
 
         course.image = None
         assert course.original_image_url is None
+
+    def test_first_enrollable_paid_seat_price(self):
+        """
+        Verify that `first_enrollable_paid_seat_price` property for a course
+        returns price of first paid seat of first active course run.
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        active_course_end = now + datetime.timedelta(days=60)
+        open_enrollment_end = now + datetime.timedelta(days=30)
+
+        course = factories.CourseFactory()
+        # Create and active course run with end date in future and enrollment_end in future.
+        course_run = CourseRunFactory(
+            course=course,
+            end=active_course_end,
+            enrollment_end=open_enrollment_end
+        )
+        # Create a seat with 0 price and verify that the course field
+        # `first_enrollable_paid_seat_price` returns None
+        factories.SeatFactory.create(course_run=course_run, type='verified', price=0, sku='ABCDEF')
+        assert course_run.first_enrollable_paid_seat_price is None
+        assert course.first_enrollable_paid_seat_price is None
+
+        # Now create a seat with some price and verify that the course field
+        # `first_enrollable_paid_seat_price` now returns the price of that
+        # payable seat
+        factories.SeatFactory.create(course_run=course_run, type='verified', price=100, sku='ABCDEF')
+        assert course_run.first_enrollable_paid_seat_price == 100
+        assert course.first_enrollable_paid_seat_price == 100
 
 
 @ddt.ddt
@@ -126,6 +161,13 @@ class CourseRunTests(TestCase):
         query = 'title:' + title
         actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search(query)), key=lambda course_run: course_run.key)
         expected_sorted = sorted(course_runs, key=lambda course_run: course_run.key)
+        self.assertEqual(actual_sorted, expected_sorted)
+
+    def test_wildcard_search(self):
+        """ Verify the method returns an unfiltered queryset of course runs. """
+        course_runs = factories.CourseRunFactory.create_batch(3)
+        actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search('*')), key=lambda course_run: course_run.key)
+        expected_sorted = sorted(course_runs + [self.course_run], key=lambda course_run: course_run.key)
         self.assertEqual(actual_sorted, expected_sorted)
 
     def test_seat_types(self):
@@ -209,6 +251,20 @@ class CourseRunTests(TestCase):
         factories.ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
         self.assertEqual(self.course_run.program_types, [active_program.type.name])
 
+    def test_new_course_run_excluded_in_retired_programs(self):
+        """ Verify the newly created course run must be excluded in associated retired programs"""
+        course = factories.CourseFactory()
+        course_run = factories.CourseRunFactory(course=course)
+        program = factories.ProgramFactory(
+            courses=[course], status=ProgramStatus.Retired,
+        )
+        course_run.weeks_to_complete = 2
+        course_run.save()
+        new_course_run = factories.CourseRunFactory(course=course)
+        new_course_run.save()
+        self.assertEqual(program.excluded_course_runs.count(), 1)
+        self.assertEqual(len(list(program.course_runs)), 1)
+
     @ddt.data(
         # Case 1: Return False when there are no paid Seats.
         ([('audit', 0)], False),
@@ -239,6 +295,14 @@ class CourseRunTests(TestCase):
         course_run = factories.CourseRunFactory.create()
         factories.SeatFactory.create(course_run=course_run, type='verified', price=10, sku='ABCDEF')
         self.assertEqual(course_run.first_enrollable_paid_seat_sku(), 'ABCDEF')
+
+    def test_first_enrollable_paid_seat_price(self):
+        """
+        Verify that first_enrollable_paid_seat_price returns price of first paid seat.
+        """
+        course_run = factories.CourseRunFactory.create()
+        factories.SeatFactory.create(course_run=course_run, type='verified', price=10, sku='ABCDEF')
+        self.assertEqual(course_run.first_enrollable_paid_seat_price, 10)
 
     @ddt.data(
         # Case 1: Return None when there are no enrollable paid Seats.
@@ -529,6 +593,23 @@ class AbstractValueModelTests(TestCase):
         value = 'abc'
         instance = TestAbstractValueModel(value=value)
         self.assertEqual(str(instance), value)
+
+
+class AbstractTitleDescriptionModelTests(TestCase):
+    """ Tests for AbstractTitleDescriptionModel. """
+
+    def test_str(self):
+        class TestAbstractTitleDescriptionModel(AbstractTitleDescriptionModel):
+            pass
+
+        title = 'test title'
+        description = 'Description'
+
+        instance = TestAbstractTitleDescriptionModel(title=None, description=description)
+        self.assertEqual(str(instance), description)
+
+        instance = TestAbstractTitleDescriptionModel(title=title, description=description)
+        self.assertEqual(str(instance), title)
 
 
 @ddt.ddt
@@ -1110,6 +1191,14 @@ class ProgramTests(TestCase):
             assert mock_delete_obj.called
 
 
+class PathwayTests(TestCase):
+    """ Tests of the Pathway model."""
+
+    def test_str(self):
+        pathway = factories.PathwayFactory()
+        self.assertEqual(str(pathway), pathway.name)
+
+
 class PersonSocialNetworkTests(TestCase):
     """Tests of the PersonSocialNetwork model."""
 
@@ -1229,6 +1318,64 @@ class FAQTests(TestCase):
         self.assertEqual(str(faq), question)
 
 
+class RankingTests(TestCase):
+    """ Tests of the Ranking model. """
+
+    def test_str(self):
+        description = 'test rank'
+        ranking = Ranking.objects.create(rank='#1', description=description, source='test')
+        self.assertEqual(str(ranking), description)
+
+
+class CurriculumTests(TestCase):
+    """ Tests of the Curriculum model. """
+    def setUp(self):
+        self.course_run = factories.CourseRunFactory()
+        self.courses = [self.course_run.course]
+        self.degree = factories.DegreeFactory(courses=self.courses)
+
+    def test_str(self):
+        uuid_string = uuid.uuid4()
+        curriculum = Curriculum.objects.create(degree=self.degree, uuid=uuid_string)
+        self.assertEqual(str(curriculum), str(uuid_string))
+
+
+class DegreeDeadlineTests(TestCase):
+    """ Tests the DegreeDeadline model."""
+    def setUp(self):
+        self.course_run = factories.CourseRunFactory()
+        self.courses = [self.course_run.course]
+        self.degree = factories.DegreeFactory(courses=self.courses)
+
+    def test_str(self):
+        deadline_name = "A test deadline"
+        deadline_date = "January 1, 2019"
+        degree_deadline = DegreeDeadline.objects.create(
+            degree=self.degree,
+            name=deadline_name,
+            date=deadline_date,
+        )
+        self.assertEqual(str(degree_deadline), "{} {}".format(deadline_name, deadline_date))
+
+
+class DegreeCostTests(TestCase):
+    """ Tests the DegreeCost model."""
+    def setUp(self):
+        self.course_run = factories.CourseRunFactory()
+        self.courses = [self.course_run.course]
+        self.degree = factories.DegreeFactory(courses=self.courses)
+
+    def test_str(self):
+        cost_name = "A test deadline"
+        cost_amount = "January 1, 2019"
+        degree_cost = DegreeCost.objects.create(
+            degree=self.degree,
+            description=cost_name,
+            amount=cost_amount,
+        )
+        self.assertEqual(str(degree_cost), str('{}, {}').format(cost_name, cost_amount))
+
+
 class SubjectTests(SiteMixin, TestCase):
     """ Tests of the Multilingual Subject (and SubjectTranslation) model. """
 
@@ -1280,3 +1427,26 @@ class TopicTests(SiteMixin, TestCase):
         name = "name"
         topic = Topic.objects.create(name=name, partner_id=self.partner.id)
         self.assertEqual(topic.__str__(), name)
+
+
+class DegreeTests(TestCase):
+    """ Tests of the Degree, Curriculum, and related models. """
+
+    def setUp(self):
+        super(DegreeTests, self).setUp()
+        self.course_run = factories.CourseRunFactory()
+        self.courses = [self.course_run.course]
+        self.degree = factories.DegreeFactory(courses=self.courses)
+        self.curriculum = factories.CurriculumFactory(degree=self.degree)
+
+    def test_basic_degree(self):
+        assert self.degree.curriculum is not None
+        assert self.curriculum.program_curriculum is not None
+        assert self.curriculum.course_curriculum is not None
+        assert self.curriculum.marketing_text is not None
+        assert self.degree.lead_capture_list_name is not None
+        assert self.degree.lead_capture_image is not None
+        assert self.degree.campus_image is not None
+        assert self.degree.banner_border_color is not None
+        assert self.degree.title_background_image is not None
+        assert self.degree.micromasters_background_image is not None

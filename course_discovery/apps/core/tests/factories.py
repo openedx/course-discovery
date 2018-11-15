@@ -1,7 +1,7 @@
 import factory
 from django.contrib.sites.models import Site
 
-from course_discovery.apps.core.models import Partner, User
+from course_discovery.apps.core.models import Currency, Partner, User
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
 
 USER_PASSWORD = 'password'
@@ -60,3 +60,11 @@ class PartnerFactory(factory.DjangoModelFactory):
 
     class Meta(object):
         model = Partner
+
+
+class CurrencyFactory(factory.DjangoModelFactory):
+    code = factory.fuzzy.FuzzyText(length=6)
+    name = factory.fuzzy.FuzzyText()
+
+    class Meta(object):
+        model = Currency

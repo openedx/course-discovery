@@ -5,11 +5,13 @@ from django.test import TestCase
 from django.urls import reverse
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.publisher.choices import PublisherUserRole
+from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.models import CourseRun, CourseUserRole
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
@@ -69,21 +71,23 @@ class CommentsEmailTests(SiteMixin, TestCase):
             subject
         )
 
-    def test_course_run_comment_email(self):
+    @ddt.data(True, False)
+    def test_course_run_comment_email(self, is_switch_enabled):
         """ Verify that after adding a comment against a course-run emails send to multiple users
         depending upon the parent course related group.
         """
-        comment = self.create_comment(content_object=self.course_run)
-        subject = 'Comment added: {title} {start} - {pacing_type}'.format(
-            title=self.course_run.course.title,
-            pacing_type=self.course_run.get_pacing_type_display(),
-            start=self.course_run.start.strftime('%B %d, %Y')
-        )
-        self.assert_comment_email_sent(
-            self.course_run, comment,
-            reverse('publisher:publisher_course_run_detail', args=[self.course_run.id]),
-            subject
-        )
+        with override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=is_switch_enabled):
+            comment = self.create_comment(content_object=self.course_run)
+            subject = 'Comment added: {title} {start} - {pacing_type}'.format(
+                title=self.course_run.course.title,
+                pacing_type=self.course_run.get_pacing_type_temporary_display(),
+                start=self.course_run.start_date_temporary.strftime('%B %d, %Y')
+            )
+            self.assert_comment_email_sent(
+                self.course_run, comment,
+                reverse('publisher:publisher_course_run_detail', args=[self.course_run.id]),
+                subject
+            )
 
     @mock.patch('course_discovery.apps.publisher_comments.models.send_email_for_comment')
     def test_email_with_enable_waffle_switch(self, send_email_for_comment):
@@ -105,14 +109,19 @@ class CommentsEmailTests(SiteMixin, TestCase):
         self.create_comment(content_object=self.course)
         self.assertEqual(len(mail.outbox), 0)
 
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=False)
     def test_course_run_without_start_date(self):
-        """ Verify that emails works properly even if course-run does not have a start date."""
-        self.course_run.start = None
+        """ Verify that emails works properly even if course-run does not have a start date.
+
+            Note: Once PUBLISHER_ENABLE_READ_ONLY_FIELDS switch is ready to be removed, this test should
+            be deleted, as there will be no way to have a course run without a start date in Publisher.
+        """
+        self.course_run.start_date_temporary = None
         self.course_run.save()
         comment = self.create_comment(content_object=self.course_run)
         subject = 'Comment added: {title} {start} - {pacing_type}'.format(
             title=self.course_run.course.title,
-            pacing_type=self.course_run.get_pacing_type_display(),
+            pacing_type=self.course_run.get_pacing_type_temporary_display(),
             start=''
         )
         self.assert_comment_email_sent(
@@ -129,7 +138,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         if isinstance(content_object, CourseRun):
             course_name = '{title} {start} - {pacing_type}'.format(
                 title=content_object.course.title,
-                pacing_type=content_object.get_pacing_type_display(),
+                pacing_type=content_object.get_pacing_type_temporary_display(),
                 start=content_object.start.strftime('%B %d, %Y') if content_object.start else ''
             )
         else:
@@ -171,39 +180,43 @@ class CommentsEmailTests(SiteMixin, TestCase):
         self.create_comment(content_object=self.course)
         self.assertEqual(len(mail.outbox), 1)
 
-    def test_email_with_course_comment_editing(self):
+    @ddt.data(True, False)
+    def test_email_with_course_comment_editing(self, is_switch_enabled):
         """ Verify that after editing a comment against a course emails send
         to multiple users.
         """
-        comment = self.create_comment(content_object=self.course)
-        subject = 'Comment added: {title}'.format(title=self.course.title)
-        self.assertEqual(str(mail.outbox[0].subject), subject)
-        self.assertIn(comment.comment, str(mail.outbox[0].body.strip()))
+        with override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=is_switch_enabled):
+            comment = self.create_comment(content_object=self.course)
+            subject = 'Comment added: {title}'.format(title=self.course.title)
+            self.assertEqual(str(mail.outbox[0].subject), subject)
+            self.assertIn(comment.comment, str(mail.outbox[0].body.strip()))
 
-        comment.comment = 'update the comment'
-        comment.save()
-        subject = 'Comment updated: {title}'.format(title=self.course.title)
-        self.assertEqual(str(mail.outbox[1].subject), subject)
-        self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'update the comment')
+            comment.comment = 'update the comment'
+            comment.save()
+            subject = 'Comment updated: {title}'.format(title=self.course.title)
+            self.assertEqual(str(mail.outbox[1].subject), subject)
+            self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'update the comment')
 
-    def test_email_with_course_run_comment_editing(self):
+    @ddt.data(True, False)
+    def test_email_with_course_run_comment_editing(self, is_switch_enabled):
         """ Verify that after editing a comment against a course emails send
         to multiple users.
         """
-        factories.CourseUserRoleFactory(
-            course=self.course, role=PublisherUserRole.Publisher, user=self.user
-        )
-        comment = self.create_comment(content_object=self.course_run)
-        comment.comment = 'Update the comment'
-        comment.save()
+        with override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=is_switch_enabled):
+            factories.CourseUserRoleFactory(
+                course=self.course, role=PublisherUserRole.Publisher, user=self.user
+            )
+            comment = self.create_comment(content_object=self.course_run)
+            comment.comment = 'Update the comment'
+            comment.save()
 
-        subject = 'Comment updated: {title} {start} - {pacing_type}'.format(
-            title=self.course_run.course.title,
-            pacing_type=self.course_run.get_pacing_type_display(),
-            start=self.course_run.start.strftime('%B %d, %Y')
-        )
-        self.assertEqual(str(mail.outbox[1].subject), subject)
-        self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'Update the comment')
+            subject = 'Comment updated: {title} {start} - {pacing_type}'.format(
+                title=self.course_run.course.title,
+                pacing_type=self.course_run.get_pacing_type_temporary_display(),
+                start=self.course_run.start_date_temporary.strftime('%B %d, %Y')
+            )
+            self.assertEqual(str(mail.outbox[1].subject), subject)
+            self.assertIn(comment.comment, str(mail.outbox[1].body.strip()), 'Update the comment')
 
     def test_decline_preview_email(self):
         """ Verify that adding a comment in decline preview url send an email."""

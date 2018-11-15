@@ -3,7 +3,7 @@ from collections import OrderedDict
 from datetime import date
 
 from edx_rest_api_client.client import EdxRestApiClient
-from edx_rest_framework_extensions.authentication import JwtAuthentication
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import detail_route
@@ -95,7 +95,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'id': course_run.lms_course_id,
             'uuid': str(discovery_course.uuid),
             'name': course_run.title_override or course_run.course.title,
-            'verification_deadline': serialize_datetime(course_run.end),
+            'verification_deadline': serialize_datetime(course_run.end_date_temporary),
         }
 
         # NOTE: We only order here to aid testing. The E-Commerce API does NOT care about ordering.
@@ -130,6 +130,10 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'outcome': publisher_course.expected_learnings,
             'prerequisites_raw': publisher_course.prerequisites,
             'syllabus_raw': publisher_course.syllabus,
+            'additional_information': publisher_course.additional_information,
+            'faq': publisher_course.faq,
+            'learner_testimonials': publisher_course.learner_testimonial,
+            'has_ofac_restrictions': publisher_course.has_ofac_restrictions
         }
         discovery_course, created = Course.objects.update_or_create(partner=partner, key=course_key, defaults=defaults)
         discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
@@ -145,15 +149,14 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         discovery_course.subjects.add(*subjects)
 
         defaults = {
-            'start': course_run.start,
-            'end': course_run.end,
-            'pacing_type': course_run.pacing_type,
+            'start': course_run.start_date_temporary,
+            'end': course_run.end_date_temporary,
+            'pacing_type': course_run.pacing_type_temporary,
             'title_override': course_run.title_override,
             'min_effort': course_run.min_effort,
             'max_effort': course_run.max_effort,
             'language': course_run.language,
             'weeks_to_complete': course_run.length,
-            'learner_testimonials': publisher_course.learner_testimonial,
         }
         discovery_course_run, __ = DiscoveryCourseRun.objects.update_or_create(
             course=discovery_course,

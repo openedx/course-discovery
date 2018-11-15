@@ -8,7 +8,7 @@ from parler.admin import TranslatableAdmin
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
-from course_discovery.apps.course_metadata.forms import CourseAdminForm, ProgramAdminForm
+from course_discovery.apps.course_metadata.forms import CourseAdminForm, PathwayAdminForm, ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 
 PUBLICATION_FAILURE_MSG_TPL = _(
@@ -74,6 +74,19 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ('uuid', 'key', 'title',)
 
 
+@admin.register(CourseEntitlement)
+class CourseEntitlementAdmin(admin.ModelAdmin):
+    list_display = ['course', 'get_course_number', 'mode']
+
+    def get_course_number(self, obj):
+        return obj.course.number
+
+    get_course_number.short_description = 'Course number'
+
+    raw_id_fields = ['course']
+    search_fields = ['course__title', 'course__number']
+
+
 @admin.register(CourseRun)
 class CourseRunAdmin(admin.ModelAdmin):
     inlines = (SeatInline,)
@@ -119,8 +132,6 @@ class ProgramAdmin(admin.ModelAdmin):
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
 
-    filter_horizontal = ('job_outlook_items', 'expected_learning_items', 'instructor_ordering')
-
     # ordering the field display on admin page.
     fields = (
         'uuid', 'title', 'subtitle', 'status', 'type', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',
@@ -128,9 +139,9 @@ class ProgramAdmin(admin.ModelAdmin):
         'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses',
         'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
         'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden', 'corporate_endorsements', 'faq',
-        'individual_endorsements',
+        'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
     )
-    fields += filter_horizontal
+
     save_error = False
 
     def custom_course_runs_display(self, obj):
@@ -178,6 +189,14 @@ class ProgramAdmin(admin.ModelAdmin):
               'js/sortable_select.js')
 
 
+@admin.register(Pathway)
+class PathwayAdmin(admin.ModelAdmin):
+    form = PathwayAdminForm
+    readonly_fields = ('uuid',)
+    list_display = ('name', 'uuid', 'org_name', 'partner', 'email', 'destination_url', 'pathway_type',)
+    search_fields = ('uuid', 'name', 'email', 'destination_url', 'pathway_type',)
+
+
 @admin.register(ProgramType)
 class ProgramTypeAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug',)
@@ -207,6 +226,22 @@ class CorporateEndorsementAdmin(admin.ModelAdmin):
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
     list_display = ('question',)
+
+
+@admin.register(Ranking)
+class RankingAdmin(admin.ModelAdmin):
+    list_display = ('rank', 'description', 'source')
+
+
+@admin.register(AdditionalPromoArea)
+class AdditionalPromoAreaAdmin(admin.ModelAdmin):
+    list_display = ('title', 'description', 'courses')
+    search_fields = ('description',)
+
+    def courses(self, obj):
+        return ', '.join([
+            course.key for course in obj.extra_description.all()
+        ])
 
 
 class OrganizationUserRoleInline(admin.TabularInline):
@@ -246,8 +281,8 @@ class TopicAdmin(TranslatableAdmin):
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
     inlines = (PositionInline, PersonWorkInline, PersonSocialNetworkInline)
-    list_display = ('uuid', 'salutation', 'family_name', 'given_name', 'slug',)
-    list_filter = ('partner',)
+    list_display = ('uuid', 'salutation', 'family_name', 'given_name', 'bio_language', 'slug',)
+    list_filter = ('partner', 'bio_language')
     ordering = ('salutation', 'family_name', 'given_name', 'uuid',)
     readonly_fields = ('uuid',)
     search_fields = ('uuid', 'salutation', 'family_name', 'given_name', 'slug',)
@@ -279,6 +314,85 @@ class NamedModelAdmin(admin.ModelAdmin):
     ordering = ('name',)
     search_fields = ('name',)
 
+
+class DegreeProgramCurriculumInline(admin.TabularInline):
+    model = DegreeProgramCurriculum
+    extra = 1
+
+
+class DegreeCourseCurriculumInline(admin.TabularInline):
+    model = DegreeCourseCurriculum
+    extra = 1
+
+
+@admin.register(DegreeProgramCurriculum)
+class DegreeProgramCurriculumAdmin(admin.ModelAdmin):
+    list_display = ('curriculum', 'program')
+
+
+@admin.register(DegreeCourseCurriculum)
+class DegreeCourseCurriculumAdmin(admin.ModelAdmin):
+    list_display = ('curriculum', 'course')
+
+
+@admin.register(Curriculum)
+class CurriculumAdmin(admin.ModelAdmin):
+    list_display = ('uuid', 'degree')
+    inlines = (DegreeProgramCurriculumInline, DegreeCourseCurriculumInline)
+
+
+class CurriculumAdminInline(admin.StackedInline):
+    model = Curriculum
+    extra = 1
+
+
+class IconTextPairingInline(admin.StackedInline):
+    model = IconTextPairing
+    extra = 3
+    verbose_name = "Quick Fact"
+    verbose_name_plural = "Quick Facts"
+
+
+@admin.register(DegreeDeadline)
+class DegreeDeadlineAdmin(admin.ModelAdmin):
+    list_display = ('degree', 'semester', 'name', 'date', 'time')
+
+
+@admin.register(DegreeCost)
+class DegreeCostAdmin(admin.ModelAdmin):
+    list_display = ('degree', 'description', 'amount')
+
+
+class DegreeDeadlineInlineAdmin(admin.StackedInline):
+    model = DegreeDeadline
+    extra = 1
+
+
+class DegreeCostInlineAdmin(admin.StackedInline):
+    model = DegreeCost
+    extra = 1
+
+
+@admin.register(Degree)
+class DegreeAdmin(admin.ModelAdmin):
+    """
+    This is an inheritance model from Program
+
+    """
+    list_display = ('title', 'partner', 'status', 'hidden')
+    ordering = ('title', 'status')
+    readonly_fields = ('uuid', )
+    search_fields = ('title', 'partner', 'marketing_slug')
+    inlines = (CurriculumAdminInline, DegreeDeadlineInlineAdmin, DegreeCostInlineAdmin, IconTextPairingInline)
+    # ordering the field display on admin page.
+    fields = (
+        'type', 'uuid', 'status', 'hidden', 'partner', 'authoring_organizations', 'marketing_slug', 'card_image_url',
+        'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title',
+        'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
+        'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
+        'micromasters_long_title', 'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
+        'faq', 'costs_fine_print', 'deadlines_fine_print',
+    )
 
 # Register children of AbstractNamedModel
 for model in (LevelType, Prerequisite,):

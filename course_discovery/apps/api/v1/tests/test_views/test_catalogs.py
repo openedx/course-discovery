@@ -1,6 +1,8 @@
 # pylint: disable=redefined-builtin,no-member
+import csv
 import datetime
 import urllib
+from io import StringIO
 
 import ddt
 import pytest
@@ -179,7 +181,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             # to be included.
             filtered_course_run = CourseRunFactory(course=course)
 
-            with self.assertNumQueries(21):
+            with self.assertNumQueries(22):
                 response = self.client.get(url)
 
             assert response.status_code == 200
@@ -196,6 +198,40 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
             assert response.status_code == 200
             assert response.data['results'] == []
+
+    def test_courses_with_include_archived(self):
+        """
+        Verify the endpoint returns the list of available and archived courses if include archived
+        is True in catalog.
+        """
+        url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
+        Course.objects.all().delete()
+
+        now = datetime.datetime.now(pytz.UTC)
+        future = now + datetime.timedelta(days=30)
+        past = now - datetime.timedelta(days=30)
+
+        course_run = CourseRunFactory.create(
+            course__title='ABC Test Course With Archived', end=future, enrollment_end=future
+        )
+        SeatFactory.create(course_run=course_run)
+        # Create an archived course run
+        CourseRunFactory.create(course=course_run.course, end=past)
+
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        # The course appearing in response should have on 1 course run
+        assert len(response.data['results'][0]['course_runs']) == 1
+
+        # Mark include archived True in catalog
+        self.catalog.include_archived = True
+        self.catalog.save()
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        # The course appearing in response should include archived course run
+        assert len(response.data['results'][0]['course_runs']) == 2
 
     def test_contains_for_course_key(self):
         """
@@ -228,7 +264,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)
-        expected = ','.join([
+        expected = [
             course_run['key'],
             course_run['title'],
             course_run['pacing_type'],
@@ -269,17 +305,28 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             str(course_run['seats']['verified']['price']),
             course_run['seats']['verified']['currency'],
             course_run['seats']['verified']['upgrade_deadline'],
-            '"{}"'.format(course_run['seats']['credit']['type']),
-            '"{}"'.format(str(course_run['seats']['credit']['price'])),
-            '"{}"'.format(course_run['seats']['credit']['currency']),
-            '"{}"'.format(course_run['seats']['credit']['upgrade_deadline']),
-            '"{}"'.format(course_run['seats']['credit']['credit_provider']),
-            '"{}"'.format(course_run['seats']['credit']['credit_hours']),
+            '{}'.format(course_run['seats']['credit']['type']),
+            '{}'.format(str(course_run['seats']['credit']['price'])),
+            '{}'.format(course_run['seats']['credit']['currency']),
+            '{}'.format(course_run['seats']['credit']['upgrade_deadline']),
+            '{}'.format(course_run['seats']['credit']['credit_provider']),
+            '{}'.format(course_run['seats']['credit']['credit_hours']),
             course_run['modified'],
-        ])
+            course_run['course_key'],
+        ]
+
+        # collect streamed content
+        received_content = b''
+        for item in response.streaming_content:
+            received_content += item
+
+        # convert received content to csv for comparison
+        f = StringIO(received_content.decode('utf-8'))
+        reader = csv.reader(f)
+        content = list(reader)
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn(expected, response.content.decode('utf-8'))
+        self.assertEqual(set(expected), set(content[1]))
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single catalog. """

@@ -280,7 +280,7 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         expected_values = {
             'given_name': data['field_person_first_middle_name'],
             'family_name': data['field_person_last_name'],
-            'bio': self.loader.clean_html(data['field_person_resume']['value']),
+            'bio': self.loader.clean_html(data['field_person_resume']['value']) if data['field_person_resume'] else '',
             'profile_image_url': data['field_person_image']['url'],
             'slug': data['url'].split('/')[-1],
             'profile_url': data['url']
@@ -350,6 +350,29 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
         name = 'Advanced'
         self.assertEqual(self.loader.get_level_type(name).name, name)
+
+    def test_get_extra_description(self):
+        self.assertIsNone(self.loader.get_extra_description({}))
+
+        extra_description_raw = {
+            'field_course_extra_desc_title': 'null',
+            'field_course_extra_description': {}
+        }
+
+        extra_description = self.loader.get_extra_description(extra_description_raw)
+        self.assertIsNone(extra_description)
+
+        title = 'additional'
+        description = 'promo'
+        extra_description_raw = {
+            'field_course_extra_desc_title': title,
+            'field_course_extra_description': {
+                'value': description
+            }
+        }
+        extra_description = self.loader.get_extra_description(extra_description_raw)
+        self.assertEqual(extra_description.title, title)
+        self.assertEqual(extra_description.description, description)
 
     @ddt.unpack
     @ddt.data(

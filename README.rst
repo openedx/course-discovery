@@ -25,6 +25,43 @@ How To Contribute
 
 Contributions are welcome. Please read `How To Contribute <https://github.com/edx/edx-platform/blob/master/CONTRIBUTING.rst>`_ for details. Even though it was written with ``edx-platform`` in mind, these guidelines should be followed for Open edX code in general.
 
+Development
+-----------
+
+Is the build failing because translations are out of date?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Run ``make check_translations_up_to_date`` and check in the generated *.mo & *.po files to your PR.
+
+Running Tests Locally, Fast
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There is a test settings file ``course_discovery.settings.test_local`` that allows you to persist the test
+database between runs of the unittests (as long as you don't restart your container).  It stores the SQLite
+database file at ``/dev/shm``, which is a filesystem backed by RAM.  Using this test file in conjunction with
+pytest's ``--reuse-db`` option can significantly cut down on local testing iteration time.  You can use this
+as follows: ``pytest course_discovery/apps/course_metadata/tests/test_utils.py --ds=course_discovery.settings.test_local --reuse-db``
+
+The first run will incur the normal cost of database creation (typically around 30 seconds), but the second run
+will completely skip that startup cost, since the ``--reuse-db`` option causes pytest to use the already persisted
+database in the ``/dev/shm`` directory.  If you need to change models or create databases between runs, you can tell
+pytest to recreate the database with ``-recreate-db``.
+
+Debugging Tests Locally
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Pytest in this repository uses the `pytest-xdist <https://github.com/pytest-dev/pytest-xdist>`_ package for distributed testing. This is configured in the `pytest.ini file`_. However, `pytest-xdist does not support pdb.set_trace()`_.
+In order to use `pdb <https://docs.python.org/3/library/pdb.html>`_ when debugging Python unit tests, you can use the `pytest-no-xdist.ini file`_ instead. Use the ``-c`` option to the pytest command to specify which ini file to use.
+
+For example,
+
+.. code-block:: shell
+
+   pytest -c pytest-no-xdist.ini --ds=course_discovery.settings.test --durations=25 course_discovery/apps/publisher/tests/test_views.py::CourseRunDetailTests::test_detail_page_with_comments
+
+.. _pytest.ini file: https://github.com/edx/course-discovery/blob/master/pytest.ini
+.. _pytest-xdist does not support pdb.set_trace(): https://github.com/pytest-dev/pytest/issues/390#issuecomment-112203885
+.. _pytest-no-xdist.ini file: https://github.com/edx/course-discovery/blob/master/pytest=no-xdist.ini
+
 Reporting Security Issues
 -------------------------
 

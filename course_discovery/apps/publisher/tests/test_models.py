@@ -8,13 +8,20 @@ from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 from django_fsm import TransitionNotAllowed
+from factory.fuzzy import FuzzyDateTime
 from guardian.shortcuts import assign_perm
+from pytz import UTC
+from waffle.testutils import override_switch
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory as DiscoveryCourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
+from course_discovery.apps.publisher.exceptions import CourseRunEditException
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
 from course_discovery.apps.publisher.models import (
     Course, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat
@@ -34,7 +41,7 @@ class CourseRunTests(TestCase):
         self.assertEqual(
             str(self.course_run),
             '{title}: {date}'.format(
-                title=self.course_run.course.title, date=self.course_run.start
+                title=self.course_run.course.title, date=self.course_run.start_date_temporary
             )
         )
 
@@ -67,6 +74,19 @@ class CourseRunTests(TestCase):
         actual = '{url}/course/{id}'.format(url=self.course_run.course.partner.studio_url.strip('/'),
                                             id=self.course_run.lms_course_id)
         assert actual == self.course_run.studio_url
+
+    def test_studio_schedule_and_details_url(self):
+        assert self.course_run.studio_schedule_and_details_url is None
+
+        self.course_run.lms_course_id = 'test'
+        self.course_run.save()
+        organization = OrganizationFactory()
+        self.course_run.course.organizations.add(organization)
+        assert self.course_run.course.partner == organization.partner
+
+        actual = '{url}/settings/details/{id}'.format(url=self.course_run.course.partner.studio_url.strip('/'),
+                                                      id=self.course_run.lms_course_id)
+        assert actual == self.course_run.studio_schedule_and_details_url
 
     def test_has_valid_staff(self):
         """ Verify that property returns True if course-run must have a staff member
@@ -150,6 +170,454 @@ class CourseRunTests(TestCase):
         course_run = factories.CourseRunFactory()
         expected = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
         assert course_run.get_absolute_url() == expected
+
+    def test_discovery_counterpart_success(self):
+        """
+        Verify that CourseRun discovery_counterpart property returns
+        corresponding Discovery CourseRun object.
+        """
+        pacing_type_test_value = 'test_pacing_type_value'
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        discovery_course_run = self.create_discovery_course_run_with_metadata(
+            discovery_course,
+            {'pacing_type': pacing_type_test_value}
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+        # make sure Publisher course run key and Course Metadata course run key match
+        course_run.lms_course_id = discovery_course_run.key
+
+        assert course_run.discovery_counterpart == discovery_course_run
+
+    def test_discovery_counterpart_failure_without_course_run(self):
+        """
+        Verify that CourseRun discovery_counterpart property returns None if the
+        discovery_counterpart course has no course run associated with it.
+        """
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+
+        assert course_run.discovery_counterpart is None
+
+    def test_discovery_counterpart_failure_without_course(self):
+        """
+        Verify that CourseRun discovery_counterpart property returns None if the
+        discovery_counterpart does not exist.
+        """
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        assert course_run.discovery_counterpart is None
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=False)
+    def test_pacing_type_temporary_without_switch(self):
+        """
+        Verify that pacing_type_temporary property returns the value of the pacing_type field
+        when waffle switch is disabled.
+        """
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        assert course_run.pacing_type_temporary == course_run.pacing_type
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_pacing_type_temporary_success_with_switch(self):
+        """
+        Verify that pacing_type_temporary property returns the value of the corresponding Discovery
+        course run's pacing type when waffle switch is enabled.
+        """
+        pacing_type_test_value = 'test_pacing_type_value'
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        discovery_course_run = self.create_discovery_course_run_with_metadata(
+            discovery_course,
+            {'pacing_type': pacing_type_test_value}
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+        # make sure Publisher course run key and Course Metadata course run key match
+        course_run.lms_course_id = discovery_course_run.key
+
+        assert course_run.pacing_type_temporary == course_run.discovery_counterpart.pacing_type
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_pacing_type_temporary_failure_with_switch(self):
+        """
+        Verify that pacing_type_temporary property returns the default value for course run pacing
+        type when corresponding Discovery course run does not exist and waffle switch is enabled.
+        """
+        pacing_type_test_value = None
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        self.create_discovery_course_run_with_metadata(
+            discovery_course,
+            {'pacing_type': pacing_type_test_value}
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+
+        assert course_run.pacing_type_temporary == 'instructor_paced'
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=False)
+    def test_pacing_type_temporary_setter(self):
+        """
+        Verify that modifying the pacing_type_temporary property also modifies the pacing_type field
+        when waffle switch is disabled.
+        """
+        pacing_type_test_value = 'test_pacing_type_value'
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        course_run.pacing_type_temporary = pacing_type_test_value
+
+        assert course_run.pacing_type_temporary == course_run.pacing_type
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_pacing_type_temporary_setter_with_switch(self):
+        """
+        Verify that modifying the pacing_type_temporary property throws CourseRunEditException
+        when waffle switch is enabled.
+        """
+        pacing_type_test_value = 'test_pacing_type_value'
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        with self.assertRaises(CourseRunEditException):
+            course_run.pacing_type_temporary = pacing_type_test_value
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=False)
+    def test_pacing_type_temporary_display(self):
+        """
+        Verify that pacing_type_temporary display function returns the
+        value of the pacing_type field display function when waffle switch is disabled.
+        """
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        assert course_run.get_pacing_type_temporary_display() == course_run.get_pacing_type_display()
+
+    def test_start_date_temporary(self):
+        """ Verify that start_date_temporary property returns the value of the start field. """
+        course_run = factories.CourseRunFactory()
+
+        assert course_run.start_date_temporary == course_run.start
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_pacing_type_temporary_display_success_with_switch(self):
+        """
+        Verify that pacing_type_temporary display function returns the
+        value of the corresponding Discovery course run's pacing_type display function when waffle switch is enabled.
+        """
+        pacing_type_test_value = 'test_pacing_type_value'
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        discovery_course_run = self.create_discovery_course_run_with_metadata(
+            discovery_course,
+            {'pacing_type': pacing_type_test_value}
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+        # make sure Publisher course run key and Course Metadata course run key match
+        course_run.lms_course_id = discovery_course_run.key
+
+        assert course_run.get_pacing_type_temporary_display() == discovery_course_run.get_pacing_type_display()
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_pacing_type_temporary_display_failure_with_switch(self):
+        """
+        Verify that pacing_type_temporary display function returns the
+        value of the default course runs's pacing_type display function when corresponding Discovery
+        course run does not exist and waffle switch is enabled.
+        """
+        pacing_type_test_value = None
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        self.create_discovery_course_run_with_metadata(
+            discovery_course,
+            {'pacing_type': pacing_type_test_value}
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+
+        assert course_run.get_pacing_type_temporary_display() == 'Instructor-paced'
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=False)
+    def test_start_date_temporary_without_switch(self):
+        """
+        Verify that start_date_temporary property returns the value of the start field
+        when waffle switch is disabled.
+        """
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        assert course_run.start_date_temporary == course_run.start
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_start_date_temporary_success_with_switch(self):
+        """
+        Verify that start_date_temporary property returns the value of the corresponding Discovery
+        course run's start when waffle switch is enabled.
+        """
+        start_date_test_value = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        discovery_course_run = self.create_discovery_course_run_with_metadata(
+            discovery_course,
+            {'start': start_date_test_value}
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+        # make sure Publisher course run key and Course Metadata course run key match
+        course_run.lms_course_id = discovery_course_run.key
+
+        assert course_run.start_date_temporary == course_run.discovery_counterpart.start
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_start_date_temporary_failure_with_switch(self):
+        """
+        Verify that start_date_temporary property returns the initial value for Publisher course run start
+        when corresponding Discovery course run does not exist and waffle switch is enabled.
+        """
+        start_date_test_value = None
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        self.create_discovery_course_run_with_metadata(
+            discovery_course,
+            {'start': start_date_test_value}
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+
+        assert course_run.start_date_temporary == course_run.start
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=False)
+    def test_start_date_temporary_setter(self):
+        """
+        Verify that modifying the start_date_temporary property also modifies the start field
+        when waffle switch is disabled.
+        """
+        start_date_test_value = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        course_run.start_date_temporary = start_date_test_value
+
+        assert course_run.start_date_temporary == course_run.start
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_start_date_temporary_setter_with_switch(self):
+        """
+        Verify that modifying the start_date_temporary property throws CourseRunEditException
+        when waffle switch is enabled.
+        """
+        start_date_test_value = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        with self.assertRaises(CourseRunEditException):
+            course_run.start_date_temporary = start_date_test_value
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=False)
+    def test_end_date_temporary_without_switch(self):
+        """
+        Verify that end_date_temporary property returns the value of the end field
+        when waffle switch is disabled.
+        """
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        assert course_run.end_date_temporary == course_run.end
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_end_date_temporary_success_with_switch(self):
+        """
+        Verify that end_date_temporary property returns the value of the corresponding Discovery
+        course run's end when waffle switch is enabled.
+        """
+        end_date_test_value = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        discovery_course_run = self.create_discovery_course_run_with_metadata(
+            discovery_course,
+            {'end': end_date_test_value}
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+        # make sure Publisher course run key and Course Metadata course run key match
+        course_run.lms_course_id = discovery_course_run.key
+
+        assert course_run.end_date_temporary == course_run.discovery_counterpart.end
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_end_date_temporary_failure_with_switch(self):
+        """
+        Verify that end_date_temporary property returns the initial value for Publisher course run end
+        when corresponding Discovery course run does not exist and waffle switch is enabled.
+        """
+        end_date_test_value = None
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+        organization = OrganizationFactory()
+
+        discovery_course = self.create_discovery_course_with_partner(organization.partner)
+        self.create_discovery_course_run_with_metadata(
+            discovery_course,
+            {'end': end_date_test_value}
+        )
+
+        self.add_organization_to_course(course_run.course, organization)
+
+        # make sure Publisher course key and Course Metadata course key match
+        course_run.course.key = discovery_course.key
+
+        assert course_run.end_date_temporary == course_run.end
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=False)
+    def test_end_date_temporary_setter(self):
+        """
+        Verify that modifying the end_date_temporary property also modifies the end field
+        when waffle switch is disabled.
+        """
+        end_date_test_value = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        course_run.end_date_temporary = end_date_test_value
+
+        assert course_run.end_date_temporary == course_run.end
+
+    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
+    def test_end_date_temporary_setter_with_switch(self):
+        """
+        Verify that modifying the end_date_temporary property throws CourseRunEditException
+        when waffle switch is enabled.
+        """
+        end_date_test_value = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # create a fresh course run object to avoid issues with caching of discovery_counterpart property
+        course_run = factories.CourseRunFactory()
+
+        with self.assertRaises(CourseRunEditException):
+            course_run.end_date_temporary = end_date_test_value
+
+    @staticmethod
+    def create_discovery_course_with_partner(partner):
+        """
+        Creates and returns a Discovery Course object with a partner field.
+
+        Arguments:
+            partner: a Partner object to assign to the created Discovery Course.partner field
+
+        Returns:
+            a Discovery Course object
+        """
+        discovery_course = DiscoveryCourseFactory(partner=partner)
+        discovery_course.save()
+        return discovery_course
+
+    @staticmethod
+    def create_discovery_course_run_with_metadata(course, metadata):
+        """
+        Creates and returns a Discovery CourseRun object with course and fields specified in metadata dictionary.
+
+        Arguments:
+            course: a Course object to assign to the created Discovery CourseRun.course field
+            metadata: a dictionary where the keys are field names and values are field values
+
+            For example, metadata could be {'pacing_type': 'Instructor-paced'}.
+
+        Returns:
+            a Discovery CourseRun object
+        """
+        discovery_course_run = DiscoveryCourseRunFactory(course=course, **metadata)
+        discovery_course_run.save()
+        return discovery_course_run
+
+    @staticmethod
+    def add_organization_to_course(course, organization):
+        """
+        Add an organization to a Course's organization field
+
+        Arguments:
+            course: a Course object to which to assign an organization the Course.organizations field
+            organization: an Organization object to assign to the Course.organizations field
+        """
+        course.organizations.add(organization)
+        course.save()
 
 
 class CourseTests(TestCase):
@@ -786,6 +1254,23 @@ class CourseRunStateTests(TestCase):
         self.course_run_state.name = CourseRunStateChoices.Published
         self.course_run_state.save()
         self.assertTrue(self.course_run_state.is_published)
+
+    def test_preview_status_for_publisher(self):
+        """
+        Verify that the method returns the correct status
+        """
+        self.course_run_state.owner_role = PublisherUserRole.CourseTeam
+        self.course_run_state.save()
+        self.assertEqual(self.course_run_state.preview_status_for_publisher, 'Submitted for review')
+
+        self.course_run_state.owner_role = PublisherUserRole.Publisher
+        self.course_run_state.preview_accepted = True
+        self.course_run_state.save()
+        self.assertEqual(self.course_run_state.preview_status_for_publisher, 'Preview Accepted')
+
+        self.course_run_state.preview_accepted = False
+        self.course_run_state.save()
+        self.assertEqual(self.course_run_state.preview_status_for_publisher, 'Preview Declined')
 
     def test_is_draft(self):
         """

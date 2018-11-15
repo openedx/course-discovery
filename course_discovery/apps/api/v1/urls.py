@@ -10,6 +10,7 @@ from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.api.v1.views.courses import CourseViewSet
 from course_discovery.apps.api.v1.views.currency import CurrencyView
 from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet
+from course_discovery.apps.api.v1.views.pathways import PathwayViewSet
 from course_discovery.apps.api.v1.views.people import PersonViewSet
 from course_discovery.apps.api.v1.views.program_types import ProgramTypeViewSet
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
@@ -34,11 +35,13 @@ router.register(r'organizations', OrganizationViewSet, base_name='organization')
 router.register(r'people', PersonViewSet, base_name='person')
 router.register(r'subjects', SubjectViewSet, base_name='subject')
 router.register(r'topics', TopicViewSet, base_name='topic')
+router.register(r'pathways', PathwayViewSet, base_name='pathway')
 router.register(r'programs', ProgramViewSet, base_name='program')
 router.register(r'program_types', ProgramTypeViewSet, base_name='program_type')
 router.register(r'search/all', search_views.AggregateSearchViewSet, base_name='search-all')
 router.register(r'search/courses', search_views.CourseSearchViewSet, base_name='search-courses')
 router.register(r'search/course_runs', search_views.CourseRunSearchViewSet, base_name='search-course_runs')
 router.register(r'search/programs', search_views.ProgramSearchViewSet, base_name='search-programs')
+router.register(r'search/people', search_views.PersonSearchViewSet, base_name='search-people')
 
 urlpatterns += router.urls

@@ -30,3 +30,6 @@ class PublisherUserPermission(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return is_publisher_user(request.user)
+
+    def has_permission(self, request, view):
+        return is_publisher_user(request.user)

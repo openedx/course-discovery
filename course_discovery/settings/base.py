@@ -67,6 +67,7 @@ PROJECT_APPS = [
     'course_discovery.apps.edx_haystack_extensions',
     'course_discovery.apps.publisher',
     'course_discovery.apps.publisher_comments',
+    'course_discovery.apps.journal',
 ]
 
 
@@ -77,6 +78,7 @@ INSTALLED_APPS += PROJECT_APPS
 INSTALLED_APPS += ['haystack']
 
 MIDDLEWARE_CLASSES = (
+    'edx_django_utils.cache.middleware.RequestCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -89,6 +91,9 @@ MIDDLEWARE_CLASSES = (
     'social_django.middleware.SocialAuthExceptionMiddleware',
     'waffle.middleware.WaffleMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    'edx_django_utils.cache.middleware.TieredCacheMiddleware',
+    'edx_rest_framework_extensions.middleware.RequestMetricsMiddleware',
+    'edx_rest_framework_extensions.auth.jwt.middleware.EnsureJWTAuthSettingsMiddleware',
 )
 
 ROOT_URLCONF = 'course_discovery.urls'
@@ -336,8 +341,8 @@ LOGGING = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-        'edx_rest_framework_extensions.authentication.BearerAuthentication',
-        'edx_rest_framework_extensions.authentication.JwtAuthentication',
+        'edx_rest_framework_extensions.auth.bearer.authentication.BearerAuthentication',
+        'edx_rest_framework_extensions.auth.jwt.authentication.JwtAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'course_discovery.apps.api.pagination.PageNumberPagination',
@@ -372,7 +377,7 @@ JWT_AUTH = {
     'JWT_ALGORITHM': 'HS256',
     'JWT_AUDIENCE': 'course-discovery',
     'JWT_ISSUER': 'course-discovery',
-    'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.utils.jwt_decode_handler',
+    'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler',
     'JWT_VERIFY_AUDIENCE': False,
 }
 
