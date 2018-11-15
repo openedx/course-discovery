@@ -514,7 +514,7 @@ class PersonTests(TestCase):
         Verify that property returns profile_image_url if profile_image_url
         exists other wise it returns uploaded image url.
         """
-        self.assertEqual(self.person.get_profile_image_url, self.person.profile_image.url)
+        self.assertEqual(self.person.get_profile_image_url, self.person.profile_image_url)
 
         # create another person with out profile_image_url
         person = factories.PersonFactory(profile_image_url=None)
@@ -1210,16 +1210,16 @@ class PersonSocialNetworkTests(TestCase):
     def test_str(self):
         """Verify that a person-social-network is properly converted to a str."""
         self.assertEqual(
-            str(self.network), '{type}: {value}'.format(type=self.network.type, value=self.network.value)
+            str(self.network), '{title}: {url}'.format(title=self.network.display_title, url=self.network.url)
         )
 
     def test_unique_constraint(self):
         """Verify that a person-social-network does not allow multiple accounts for same
         social network.
         """
-        factories.PersonSocialNetworkFactory(person=self.person, type='facebook')
+        factories.PersonSocialNetworkFactory(person=self.person, type='facebook', title='@Mikix')
         with self.assertRaises(IntegrityError):
-            factories.PersonSocialNetworkFactory(person=self.person, type='facebook')
+            factories.PersonSocialNetworkFactory(person=self.person, type='facebook', title='@Mikix')
 
 
 class SeatTypeTests(TestCase):

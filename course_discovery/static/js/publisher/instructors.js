@@ -49,11 +49,6 @@ $(document).ready(function () {
             'profile_image': $('.select-image').attr('src'),
             'position': getFormInstructorPosition(),
             'major_works': $('#majorWorks').val(),
-            'urls': {
-                facebook: $('#facebook').val(),
-                twitter: $('#twitter').val(),
-                blog: $('#blog').val()
-            }
         };
 
         if (editMode) {
@@ -81,9 +76,6 @@ $(document).ready(function () {
                 $('#bio').val('');
                 $('.select-image').attr('src', '').removeClass('image-updated');
                 $('#majorWorks').val('');
-                $('#facebook').val('');
-                $('#twitter').val('');
-                $('#blog').val('');
                 clearModalError();
                 closeModal(e, $('#addInstructorModal'));
                 if (editMode) {
@@ -294,9 +286,6 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
             $('#email').val(data['email']);
             $('#bio').val(data['bio']);
             $('#majorWorks').val(data['major_works']);
-            $('#facebook').val(data['urls']['facebook']);
-            $('#twitter').val(data['urls']['twitter']);
-            $('#blog').val(data['urls']['blog']);
         }
     });
 });

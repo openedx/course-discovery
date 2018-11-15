@@ -461,12 +461,10 @@ class PathwayFactory(factory.DjangoModelFactory):
         model = Pathway
 
 
-class AbstractSocialNetworkModelFactory(factory.DjangoModelFactory):
-    type = FuzzyChoice([name for name, __ in AbstractSocialNetworkModel.SOCIAL_NETWORK_CHOICES])
-    value = FuzzyText()
-
-
-class PersonSocialNetworkFactory(AbstractSocialNetworkModelFactory):
+class PersonSocialNetworkFactory(factory.DjangoModelFactory):
+    type = FuzzyChoice(PersonSocialNetwork.SOCIAL_NETWORK_CHOICES.keys())
+    url = FuzzyText()
+    title = url if type == 'others' else ''
     person = factory.SubFactory(PersonFactory)
 
     class Meta:

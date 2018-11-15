@@ -303,6 +303,25 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
                 self.assertEqual(person.position.organization_name,
                                  (position_data.get('field_person_position_org_link') or {}).get('title'))
 
+        social_links = data['field_person_social_links']
+        if social_links:
+            expected_urls = []
+            expected_types = []
+            expected_titles = []
+            for social_network in person.person_networks.values():
+                expected_urls.append(social_network['url'])
+                expected_types.append(social_network['type'])
+                expected_titles.append(social_network['title'])
+            for social_link in social_links:
+                if social_link['field_person_social_link']:
+                    url = social_link['field_person_social_link']['url']
+                    link_type = social_link['field_person_social_link_type']
+                    link_type = 'others' if link_type == 'generic' else link_type
+                    title = social_link['field_person_social_link']['title']
+                    self.assertIn(url, expected_urls)
+                    self.assertIn(link_type, expected_types)
+                    self.assertIn(title, expected_titles)
+
     def ingest_mock_data(self):
         self.mock_login_response()
         people = self.mock_api()
