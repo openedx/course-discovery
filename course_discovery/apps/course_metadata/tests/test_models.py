@@ -1222,29 +1222,6 @@ class PersonSocialNetworkTests(TestCase):
             factories.PersonSocialNetworkFactory(person=self.person, type='facebook')
 
 
-class CourseSocialNetworkTests(TestCase):
-    """Tests of the CourseSocialNetwork model."""
-
-    def setUp(self):
-        super(CourseSocialNetworkTests, self).setUp()
-        self.network = factories.CourseRunSocialNetworkFactory()
-        self.course_run = factories.CourseRunFactory()
-
-    def test_str(self):
-        """Verify that a course-social-network is properly converted to a str."""
-        self.assertEqual(
-            str(self.network), '{type}: {value}'.format(type=self.network.type, value=self.network.value)
-        )
-
-    def test_unique_constraint(self):
-        """Verify that a course-social-network does not allow multiple accounts for same
-        social network.
-        """
-        factories.CourseRunSocialNetworkFactory(course_run=self.course_run, type='facebook')
-        with self.assertRaises(IntegrityError):
-            factories.CourseRunSocialNetworkFactory(course_run=self.course_run, type='facebook')
-
-
 class SeatTypeTests(TestCase):
     """ Tests of the SeatType model. """
 
