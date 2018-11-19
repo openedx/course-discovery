@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.permissions import ReadOnlyByPublisherUser
+from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException, PersonToMarketingException
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 
@@ -129,3 +130,14 @@ class PersonViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a person. """
         return super(PersonViewSet, self).retrieve(request, *args, **kwargs)
+
+    def get_queryset(self):
+        # Only include people from the current request's site
+        return self.queryset.filter(partner=self.request.site.partner)
+
+    def get_serializer_context(self, *args, **kwargs):
+        context = super().get_serializer_context(*args, **kwargs)
+        query_params = ['include_course_runs_staffed', 'include_publisher_course_runs_staffed']
+        for query_param in query_params:
+            context[query_param] = get_query_param(self.request, query_param)
+        return context
