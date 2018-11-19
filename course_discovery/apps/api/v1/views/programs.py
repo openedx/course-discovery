@@ -1,6 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.mixins import UpdateModelMixin
+from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
@@ -11,11 +12,11 @@ from course_discovery.apps.course_metadata.models import Program
 
 
 # pylint: disable=no-member
-class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
+class ProgramViewSet(CacheResponseMixin, UpdateModelMixin, viewsets.ReadOnlyModelViewSet):
     """ Program resource. """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (DjangoModelPermissions,)
     filter_backends = (DjangoFilterBackend,)
     filter_class = filters.ProgramFilter
 
@@ -95,3 +96,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
             return Response(uuids)
 
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        """ Update details for a program. """
+        return super(ProgramViewSet, self).update(request, *args, **kwargs)
