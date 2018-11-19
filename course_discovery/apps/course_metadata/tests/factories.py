@@ -472,13 +472,6 @@ class PersonSocialNetworkFactory(AbstractSocialNetworkModelFactory):
         model = PersonSocialNetwork
 
 
-class CourseRunSocialNetworkFactory(AbstractSocialNetworkModelFactory):
-    course_run = factory.SubFactory(CourseRunFactory)
-
-    class Meta:
-        model = CourseRunSocialNetwork
-
-
 class SeatTypeFactory(factory.django.DjangoModelFactory):
     class Meta(object):
         model = SeatType
