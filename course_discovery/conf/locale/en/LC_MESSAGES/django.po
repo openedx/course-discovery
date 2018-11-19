@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-09 17:52+0000\n"
+"POT-Creation-Date: 2018-11-27 15:59+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -28,31 +28,31 @@ msgid ""
 "parameter."
 msgstr ""
 
-#: apps/api/serializers.py:431
+#: apps/api/serializers.py:471
 msgid "Number of courses contained in this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:434
+#: apps/api/serializers.py:474
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:507
+#: apps/api/serializers.py:562
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:577
+#: apps/api/serializers.py:632
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:740
+#: apps/api/serializers.py:795
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:964
+#: apps/api/serializers.py:1019
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:968
+#: apps/api/serializers.py:1023
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -192,7 +192,7 @@ msgstr ""
 msgid "OpenID Connect Secret"
 msgstr ""
 
-#: apps/core/models.py:85 apps/publisher/forms.py:295
+#: apps/core/models.py:85 apps/publisher/forms.py:289
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:7
 msgid "Studio URL"
 msgstr ""
@@ -220,13 +220,13 @@ msgstr ""
 msgid "eligible for one-click purchase"
 msgstr ""
 
-#: apps/course_metadata/admin.py:26 apps/publisher/forms.py:154
-#: apps/publisher/forms.py:252
+#: apps/course_metadata/admin.py:26 apps/publisher/forms.py:246
+#: apps/publisher/forms.py:299
 msgid "Yes"
 msgstr ""
 
-#: apps/course_metadata/admin.py:27 apps/publisher/forms.py:154
-#: apps/publisher/forms.py:252
+#: apps/course_metadata/admin.py:27 apps/publisher/forms.py:246
+#: apps/publisher/forms.py:299
 msgid "No"
 msgstr ""
 
@@ -244,7 +244,7 @@ msgstr ""
 
 #. Translators: Instructor-paced refers to course runs that operate on a schedule set by the instructor,
 #. similar to a normal university course.
-#: apps/course_metadata/choices.py:13 apps/publisher/models.py:519
+#: apps/course_metadata/choices.py:13 apps/publisher/models.py:524
 msgid "Instructor-paced"
 msgstr ""
 
@@ -288,14 +288,14 @@ msgstr ""
 #: apps/course_metadata/models.py:134 apps/course_metadata/models.py:173
 #: apps/course_metadata/models.py:238 apps/course_metadata/models.py:283
 #: apps/course_metadata/models.py:362 apps/course_metadata/models.py:503
-#: apps/course_metadata/models.py:1002 apps/course_metadata/models.py:1576
-#: apps/course_metadata/models.py:1624 apps/journal/models.py:23
+#: apps/course_metadata/models.py:1007 apps/course_metadata/models.py:1581
+#: apps/course_metadata/models.py:1629 apps/journal/models.py:23
 #: apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
 
 #: apps/course_metadata/models.py:138 apps/course_metadata/models.py:176
-#: apps/course_metadata/models.py:995
+#: apps/course_metadata/models.py:1000
 msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
 
@@ -339,7 +339,7 @@ msgstr ""
 msgid "Add the course image"
 msgstr ""
 
-#: apps/course_metadata/models.py:395 apps/course_metadata/models.py:967
+#: apps/course_metadata/models.py:395 apps/course_metadata/models.py:972
 #: apps/publisher/forms.py:138 apps/publisher/models.py:97
 #: apps/publisher/templates/publisher/course_detail.html:211
 #: apps/publisher/templates/publisher/course_revision_history.html:147
@@ -357,7 +357,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:407 apps/publisher/forms.py:142
 #: apps/publisher/models.py:73
-#: apps/publisher/templates/publisher/course_detail.html:233
+#: apps/publisher/templates/publisher/course_detail.html:222
 msgid "Additional Information"
 msgstr ""
 
@@ -403,50 +403,54 @@ msgid ""
 "value blank to default to the parent course's Outcome attribute."
 msgstr ""
 
-#: apps/course_metadata/models.py:800
+#: apps/course_metadata/models.py:571 apps/publisher/forms.py:297
+msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
+msgstr ""
+
+#: apps/course_metadata/models.py:805
 msgid "Archived"
 msgstr ""
 
-#: apps/course_metadata/models.py:802
+#: apps/course_metadata/models.py:807
 msgid "Current"
 msgstr ""
 
-#: apps/course_metadata/models.py:804
+#: apps/course_metadata/models.py:809
 msgid "Starting Soon"
 msgstr ""
 
-#: apps/course_metadata/models.py:806
+#: apps/course_metadata/models.py:811
 msgid "Upcoming"
 msgstr ""
 
-#: apps/course_metadata/models.py:890 apps/publisher/models.py:596
+#: apps/course_metadata/models.py:895 apps/publisher/models.py:601
 msgid "Honor"
 msgstr ""
 
-#: apps/course_metadata/models.py:891 apps/publisher/models.py:597
+#: apps/course_metadata/models.py:896 apps/publisher/models.py:602
 msgid "Audit"
 msgstr ""
 
-#: apps/course_metadata/models.py:892 apps/publisher/forms.py:402
-#: apps/publisher/forms.py:511 apps/publisher/models.py:598
-#: apps/publisher/models.py:658
+#: apps/course_metadata/models.py:897 apps/publisher/forms.py:403
+#: apps/publisher/forms.py:512 apps/publisher/models.py:603
+#: apps/publisher/models.py:663
 msgid "Verified"
 msgstr ""
 
-#: apps/course_metadata/models.py:893 apps/publisher/models.py:659
+#: apps/course_metadata/models.py:898 apps/publisher/models.py:664
 msgid "Professional"
 msgstr ""
 
-#: apps/course_metadata/models.py:894 apps/publisher/forms.py:404
-#: apps/publisher/forms.py:513 apps/publisher/models.py:601
+#: apps/course_metadata/models.py:899 apps/publisher/forms.py:405
+#: apps/publisher/forms.py:514 apps/publisher/models.py:606
 msgid "Credit"
 msgstr ""
 
-#: apps/course_metadata/models.py:968
+#: apps/course_metadata/models.py:973
 msgid "FAQs"
 msgstr ""
 
-#: apps/course_metadata/models.py:978
+#: apps/course_metadata/models.py:983
 msgid ""
 "Seat types that qualify for completion of programs of this type. Learners "
 "completing associated courses, but enrolled in other seat types, will NOT "
@@ -454,226 +458,226 @@ msgid ""
 "program."
 msgstr ""
 
-#: apps/course_metadata/models.py:992
+#: apps/course_metadata/models.py:997
 msgid "Please provide an image file with transparent background"
 msgstr ""
 
-#: apps/course_metadata/models.py:1004
+#: apps/course_metadata/models.py:1009
 msgid "The user-facing display title for this Program."
 msgstr ""
 
-#: apps/course_metadata/models.py:1006
+#: apps/course_metadata/models.py:1011
 msgid "A brief, descriptive subtitle for the Program."
 msgstr ""
 
-#: apps/course_metadata/models.py:1009
+#: apps/course_metadata/models.py:1014
 msgid "The lifecycle status of this Program."
 msgstr ""
 
-#: apps/course_metadata/models.py:1013
+#: apps/course_metadata/models.py:1018
 msgid "Slug used to generate links to the marketing site"
 msgstr ""
 
-#: apps/course_metadata/models.py:1017
+#: apps/course_metadata/models.py:1022
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select "
 "box above."
 msgstr ""
 
-#: apps/course_metadata/models.py:1031
+#: apps/course_metadata/models.py:1036
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to "
 "complete a course run belonging to this program."
 msgstr ""
 
-#: apps/course_metadata/models.py:1049
+#: apps/course_metadata/models.py:1054
 msgid "Image used for discovery cards"
 msgstr ""
 
-#: apps/course_metadata/models.py:1056
+#: apps/course_metadata/models.py:1061
 msgid ""
 "This field can be used by API clients to determine the order in which "
 "instructors will be displayed on program pages. Instructors in this list "
 "should appear before all others associated with this programs courses runs."
 msgstr ""
 
-#: apps/course_metadata/models.py:1068
+#: apps/course_metadata/models.py:1073
 msgid "The description of credit redemption for courses in program"
 msgstr ""
 
-#: apps/course_metadata/models.py:1073
+#: apps/course_metadata/models.py:1078
 msgid "Allow courses in this program to be purchased in a single transaction"
 msgstr ""
 
-#: apps/course_metadata/models.py:1077
+#: apps/course_metadata/models.py:1082
 msgid ""
 "Hide program on marketing site landing and search pages. This program MAY "
 "have a detail page."
 msgstr ""
 
-#: apps/course_metadata/models.py:1349
+#: apps/course_metadata/models.py:1354
 msgid "The actual rank number"
 msgstr ""
 
-#: apps/course_metadata/models.py:1350
+#: apps/course_metadata/models.py:1355
 msgid "What does the rank number mean"
 msgstr ""
 
-#: apps/course_metadata/models.py:1351
+#: apps/course_metadata/models.py:1356
 msgid "From where the rank is obtained"
 msgstr ""
 
-#: apps/course_metadata/models.py:1363
+#: apps/course_metadata/models.py:1368
 msgid "Callback URL to partner application flow"
 msgstr ""
 
-#: apps/course_metadata/models.py:1366
+#: apps/course_metadata/models.py:1371
 msgid "Overall program ranking (e.g. \"#1 in the U.S.\")"
 msgstr ""
 
-#: apps/course_metadata/models.py:1371
+#: apps/course_metadata/models.py:1376
 msgid ""
 "The 6 character hex value of the color to make the banner borders\n"
 "            (e.g. \"#ff0000\" which equals red) No need to provide the `#`"
 msgstr ""
 
-#: apps/course_metadata/models.py:1380
+#: apps/course_metadata/models.py:1385
 msgid "Provide a campus image for the header of the degree"
 msgstr ""
 
-#: apps/course_metadata/models.py:1386
+#: apps/course_metadata/models.py:1391
 msgid "Provide a background image for the title section of the degree"
 msgstr ""
 
-#: apps/course_metadata/models.py:1391
+#: apps/course_metadata/models.py:1396
 msgid "The fine print that displays at the Tuition section's bottom"
 msgstr ""
 
-#: apps/course_metadata/models.py:1396
+#: apps/course_metadata/models.py:1401
 msgid "The fine print that displays at the Deadline section's bottom"
 msgstr ""
 
-#: apps/course_metadata/models.py:1403
+#: apps/course_metadata/models.py:1408
 msgid "The sailthru email list name to capture leads"
 msgstr ""
 
-#: apps/course_metadata/models.py:1417
+#: apps/course_metadata/models.py:1422
 msgid "Please provide an image file for the lead capture banner."
 msgstr ""
 
-#: apps/course_metadata/models.py:1421
+#: apps/course_metadata/models.py:1426
 msgid "URL to micromasters landing page"
 msgstr ""
 
-#: apps/course_metadata/models.py:1427
+#: apps/course_metadata/models.py:1432
 msgid "Micromasters verbose title"
 msgstr ""
 
-#: apps/course_metadata/models.py:1433
+#: apps/course_metadata/models.py:1438
 msgid "Micromasters descriptive paragraph"
 msgstr ""
 
-#: apps/course_metadata/models.py:1446
+#: apps/course_metadata/models.py:1451
 msgid "Customized background image for the MicroMasters section."
 msgstr ""
 
-#: apps/course_metadata/models.py:1449
+#: apps/course_metadata/models.py:1454
 msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1455
+#: apps/course_metadata/models.py:1460
 msgid "Cost display for search card (e.g. \"$9,999\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1461
+#: apps/course_metadata/models.py:1466
 msgid "Number of courses for search card (e.g. \"11 Courses\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1493
+#: apps/course_metadata/models.py:1498
 msgid "Bell"
 msgstr ""
 
-#: apps/course_metadata/models.py:1494
+#: apps/course_metadata/models.py:1499
 msgid "Certificate"
 msgstr ""
 
-#: apps/course_metadata/models.py:1495
+#: apps/course_metadata/models.py:1500
 msgid "Checkmark"
 msgstr ""
 
-#: apps/course_metadata/models.py:1496
+#: apps/course_metadata/models.py:1501
 msgid "Clock"
 msgstr ""
 
-#: apps/course_metadata/models.py:1497
+#: apps/course_metadata/models.py:1502
 msgid "Desktop"
 msgstr ""
 
-#: apps/course_metadata/models.py:1498
+#: apps/course_metadata/models.py:1503
 msgid "Info"
 msgstr ""
 
-#: apps/course_metadata/models.py:1499
+#: apps/course_metadata/models.py:1504
 msgid "Sitemap"
 msgstr ""
 
-#: apps/course_metadata/models.py:1500
+#: apps/course_metadata/models.py:1505
 msgid "User"
 msgstr ""
 
-#: apps/course_metadata/models.py:1501
+#: apps/course_metadata/models.py:1506
 msgid "Dollar"
 msgstr ""
 
-#: apps/course_metadata/models.py:1502
+#: apps/course_metadata/models.py:1507
 msgid "Book"
 msgstr ""
 
-#: apps/course_metadata/models.py:1503
+#: apps/course_metadata/models.py:1508
 msgid "Mortar Board"
 msgstr ""
 
-#: apps/course_metadata/models.py:1504
+#: apps/course_metadata/models.py:1509
 msgid "Star"
 msgstr ""
 
-#: apps/course_metadata/models.py:1505
+#: apps/course_metadata/models.py:1510
 msgid "Trophy"
 msgstr ""
 
-#: apps/course_metadata/models.py:1509
+#: apps/course_metadata/models.py:1514
 msgid "Icon FA class"
 msgstr ""
 
-#: apps/course_metadata/models.py:1510
+#: apps/course_metadata/models.py:1515
 msgid "Paired text"
 msgstr ""
 
-#: apps/course_metadata/models.py:1529
+#: apps/course_metadata/models.py:1534
 msgid "Deadline applies for this semester (e.g. Spring 2019"
 msgstr ""
 
-#: apps/course_metadata/models.py:1533
+#: apps/course_metadata/models.py:1538
 msgid "Describes the deadline (e.g. Early Admission Deadline)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1537
+#: apps/course_metadata/models.py:1542
 msgid "The date after which the deadline expires (e.g. January 1, 2019)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1541
+#: apps/course_metadata/models.py:1546
 msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1559
+#: apps/course_metadata/models.py:1564
 msgid "Describes what the cost is for (e.g. Tuition)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1563
+#: apps/course_metadata/models.py:1568
 msgid "String-based field stating how much the cost is (e.g. $1000)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1583
+#: apps/course_metadata/models.py:1588
 msgid ""
 "A high-level overview of the degree's courseware. The \"brief\"\n"
 "            text is the first 750 characters of \"marketing_text\" and must "
@@ -681,15 +685,15 @@ msgid ""
 "            valid HTML."
 msgstr ""
 
-#: apps/course_metadata/models.py:1591
+#: apps/course_metadata/models.py:1596
 msgid "A high-level overview of the degree's courseware."
 msgstr ""
 
-#: apps/course_metadata/models.py:1629
+#: apps/course_metadata/models.py:1634
 msgid "Organization name"
 msgstr ""
 
-#: apps/course_metadata/models.py:1651
+#: apps/course_metadata/models.py:1656
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 
@@ -699,8 +703,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_course_form.html:174
 #: apps/publisher/templates/publisher/add_courserun_form.html:157
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html:15
-#: apps/publisher/templates/publisher/course_edit_form.html:631
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:346
+#: apps/publisher/templates/publisher/course_edit_form.html:618
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:361
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html:16
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html:19
 msgid "Cancel"
@@ -763,7 +767,7 @@ msgstr ""
 msgid "Course Team"
 msgstr ""
 
-#: apps/publisher/choices.py:17 apps/publisher/models.py:810
+#: apps/publisher/choices.py:17 apps/publisher/models.py:815
 #: apps/publisher/wrappers.py:31
 msgid "Draft"
 msgstr ""
@@ -915,158 +919,154 @@ msgid "Learner Testimonial"
 msgstr ""
 
 #: apps/publisher/forms.py:146
-#: apps/publisher/templates/publisher/course_detail.html:245
+#: apps/publisher/templates/publisher/course_detail.html:234
 msgid "Syllabus"
 msgstr ""
 
-#: apps/publisher/forms.py:152
-msgid "OFAC Restriction?"
-msgstr ""
-
-#: apps/publisher/forms.py:202
+#: apps/publisher/forms.py:196
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen."
 msgstr ""
 
-#: apps/publisher/forms.py:214
+#: apps/publisher/forms.py:208
 msgid "This course title already exists"
 msgstr ""
 
-#: apps/publisher/forms.py:216
+#: apps/publisher/forms.py:210
 msgid "This course number already exists"
 msgstr ""
 
-#: apps/publisher/forms.py:223
+#: apps/publisher/forms.py:217
 msgid "Find Course"
 msgstr ""
 
-#: apps/publisher/forms.py:243
+#: apps/publisher/forms.py:237
 msgid "Course Start Date"
 msgstr ""
 
-#: apps/publisher/forms.py:244
+#: apps/publisher/forms.py:238
 msgid "Course End Date"
 msgstr ""
 
-#: apps/publisher/forms.py:246
+#: apps/publisher/forms.py:240
 msgid "Instructor"
 msgstr ""
 
-#: apps/publisher/forms.py:256
+#: apps/publisher/forms.py:250
 msgid "Pacing"
 msgstr ""
 
-#: apps/publisher/forms.py:264
+#: apps/publisher/forms.py:258
 msgid "Transcript Languages"
 msgstr ""
 
-#: apps/publisher/forms.py:275
+#: apps/publisher/forms.py:269
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:61
 msgid "XSeries"
 msgstr ""
 
-#: apps/publisher/forms.py:281
+#: apps/publisher/forms.py:275
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:50
 msgid "MicroMasters"
 msgstr ""
 
-#: apps/publisher/forms.py:287
+#: apps/publisher/forms.py:281
 msgid "Professional Certificate"
 msgstr ""
 
-#: apps/publisher/forms.py:292
+#: apps/publisher/forms.py:286
 msgid "XSeries Name"
 msgstr ""
 
-#: apps/publisher/forms.py:293
+#: apps/publisher/forms.py:287
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:75
 msgid "Professional Certificate Name"
 msgstr ""
 
-#: apps/publisher/forms.py:294
+#: apps/publisher/forms.py:288
 msgid "MicroMasters Name"
 msgstr ""
 
-#: apps/publisher/forms.py:298
+#: apps/publisher/forms.py:292
 msgid "Video Language"
 msgstr ""
 
-#: apps/publisher/forms.py:356
+#: apps/publisher/forms.py:357
 msgid "Start date cannot be after the End date"
 msgstr ""
 
-#: apps/publisher/forms.py:358
+#: apps/publisher/forms.py:359
 msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr ""
 
-#: apps/publisher/forms.py:360
+#: apps/publisher/forms.py:361
 msgid "Minimum effort and Maximum effort can not be same"
 msgstr ""
 
-#: apps/publisher/forms.py:362
+#: apps/publisher/forms.py:363
 msgid "Maximum effort can not be empty"
 msgstr ""
 
-#: apps/publisher/forms.py:364
+#: apps/publisher/forms.py:365
 msgid "Enter XSeries program name"
 msgstr ""
 
-#: apps/publisher/forms.py:366
+#: apps/publisher/forms.py:367
 msgid "Enter Micromasters program name"
 msgstr ""
 
-#: apps/publisher/forms.py:368
+#: apps/publisher/forms.py:369
 msgid "Enter Professional Certificate program name"
 msgstr ""
 
-#: apps/publisher/forms.py:400
+#: apps/publisher/forms.py:401
 msgid "Choose enrollment track"
 msgstr ""
 
-#: apps/publisher/forms.py:401 apps/publisher/forms.py:510
+#: apps/publisher/forms.py:402 apps/publisher/forms.py:511
 msgid "Audit only"
 msgstr ""
 
-#: apps/publisher/forms.py:403 apps/publisher/forms.py:512
+#: apps/publisher/forms.py:404 apps/publisher/forms.py:513
 msgid "Professional education"
 msgstr ""
 
-#: apps/publisher/forms.py:407 apps/publisher/forms.py:516
+#: apps/publisher/forms.py:408 apps/publisher/forms.py:517
 #: apps/publisher/templates/publisher/course_detail.html:76
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:35
 msgid "Enrollment Track"
 msgstr ""
 
-#: apps/publisher/forms.py:464 apps/publisher/forms.py:560
+#: apps/publisher/forms.py:465 apps/publisher/forms.py:561
 msgid "Price must be greater than or equal to 0.01"
 msgstr ""
 
-#: apps/publisher/forms.py:467 apps/publisher/forms.py:470
+#: apps/publisher/forms.py:468 apps/publisher/forms.py:471
 msgid "Only audit seat can be without price."
 msgstr ""
 
-#: apps/publisher/forms.py:562
+#: apps/publisher/forms.py:563
 msgid "Price is required."
 msgstr ""
 
-#: apps/publisher/forms.py:622
+#: apps/publisher/forms.py:623
 msgid "This field is required."
 msgstr ""
 
-#: apps/publisher/forms.py:649
+#: apps/publisher/forms.py:650
 msgid "Invalid course key."
 msgstr ""
 
-#: apps/publisher/forms.py:667
+#: apps/publisher/forms.py:668
 msgid "Owner role can not be publisher if the state is draft or review"
 msgstr ""
 
-#: apps/publisher/forms.py:682
+#: apps/publisher/forms.py:683
 msgid "Please create {} course user role before assigning it owner role"
 msgstr ""
 
-#: apps/publisher/forms.py:690
+#: apps/publisher/forms.py:691
 msgid "Create initial run for the course"
 msgstr ""
 
@@ -1156,65 +1156,69 @@ msgstr ""
 msgid "Comma separated list of edX usernames or emails of additional staff."
 msgstr ""
 
-#: apps/publisher/models.py:599
+#: apps/publisher/models.py:367
+msgid "Has OFAC Restriction Text"
+msgstr ""
+
+#: apps/publisher/models.py:604
 msgid "Professional (with ID verification)"
 msgstr ""
 
-#: apps/publisher/models.py:600
+#: apps/publisher/models.py:605
 msgid "Professional (no ID verification)"
 msgstr ""
 
-#: apps/publisher/models.py:705
+#: apps/publisher/models.py:710
 msgid "Organization Role"
 msgstr ""
 
-#: apps/publisher/models.py:728
+#: apps/publisher/models.py:733
 msgid "Course Role"
 msgstr ""
 
-#: apps/publisher/models.py:774
+#: apps/publisher/models.py:779
 msgid "Automatically create a run in Studio"
 msgstr ""
 
-#: apps/publisher/models.py:776
+#: apps/publisher/models.py:781
 msgid ""
 "When this flag is enabled, creation of a new course run in Publisher will "
 "also create a corresponding course run in Studio."
 msgstr ""
 
-#: apps/publisher/models.py:811
+#: apps/publisher/models.py:816
 msgid "Submitted for Marketing Review"
 msgstr ""
 
-#: apps/publisher/models.py:812
+#: apps/publisher/models.py:817
 msgid "Approved by Course Team"
 msgstr ""
 
-#: apps/publisher/models.py:813 apps/publisher/wrappers.py:33
+#: apps/publisher/models.py:818 apps/publisher/wrappers.py:33
 msgid "Awaiting Course Team Review"
 msgstr ""
 
-#: apps/publisher/models.py:816 apps/publisher/wrappers.py:36
+#: apps/publisher/models.py:821 apps/publisher/wrappers.py:36
 msgid "N/A"
 msgstr ""
 
-#: apps/publisher/models.py:817
+#: apps/publisher/models.py:822
 msgid "Awaiting Marketing Review"
 msgstr ""
 
-#: apps/publisher/models.py:818
+#: apps/publisher/models.py:823
 msgid "Approved by Marketing"
 msgstr ""
 
-#: apps/publisher/models.py:1061
+#: apps/publisher/models.py:1066
 msgid "Submitted for review"
 msgstr ""
 
-#: apps/publisher/models.py:1063
+#: apps/publisher/models.py:1068
 msgid "Preview Accepted"
 msgstr ""
 
-#: apps/publisher/models.py:1064
+#: apps/publisher/models.py:1069
 msgid "Preview Declined"
 msgstr ""
 
@@ -1488,7 +1492,7 @@ msgid "Accept All"
 msgstr ""
 
 #: apps/publisher/templates/publisher/_render_optional_field.html:6
-#: apps/publisher/templates/publisher/course_detail.html:262
+#: apps/publisher/templates/publisher/course_detail.html:251
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html:24
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:68
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:255
@@ -1538,8 +1542,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_edit_form.html:261
 #: apps/publisher/templates/publisher/course_edit_form.html:364
 #: apps/publisher/templates/publisher/course_edit_form.html:404
-#: apps/publisher/templates/publisher/course_edit_form.html:490
-#: apps/publisher/templates/publisher/course_edit_form.html:552
+#: apps/publisher/templates/publisher/course_edit_form.html:477
+#: apps/publisher/templates/publisher/course_edit_form.html:539
 msgid "Best Practices"
 msgstr ""
 
@@ -1552,8 +1556,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_edit_form.html:264
 #: apps/publisher/templates/publisher/course_edit_form.html:367
 #: apps/publisher/templates/publisher/course_edit_form.html:407
-#: apps/publisher/templates/publisher/course_edit_form.html:493
-#: apps/publisher/templates/publisher/course_edit_form.html:555
+#: apps/publisher/templates/publisher/course_edit_form.html:480
+#: apps/publisher/templates/publisher/course_edit_form.html:542
 msgid "Examples"
 msgstr ""
 
@@ -1645,14 +1649,14 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html:133
 #: apps/publisher/templates/publisher/add_courserun_form.html:120
-#: apps/publisher/templates/publisher/course_edit_form.html:598
+#: apps/publisher/templates/publisher/course_edit_form.html:585
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html:224
 msgid "CERTIFICATE TYPE AND PRICE"
 msgstr ""
 
 #: apps/publisher/templates/publisher/add_course_form.html:136
 #: apps/publisher/templates/publisher/add_courserun_form.html:123
-#: apps/publisher/templates/publisher/course_edit_form.html:602
+#: apps/publisher/templates/publisher/course_edit_form.html:589
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html:227
 msgid ""
 "If the course offers a verified or professional education certificate, "
@@ -1775,7 +1779,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/base.html:32
 #: apps/publisher/templates/publisher/course_list.html:8
-#: apps/publisher/views.py:202 apps/publisher/views.py:673
+#: apps/publisher/views.py:205 apps/publisher/views.py:674
 msgid "Courses"
 msgstr ""
 
@@ -1838,11 +1842,7 @@ msgstr ""
 msgid "Course Level"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_detail.html:222
-msgid "Has OFAC Restrictions"
-msgstr ""
-
-#: apps/publisher/templates/publisher/course_detail.html:256
+#: apps/publisher/templates/publisher/course_detail.html:245
 #: apps/publisher/templates/publisher/course_revision_history.html:158
 msgid "About Video Link"
 msgstr ""
@@ -2027,7 +2027,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_edit_form.html:287
 #: apps/publisher/templates/publisher/course_edit_form.html:434
 #: apps/publisher/templates/publisher/course_edit_form.html:466
-#: apps/publisher/templates/publisher/course_edit_form.html:593
+#: apps/publisher/templates/publisher/course_edit_form.html:580
 msgid "Recommended 2500 character limit, including spaces."
 msgstr ""
 
@@ -2208,125 +2208,119 @@ msgstr ""
 msgid "Any frequently asked questions and the answers to those questions."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:474
-msgid ""
-"Checking this box will add the OFAC language to the FAQ on the marketing "
-"page."
-msgstr ""
-
-#: apps/publisher/templates/publisher/course_edit_form.html:499
+#: apps/publisher/templates/publisher/course_edit_form.html:486
 msgid ""
 "The About video should excite and entice potential students to take your "
 "course. Think of it as a movie trailer or TV show promotion. The video "
 "should be compelling, and exhibit the instructor’s personality."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:500
+#: apps/publisher/templates/publisher/course_edit_form.html:487
 msgid ""
 "The ideal length is 30-90 seconds (learners typically watch an average of 30 "
 "seconds)."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:501
+#: apps/publisher/templates/publisher/course_edit_form.html:488
 msgid ""
 "The About video should be produced and edited, using elements such as "
 "graphics and stock footage."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:503
+#: apps/publisher/templates/publisher/course_edit_form.html:490
 msgid "The About video should answer these key questions."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:505
+#: apps/publisher/templates/publisher/course_edit_form.html:492
 msgid "Why should a learner register?"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:506
+#: apps/publisher/templates/publisher/course_edit_form.html:493
 msgid "What topics and concepts are covered?"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:507
+#: apps/publisher/templates/publisher/course_edit_form.html:494
 msgid "Who is teaching the course?"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:508
+#: apps/publisher/templates/publisher/course_edit_form.html:495
 msgid "What institution is delivering the course?"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:510
+#: apps/publisher/templates/publisher/course_edit_form.html:497
 msgid "Naming specifications:"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:512
+#: apps/publisher/templates/publisher/course_edit_form.html:499
 msgid "Name: InstitutionX_CourseNumber_About.mov"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:513
+#: apps/publisher/templates/publisher/course_edit_form.html:500
 msgid "Post to:"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:515
+#: apps/publisher/templates/publisher/course_edit_form.html:502
 msgid "Technical specifications:"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:517
+#: apps/publisher/templates/publisher/course_edit_form.html:504
 msgid "Codec: H.264"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:518
+#: apps/publisher/templates/publisher/course_edit_form.html:505
 msgid "Container: .mp4"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:519
+#: apps/publisher/templates/publisher/course_edit_form.html:506
 msgid "Resolution: 1920x1080"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:520
+#: apps/publisher/templates/publisher/course_edit_form.html:507
 msgid "Frame rate: 29.97 fps"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:521
+#: apps/publisher/templates/publisher/course_edit_form.html:508
 msgid "Aspect: 1.0"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:522
+#: apps/publisher/templates/publisher/course_edit_form.html:509
 msgid "Bitrate: 5Mbps VBR"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:523
+#: apps/publisher/templates/publisher/course_edit_form.html:510
 msgid "Audio codec: AAC 44.1KHz/192 Kbps"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:528
+#: apps/publisher/templates/publisher/course_edit_form.html:515
 msgid "Visit edX’s YouTube channel for examples of other About videos:"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:561
+#: apps/publisher/templates/publisher/course_edit_form.html:548
 msgid ""
 "A quote from a learner in the course, demonstrating the value of taking the "
 "course."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:562
+#: apps/publisher/templates/publisher/course_edit_form.html:549
 msgid "Should be no more than 25-50 words in length."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:567
+#: apps/publisher/templates/publisher/course_edit_form.html:554
 msgid ""
 "“Brilliant course! It's definitely the best introduction to electronics in "
 "the world! Interesting material, clean explanations, well prepared quizzes, "
 "challenging homeworks and fun labs.” – Previous Student"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:576
+#: apps/publisher/templates/publisher/course_edit_form.html:563
 msgid "Recommended 500 character limit, including spaces."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:583
+#: apps/publisher/templates/publisher/course_edit_form.html:570
 msgid "Any additional information to be provided to learners."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:605
+#: apps/publisher/templates/publisher/course_edit_form.html:592
 msgid ""
 "If you are transitioning the certificate type and price from the course run "
 "level to the course level, please be informed that this is a permanent "
@@ -2334,7 +2328,7 @@ msgid ""
 "now on."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_edit_form.html:633
+#: apps/publisher/templates/publisher/course_edit_form.html:620
 msgid "Update Course"
 msgstr ""
 
@@ -2553,7 +2547,13 @@ msgid ""
 "The length of the course, in weeks, rounded to the nearest whole number."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:348
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:345
+msgid ""
+"Checking this box will add the OFAC language to the FAQ on the marketing "
+"page."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:363
 msgid "Update Course Run"
 msgstr ""
 
@@ -2616,14 +2616,18 @@ msgid "Course Length (Weeks)"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:155
-msgid "MicroMasters Program Name"
+msgid "Has OFAC Restriction text"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:166
-msgid "XSeries Program Name"
+msgid "MicroMasters Program Name"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:177
+msgid "XSeries Program Name"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:188
 msgid "Professional Certificate Program Name"
 msgstr ""
 
@@ -3614,43 +3618,43 @@ msgstr ""
 msgid "Mark as Reviewed"
 msgstr ""
 
-#: apps/publisher/views.py:228 apps/publisher/views.py:231
+#: apps/publisher/views.py:231 apps/publisher/views.py:234
 msgid "course team"
 msgstr ""
 
-#: apps/publisher/views.py:230 apps/publisher/views.py:233
+#: apps/publisher/views.py:233 apps/publisher/views.py:236
 msgid "project coordinator"
 msgstr ""
 
-#: apps/publisher/views.py:317
+#: apps/publisher/views.py:320
 #, python-brace-format
 msgid ""
 "{course_title} has been created successfully. Enter information on this page "
 "to create a course run for this course."
 msgstr ""
 
-#: apps/publisher/views.py:325
+#: apps/publisher/views.py:328
 msgid ""
 "You have successfully created a course. You can edit the course information "
 "or enter information for the course About page at any time before you send "
 "the course to edX marketing for review. "
 msgstr ""
 
-#: apps/publisher/views.py:334 apps/publisher/views.py:1103
+#: apps/publisher/views.py:337 apps/publisher/views.py:1105
 #, python-brace-format
 msgid "An error occurred while saving your changes. {error}"
 msgstr ""
 
-#: apps/publisher/views.py:339 apps/publisher/views.py:529
-#: apps/publisher/views.py:603 apps/publisher/views.py:846
-#: apps/publisher/views.py:891 apps/publisher/views.py:961
-#: apps/publisher/views.py:1109
+#: apps/publisher/views.py:342 apps/publisher/views.py:532
+#: apps/publisher/views.py:606 apps/publisher/views.py:847
+#: apps/publisher/views.py:892 apps/publisher/views.py:962
+#: apps/publisher/views.py:1111
 msgid ""
 "The page could not be updated. Make sure that all values are correct, then "
 "try again."
 msgstr ""
 
-#: apps/publisher/views.py:545
+#: apps/publisher/views.py:548
 #, python-brace-format
 msgid ""
 "The entered price does not match the price for the following course run(s): "
@@ -3658,7 +3662,7 @@ msgid ""
 "and future course runs."
 msgstr ""
 
-#: apps/publisher/views.py:555
+#: apps/publisher/views.py:558
 #, python-brace-format
 msgid ""
 "The entered seat type does not match the seat type for the following course "
@@ -3666,53 +3670,53 @@ msgid ""
 "of all active and future course runs."
 msgstr ""
 
-#: apps/publisher/views.py:571
+#: apps/publisher/views.py:574
 msgid ""
 "Enrollment track cannot be unset or changed from verified or professional to "
 "audit or credit."
 msgstr ""
 
-#: apps/publisher/views.py:582
+#: apps/publisher/views.py:585
 #, python-brace-format
 msgid ""
 "The following active course run(s) are published: {course_runs}. You cannot "
 "change the mode if there are published active runs."
 msgstr ""
 
-#: apps/publisher/views.py:649
+#: apps/publisher/views.py:652
 msgid "Course updated successfully."
 msgstr ""
 
-#: apps/publisher/views.py:694 apps/publisher/views.py:697
+#: apps/publisher/views.py:695 apps/publisher/views.py:698
 msgid "course"
 msgstr ""
 
-#: apps/publisher/views.py:696 apps/publisher/views.py:699
+#: apps/publisher/views.py:697 apps/publisher/views.py:700
 msgid "marketing"
 msgstr ""
 
-#: apps/publisher/views.py:795
+#: apps/publisher/views.py:796
 msgid "There was an error saving this course run:"
 msgstr ""
 
-#: apps/publisher/views.py:858
+#: apps/publisher/views.py:859
 msgid ""
 "The certificate configuration for this course is incorrect. Please fix it, "
 "then try again."
 msgstr ""
 
-#: apps/publisher/views.py:883
+#: apps/publisher/views.py:884
 msgid ""
 "Your organization does not have default roles to review/approve this course-"
 "run. Please contact your partner manager to create default roles."
 msgstr ""
 
-#: apps/publisher/views.py:906
+#: apps/publisher/views.py:907
 #, python-brace-format
 msgid "You have successfully created a course run for {course_title}."
 msgstr ""
 
-#: apps/publisher/views.py:1087
+#: apps/publisher/views.py:1089
 msgid "Course run updated successfully."
 msgstr ""
 

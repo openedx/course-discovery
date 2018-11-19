@@ -148,12 +148,6 @@ class CourseForm(BaseForm):
 
     add_new_run = forms.BooleanField(required=False)
 
-    has_ofac_restrictions = forms.BooleanField(
-        label=_('OFAC Restriction?'),
-        widget=forms.RadioSelect(
-            choices=((True, _("Yes")), (False, _("No")))), initial=False, required=False
-    )
-
     class Meta:
         model = Course
         widgets = {
@@ -164,7 +158,7 @@ class CourseForm(BaseForm):
             'expected_learnings', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'image', 'team_admin',
             'level_type', 'organization', 'is_seo_review', 'syllabus',
-            'learner_testimonial', 'faq', 'video_link', 'additional_information', 'has_ofac_restrictions'
+            'learner_testimonial', 'faq', 'video_link', 'additional_information'
         )
 
     def __init__(self, *args, **kwargs):
@@ -299,12 +293,19 @@ class CourseRunForm(BaseForm):
         required=False
     )
 
+    has_ofac_restrictions = forms.BooleanField(
+        label=_('Add OFAC restriction text to the FAQ section of the Marketing site'),
+        widget=forms.RadioSelect(
+            choices=((True, _("Yes")), (False, _("No")))), initial=False, required=False
+    )
+
     class Meta:
         model = CourseRun
         fields = (
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort', 'target_content', 'pacing_type',
             'video_language', 'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_professional_certificate',
             'professional_certificate_name', 'is_micromasters', 'micromasters_name', 'lms_course_id',
+            'has_ofac_restrictions',
         )
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ

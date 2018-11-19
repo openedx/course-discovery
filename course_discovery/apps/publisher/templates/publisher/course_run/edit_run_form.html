@@ -336,6 +336,21 @@
                     </div>
                 </div>
 
+                {% if is_internal_user %}
+                    <div class="field-title">{{ run_form.has_ofac_restrictions.label|upper }}
+                      <span class="required float-right">Updated with legal review</span>
+                    </div>
+                    <div class="row">
+                        <div class="col col-6 help-text">
+                            {% trans "Checking this box will add the OFAC language to the FAQ on the marketing page." %}
+                        </div>
+                        <div class="col col-6">
+                           <label class="field-label">{{ run_form.has_ofac_restrictions.label_tag }}</label>
+                           <div class="checkbox-inline">{{ run_form.has_ofac_restrictions }}</div>
+                        </div>
+                    </div>
+                {% endif %}
+
             </fieldset>
         </div>
     </div>

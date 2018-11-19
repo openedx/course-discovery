@@ -584,7 +584,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'course', 'full_description', 'announcement', 'video', 'seats', 'content_language', 'license', 'outcome',
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
-            'first_enrollable_paid_seat_price',
+            'first_enrollable_paid_seat_price', 'has_ofac_restrictions',
         )
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
@@ -693,7 +693,7 @@ class CourseSerializer(MinimalCourseSerializer):
             'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
-            'extra_description', 'additional_information', 'faq', 'learner_testimonials', 'has_ofac_restrictions'
+            'extra_description', 'additional_information', 'faq', 'learner_testimonials'
         )
 
     def get_marketing_url(self, obj):

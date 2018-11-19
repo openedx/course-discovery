@@ -566,6 +566,11 @@ class CourseRun(TimeStampedModel):
         help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
     )
 
+    has_ofac_restrictions = models.BooleanField(
+        default=False,
+        verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site')
+    )
+
     objects = CourseRunQuerySet.as_manager()
 
     def _enrollable_paid_seats(self):

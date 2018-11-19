@@ -171,6 +171,9 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         user = self.request.user
         course_run = CourseRunWrapper(self.get_object())
 
+        # Because this is a boolean field, our downstream view code needs to render a string
+        course_run.has_ofac_restrictions = 'Yes' if course_run.has_ofac_restrictions else 'No'
+
         context['course_run'] = course_run
         context['comment_object'] = course_run
 
@@ -661,8 +664,6 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
 
         user = self.request.user
         course = self.object
-        # Because this is a boolean field, our downstream view code needs to render a string
-        course.has_ofac_restrictions = 'Yes' if course.has_ofac_restrictions else 'No'
 
         context['can_edit'] = mixins.check_course_organization_permission(
             user, course, OrganizationExtension.EDIT_COURSE
@@ -981,9 +982,10 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
     def get_context_data(self):
         user = self.request.user
+        course_run = self.get_object()
 
         return {
-            'course_run': self.get_object(),
+            'course_run': course_run,
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
             'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
             'is_internal_user': mixins.check_roles_access(user),
