@@ -362,6 +362,11 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             "Full description specific for this run of a course. Leave this value blank to default to "
             "the parent course's full_description attribute."))
 
+    has_ofac_restrictions = models.BooleanField(
+        default=False,
+        verbose_name=_('Has OFAC Restriction Text')
+    )
+
     history = HistoricalRecords()
 
     def __str__(self):

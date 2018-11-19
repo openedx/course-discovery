@@ -102,7 +102,6 @@ class CourseFactory(factory.DjangoModelFactory):
     additional_information = FuzzyText()
     faq = FuzzyText()
     learner_testimonials = FuzzyText()
-    has_ofac_restrictions = True
 
     class Meta:
         model = Course
@@ -147,6 +146,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     hidden = False
     weeks_to_complete = FuzzyInteger(1)
     license = 'all-rights-reserved'
+    has_ofac_restrictions = True
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):

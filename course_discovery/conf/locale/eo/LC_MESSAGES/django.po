@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-09 17:52+0000\n"
+"POT-Creation-Date: 2018-11-27 15:59+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -508,6 +508,12 @@ msgstr ""
 "¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт #"
+
+#: apps/course_metadata/models.py apps/publisher/forms.py
+msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
+msgstr ""
+"Àdd ÖFÀÇ réstrïçtïön téxt tö thé FÀQ séçtïön öf thé Märkétïng sïté Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
 msgid "Archived"
@@ -1123,10 +1129,6 @@ msgid "Syllabus"
 msgstr "Sýlläßüs Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/forms.py
-msgid "OFAC Restriction?"
-msgstr "ÖFÀÇ Réstrïçtïön? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
-
-#: apps/publisher/forms.py
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen."
@@ -1387,6 +1389,10 @@ msgid "Comma separated list of edX usernames or emails of additional staff."
 msgstr ""
 "Çömmä sépärätéd lïst öf édX üsérnämés ör émäïls öf äddïtïönäl stäff. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/publisher/models.py
+msgid "Has OFAC Restriction Text"
+msgstr "Häs ÖFÀÇ Réstrïçtïön Téxt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/publisher/models.py
 msgid "Professional (with ID verification)"
@@ -2156,10 +2162,6 @@ msgid "Course Level"
 msgstr "Çöürsé Lévél Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/templates/publisher/course_detail.html
-msgid "Has OFAC Restrictions"
-msgstr "Häs ÖFÀÇ Réstrïçtïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "About Video Link"
 msgstr "Àßöüt Vïdéö Lïnk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
@@ -2630,14 +2632,6 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
-"Checking this box will add the OFAC language to the FAQ on the marketing "
-"page."
-msgstr ""
-"Çhéçkïng thïs ßöx wïll ädd thé ÖFÀÇ längüägé tö thé FÀQ ön thé märkétïng "
-"pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
-
-#: apps/publisher/templates/publisher/course_edit_form.html
-msgid ""
 "The About video should excite and entice potential students to take your "
 "course. Think of it as a movie trailer or TV show promotion. The video "
 "should be compelling, and exhibit the instructor’s personality."
@@ -3061,6 +3055,14 @@ msgstr ""
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"Checking this box will add the OFAC language to the FAQ on the marketing "
+"page."
+msgstr ""
+"Çhéçkïng thïs ßöx wïll ädd thé ÖFÀÇ längüägé tö thé FÀQ ön thé märkétïng "
+"pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Update Course Run"
 msgstr "Ûpdäté Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
@@ -3121,6 +3123,10 @@ msgstr "Çöürsé Vïdéö Längüägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ�
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course Length (Weeks)"
 msgstr "Çöürsé Léngth (Wééks) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html
+msgid "Has OFAC Restriction text"
+msgstr "Häs ÖFÀÇ Réstrïçtïön téxt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "MicroMasters Program Name"

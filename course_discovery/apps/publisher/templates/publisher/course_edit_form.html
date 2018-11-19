@@ -468,19 +468,6 @@
                                 </div>
 
                                 {% if is_internal_user %}
-                                    <div class="field-title">{{ form.has_ofac_restrictions.label|upper }} <span class="optional float-right">Optional for announcement</span></div>
-                                    <div class="row show-comparison-container">
-                                        <div class="col col-6 help-text">
-                                            <p>{% trans "Checking this box will add the OFAC language to the FAQ on the marketing page." %}</p>
-                                        </div>
-                                        <div class="col col-6 help-text">
-                                            <label class="field-label">{{ form.has_ofac_restrictions.label_tag }}</label>
-                                            <div class="checkbox-inline">{{ form.has_ofac_restrictions }}</div>
-                                        </div>
-                                    </div>
-                                {% endif %}
-
-                                {% if is_internal_user %}
                                     <div class="field-title">{{ form.video_link.label|upper }} <span class="optional float-right">Optional for announcement</span></div>
                                     <div class="row">
                                         <div class="col col-6 help-text">
