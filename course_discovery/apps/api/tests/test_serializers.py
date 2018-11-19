@@ -24,12 +24,12 @@ from course_discovery.apps.api.serializers import (
     CourseSearchModelSerializer, CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer,
     CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer,
     FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer,
-    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
-    NestedProgramSerializer, OrganizationSerializer, PathwaySerializer, PersonSearchModelSerializer,
-    PersonSearchSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer,
-    ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer,
-    SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
-    VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
+    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer, MinimalProgramCourseSerializer,
+    MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PathwaySerializer,
+    PersonSearchModelSerializer, PersonSearchSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, RankingSerializer,
+    SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -724,8 +724,8 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'individual_endorsements': EndorsementSerializer(
                 program.individual_endorsements, many=True, context={'request': request}
             ).data,
-            'staff': PersonSerializer(program.staff, many=True, context={'request': request}).data,
-            'instructor_ordering': PersonSerializer(
+            'staff': MinimalPersonSerializer(program.staff, many=True, context={'request': request}).data,
+            'instructor_ordering': MinimalPersonSerializer(
                 program.instructor_ordering,
                 many=True,
                 context={'request': request}
@@ -1259,13 +1259,14 @@ class SeatSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
-class PersonSerializerTests(TestCase):
+class MinimalPersonSerializerTests(TestCase):
     def setUp(self):
         request = make_request()
         self.context = {'request': request}
         image_field = StdImageSerializerField()
         image_field._context = self.context  # pylint: disable=protected-access
 
+        self.serializer = MinimalPersonSerializer
         position = PositionFactory()
         self.person = position.person
         self.person.salutation = 'Dr.'
@@ -1285,18 +1286,29 @@ class PersonSerializerTests(TestCase):
                 'blog': None
             },
             'slug': self.person.slug,
-            'email': self.person.email,
+            'email': None,  # always None
         }
 
     def test_data(self):
-        serializer = PersonSerializer(self.person, context=self.context)
+        serializer = self.serializer(self.person, context=self.context)
         self.assertDictEqual(serializer.data, self.expected)
 
     def test_profile_image_url_override(self):
         self.person.profile_image_url = None
         self.expected['profile_image_url'] = self.person.profile_image.url
-        serializer = PersonSerializer(self.person, context=self.context)
+        serializer = self.serializer(self.person, context=self.context)
         self.assertDictEqual(serializer.data, self.expected)
+
+
+class PersonSerializerTests(MinimalPersonSerializerTests):
+    def setUp(self):
+        super().setUp()
+        self.serializer = PersonSerializer
+        self.expected.update({
+            'email': self.person.email,
+            'course_runs_staffed': [],
+            'publisher_course_runs_staffed': [],
+        })
 
 
 class PositionSerializerTests(TestCase):
@@ -1542,7 +1554,7 @@ class PersonSearchModelSerializerTests(PersonSearchSerializerTest):
                 'blog': None
             },
             'slug': person.slug,
-            'email': person.email,
+            'email': None,  # always None
             'content_type': 'person',
         }
 

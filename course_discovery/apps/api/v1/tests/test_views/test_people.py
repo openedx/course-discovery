@@ -13,7 +13,10 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.models import Person, Position
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory, PositionFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory
+)
+from course_discovery.apps.publisher.tests.factories import CourseRunFactory as PublisherCourseRunFactory
 
 User = get_user_model()
 
@@ -25,6 +28,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
     def setUp(self):
         super(PersonViewSetTests, self).setUp()
         self.user = UserFactory()
+        self.request.user = self.user
         self.target_permissions = Permission.objects.filter(
             codename__in=['add_person', 'change_person', 'delete_person']
         )
@@ -139,7 +143,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, self.serialize_person(self.person))
+        self.assertDictEqual(response.data, self.serialize_person(self.person))
 
     def test_get_without_authentication(self):
         """ Verify the endpoint shows auth error when the details for a single person unauthenticated """
@@ -160,9 +164,17 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(self.people_list_url)
         self.assertEqual(response.status_code, 403)
 
+    def test_list_different_partner(self):
+        """ Verify the endpoint only shows people for the current partner. """
+        PersonFactory()  # create person for a partner that isn't self.partner; we expect this to not show up later
+        response = self.client.get(self.people_list_url)
+        self.assertEqual(response.status_code, 200)
+        # Make sure the list does not include the new person above
+        self.assertListEqual(response.data['results'], self.serialize_person([self.person], many=True))
+
     def test_list_filter_by_slug(self):
         """ Verify the endpoint allows people to be filtered by slug. """
-        person = PersonFactory()
+        person = PersonFactory(partner=self.partner)
         url = '{root}?slug={slug}'.format(root=self.people_list_url, slug=person.slug)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -173,6 +185,38 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         toggle_switch('publish_person_to_marketing_site', False)
         response = self.client.post(self.people_list_url, self._person_data(), format='json')
         self.assertEqual(response.status_code, 400)
+
+    def test_include_course_runs_staffed(self):
+        """ Verify the endpoint shows linked course runs when asked. """
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+        course_run = CourseRunFactory(course__partner=self.partner, staff=[self.person])
+
+        # Not present normally
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['course_runs_staffed'], [])
+
+        # But is present when asked
+        response = self.client.get(url + '?include_course_runs_staffed=1')
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['course_runs_staffed'],
+                             self.serialize_minimal_course_run([course_run], many=True))
+
+    def test_include_publisher_course_runs_staffed(self):
+        """ Verify the endpoint shows linked publisher course runs when asked. """
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+        course_run = PublisherCourseRunFactory(course__organizations=[self.organization], staff=[self.person])
+
+        # Not present normally
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['publisher_course_runs_staffed'], [])
+
+        # But is present when asked
+        response = self.client.get(url + '?include_publisher_course_runs_staffed=1')
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['publisher_course_runs_staffed'],
+                             self.serialize_minimal_publisher_course_run([course_run], many=True))
 
     def _person_data(self):
         return {
@@ -189,7 +233,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                 'facebook': 'http://www.facebook.com/hopkins',
                 'twitter': 'http://www.twitter.com/hopkins',
                 'blog': 'http://www.blog.com/hopkins'
-            }
+            },
+            'course_runs_staffed': [],
+            'publisher_course_runs_staffed': [],
         }
 
     def _update_person_data(self):
@@ -205,7 +251,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             'urls': {
                 'facebook': 'http://www.facebook.com/new',
                 'twitter': 'http://www.twitter.com/new',
-            }
+            },
+            'course_runs_staffed': [],
+            'publisher_course_runs_staffed': [],
         }
 
     def test_update_without_drupal_client_settings(self):

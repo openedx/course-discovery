@@ -25,6 +25,7 @@ from course_discovery.apps.course_metadata.models import (
     DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, Organization, Pathway, Person, PersonSocialNetwork,
     PersonWork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
 )
+from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 
 User = get_user_model()
 
@@ -240,14 +241,18 @@ class PositionSerializer(serializers.ModelSerializer):
         }
 
 
-class PersonSerializer(serializers.ModelSerializer):
-    """Serializer for the ``Person`` model."""
+class MinimalPersonSerializer(serializers.ModelSerializer):
+    """
+    Minimal serializer for the ``Person`` model.
+    This is suitable for public information about people. Anything vaguely PII or complicated should go in the
+    full serializer, which is normally better guarded behind auth.
+    """
     position = PositionSerializer(required=False)
     profile_image_url = serializers.CharField(read_only=True, source='get_profile_image_url')
     profile_image = StdImageSerializerField(required=False)
     works = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value', source='person_works')
     urls = serializers.SerializerMethodField()
-    email = serializers.EmailField(required=True)
+    email = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -264,6 +269,37 @@ class PersonSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'partner': {'write_only': True}
         }
+
+    def get_social_network_url(self, url_type, obj):
+        # filter() isn't used to avoid discarding prefetched results.
+        social_networks = [network for network in obj.person_networks.all() if network.type == url_type]
+
+        if social_networks:
+            return social_networks[0].value
+
+    def get_urls(self, obj):
+        return {
+            PersonSocialNetwork.FACEBOOK: self.get_social_network_url(PersonSocialNetwork.FACEBOOK, obj),
+            PersonSocialNetwork.TWITTER: self.get_social_network_url(PersonSocialNetwork.TWITTER, obj),
+            PersonSocialNetwork.BLOG: self.get_social_network_url(PersonSocialNetwork.BLOG, obj),
+        }
+
+    def get_email(self, _obj):
+        # For historical reasons, we provide this field. But for privacy reasons, we don't provide a value in this
+        # minimal serializer. It is provided in the full serializer.
+        return None
+
+
+class PersonSerializer(MinimalPersonSerializer):
+    """Full serializer for the ``Person`` model."""
+    email = serializers.EmailField(required=True)
+    course_runs_staffed = serializers.SerializerMethodField()
+    publisher_course_runs_staffed = serializers.SerializerMethodField()
+
+    class Meta(MinimalPersonSerializer.Meta):
+        fields = MinimalPersonSerializer.Meta.fields + (
+            'course_runs_staffed', 'publisher_course_runs_staffed',
+        )
 
     def validate(self, data):
         validated_data = super(PersonSerializer, self).validate(data)
@@ -317,24 +353,28 @@ class PersonSerializer(serializers.ModelSerializer):
 
         return instance
 
-    def get_social_network_url(self, url_type, obj):
-        # filter() isn't used to avoid discarding prefetched results.
-        social_networks = [network for network in obj.person_networks.all() if network.type == url_type]
+    def get_course_runs_staffed(self, obj):
+        if self.context.get('include_course_runs_staffed'):
+            return MinimalCourseRunSerializer(
+                obj.courses_staffed.all(),
+                context={
+                    'request': self.context.get('request'),
+                },
+                many=True,
+            ).data
+        else:
+            return []
 
-        if social_networks:
-            return social_networks[0].value
-
-    def get_urls(self, obj):
-        return {
-            PersonSocialNetwork.FACEBOOK: self.get_social_network_url(PersonSocialNetwork.FACEBOOK, obj),
-            PersonSocialNetwork.TWITTER: self.get_social_network_url(PersonSocialNetwork.TWITTER, obj),
-            PersonSocialNetwork.BLOG: self.get_social_network_url(PersonSocialNetwork.BLOG, obj),
-        }
+    def get_publisher_course_runs_staffed(self, obj):
+        if self.context.get('include_publisher_course_runs_staffed'):
+            return MinimalPublisherCourseRunSerializer(obj.publisher_course_runs_staffed.all(), many=True).data
+        else:
+            return []
 
 
 class EndorsementSerializer(serializers.ModelSerializer):
     """Serializer for the ``Endorsement`` model."""
-    endorser = PersonSerializer()
+    endorser = MinimalPersonSerializer()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -462,6 +502,21 @@ class NestedProgramSerializer(serializers.ModelSerializer):
         read_only_fields = ('uuid', 'marketing_url',)
 
 
+class MinimalPublisherCourseRunSerializer(TimestampModelSerializer):
+    course = serializers.SerializerMethodField()
+    title = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PublisherCourseRun
+        fields = ('lms_course_id', 'course', 'title', 'start', 'end', 'pacing_type',)
+
+    def get_course(self, obj):
+        return obj.course.key
+
+    def get_title(self, obj):
+        return obj.title_override or obj.course.title
+
+
 class MinimalCourseRunSerializer(TimestampModelSerializer):
     image = ImageField(read_only=True, source='image_url')
     marketing_url = serializers.SerializerMethodField()
@@ -510,7 +565,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     video = VideoSerializer(source='get_video')
     seats = SeatSerializer(many=True)
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
-    staff = PersonSerializer(many=True)
+    staff = MinimalPersonSerializer(many=True)
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
 
     @classmethod
@@ -521,7 +576,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'course__level_type',
             'transcript_languages',
             'video__image',
-            Prefetch('staff', queryset=PersonSerializer.prefetch_queryset()),
+            Prefetch('staff', queryset=MinimalPersonSerializer.prefetch_queryset()),
         )
 
     class Meta(MinimalCourseRunSerializer.Meta):
@@ -968,8 +1023,8 @@ class ProgramSerializer(MinimalProgramSerializer):
         help_text=_('Languages that course runs in this program have available transcripts in.'),
     )
     subjects = SubjectSerializer(many=True)
-    staff = PersonSerializer(many=True)
-    instructor_ordering = PersonSerializer(many=True)
+    staff = MinimalPersonSerializer(many=True)
+    instructor_ordering = MinimalPersonSerializer(many=True)
     applicable_seat_types = serializers.SerializerMethodField()
 
     @classmethod
@@ -1425,9 +1480,9 @@ class PersonSearchSerializer(HaystackSerializer):
         )
 
 
-class PersonSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, PersonSerializer):
-    class Meta(PersonSerializer.Meta):
-        fields = ContentTypeSerializer.Meta.fields + PersonSerializer.Meta.fields
+class PersonSearchModelSerializer(HaystackSerializerMixin, ContentTypeSerializer, MinimalPersonSerializer):
+    class Meta(MinimalPersonSerializer.Meta):
+        fields = ContentTypeSerializer.Meta.fields + MinimalPersonSerializer.Meta.fields
 
 
 class PersonFacetSerializer(BaseHaystackFacetSerializer):
