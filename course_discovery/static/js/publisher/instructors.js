@@ -48,7 +48,7 @@ $(document).ready(function () {
             'email': $('#email').val(),
             'profile_image': $('.select-image').attr('src'),
             'position': getFormInstructorPosition(),
-            'works': $('#majorWorks').val().split('\n'),
+            'major_works': $('#majorWorks').val(),
             'urls': {
                 facebook: $('#facebook').val(),
                 twitter: $('#twitter').val(),
@@ -293,7 +293,7 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
             $('#family-name').val(data['family_name']);
             $('#email').val(data['email']);
             $('#bio').val(data['bio']);
-            $('#majorWorks').val(data['works'].join('\n'));
+            $('#majorWorks').val(data['major_works']);
             $('#facebook').val(data['urls']['facebook']);
             $('#twitter').val(data['urls']['twitter']);
             $('#blog').val(data['urls']['blog']);

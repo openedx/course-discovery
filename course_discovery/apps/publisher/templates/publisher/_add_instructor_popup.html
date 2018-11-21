@@ -66,7 +66,8 @@
 
 
                 <label class="field-label" for="bio">{% trans "Bio" %}
-                    <span class="required">* {% trans "required (1-2 paragraphs)" %}</span>
+                    <span class="required">* {% trans "required" %}</span>
+                    <span class="optional">- {% trans "one or two paragraphs in HTML format (consider using &lt;p&gt;)" %}</span>
                 </label>
                 <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="bio"
                           name="bio"></textarea>
@@ -87,7 +88,8 @@
                 <input class="field-input input-text" type="text" id="blog" name="blog"/>
 
                 <label class="field-label" for="majorWorks">{% trans "Major Works" %}
-                    <span class="optional">({% trans "optional - one per line" %} )</span>
+                    <span class="optional"> {% trans "optional" %}</span>
+                    <span class="optional">- {% trans "a list in HTML format (consider using &lt;ul&gt; or &lt;br&gt;)" %}</span>
                 </label>
                 <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="majorWorks"
                           name="major-works"></textarea>

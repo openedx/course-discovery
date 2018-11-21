@@ -1222,7 +1222,10 @@ MARKETING_SITE_API_PERSON_BODIES = [
             'url': 'https://www.edx.org/sites/default/files/person/image/titleless.jpg',
         },
         'field_person_areas_of_expertise': [],
-        'field_person_major_works': [],
+        'field_person_major_works': {
+            'value': 'Published books:<br/>\nBook1<br/>\nBook2',
+            'format': 'basic_html'
+        },
         'field_person_positions': [
             {
                 'field_person_position_tiltes': [],
@@ -1249,7 +1252,10 @@ MARKETING_SITE_API_PERSON_BODIES = [
             'url': 'https://www.edx.org/sites/default/files/person/image/orgless.jpg',
         },
         'field_person_areas_of_expertise': [],
-        'field_person_major_works': [],
+        'field_person_major_works': {
+            'value': 'Published books:<br/><ul><li>Book1</li><li>Book2</li></ul>',
+            'format': 'standard_html',
+        },
         'field_person_positions': [
             {
                 'field_person_position_tiltes': [

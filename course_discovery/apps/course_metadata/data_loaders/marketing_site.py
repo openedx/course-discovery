@@ -278,6 +278,10 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         if data['field_person_resume']:
             defaults['bio'] = self.clean_html(data['field_person_resume']['value'])
 
+        # Don't override Publisher's major_works if there's nothing in marketing site
+        if data['field_person_major_works']:
+            defaults['major_works'] = self.clean_html(data['field_person_major_works']['value'])
+
         person, created = Person.objects.update_or_create(uuid=uuid, partner=self.partner, defaults=defaults)
 
         # NOTE (CCB): The AutoSlug field kicks in at creation time. We need to apply overrides in a separate

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-27 15:59+0000\n"
+"POT-Creation-Date: 2018-11-27 16:29+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -400,6 +400,12 @@ msgid ""
 msgstr ""
 "Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs öthér thän pérïöd, "
 "ündérsçöré ör hýphén ïn thé kéý fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/models.py
+msgid "A list of major works by this person. Must be valid HTML."
+msgstr ""
+"À lïst öf mäjör wörks ßý thïs pérsön. Müst ßé välïd HTML. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "People"
@@ -1498,6 +1504,7 @@ msgstr "Fïrst Nämé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "required"
 msgstr "réqüïréd Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -1543,13 +1550,16 @@ msgid "Bio"
 msgstr "Bïö Ⱡ'σяєм#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
-msgid "required (1-2 paragraphs)"
-msgstr "réqüïréd (1-2 pärägräphs) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+msgid "one or two paragraphs in HTML format (consider using &lt;p&gt;)"
+msgstr ""
+"öné ör twö pärägräphs ïn HTML förmät (çönsïdér üsïng &lt;p&gt;) Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Facebook URL"
 msgstr "Fäçéßöök ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
@@ -1569,8 +1579,10 @@ msgid "Major Works"
 msgstr "Mäjör Wörks Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
-msgid "optional - one per line"
-msgstr "öptïönäl - öné pér lïné Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+msgid "a list in HTML format (consider using &lt;ul&gt; or &lt;br&gt;)"
+msgstr ""
+"ä lïst ïn HTML förmät (çönsïdér üsïng &lt;ül&gt; ör &lt;ßr&gt;) Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Add Staff Member"

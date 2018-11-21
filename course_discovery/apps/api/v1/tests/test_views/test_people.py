@@ -62,7 +62,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(person.bio, data['bio'])
         self.assertEqual(person.position.title, data['position']['title'])
         self.assertEqual(person.position.organization, self.organization)
-        self.assertEqual(sorted([work.value for work in person.person_works.all()]), sorted(data['works']))
+        self.assertEqual(person.major_works, data['major_works'])
         self.assertEqual(
             sorted([social.value for social in person.person_networks.all()]),
             sorted([data['urls']['facebook'], data['urls']['twitter'], data['urls']['blog']])
@@ -228,14 +228,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                 'title': "Park Director",
                 'organization': self.organization.id
             },
-            'works': ["Delores", "Teddy", "Maive"],
+            'major_works': 'Delores\nTeddy\nMaive',
             'urls': {
                 'facebook': 'http://www.facebook.com/hopkins',
                 'twitter': 'http://www.twitter.com/hopkins',
                 'blog': 'http://www.blog.com/hopkins'
             },
-            'course_runs_staffed': [],
-            'publisher_course_runs_staffed': [],
         }
 
     def _update_person_data(self):
@@ -247,13 +245,11 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                 'title': "new title",
                 'organization': self.organization.id
             },
-            'works': ["new", "added"],
+            'major_works': 'new works',
             'urls': {
                 'facebook': 'http://www.facebook.com/new',
                 'twitter': 'http://www.twitter.com/new',
             },
-            'course_runs_staffed': [],
-            'publisher_course_runs_staffed': [],
         }
 
     def test_update_without_drupal_client_settings(self):
@@ -321,8 +317,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(updated_person.family_name, data['family_name'])
         self.assertEqual(updated_person.bio, data['bio'])
         self.assertEqual(updated_person.position.title, data['position']['title'])
-        self.assertEqual(updated_person.person_works.all()[0].value, data['works'][0])
-        self.assertEqual(updated_person.person_works.all()[1].value, data['works'][1])
+        self.assertEqual(updated_person.major_works, data['major_works'])
         self.assertEqual(updated_person.person_networks.get(type='facebook').value, data['urls']['facebook'])
         self.assertEqual(updated_person.person_networks.get(type='twitter').value, data['urls']['twitter'])
         self.assertFalse(updated_person.person_networks.filter(type='blog').exists())

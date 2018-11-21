@@ -54,11 +54,6 @@ class PositionInline(admin.TabularInline):
     extra = 0
 
 
-class PersonWorkInline(admin.TabularInline):
-    model = PersonWork
-    extra = 0
-
-
 class PersonSocialNetworkInline(admin.TabularInline):
     model = PersonSocialNetwork
     extra = 0
@@ -280,7 +275,7 @@ class TopicAdmin(TranslatableAdmin):
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    inlines = (PositionInline, PersonWorkInline, PersonSocialNetworkInline)
+    inlines = (PositionInline, PersonSocialNetworkInline)
     list_display = ('uuid', 'salutation', 'family_name', 'given_name', 'bio_language', 'slug',)
     list_filter = ('partner', 'bio_language')
     ordering = ('salutation', 'family_name', 'given_name', 'uuid',)
