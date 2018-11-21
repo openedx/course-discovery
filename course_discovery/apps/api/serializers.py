@@ -23,7 +23,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import (
     FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Curriculum, Degree,
     DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, Organization, Pathway, Person, PersonSocialNetwork,
-    PersonWork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
+    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
 )
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 
@@ -250,7 +250,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
     position = PositionSerializer(required=False)
     profile_image_url = serializers.CharField(read_only=True, source='get_profile_image_url')
     profile_image = StdImageSerializerField(required=False)
-    works = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value', source='person_works')
+    works = serializers.SerializerMethodField()
     urls = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
 
@@ -258,17 +258,21 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return Person.objects.all().select_related(
             'position__organization'
-        ).prefetch_related('person_works', 'person_networks')
+        ).prefetch_related('person_networks')
 
     class Meta(object):
         model = Person
         fields = (
             'uuid', 'salutation', 'given_name', 'family_name', 'bio', 'slug', 'position',
-            'profile_image', 'partner', 'works', 'urls', 'email', 'profile_image_url',
+            'profile_image', 'partner', 'works', 'urls', 'email', 'profile_image_url', 'major_works',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
         }
+
+    def get_works(self, _obj):
+        # For historical reasons, we provide this field. But now we store works as one giant text field (major_works)
+        return []
 
     def get_social_network_url(self, url_type, obj):
         # filter() isn't used to avoid discarding prefetched results.
@@ -303,13 +307,11 @@ class PersonSerializer(MinimalPersonSerializer):
 
     def validate(self, data):
         validated_data = super(PersonSerializer, self).validate(data)
-        validated_data['works'] = self.initial_data.get('works', [])
         validated_data['urls'] = self.initial_data.get('urls')
         return validated_data
 
     def create(self, validated_data):
         position_data = validated_data.pop('position')
-        works_data = validated_data.pop('works', [])
         urls_data = validated_data.pop('urls', {})
 
         person = Person.objects.create(**validated_data)
@@ -322,14 +324,10 @@ class PersonSerializer(MinimalPersonSerializer):
                 person_social_networks.append(PersonSocialNetwork(person=person, type=url_type, value=value))
         PersonSocialNetwork.objects.bulk_create(person_social_networks)
 
-        person_works = [PersonWork(person=person, value=work_data) for work_data in works_data]
-        PersonWork.objects.bulk_create(person_works)
-
         return person
 
     def update(self, instance, validated_data):
         position_data = validated_data.pop('position')
-        works_data = validated_data.pop('works', [])
         urls_data = validated_data.pop('urls', {})
 
         Position.objects.update_or_create(person=instance, defaults=position_data)
@@ -342,10 +340,6 @@ class PersonSerializer(MinimalPersonSerializer):
                 network.save()
             else:
                 PersonSocialNetwork.objects.filter(person=instance, type=url_type).delete()
-
-        instance.person_works.exclude(value__in=works_data).delete()
-        for work in works_data:
-            PersonWork.objects.get_or_create(person=instance, value=work)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

@@ -1279,7 +1279,8 @@ class MinimalPersonSerializerTests(TestCase):
             'profile_image': image_field.to_representation(self.person.profile_image),
             'profile_image_url': self.person.profile_image.url,
             'position': PositionSerializer(position).data,
-            'works': [work.value for work in self.person.person_works.all()],
+            'works': [],
+            'major_works': self.person.major_works,
             'urls': {
                 'facebook': None,
                 'twitter': None,
@@ -1547,7 +1548,8 @@ class PersonSearchModelSerializerTests(PersonSearchSerializerTest):
             'profile_image': image_field.to_representation(person.profile_image),
             'profile_image_url': person.profile_image.url,
             'position': PositionSerializer(person.position).data,
-            'works': [work.value for work in person.person_works.all()],
+            'works': [],
+            'major_works': person.major_works,
             'urls': {
                 'facebook': None,
                 'twitter': None,

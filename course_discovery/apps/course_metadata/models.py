@@ -299,6 +299,10 @@ class Person(TimeStampedModel):
     slug = AutoSlugField(populate_from=('given_name', 'family_name'), editable=True)
     profile_url = models.URLField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True, max_length=255)
+    major_works = models.TextField(
+        blank=True,
+        help_text=_('A list of major works by this person. Must be valid HTML.'),
+    )
 
     class Meta:
         unique_together = (

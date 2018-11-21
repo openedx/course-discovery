@@ -204,6 +204,7 @@ class PersonFactory(factory.DjangoModelFactory):
     bio = FuzzyText()
     profile_image_url = FuzzyURL()
     profile_image = FuzzyText(prefix='person/profile_image')
+    major_works = FuzzyText()
 
     class Meta:
         model = Person
@@ -482,13 +483,6 @@ class SeatTypeFactory(factory.django.DjangoModelFactory):
 class SyllabusItemFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = SyllabusItem
-
-
-class PersonWorkFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = PersonWork
-
-    person = factory.SubFactory(PersonFactory)
 
 
 class CourseEntitlementFactory(factory.DjangoModelFactory):
