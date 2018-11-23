@@ -19,7 +19,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-11-14 11:25+0000\n"
+"PO-Revision-Date: 2018-11-23 08:41+0000\n"
 "Last-Translator: Abstract Technology <stefania.trabucchi@abstract-technology.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
@@ -744,7 +744,7 @@ msgstr "Kurs finden"
 
 #: apps/publisher/forms.py
 msgid "Course Start Date"
-msgstr "Datum Kursstart"
+msgstr "Startdatum"
 
 #: apps/publisher/forms.py
 msgid "Course End Date"
@@ -1458,7 +1458,7 @@ msgstr "\n                                                Wenn der Kurs nicht ge
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE START DATE"
-msgstr "Startdatum des Kurses"
+msgstr "Startdatum"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
@@ -1530,7 +1530,7 @@ msgstr "Kurs importieren"
 #: apps/publisher/templates/publisher/base.html
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Dashboard"
-msgstr "Übersicht"
+msgstr "Meine Kurse"
 
 #: apps/publisher/templates/publisher/base.html
 #: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
@@ -2664,7 +2664,7 @@ msgstr "Status"
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 msgid "Course start date"
-msgstr "Datum Kursbeginn"
+msgstr "Stardatum"
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html
 msgid "Approved since "
