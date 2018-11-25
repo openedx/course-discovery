@@ -15,6 +15,7 @@ from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
 from guardian.shortcuts import get_objects_for_user
 from simple_history.models import HistoricalRecords
+from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from taggit.managers import TaggableManager
@@ -1093,3 +1094,11 @@ class PublisherUser(User):
                 with_superuser=False
             ).values_list('organization')
             return queryset.filter(organizations__in=organizations)
+
+
+class DrupalLoaderConfig(SingletonModel):
+    """
+    Configuration for data loaders used in the load_drupal_data command.
+    """
+    course_run_ids = models.TextField(default=None, null=False, blank=False, verbose_name=_('Course Run IDs'))
+    partner_code = models.TextField(default=None, null=False, blank=False, verbose_name=_('Partner Code'))

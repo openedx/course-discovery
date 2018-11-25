@@ -13,8 +13,8 @@ from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import (
-    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
-    OrganizationUserRole, Seat, UserAttributes
+    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, DrupalLoaderConfig,
+    OrganizationExtension, OrganizationUserRole, Seat, UserAttributes
 )
 
 
@@ -154,3 +154,8 @@ class CourseRunStateFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = CourseRunState
+
+
+class DrupalLoaderConfigFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = DrupalLoaderConfig
