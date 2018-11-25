@@ -15,8 +15,8 @@ from course_discovery.apps.publisher.forms import (
     PublisherUserCreationForm, UserAttributesAdminForm
 )
 from course_discovery.apps.publisher.models import (
-    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
-    OrganizationUserRole, PublisherUser, Seat, UserAttributes
+    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, DrupalLoaderConfig,
+    OrganizationExtension, OrganizationUserRole, PublisherUser, Seat, UserAttributes
 )
 
 
@@ -143,3 +143,5 @@ class PublisherUserAdmin(UserAdmin):
         Return only those users which belongs to any group.
         """
         return self.model.objects.filter(groups__in=Group.objects.all()).distinct()
+
+admin.site.register(DrupalLoaderConfig)
