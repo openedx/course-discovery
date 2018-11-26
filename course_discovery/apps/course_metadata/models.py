@@ -363,7 +363,7 @@ class Course(TimeStampedModel):
     canonical_course_run = models.OneToOneField(
         'course_metadata.CourseRun', related_name='canonical_for_course', default=None, null=True, blank=True
     )
-    key = models.CharField(max_length=255)
+    key = models.CharField(max_length=255, db_index=True)
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
     short_description = models.TextField(default=None, null=True, blank=True)
     full_description = models.TextField(default=None, null=True, blank=True)
