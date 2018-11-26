@@ -277,10 +277,11 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
     def assert_person_loaded(self, data):
         uuid = data['uuid']
         person = Person.objects.get(uuid=uuid, partner=self.partner)
+        resume = data['field_person_resume']
         expected_values = {
             'given_name': data['field_person_first_middle_name'],
             'family_name': data['field_person_last_name'],
-            'bio': self.loader.clean_html(data['field_person_resume']['value']) if data['field_person_resume'] else '',
+            'bio': self.loader.clean_html(resume['value']) if resume else None,
             'profile_image_url': data['field_person_image']['url'],
             'slug': data['url'].split('/')[-1],
             'profile_url': data['url']
