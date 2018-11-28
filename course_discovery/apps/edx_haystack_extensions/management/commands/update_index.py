@@ -37,8 +37,8 @@ class Command(HaystackCommand):
         for backend_name in self.backends:
             connection = haystack_connections[backend_name]
             backend = connection.get_backend()
-            record_count = self.get_record_count(backend.conn, backend.index_name)
             alias, index_name = self.prepare_backend_index(backend)
+            record_count = self.get_record_count(backend.conn, backend.index_name)
             alias_mappings.append((backend, index_name, alias))
 
         super(Command, self).handle(*items, **options)
