@@ -277,31 +277,14 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
     def assert_person_loaded(self, data):
         uuid = data['uuid']
         person = Person.objects.get(uuid=uuid, partner=self.partner)
-        resume = data['field_person_resume']
-        major_works = data['field_person_major_works']
         expected_values = {
-            'given_name': data['field_person_first_middle_name'],
-            'family_name': data['field_person_last_name'],
-            'bio': self.loader.clean_html(resume['value']) if resume else None,
             'profile_image_url': data['field_person_image']['url'],
             'slug': data['url'].split('/')[-1],
             'profile_url': data['url'],
-            'major_works': self.loader.clean_html(major_works['value']) if major_works else '',
         }
 
         for field, value in expected_values.items():
             self.assertEqual(getattr(person, field), value)
-
-        positions = data['field_person_positions']
-
-        if positions:
-            position_data = positions[0]
-            titles = position_data['field_person_position_tiltes']
-
-            if titles:
-                self.assertEqual(person.position.title, titles[0])
-                self.assertEqual(person.position.organization_name,
-                                 (position_data.get('field_person_position_org_link') or {}).get('title'))
 
         social_links = data['field_person_social_links']
         if social_links:
@@ -328,24 +311,6 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         factories.OrganizationFactory(name='MIT')
         self.loader.ingest()
         return people
-
-    @responses.activate
-    def test_major_works_ignored_if_empty(self):
-        uuid = self.mocked_data[0]['uuid']
-
-        # Sanity check that the first person in our mock data has an empty works field
-        self.assertListEqual(self.mocked_data[0]['field_person_major_works'], [])
-
-        # Make a person with that UUID and some major works already in the DB
-        factories.PersonFactory(uuid=uuid, partner=self.partner, major_works='Work1<br/>Work2')
-
-        # Actually ingest the updated mock data
-        self.ingest_mock_data()
-
-        # And confirm that updating the data didn't change major works (but did change rest of fields)
-        person = Person.objects.get(uuid=uuid, partner=self.partner)
-        self.assertEqual(person.major_works, 'Work1<br/>Work2')
-        self.assertEqual(person.given_name, self.mocked_data[0]['field_person_first_middle_name'])
 
     @responses.activate
     def test_ingest(self):
