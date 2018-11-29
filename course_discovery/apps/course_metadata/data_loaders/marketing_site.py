@@ -8,7 +8,6 @@ from uuid import UUID
 
 import pytz
 from dateutil import rrule
-from django.db.models import Q
 from django.utils.functional import cached_property
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
@@ -16,7 +15,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, PersonSocialNetwork, Position, Subject
+    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, PersonSocialNetwork, Subject
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -266,85 +265,29 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         uuid = UUID(data['uuid'])
         slug = data['url'].split('/')[-1]
         defaults = {
-            'salutation': data['field_person_salutation'],
-            'given_name': data['field_person_first_middle_name'],
-            'family_name': data['field_person_last_name'],
             'profile_image_url': self._get_nested_url(data.get('field_person_image')),
             'slug': slug,
             'profile_url': data['url'],
         }
-
-        # Don't override bio if there's nothing in marketing site yet
-        if data['field_person_resume']:
-            defaults['bio'] = self.clean_html(data['field_person_resume']['value'])
-
-        # Don't override Publisher's major_works if there's nothing in marketing site
-        if data['field_person_major_works']:
-            defaults['major_works'] = self.clean_html(data['field_person_major_works']['value'])
 
         person, created = Person.objects.update_or_create(uuid=uuid, partner=self.partner, defaults=defaults)
 
         # NOTE (CCB): The AutoSlug field kicks in at creation time. We need to apply overrides in a separate
         # operation.
         if created:
-            person_salutation = data['field_person_salutation']
-            person_given_name = data['field_person_first_middle_name']
-            person_family_name = data['field_person_last_name']
-
             logger.info(
-                u'Person created in marketing data loader, %s %s %s with uuid: %s and slug: %s',
-                person_salutation,
-                person_family_name,
-                person_given_name,
+                u'Person created in marketing data loader, %s with uuid: %s and slug: %s',
+                person.full_name,
                 uuid,
                 slug
             )
             person.slug = slug
             person.save()
 
-        self.set_position(person, data)
         self.set_social_network(person, data)
 
         logger.info('Processed person with UUID [%s].', uuid)
         return person
-
-    def set_position(self, person, data):
-        uuid = data['uuid']
-
-        try:
-            data = data.get('field_person_positions', [])
-
-            if data:
-                data = data[0]
-                # NOTE (CCB): This is not a typo. The field is misspelled on the marketing site.
-                titles = data['field_person_position_tiltes']
-
-                if titles:
-                    title = titles[0]
-
-                    # NOTE (CCB): Not all positions are associated with organizations.
-                    organization = None
-                    organization_name = (data.get('field_person_position_org_link', {}) or {}).get('title')
-
-                    if organization_name:
-                        organization = Organization.objects.filter(
-                            Q(name__iexact=organization_name) | Q(key__iexact=organization_name) & Q(
-                                partner=self.partner)).first()
-
-                    defaults = {
-                        'title': title,
-                        'organization': None,
-                        'organization_override': None,
-                    }
-
-                    if organization:
-                        defaults['organization'] = organization
-                    else:
-                        defaults['organization_override'] = organization_name
-
-                    Position.objects.update_or_create(person=person, defaults=defaults)
-        except:  # pylint: disable=bare-except
-            logger.exception('Failed to set position for person with UUID [%s]!', uuid)
 
     def set_social_network(self, person, data):
         # Used for error messages
