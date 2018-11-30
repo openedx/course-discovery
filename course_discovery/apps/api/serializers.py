@@ -232,13 +232,21 @@ class VideoSerializer(MediaSerializer):
 
 class PositionSerializer(serializers.ModelSerializer):
     """Serializer for the ``Position`` model."""
+    organization_marketing_url = serializers.SerializerMethodField()
 
     class Meta(object):
         model = Position
-        fields = ('title', 'organization_name', 'organization', 'organization_id', 'organization_override')
+        fields = (
+            'title', 'organization_name', 'organization', 'organization_id', 'organization_override',
+            'organization_marketing_url',
+        )
         extra_kwargs = {
             'organization': {'write_only': True}
         }
+
+    def get_organization_marketing_url(self, obj):
+        if obj.organization:
+            return obj.organization.marketing_url
 
 
 class MinimalPersonSerializer(serializers.ModelSerializer):
