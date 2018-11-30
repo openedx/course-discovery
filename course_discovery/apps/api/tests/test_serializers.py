@@ -1462,6 +1462,7 @@ class CourseSearchSerializerTests(TestCase):
                 'start': course_run.start,
                 'end': course_run.end,
             }],
+            'uuid': str(course.uuid),
         }
 
 
