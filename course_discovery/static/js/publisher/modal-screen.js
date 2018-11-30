@@ -88,6 +88,7 @@ function resetInstructorModalData() {
     selectors = ['#given-name', '#family-name', '#title', '#bio', '#majorWorks'];
     $('#addInstructorModal div img').attr('src',imgPath);
     for (var i in selectors) clearData(selectors[i]);
+    $('#social-links-wrapper').empty();
 }
 
 function clearData(selector){

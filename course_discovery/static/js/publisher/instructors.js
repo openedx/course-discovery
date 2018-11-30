@@ -48,6 +48,7 @@ $(document).ready(function () {
             'profile_image': $('.select-image').attr('src'),
             'position': getFormInstructorPosition(),
             'major_works': $('#majorWorks').val(),
+            'urls_detailed': [],
         };
 
         if (editMode) {
@@ -90,6 +91,33 @@ $(document).ready(function () {
         });
     });
 });
+
+function addNewSocialLink(id, type, title, url) {
+    // <label class="field-label" for="facebook">{% trans "Facebook URL" %}
+    //     <span class="optional"> {% trans "optional" %}</span>
+    // </label>
+    // <input class="field-input input-text" type="text" id="facebook" name="facebook"/>
+    var id = id || '',
+        type = type || '',
+        title = title || '',
+        url = url || '',
+        linkHtml = '<label class="field-label" for="' + id + '">' + gettext("Social Link") +
+                        '<span class="optional"> ' + gettext("optional") + '</span>\
+                    </label>\
+                    <select name="link-type" id="social-link-type-' + id + '">\
+                        <option value="facebook">Facebook</option>\
+                        <option value="twitter">Twitter</option>\
+                        <option value="blog">Blog</option>\
+                        <option value="others">Other</option>\
+                    </select>\
+                    <input class="field-input input-text" type="text" id="social-link-title-' + id + '"/>\
+                    <input class="field-input input-text" type="text" id="social-link-url-' + id + '"/>',
+        socialLinksWrapper = $('#social-links-wrapper');
+    socialLinksWrapper.append(linkHtml);
+    $('#social-link-type-' + id).val(type)
+    $('#social-link-title-' + id).val(title)
+    $('#social-link-url-' + id).val(url)
+}
 
 function getFormInstructorPosition () {
     var org_override_element_value = $('#organization_override').val(),
@@ -285,6 +313,15 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
             $('#family-name').val(data['family_name']);
             $('#bio').val(data['bio']);
             $('#majorWorks').val(data['major_works']);
+            console.log(data['urls_detailed']);
+            for (var i = 0; i < data['urls_detailed'].length; i++) {
+                addNewSocialLink(
+                    i,
+                    data['urls_detailed'][i]['type'],
+                    data['urls_detailed'][i]['title'],
+                    data['urls_detailed'][i]['url'],
+                );
+            }
         }
     });
 });
