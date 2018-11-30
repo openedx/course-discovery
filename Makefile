@@ -7,6 +7,8 @@ NODE_BIN=$(CURDIR)/node_modules/.bin
 
 include .travis/docker.mk
 
+# Fake comment to test things
+
 # Generates a help message. Borrowed from https://github.com/pydanny/cookiecutter-djangopackage.
 help: ## Display this help message
 	@echo "Please use \`make <target>\` where <target> is one of"
