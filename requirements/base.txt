@@ -1,3 +1,4 @@
+-e git+https://github.com/edx/edx-analytics-data-api-client.git@0.12.0#egg=edx-analytics-data-api-client==0.12.0
 beautifulsoup4==4.5.1
 boto==2.42.0
 cryptography==1.7.1
@@ -39,6 +40,7 @@ edx-django-utils==1.0.1
 edx-drf-extensions==2.0.0
 edx-opaque-keys==0.3.1
 edx-rest-api-client==1.8.2
+edx-analytics-data-api-client=
 elasticsearch>=1.0.0,<2.0.0
 html2text==2016.9.19
 jsonfield==1.0.3

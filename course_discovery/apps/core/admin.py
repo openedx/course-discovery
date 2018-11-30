@@ -56,6 +56,10 @@ class PartnerAdmin(admin.ModelAdmin):
             'fields': ('marketing_site_url_root', 'marketing_site_api_url', 'marketing_site_api_username',
                        'marketing_site_api_password',)
         }),
+        (_('Analytics Configuration'), {
+            'description': _('Configure the analytics API that will be used to retrieve enrollment data'),
+            'fields': ('analytics_url', 'analytics_token',)
+        }),
     )
     list_display = ('name', 'short_code', 'site')
     ordering = ('name', 'short_code', 'site')

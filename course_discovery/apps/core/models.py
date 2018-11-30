@@ -85,6 +85,8 @@ class Partner(TimeStampedModel):
     studio_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Studio URL'))
     site = models.OneToOneField(Site, on_delete=models.PROTECT)
     lms_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('LMS URL'))
+    analytics_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Analytics API URL'))
+    analytics_token = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Analytics Access Token'))
 
     def __str__(self):
         return self.name
