@@ -1358,7 +1358,21 @@ class PositionSerializerTests(TestCase):
             'title': str(position.title),
             'organization_name': position.organization_name,
             'organization_id': position.organization_id,
-            'organization_override': position.organization_override
+            'organization_override': position.organization_override,
+            'organization_marketing_url': position.organization.marketing_url,
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+    def test_position_with_no_org(self):
+        position = PositionFactory(organization=None)
+        serializer = PositionSerializer(position)
+        expected = {
+            'title': str(position.title),
+            'organization_name': None,
+            'organization_id': None,
+            'organization_override': None,
+            'organization_marketing_url': None,
         }
 
         self.assertDictEqual(serializer.data, expected)
