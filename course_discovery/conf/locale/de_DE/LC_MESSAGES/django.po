@@ -20,7 +20,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-11-23 13:00+0000\n"
+"PO-Revision-Date: 2018-11-28 14:16+0000\n"
 "Last-Translator: Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
@@ -2521,7 +2521,7 @@ msgstr "Kurs $ (minimum)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Credit $ (minimum)"
-msgstr ""
+msgstr "Credit $ (Minimum)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Self Paced?"
@@ -2637,7 +2637,7 @@ msgstr "Vorschau"
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Studio Request"
-msgstr ""
+msgstr "Studio Anfrage"
 
 #: apps/publisher/templates/publisher/courserun_list.html
 msgid "Published About Pages"
@@ -3024,7 +3024,7 @@ msgid ""
 "Note: This email address is unable to receive replies. For questions or "
 "comments, contact <a "
 "href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>."
-msgstr ""
+msgstr "Hinweis: Bitte antworten Sie nicht auf diese E-Mail Adresse. Wenn Sie Fragen haben oder Hilfe benötigen kontaktieren Sie uns unter <a href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>."
 
 #: apps/publisher/templates/publisher/email/course_run/published.html
 #: apps/publisher/templates/publisher/email/course_run/published.txt
@@ -3039,7 +3039,7 @@ msgstr ""
 msgid ""
 "%(link_start)s%(preview_url)s%(link_middle)sView this About page on "
 "edx.org.%(link_end)s"
-msgstr ""
+msgstr "%(link_start)s%(preview_url)s%(link_middle)s Diese Seite in edx.org ansehen.%(link_end)s"
 
 #: apps/publisher/templates/publisher/email/course_run/published.txt
 #, python-format
