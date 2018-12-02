@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-09 17:52+0000\n"
+"POT-Creation-Date: 2018-11-28 16:07+0000\n"
 "PO-Revision-Date: 2018-11-12 01:30+0000\n"
 "Last-Translator: ifLab <webmaster@iflab.org>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/open-edx/edx-platform/language/zh_CN/)\n"
@@ -57,27 +57,27 @@ msgstr "添加工作人员"
 msgid "Please upload a instructor image."
 msgstr "请上传一张导师照片。"
 
-#: static/js/publisher/instructors.js:96 static/js/publisher/preview-url.js:12
+#: static/js/publisher/instructors.js:88 static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
 msgstr "出错了!"
 
-#: static/js/publisher/instructors.js:129
+#: static/js/publisher/instructors.js:121
 msgid "The image size must be smaller than 256kb"
 msgstr "照片文件大小必须小于256kb"
 
-#: static/js/publisher/instructors.js:139
+#: static/js/publisher/instructors.js:131
 msgid "The image dimensions must be less than 110 x 110"
 msgstr "照片分辨率必须小于 110x110"
 
-#: static/js/publisher/instructors.js:151
+#: static/js/publisher/instructors.js:143
 msgid " Unsupported Image extension"
 msgstr "不支持的照片格式"
 
-#: static/js/publisher/instructors.js:269
+#: static/js/publisher/instructors.js:261
 msgid "Update staff member"
 msgstr "更新工作人员"
 
-#: static/js/publisher/instructors.js:270
+#: static/js/publisher/instructors.js:262
 msgid "Update Instructor"
 msgstr "更新导师"
 
