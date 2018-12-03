@@ -15,7 +15,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, PersonSocialNetwork, Subject
+    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, PersonSocialNetwork, Position, Subject
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -284,10 +284,47 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             person.slug = slug
             person.save()
 
+        self.update_position(person, data)
         self.set_social_network(person, data)
 
         logger.info('Processed person with UUID [%s].', uuid)
         return person
+
+    def update_position(self, person, data):
+        # This (temporary) method tries to find positions in drupal that have a valid url link we can match to an
+        # Organization object in our database. If so, it cleans it up by linking the Position and Organization.
+        # In all other cases, it leaves the data alone.
+
+        uuid = data['uuid']
+        try:
+            data = data.get('field_person_positions', [])
+            if not data:
+                return
+
+            data = data[0]
+            # NOTE (CCB): This is not a typo. The field is misspelled on the marketing site.
+            titles = data['field_person_position_tiltes']
+            if not titles:
+                return
+
+            # NOTE (CCB): Not all positions are associated with organizations.
+            organization_url = (data.get('field_person_position_org_link', {}) or {}).get('url')
+            if not organization_url:
+                return
+
+            org_url_path = urlparse(organization_url).path.strip('/')
+            organization = Organization.objects.filter(marketing_url_path=org_url_path, partner=self.partner).first()
+            if not organization:
+                return
+
+            position = Position.objects.filter(person=person).first()
+            if not position or position.organization:
+                return
+
+            position.organization = organization
+            position.save()
+        except:  # pylint: disable=bare-except
+            logger.exception('Failed to update position for person with UUID [%s]!', uuid)
 
     def set_social_network(self, person, data):
         # Used for error messages

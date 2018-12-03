@@ -1149,7 +1149,7 @@ MARKETING_SITE_API_PERSON_BODIES = [
                 ],
                 'field_person_position_org_link': {
                     'title': 'edX',
-                    'url': 'http://www.edx.org'
+                    'url': 'http://www.edx.org/school/edx/'
                 },
                 'item_id': '11966',
                 'revision_id': '29436',
