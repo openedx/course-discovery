@@ -223,7 +223,6 @@ class CourseRunWrapper(BaseWrapper):
                 'image_url': staff.get_profile_image_url,
                 'profile_url': staff.profile_url,
                 'bio': staff.bio,
-                'email': staff.email,
                 'social_networks': [
                     {
                         'type': staff.type,

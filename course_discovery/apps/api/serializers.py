@@ -305,14 +305,12 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
         } for network in obj.person_networks.all()]
 
     def get_email(self, _obj):
-        # For historical reasons, we provide this field. But for privacy reasons, we don't provide a value in this
-        # minimal serializer. It is provided in the full serializer.
+        # We are removing this field so this is to not break any APIs
         return None
 
 
 class PersonSerializer(MinimalPersonSerializer):
     """Full serializer for the ``Person`` model."""
-    email = serializers.EmailField(required=True)
     course_runs_staffed = serializers.SerializerMethodField()
     publisher_course_runs_staffed = serializers.SerializerMethodField()
 
@@ -365,6 +363,12 @@ class PersonSerializer(MinimalPersonSerializer):
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+
+        # Overwrite the Drupal profile_image_url (if one exists) with the publisher image
+        # as we move to publisher being source of truth
+        if instance.profile_image_url:
+            instance.profile_image_url = instance.profile_image.url
+
         instance.save()
 
         return instance

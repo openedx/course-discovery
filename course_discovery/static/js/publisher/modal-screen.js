@@ -39,7 +39,6 @@ $(document).ready(function(){
         $('#instructorProfileModal a.btn-download').attr('href', data['image_url']);
         $('#instructorProfileModal div.position').html(data['position']);
         $('#instructorProfileModal div.bio').html(data['bio']);
-        $('#instructorProfileModal div.email').html(data['email']);
 
         assignData('.profile_url', data['profile_url']);
     });
@@ -86,7 +85,7 @@ function assignData(element, data){
 
 function resetInstructorModalData() {
     var imgPath = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==',
-    selectors = ['#given-name', '#family-name', '#title', '#email', '#bio', '#majorWorks'];
+    selectors = ['#given-name', '#family-name', '#title', '#bio', '#majorWorks'];
     $('#addInstructorModal div img').attr('src',imgPath);
     for (var i in selectors) clearData(selectors[i]);
 }

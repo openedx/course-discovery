@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-28 16:07+0000\n"
+"POT-Creation-Date: 2018-12-03 17:07+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -28,31 +28,31 @@ msgid ""
 "parameter."
 msgstr ""
 
-#: apps/api/serializers.py:476
+#: apps/api/serializers.py:491
 msgid "Number of courses contained in this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:479
+#: apps/api/serializers.py:494
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:567
+#: apps/api/serializers.py:582
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:637
+#: apps/api/serializers.py:652
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:800
+#: apps/api/serializers.py:815
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1024
+#: apps/api/serializers.py:1039
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1028
+#: apps/api/serializers.py:1043
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -702,7 +702,7 @@ msgid "Others"
 msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:83
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:74
 #: apps/publisher/templates/publisher/_revert_confirmation.html:13
 #: apps/publisher/templates/publisher/add_course_form.html:174
 #: apps/publisher/templates/publisher/add_courserun_form.html:157
@@ -1257,8 +1257,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:26
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:31
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:36
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:45
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:69
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:60
 msgid "required"
 msgstr ""
 
@@ -1268,24 +1267,15 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:30
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:6
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:37
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:30
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html:8
 msgid "Title"
 msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:35
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:23
-msgid "Email"
-msgstr ""
-
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:41
-msgid "Institution email is preferred"
-msgstr ""
-
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:44
 #: apps/publisher/templates/publisher/course_list.html:32
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:42
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:30
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:23
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html:14
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html:16
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html:27
@@ -1294,32 +1284,32 @@ msgstr ""
 msgid "Organization"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:65
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:56
 msgid "Enter a different organization"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:68
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:52
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:59
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:45
 msgid "Bio"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:70
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:61
 msgid "one or two paragraphs in HTML format (consider using &lt;p&gt;)"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:75
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:66
 msgid "Major Works"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:76
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:67
 msgid "optional"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:77
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:68
 msgid "a list in HTML format (consider using &lt;ul&gt; or &lt;br&gt;)"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:85
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:76
 msgid "Add Staff Member"
 msgstr ""
 
@@ -2730,11 +2720,11 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:45
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:38
 msgid "Profile URL "
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:59
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:52
 msgid "Close"
 msgstr ""
 
