@@ -270,7 +270,6 @@ class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
             self.assert_sponsor_loaded(sponsor)
 
 
-@ddt.ddt
 class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
     loader_class = PersonMarketingSiteDataLoader
     mocked_data = mock_data.MARKETING_SITE_API_PERSON_BODIES
@@ -312,38 +311,6 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         factories.OrganizationFactory(name='MIT')
         self.loader.ingest()
         return people
-
-    @ddt.data(
-        ('https://www.edx.org/bio/michael-cima', None, None),
-        ('https://www.edx.org/bio/michael-cima', None, 'school/mitx'),
-        ('https://www.edx.org/bio/michael-cima', 'school/already-linked', 'school/mitx'),
-        ('https://www.edx.org/bio/anant-agarwal-0', None, 'school/edx'),
-    )
-    @ddt.unpack
-    @responses.activate
-    def test_position_org_match(self, bio_url, current_path, unlinked_path):
-        person_data = None
-        for person_data in self.mocked_data:
-            if person_data['url'] == bio_url:
-                break
-
-        person = factories.PersonFactory(uuid=person_data['uuid'], partner=self.partner)
-        expected_org = None
-
-        if unlinked_path:
-            expected_org = factories.OrganizationFactory(partner=self.partner, marketing_url_path=unlinked_path)
-
-        if current_path:
-            expected_org = factories.OrganizationFactory(partner=self.partner, marketing_url_path=current_path)
-            factories.PositionFactory(person=person, organization=expected_org)
-        else:
-            factories.PositionFactory(person=person, organization=None)
-
-        self.ingest_mock_data()
-        person.refresh_from_db()
-        person.position.refresh_from_db()
-
-        self.assertEqual(person.position.organization, expected_org)
 
     @responses.activate
     def test_ingest(self):
