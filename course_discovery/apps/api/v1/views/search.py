@@ -121,6 +121,8 @@ class CatalogDataViewSet(viewsets.GenericViewSet):
 
 
 class CourseSearchViewSet(BaseHaystackViewSet):
+    document_uid_field = 'uuid'
+    lookup_field = 'uuid'
     index_models = (Course,)
     detail_serializer_class = serializers.CourseSearchModelSerializer
     facet_serializer_class = serializers.CourseFacetSerializer
