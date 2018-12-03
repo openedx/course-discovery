@@ -186,7 +186,6 @@ class CourseRunWrapperTests(TestCase):
                 'social_networks': [],
                 'bio': staff.bio,
                 'is_new': True,
-                'email': staff.email
             },
             {
                 'uuid': str(staff_2.uuid),
@@ -209,7 +208,6 @@ class CourseRunWrapperTests(TestCase):
                     },
                 ],
                 'bio': staff_2.bio,
-                'email': staff_2.email
             }
         ]
         self.assertEqual(self.wrapped_course_run.course_staff, expected)

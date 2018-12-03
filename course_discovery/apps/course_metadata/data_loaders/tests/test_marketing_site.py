@@ -278,7 +278,6 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         uuid = data['uuid']
         person = Person.objects.get(uuid=uuid, partner=self.partner)
         expected_values = {
-            'profile_image_url': data['field_person_image']['url'],
             'slug': data['url'].split('/')[-1],
             'profile_url': data['url'],
         }

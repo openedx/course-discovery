@@ -45,7 +45,6 @@ $(document).ready(function () {
             'given_name': $('#given-name').val(),
             'family_name': $('#family-name').val(),
             'bio': $('#bio').val(),
-            'email': $('#email').val(),
             'profile_image': $('.select-image').attr('src'),
             'position': getFormInstructorPosition(),
             'major_works': $('#majorWorks').val(),
@@ -169,7 +168,6 @@ function renderSelectedInstructor(id, name, image, uuid, organization_id, edit_i
         instructorHtmlEnd = '<b>' + name + '</b></div></div>',
         controlOptions = '<a class="delete" id="' + id + '"href="#"><i class="fa fa-trash-o fa-fw"></i></a>';
 
-
     var user_is_course_team = course_user_role === "course_team";
     if (organization_id != "None" && user_organizations_ids != "[]"){
         var user_is_in_similar_org_as_instructor = $.inArray(parseInt(organization_id), JSON.parse(user_organizations_ids)) > -1;
@@ -283,7 +281,6 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
             $('.select-image').attr('src', data['profile_image_url']);
             $('#given-name').val(data['given_name']);
             $('#family-name').val(data['family_name']);
-            $('#email').val(data['email']);
             $('#bio').val(data['bio']);
             $('#majorWorks').val(data['major_works']);
         }

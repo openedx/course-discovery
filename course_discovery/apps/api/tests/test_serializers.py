@@ -1344,7 +1344,6 @@ class PersonSerializerTests(MinimalPersonSerializerTests):
         super().setUp()
         self.serializer = PersonSerializer
         self.expected.update({
-            'email': self.person.email,
             'course_runs_staffed': [],
             'publisher_course_runs_staffed': [],
         })

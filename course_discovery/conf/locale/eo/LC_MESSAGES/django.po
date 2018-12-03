@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-28 16:07+0000\n"
+"POT-Creation-Date: 2018-12-03 17:07+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1504,7 +1504,6 @@ msgstr "Fïrst Nämé Ⱡ'σяєм ιρѕυм ∂σłσ#"
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "required"
 msgstr "réqüïréd Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -1518,15 +1517,6 @@ msgstr "Läst Nämé Ⱡ'σяєм ιρѕυм ∂σł#"
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
 msgstr "Tïtlé Ⱡ'σяєм ιρѕ#"
-
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
-msgid "Email"
-msgstr "Émäïl Ⱡ'σяєм ιρѕ#"
-
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
-msgid "Institution email is preferred"
-msgstr "Ìnstïtütïön émäïl ïs préférréd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_list.html

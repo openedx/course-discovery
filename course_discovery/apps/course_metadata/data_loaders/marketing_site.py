@@ -265,7 +265,6 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         uuid = UUID(data['uuid'])
         slug = data['url'].split('/')[-1]
         defaults = {
-            'profile_image_url': self._get_nested_url(data.get('field_person_image')),
             'slug': slug,
             'profile_url': data['url'],
         }
