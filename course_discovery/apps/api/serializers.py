@@ -1387,6 +1387,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'card_image_url',
             'course_runs',
             'uuid',
+            'subjects',
         )
 
 
