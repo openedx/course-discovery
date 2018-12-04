@@ -225,11 +225,12 @@ class CourseRunWrapper(BaseWrapper):
                 'bio': staff.bio,
                 'social_networks': [
                     {
-                        'type': staff.type,
-                        'title': staff.title,
-                        'url': staff.url,
+                        'id': network.id,
+                        'type': network.type,
+                        'title': network.title,
+                        'url': network.url,
                     }
-                    for staff in staff.person_networks.all()
+                    for network in staff.person_networks.all()
                 ],
                 'is_new': False if staff.profile_image_url else True
             }
