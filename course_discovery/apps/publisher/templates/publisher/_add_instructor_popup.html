@@ -63,7 +63,14 @@
                 <textarea class="field-textarea input-textarea textarea-medium textarea-block" id="bio"
                           name="bio"></textarea>
 
-                <div id="social-links-wrapper"></div>
+                <div id="social-links-wrapper">
+                    <label class="field-label">{% trans "Social Links" %}
+                        <span class="optional"> {% trans "optional" %}</span>
+                    </label>
+                </div>
+                <button class="btn-base" type="button" id="add-social-link-btn" style="margin-bottom: 20px;">
+                    {% trans "Add new social link" %}
+                </button>
 
                 <label class="field-label" for="majorWorks">{% trans "Major Works" %}
                     <span class="optional"> {% trans "optional" %}</span>

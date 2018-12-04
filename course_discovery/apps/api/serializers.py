@@ -69,6 +69,9 @@ SELECT_RELATED_FIELDS = {
     'course_run': ['course', 'language', 'video'],
 }
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False):
     """
@@ -299,8 +302,10 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
 
     def get_urls_detailed(self, obj):
         return [{
+            'id': network.id,
             'type': network.type,
-            'title': network.display_title,
+            'title': network.title,
+            'display_title': network.display_title,
             'url': network.url,
         } for network in obj.person_networks.all()]
 
@@ -321,45 +326,43 @@ class PersonSerializer(MinimalPersonSerializer):
 
     def validate(self, data):
         validated_data = super(PersonSerializer, self).validate(data)
-        # validated_data['urls_detailed'] = self.initial_data.get('urls_detailed', [])
+        validated_data['urls_detailed'] = self.initial_data.get('urls_detailed', [])
+        validated_data['delete_social_network_ids'] = self.initial_data.get('delete_social_network_ids', [])
         return validated_data
 
     def create(self, validated_data):
         position_data = validated_data.pop('position')
-        # urls_detailed_data = validated_data.pop('urls_detailed')
+        urls_detailed_data = validated_data.pop('urls_detailed')
 
         person = Person.objects.create(**validated_data)
         Position.objects.create(person=person, **position_data)
 
-        # This is commented out while we update the UI on the add instructor modal.
-
-        # person_social_networks = []
-        # for url_detailed in urls_detailed_data:
-        #     if url_detailed['url']:
-        #         person_social_networks.append(PersonSocialNetwork(
-        #             person=person, type=url_detailed['type'], title=url_detailed['title'], url=url_detailed['url'],
-        #         ))
-        # PersonSocialNetwork.objects.bulk_create(person_social_networks)
+        person_social_networks = []
+        for url_detailed in urls_detailed_data:
+            person_social_networks.append(PersonSocialNetwork(
+                person=person, type=url_detailed['type'], title=url_detailed['title'], url=url_detailed['url'],
+            ))
+        PersonSocialNetwork.objects.bulk_create(person_social_networks)
 
         return person
 
     def update(self, instance, validated_data):
         position_data = validated_data.pop('position')
-        # urls_detailed_data = validated_data.pop('urls_detailed', [])
+        urls_detailed_data = validated_data.pop('urls_detailed')
+        delete_social_network_ids = validated_data.pop('delete_social_network_ids')
 
         Position.objects.update_or_create(person=instance, defaults=position_data)
 
-        # This is commented out while we update the UI on the edit instructor modal.
-
-        # PersonSocialNetwork.objects.filter(person=instance).delete()
-        # for url_detailed in urls_detailed_data:
-        #     url = url_detailed['url']
-        #     if url:
-        #         network, __ = PersonSocialNetwork.objects.get_or_create(
-        #             person=instance, type=url_detailed['type'], title=url_detailed['title'],
-        #         )
-        #         network.url = url
-        #         network.save()
+        for social_network_id in delete_social_network_ids:
+            PersonSocialNetwork.objects.filter(person=instance, id=social_network_id).delete()
+        for url_detailed in urls_detailed_data:
+            url = url_detailed['url']
+            if url:
+                network, __ = PersonSocialNetwork.objects.get_or_create(
+                    person=instance, type=url_detailed['type'], title=url_detailed['title'],
+                )
+                network.url = url
+                network.save()
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
