@@ -49,7 +49,7 @@ $(document).ready(function () {
         urlsDetailed = socialLinks[0];
         socialLinkError = socialLinks[1];
         if (socialLinkError) {
-            addModalError(gettext("Please specify a type and url for each social link."));
+            addModalError(socialLinkError);
             return;
         }
         personData = {
@@ -136,7 +136,7 @@ function addNewSocialLink(id, type, title, url) {
                                 <option value="others">Other</option>\
                             </select>\
                         </label>\
-                        <label style="display: inline-block" for="social-link-title-' + id + '">' + gettext("Title") +
+                        <label style="display: inline-block" for="social-link-title-' + id + '">' + gettext("Title - optional") +
                             '<input class="field-input input-text" type="text" id="social-link-title-' + id + '"/>\
                         </label>\
                         <label style="display: inline-block" for="social-link-url-' + id + '">' + gettext("URL") +
@@ -154,26 +154,41 @@ function addNewSocialLink(id, type, title, url) {
 function getSocialLinks() {
     var socialLinksArray = [],
         socialLinks = $('.social-link'),
-        error = false,
-        id;
+        error = '',
+        id,
+        type,
+        title,
+        url,
+        uniquenessTest = [];
     for (var i = 0; i < socialLinks.length; i++) {
-        socialLink = socialLinks[i];
-        if ($('#social-link-type-' + socialLink.dataset.id).val() === null ||
-            $('#social-link-url-' + socialLink.dataset.id).val() === '') {
-            error = true;
+        type = $('#social-link-type-' + socialLinks[i].dataset.id).val();
+        title = $('#social-link-title-' + socialLinks[i].dataset.id).val();
+        url = $('#social-link-url-' + socialLinks[i].dataset.id).val();
+        id = socialLinks[i].dataset.id
+
+        if (type === null || url === '') {
+            error = gettext('Please specify a type and url for each social link.');
             return [socialLinksArray, error];
         }
-        // see comment under on click of #add-social-link-btn
-        if (socialLink.dataset.id.includes('banana')) {
-            id = '';
-        } else {
-            id = socialLink.dataset.id;
+
+        // There is a uniqueness constraint on titles and types
+        for (var j = 0; j < uniquenessTest.length; j++) {
+            existingLink = uniquenessTest[j];
+            if (title === existingLink.title && type === existingLink.type) {
+                error = gettext('Social links with the same type must have different titles.');
+                return [socialLinksArray, error];
+            }
         }
+        uniquenessTest.push({'title': title, 'type': type});
+
+        // see comment under on click of #add-social-link-btn
+        if (id.includes('banana')) id = '';
+
         socialLinksArray.push({
             'id': id,
-            'type': $('#social-link-type-' + socialLink.dataset.id).val(),
-            'title': $('#social-link-title-' + socialLink.dataset.id).val(),
-            'url': $('#social-link-url-' + socialLink.dataset.id).val(),
+            'type': type,
+            'title': title,
+            'url': url,
         });
     }
     return [socialLinksArray, error];
