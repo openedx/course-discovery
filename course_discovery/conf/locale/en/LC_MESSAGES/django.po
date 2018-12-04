@@ -8,7 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2018-12-05 15:47+0000\n"
+=======
+"POT-Creation-Date: 2018-12-04 20:30+0000\n"
+>>>>>>> fake translations for quality
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -28,31 +32,31 @@ msgid ""
 "parameter."
 msgstr ""
 
-#: apps/api/serializers.py:491
+#: apps/api/serializers.py:497
 msgid "Number of courses contained in this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:494
+#: apps/api/serializers.py:500
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:582
+#: apps/api/serializers.py:588
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:652
+#: apps/api/serializers.py:658
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:815
+#: apps/api/serializers.py:821
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1039
+#: apps/api/serializers.py:1045
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1043
+#: apps/api/serializers.py:1049
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -781,7 +785,7 @@ msgid "Others"
 msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:74
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:83
 #: apps/publisher/templates/publisher/_revert_confirmation.html:13
 #: apps/publisher/templates/publisher/add_course_form.html:174
 #: apps/publisher/templates/publisher/add_courserun_form.html:157
@@ -1384,19 +1388,28 @@ msgstr ""
 msgid "one or two paragraphs in HTML format (consider using &lt;p&gt;)"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:66
-msgid "Major Works"
-msgstr ""
-
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:67
-msgid "optional"
+msgid "Social Links"
 msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:68
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:76
+msgid "optional"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:72
+msgid "Add new social link"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:75
+msgid "Major Works"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:77
 msgid "a list in HTML format (consider using &lt;ul&gt; or &lt;br&gt;)"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:76
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:85
 msgid "Add Staff Member"
 msgstr ""
 
