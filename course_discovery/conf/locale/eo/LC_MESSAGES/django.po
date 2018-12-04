@@ -8,7 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2018-12-05 15:47+0000\n"
+=======
+"POT-Creation-Date: 2018-12-04 20:30+0000\n"
+>>>>>>> fake translations for quality
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1647,12 +1651,21 @@ msgstr ""
 " ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
-msgid "Major Works"
-msgstr "Mäjör Wörks Ⱡ'σяєм ιρѕυм ∂σłσя #"
+msgid "Social Links"
+msgstr "Söçïäl Lïnks Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "optional"
 msgstr "öptïönäl Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Add new social link"
+msgstr "Àdd néw söçïäl lïnk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Major Works"
+msgstr "Mäjör Wörks Ⱡ'σяєм ιρѕυм ∂σłσя #"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "a list in HTML format (consider using &lt;ul&gt; or &lt;br&gt;)"

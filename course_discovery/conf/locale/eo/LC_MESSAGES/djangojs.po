@@ -8,7 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2018-12-05 15:47+0000\n"
+=======
+"POT-Creation-Date: 2018-12-04 20:30+0000\n"
+>>>>>>> fake translations for quality
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -58,6 +62,30 @@ msgstr ""
 #: static/js/publisher/instructors.js static/js/publisher/preview-url.js
 msgid "Something went wrong!"
 msgstr "Söméthïng wént wröng! Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: static/js/publisher/instructors.js
+msgid "Type"
+msgstr "Týpé Ⱡ'σяєм ι#"
+
+#: static/js/publisher/instructors.js
+msgid "Title - optional"
+msgstr "Tïtlé - öptïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: static/js/publisher/instructors.js
+msgid "URL"
+msgstr "ÛRL Ⱡ'σяєм#"
+
+#: static/js/publisher/instructors.js
+msgid "Please specify a type and url for each social link."
+msgstr ""
+"Pléäsé spéçïfý ä týpé änd ürl för éäçh söçïäl lïnk. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: static/js/publisher/instructors.js
+msgid "Social links with the same type must have different titles."
+msgstr ""
+"Söçïäl lïnks wïth thé sämé týpé müst hävé dïfférént tïtlés. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: static/js/publisher/instructors.js
 msgid "The image size must be smaller than 256kb"

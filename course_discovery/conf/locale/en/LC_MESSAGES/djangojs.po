@@ -8,7 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
+<<<<<<< HEAD
 "POT-Creation-Date: 2018-12-05 15:47+0000\n"
+=======
+"POT-Creation-Date: 2018-12-04 20:30+0000\n"
+>>>>>>> fake translations for quality
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -45,31 +49,51 @@ msgstr ""
 msgid "Add staff member"
 msgstr ""
 
-#: static/js/publisher/instructors.js:41
+#: static/js/publisher/instructors.js:44
 msgid "Please upload a instructor image."
 msgstr ""
 
-#: static/js/publisher/instructors.js:87 static/js/publisher/preview-url.js:12
+#: static/js/publisher/instructors.js:99 static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
 msgstr ""
 
-#: static/js/publisher/instructors.js:120
+#: static/js/publisher/instructors.js:124
+msgid "Type"
+msgstr ""
+
+#: static/js/publisher/instructors.js:133
+msgid "Title - optional"
+msgstr ""
+
+#: static/js/publisher/instructors.js:136
+msgid "URL"
+msgstr ""
+
+#: static/js/publisher/instructors.js:164
+msgid "Please specify a type and url for each social link."
+msgstr ""
+
+#: static/js/publisher/instructors.js:172
+msgid "Social links with the same type must have different titles."
+msgstr ""
+
+#: static/js/publisher/instructors.js:217
 msgid "The image size must be smaller than 256kb"
 msgstr ""
 
-#: static/js/publisher/instructors.js:131
+#: static/js/publisher/instructors.js:228
 msgid "The image dimensions must be "
 msgstr ""
 
-#: static/js/publisher/instructors.js:144
+#: static/js/publisher/instructors.js:241
 msgid " Unsupported Image extension"
 msgstr ""
 
-#: static/js/publisher/instructors.js:261
+#: static/js/publisher/instructors.js:358
 msgid "Update staff member"
 msgstr ""
 
-#: static/js/publisher/instructors.js:262
+#: static/js/publisher/instructors.js:359
 msgid "Update Instructor"
 msgstr ""
 
