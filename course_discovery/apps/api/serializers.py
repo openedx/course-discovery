@@ -356,13 +356,18 @@ class PersonSerializer(MinimalPersonSerializer):
         for social_network_id in delete_social_network_ids:
             PersonSocialNetwork.objects.filter(person=instance, id=social_network_id).delete()
         for url_detailed in urls_detailed_data:
-            url = url_detailed['url']
-            if url:
-                network, __ = PersonSocialNetwork.objects.get_or_create(
-                    person=instance, type=url_detailed['type'], title=url_detailed['title'],
+            defaults = {
+                'url': url_detailed['url'],
+                'type': url_detailed['type'],
+                'title': url_detailed['title'],
+            }
+            if url_detailed['id']:
+                PersonSocialNetwork.objects.update_or_create(
+                    person=instance, id=url_detailed['id'], defaults=defaults,
                 )
-                network.url = url
-                network.save()
+            else:
+                new_network = PersonSocialNetwork(person=instance, **defaults)
+                new_network.save()
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
