@@ -1426,23 +1426,26 @@ class AffiliateWindowSerializerTests(TestCase):
         assert serializer.data == expected
 
 
-class CourseSearchSerializerTests(TestCase):
+class CourseSearchSerializerMixin(object):
+    serializer_class = None
+
+    def serialize_course(self, course, request):
+        """ Serializes the given `Course` as a search result. """
+        result = SearchQuerySet().models(Course).filter(key=course.key)[0]
+        return self.serializer_class(result, context={'request': request})  # pylint: disable=not-callable
+
+
+class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
     serializer_class = CourseSearchSerializer
 
     def test_data(self):
         request = make_request()
-        course = CourseFactory()
+        course = CourseFactory(subjects=SubjectFactory.create_batch(3))
         course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
         course.save()
         serializer = self.serialize_course(course, request)
         assert serializer.data == self.get_expected_data(course, course_run, request)
-
-    def serialize_course(self, course, request):
-        """ Serializes the given `Course` as a search result. """
-        result = SearchQuerySet().models(Course).filter(key=course.key)[0]
-        serializer = self.serializer_class(result, context={'request': request})
-        return serializer
 
     @classmethod
     def get_expected_data(cls, course, course_run, request):  # pylint: disable=unused-argument
@@ -1462,11 +1465,21 @@ class CourseSearchSerializerTests(TestCase):
                 'end': course_run.end,
             }],
             'uuid': str(course.uuid),
+            'subjects': [subject.name for subject in course.subjects.all()]
         }
 
 
-class CourseSearchModelSerializerTests(CourseSearchSerializerTests):
+class CourseSearchModelSerializerTests(TestCase, CourseSearchSerializerMixin):
     serializer_class = CourseSearchModelSerializer
+
+    def test_data(self):
+        request = make_request()
+        course = CourseFactory()
+        course_run = CourseRunFactory(course=course)
+        course.course_runs.add(course_run)
+        course.save()
+        serializer = self.serialize_course(course, request)
+        assert serializer.data == self.get_expected_data(course, course_run, request)
 
     @classmethod
     def get_expected_data(cls, course, course_run, request):  # pylint: disable=unused-argument
