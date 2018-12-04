@@ -493,3 +493,8 @@ class CourseEntitlementFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = CourseEntitlement
+
+
+class DrupalPublishUuidConfigFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = DrupalPublishUuidConfig

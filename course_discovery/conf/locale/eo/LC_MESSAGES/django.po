@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 22:53+0000\n"
+"POT-Creation-Date: 2018-12-06 19:28+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -985,6 +985,10 @@ msgstr "Blög Ⱡ'σяєм ι#"
 msgid "Others"
 msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 
+#: apps/course_metadata/models.py apps/publisher/models.py
+msgid "Course Run IDs"
+msgstr "Çöürsé Rün ÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_revert_confirmation.html
@@ -1560,10 +1564,6 @@ msgstr "Prévïéw Àççéptéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм
 #: apps/publisher/models.py
 msgid "Preview Declined"
 msgstr "Prévïéw Déçlïnéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: apps/publisher/models.py
-msgid "Course Run IDs"
-msgstr "Çöürsé Rün ÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: apps/publisher/models.py
 msgid "Partner Code"
