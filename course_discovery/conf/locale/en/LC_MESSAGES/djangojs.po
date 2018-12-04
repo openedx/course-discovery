@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-03 17:07+0000\n"
+"POT-Creation-Date: 2018-12-04 14:42+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -57,19 +57,19 @@ msgstr ""
 msgid "The image size must be smaller than 256kb"
 msgstr ""
 
-#: static/js/publisher/instructors.js:130
-msgid "The image dimensions must be less than 110 x 110"
+#: static/js/publisher/instructors.js:131
+msgid "The image dimensions must be "
 msgstr ""
 
-#: static/js/publisher/instructors.js:142
+#: static/js/publisher/instructors.js:144
 msgid " Unsupported Image extension"
 msgstr ""
 
-#: static/js/publisher/instructors.js:259
+#: static/js/publisher/instructors.js:261
 msgid "Update staff member"
 msgstr ""
 
-#: static/js/publisher/instructors.js:260
+#: static/js/publisher/instructors.js:262
 msgid "Update Instructor"
 msgstr ""
 

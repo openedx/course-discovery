@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-03 17:07+0000\n"
+"POT-Creation-Date: 2018-12-04 14:42+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1242,7 +1242,7 @@ msgid "Click here to upload your image"
 msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:16
-msgid "The image dimensions must be less than 110 x 110"
+msgid "The image dimensions must be 110×110"
 msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:18
