@@ -1312,18 +1312,21 @@ class MinimalPersonSerializerTests(TestCase):
         }
         self.expected['urls_detailed'] = [
             {
+                'id': facebook.id,
                 'type': facebook.type,
                 'url': facebook.url,
                 'title': facebook.title,
                 'display_title': facebook.display_title,
             },
             {
+                'id': twitter.id,
                 'type': twitter.type,
                 'url': twitter.url,
                 'title': twitter.title,
                 'display_title': twitter.display_title,
             },
             {
+                'id': others.id,
                 'type': others.type,
                 'url': others.url,
                 'title': others.title,

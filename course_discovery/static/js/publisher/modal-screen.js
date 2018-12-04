@@ -89,7 +89,6 @@ function resetInstructorModalData() {
     $('#addInstructorModal div img').attr('src',imgPath);
     for (var i in selectors) clearData(selectors[i]);
     $('.social-link').remove();
-    deleteSocialLinkIds = [];
 }
 
 function clearData(selector){

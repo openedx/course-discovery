@@ -15,7 +15,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, PersonSocialNetwork, Subject
+    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, Subject
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 from course_discovery.apps.ietf_language_tags.models import LanguageTag

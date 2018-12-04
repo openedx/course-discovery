@@ -69,9 +69,6 @@ SELECT_RELATED_FIELDS = {
     'course_run': ['course', 'language', 'video'],
 }
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False):
     """
@@ -327,7 +324,6 @@ class PersonSerializer(MinimalPersonSerializer):
     def validate(self, data):
         validated_data = super(PersonSerializer, self).validate(data)
         validated_data['urls_detailed'] = self.initial_data.get('urls_detailed', [])
-        validated_data['delete_social_network_ids'] = self.initial_data.get('delete_social_network_ids', [])
         return validated_data
 
     def create(self, validated_data):
@@ -349,12 +345,14 @@ class PersonSerializer(MinimalPersonSerializer):
     def update(self, instance, validated_data):
         position_data = validated_data.pop('position')
         urls_detailed_data = validated_data.pop('urls_detailed')
-        delete_social_network_ids = validated_data.pop('delete_social_network_ids')
 
         Position.objects.update_or_create(person=instance, defaults=position_data)
 
-        for social_network_id in delete_social_network_ids:
-            PersonSocialNetwork.objects.filter(person=instance, id=social_network_id).delete()
+        active_social_network_ids = [url_detailed['id'] for url_detailed in urls_detailed_data]
+        for network in PersonSocialNetwork.objects.filter(person=instance):
+            if network.id not in active_social_network_ids:
+                PersonSocialNetwork.objects.filter(id=network.id).delete()
+
         for url_detailed in urls_detailed_data:
             defaults = {
                 'url': url_detailed['url'],
