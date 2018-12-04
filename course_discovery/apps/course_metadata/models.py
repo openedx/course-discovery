@@ -1692,3 +1692,20 @@ class DataLoaderConfig(SingletonModel):
     Configuration for data loaders used in the refresh_course_metadata command.
     """
     max_workers = models.PositiveSmallIntegerField(default=7)
+
+
+class DeletePersonDupsConfig(SingletonModel):
+    """
+    Configuration for the delete_person_dups management command.
+    """
+    class Meta(object):
+        verbose_name = 'delete_person_dups argument'
+
+    arguments = models.TextField(
+        blank=True,
+        help_text='Useful for manually running a Jenkins job. Specify like "--partner-code=edx A:B C:D".',
+        default='',
+    )
+
+    def __str__(self):
+        return self.arguments
