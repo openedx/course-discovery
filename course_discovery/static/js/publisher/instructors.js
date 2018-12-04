@@ -126,8 +126,10 @@ function loadSelectedImage (input) {
                 reader.addEventListener("load", function (e) {
                     var image = new Image();
                     image.addEventListener("load", function () {
-                        if (image.width > imageDimension && image.height > imageDimension) {
-                            addModalError(gettext("The image dimensions must be less than 110 x 110"));
+                        if (image.width !== imageDimension || image.height !== imageDimension) {
+                            addModalError(
+                                gettext("The image dimensions must be " + imageDimension + "×" + imageDimension)
+                            );
                             $('.select-image').attr('src', imgPath).removeClass('image-updated');
                             $('#staffImageSelect').val('');
                         }
