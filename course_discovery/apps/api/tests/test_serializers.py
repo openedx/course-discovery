@@ -1314,17 +1314,20 @@ class MinimalPersonSerializerTests(TestCase):
             {
                 'type': facebook.type,
                 'url': facebook.url,
-                'title': facebook.display_title,
+                'title': facebook.title,
+                'display_title': facebook.display_title,
             },
             {
                 'type': twitter.type,
                 'url': twitter.url,
-                'title': twitter.display_title,
+                'title': twitter.title,
+                'display_title': twitter.display_title,
             },
             {
                 'type': others.type,
                 'url': others.url,
-                'title': others.display_title,
+                'title': others.title,
+                'display_title': others.display_title,
             },
         ]
         serializer = self.serializer(self.person, context=self.context)

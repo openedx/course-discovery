@@ -32,6 +32,9 @@ $(document).ready(function () {
 
     $('#add-instructor-btn').click(function (e) {
         var editMode = $(this).hasClass('edit-mode'),
+            socialLinks,
+            urlsDetailed,
+            socialLinkError,
             requestType,
             personData,
             url = $(this).data('url'),
@@ -41,6 +44,14 @@ $(document).ready(function () {
             addModalError(gettext("Please upload a instructor image."));
             return;
         }
+
+        socialLinks = getSocialLinks();
+        urlsDetailed = socialLinks[0];
+        socialLinkError = socialLinks[1];
+        if (socialLinkError) {
+            addModalError(gettext("Please specify a type and url for each social link."));
+            return;
+        }
         personData = {
             'given_name': $('#given-name').val(),
             'family_name': $('#family-name').val(),
@@ -48,7 +59,8 @@ $(document).ready(function () {
             'profile_image': $('.select-image').attr('src'),
             'position': getFormInstructorPosition(),
             'major_works': $('#majorWorks').val(),
-            'urls_detailed': [],
+            'urls_detailed': urlsDetailed,
+            'delete_social_network_ids': deleteSocialLinkIds,
         };
 
         if (editMode) {
@@ -76,6 +88,7 @@ $(document).ready(function () {
                 $('#bio').val('');
                 $('.select-image').attr('src', '').removeClass('image-updated');
                 $('#majorWorks').val('');
+                deleteSocialLinkIds = [];
                 clearModalError();
                 closeModal(e, $('#addInstructorModal'));
                 if (editMode) {
@@ -92,31 +105,78 @@ $(document).ready(function () {
     });
 });
 
+$(document).on('click', '#add-social-link-btn', function (e) {
+    // We are prepending new social link ids with the string banana to distinguish between newly
+    // created social links and existing ones. When sending these to the backend, we will be able
+    // to indicate whether an old link should be updated or a new link created.
+    addNewSocialLink('banana' + Math.floor(Math.random()*1000000));
+})
+
+var deleteSocialLinkIds = [];
+$(document).on('click', '.remove-social-link-btn', function (e) {
+    if (!e.target.parentElement.dataset.id.includes('banana')) {
+        deleteSocialLinkIds.push(e.target.parentElement.dataset.id);
+    }
+    $(e.target.parentElement).remove();
+})
+
 function addNewSocialLink(id, type, title, url) {
-    // <label class="field-label" for="facebook">{% trans "Facebook URL" %}
-    //     <span class="optional"> {% trans "optional" %}</span>
-    // </label>
-    // <input class="field-input input-text" type="text" id="facebook" name="facebook"/>
     var id = id || '',
         type = type || '',
         title = title || '',
         url = url || '',
-        linkHtml = '<label class="field-label" for="' + id + '">' + gettext("Social Link") +
-                        '<span class="optional"> ' + gettext("optional") + '</span>\
-                    </label>\
-                    <select name="link-type" id="social-link-type-' + id + '">\
-                        <option value="facebook">Facebook</option>\
-                        <option value="twitter">Twitter</option>\
-                        <option value="blog">Blog</option>\
-                        <option value="others">Other</option>\
-                    </select>\
-                    <input class="field-input input-text" type="text" id="social-link-title-' + id + '"/>\
-                    <input class="field-input input-text" type="text" id="social-link-url-' + id + '"/>',
-        socialLinksWrapper = $('#social-links-wrapper');
+        socialLinksWrapper = $('#social-links-wrapper'),
+        linkHtml = '<div class="social-link" data-id="' + id + '">\
+                        <label style="display: inline-block" for="social-link-type-' + id + '">' + gettext("Type") +
+                            '<select name="link-type" id="social-link-type-' + id + '">\
+                                <option disabled selected></option>\
+                                <option value="facebook">Facebook</option>\
+                                <option value="twitter">Twitter</option>\
+                                <option value="blog">Blog</option>\
+                                <option value="others">Other</option>\
+                            </select>\
+                        </label>\
+                        <label style="display: inline-block" for="social-link-title-' + id + '">' + gettext("Title") +
+                            '<input class="field-input input-text" type="text" id="social-link-title-' + id + '"/>\
+                        </label>\
+                        <label style="display: inline-block" for="social-link-url-' + id + '">' + gettext("URL") +
+                            '<input class="field-input input-text" type="text" id="social-link-url-' + id + '"/>\
+                        </label>\
+                        <button class="remove-social-link-btn" type="button"> X </button>\
+                    </div>';
+
     socialLinksWrapper.append(linkHtml);
-    $('#social-link-type-' + id).val(type)
-    $('#social-link-title-' + id).val(title)
-    $('#social-link-url-' + id).val(url)
+    $('#social-link-type-' + id).val(type);
+    $('#social-link-title-' + id).val(title);
+    $('#social-link-url-' + id).val(url);
+}
+
+function getSocialLinks() {
+    var socialLinksArray = [],
+        socialLinks = $('.social-link'),
+        error = false,
+        id;
+    for (var i = 0; i < socialLinks.length; i++) {
+        socialLink = socialLinks[i];
+        if ($('#social-link-type-' + socialLink.dataset.id).val() === null ||
+            $('#social-link-url-' + socialLink.dataset.id).val() === '') {
+            error = true;
+            return [socialLinksArray, error];
+        }
+        // see comment under on click of #add-social-link-btn
+        if (socialLink.dataset.id.includes('banana')) {
+            id = '';
+        } else {
+            id = socialLink.dataset.id;
+        }
+        socialLinksArray.push({
+            'id': id,
+            'type': $('#social-link-type-' + socialLink.dataset.id).val(),
+            'title': $('#social-link-title-' + socialLink.dataset.id).val(),
+            'url': $('#social-link-url-' + socialLink.dataset.id).val(),
+        });
+    }
+    return [socialLinksArray, error];
 }
 
 function getFormInstructorPosition () {
@@ -313,10 +373,9 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
             $('#family-name').val(data['family_name']);
             $('#bio').val(data['bio']);
             $('#majorWorks').val(data['major_works']);
-            console.log(data['urls_detailed']);
             for (var i = 0; i < data['urls_detailed'].length; i++) {
                 addNewSocialLink(
-                    i,
+                    data['urls_detailed'][i]['id'],
                     data['urls_detailed'][i]['type'],
                     data['urls_detailed'][i]['title'],
                     data['urls_detailed'][i]['url'],

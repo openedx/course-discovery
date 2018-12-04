@@ -283,35 +283,8 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             person.slug = slug
             person.save()
 
-        self.set_social_network(person, data)
-
         logger.info('Processed person with UUID [%s].', uuid)
         return person
-
-    def set_social_network(self, person, data):
-        # Used for error messages
-        uuid = data['uuid']
-        try:
-            data = data.get('field_person_social_links')
-            if data:
-                PersonSocialNetwork.objects.filter(person=person).delete()
-                for social_link in data:
-                    if social_link['field_person_social_link']:
-                        url = social_link['field_person_social_link']['url']
-                        title = social_link['field_person_social_link']['title']
-                        link_type = social_link['field_person_social_link_type']
-                        # remapping from Drupal terminology to discovery
-                        link_type = 'others' if link_type == 'generic' else link_type
-                        defaults = {'url': url}
-                        PersonSocialNetwork.objects.update_or_create(
-                            person=person, type=link_type, title=title, defaults=defaults
-                        )
-        except Exception:  # pylint: disable=broad-except
-            logger.exception(
-                'Failed to set social network for person with UUID [{uuid}] and url [{url}].'.format(
-                    uuid=uuid, url=url
-                )
-            )
 
 
 class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
