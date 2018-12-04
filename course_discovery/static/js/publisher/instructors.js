@@ -60,7 +60,6 @@ $(document).ready(function () {
             'position': getFormInstructorPosition(),
             'major_works': $('#majorWorks').val(),
             'urls_detailed': urlsDetailed,
-            'delete_social_network_ids': deleteSocialLinkIds,
         };
 
         if (editMode) {
@@ -88,7 +87,6 @@ $(document).ready(function () {
                 $('#bio').val('');
                 $('.select-image').attr('src', '').removeClass('image-updated');
                 $('#majorWorks').val('');
-                deleteSocialLinkIds = [];
                 clearModalError();
                 closeModal(e, $('#addInstructorModal'));
                 if (editMode) {
@@ -112,11 +110,7 @@ $(document).on('click', '#add-social-link-btn', function (e) {
     addNewSocialLink('banana' + Math.floor(Math.random()*1000000));
 })
 
-var deleteSocialLinkIds = [];
 $(document).on('click', '.remove-social-link-btn', function (e) {
-    if (!e.target.parentElement.dataset.id.includes('banana')) {
-        deleteSocialLinkIds.push(e.target.parentElement.dataset.id);
-    }
     $(e.target.parentElement).remove();
 })
 
@@ -164,7 +158,7 @@ function getSocialLinks() {
         type = $('#social-link-type-' + socialLinks[i].dataset.id).val();
         title = $('#social-link-title-' + socialLinks[i].dataset.id).val();
         url = $('#social-link-url-' + socialLinks[i].dataset.id).val();
-        id = socialLinks[i].dataset.id
+        id = socialLinks[i].dataset.id;
 
         if (type === null || url === '') {
             error = gettext('Please specify a type and url for each social link.');

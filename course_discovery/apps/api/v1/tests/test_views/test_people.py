@@ -247,23 +247,31 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             'major_works': 'Delores\nTeddy\nMaive',
             'urls_detailed': [
                 {
+                    'id': '1',
                     'type': 'facebook',
                     'title': '',
+                    'display_title': 'Facebook',
                     'url': 'http://www.facebook.com/hopkins',
                 },
                 {
+                    'id': '2',
                     'type': 'twitter',
                     'title': 'Hopkins Twitter',
+                    'display_title': 'Hopkins Twitter',
                     'url': 'http://www.twitter.com/hopkins',
                 },
                 {
+                    'id': '3',
                     'type': 'blog',
                     'title': 'blog',
+                    'display_title': 'blog',
                     'url': 'http://www.blog.com/hopkins',
                 },
                 {
+                    'id': '4',
                     'type': 'others',
                     'title': '',
+                    'display_title': 'http://www.others.com/hopkins',
                     'url': 'http://www.others.com/hopkins',
                 },
             ],
@@ -281,18 +289,24 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             'major_works': 'new works',
             'urls_detailed': [
                 {
+                    'id': '1',
                     'type': 'facebook',
                     'title': '',
+                    'display_title': 'Facebook',
                     'url': 'http://www.facebook.com/new',
                 },
                 {
+                    'id': '2',
                     'type': 'twitter',
                     'title': 'Hopkins new Twitter',
+                    'display_title': 'Hopkins new Twitter',
                     'url': 'http://www.twitter.com/new',
                 },
                 {
+                    'id': '4',
                     'type': 'others',
                     'title': 'new others',
+                    'display_title': 'new others',
                     'url': 'http://www.others.com/new',
                 },
             ],
@@ -367,28 +381,28 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(updated_person.position.title, data['position']['title'])
         self.assertEqual(updated_person.major_works, data['major_works'])
         self.assertEqual(updated_person.profile_image_url, updated_person.profile_image.url)
-        # self.assertListEqual(
-        #     sorted([url for social_network in updated_person.person_networks.all() for url in social_network.url]),
-        #     sorted([url for url_detailed in data['urls_detailed'] for url in url_detailed['url']])
-        # )
-        # self.assertListEqual(
-        #     sorted([title for social_network in updated_person.person_networks.all()
-        #             for title in social_network.title]),
-        #     sorted([title for url_detailed in data['urls_detailed'] for title in url_detailed['title']])
-        # )
-        # self.assertFalse(updated_person.person_networks.filter(type='blog').exists())
+        self.assertListEqual(
+            sorted([url for social_network in updated_person.person_networks.all() for url in social_network.url]),
+            sorted([url for url_detailed in data['urls_detailed'] for url in url_detailed['url']])
+        )
+        self.assertListEqual(
+            sorted([title for social_network in updated_person.person_networks.all()
+                    for title in social_network.title]),
+            sorted([title for url_detailed in data['urls_detailed'] for title in url_detailed['title']])
+        )
+        self.assertFalse(updated_person.person_networks.filter(type='blog').exists())
 
-        # # Test display_title
-        # # Test that empty string titles get changed to type when looking at display title for not OTHERS
-        # self.assertEqual('Facebook', updated_person.person_networks.get(type='facebook', title='').display_title)
-        # # Test that defined titles are shown
-        # self.assertEqual(
-        #     'Hopkins new Twitter',
-        #     updated_person.person_networks.get(type='twitter', title='Hopkins new Twitter').display_title
-        # )
-        # self.assertEqual(
-        #     'new others', updated_person.person_networks.get(type='others', title='new others').display_title
-        # )
+        # Test display_title
+        # Test that empty string titles get changed to type when looking at display title for not OTHERS
+        self.assertEqual('Facebook', updated_person.person_networks.get(type='facebook', title='').display_title)
+        # Test that defined titles are shown
+        self.assertEqual(
+            'Hopkins new Twitter',
+            updated_person.person_networks.get(type='twitter', title='Hopkins new Twitter').display_title
+        )
+        self.assertEqual(
+            'new others', updated_person.person_networks.get(type='others', title='new others').display_title
+        )
 
     def test_update_without_position(self):
         """
