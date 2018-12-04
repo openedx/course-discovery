@@ -197,11 +197,13 @@ class CourseRunWrapperTests(TestCase):
                 'is_new': False,
                 'social_networks': [
                     {
+                        'id': facebook.id,
                         'type': facebook.type,
                         'url': facebook.url,
                         'title': facebook.title,
                     },
                     {
+                        'id': twitter.id,
                         'type': twitter.type,
                         'url': twitter.url,
                         'title': twitter.title,
