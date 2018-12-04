@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 22:53+0000\n"
+"POT-Creation-Date: 2018-12-06 19:28+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -28,31 +28,31 @@ msgid ""
 "parameter."
 msgstr ""
 
-#: apps/api/serializers.py:497
+#: apps/api/serializers.py:498
 msgid "Number of courses contained in this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:500
+#: apps/api/serializers.py:501
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:588
+#: apps/api/serializers.py:589
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:658
+#: apps/api/serializers.py:659
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:821
+#: apps/api/serializers.py:822
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1045
+#: apps/api/serializers.py:1046
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1049
+#: apps/api/serializers.py:1050
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -780,6 +780,10 @@ msgstr ""
 msgid "Others"
 msgstr ""
 
+#: apps/course_metadata/models.py:1713 apps/publisher/models.py:1103
+msgid "Course Run IDs"
+msgstr ""
+
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:83
 #: apps/publisher/templates/publisher/_revert_confirmation.html:13
@@ -1303,10 +1307,6 @@ msgstr ""
 
 #: apps/publisher/models.py:1070
 msgid "Preview Declined"
-msgstr ""
-
-#: apps/publisher/models.py:1103
-msgid "Course Run IDs"
 msgstr ""
 
 #: apps/publisher/models.py:1104
