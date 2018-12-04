@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-04 15:15+0000\n"
+"POT-Creation-Date: 2018-12-05 15:47+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -267,6 +267,85 @@ msgstr ""
 
 #: apps/course_metadata/forms.py:78
 msgid "Programs can only be activated if they have a banner image."
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:22
+msgid "Delete duplicate persons in course_metadata."
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:27
+msgid "PERSON"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:29
+msgid "People to delete, in UUID:TARGET_UUID form."
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:33
+msgid "PARTNER"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:34
+msgid "Short code for a partner."
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:39
+msgid "Actually commit the changes to the database."
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:44
+msgid ""
+"Use arguments from the DeletePersonDupsConfig model instead of the command "
+"line."
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:61
+msgid "Malformed argument \"{}\", should be in form of UUID:TARGET_UUID"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:63
+msgid "Malformed argument \"{}\", UUIDs cannot be equal"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:86
+msgid "Deleting"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:86
+msgid "Would delete"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:87
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:16
+msgid "Name"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:88
+msgid "Endorsements"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:89
+msgid "Programs"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:90
+msgid "Course Runs"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:91
+msgid "Publisher Course Runs"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:92
+msgid "Target"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:133
+msgid "You must specify --partner-code"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:136
+msgid "You must specify at least one person"
 msgstr ""
 
 #: apps/course_metadata/models.py:110 apps/course_metadata/models.py:149
@@ -2722,10 +2801,6 @@ msgid ""
 "The %(current_team_name)s is currently reviewing this course run. If you "
 "edit course run information, you might overwrite the team’s changes, and you "
 "will have to send the course run to the %(team_name)s for review again."
-msgstr ""
-
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:16
-msgid "Name"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:38

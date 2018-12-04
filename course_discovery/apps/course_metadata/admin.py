@@ -394,5 +394,6 @@ for model in (LevelType, Prerequisite,):
     admin.site.register(model, NamedModelAdmin)
 
 # Register remaining models using basic ModelAdmin classes
-for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig):
+for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
+              DeletePersonDupsConfig):
     admin.site.register(model)

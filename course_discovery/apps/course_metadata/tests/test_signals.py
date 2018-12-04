@@ -4,7 +4,7 @@ from django.apps import apps
 from factory import DjangoModelFactory
 
 from course_discovery.apps.course_metadata.models import (
-    DataLoaderConfig, PersonWork, SubjectTranslation, TopicTranslation
+    DataLoaderConfig, DeletePersonDupsConfig, PersonWork, SubjectTranslation, TopicTranslation
 )
 from course_discovery.apps.course_metadata.tests import factories
 
@@ -27,7 +27,7 @@ class TestCacheInvalidation:
         # connecting to. We want to test each of them.
         for model in apps.get_app_config('course_metadata').get_models():
             # Ignore models that aren't exposed by the API or are only used for testing.
-            if model in [DataLoaderConfig, PersonWork, SubjectTranslation, TopicTranslation] \
+            if model in [DataLoaderConfig, DeletePersonDupsConfig, PersonWork, SubjectTranslation, TopicTranslation] \
                     or 'abstract' in model.__name__.lower():
                 continue
 

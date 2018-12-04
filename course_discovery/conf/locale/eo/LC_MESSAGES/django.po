@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-04 15:15+0000\n"
+"POT-Creation-Date: 2018-12-05 15:47+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -322,6 +322,99 @@ msgid "Programs can only be activated if they have a banner image."
 msgstr ""
 "Prögräms çän önlý ßé äçtïvätéd ïf théý hävé ä ßännér ïmägé. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Delete duplicate persons in course_metadata."
+msgstr ""
+"Délété düplïçäté pérsöns ïn çöürsé_métädätä. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "PERSON"
+msgstr "PÉRSÖN Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "People to delete, in UUID:TARGET_UUID form."
+msgstr ""
+"Péöplé tö délété, ïn ÛÛÌD:TÀRGÉT_ÛÛÌD förm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "PARTNER"
+msgstr "PÀRTNÉR Ⱡ'σяєм ιρѕυм #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Short code for a partner."
+msgstr "Shört çödé för ä pärtnér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Actually commit the changes to the database."
+msgstr ""
+"Àçtüällý çömmït thé çhängés tö thé dätäßäsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid ""
+"Use arguments from the DeletePersonDupsConfig model instead of the command "
+"line."
+msgstr ""
+"Ûsé ärgüménts fröm thé DélétéPérsönDüpsÇönfïg mödél ïnstéäd öf thé çömmänd "
+"lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Malformed argument \"{}\", should be in form of UUID:TARGET_UUID"
+msgstr ""
+"Mälförméd ärgümént \"{}\", shöüld ßé ïn förm öf ÛÛÌD:TÀRGÉT_ÛÛÌD Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Malformed argument \"{}\", UUIDs cannot be equal"
+msgstr ""
+"Mälförméd ärgümént \"{}\", ÛÛÌDs çännöt ßé éqüäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Deleting"
+msgstr "Délétïng Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Would delete"
+msgstr "Wöüld délété Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Name"
+msgstr "Nämé Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Endorsements"
+msgstr "Éndörséménts Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Programs"
+msgstr "Prögräms Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Course Runs"
+msgstr "Çöürsé Rüns Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Publisher Course Runs"
+msgstr "Püßlïshér Çöürsé Rüns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Target"
+msgstr "Tärgét Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "You must specify --partner-code"
+msgstr "Ýöü müst spéçïfý --pärtnér-çödé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "You must specify at least one person"
+msgstr ""
+"Ýöü müst spéçïfý ät léäst öné pérsön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
 
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
@@ -3248,10 +3341,6 @@ msgstr ""
 " qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
 "¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт #"
-
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
-msgid "Name"
-msgstr "Nämé Ⱡ'σяєм ι#"
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Profile URL "

@@ -1302,9 +1302,9 @@ class MinimalPersonSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, self.expected)
 
     def test_social_networks(self):
-        facebook = PersonSocialNetworkFactory(person=self.person, type='facebook')
+        facebook = PersonSocialNetworkFactory(person=self.person, type='facebook', title='')
         twitter = PersonSocialNetworkFactory(person=self.person, type='twitter', title='@MrTerry')
-        others = PersonSocialNetworkFactory(person=self.person, type='others')
+        others = PersonSocialNetworkFactory(person=self.person, type='others', title='')
         self.expected['urls'] = {
             'facebook': facebook.url,
             'twitter': twitter.url,
