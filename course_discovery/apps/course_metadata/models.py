@@ -1656,7 +1656,7 @@ class PersonSocialNetwork(TimeStampedModel):
         OTHERS: _('Others'),
     }
 
-    type = models.CharField(max_length=15, choices=list(SOCIAL_NETWORK_CHOICES.items()), db_index=True)
+    type = models.CharField(max_length=15, choices=sorted(list(SOCIAL_NETWORK_CHOICES.items())), db_index=True)
     url = models.CharField(max_length=500)
     title = models.CharField(max_length=255, blank=True)
     person = models.ForeignKey(Person, related_name='person_networks')
@@ -1680,11 +1680,6 @@ class PersonSocialNetwork(TimeStampedModel):
             return self.url
         else:
             return self.SOCIAL_NETWORK_CHOICES[self.type]
-
-
-class PersonWork(AbstractValueModel):
-    """ Person Works model. """
-    person = models.ForeignKey(Person, related_name='person_works')
 
 
 class DataLoaderConfig(SingletonModel):
