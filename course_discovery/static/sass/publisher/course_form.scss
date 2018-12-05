@@ -97,7 +97,7 @@
         background-color: #fefefe;
         margin: 5% auto;
         border: 20px solid rgba(215, 215, 215, 1);
-        width: 50%;
+        width: 55%;
         min-width: 380px;
 
         .staff-image-icon {
@@ -158,6 +158,29 @@
 
         .actions {
             @include text-align(right);
+        }
+
+        .social-link-field {
+          display: inline-block;
+        }
+
+        .social-link-input {
+          height: 44px;
+          margin-top: 5px;
+          @include margin-right(5px);
+        }
+
+        .social-link-select-type {
+          height: 43px;
+        }
+
+        .remove-social-link-btn {
+          height: 44px;
+          width: 44px;
+          font-size: 25px;
+          padding-top: 7px;
+          padding-bottom: 9px;
+          margin-bottom: 20px;
         }
     }
 }

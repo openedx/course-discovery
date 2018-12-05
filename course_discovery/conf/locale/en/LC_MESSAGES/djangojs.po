@@ -8,11 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-<<<<<<< HEAD
-"POT-Creation-Date: 2018-12-05 15:47+0000\n"
-=======
-"POT-Creation-Date: 2018-12-04 20:30+0000\n"
->>>>>>> fake translations for quality
+"POT-Creation-Date: 2018-12-05 22:53+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -57,43 +53,63 @@ msgstr ""
 msgid "Something went wrong!"
 msgstr ""
 
-#: static/js/publisher/instructors.js:124
+#: static/js/publisher/instructors.js:126
 msgid "Type"
 msgstr ""
 
+#: static/js/publisher/instructors.js:130
+msgid "Facebook"
+msgstr ""
+
+#: static/js/publisher/instructors.js:131
+msgid "Twitter"
+msgstr ""
+
+#: static/js/publisher/instructors.js:132
+msgid "Blog"
+msgstr ""
+
 #: static/js/publisher/instructors.js:133
-msgid "Title - optional"
+msgid "Other"
 msgstr ""
 
 #: static/js/publisher/instructors.js:136
+msgid "Title"
+msgstr ""
+
+#: static/js/publisher/instructors.js:137
+msgid "optional"
+msgstr ""
+
+#: static/js/publisher/instructors.js:140
 msgid "URL"
 msgstr ""
 
-#: static/js/publisher/instructors.js:164
+#: static/js/publisher/instructors.js:168
 msgid "Please specify a type and url for each social link."
 msgstr ""
 
-#: static/js/publisher/instructors.js:172
+#: static/js/publisher/instructors.js:176
 msgid "Social links with the same type must have different titles."
 msgstr ""
 
-#: static/js/publisher/instructors.js:217
+#: static/js/publisher/instructors.js:221
 msgid "The image size must be smaller than 256kb"
 msgstr ""
 
-#: static/js/publisher/instructors.js:228
+#: static/js/publisher/instructors.js:232
 msgid "The image dimensions must be "
 msgstr ""
 
-#: static/js/publisher/instructors.js:241
+#: static/js/publisher/instructors.js:245
 msgid " Unsupported Image extension"
 msgstr ""
 
-#: static/js/publisher/instructors.js:358
+#: static/js/publisher/instructors.js:362
 msgid "Update staff member"
 msgstr ""
 
-#: static/js/publisher/instructors.js:359
+#: static/js/publisher/instructors.js:363
 msgid "Update Instructor"
 msgstr ""
 

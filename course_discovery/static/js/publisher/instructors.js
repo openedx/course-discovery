@@ -103,11 +103,13 @@ $(document).ready(function () {
     });
 });
 
+var newLinkCount = 1;
 $(document).on('click', '#add-social-link-btn', function (e) {
-    // We are prepending new social link ids with the string banana to distinguish between newly
+    // We are prepending new social link ids with the string new to distinguish between newly
     // created social links and existing ones. When sending these to the backend, we will be able
     // to indicate whether an old link should be updated or a new link created.
-    addNewSocialLink('banana' + Math.floor(Math.random()*1000000));
+    addNewSocialLink('new' + newLinkCount);
+    newLinkCount++;
 })
 
 $(document).on('click', '.remove-social-link-btn', function (e) {
@@ -121,22 +123,24 @@ function addNewSocialLink(id, type, title, url) {
         url = url || '',
         socialLinksWrapper = $('#social-links-wrapper'),
         linkHtml = '<div class="social-link" data-id="' + id + '">\
-                        <label style="display: inline-block" for="social-link-type-' + id + '">' + gettext("Type") +
-                            '<select name="link-type" id="social-link-type-' + id + '">\
+                        <label class="social-link-field" for="social-link-type-' + id + '">' + gettext('Type') +
+                            '<select class="social-link-input social-link-select-type" name="link-type" \
+                            id="social-link-type-' + id + '">\
                                 <option disabled selected></option>\
-                                <option value="facebook">Facebook</option>\
-                                <option value="twitter">Twitter</option>\
-                                <option value="blog">Blog</option>\
-                                <option value="others">Other</option>\
+                                <option value="facebook">' + gettext('Facebook') + '</option>\
+                                <option value="twitter">' + gettext('Twitter') + '</option>\
+                                <option value="blog">' + gettext('Blog') + '</option>\
+                                <option value="others">' + gettext('Other') + '</option>\
                             </select>\
                         </label>\
-                        <label style="display: inline-block" for="social-link-title-' + id + '">' + gettext("Title - optional") +
-                            '<input class="field-input input-text" type="text" id="social-link-title-' + id + '"/>\
+                        <label class="social-link-field" for="social-link-title-' + id + '">' + gettext('Title') +
+                            '<span class="optional"> - ' + gettext('optional') + '</span>\
+                            <input class="social-link-input field-input input-text" type="text" id="social-link-title-' + id + '"/>\
                         </label>\
-                        <label style="display: inline-block" for="social-link-url-' + id + '">' + gettext("URL") +
-                            '<input class="field-input input-text" type="text" id="social-link-url-' + id + '"/>\
+                        <label class="social-link-field" for="social-link-url-' + id + '">' + gettext('URL') +
+                            '<input class="social-link-input field-input input-text" type="text" id="social-link-url-' + id + '"/>\
                         </label>\
-                        <button class="remove-social-link-btn" type="button"> X </button>\
+                        <button class="remove-social-link-btn fa fa-close" type="button"></button>\
                     </div>';
 
     socialLinksWrapper.append(linkHtml);
@@ -176,7 +180,7 @@ function getSocialLinks() {
         uniquenessTest.push({'title': title, 'type': type});
 
         // see comment under on click of #add-social-link-btn
-        if (id.includes('banana')) id = '';
+        if (id.includes('new')) id = '';
 
         socialLinksArray.push({
             'id': id,

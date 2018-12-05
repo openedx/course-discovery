@@ -351,7 +351,7 @@ class PersonSerializer(MinimalPersonSerializer):
         active_social_network_ids = [url_detailed['id'] for url_detailed in urls_detailed_data]
         for network in PersonSocialNetwork.objects.filter(person=instance):
             if network.id not in active_social_network_ids:
-                PersonSocialNetwork.objects.filter(id=network.id).delete()
+                network.delete()
 
         for url_detailed in urls_detailed_data:
             defaults = {
