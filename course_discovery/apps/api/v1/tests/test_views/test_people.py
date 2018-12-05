@@ -14,7 +14,7 @@ from course_discovery.apps.course_metadata.models import Person, Position
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory
+    CourseRunFactory, OrganizationFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory
 )
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory as PublisherCourseRunFactory
 
@@ -309,6 +309,13 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                     'display_title': 'new others',
                     'url': 'http://www.others.com/new',
                 },
+                {
+                    'id': '',
+                    'type': 'others',
+                    'title': 'Create new',
+                    'display_title': 'Create new',
+                    'url': 'http://www.others.com/new',
+                },
             ],
         }
 
@@ -367,6 +374,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
         data = self._update_person_data()
 
+        # This is being created so we can verify it is deleted since it is not part of updated_data
+        PersonSocialNetworkFactory(person=self.person, type='blog')
+
         # After updating, profile_image.url should overwrite profile_image_url
         self.assertNotEqual(self.person.profile_image_url, self.person.profile_image.url)
         with mock.patch.object(MarketingSitePeople, 'update_person', return_value={}):
@@ -402,6 +412,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         )
         self.assertEqual(
             'new others', updated_person.person_networks.get(type='others', title='new others').display_title
+        )
+        self.assertEqual(
+            'Create new', updated_person.person_networks.get(type='others', title='Create new').display_title
         )
 
     def test_update_without_position(self):
