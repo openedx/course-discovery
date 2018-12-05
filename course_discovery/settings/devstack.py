@@ -26,6 +26,15 @@ JWT_AUTH.update({
     ),
 })
 
+# MEDIA CONFIGURATION
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#media-url
+MEDIA_ROOT = 'media'
+# LOCAL_MEDIA_URL was added to support external services like edx-mktg retrieving
+# static files in DEBUG and local Devstack
+LOCAL_MEDIA_URL = '/media/'
+MEDIA_URL = 'http://localhost:18381' + LOCAL_MEDIA_URL
+# END MEDIA CONFIGURATION
+
 DEFAULT_PARTNER_ID = 1
 
 # Allow live changes to JS and CSS
