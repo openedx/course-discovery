@@ -33,14 +33,14 @@ $(document).ready(function(){
         $('body').addClass('stopScroll');
         resetModalData();
 
-        $('#instructorProfileModal div.full_name').html(data['full_name']);
-        $('#instructorProfileModal div.organization').html(data['organization']);
-        $('#instructorProfileModal img.image_url').attr('src', data['image_url']);
-        $('#instructorProfileModal a.btn-download').attr('href', data['image_url']);
-        $('#instructorProfileModal div.position').html(data['position']);
-        $('#instructorProfileModal div.bio').html(data['bio']);
+        $('#instructorProfileModal div.full_name').html(data.full_name);
+        $('#instructorProfileModal div.organization').html(data.organization);
+        $('#instructorProfileModal img.image_url').attr('src', data.image_url);
+        $('#instructorProfileModal a.btn-download').attr('href', data.image_url);
+        $('#instructorProfileModal div.position').html(data.position);
+        $('#instructorProfileModal div.bio').html(data.bio);
 
-        assignData('.profile_url', data['profile_url']);
+        assignData('.profile_url', data.profile_url);
     });
 });
 

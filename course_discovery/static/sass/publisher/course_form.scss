@@ -165,9 +165,9 @@
         }
 
         .social-link-input {
+          @include margin-right(5px);
           height: 44px;
           margin-top: 5px;
-          @include margin-right(5px);
         }
 
         .social-link-select-type {
@@ -180,6 +180,10 @@
           font-size: 25px;
           padding-top: 7px;
           padding-bottom: 9px;
+          margin-bottom: 20px;
+        }
+
+        .add-social-link-btn {
           margin-bottom: 20px;
         }
     }

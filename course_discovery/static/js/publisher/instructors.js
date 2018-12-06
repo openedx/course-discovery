@@ -46,8 +46,8 @@ $(document).ready(function () {
         }
 
         socialLinks = getSocialLinks();
-        urlsDetailed = socialLinks[0];
-        socialLinkError = socialLinks[1];
+        urlsDetailed = socialLinks.socialLinksArray;
+        socialLinkError = socialLinks.error;
         if (socialLinkError) {
             addModalError(socialLinkError);
             return;
@@ -64,11 +64,11 @@ $(document).ready(function () {
 
         if (editMode) {
             requestType = "PATCH";
-            personData['uuid'] = uuid;
+            personData.uuid = uuid;
             url = url + uuid + '/';
 
             if (!$('.select-image').hasClass('image-updated')) {
-                delete personData['profile_image'];
+                delete personData.profile_image;
             }
 
         } else {
@@ -90,9 +90,9 @@ $(document).ready(function () {
                 clearModalError();
                 closeModal(e, $('#addInstructorModal'));
                 if (editMode) {
-                    loadInstructor(response['uuid'], editMode)
+                    loadInstructor(response.uuid, editMode)
                 } else {
-                    loadInstructor(response['uuid'])
+                    loadInstructor(response.uuid)
                 }
             },
             error: function (response) {
@@ -104,7 +104,8 @@ $(document).ready(function () {
 });
 
 var newLinkCount = 1;
-$(document).on('click', '#add-social-link-btn', function (e) {
+$(document).on('click', '.add-social-link-btn', function (e) {
+    e.preventDefault();
     // We are prepending new social link ids with the string new to distinguish between newly
     // created social links and existing ones. When sending these to the backend, we will be able
     // to indicate whether an old link should be updated or a new link created.
@@ -140,7 +141,7 @@ function addNewSocialLink(id, type, title, url) {
                         <label class="social-link-field" for="social-link-url-' + id + '">' + gettext('URL') +
                             '<input class="social-link-input field-input input-text" type="text" id="social-link-url-' + id + '"/>\
                         </label>\
-                        <button class="remove-social-link-btn fa fa-close" type="button"></button>\
+                        <button class="remove-social-link-btn fa fa-close"></button>\
                     </div>';
 
     socialLinksWrapper.append(linkHtml);
@@ -166,7 +167,10 @@ function getSocialLinks() {
 
         if (type === null || url === '') {
             error = gettext('Please specify a type and url for each social link.');
-            return [socialLinksArray, error];
+            return {
+                socialLinksArray: socialLinksArray,
+                error: error
+            };
         }
 
         // There is a uniqueness constraint on titles and types
@@ -174,7 +178,10 @@ function getSocialLinks() {
             existingLink = uniquenessTest[j];
             if (title === existingLink.title && type === existingLink.type) {
                 error = gettext('Social links with the same type must have different titles.');
-                return [socialLinksArray, error];
+                return {
+                    socialLinksArray: socialLinksArray,
+                    error: error
+                };
             }
         }
         uniquenessTest.push({'title': title, 'type': type});
@@ -183,13 +190,16 @@ function getSocialLinks() {
         if (id.includes('new')) id = '';
 
         socialLinksArray.push({
-            'id': id,
+            'id': parseInt(id),
             'type': type,
             'title': title,
             'url': url,
         });
     }
-    return [socialLinksArray, error];
+    return {
+        socialLinksArray: socialLinksArray,
+        error: error
+    };
 }
 
 function getFormInstructorPosition () {
@@ -320,9 +330,9 @@ function loadInstructor(uuid, editMode) {
     $.getJSON({
         url: url,
         success: function (data) {
-            if (data['results'].length) {
+            if (data.results.length) {
                 // with uuid there will be only one instructor
-                instructor = data['results'][0];
+                instructor = data.results[0];
                 id = instructor.id;
                 label = $.parseHTML(instructor.text);
                 image_source = $(label).find('img').attr('src');
@@ -365,33 +375,33 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
     $.getJSON({
         url: btnInstructor.data('url') + uuid,
         success: function (data) {
-            if (data['position'] == null){
+            if (data.position == null){
                 $('#org_override_container').hide();
                 $('#org_container').show();
             }
-            else if (data['position']['organization_id'] == null){
-                $('#organization_override').val(data['position']['organization_override']);
-                $('#title').val(data['position']['title']);
+            else if (data.position.organization_id == null){
+                $('#organization_override').val(data.position.organization_override);
+                $('#title').val(data.position.title);
                 $('#org_container').hide();
                 $('#org_override_container').show();
             }
             else {
-                $('#id_organization').val(data['position']['organization_id']);
-                $('#title').val(data['position']['title']);
+                $('#id_organization').val(data.position.organization_id);
+                $('#title').val(data.position.title);
                 $('#org_override_container').hide();
                 $('#org_container').show();
             }
-            $('.select-image').attr('src', data['profile_image_url']);
-            $('#given-name').val(data['given_name']);
-            $('#family-name').val(data['family_name']);
-            $('#bio').val(data['bio']);
-            $('#majorWorks').val(data['major_works']);
-            for (var i = 0; i < data['urls_detailed'].length; i++) {
+            $('.select-image').attr('src', data.profile_image_url);
+            $('#given-name').val(data.given_name);
+            $('#family-name').val(data.family_name);
+            $('#bio').val(data.bio);
+            $('#majorWorks').val(data.major_works);
+            for (var i = 0; i < data.urls_detailed.length; i++) {
                 addNewSocialLink(
-                    data['urls_detailed'][i]['id'],
-                    data['urls_detailed'][i]['type'],
-                    data['urls_detailed'][i]['title'],
-                    data['urls_detailed'][i]['url'],
+                    data.urls_detailed[i].id,
+                    data.urls_detailed[i].type,
+                    data.urls_detailed[i].title,
+                    data.urls_detailed[i].url,
                 );
             }
         }
