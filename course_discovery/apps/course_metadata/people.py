@@ -67,6 +67,14 @@ class MarketingSitePeople(object):
         if api_client and node_id:
             self._delete_node(api_client, node_id)
 
+    def delete_person_by_uuid(self, partner, person_uuid):
+        api_client = self._get_api_client(partner)
+        node_id = self._get_node_id_from_uuid(api_client, person_uuid)
+        if node_id:
+            self._delete_node(api_client, node_id)
+        else:
+            logger.info('Person with UUID [%s] does not exist on the marketing site', person_uuid)
+
     def _update_node(self, api_client, node_id, node_data):
         node_url = '{root}/node.json/{node_id}'.format(root=api_client.api_url, node_id=node_id)
         response = api_client.api_session.put(node_url, data=json.dumps(node_data))

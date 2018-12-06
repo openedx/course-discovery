@@ -4,7 +4,9 @@ from django.core.management import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.translation import ugettext as _
 
+from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
 from course_discovery.apps.course_metadata.models import DeletePersonDupsConfig, Endorsement, Partner, Person
+from course_discovery.apps.course_metadata.people import MarketingSitePeople
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +15,6 @@ class PersonInfo(object):
     def __init__(self, partner, uuid, target_uuid):
         self.person = Person.objects.get(partner=partner, uuid=uuid)
         self.target = Person.objects.get(partner=partner, uuid=target_uuid)
-
-        if self.person.profile_url:
-            raise CommandError('Cannot delete person {} - they have a marketing profile url'.format(uuid))
 
 
 class Command(BaseCommand):
@@ -93,6 +92,14 @@ class Command(BaseCommand):
         )
         if not commit:
             return
+
+        # First, delete the person in the marketing site, if they exist there
+        try:
+            MarketingSitePeople().delete_person_by_uuid(pinfo.person.partner, pinfo.person.uuid)
+        except MarketingSiteAPIClientException:
+            # This will occur if the partner has no marketing site associated with it - not an error condition for
+            # this management command and not something we need to tell user about for each person.
+            pass
 
         # Move endorsements
         Endorsement.objects.filter(endorser=pinfo.person).update(endorser=pinfo.target)

@@ -15,7 +15,8 @@ from course_discovery.apps.publisher.tests import factories as publisher_factori
 class DeletePersonDupsCommandTests(TestCase):
     def setUp(self):
         super().setUp()
-        self.partner = factories.PartnerFactory()
+        # Disable marketing site password just to save us from having to mock the responses
+        self.partner = factories.PartnerFactory(marketing_site_api_password=None)
         self.person = factories.PersonFactory(partner=self.partner, given_name='Person')
         self.target = factories.PersonFactory(partner=self.partner, given_name='Target')
         self.instructor1 = factories.PersonFactory(partner=self.partner, given_name='Instructor1')
@@ -93,15 +94,15 @@ class DeletePersonDupsCommandTests(TestCase):
         # Spot check one course run just to feel a little more confident
         self.assertEqual(CourseRun.objects.get(id=self.courserun1.id).staff, self.courserun1.staff)
 
-    def test_with_profile_url(self):
-        # Confirm we can't delete a person that has a marketing profile url
-        self.person.profile_url = 'http://example.com/'
-        self.person.save()
+    def test_remove_from_marketing(self):
+        method = 'course_discovery.apps.course_metadata.people.MarketingSitePeople.delete_person_by_uuid'
 
-        with self.assertRaises(CommandError) as cm:
+        with mock.patch(method) as cm:
             self.run_command()
-        self.assertEqual(cm.exception.args[0],
-                         'Cannot delete person {} - they have a marketing profile url'.format(self.person.uuid))
+        self.assertEqual(cm.call_count, 1)
+        args = cm.call_args[0]
+        self.assertEqual(args[0], self.person.partner)
+        self.assertEqual(args[1], self.person.uuid)
 
     def test_normal_run(self):
         self.run_command()
