@@ -232,6 +232,7 @@ class CourseRunWrapper(BaseWrapper):
                     }
                     for network in staff.person_networks.all()
                 ],
+                'major_works': staff.major_works,
                 'is_new': False if staff.profile_image_url else True
             }
 

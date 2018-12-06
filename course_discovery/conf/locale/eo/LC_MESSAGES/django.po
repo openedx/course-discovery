@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-06 19:28+0000\n"
+"POT-Creation-Date: 2018-12-06 20:32+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1647,6 +1647,7 @@ msgstr ""
 " ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Social Links"
 msgstr "Söçïäl Lïnks Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -1660,6 +1661,7 @@ msgid "Add new social link"
 msgstr "Àdd néw söçïäl lïnk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Major Works"
 msgstr "Mäjör Wörks Ⱡ'σяєм ιρѕυм ∂σłσя #"
 

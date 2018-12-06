@@ -184,6 +184,7 @@ class CourseRunWrapperTests(TestCase):
                 'image_url': staff.get_profile_image_url,
                 'profile_url': staff.profile_url,
                 'social_networks': [],
+                'major_works': staff.major_works,
                 'bio': staff.bio,
                 'is_new': True,
             },
@@ -210,6 +211,7 @@ class CourseRunWrapperTests(TestCase):
                     },
                 ],
                 'bio': staff_2.bio,
+                'major_works': staff_2.major_works,
             }
         ]
         self.assertEqual(self.wrapped_course_run.course_staff, expected)
