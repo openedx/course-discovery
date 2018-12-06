@@ -39,6 +39,15 @@ $(document).ready(function(){
         $('#instructorProfileModal a.btn-download').attr('href', data.image_url);
         $('#instructorProfileModal div.position').html(data.position);
         $('#instructorProfileModal div.bio').html(data.bio);
+        $('#instructorProfileModal div.major-works').html(data.major_works);
+
+        data.social_networks.forEach(function(socialNetwork) {
+            var socialLinkHtml = '<div class="social-network-link">';
+            if (socialNetwork.title) socialLinkHtml += socialNetwork.title + ': ';
+            socialLinkHtml += '<a target="_blank">' + socialNetwork.url + '</a>';
+            socialLinkHtml += '</div>';
+            $('.social-links').append(socialLinkHtml);
+        });
 
         assignData('.profile_url', data.profile_url);
     });
@@ -74,6 +83,7 @@ function resetModalData() {
     $('#instructorProfileModal div.position').html('');
     $('#instructorProfileModal a.btn-download').attr('href', '#');
     $('#instructorProfileModal div.bio').html('');
+    $('.social-network-link').remove();
 
     assignData('.profile_url', '#');
 }
