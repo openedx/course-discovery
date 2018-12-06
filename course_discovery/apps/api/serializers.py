@@ -359,6 +359,7 @@ class PersonSerializer(MinimalPersonSerializer):
                 'type': url_detailed['type'],
                 'title': url_detailed['title'],
             }
+
             if url_detailed['id']:
                 PersonSocialNetwork.objects.update_or_create(
                     person=instance, id=url_detailed['id'], defaults=defaults,
