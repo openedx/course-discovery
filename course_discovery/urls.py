@@ -66,7 +66,7 @@ if settings.DEBUG:  # pragma: no cover
     # We need this url pattern to serve user uploaded assets according to
     # https://docs.djangoproject.com/en/1.11/howto/static-files/#serving-files-uploaded-by-a-user-during-development
     # This was modified to use LOCAL_MEDIA_URL to be able to server static files to external services like edx-mktg
-    urlpatterns += static(settings.LOCAL_MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.LOCAL_DISCOVERY_MEDIA_URL, document_root=settings.MEDIA_ROOT)
     if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         import debug_toolbar
 
