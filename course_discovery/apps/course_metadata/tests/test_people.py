@@ -141,8 +141,27 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
             people.publish_person(self.partner, self.data)
 
     @responses.activate
-    def test_delete_program(self):
+    def test_delete_person(self):
         self.mock_api_client(200)
         self.mock_node_delete(200)
         people = MarketingSitePeople()
         people.delete_person(self.partner, self.node_id)
+
+    @responses.activate
+    def test_delete_person_by_uuid(self):
+        self.mock_api_client(200)
+        self.mock_node_retrieval('uuid', self.uuid, status=200)
+        self.mock_node_delete(200)
+        people = MarketingSitePeople()
+        people.delete_person_by_uuid(self.partner, self.uuid)
+
+    @mock.patch(
+        'course_discovery.apps.course_metadata.people.MarketingSitePeople._get_node_id_from_uuid',
+        mock.Mock(return_value=None)
+    )
+    def test_delete_person_by_uuid_not_found(self):
+        people = MarketingSitePeople()
+        with LogCapture(LOGGER_NAME) as log:
+            people.delete_person_by_uuid(self.partner, self.uuid)
+            log.check((LOGGER_NAME, 'INFO',
+                       'Person with UUID [{}] does not exist on the marketing site'.format(self.uuid)))
