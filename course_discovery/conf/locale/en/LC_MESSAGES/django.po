@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-11 19:35+0000\n"
+"POT-Creation-Date: 2018-12-12 18:44+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -782,6 +782,10 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1718 apps/publisher/models.py:1103
 msgid "Course Run IDs"
+msgstr ""
+
+#: apps/course_metadata/models.py:1725
+msgid "Profile Image UUIDs"
 msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24
