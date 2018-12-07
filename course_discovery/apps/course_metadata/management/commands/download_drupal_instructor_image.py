@@ -1,9 +1,8 @@
-import base64
 import logging
-import requests
 
-from django.core.management import BaseCommand
+import requests
 from django.core.files.base import ContentFile
+from django.core.management import BaseCommand
 
 from course_discovery.apps.course_metadata.models import Person
 
