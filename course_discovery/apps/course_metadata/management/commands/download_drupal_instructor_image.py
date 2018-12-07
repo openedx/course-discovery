@@ -70,7 +70,7 @@ class Command(BaseCommand):
                         # Splitting these so that the URL updates using the correct file name
                         person.profile_image_url = person.profile_image.url
                         person.save()
-                        success_count+=1
+                        success_count += 1
                         logger.info('Saved image for Instructor {instructor} from {url}'.format(
                             instructor=person.full_name,
                             url=person.profile_image_url)
@@ -99,5 +99,4 @@ class Command(BaseCommand):
         logger.info('{count} Failed Download attempts ---------'.format(count=len(failed_image_pulls)))
         for name in failed_image_pulls:
             logger.info(name)
-
 
