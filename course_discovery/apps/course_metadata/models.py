@@ -1716,3 +1716,10 @@ class DrupalPublishUuidConfig(SingletonModel):
     Configuration for data loaders used in the publish_uuids_to_drupal command.
     """
     course_run_ids = models.TextField(default=None, null=False, blank=False, verbose_name=_('Course Run IDs'))
+
+
+class ProfileImageDownloadConfig(SingletonModel):
+    """
+    Configuration for management command to Download Profile Images from Drupal.
+    """
+    person_uuids = models.TextField(default=None, null=False, blank=False, verbose_name=_('Profile Image UUIDs'))

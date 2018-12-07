@@ -395,5 +395,5 @@ for model in (LevelType, Prerequisite,):
 
 # Register remaining models using basic ModelAdmin classes
 for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
-              DeletePersonDupsConfig, DrupalPublishUuidConfig):
+              DeletePersonDupsConfig, DrupalPublishUuidConfig, ProfileImageDownloadConfig):
     admin.site.register(model)

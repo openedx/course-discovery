@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-11 19:35+0000\n"
+"POT-Creation-Date: 2018-12-12 18:44+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -53,71 +53,71 @@ msgstr ""
 msgid "Something went wrong!"
 msgstr ""
 
-#: static/js/publisher/instructors.js:137
+#: static/js/publisher/instructors.js:138
 msgid "Type"
 msgstr ""
 
-#: static/js/publisher/instructors.js:141
+#: static/js/publisher/instructors.js:142
 msgid "Facebook"
 msgstr ""
 
-#: static/js/publisher/instructors.js:142
+#: static/js/publisher/instructors.js:143
 msgid "Twitter"
 msgstr ""
 
-#: static/js/publisher/instructors.js:143
+#: static/js/publisher/instructors.js:144
 msgid "Blog"
 msgstr ""
 
-#: static/js/publisher/instructors.js:144
+#: static/js/publisher/instructors.js:145
 msgid "Other"
 msgstr ""
 
-#: static/js/publisher/instructors.js:147
+#: static/js/publisher/instructors.js:148
 msgid "Title"
 msgstr ""
 
-#: static/js/publisher/instructors.js:148
+#: static/js/publisher/instructors.js:149
 msgid "optional"
 msgstr ""
 
-#: static/js/publisher/instructors.js:151
+#: static/js/publisher/instructors.js:152
 msgid "URL"
 msgstr ""
 
-#: static/js/publisher/instructors.js:179
+#: static/js/publisher/instructors.js:180
 msgid "Please specify a type and url for each social link."
 msgstr ""
 
-#: static/js/publisher/instructors.js:190
+#: static/js/publisher/instructors.js:191
 msgid "Social links with the same type must have different titles."
 msgstr ""
 
-#: static/js/publisher/instructors.js:221
+#: static/js/publisher/instructors.js:222
 msgid "Area of Expertise"
 msgstr ""
 
-#: static/js/publisher/instructors.js:242
+#: static/js/publisher/instructors.js:243
 msgid "Please specify a value for each area of expertise."
 msgstr ""
 
-#: static/js/publisher/instructors.js:289
+#: static/js/publisher/instructors.js:290
 msgid "The image size must be smaller than 256kb"
 msgstr ""
 
-#: static/js/publisher/instructors.js:300
+#: static/js/publisher/instructors.js:301
 msgid "The image dimensions must be "
 msgstr ""
 
-#: static/js/publisher/instructors.js:313
+#: static/js/publisher/instructors.js:314
 msgid " Unsupported Image extension"
 msgstr ""
 
-#: static/js/publisher/instructors.js:430
+#: static/js/publisher/instructors.js:431
 msgid "Update staff member"
 msgstr ""
 
-#: static/js/publisher/instructors.js:431
+#: static/js/publisher/instructors.js:432
 msgid "Update Instructor"
 msgstr ""
 

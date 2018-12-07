@@ -506,3 +506,8 @@ class CourseEntitlementFactory(factory.DjangoModelFactory):
 class DrupalPublishUuidConfigFactory(factory.DjangoModelFactory):
     class Meta:
         model = DrupalPublishUuidConfig
+
+
+class ProfileImageDownloadConfigFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = ProfileImageDownloadConfig
