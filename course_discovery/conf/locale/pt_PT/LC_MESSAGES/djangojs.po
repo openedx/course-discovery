@@ -12,9 +12,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-28 16:07+0000\n"
-"PO-Revision-Date: 2018-11-23 16:38+0000\n"
-"Last-Translator: Beatriz Sousa <beatriz.sousa@bridgelk.com>\n"
+"POT-Creation-Date: 2018-12-06 20:32+0000\n"
+"PO-Revision-Date: 2018-12-06 19:21+0000\n"
+"Last-Translator: Rui Ribeiro <rui.ribeiro@fccn.pt>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/open-edx/edx-platform/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -50,31 +50,71 @@ msgstr ""
 msgid "Add staff member"
 msgstr ""
 
-#: static/js/publisher/instructors.js:41
+#: static/js/publisher/instructors.js:44
 msgid "Please upload a instructor image."
 msgstr ""
 
-#: static/js/publisher/instructors.js:88 static/js/publisher/preview-url.js:12
+#: static/js/publisher/instructors.js:99 static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
 msgstr ""
 
-#: static/js/publisher/instructors.js:121
-msgid "The image size must be smaller than 256kb"
+#: static/js/publisher/instructors.js:127
+msgid "Type"
 msgstr ""
 
 #: static/js/publisher/instructors.js:131
-msgid "The image dimensions must be less than 110 x 110"
+msgid "Facebook"
 msgstr ""
 
-#: static/js/publisher/instructors.js:143
+#: static/js/publisher/instructors.js:132
+msgid "Twitter"
+msgstr ""
+
+#: static/js/publisher/instructors.js:133
+msgid "Blog"
+msgstr ""
+
+#: static/js/publisher/instructors.js:134
+msgid "Other"
+msgstr ""
+
+#: static/js/publisher/instructors.js:137
+msgid "Title"
+msgstr ""
+
+#: static/js/publisher/instructors.js:138
+msgid "optional"
+msgstr ""
+
+#: static/js/publisher/instructors.js:141
+msgid "URL"
+msgstr ""
+
+#: static/js/publisher/instructors.js:169
+msgid "Please specify a type and url for each social link."
+msgstr ""
+
+#: static/js/publisher/instructors.js:180
+msgid "Social links with the same type must have different titles."
+msgstr ""
+
+#: static/js/publisher/instructors.js:231
+msgid "The image size must be smaller than 256kb"
+msgstr ""
+
+#: static/js/publisher/instructors.js:242
+msgid "The image dimensions must be "
+msgstr ""
+
+#: static/js/publisher/instructors.js:255
 msgid " Unsupported Image extension"
 msgstr ""
 
-#: static/js/publisher/instructors.js:261
+#: static/js/publisher/instructors.js:372
 msgid "Update staff member"
 msgstr ""
 
-#: static/js/publisher/instructors.js:262
+#: static/js/publisher/instructors.js:373
 msgid "Update Instructor"
 msgstr ""
 
