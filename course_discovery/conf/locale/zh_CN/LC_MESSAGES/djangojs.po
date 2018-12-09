@@ -11,13 +11,14 @@
 # Xuejia Tong <snowytong@hotmail.com>, 2016
 # yohann yang <heinerseiden@yahoo.com>, 2016
 # yw liu <2877206@qq.com>, 2018
+# 微 李 <w.li@eliteu.com.cn>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-28 16:07+0000\n"
-"PO-Revision-Date: 2018-11-12 01:30+0000\n"
-"Last-Translator: ifLab <webmaster@iflab.org>\n"
+"POT-Creation-Date: 2018-12-06 20:32+0000\n"
+"PO-Revision-Date: 2018-12-08 10:03+0000\n"
+"Last-Translator: 微 李 <w.li@eliteu.com.cn>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/open-edx/edx-platform/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -53,31 +54,71 @@ msgstr "新导师"
 msgid "Add staff member"
 msgstr "添加工作人员"
 
-#: static/js/publisher/instructors.js:41
+#: static/js/publisher/instructors.js:44
 msgid "Please upload a instructor image."
 msgstr "请上传一张导师照片。"
 
-#: static/js/publisher/instructors.js:88 static/js/publisher/preview-url.js:12
+#: static/js/publisher/instructors.js:99 static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
 msgstr "出错了!"
 
-#: static/js/publisher/instructors.js:121
+#: static/js/publisher/instructors.js:127
+msgid "Type"
+msgstr "类型"
+
+#: static/js/publisher/instructors.js:131
+msgid "Facebook"
+msgstr "脸书"
+
+#: static/js/publisher/instructors.js:132
+msgid "Twitter"
+msgstr "推特"
+
+#: static/js/publisher/instructors.js:133
+msgid "Blog"
+msgstr "博客"
+
+#: static/js/publisher/instructors.js:134
+msgid "Other"
+msgstr "其他"
+
+#: static/js/publisher/instructors.js:137
+msgid "Title"
+msgstr "标题"
+
+#: static/js/publisher/instructors.js:138
+msgid "optional"
+msgstr "选填"
+
+#: static/js/publisher/instructors.js:141
+msgid "URL"
+msgstr "URL 地址"
+
+#: static/js/publisher/instructors.js:169
+msgid "Please specify a type and url for each social link."
+msgstr "请为每个社交链接指定一个类型和url。"
+
+#: static/js/publisher/instructors.js:180
+msgid "Social links with the same type must have different titles."
+msgstr "同一类型的社交链接必须有不同的标题。"
+
+#: static/js/publisher/instructors.js:231
 msgid "The image size must be smaller than 256kb"
 msgstr "照片文件大小必须小于256kb"
 
-#: static/js/publisher/instructors.js:131
-msgid "The image dimensions must be less than 110 x 110"
-msgstr "照片分辨率必须小于 110x110"
+#: static/js/publisher/instructors.js:242
+msgid "The image dimensions must be "
+msgstr "图像尺寸必须是"
 
-#: static/js/publisher/instructors.js:143
+#: static/js/publisher/instructors.js:255
 msgid " Unsupported Image extension"
 msgstr "不支持的照片格式"
 
-#: static/js/publisher/instructors.js:261
+#: static/js/publisher/instructors.js:372
 msgid "Update staff member"
 msgstr "更新工作人员"
 
-#: static/js/publisher/instructors.js:262
+#: static/js/publisher/instructors.js:373
 msgid "Update Instructor"
 msgstr "更新导师"
 
