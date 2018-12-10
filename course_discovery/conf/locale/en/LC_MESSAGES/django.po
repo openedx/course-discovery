@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-06 20:32+0000\n"
+"POT-Creation-Date: 2018-12-10 16:39+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -410,7 +410,7 @@ msgstr ""
 #: apps/publisher/forms.py:138 apps/publisher/models.py:98
 #: apps/publisher/templates/publisher/course_detail.html:211
 #: apps/publisher/templates/publisher/course_revision_history.html:147
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:329
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:326
 msgid "FAQ"
 msgstr ""
 
@@ -975,7 +975,7 @@ msgstr ""
 #: apps/publisher/forms.py:97 apps/publisher/models.py:71
 #: apps/publisher/templates/publisher/course_detail.html:181
 #: apps/publisher/templates/publisher/course_revision_history.html:114
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:224
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:221
 msgid "Prerequisites"
 msgstr ""
 
@@ -992,7 +992,7 @@ msgid "Additional Subject (optional)"
 msgstr ""
 
 #: apps/publisher/forms.py:125
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:174
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:171
 msgid "Level"
 msgstr ""
 
@@ -1170,7 +1170,7 @@ msgid "Brief Description"
 msgstr ""
 
 #: apps/publisher/models.py:62
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:185
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:182
 msgid "Full Description"
 msgstr ""
 
@@ -1189,7 +1189,7 @@ msgstr ""
 #: apps/publisher/models.py:72
 #: apps/publisher/templates/publisher/course_detail.html:201
 #: apps/publisher/templates/publisher/course_revision_history.html:136
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:318
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:315
 msgid "Learner Testimonials"
 msgstr ""
 
@@ -1574,8 +1574,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html:251
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html:24
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:68
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:255
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:347
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:252
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:344
 msgid "(Optional) Not yet added"
 msgstr ""
 
@@ -1583,8 +1583,8 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html:176
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:69
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:111
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:218
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:364
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:215
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:361
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html:118
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html:23
 msgid "(Required) Not yet added"
@@ -1895,7 +1895,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_detail.html:136
 #: apps/publisher/templates/publisher/course_revision_history.html:81
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:274
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:271
 msgid "Primary Subject"
 msgstr ""
 
@@ -1903,15 +1903,15 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html:160
 #: apps/publisher/templates/publisher/course_revision_history.html:92
 #: apps/publisher/templates/publisher/course_revision_history.html:103
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:285
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:296
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:282
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:293
 msgid "Additional Subject"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_detail.html:171
 #: apps/publisher/templates/publisher/course_detail.html:174
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:207
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:211
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:204
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:208
 msgid "Course Image"
 msgstr ""
 
@@ -2660,53 +2660,48 @@ msgstr ""
 msgid "Course Staff"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:78
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:120
-msgid "New"
-msgstr ""
-
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:94
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:135
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:91
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:132
 msgid "Estimated Effort"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:98
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:100
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:140
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:142
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:95
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:97
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:137
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:139
 msgid "hours per week"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:111
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:108
 msgid "Course Content Language"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:122
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:119
 msgid "Video Transcript Language"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:133
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:130
 msgid "Course Video Language"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:144
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:307
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:141
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:304
 msgid "Course Length (Weeks)"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:155
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:152
 msgid "Has OFAC Restriction text"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:166
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:163
 msgid "MicroMasters Program Name"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:177
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:174
 msgid "XSeries Program Name"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:188
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:185
 msgid "Professional Certificate Program Name"
 msgstr ""
 
@@ -2716,7 +2711,7 @@ msgid "Course ID"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_cat.html:18
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:352
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:349
 msgid "Enrollment Types"
 msgstr ""
 
@@ -2765,44 +2760,44 @@ msgstr ""
 msgid "Staff"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:140
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:137
 msgid "to"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:152
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:149
 msgid "Languages"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:163
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:160
 msgid "Video Transcript Languages"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:196
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:193
 msgid "What You'll Learn"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:214
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:211
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:11
 msgid "Download"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:235
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:232
 msgid "Keywords"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:246
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:243
 msgid "Sponsors"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:262
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:259
 msgid "Course Syllabus"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:340
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:337
 msgid "Course About Video"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:355
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html:352
 msgid "Seats"
 msgstr ""
 

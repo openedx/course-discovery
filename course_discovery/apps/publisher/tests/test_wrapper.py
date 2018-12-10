@@ -186,7 +186,6 @@ class CourseRunWrapperTests(TestCase):
                 'social_networks': [],
                 'major_works': staff.major_works,
                 'bio': staff.bio,
-                'is_new': True,
             },
             {
                 'uuid': str(staff_2.uuid),
@@ -195,7 +194,6 @@ class CourseRunWrapperTests(TestCase):
                 'position': position.title,
                 'organization': position.organization_name,
                 'profile_url': staff.profile_url,
-                'is_new': False,
                 'social_networks': [
                     {
                         'id': facebook.id,

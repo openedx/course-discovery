@@ -59,6 +59,8 @@ class MarketingSitePeople(object):
     def publish_person(self, partner, person):
         api_client = self._get_api_client(partner)
         node_data = self._get_node_data(person)
+        # Sets person to published in marketing
+        node_data['status'] = 1
         if api_client:
             return self._create_node(api_client, node_data)
 
