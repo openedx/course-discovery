@@ -17,4 +17,4 @@ class Command(BaseCommand):
 
         for course_run in course_runs:
             publisher = CourseRunMarketingSitePublisher(course_run.course.partner)
-            publisher.publish_obj(course_run)
+            publisher.publish_obj(course_run, include_uuid=True)

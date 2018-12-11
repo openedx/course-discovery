@@ -23,7 +23,7 @@ class TestPublishUuidsToDrupal(TestCase):
                         'CourseRunMarketingSitePublisher.publish_obj') as mock_publish_obj:
             command.handle()
             expected_calls = [
-                mock.call(self.course_run)
+                mock.call(self.course_run, include_uuid=True)
             ]
             mock_publish_obj.assert_has_calls(expected_calls)
 
