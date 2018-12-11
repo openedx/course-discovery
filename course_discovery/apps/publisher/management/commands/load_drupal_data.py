@@ -31,6 +31,11 @@ class DrupalCourseMarketingSiteDataLoader(CourseMarketingSiteDataLoader):
             partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
         )
 
+    def _request(self, page):
+        """Make a request to the marketing site."""
+        logger.info('Processing page %s', page)
+        return super(DrupalCourseMarketingSiteDataLoader, self)._request(page)
+
     def process_node(self, data):
         field_course_end_date = data.get('field_course_end_date')
         # Use as far into the future as possible if there is no end date set
@@ -130,6 +135,11 @@ class Command(BaseCommand):
             raise
         username = jwt.decode(access_token, verify=False)['preferred_username']
         kwargs = {'username': username} if username else {}
+
+        logger.info('Loading Drupal data for %s with partner codes\n%s',
+                    config.partner_code,
+                    config.course_run_ids.replace(',', '\n')
+                    )
 
         execute_loader(
             DrupalCourseMarketingSiteDataLoader,
