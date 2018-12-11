@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests.factories import (
-    OrganizationFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory
+    OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory
 )
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import Seat
@@ -177,6 +177,10 @@ class CourseRunWrapperTests(TestCase):
         facebook = PersonSocialNetworkFactory(person=staff_2, type='facebook')
         twitter = PersonSocialNetworkFactory(person=staff_2, type='twitter', title='@MrTerry')
 
+        area_1 = PersonAreaOfExpertiseFactory(person=staff)
+        area_2 = PersonAreaOfExpertiseFactory(person=staff)
+        area_3 = PersonAreaOfExpertiseFactory(person=staff_2)
+
         expected = [
             {
                 'uuid': str(staff.uuid),
@@ -186,6 +190,16 @@ class CourseRunWrapperTests(TestCase):
                 'social_networks': [],
                 'major_works': staff.major_works,
                 'bio': staff.bio,
+                'areas_of_expertise': [
+                    {
+                        'id': area_1.id,
+                        'value': area_1.value
+                    },
+                    {
+                        'id': area_2.id,
+                        'value': area_2.value
+                    },
+                ],
             },
             {
                 'uuid': str(staff_2.uuid),
@@ -210,6 +224,12 @@ class CourseRunWrapperTests(TestCase):
                 ],
                 'bio': staff_2.bio,
                 'major_works': staff_2.major_works,
+                'areas_of_expertise': [
+                    {
+                        'id': area_3.id,
+                        'value': area_3.value
+                    },
+                ],
             }
         ]
         self.assertEqual(self.wrapped_course_run.course_staff, expected)

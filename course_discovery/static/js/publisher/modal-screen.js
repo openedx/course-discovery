@@ -42,11 +42,15 @@ $(document).ready(function(){
         $('#instructorProfileModal div.major-works').html(data.major_works);
 
         data.social_networks.forEach(function(socialNetwork) {
-            var socialLinkHtml = '<div class="social-network-link">';
+            var socialLinkHtml = '<div class="instructor-list-item-view">';
             if (socialNetwork.title) socialLinkHtml += socialNetwork.title + ': ';
             socialLinkHtml += '<a target="_blank">' + socialNetwork.url + '</a>';
             socialLinkHtml += '</div>';
             $('.social-links').append(socialLinkHtml);
+        });
+        data.areas_of_expertise.forEach(function(areaOfExpertise) {
+            var areaOfExpertiseHtml = '<div class="instructor-list-item-view"><p>' + areaOfExpertise.value + '</p></div>';
+            $('.areas-of-expertise').append(areaOfExpertiseHtml);
         });
 
         assignData('.profile_url', data.profile_url);
@@ -83,7 +87,7 @@ function resetModalData() {
     $('#instructorProfileModal div.position').html('');
     $('#instructorProfileModal a.btn-download').attr('href', '#');
     $('#instructorProfileModal div.bio').html('');
-    $('.social-network-link').remove();
+    $('.instructor-list-item-view').remove();
 
     assignData('.profile_url', '#');
 }
@@ -99,6 +103,7 @@ function resetInstructorModalData() {
     $('#addInstructorModal div img').attr('src',imgPath);
     for (var i in selectors) clearData(selectors[i]);
     $('.social-link').remove();
+    $('.area-of-expertise').remove();
 }
 
 function clearData(selector){

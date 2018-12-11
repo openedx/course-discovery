@@ -52,6 +52,13 @@ $(document).ready(function () {
             addModalError(socialLinkError);
             return;
         }
+        areasOfExpertiseObj = getAreasOfExpertise();
+        areasOfExpertise = areasOfExpertiseObj.areasOfExpertiseArray;
+        areasOfExpertiseError = areasOfExpertiseObj.error;
+        if (areasOfExpertiseError) {
+            addModalError(areasOfExpertiseError);
+            return;
+        }
         personData = {
             'given_name': $('#given-name').val(),
             'family_name': $('#family-name').val(),
@@ -60,6 +67,7 @@ $(document).ready(function () {
             'position': getFormInstructorPosition(),
             'major_works': $('#majorWorks').val(),
             'urls_detailed': urlsDetailed,
+            'areas_of_expertise': areasOfExpertise,
         };
 
         if (editMode) {
@@ -103,29 +111,32 @@ $(document).ready(function () {
     });
 });
 
-var newLinkCount = 1;
-$(document).on('click', '.add-social-link-btn', function (e) {
+var newElementCount = 1;
+$(document).on('click', '.add-instructor-list-item-btn', function (e) {
+    var $btn = $(e.target)
     e.preventDefault();
-    // We are prepending new social link ids with the string new to distinguish between newly
-    // created social links and existing ones. When sending these to the backend, we will be able
-    // to indicate whether an old link should be updated or a new link created.
-    addNewSocialLink('new' + newLinkCount);
-    newLinkCount++;
-})
+    // We are prepending new instructor list items with the string new to distinguish between newly
+    // created items and existing ones. When sending these to the backend, we will be able
+    // to indicate whether an item should be updated or created.
+    if ($btn.hasClass('js-add-social-link-btn')) { addNewSocialLink('new' + newElementCount); }
+    else if ($btn.hasClass('js-add-area-of-expertise-btn')) { addNewAreaOfExpertise('new' + newElementCount); }
+    newElementCount++;
+});
 
-$(document).on('click', '.remove-social-link-btn', function (e) {
+
+$(document).on('click', '.remove-instructor-list-item-btn', function (e) {
     $(e.target.parentElement).remove();
-})
+});
 
 function addNewSocialLink(id, type, title, url) {
     var id = id || '',
         type = type || '',
         title = title || '',
         url = url || '',
-        socialLinksWrapper = $('#social-links-wrapper'),
+        socialLinksWrapper = $('.js-social-links-wrapper'),
         linkHtml = '<div class="social-link" data-id="' + id + '">\
-                        <label class="social-link-field" for="social-link-type-' + id + '">' + gettext('Type') +
-                            '<select class="social-link-input social-link-select-type" name="link-type" \
+                        <label class="instructor-list-field" for="social-link-type-' + id + '">' + gettext('Type') +
+                            '<select class="instructor-list-input social-link-select-type" name="link-type" \
                             id="social-link-type-' + id + '">\
                                 <option disabled selected></option>\
                                 <option value="facebook">' + gettext('Facebook') + '</option>\
@@ -134,14 +145,14 @@ function addNewSocialLink(id, type, title, url) {
                                 <option value="others">' + gettext('Other') + '</option>\
                             </select>\
                         </label>\
-                        <label class="social-link-field" for="social-link-title-' + id + '">' + gettext('Title') +
+                        <label class="instructor-list-field" for="social-link-title-' + id + '">' + gettext('Title') +
                             '<span class="optional"> - ' + gettext('optional') + '</span>\
-                            <input class="social-link-input field-input input-text" type="text" id="social-link-title-' + id + '"/>\
+                            <input class="instructor-list-input field-input input-text" type="text" id="social-link-title-' + id + '"/>\
                         </label>\
-                        <label class="social-link-field" for="social-link-url-' + id + '">' + gettext('URL') +
-                            '<input class="social-link-input field-input input-text" type="text" id="social-link-url-' + id + '"/>\
+                        <label class="instructor-list-field" for="social-link-url-' + id + '">' + gettext('URL') +
+                            '<input class="instructor-list-input field-input input-text" type="text" id="social-link-url-' + id + '"/>\
                         </label>\
-                        <button class="remove-social-link-btn fa fa-close"></button>\
+                        <button class="remove-instructor-list-item-btn fa fa-close"></button>\
                     </div>';
 
     socialLinksWrapper.append(linkHtml);
@@ -198,6 +209,54 @@ function getSocialLinks() {
     }
     return {
         socialLinksArray: socialLinksArray,
+        error: error
+    };
+}
+
+function addNewAreaOfExpertise(id, value) {
+    var id = id || '',
+        value = value || '',
+        areasOfExpertiseWrapper = $('.js-areas-of-expertise-wrapper'),
+        linkHtml = '<div class="area-of-expertise" data-id="' + id + '">\
+                        <label class="instructor-list-field" for="area-of-expertise-value-' + id + '">' +
+                        gettext('Area of Expertise') +
+                            '<input class="instructor-list-input field-input input-text" type="text"\
+                            id="area-of-expertise-value-' + id + '"/>\
+                        </label>\
+                        <button class="remove-instructor-list-item-btn fa fa-close"></button>\
+                    </div>';
+
+    areasOfExpertiseWrapper.append(linkHtml);
+    $('#area-of-expertise-value-' + id).val(value);
+}
+
+function getAreasOfExpertise() {
+    var areasOfExpertiseArray = [],
+        areasOfExpertise = $('.area-of-expertise'),
+        error = '',
+        value;
+    for (var i = 0; i < areasOfExpertise.length; i++) {
+        value = $('#area-of-expertise-value-' + areasOfExpertise[i].dataset.id).val();
+        id = areasOfExpertise[i].dataset.id;
+
+        if (value === '') {
+            error = gettext('Please specify a value for each area of expertise.');
+            return {
+                areasOfExpertiseArray: areasOfExpertiseArray,
+                error: error
+            };
+        }
+
+        // see comment under on click of #add-area-of-expertise-btn
+        if (id.includes('new')) id = '';
+
+        areasOfExpertiseArray.push({
+            'id': parseInt(id),
+            'value': value,
+        });
+    }
+    return {
+        areasOfExpertiseArray: areasOfExpertiseArray,
         error: error
     };
 }
@@ -402,6 +461,12 @@ $(document).on('click', '.selected-instructor a.edit', function (e) {
                     data.urls_detailed[i].type,
                     data.urls_detailed[i].title,
                     data.urls_detailed[i].url,
+                );
+            }
+            for (var i = 0; i < data.areas_of_expertise.length; i++) {
+                addNewAreaOfExpertise(
+                    data.areas_of_expertise[i].id,
+                    data.areas_of_expertise[i].value,
                 );
             }
         }

@@ -15,7 +15,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, PersonAreaOfExpertise, Subject
+    AdditionalPromoArea, Course, CourseRun, LevelType, Organization, Person, Subject
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -271,27 +271,7 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         Person.objects.filter(uuid=uuid, partner=self.partner).update(**defaults)
 
-        self.set_areas_of_expertise(data)
-
         logger.info('Processed person with UUID [%s].', uuid)
-
-    def set_areas_of_expertise(self, data):
-        # Used for error messages
-        uuid = data['uuid']
-        # In case there is an exception raised before area_of_expertise is defined
-        area_of_expertise = None
-        try:
-            data = data.get('field_person_areas_of_expertise')
-            if data:
-                person = Person.objects.get(uuid=uuid, partner=self.partner)
-                PersonAreaOfExpertise.objects.filter(person=person).delete()
-                for area_of_expertise in data:
-                    PersonAreaOfExpertise.objects.create(person=person, value=area_of_expertise)
-        except Exception:  # pylint: disable=broad-except
-            logger.exception(
-                'Failed to set area of expertise for person with UUID [{uuid}] and area of expertise '
-                '[{area_of_expertise}].'.format(uuid=uuid, area_of_expertise=area_of_expertise)
-            )
 
 
 class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):

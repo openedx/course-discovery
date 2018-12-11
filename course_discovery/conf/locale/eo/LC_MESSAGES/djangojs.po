@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-10 16:39+0000\n"
+"POT-Creation-Date: 2018-12-11 19:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -102,6 +102,16 @@ msgid "Social links with the same type must have different titles."
 msgstr ""
 "Söçïäl lïnks wïth thé sämé týpé müst hävé dïfférént tïtlés. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: static/js/publisher/instructors.js
+msgid "Area of Expertise"
+msgstr "Àréä öf Éxpértïsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: static/js/publisher/instructors.js
+msgid "Please specify a value for each area of expertise."
+msgstr ""
+"Pléäsé spéçïfý ä välüé för éäçh äréä öf éxpértïsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
 
 #: static/js/publisher/instructors.js
 msgid "The image size must be smaller than 256kb"

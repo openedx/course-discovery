@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-10 16:39+0000\n"
+"POT-Creation-Date: 2018-12-11 19:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1653,6 +1653,7 @@ msgstr "Söçïäl Lïnks Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "optional"
 msgstr "öptïönäl Ⱡ'σяєм ιρѕυм ∂#"
 
@@ -1670,6 +1671,15 @@ msgid "a list in HTML format (consider using &lt;ul&gt; or &lt;br&gt;)"
 msgstr ""
 "ä lïst ïn HTML förmät (çönsïdér üsïng &lt;ül&gt; ör &lt;ßr&gt;) Ⱡ'σяєм ιρѕυм"
 " ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+msgid "Areas of Expertise"
+msgstr "Àréäs öf Éxpértïsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+msgid "Add new area of expertise"
+msgstr "Àdd néw äréä öf éxpértïsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Add Staff Member"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-10 16:39+0000\n"
+"POT-Creation-Date: 2018-12-11 19:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -28,31 +28,31 @@ msgid ""
 "parameter."
 msgstr ""
 
-#: apps/api/serializers.py:498
+#: apps/api/serializers.py:527
 msgid "Number of courses contained in this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:501
+#: apps/api/serializers.py:530
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:589
+#: apps/api/serializers.py:618
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:659
+#: apps/api/serializers.py:688
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:822
+#: apps/api/serializers.py:851
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1046
+#: apps/api/serializers.py:1075
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1050
+#: apps/api/serializers.py:1079
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -780,12 +780,12 @@ msgstr ""
 msgid "Others"
 msgstr ""
 
-#: apps/course_metadata/models.py:1713 apps/publisher/models.py:1103
+#: apps/course_metadata/models.py:1718 apps/publisher/models.py:1103
 msgid "Course Run IDs"
 msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:83
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:92
 #: apps/publisher/templates/publisher/_revert_confirmation.html:13
 #: apps/publisher/templates/publisher/add_course_form.html:174
 #: apps/publisher/templates/publisher/add_courserun_form.html:157
@@ -1391,6 +1391,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:68
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:76
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:84
 msgid "optional"
 msgstr ""
 
@@ -1407,7 +1408,16 @@ msgstr ""
 msgid "a list in HTML format (consider using &lt;ul&gt; or &lt;br&gt;)"
 msgstr ""
 
-#: apps/publisher/templates/publisher/_add_instructor_popup.html:85
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:83
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:64
+msgid "Areas of Expertise"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:88
+msgid "Add new area of expertise"
+msgstr ""
+
+#: apps/publisher/templates/publisher/_add_instructor_popup.html:94
 msgid "Add Staff Member"
 msgstr ""
 
@@ -2813,7 +2823,7 @@ msgstr ""
 msgid "Profile URL "
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:64
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:69
 msgid "Close"
 msgstr ""
 
