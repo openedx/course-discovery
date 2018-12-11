@@ -311,7 +311,7 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
     unique_field = 'key'
     node_lookup_field = 'field_course_id'
 
-    def publish_obj(self, obj, previous_obj=None):
+    def publish_obj(self, obj, previous_obj=None, include_uuid=False):
         """
         Publish a CourseRun to the marketing site.
 
@@ -338,6 +338,9 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
                     obj.key)
             else:
                 node_data = self.serialize_obj(obj)
+                # If the uuid should be included despite the node_id being set
+                if include_uuid:
+                    node_data.update({'field_course_uuid': str(obj.uuid)})
                 self.edit_node(node_id, node_data)
         elif waffle.switch_is_active('auto_course_about_page_creation'):
             node_data = self.serialize_obj(obj)
