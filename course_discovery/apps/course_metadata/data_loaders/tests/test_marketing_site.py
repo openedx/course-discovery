@@ -285,14 +285,6 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         for field, value in expected_values.items():
             self.assertEqual(getattr(person, field), value)
 
-        areas_of_expertise = data['field_person_areas_of_expertise']
-        if areas_of_expertise:
-            expected_area_of_expertise_values = []
-            for area_of_expertise in person.areas_of_expertise.values():
-                expected_area_of_expertise_values.append(area_of_expertise['value'])
-            for value in areas_of_expertise:
-                self.assertIn(value, expected_area_of_expertise_values)
-
     def ingest_mock_data(self):
         self.mock_login_response()
         people = self.mock_api()

@@ -160,11 +160,11 @@
             @include text-align(right);
         }
 
-        .social-link-field {
+        .instructor-list-field {
           display: inline-block;
         }
 
-        .social-link-input {
+        .instructor-list-input {
           @include margin-right(5px);
           height: 44px;
           margin-top: 5px;
@@ -174,7 +174,7 @@
           height: 43px;
         }
 
-        .remove-social-link-btn {
+        .remove-instructor-list-item-btn {
           height: 44px;
           width: 44px;
           font-size: 25px;
@@ -183,7 +183,7 @@
           margin-bottom: 20px;
         }
 
-        .add-social-link-btn {
+        .add-instructor-list-item-btn {
           margin-bottom: 20px;
         }
     }

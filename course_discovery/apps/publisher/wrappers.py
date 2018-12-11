@@ -233,6 +233,13 @@ class CourseRunWrapper(BaseWrapper):
                     for network in staff.person_networks.all()
                 ],
                 'major_works': staff.major_works,
+                'areas_of_expertise': [
+                    {
+                        'id': area_of_expertise.id,
+                        'value': area_of_expertise.value,
+                    }
+                    for area_of_expertise in staff.areas_of_expertise.all()
+                ],
             }
 
             if hasattr(staff, 'position'):
