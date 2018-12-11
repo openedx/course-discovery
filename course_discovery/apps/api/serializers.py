@@ -22,8 +22,9 @@ from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Curriculum, Degree,
-    DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, Organization, Pathway, Person, PersonSocialNetwork,
-    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
+    DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, Organization, Pathway, Person,
+    PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType,
+    Subject, Topic, Video
 )
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 
@@ -261,6 +262,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
     works = serializers.SerializerMethodField()
     urls = serializers.SerializerMethodField()
     urls_detailed = serializers.SerializerMethodField()
+    areas_of_expertise = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
 
     @classmethod
@@ -272,7 +274,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = Person
         fields = (
-            'uuid', 'salutation', 'given_name', 'family_name', 'bio', 'slug', 'position',
+            'uuid', 'salutation', 'given_name', 'family_name', 'bio', 'slug', 'position', 'areas_of_expertise',
             'profile_image', 'partner', 'works', 'urls', 'urls_detailed', 'email', 'profile_image_url', 'major_works',
         )
         extra_kwargs = {
@@ -304,7 +306,13 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
             'title': network.title,
             'display_title': network.display_title,
             'url': network.url,
-        } for network in obj.person_networks.all()]
+        } for network in obj.person_networks.all().order_by('id')]
+
+    def get_areas_of_expertise(self, obj):
+        return [{
+            'id': area_of_expertise.id,
+            'value': area_of_expertise.value,
+        } for area_of_expertise in obj.areas_of_expertise.all().order_by('id')]
 
     def get_email(self, _obj):
         # We are removing this field so this is to not break any APIs
@@ -324,11 +332,13 @@ class PersonSerializer(MinimalPersonSerializer):
     def validate(self, data):
         validated_data = super(PersonSerializer, self).validate(data)
         validated_data['urls_detailed'] = self.initial_data.get('urls_detailed', [])
+        validated_data['areas_of_expertise'] = self.initial_data.get('areas_of_expertise', [])
         return validated_data
 
     def create(self, validated_data):
         position_data = validated_data.pop('position')
         urls_detailed_data = validated_data.pop('urls_detailed')
+        areas_of_expertise_data = validated_data.pop('areas_of_expertise')
 
         person = Person.objects.create(**validated_data)
         Position.objects.create(person=person, **position_data)
@@ -340,11 +350,17 @@ class PersonSerializer(MinimalPersonSerializer):
             ))
         PersonSocialNetwork.objects.bulk_create(person_social_networks)
 
+        areas_of_expertise = []
+        for area_of_expertise in areas_of_expertise_data:
+            areas_of_expertise.append(PersonAreaOfExpertise(person=person, value=area_of_expertise['value'],))
+        PersonAreaOfExpertise.objects.bulk_create(areas_of_expertise)
+
         return person
 
     def update(self, instance, validated_data):
         position_data = validated_data.pop('position')
         urls_detailed_data = validated_data.pop('urls_detailed')
+        areas_of_expertise_data = validated_data.pop('areas_of_expertise')
 
         Position.objects.update_or_create(person=instance, defaults=position_data)
 
@@ -365,8 +381,21 @@ class PersonSerializer(MinimalPersonSerializer):
                     person=instance, id=url_detailed['id'], defaults=defaults,
                 )
             else:
-                new_network = PersonSocialNetwork(person=instance, **defaults)
-                new_network.save()
+                PersonSocialNetwork.objects.create(person=instance, **defaults)
+
+        active_area_of_expertise_ids = [area_of_expertise['id'] for area_of_expertise in areas_of_expertise_data]
+        for area_of_expertise in PersonAreaOfExpertise.objects.filter(person=instance):
+            if area_of_expertise.id not in active_area_of_expertise_ids:
+                area_of_expertise.delete()
+
+        for area_of_expertise in areas_of_expertise_data:
+            defaults = {'value': area_of_expertise['value']}
+            if area_of_expertise['id']:
+                PersonAreaOfExpertise.objects.update_or_create(
+                    person=instance, id=area_of_expertise['id'], defaults=defaults,
+                )
+            else:
+                PersonAreaOfExpertise.objects.create(person=instance, **defaults)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

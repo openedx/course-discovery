@@ -471,6 +471,14 @@ class PersonSocialNetworkFactory(factory.DjangoModelFactory):
         model = PersonSocialNetwork
 
 
+class PersonAreaOfExpertiseFactory(factory.DjangoModelFactory):
+    value = FuzzyText()
+    person = factory.SubFactory(PersonFactory)
+
+    class Meta:
+        model = PersonAreaOfExpertise
+
+
 class SeatTypeFactory(factory.django.DjangoModelFactory):
     class Meta(object):
         model = SeatType

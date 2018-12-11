@@ -1682,6 +1682,11 @@ class PersonSocialNetwork(TimeStampedModel):
             return self.SOCIAL_NETWORK_CHOICES[self.type]
 
 
+class PersonAreaOfExpertise(AbstractValueModel):
+    """ Person Area of Expertise model. """
+    person = models.ForeignKey(Person, related_name='areas_of_expertise')
+
+
 class DataLoaderConfig(SingletonModel):
     """
     Configuration for data loaders used in the refresh_course_metadata command.

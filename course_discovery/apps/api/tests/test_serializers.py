@@ -42,9 +42,10 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Pers
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumFactory,
     DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory, PersonFactory,
-    PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
-    RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
+    PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
+    ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory,
+    VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -1287,6 +1288,7 @@ class MinimalPersonSerializerTests(TestCase):
                 'blog': None,
             },
             'urls_detailed': [],
+            'areas_of_expertise': [],
             'slug': self.person.slug,
             'email': None,  # always None
         }
@@ -1343,6 +1345,22 @@ class MinimalPersonSerializerTests(TestCase):
         self.assertEqual('@MrTerry', self.person.person_networks.get(type='twitter', title='@MrTerry').display_title)
         # Test that empty string titles get changed to url when looking at display title for OTHERS
         self.assertEqual(others.url, self.person.person_networks.get(type='others', title='').display_title)
+
+    def test_areas_of_expertise(self):
+        area_1 = PersonAreaOfExpertiseFactory(person=self.person)
+        area_2 = PersonAreaOfExpertiseFactory(person=self.person)
+        self.expected['areas_of_expertise'] = [
+            {
+                'id': area_1.id,
+                'value': area_1.value,
+            },
+            {
+                'id': area_2.id,
+                'value': area_2.value,
+            },
+        ]
+        serializer = self.serializer(self.person, context=self.context)
+        self.assertDictEqual(serializer.data, self.expected)
 
 
 class PersonSerializerTests(MinimalPersonSerializerTests):
@@ -1627,6 +1645,7 @@ class PersonSearchModelSerializerTests(PersonSearchSerializerTest):
                 'blog': None,
             },
             'urls_detailed': [],
+            'areas_of_expertise': [],
             'slug': person.slug,
             'email': None,  # always None
             'content_type': 'person',

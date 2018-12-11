@@ -14,7 +14,8 @@ from course_discovery.apps.course_metadata.models import Person, Position
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, OrganizationFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory
+    CourseRunFactory, OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory,
+    PositionFactory
 )
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory as PublisherCourseRunFactory
 
@@ -64,12 +65,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(person.position.organization, self.organization)
         self.assertEqual(person.major_works, data['major_works'])
         self.assertListEqual(
-            sorted([url for social_network in person.person_networks.all() for url in social_network.url]),
-            sorted([url for url_detailed in data['urls_detailed'] for url in url_detailed['url']])
+            sorted([social_network.url for social_network in person.person_networks.all()]),
+            sorted([url_detailed['url'] for url_detailed in data['urls_detailed']])
         )
         self.assertListEqual(
-            sorted([title for social_network in person.person_networks.all() for title in social_network.title]),
-            sorted([title for url_detailed in data['urls_detailed'] for title in url_detailed['title']])
+            sorted([social_network.title for social_network in person.person_networks.all()]),
+            sorted([url_detailed['title'] for url_detailed in data['urls_detailed']])
         )
 
         # Test display_title
@@ -83,6 +84,11 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         # Test that empty string titles get changed to url when looking at display title for OTHERS
         self.assertEqual(
             'http://www.others.com/hopkins', person.person_networks.get(type='others', title='').display_title
+        )
+
+        self.assertListEqual(
+            sorted([area_of_expertise.value for area_of_expertise in person.areas_of_expertise.all()]),
+            sorted([area_of_expertise['value'] for area_of_expertise in data['areas_of_expertise']])
         )
 
     def test_create_without_drupal_client_settings(self):
@@ -275,6 +281,16 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                     'url': 'http://www.others.com/hopkins',
                 },
             ],
+            'areas_of_expertise': [
+                {
+                    'id': '1',
+                    'value': 'area 1'
+                },
+                {
+                    'id': '2',
+                    'value': 'area 2'
+                },
+            ],
         }
 
     def _update_person_data(self):
@@ -315,6 +331,16 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                     'title': 'Create new',
                     'display_title': 'Create new',
                     'url': 'http://www.others.com/new',
+                },
+            ],
+            'areas_of_expertise': [
+                {
+                    'id': '1',
+                    'value': 'new area 1'
+                },
+                {
+                    'id': '',
+                    'value': 'area 3'
                 },
             ],
         }
@@ -374,8 +400,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
         data = self._update_person_data()
 
-        # This is being created so we can verify it is deleted since it is not part of updated_data
+        # These are being created so we can verify they are deleted since they are not part of updated_data
         PersonSocialNetworkFactory(person=self.person, type='blog')
+        removed_value = PersonAreaOfExpertiseFactory(person=self.person).value
 
         # After updating, profile_image.url should overwrite profile_image_url
         self.assertNotEqual(self.person.profile_image_url, self.person.profile_image.url)
@@ -392,13 +419,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(updated_person.major_works, data['major_works'])
         self.assertEqual(updated_person.profile_image_url, updated_person.profile_image.url)
         self.assertListEqual(
-            sorted([url for social_network in updated_person.person_networks.all() for url in social_network.url]),
-            sorted([url for url_detailed in data['urls_detailed'] for url in url_detailed['url']])
+            sorted([social_network.url for social_network in updated_person.person_networks.all()]),
+            sorted([url_detailed['url'] for url_detailed in data['urls_detailed']])
         )
         self.assertListEqual(
-            sorted([title for social_network in updated_person.person_networks.all()
-                    for title in social_network.title]),
-            sorted([title for url_detailed in data['urls_detailed'] for title in url_detailed['title']])
+            sorted([social_network.title for social_network in updated_person.person_networks.all()]),
+            sorted([url_detailed['title'] for url_detailed in data['urls_detailed']])
         )
         self.assertFalse(updated_person.person_networks.filter(type='blog').exists())
 
@@ -416,6 +442,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(
             'Create new', updated_person.person_networks.get(type='others', title='Create new').display_title
         )
+
+        self.assertListEqual(
+            sorted([area_of_expertise.value for area_of_expertise in updated_person.areas_of_expertise.all()]),
+            sorted([area_of_expertise['value'] for area_of_expertise in data['areas_of_expertise']])
+        )
+        self.assertFalse(updated_person.areas_of_expertise.filter(value=removed_value).exists())
 
     def test_update_without_position(self):
         """
