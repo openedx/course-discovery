@@ -49,6 +49,11 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             'uri': 'https://stage.edx.org/node/28691'
         }
 
+    def person_exists(self, data):
+        return Person.objects.filter(
+            given_name=data['given_name'], family_name=data['family_name'], bio=data['bio']
+        ).exists()
+
     def test_create_with_authentication(self):
         """ Verify endpoint successfully creates a person. """
         with mock.patch.object(MarketingSitePeople, 'publish_person', return_value=self.expected_node):
@@ -110,6 +115,8 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                 )
             )
 
+        self.assertFalse(self.person_exists(data))
+
     def test_create_with_api_exception(self):
         """ Verify that after creating drupal page if serializer fail due to any error, message
         will be logged and drupal page will be deleted. """
@@ -128,11 +135,13 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                             (
                                 people_logger.name,
                                 'ERROR',
-                                'An error occurred while adding the person [{}]-[{}]-[{}] in discovery.'.format(
-                                    data['given_name'], data['family_name'], self.expected_node['id']
+                                'An error occurred while adding the person [{}]-[{}] in discovery.'.format(
+                                    data['given_name'], data['family_name'],
                                 )
                             )
                         )
+
+        self.assertFalse(self.person_exists(data))
 
     def test_create_without_authentication(self):
         """ Verify authentication is required when creating a person. """
@@ -175,7 +184,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
-    def test_list_with_publihser_user(self):
+    def test_list_with_publisher_user(self):
         """ Verify the endpoint returns a list of all people with the publisher user """
         response = self.client.get(self.people_list_url)
         self.assertEqual(response.status_code, 200)
@@ -204,10 +213,14 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertListEqual(response.data['results'], self.serialize_person([person], many=True))
 
     def test_create_without_waffle_switch(self):
-        """ Verify endpoint shows error message if waffle switch is disabled. """
+        """ Verify endpoint proceeds if waffle switch is disabled. """
         toggle_switch('publish_person_to_marketing_site', False)
-        response = self.client.post(self.people_list_url, self._person_data(), format='json')
-        self.assertEqual(response.status_code, 400)
+        data = self._person_data()
+        with mock.patch.object(MarketingSitePeople, 'publish_person') as cm:
+            response = self.client.post(self.people_list_url, data, format='json')
+            self.assertEqual(cm.call_count, 0)
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(self.person_exists(data))
 
     def test_include_course_runs_staffed(self):
         """ Verify the endpoint shows linked course runs when asked. """
@@ -388,11 +401,15 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                     )
 
     def test_update_without_waffle_switch(self):
-        """ Verify update endpoint shows error message if waffle switch is disabled. """
+        """ Verify update endpoint proceeds if waffle switch is disabled. """
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         toggle_switch('publish_person_to_marketing_site', False)
-        response = self.client.patch(url, self._update_person_data(), format='json')
-        self.assertEqual(response.status_code, 400)
+        data = self._update_person_data()
+        with mock.patch.object(MarketingSitePeople, 'update_person') as cm:
+            response = self.client.patch(url, data, format='json')
+            self.assertEqual(cm.call_count, 0)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.person_exists(data))
 
     def test_update(self):
         """Verify that people data can be updated using endpoint."""

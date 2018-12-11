@@ -40,34 +40,25 @@ class PersonViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=person_data)
         serializer.is_valid(raise_exception=True)
 
-        if not waffle.switch_is_active('publish_person_to_marketing_site'):
-            return Response('publish_person_to_marketing_site is disabled.', status=status.HTTP_400_BAD_REQUEST)
         try:
-            marketing_person = MarketingSitePeople()
-            response = marketing_person.publish_person(
-                partner,
-                self._get_person_data(serializer)
+            self.perform_create(serializer)
+        except Exception:  # pylint: disable=broad-except
+            logger.exception(
+                'An error occurred while adding the person [%s]-[%s] in discovery.',
+                serializer.validated_data['given_name'], serializer.validated_data['family_name'],
             )
-            serializer.validated_data.pop('uuid')
-            serializer.validated_data['uuid'] = response['uuid']
+            return Response('Failed to add person data.', status=status.HTTP_400_BAD_REQUEST)
 
+        try:
+            if waffle.switch_is_active('publish_person_to_marketing_site'):
+                MarketingSitePeople().publish_person(serializer.instance)
         except (PersonToMarketingException, MarketingSiteAPIClientException):
+            serializer.instance.delete()
             logger.exception(
                 'An error occurred while adding the person [%s]-[%s] to the marketing site.',
                 serializer.validated_data['given_name'], serializer.validated_data['family_name']
             )
             return Response('Failed to add person data to the marketing site.', status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            self.perform_create(serializer)
-        except Exception:  # pylint: disable=broad-except
-            logger.exception(
-                'An error occurred while adding the person [%s]-[%s]-[%s] in discovery.',
-                serializer.validated_data['given_name'], serializer.validated_data['family_name'],
-                response['id']
-            )
-            marketing_person.delete_person(partner, response['id'])
-            return Response('Failed to add person data.', status=status.HTTP_400_BAD_REQUEST)
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -85,25 +76,8 @@ class PersonViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(instance, data=person_data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
-        if not waffle.switch_is_active('publish_person_to_marketing_site'):
-            return Response('publish_person_to_marketing_site is disabled.', status=status.HTTP_400_BAD_REQUEST)
-        try:
-            marketing_person = MarketingSitePeople()
-            marketing_person.update_person(
-                partner,
-                serializer.validated_data['uuid'],
-                self._get_person_data(serializer)
-            )
-
-        except (PersonToMarketingException, MarketingSiteAPIClientException):
-            logger.exception(
-                'An error occurred while updating the person [%s]-[%s] on the marketing site.',
-                serializer.validated_data['given_name'], serializer.validated_data['family_name']
-            )
-            return Response(
-                'Failed to update person data on the marketing site.',
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # Save a copy of the original data so we can revert to it if marketing update fails
+        original_data = self.get_serializer(instance).data
 
         try:
             self.perform_update(serializer)
@@ -114,14 +88,27 @@ class PersonViewSet(viewsets.ModelViewSet):
             )
             return Response('Failed to update person data.', status=status.HTTP_400_BAD_REQUEST)
 
+        try:
+            if waffle.switch_is_active('publish_person_to_marketing_site'):
+                MarketingSitePeople().update_person(instance)
+        except (PersonToMarketingException, MarketingSiteAPIClientException):
+            # First, roll back to previous version of this person
+            try:
+                self.perform_update(self.get_serializer(instance, data=original_data))
+            except Exception:  # pylint: disable=broad-except
+                pass  # ignore for now
+
+            logger.exception(
+                'An error occurred while updating the person [%s]-[%s] on the marketing site.',
+                serializer.validated_data['given_name'], serializer.validated_data['family_name']
+            )
+            return Response(
+                'Failed to update person data on the marketing site.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
-
-    def _get_person_data(self, serializer):
-        return {
-            'given_name': serializer.validated_data['given_name'],
-            'family_name': serializer.validated_data['family_name']
-        }
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all people. """
