@@ -1140,7 +1140,7 @@ MARKETING_SITE_API_PERSON_BODIES = [
         'field_person_image': {
             'url': 'https://www.edx.org/sites/default/files/person/image/agarwal-small.b3b3a106003d.jpg',
         },
-        'field_person_areas_of_expertise': [],
+        'field_person_areas_of_expertise': ['Circuits', 'edX'],
         'field_person_major_works': [],
         'field_person_positions': [
             {

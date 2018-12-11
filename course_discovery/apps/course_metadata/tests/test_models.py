@@ -1222,6 +1222,17 @@ class PersonSocialNetworkTests(TestCase):
             factories.PersonSocialNetworkFactory(person=self.person, type='facebook', title='@Mikix')
 
 
+class PersonAreaOfExpertiseTests(TestCase):
+    """Tests for the PersonAreaOfExpertise model."""
+
+    def setUp(self):
+        super(PersonAreaOfExpertiseTests, self).setUp()
+        self.area_of_expertise = factories.PersonAreaOfExpertiseFactory()
+
+    def test_str(self):
+        self.assertEqual(str(self.area_of_expertise), self.area_of_expertise.value)
+
+
 class SeatTypeTests(TestCase):
     """ Tests of the SeatType model. """
 
