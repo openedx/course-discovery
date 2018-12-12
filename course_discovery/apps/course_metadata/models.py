@@ -273,7 +273,6 @@ class Person(TimeStampedModel):
         },
     )
     slug = AutoSlugField(populate_from=('given_name', 'family_name'), editable=True)
-    profile_url = models.URLField(null=True, blank=True)
     email = models.EmailField(null=True, blank=True, max_length=255)
     major_works = models.TextField(
         blank=True,
@@ -304,6 +303,10 @@ class Person(TimeStampedModel):
             return full_name
         else:
             return self.given_name
+
+    @property
+    def profile_url(self):
+        return self.partner.marketing_site_url_root + 'bio/' + self.slug
 
     @property
     def get_profile_image_url(self):
@@ -1685,6 +1688,9 @@ class PersonSocialNetwork(TimeStampedModel):
 class PersonAreaOfExpertise(AbstractValueModel):
     """ Person Area of Expertise model. """
     person = models.ForeignKey(Person, related_name='areas_of_expertise')
+
+    class Meta(object):
+        verbose_name_plural = 'Person Areas of Expertise'
 
 
 class DataLoaderConfig(SingletonModel):
