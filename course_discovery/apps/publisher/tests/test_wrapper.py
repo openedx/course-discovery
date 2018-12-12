@@ -164,7 +164,7 @@ class CourseRunWrapperTests(TestCase):
     def test_course_staff(self):
         """Verify that the wrapper return staff list."""
         staff = PersonFactory()
-        staff.profile_image_url = None
+        staff.profile_image = None
         staff.save()
 
         # another staff with position by default staff has no position associated.

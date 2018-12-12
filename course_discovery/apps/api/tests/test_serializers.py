@@ -1297,12 +1297,6 @@ class MinimalPersonSerializerTests(TestCase):
         serializer = self.serializer(self.person, context=self.context)
         self.assertDictEqual(serializer.data, self.expected)
 
-    def test_profile_image_url_override(self):
-        self.person.profile_image_url = None
-        self.expected['profile_image_url'] = self.person.profile_image.url
-        serializer = self.serializer(self.person, context=self.context)
-        self.assertDictEqual(serializer.data, self.expected)
-
     def test_social_networks(self):
         facebook = PersonSocialNetworkFactory(person=self.person, type='facebook', title='')
         twitter = PersonSocialNetworkFactory(person=self.person, type='twitter', title='@MrTerry')
@@ -1635,7 +1629,7 @@ class PersonSearchModelSerializerTests(PersonSearchSerializerTest):
             'family_name': person.family_name,
             'bio': person.bio,
             'profile_image': image_field.to_representation(person.profile_image),
-            'profile_image_url': person.profile_image_url,
+            'profile_image_url': person.profile_image.url,
             'position': PositionSerializer(person.position).data,
             'works': [],
             'major_works': person.major_works,
