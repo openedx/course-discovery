@@ -207,7 +207,7 @@ class CourseRunWrapperTests(TestCase):
                 'image_url': staff_2.get_profile_image_url,
                 'position': position.title,
                 'organization': position.organization_name,
-                'profile_url': staff.profile_url,
+                'profile_url': staff_2.profile_url,
                 'social_networks': [
                     {
                         'id': facebook.id,

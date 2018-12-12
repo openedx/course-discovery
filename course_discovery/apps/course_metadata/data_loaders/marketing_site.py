@@ -266,7 +266,6 @@ class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         slug = data['url'].split('/')[-1]
         defaults = {
             'slug': slug,
-            'profile_url': data['url'],
         }
 
         Person.objects.filter(uuid=uuid, partner=self.partner).update(**defaults)

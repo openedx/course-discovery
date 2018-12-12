@@ -863,7 +863,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         )
         self.course_state.name = CourseStateChoices.Approved
         self.course_state.save()
-        self.course_run.staff.add(PersonFactory(profile_url='http://test-profile'))
+        self.course_run.staff.add(PersonFactory())
 
     def test_page_without_login(self):
         """ Verify that user can't access detail page when not logged in. """

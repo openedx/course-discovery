@@ -59,6 +59,11 @@ class PersonSocialNetworkInline(admin.TabularInline):
     extra = 0
 
 
+class PersonAreaOfExpertiseInline(admin.TabularInline):
+    model = PersonAreaOfExpertise
+    extra = 0
+
+
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     form = CourseAdminForm
@@ -275,7 +280,7 @@ class TopicAdmin(TranslatableAdmin):
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    inlines = (PositionInline, PersonSocialNetworkInline)
+    inlines = (PositionInline, PersonSocialNetworkInline, PersonAreaOfExpertiseInline)
     list_display = ('uuid', 'salutation', 'family_name', 'given_name', 'bio_language', 'slug',)
     list_filter = ('partner', 'bio_language')
     ordering = ('salutation', 'family_name', 'given_name', 'uuid',)
@@ -395,5 +400,5 @@ for model in (LevelType, Prerequisite,):
 
 # Register remaining models using basic ModelAdmin classes
 for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
-              DeletePersonDupsConfig, DrupalPublishUuidConfig, ProfileImageDownloadConfig):
+              DeletePersonDupsConfig, DrupalPublishUuidConfig, ProfileImageDownloadConfig, PersonAreaOfExpertise):
     admin.site.register(model)

@@ -279,7 +279,6 @@ class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         person = Person.objects.get(uuid=uuid, partner=self.partner)
         expected_values = {
             'slug': data['url'].split('/')[-1],
-            'profile_url': data['url'],
         }
 
         for field, value in expected_values.items():
