@@ -518,22 +518,18 @@ class PersonTests(TestCase):
 
     def test_get_profile_image_url(self):
         """
-        Verify that property returns profile_image_url if profile_image_url
-        exists other wise it returns uploaded image url.
+        Verify that property returns profile_image_url, which should always be the
+        profile_image.url.
         """
-        self.assertEqual(self.person.get_profile_image_url, self.person.profile_image_url)
+        self.assertEqual(self.person.get_profile_image_url, self.person.profile_image.url)
 
         # create another person with out profile_image_url
-        person = factories.PersonFactory(profile_image_url=None)
+        person = factories.PersonFactory()
         self.assertEqual(person.get_profile_image_url, person.profile_image.url)
 
         # create another person with out profile_image
         person = factories.PersonFactory(profile_image=None)
-        self.assertEqual(person.get_profile_image_url, person.profile_image_url)
-
-        # create another person with out profile_image_url and profile_image
-        person = factories.PersonFactory(profile_image_url=None, profile_image=None)
-        self.assertFalse(person.get_profile_image_url)
+        self.assertIsNone(person.get_profile_image_url)
 
     def test_str(self):
         """ Verify casting an instance to a string returns the person's full name. """

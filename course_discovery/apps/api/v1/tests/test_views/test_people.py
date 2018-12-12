@@ -421,8 +421,6 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         PersonSocialNetworkFactory(person=self.person, type='blog')
         removed_value = PersonAreaOfExpertiseFactory(person=self.person).value
 
-        # After updating, profile_image.url should overwrite profile_image_url
-        self.assertNotEqual(self.person.profile_image_url, self.person.profile_image.url)
         with mock.patch.object(MarketingSitePeople, 'update_person', return_value={}):
             response = self.client.patch(url, data, format='json')
             self.assertEqual(response.status_code, 200)
@@ -434,7 +432,6 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(updated_person.bio, data['bio'])
         self.assertEqual(updated_person.position.title, data['position']['title'])
         self.assertEqual(updated_person.major_works, data['major_works'])
-        self.assertEqual(updated_person.profile_image_url, updated_person.profile_image.url)
         self.assertListEqual(
             sorted([social_network.url for social_network in updated_person.person_networks.all()]),
             sorted([url_detailed['url'] for url_detailed in data['urls_detailed']])
@@ -482,19 +479,3 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         updated_person = Person.objects.get(id=self.person.id)
 
         self.assertEqual(updated_person.position.title, data['position']['title'])
-
-    def test_profile_image_url_not_set(self):
-        ''' Test that if profile_image_url is not set, it is left as None '''
-        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
-
-        data = self._update_person_data()
-        self.person.profile_image_url = None
-        self.person.save()
-
-        with mock.patch.object(MarketingSitePeople, 'update_person', return_value={}):
-            response = self.client.patch(url, data, format='json')
-            self.assertEqual(response.status_code, 200)
-
-        updated_person = Person.objects.get(id=self.person.id)
-
-        self.assertEqual(updated_person.profile_image_url, None)

@@ -311,15 +311,9 @@ class Person(TimeStampedModel):
 
     @property
     def get_profile_image_url(self):
-        # self.profile_image_url comes from Drupal which is currently the source
-        # of truth so we want to prefer that over self.profile_image.url which
-        # comes from discovery
-        if self.profile_image_url:
-            return self.profile_image_url
-        elif self.profile_image and hasattr(self.profile_image, 'url'):
+        if self.profile_image and hasattr(self.profile_image, 'url'):
             return self.profile_image.url
-        else:
-            return None
+        return None
 
 
 class Position(TimeStampedModel):

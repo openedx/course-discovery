@@ -100,7 +100,7 @@ class CourseRunTests(TestCase):
     @ddt.data('bio', 'profile_image')
     def test_with_in_valid_staff(self, field):
         """ Verify that property returns False staff has bio or image is missing."""
-        staff = PersonFactory(profile_image_url=None)
+        staff = PersonFactory(profile_image=None)
         self.course_run.staff.add(staff)
 
         setattr(staff, field, None)
