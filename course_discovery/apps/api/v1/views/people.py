@@ -8,7 +8,6 @@ from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import PageNumberPagination
-from course_discovery.apps.api.permissions import ReadOnlyByPublisherUser
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException, PersonToMarketingException
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
@@ -24,7 +23,7 @@ class PersonViewSet(viewsets.ModelViewSet):
     filter_class = filters.PersonFilter
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
-    permission_classes = (DjangoModelPermissions, ReadOnlyByPublisherUser,)
+    permission_classes = (DjangoModelPermissions,)
     queryset = serializers.PersonSerializer.prefetch_queryset()
     serializer_class = serializers.PersonSerializer
     pagination_class = PageNumberPagination

@@ -6,7 +6,6 @@ from mock import mock
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 
-from course_discovery.apps.api.permissions import ReadOnlyByPublisherUser
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.people import logger as people_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
@@ -14,10 +13,8 @@ from course_discovery.apps.course_metadata.models import Person, Position
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory,
-    PositionFactory
+    OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory
 )
-from course_discovery.apps.publisher.tests.factories import CourseRunFactory as PublisherCourseRunFactory
 
 User = get_user_model()
 
@@ -33,7 +30,6 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.target_permissions = Permission.objects.filter(
             codename__in=['add_person', 'change_person', 'delete_person']
         )
-        self.permisson_class = ReadOnlyByPublisherUser()
         self.internal_test_group = Group.objects.create(name='internal-test')
         self.internal_test_group.permissions.add(*self.target_permissions)
         self.user.groups.add(self.internal_test_group)
@@ -163,13 +159,6 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         assert response.status_code == 403
         assert Person.objects.count() == current_people_count
 
-    def test_get_single_person_without_publisher_user(self):
-        """ Verify the endpoint shows permission error for the details for a single person. """
-        self.user.groups.remove(self.internal_test_group)
-        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
-
     def test_get_single_person_with_publisher_user(self):
         """ Verify the endpoint returns the details for a single person. """
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
@@ -189,12 +178,6 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(self.people_list_url)
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_person(Person.objects.all(), many=True))
-
-    def test_list_without_publisher_user(self):
-        """ Verify the endpoint shows permission error when non-publisher user acccessed """
-        self.user.groups.remove(self.internal_test_group)
-        response = self.client.get(self.people_list_url)
-        self.assertEqual(response.status_code, 403)
 
     def test_list_different_partner(self):
         """ Verify the endpoint only shows people for the current partner. """
@@ -221,38 +204,6 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             self.assertEqual(cm.call_count, 0)
         self.assertEqual(response.status_code, 201)
         self.assertTrue(self.person_exists(data))
-
-    def test_include_course_runs_staffed(self):
-        """ Verify the endpoint shows linked course runs when asked. """
-        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
-        course_run = CourseRunFactory(course__partner=self.partner, staff=[self.person])
-
-        # Not present normally
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['course_runs_staffed'], [])
-
-        # But is present when asked
-        response = self.client.get(url + '?include_course_runs_staffed=1')
-        self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['course_runs_staffed'],
-                             self.serialize_minimal_course_run([course_run], many=True))
-
-    def test_include_publisher_course_runs_staffed(self):
-        """ Verify the endpoint shows linked publisher course runs when asked. """
-        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
-        course_run = PublisherCourseRunFactory(course__organizations=[self.organization], staff=[self.person])
-
-        # Not present normally
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['publisher_course_runs_staffed'], [])
-
-        # But is present when asked
-        response = self.client.get(url + '?include_publisher_course_runs_staffed=1')
-        self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['publisher_course_runs_staffed'],
-                             self.serialize_minimal_publisher_course_run([course_run], many=True))
 
     def _person_data(self):
         return {
