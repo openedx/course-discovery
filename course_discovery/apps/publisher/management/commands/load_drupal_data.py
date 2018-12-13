@@ -65,7 +65,7 @@ class DrupalCourseMarketingSiteDataLoader(CourseMarketingSiteDataLoader):
 
                             # Ingest the course and course runs into Publisher tables via the dataloader methods
                             logger.info('Processing Course [%s] for Publisher tables', course_run_key)
-                            process_course(course, True)
+                            process_course(course, True, course_run=course_run)
                         except AttributeError:
                             pass
                     else:
@@ -90,7 +90,7 @@ class DrupalCourseMarketingSiteDataLoader(CourseMarketingSiteDataLoader):
 
                     # Ingest the course and course runs into Publisher tables via the dataloader methods
                     logger.info('Processing Course [%s] for Publisher tables', course_run_key)
-                    process_course(course, True)
+                    process_course(course, True, course_run=course_run)
             else:
                 logger.info(
                     'Course_run [%s] has uuid [%s] already on course about page. No need to ingest',

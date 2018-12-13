@@ -21,7 +21,7 @@ def execute_query(start_id, end_id, create_course_run):
         process_course(course, create_course_run)
 
 
-def process_course(meta_data_course, create_course_run):
+def process_course(meta_data_course, create_course_run, course_run=None):
     """ Create or update the course."""
 
     # if course has more than 1 organization don't import that course. Just log the entry.
@@ -34,13 +34,13 @@ def process_course(meta_data_course, create_course_run):
         if not available_organization:
             return
 
-        create_or_update_course(meta_data_course, available_organization, create_course_run)
+        create_or_update_course(meta_data_course, available_organization, create_course_run, course_run=course_run)
 
     except:  # pylint: disable=bare-except
         logger.exception('Exception appear for course-id [%s].', meta_data_course.uuid)
 
 
-def create_or_update_course(meta_data_course, available_organization, create_course_run):
+def create_or_update_course(meta_data_course, available_organization, create_course_run, course_run=None):
 
     primary_subject = None
     secondary_subject = None
@@ -91,7 +91,7 @@ def create_or_update_course(meta_data_course, available_organization, create_cou
 
     if create_course_run:
         # create canonical course-run against the course.
-        create_course_runs(meta_data_course, publisher_course)
+        create_course_runs(meta_data_course, publisher_course, course_run=course_run)
 
 
 def transfer_course_image(meta_data_course, publisher_course):
@@ -116,53 +116,61 @@ def transfer_course_image(meta_data_course, publisher_course):
             )
 
 
-def create_course_runs(meta_data_course, publisher_course):
+def create_course_runs(meta_data_course, publisher_course, course_run=None):
+    # If we have a provided course run, update that in Publisher instead of the Canonical Run
+    if course_run:
+        create_course_run(publisher_course, course_run)
+    # If we only want to update the canonical course run for the course instead
+    else:
         # create or update canonical course-run for the course.
         canonical_course_run = meta_data_course.canonical_course_run
 
         if canonical_course_run and canonical_course_run.key:
-            defaults = {
-                'course': publisher_course,
-                'start': canonical_course_run.start, 'end': canonical_course_run.end,
-                'min_effort': canonical_course_run.min_effort, 'max_effort': canonical_course_run.max_effort,
-                'language': canonical_course_run.language, 'pacing_type': canonical_course_run.pacing_type,
-                'length': canonical_course_run.weeks_to_complete,
-                'card_image_url': canonical_course_run.card_image_url,
-                'lms_course_id': canonical_course_run.key,
-                'short_description_override': canonical_course_run.short_description_override
-            }
-
-            publisher_course_run, created = CourseRun.objects.update_or_create(
-                lms_course_id=canonical_course_run.key, defaults=defaults
-            )
-
-            # add many to many fields.
-            publisher_course_run.transcript_languages.add(*canonical_course_run.transcript_languages.all())
-            publisher_course_run.staff.add(*canonical_course_run.staff.all())
-            publisher_course_run.language = canonical_course_run.language
-
-            # Initialize workflow for Course-run.
-            if created:
-                state, created = CourseRunState.objects.get_or_create(course_run=publisher_course_run)
-                if created:
-                    state.approved_by_role = PublisherUserRole.ProjectCoordinator
-                    state.owner_role = PublisherUserRole.Publisher
-                    state.preview_accepted = True
-                    state.name = CourseRunStateChoices.Published
-                    state.save()
-
-                logger.info(
-                    'Import course-run with id [%s], lms_course_id [%s].',
-                    publisher_course_run.id, publisher_course_run.lms_course_id
-                )
-
-            # create seat against the course-run.
-            create_seats(canonical_course_run, publisher_course_run)
-
+            create_course_run(publisher_course, canonical_course_run)
         else:
             logger.warning(
                 'Canonical course-run not found for metadata course [%s].', meta_data_course.uuid
             )
+
+
+def create_course_run(publisher_course, course_run):
+    defaults = {
+        'course': publisher_course,
+        'start': course_run.start, 'end': course_run.end,
+        'min_effort': course_run.min_effort, 'max_effort': course_run.max_effort,
+        'language': course_run.language, 'pacing_type': course_run.pacing_type,
+        'length': course_run.weeks_to_complete,
+        'card_image_url': course_run.card_image_url,
+        'lms_course_id': course_run.key,
+        'short_description_override': course_run.short_description_override
+    }
+
+    publisher_course_run, created = CourseRun.objects.update_or_create(
+        lms_course_id=course_run.key, defaults=defaults
+    )
+
+    # add many to many fields.
+    publisher_course_run.transcript_languages.add(*course_run.transcript_languages.all())
+    publisher_course_run.staff.add(*course_run.staff.all())
+    publisher_course_run.language = course_run.language
+
+    # Initialize workflow for Course-run.
+    if created:
+        state, created = CourseRunState.objects.get_or_create(course_run=publisher_course_run)
+        if created:
+            state.approved_by_role = PublisherUserRole.ProjectCoordinator
+            state.owner_role = PublisherUserRole.Publisher
+            state.preview_accepted = True
+            state.name = CourseRunStateChoices.Published
+            state.save()
+
+        logger.info(
+            'Import course-run with id [%s], lms_course_id [%s].',
+            publisher_course_run.id, publisher_course_run.lms_course_id
+        )
+
+    # create seat against the course-run.
+    create_seats(course_run, publisher_course_run)
 
 
 def create_seats(metadata_course_run, publisher_course_run):
