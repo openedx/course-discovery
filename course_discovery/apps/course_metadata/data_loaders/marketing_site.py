@@ -249,30 +249,6 @@ class SponsorMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         return sponsor
 
 
-class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
-    @property
-    def node_type(self):
-        return 'person'
-
-    def get_query_kwargs(self):
-        kwargs = super(PersonMarketingSiteDataLoader, self).get_query_kwargs()
-        # NOTE (CCB): We need to include the nested field_collection_item data since that is where
-        # the positions are stored.
-        kwargs['load-entity-refs'] = 'file,field_collection_item'
-        return kwargs
-
-    def process_node(self, data):
-        uuid = UUID(data['uuid'])
-        slug = data['url'].split('/')[-1]
-        defaults = {
-            'slug': slug,
-        }
-
-        Person.objects.filter(uuid=uuid, partner=self.partner).update(**defaults)
-
-        logger.info('Processed person with UUID [%s].', uuid)
-
-
 class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
     LANGUAGE_MAP = {
         'English': 'en-us',
