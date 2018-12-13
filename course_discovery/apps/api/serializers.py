@@ -253,8 +253,6 @@ class PositionSerializer(serializers.ModelSerializer):
 class MinimalPersonSerializer(serializers.ModelSerializer):
     """
     Minimal serializer for the ``Person`` model.
-    This is suitable for public information about people. Anything vaguely PII or complicated should go in the
-    full serializer, which is normally better guarded behind auth.
     """
     position = PositionSerializer(required=False)
     profile_image_url = serializers.CharField(read_only=True, source='get_profile_image_url')
@@ -321,13 +319,6 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
 
 class PersonSerializer(MinimalPersonSerializer):
     """Full serializer for the ``Person`` model."""
-    course_runs_staffed = serializers.SerializerMethodField()
-    publisher_course_runs_staffed = serializers.SerializerMethodField()
-
-    class Meta(MinimalPersonSerializer.Meta):
-        fields = MinimalPersonSerializer.Meta.fields + (
-            'course_runs_staffed', 'publisher_course_runs_staffed',
-        )
 
     def validate(self, data):
         validated_data = super(PersonSerializer, self).validate(data)
@@ -403,24 +394,6 @@ class PersonSerializer(MinimalPersonSerializer):
         instance.save()
 
         return instance
-
-    def get_course_runs_staffed(self, obj):
-        if self.context.get('include_course_runs_staffed'):
-            return MinimalCourseRunSerializer(
-                obj.courses_staffed.all(),
-                context={
-                    'request': self.context.get('request'),
-                },
-                many=True,
-            ).data
-        else:
-            return []
-
-    def get_publisher_course_runs_staffed(self, obj):
-        if self.context.get('include_publisher_course_runs_staffed'):
-            return MinimalPublisherCourseRunSerializer(obj.publisher_course_runs_staffed.all(), many=True).data
-        else:
-            return []
 
 
 class EndorsementSerializer(serializers.ModelSerializer):
