@@ -188,10 +188,12 @@ class TestLoadDrupalData(TestCase):
             set(config.course_run_ids.split(',')),
         )
 
-        # Need to mock this method so that the GET isn't sent out to the test data server
-        with mock.patch('course_discovery.apps.publisher.dataloader.create_courses.'
-                        'transfer_course_image'):
-            data_loader.process_node(mock_data.UNIQUE_MARKETING_SITE_API_COURSE_BODIES[0])
+        with mock.patch('course_discovery.apps.publisher.signals.create_course_run_in_studio_receiver') as mock_signal:
+            # Need to mock this method so that the GET isn't sent out to the test data server
+            with mock.patch('course_discovery.apps.publisher.dataloader.create_courses.'
+                            'transfer_course_image'):
+                data_loader.process_node(mock_data.UNIQUE_MARKETING_SITE_API_COURSE_BODIES[0])
+                mock_signal.assert_not_called()
 
         course_metadata_course_run = CourseMetadataCourseRun.objects.get(key=data.get('field_course_id'))
         self.assertIsNotNone(course_metadata_course_run)

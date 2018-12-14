@@ -13,7 +13,8 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import CourseMarketingSiteDataLoader
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
-from course_discovery.apps.publisher.models import DrupalLoaderConfig
+from course_discovery.apps.publisher.models import CourseRun, DrupalLoaderConfig
+from course_discovery.apps.publisher.signals import create_course_run_in_studio_receiver
 
 logger = logging.getLogger(__name__)
 
@@ -118,6 +119,8 @@ class Command(BaseCommand):
         for model in apps.get_app_config('course_metadata').get_models():
             for signal in (post_save, post_delete):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
+        # Disable the post save as we do NOT want to publish these courses to Studio
+        post_save.disconnect(receiver=create_course_run_in_studio_receiver, sender=CourseRun)
 
         config = DrupalLoaderConfig.get_solo()
 
