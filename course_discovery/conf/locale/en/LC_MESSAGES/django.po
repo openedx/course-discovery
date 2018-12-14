@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-17 21:35+0000\n"
+"POT-Creation-Date: 2018-12-18 15:34+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -286,82 +286,90 @@ msgstr ""
 msgid "Programs can only be activated if they have a banner image."
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:21
+#: apps/course_metadata/management/commands/delete_person_dups.py:22
 msgid "Delete duplicate persons in course_metadata."
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:26
+#: apps/course_metadata/management/commands/delete_person_dups.py:27
 msgid "PERSON"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:28
-msgid "People to delete, in UUID:TARGET_UUID form."
-msgstr ""
-
-#: apps/course_metadata/management/commands/delete_person_dups.py:32
-msgid "PARTNER"
+#: apps/course_metadata/management/commands/delete_person_dups.py:29
+msgid ""
+"People to delete, in UUID:TARGET_UUID form. If delete-only is True, only "
+"UUID is required."
 msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:33
+msgid "PARTNER"
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:34
 msgid "Short code for a partner."
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:38
+#: apps/course_metadata/management/commands/delete_person_dups.py:39
 msgid "Actually commit the changes to the database."
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:43
+#: apps/course_metadata/management/commands/delete_person_dups.py:44
+msgid ""
+"Boolean to distinguish between deleting and moving information to a target "
+"person                 or only deleting people. Default is False."
+msgstr ""
+
+#: apps/course_metadata/management/commands/delete_person_dups.py:50
 msgid ""
 "Use arguments from the DeletePersonDupsConfig model instead of the command "
 "line."
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:60
+#: apps/course_metadata/management/commands/delete_person_dups.py:68
 msgid "Malformed argument \"{}\", should be in form of UUID:TARGET_UUID"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:62
+#: apps/course_metadata/management/commands/delete_person_dups.py:70
 msgid "Malformed argument \"{}\", UUIDs cannot be equal"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:85
+#: apps/course_metadata/management/commands/delete_person_dups.py:94
 msgid "Deleting"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:85
+#: apps/course_metadata/management/commands/delete_person_dups.py:94
 msgid "Would delete"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:86
+#: apps/course_metadata/management/commands/delete_person_dups.py:95
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:16
 msgid "Name"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:87
+#: apps/course_metadata/management/commands/delete_person_dups.py:96
 msgid "Endorsements"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:88
+#: apps/course_metadata/management/commands/delete_person_dups.py:97
 msgid "Programs"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:89
+#: apps/course_metadata/management/commands/delete_person_dups.py:98
 msgid "Course Runs"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:90
+#: apps/course_metadata/management/commands/delete_person_dups.py:100
 msgid "Publisher Course Runs"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:91
+#: apps/course_metadata/management/commands/delete_person_dups.py:103
 msgid "Target"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:140
+#: apps/course_metadata/management/commands/delete_person_dups.py:154
 msgid "You must specify --partner-code"
 msgstr ""
 
-#: apps/course_metadata/management/commands/delete_person_dups.py:143
+#: apps/course_metadata/management/commands/delete_person_dups.py:157
 msgid "You must specify at least one person"
 msgstr ""
 
