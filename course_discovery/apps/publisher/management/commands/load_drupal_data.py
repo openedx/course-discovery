@@ -49,7 +49,6 @@ class DrupalCourseMarketingSiteDataLoader(CourseMarketingSiteDataLoader):
         if course_run_key in self.course_ids and is_unarchived:
             if not data.get('field_course_uuid'):
                 course_run = self.get_course_run(data)
-
                 if course_run:
                     self.update_course_run(course_run, data)
                     if self.get_course_run_status(data) == CourseRunStatus.Published:
@@ -155,3 +154,4 @@ class Command(BaseCommand):
             set(config.course_run_ids.split(',')),
             **kwargs
         )
+        post_save.connect(receiver=create_course_run_in_studio_receiver, sender=CourseRun)
