@@ -402,7 +402,7 @@ class PersonSerializer(MinimalPersonSerializer):
 
         # Overwrite the Drupal profile_image_url (if one exists) with the publisher image
         # as we move to publisher being source of truth
-        if instance.profile_image_url:
+        if instance.profile_image_url and instance.profile_image:
             instance.profile_image_url = instance.profile_image.url
 
         instance.save()
