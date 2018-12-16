@@ -16,8 +16,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-06 20:32+0000\n"
-"PO-Revision-Date: 2018-12-08 10:03+0000\n"
+"POT-Creation-Date: 2018-12-12 18:44+0000\n"
+"PO-Revision-Date: 2018-12-14 10:43+0000\n"
 "Last-Translator: 微 李 <w.li@eliteu.com.cn>\n"
 "Language-Team: Chinese (China) (http://www.transifex.com/open-edx/edx-platform/language/zh_CN/)\n"
 "MIME-Version: 1.0\n"
@@ -58,67 +58,76 @@ msgstr "添加工作人员"
 msgid "Please upload a instructor image."
 msgstr "请上传一张导师照片。"
 
-#: static/js/publisher/instructors.js:99 static/js/publisher/preview-url.js:12
+#: static/js/publisher/instructors.js:107
+#: static/js/publisher/preview-url.js:12
 msgid "Something went wrong!"
 msgstr "出错了!"
 
-#: static/js/publisher/instructors.js:127
+#: static/js/publisher/instructors.js:138
 msgid "Type"
 msgstr "类型"
 
-#: static/js/publisher/instructors.js:131
+#: static/js/publisher/instructors.js:142
 msgid "Facebook"
 msgstr "脸书"
 
-#: static/js/publisher/instructors.js:132
+#: static/js/publisher/instructors.js:143
 msgid "Twitter"
 msgstr "推特"
 
-#: static/js/publisher/instructors.js:133
+#: static/js/publisher/instructors.js:144
 msgid "Blog"
 msgstr "博客"
 
-#: static/js/publisher/instructors.js:134
+#: static/js/publisher/instructors.js:145
 msgid "Other"
 msgstr "其他"
 
-#: static/js/publisher/instructors.js:137
+#: static/js/publisher/instructors.js:148
 msgid "Title"
 msgstr "标题"
 
-#: static/js/publisher/instructors.js:138
+#: static/js/publisher/instructors.js:149
 msgid "optional"
 msgstr "选填"
 
-#: static/js/publisher/instructors.js:141
+#: static/js/publisher/instructors.js:152
 msgid "URL"
 msgstr "URL 地址"
 
-#: static/js/publisher/instructors.js:169
+#: static/js/publisher/instructors.js:180
 msgid "Please specify a type and url for each social link."
 msgstr "请为每个社交链接指定一个类型和url。"
 
-#: static/js/publisher/instructors.js:180
+#: static/js/publisher/instructors.js:191
 msgid "Social links with the same type must have different titles."
 msgstr "同一类型的社交链接必须有不同的标题。"
 
-#: static/js/publisher/instructors.js:231
+#: static/js/publisher/instructors.js:222
+msgid "Area of Expertise"
+msgstr "专业"
+
+#: static/js/publisher/instructors.js:243
+msgid "Please specify a value for each area of expertise."
+msgstr "请为每个专业指定数值"
+
+#: static/js/publisher/instructors.js:290
 msgid "The image size must be smaller than 256kb"
 msgstr "照片文件大小必须小于256kb"
 
-#: static/js/publisher/instructors.js:242
+#: static/js/publisher/instructors.js:301
 msgid "The image dimensions must be "
 msgstr "图像尺寸必须是"
 
-#: static/js/publisher/instructors.js:255
+#: static/js/publisher/instructors.js:314
 msgid " Unsupported Image extension"
 msgstr "不支持的照片格式"
 
-#: static/js/publisher/instructors.js:372
+#: static/js/publisher/instructors.js:431
 msgid "Update staff member"
 msgstr "更新工作人员"
 
-#: static/js/publisher/instructors.js:373
+#: static/js/publisher/instructors.js:432
 msgid "Update Instructor"
 msgstr "更新导师"
 
