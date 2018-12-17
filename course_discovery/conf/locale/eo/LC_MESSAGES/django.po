@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-12 18:44+0000\n"
+"POT-Creation-Date: 2018-12-17 21:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -141,6 +141,17 @@ msgstr ""
 "Çönfïgüré thé märkétïng sïté ÛRLs thät wïll ßé üséd tö rétrïévé dätä änd "
 "çréäté ÛRLs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
+#: apps/core/admin.py
+msgid "Analytics Configuration"
+msgstr "Ànälýtïçs Çönfïgürätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/core/admin.py
+msgid ""
+"Configure the analytics API that will be used to retrieve enrollment data"
+msgstr ""
+"Çönfïgüré thé änälýtïçs ÀPÌ thät wïll ßé üséd tö rétrïévé énröllmént dätä "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
 #: apps/core/forms.py
@@ -242,6 +253,14 @@ msgstr "Stüdïö ÛRL Ⱡ'σяєм ιρѕυм ∂σłσ#"
 #: apps/core/models.py
 msgid "LMS URL"
 msgstr "LMS ÛRL Ⱡ'σяєм ιρѕυм #"
+
+#: apps/core/models.py
+msgid "Analytics API URL"
+msgstr "Ànälýtïçs ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/core/models.py
+msgid "Analytics Access Token"
+msgstr "Ànälýtïçs Àççéss Tökén Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: apps/core/models.py
 msgid "Partner"
