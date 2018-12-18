@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 IMAGE_TYPES = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
+    'image/gif': 'gif',
 }
 
 
