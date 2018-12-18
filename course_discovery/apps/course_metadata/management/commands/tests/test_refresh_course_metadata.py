@@ -9,6 +9,7 @@ from django.test import TransactionTestCase
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
+from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
 from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
 )
@@ -38,6 +39,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
             (OrganizationsApiDataLoader, partner.organizations_api_url, None),
             (CoursesApiDataLoader, partner.courses_api_url, None),
+            (AnalyticsAPIDataLoader, partner.analytics_url, None),
             (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
             (ProgramsApiDataLoader, partner.programs_api_url, None),
         ]
@@ -208,6 +210,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                     CourseMarketingSiteDataLoader,
                     OrganizationsApiDataLoader,
                     CoursesApiDataLoader,
+                    AnalyticsAPIDataLoader,
                     EcommerceApiDataLoader,
                     ProgramsApiDataLoader,
                 )

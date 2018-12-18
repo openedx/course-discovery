@@ -13,6 +13,7 @@ from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
 from course_discovery.apps.core.models import Partner
+from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
 from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
 )
@@ -148,6 +149,7 @@ class Command(BaseCommand):
                 ),
                 (
                     (CoursesApiDataLoader, partner.courses_api_url, max_workers),
+                    (AnalyticsAPIDataLoader, partner.analytics_url, max_workers),
                 ),
                 (
                     (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
@@ -160,6 +162,7 @@ class Command(BaseCommand):
                     with concurrent.futures.ProcessPoolExecutor() as executor:
                         for loader_class, api_url, max_workers in stage:
                             if api_url:
+                                logger.info('Executing Loader [{}]'.format(api_url))
                                 executor.submit(
                                     execute_parallel_loader,
                                     loader_class,
@@ -175,6 +178,7 @@ class Command(BaseCommand):
                 # Flatten pipeline and run serially.
                 for loader_class, api_url, max_workers in itertools.chain(*(stage for stage in pipeline)):
                     if api_url:
+                        logger.info('Executing Loader [{}]'.format(api_url))
                         execute_loader(
                             loader_class,
                             partner,
