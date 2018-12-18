@@ -21,6 +21,8 @@ class MarketingSitePeople(object):
     def _get_node_data(self, person):
         return {
             'field_person_slug': person.slug,
+            'field_person_first_middle_name': person.given_name,
+            'field_person_last_name': person.family_name,
             'title': person.full_name,
             'type': 'person',
         }
