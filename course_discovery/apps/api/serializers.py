@@ -400,8 +400,12 @@ class PersonSerializer(MinimalPersonSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
+        instance.save()
+
+        # The following code should be removed at the completion of removing profile_image_url
         # Overwrite the Drupal profile_image_url (if one exists) with the publisher image
-        # as we move to publisher being source of truth
+        # as we move to publisher being source of truth.
+        # We have to do this after the save so we get the updated image URL from profile_image
         if instance.profile_image_url and instance.profile_image:
             instance.profile_image_url = instance.profile_image.url
 
