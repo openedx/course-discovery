@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import re
 
 import ddt
@@ -32,6 +34,22 @@ class UploadToFieldNamePathTests(TestCase):
         upload_path = upload_to(self.program, 'name' + ext)
         regex = re.compile(path + str(getattr(self.program, field)) + '-[a-f0-9]{12}' + ext)
         self.assertTrue(regex.match(upload_path))
+
+
+@ddt.ddt
+class UslugifyTests(TestCase):
+    """
+    Test the utiltity function uslugify
+    """
+    @ddt.data(
+        ('技研究', 'ji-yan-jiu'),
+        ('عائشة', 'ysh'),
+        ('TWO WORDS', 'two-words'),
+    )
+    @ddt.unpack
+    def test_uslugify(self, string, expected):
+        output = utils.uslugify(string)
+        self.assertEqual(output, expected)
 
 
 class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):

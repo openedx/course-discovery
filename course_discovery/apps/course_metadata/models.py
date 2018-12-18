@@ -12,7 +12,6 @@ from django.db import models, transaction
 from django.db.models.functions import Lower
 from django.db.models.query_utils import Q
 from django.utils.functional import cached_property
-from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
@@ -31,7 +30,9 @@ from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
-from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath, clean_query, custom_render_variations
+from course_discovery.apps.course_metadata.utils import (
+    UploadToFieldNamePath, clean_query, custom_render_variations, uslugify
+)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
@@ -110,7 +111,7 @@ class Subject(TranslatableModel, TimeStampedModel):
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
     banner_image_url = models.URLField(blank=True, null=True)
     card_image_url = models.URLField(blank=True, null=True)
-    slug = AutoSlugField(populate_from='name', editable=True, blank=True,
+    slug = AutoSlugField(populate_from='name', editable=True, blank=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
 
     partner = models.ForeignKey(Partner)
@@ -148,7 +149,7 @@ class Topic(TranslatableModel, TimeStampedModel):
     """ Topic model. """
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
     banner_image_url = models.URLField(blank=True, null=True)
-    slug = AutoSlugField(populate_from='name', editable=True, blank=True,
+    slug = AutoSlugField(populate_from='name', editable=True, blank=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
 
     partner = models.ForeignKey(Partner)
@@ -272,7 +273,7 @@ class Person(TimeStampedModel):
             'medium': (110, 110),
         },
     )
-    slug = AutoSlugField(populate_from=('given_name', 'family_name'), editable=True)
+    slug = AutoSlugField(populate_from=('given_name', 'family_name'), editable=True, slugify_function=uslugify)
     email = models.EmailField(null=True, blank=True, max_length=255)
     major_works = models.TextField(
         blank=True,
@@ -378,7 +379,7 @@ class Course(TimeStampedModel):
         },
         help_text=_('Add the course image')
     )
-    slug = AutoSlugField(populate_from='key', editable=True)
+    slug = AutoSlugField(populate_from='key', editable=True, slugify_function=uslugify)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
     learner_testimonials = models.TextField(default=None, null=True, blank=True)
@@ -842,7 +843,7 @@ class CourseRun(TimeStampedModel):
             if not self.slug:
                 # If we are publishing this object to marketing site,
                 # let's make sure slug is defined
-                self.slug = slugify(self.title)
+                self.slug = uslugify(self.title)
 
             with transaction.atomic():
                 super(CourseRun, self).save(*args, **kwargs)
@@ -859,7 +860,7 @@ class CourseRun(TimeStampedModel):
 
 class SeatType(TimeStampedModel):
     name = models.CharField(max_length=64, unique=True)
-    slug = AutoSlugField(populate_from='name')
+    slug = AutoSlugField(populate_from='name', slugify_function=uslugify)
 
     def __str__(self):
         return self.name
@@ -984,7 +985,7 @@ class ProgramType(TimeStampedModel):
         },
         help_text=_('Please provide an image file with transparent background'),
     )
-    slug = AutoSlugField(populate_from='name', editable=True, unique=True,
+    slug = AutoSlugField(populate_from='name', editable=True, unique=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
 
     def __str__(self):

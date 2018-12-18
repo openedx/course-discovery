@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import datetime
 import itertools
 import uuid
@@ -508,6 +510,11 @@ class PersonTests(TestCase):
         self.person.family_name = None
         expected = self.person.given_name
         self.assertEqual(self.person.full_name, expected)
+
+    def test_unicode_slug(self):
+        """ Verify the slug is reasonable with a unicode name. """
+        self.person = factories.PersonFactory(given_name='商汤科', family_name='')
+        self.assertEqual(self.person.slug, 'shang-tang-ke')
 
     def test_get_profile_image_url(self):
         """

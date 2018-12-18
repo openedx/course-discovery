@@ -4,14 +4,13 @@ from urllib.parse import urljoin
 
 import waffle
 from bs4 import BeautifulSoup
-from django.utils.text import slugify
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.exceptions import (
     AliasCreateError, AliasDeleteError, FormRetrievalError, NodeCreateError, NodeDeleteError, NodeEditError,
     NodeLookupError
 )
-from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
+from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient, uslugify
 
 logger = logging.getLogger(__name__)
 
@@ -426,7 +425,7 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
                     self.edit_node(node_id, node_data)
 
             if node_id:
-                self.get_and_delete_alias(slugify(obj.title))
+                self.get_and_delete_alias(uslugify(obj.title))
                 self.update_node_alias(obj, node_id, previous_obj)
 
     def serialize_obj(self, obj):
