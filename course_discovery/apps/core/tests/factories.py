@@ -51,6 +51,8 @@ class PartnerFactory(factory.DjangoModelFactory):
     marketing_site_url_root = factory.Faker('url')
     marketing_site_api_username = factory.Faker('user_name')
     marketing_site_api_password = factory.Faker('password')
+    analytics_url = factory.Faker('url')
+    analytics_token = factory.Faker('sha256')
     oidc_url_root = factory.Faker('url')
     oidc_key = factory.Faker('sha256')
     oidc_secret = factory.Faker('sha256')

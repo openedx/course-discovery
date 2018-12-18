@@ -737,6 +737,39 @@ PROGRAMS_API_BODIES = [
     },
 ]
 
+ANALYTICS_API_COURSE_SUMMARIES_BODIES = [
+    {
+        'course_id': '00test/00test/00test',
+        'count': '5',
+        'recent_count_change': '2'
+    },
+    {
+        'course_id': '00test/00test/01test',
+        'count': '6',
+        'recent_count_change': '1'
+    },
+    {
+        'course_id': '00test/01test/00test',
+        'count': '6',
+        'recent_count_change': '1'
+    },
+    {
+        'course_id': '00test/01test/01test',
+        'count': '6',
+        'recent_count_change': '1'
+    },
+    {
+        'course_id': '00test/01test/02test',
+        'count': '11',
+        'recent_count_change': '4'
+    },
+    {
+        'course_id': '00test/02test/00test',
+        'count': '111111',
+        'recent_count_change': '111'
+    }
+]
+
 MARKETING_SITE_API_XSERIES_BODIES = [
     {
         'body': {
