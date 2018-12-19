@@ -316,7 +316,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
         return self.prepare_authoring_organizations(obj) + self.prepare_credit_backing_organizations(obj)
 
     def prepare_subject_uuids(self, obj):
-        return set([str(subject.uuid) for course in obj.courses.all() for subject in course.subjects.all()])
+        return [str(subject.uuid) for subject in obj.subjects]
 
     def prepare_staff_uuids(self, obj):
         return set([str(staff.uuid) for course_run in obj.course_runs for staff in course_run.staff.all()])

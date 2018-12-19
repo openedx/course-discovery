@@ -1,7 +1,7 @@
 import datetime
 import itertools
 import logging
-from collections import defaultdict
+from collections import Counter, defaultdict
 from urllib.parse import urljoin
 from uuid import uuid4
 
@@ -1160,9 +1160,19 @@ class Program(TimeStampedModel):
 
     @property
     def subjects(self):
-        subjects = [course.subjects.all() for course in self.courses.all()]
-        subjects = itertools.chain.from_iterable(subjects)
-        return set(subjects)
+        """
+        :return: The list of subjects; the first subject should be the most common primary subjects of its courses,
+        other subjects should be collected and ranked by frequency among the courses.
+        """
+        primary_subjects = []
+        course_subjects = []
+        for course in self.courses.all():
+            subjects = course.subjects.all()
+            primary_subjects.extend(subjects[:1])  # "Primary" subject is the first one
+            course_subjects.extend(subjects)
+        common_primary = [s for s, _ in Counter(primary_subjects).most_common()][:1]
+        common_others = [s for s, _ in Counter(course_subjects).most_common() if s not in common_primary]
+        return common_primary + common_others
 
     @property
     def seats(self):

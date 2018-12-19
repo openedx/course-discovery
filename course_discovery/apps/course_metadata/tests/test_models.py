@@ -626,9 +626,9 @@ class ProgramTests(TestCase):
     def setUp(self):
         super(ProgramTests, self).setUp()
         transcript_languages = LanguageTag.objects.all()[:2]
-        subjects = factories.SubjectFactory.create_batch(2)
+        self.subjects = factories.SubjectFactory.create_batch(3)
         self.course_runs = factories.CourseRunFactory.create_batch(
-            3, transcript_languages=transcript_languages, course__subjects=subjects,
+            3, transcript_languages=transcript_languages, course__subjects=self.subjects,
             weeks_to_complete=2)
         self.courses = [course_run.course for course_run in self.course_runs]
         self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
@@ -999,13 +999,21 @@ class ProgramTests(TestCase):
         self.assertGreater(len(actual_transcript_languages), 0)
         self.assertEqual(actual_transcript_languages, expected_transcript_languages)
 
-    def test_subjects(self):
-        expected_subjects = itertools.chain.from_iterable([list(course.subjects.all()) for course in self.courses])
-        expected_subjects = set(expected_subjects)
-        actual_subjects = self.program.subjects
+    def test_subject_order(self):
+        """
+        Verify the program's subjects are in order of frequency among courses, with primary subjects coming first
+        """
+        course1 = factories.CourseFactory(subjects=self.subjects[:1])  # A
+        course2 = factories.CourseFactory(subjects=self.subjects[:2])  # A, B
+        course3 = factories.CourseFactory(subjects=self.subjects[::-1])  # C, B, A
 
-        self.assertGreater(len(actual_subjects), 0)
-        self.assertEqual(actual_subjects, expected_subjects)
+        program1 = factories.ProgramFactory(courses=[course1, course2, course3])
+        self.assertEqual(program1.subjects, self.subjects)
+
+        course4 = factories.CourseFactory(subjects=self.subjects[::-2])  # C, A; these make C the most common primary
+        course5 = factories.CourseFactory(subjects=self.subjects[::-2])  # C, A; and A the most common overall in p2
+        program2 = factories.ProgramFactory(courses=[course1, course2, course3, course4, course5])
+        self.assertEqual(program2.subjects, [self.subjects[2], self.subjects[0], self.subjects[1]])
 
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
