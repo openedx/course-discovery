@@ -1093,6 +1093,252 @@ MARKETING_SITE_API_SPONSOR_BODIES = [
     },
 ]
 
+MARKETING_SITE_API_PERSON_BODIES = [
+    {
+        'status': '1',
+        'field_person_first_middle_name': 'Michael',
+        'field_person_last_name': 'Cima',
+        'field_person_honorifics': None,
+        'field_person_salutation': None,
+        'field_person_position': None,
+        'field_person_role': '1',
+        'field_person_resume': {
+            'value': '<p>Prof. Cima has been a faculty member at MIT for 29 years. He earned a B.S. in '
+                     'chemistry and a Ph.D. in chemical engineering, both from the University of California at '
+                     'Berkeley. He was elected a Fellow of the American Ceramics Society in 1997 and was elected to '
+                     'the National Academy of Engineering in 2011. Prof. Cima\u0027s research concerns advanced '
+                     'technology for medical devices that are used for drug delivery and diagnostics, high-throughput '
+                     'development methods for formulations of materials and pharmaceutical formulations. Prof. Cima '
+                     'is an author of over 250 publications and fifty US patents, a co-inventor of MIT\u2019s '
+                     'three-dimensional printing process, and a co-founder of four companies.</p>',
+            'format': 'standard_html'
+        },
+        'field_person_image': {
+            'url': 'https://www.edx.org/sites/default/files/person/image/professor-cima.11a117198ae0.jpg',
+        },
+        'field_person_areas_of_expertise': [],
+        'field_person_major_works': [],
+        'field_person_positions': [
+            {
+                'field_person_position_tiltes': [
+                    'Faculty'
+                ],
+                'field_person_position_org_link': {
+                    'title': 'MIT',
+                    'url': 'https://www.edx.org/school/mitx'
+                },
+                'item_id': '11961',
+                'revision_id': '29431',
+                'field_name': 'field_person_positions',
+                'archived': '0',
+                'uuid': '796ec296-d08b-44a0-b817-09692ef815a5',
+                'url': 'https://www.edx.org/field-collection/field-person-positions/11961',
+            }
+        ],
+        'field_person_social_links': [
+            {
+                'field_person_social_link': {
+                    'title': 'Website',
+                    'url': 'http://ki.mit.edu/people/faculty/cima'
+                },
+                'field_person_social_link_type': 'generic',
+                'item_id': '5711',
+                'revision_id': '7761',
+                'field_name': 'field_person_social_links',
+                'archived': '0',
+                'uuid': 'da41b1e9-da0b-49e3-b207-f619f166b0e8',
+                'url': 'https://www.edx.org/field-collection/field-person-social-links/5711',
+            }
+        ],
+        'type': 'person',
+        'title': 'Michael Cima',
+        'url': 'https://www.edx.org/bio/michael-cima',
+        'uuid': '9569e046-e090-40ca-afb0-96b0a68cba31',
+    },
+    {
+        'status': '1',
+        'field_person_first_middle_name': 'Anant',
+        'field_person_last_name': 'Agarwal',
+        'field_person_honorifics': None,
+        'field_person_salutation': None,
+        'field_person_position': None,
+        'field_person_role': '1',
+        'field_person_resume': {
+            'value': '<p>CEO of edX and Professor of Electrical Engineering and Computer Science at MIT. '
+                     'His research focus is in parallel computer architectures and cloud software systems, and he is '
+                     'a founder of several successful startups, including Tilera, a company that produces scalable '
+                     'multicore processors. Prof. Agarwal won MIT\u2019s Smullin and Jamieson prizes for teaching and '
+                     'co-authored the course textbook \u201cFoundations of Analog and Digital Electronic Circuits.'
+                     '\u201d</p>',
+            'format': 'standard_html'
+        },
+        'field_person_image': {
+            'url': 'https://www.edx.org/sites/default/files/person/image/agarwal-small.b3b3a106003d.jpg',
+        },
+        'field_person_areas_of_expertise': ['Circuits', 'edX'],
+        'field_person_major_works': [],
+        'field_person_positions': [
+            {
+                'field_person_position_tiltes': [
+                    'CEO'
+                ],
+                'field_person_position_org_link': {
+                    'title': 'edX',
+                    'url': 'http://www.edx.org/school/edx/'
+                },
+                'item_id': '11966',
+                'revision_id': '29436',
+                'field_name': 'field_person_positions',
+                'archived': '0',
+                'uuid': '0601fd65-7a53-4552-b061-8082bccde4c3',
+                'url': 'https://www.edx.org/field-collection/field-person-positions/11966',
+            },
+            {
+                'field_person_position_tiltes': [
+                    'Professor, Electrical Engineering and Computer Science'
+                ],
+                'field_person_position_org_link': {
+                    'title': 'MIT',
+                    'url': 'http://www.edx.org/school/mitx'
+                },
+                'item_id': '11971',
+                'revision_id': '29441',
+                'field_name': 'field_person_positions',
+                'archived': '0',
+                'uuid': 'cfc7f5f7-9668-474e-8349-e4e21c468da3',
+                'url': 'https://www.edx.org/field-collection/field-person-positions/11971',
+            }
+        ],
+        'field_person_social_links': [
+            {
+                'field_person_social_link': [],
+                'field_person_social_link_type': 'generic',
+                'item_id': '11976',
+                'revision_id': '29446',
+                'field_name': 'field_person_social_links',
+                'archived': '0',
+                'uuid': 'd22f1705-71b2-4644-95c8-afea9277ea6c',
+                'url': 'https://www.edx.org/field-collection/field-person-social-links/11976',
+            }
+        ],
+        'type': 'person',
+        'title': 'Anant Agarwal',
+        'url': 'https://www.edx.org/bio/anant-agarwal-0',
+        'uuid': '352ea90b-7b9a-49a2-ba4f-165cbf6a3636',
+    },
+    {
+        'status': '0',
+        'field_person_first_middle_name': 'No',
+        'field_person_last_name': 'Position',
+        'field_person_honorifics': None,
+        'field_person_salutation': None,
+        'field_person_position': None,
+        'field_person_role': '1',
+        'field_person_resume': [],
+        'field_person_image': {
+            'url': 'https://www.edx.org/sites/default/files/person/image/positionless.jpg',
+        },
+        'field_person_areas_of_expertise': [],
+        'field_person_major_works': [],
+        'field_person_positions': [],
+        'field_person_social_links': [],
+        'type': 'person',
+        'title': 'Positionless',
+        'url': 'https://www.edx.org/bio/positionless',
+        'uuid': '352ea90b-7b9a-49a2-ba4f-abccbf6a3636',
+    },
+    {
+        'status': '0',
+        'field_person_first_middle_name': 'No',
+        'field_person_last_name': 'Title',
+        'field_person_honorifics': None,
+        'field_person_salutation': None,
+        'field_person_position': None,
+        'field_person_role': '1',
+        'field_person_resume': [],
+        'field_person_image': {
+            'url': 'https://www.edx.org/sites/default/files/person/image/titleless.jpg',
+        },
+        'field_person_areas_of_expertise': [],
+        'field_person_major_works': {
+            'value': 'Published books:<br/>\nBook1<br/>\nBook2',
+            'format': 'basic_html'
+        },
+        'field_person_positions': [
+            {
+                'field_person_position_tiltes': [],
+                'field_person_position_org_link': {
+                    'title': 'edX',
+                    'url': 'http://www.edx.org'
+                },
+            }
+        ],
+        'field_person_social_links': [
+            {
+                'field_person_social_link': {
+                    'title': 'Website',
+                    'url': 'http://ki.mit.edu/people/faculty/cima'
+                },
+                'field_person_social_link_type': 'generic',
+                'item_id': '5711',
+                'revision_id': '7761',
+                'field_name': 'field_person_social_links',
+                'archived': '0',
+                'uuid': 'da41b1e9-da0b-49e3-b207-f619f166b0e8',
+                'url': 'https://www.edx.org/field-collection/field-person-social-links/5711',
+            },
+            {
+                'field_person_social_link': {
+                    'title': '@Mikix',
+                    'url': 'http://twitter.com/edxonlinetesting'
+                },
+                'field_person_social_link_type': 'twitter',
+                'item_id': '5712',
+                'revision_id': '7762',
+                'field_name': 'field_person_social_links',
+                'archived': '0',
+                'uuid': 'da41b1e9-da0b-49e3-b207-f619f166b0e8',
+                'url': 'https://www.edx.org/field-collection/field-person-social-links/5712',
+            }
+        ],
+        'type': 'person',
+        'title': 'Positionless',
+        'url': 'https://www.edx.org/bio/titleless',
+        'uuid': '352ea90b-7b9a-abc2-ba4f-165cbf6a3636',
+    },
+    {
+        'status': '1',
+        'field_person_first_middle_name': 'No',
+        'field_person_last_name': 'Org',
+        'field_person_honorifics': None,
+        'field_person_salutation': None,
+        'field_person_position': None,
+        'field_person_role': '1',
+        'field_person_resume': [],
+        'field_person_image': {
+            'url': 'https://www.edx.org/sites/default/files/person/image/orgless.jpg',
+        },
+        'field_person_areas_of_expertise': [],
+        'field_person_major_works': {
+            'value': 'Published books:<br/><ul><li>Book1</li><li>Book2</li></ul>',
+            'format': 'standard_html',
+        },
+        'field_person_positions': [
+            {
+                'field_person_position_tiltes': [
+                    'CEO'
+                ],
+                'field_person_position_org_link': []
+            }
+        ],
+        'field_person_social_links': [],
+        'type': 'person',
+        'title': 'Orgless',
+        'url': 'https://www.edx.org/bio/orgless',
+        'uuid': 'abcea90b-7b9a-49a2-ba4f-165cbf6a3636',
+    }
+]
+
 UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
     {
         'field_course_code': 'CS50x',

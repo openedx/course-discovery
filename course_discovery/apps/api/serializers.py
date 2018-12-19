@@ -274,6 +274,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
         fields = (
             'uuid', 'salutation', 'given_name', 'family_name', 'bio', 'slug', 'position', 'areas_of_expertise',
             'profile_image', 'partner', 'works', 'urls', 'urls_detailed', 'email', 'profile_image_url', 'major_works',
+            'published',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
