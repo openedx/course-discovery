@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-17 21:35+0000\n"
+"POT-Creation-Date: 2018-12-19 19:38+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -3122,6 +3122,14 @@ msgid "The primary instructor or instructors for the course."
 msgstr ""
 "Thé prïmärý ïnstrüçtör ör ïnstrüçtörs för thé çöürsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
 " αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html
+msgid ""
+"The order that instructors are entered here is the same order they will be "
+"displayed on course pages."
+msgstr ""
+"Thé ördér thät ïnstrüçtörs äré éntéréd héré ïs thé sämé ördér théý wïll ßé "
+"dïspläýéd ön çöürsé pägés. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
