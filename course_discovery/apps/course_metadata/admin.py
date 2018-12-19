@@ -90,7 +90,7 @@ class CourseEntitlementAdmin(admin.ModelAdmin):
 @admin.register(CourseRun)
 class CourseRunAdmin(admin.ModelAdmin):
     inlines = (SeatInline,)
-    list_display = ('uuid', 'key', 'title',)
+    list_display = ('uuid', 'key', 'title', 'status',)
     list_filter = (
         'course__partner',
         'hidden',
