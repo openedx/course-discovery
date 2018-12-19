@@ -29,7 +29,7 @@ class Command(BaseCommand):
             for person in Person.objects.all():
                 logger.info('Updating person node %s [%s].', person.slug, person.uuid)
                 try:
-                    publisher.update_person(person)
+                    publisher.update_or_publish_person(person)
                 except (PersonToMarketingException, MarketingSiteAPIClientException):
                     logger.exception(
                         'An error occurred while updating person %s on the marketing site.', person.full_name,

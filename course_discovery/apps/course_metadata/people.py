@@ -23,6 +23,7 @@ class MarketingSitePeople(object):
             'field_person_slug': person.slug,
             'title': person.full_name,
             'type': 'person',
+            'status': 1 if person.published else 0
         }
 
     def _create_node(self, api_client, node_data):
@@ -46,23 +47,16 @@ class MarketingSitePeople(object):
             logger.exception('Failed to update person node on marketing site [%s].', response.content)
             raise PersonToMarketingException("Marketing site Person page update failed!")
 
-    def update_person(self, person):
+    def update_or_publish_person(self, person):
         api_client = self._get_api_client(person.partner)
-        node_id = self._get_node_id_from_uuid(api_client, person.uuid)
-        if node_id:
-            node_data = self._get_node_data(person)
-            return self._update_node(api_client, node_id, node_data)
-        else:
-            logger.info('Person with UUID [%s] does not exist on the marketing site', person.uuid)
-
-    def publish_person(self, person):
-        api_client = self._get_api_client(person.partner)
-        node_data = self._get_node_data(person)
-        # Sets person to published in marketing
-        node_data['status'] = 1
-        node_data['uuid'] = str(person.uuid)
         if api_client:
-            return self._create_node(api_client, node_data)
+            node_data = self._get_node_data(person)
+            node_id = self._get_node_id_from_uuid(api_client, person.uuid)
+            if node_id:
+                return self._update_node(api_client, node_id, node_data)
+            else:
+                node_data['uuid'] = str(person.uuid)
+                return self._create_node(api_client, node_data)
 
     def delete_person(self, partner, node_id):
         api_client = self._get_api_client(partner)

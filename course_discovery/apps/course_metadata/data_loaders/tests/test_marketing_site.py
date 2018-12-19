@@ -16,12 +16,12 @@ from testfixtures import LogCapture
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import logger as marketing_site_logger
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    CourseMarketingSiteDataLoader, SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader,
-    SubjectMarketingSiteDataLoader
+    CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
+    SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import Course, Organization, Subject
+from course_discovery.apps.course_metadata.models import Course, Organization, Person, Subject
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -268,6 +268,36 @@ class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
 
         for sponsor in sponsors:
             self.assert_sponsor_loaded(sponsor)
+
+
+class PersonMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
+    loader_class = PersonMarketingSiteDataLoader
+    mocked_data = mock_data.MARKETING_SITE_API_PERSON_BODIES
+
+    def assert_person_loaded(self, data):
+        uuid = data['uuid']
+        person = Person.objects.get(uuid=uuid, partner=self.partner)
+        expected_values = {
+            'published': True if data['status'] == '1' else False,
+        }
+
+        for field, value in expected_values.items():
+            self.assertEqual(getattr(person, field), value)
+
+    def ingest_mock_data(self):
+        self.mock_login_response()
+        people = self.mock_api()
+        factories.OrganizationFactory(name='MIT')
+        for person in people:
+            Person.objects.create(uuid=person['uuid'], partner=self.partner)
+        self.loader.ingest()
+        return people
+
+    @responses.activate
+    def test_ingest(self):
+        people = self.ingest_mock_data()
+        for person in people:
+            self.assert_person_loaded(person)
 
 
 @ddt.ddt

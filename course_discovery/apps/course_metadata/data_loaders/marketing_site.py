@@ -537,3 +537,27 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         language_tags = self._extract_language_tags(data['field_course_video_locale_lang'])
         course_run.transcript_languages.clear()
         course_run.transcript_languages.add(*language_tags)
+
+
+class PersonMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    @property
+    def node_type(self):
+        return 'person'
+
+    def get_query_kwargs(self):
+        kwargs = super(PersonMarketingSiteDataLoader, self).get_query_kwargs()
+        # NOTE (CCB): We need to include the nested field_collection_item data since that is where
+        # the positions are stored.
+        kwargs['load-entity-refs'] = 'file,field_collection_item'
+        return kwargs
+
+    def process_node(self, data):
+        uuid = UUID(data['uuid'])
+        published = True if data['status'] == '1' else False
+
+        person = Person.objects.filter(uuid=uuid, partner=self.partner).first()
+        if person:
+            person.published = published
+            person.save(ingest=True)
+
+        logger.info('Processed person with UUID [%s].', uuid)

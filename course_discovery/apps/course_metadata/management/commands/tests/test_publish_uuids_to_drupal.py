@@ -60,7 +60,7 @@ class TestPublishUuidsToDrupal(TestCase):
         person = PersonFactory()
         command = Command()
 
-        with mock.patch.object(MarketingSitePeople, 'update_person') as cm:
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             command.handle()
         self.assertEqual(cm.call_count, 1)
         self.assertEqual(cm.call_args[0][0], person)
@@ -75,10 +75,12 @@ class TestPublishUuidsToDrupal(TestCase):
 
         # First test that a normal exception bubbles up like we expect
         with self.assertRaises(Exception):
-            with mock.patch.object(MarketingSitePeople, 'update_person', side_effect=Exception):
+            with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', side_effect=Exception):
                 command.handle()
 
         # Now tests that marketing exceptions don't stop us
-        with mock.patch.object(MarketingSitePeople, 'update_person', side_effect=MarketingSiteAPIClientException) as cm:
+        with mock.patch.object(
+            MarketingSitePeople, 'update_or_publish_person', side_effect=MarketingSiteAPIClientException
+        ) as cm:
             command.handle()
             self.assertEqual(cm.call_count, 1)

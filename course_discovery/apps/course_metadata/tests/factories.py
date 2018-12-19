@@ -204,6 +204,7 @@ class PersonFactory(factory.DjangoModelFactory):
     bio = FuzzyText()
     profile_image = FuzzyText(prefix='person/profile_image')
     major_works = FuzzyText()
+    published = True
 
     class Meta:
         model = Person

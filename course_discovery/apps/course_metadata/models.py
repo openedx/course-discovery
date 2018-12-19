@@ -26,6 +26,7 @@ from taggit_autosuggest.managers import TaggableManager
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
 from course_discovery.apps.course_metadata.constants import PathwayType
+from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
@@ -278,6 +279,7 @@ class Person(TimeStampedModel):
         blank=True,
         help_text=_('A list of major works by this person. Must be valid HTML.'),
     )
+    published = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (
@@ -289,9 +291,13 @@ class Person(TimeStampedModel):
     def __str__(self):
         return self.full_name
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, ingest=False, *args, **kwargs):  # pylint: disable=arguments-differ
+        with transaction.atomic():
+            super(Person, self).save(*args, **kwargs)
+            if waffle.switch_is_active('publish_person_to_marketing_site') and not ingest:
+                MarketingSitePeople().update_or_publish_person(self)
+
         logger.info('Person saved UUID: %s', self.uuid, exc_info=True)
-        super(Person, self).save(*args, **kwargs)
 
     @property
     def full_name(self):

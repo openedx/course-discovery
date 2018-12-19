@@ -34,12 +34,13 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.internal_test_group.permissions.add(*self.target_permissions)
         self.user.groups.add(self.internal_test_group)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.person = PersonFactory(partner=self.partner)
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+            self.person = PersonFactory(partner=self.partner)
         self.organization = OrganizationFactory(partner=self.partner)
         PositionFactory(person=self.person, organization=self.organization)
         toggle_switch('publish_person_to_marketing_site', True)
         self.expected_node = {
-            'resource': 'node', ''
+            'resource': 'node',
             'id': '28691',
             'uuid': '18d5542f-fa80-418e-b416-455cfdeb4d4e',
             'uri': 'https://stage.edx.org/node/28691'
@@ -52,7 +53,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
     def test_create_with_authentication(self):
         """ Verify endpoint successfully creates a person. """
-        with mock.patch.object(MarketingSitePeople, 'publish_person', return_value=self.expected_node):
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value=self.expected_node):
             response = self.client.post(self.people_list_url, self._person_data(), format='json')
             self.assertEqual(response.status_code, 201)
 
@@ -118,7 +119,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         will be logged and drupal page will be deleted. """
 
         data = self._person_data()
-        with mock.patch.object(MarketingSitePeople, 'publish_person', return_value=self.expected_node):
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value=self.expected_node):
             with mock.patch(
                 'course_discovery.apps.api.v1.views.people.PersonViewSet.perform_create',
                 side_effect=IntegrityError
@@ -181,7 +182,8 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
     def test_list_different_partner(self):
         """ Verify the endpoint only shows people for the current partner. """
-        PersonFactory()  # create person for a partner that isn't self.partner; we expect this to not show up later
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+            PersonFactory()  # create person for a partner that isn't self.partner; we expect this to not show up later
         response = self.client.get(self.people_list_url)
         self.assertEqual(response.status_code, 200)
         # Make sure the list does not include the new person above
@@ -189,7 +191,8 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
     def test_list_filter_by_slug(self):
         """ Verify the endpoint allows people to be filtered by slug. """
-        person = PersonFactory(partner=self.partner)
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+            person = PersonFactory(partner=self.partner)
         url = '{root}?slug={slug}'.format(root=self.people_list_url, slug=person.slug)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -199,7 +202,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         """ Verify endpoint proceeds if waffle switch is disabled. """
         toggle_switch('publish_person_to_marketing_site', False)
         data = self._person_data()
-        with mock.patch.object(MarketingSitePeople, 'publish_person') as cm:
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             response = self.client.post(self.people_list_url, data, format='json')
             self.assertEqual(cm.call_count, 0)
         self.assertEqual(response.status_code, 201)
@@ -333,7 +336,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         """ Verify that if the serializer fails, error message is logged and update fails"""
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         data = self._update_person_data()
-        with mock.patch.object(MarketingSitePeople, 'update_person', return_value={}):
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value={}):
             with mock.patch(
                 'course_discovery.apps.api.v1.views.people.PersonViewSet.perform_update',
                 side_effect=IntegrityError
@@ -356,7 +359,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         toggle_switch('publish_person_to_marketing_site', False)
         data = self._update_person_data()
-        with mock.patch.object(MarketingSitePeople, 'update_person') as cm:
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             response = self.client.patch(url, data, format='json')
             self.assertEqual(cm.call_count, 0)
         self.assertEqual(response.status_code, 200)
@@ -372,7 +375,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         PersonSocialNetworkFactory(person=self.person, type='blog')
         removed_value = PersonAreaOfExpertiseFactory(person=self.person).value
 
-        with mock.patch.object(MarketingSitePeople, 'update_person', return_value={}):
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value={}):
             response = self.client.patch(url, data, format='json')
             self.assertEqual(response.status_code, 200)
 
@@ -423,7 +426,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         data = self._update_person_data()
         Position.objects.all().delete()
 
-        with mock.patch.object(MarketingSitePeople, 'update_person', return_value={}):
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value={}):
             response = self.client.patch(url, data, format='json')
             self.assertEqual(response.status_code, 200)
 

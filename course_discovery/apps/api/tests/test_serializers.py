@@ -1298,6 +1298,7 @@ class MinimalPersonSerializerTests(TestCase):
             'areas_of_expertise': [],
             'slug': self.person.slug,
             'email': None,  # always None
+            'published': True,
         }
 
     def test_data(self):
@@ -1646,6 +1647,7 @@ class PersonSearchModelSerializerTests(PersonSearchSerializerTest):
             'slug': person.slug,
             'email': None,  # always None
             'content_type': 'person',
+            'published': True,
         }
 
 
