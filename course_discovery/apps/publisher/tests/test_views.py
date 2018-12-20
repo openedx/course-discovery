@@ -4066,36 +4066,6 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         response = self.client.post(self.create_course_run_url, post_data)
         self.assertContains(response, 'The page could not be updated. Make', status_code=400)
 
-    def test_create_course_run_and_seat(self):
-        """ Verify that we can create a new course run with seat. """
-        self.assertEqual(self.course.course_runs.count(), 0)
-        new_user = factories.UserFactory()
-        new_user.groups.add(self.organization_extension.group)
-
-        self.assertEqual(self.course.course_team_admin, self.user)
-
-        post_data = self._post_data()
-        response = self.client.post(self.create_course_run_url, self._post_data())
-
-        self.assertEqual(self.course.course_runs.count(), 1)
-
-        new_seat = Seat.objects.get(type=post_data['type'], price=post_data['price'])
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': new_seat.course_run.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
-        self.assertEqual(new_seat.type, Seat.VERIFIED)
-        self.assertEqual(new_seat.price, post_data['price'])
-
-        # Verify that and email is sent for studio instance request to project coordinator.
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([self.course.project_coordinator.email], mail.outbox[0].to)
-        expected_subject = 'Studio URL requested: {title}'.format(title=self.course.title)
-        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
-
     def test_courserun_form_includes_seat_fields_on_error_for_non_entitlement_course(self):
         """ Verify that the Seat fields are visible when error occurs for Courses that do not use entitlements. """
         self.course.version = Course.SEAT_VERSION
