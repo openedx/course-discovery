@@ -270,6 +270,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         actual = self.publisher.serialize_obj(self.obj)
         expected = {
             'field_course_id': self.obj.key,
+            'field_course_slug': self.obj.slug,
             'title': self.obj.title,
             'author': {'id': self.user_id},
             'status': 1,

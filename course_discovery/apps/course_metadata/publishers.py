@@ -367,6 +367,7 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
             'status': 1 if obj.status == CourseRunStatus.Published else 0,
             'title': obj.title,
             'field_course_id': obj.key,
+            'field_course_slug': obj.slug,
             'type': 'course',
         }
 
