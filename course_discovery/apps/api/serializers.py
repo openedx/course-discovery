@@ -255,7 +255,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
     Minimal serializer for the ``Person`` model.
     """
     position = PositionSerializer(required=False)
-    profile_image_url = serializers.CharField(read_only=True, source='get_profile_image_url')
+    profile_image_url = serializers.SerializerMethodField()
     profile_image = StdImageSerializerField(required=False)
     works = serializers.SerializerMethodField()
     urls = serializers.SerializerMethodField()
@@ -289,6 +289,9 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
 
         if social_networks:
             return social_networks[0].url
+
+    def get_profile_image_url(self, obj):
+        return obj.get_profile_image_url
 
     def get_urls(self, obj):
         return {
