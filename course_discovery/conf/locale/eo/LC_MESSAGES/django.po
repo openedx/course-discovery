@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-19 19:38+0000\n"
+"POT-Creation-Date: 2018-12-21 15:02+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -524,6 +524,20 @@ msgid "Course Has OFAC Restrictions"
 msgstr "Çöürsé Häs ÖFÀÇ Réstrïçtïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: apps/course_metadata/models.py
+msgid "Total number of learners who have enrolled in this course"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn thïs çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Total number of learners who have enrolled in this course in the last 6 "
+"months"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn thïs çöürsé ïn thé läst 6 "
+"mönths Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
 msgstr ""
 "Çöürsé nümßér förmät é.g ÇS002x, BÌÖ1.1x, BÌÖ1.2x Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
@@ -590,6 +604,20 @@ msgid "Estimated number of weeks needed to complete this course run."
 msgstr ""
 "Éstïmätéd nümßér öf wééks néédéd tö çömplété thïs çöürsé rün. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "Total number of learners who have enrolled in this course run"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn thïs çöürsé rün Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Total number of learners who have enrolled in this course run in the last 6 "
+"months"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn thïs çöürsé rün ïn thé läst 6 "
+"mönths Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/course_metadata/models.py
 msgid "Indicates whether the course relation has been manually overridden."
@@ -759,6 +787,20 @@ msgid ""
 msgstr ""
 "Hïdé prögräm ön märkétïng sïté ländïng änd séärçh pägés. Thïs prögräm MÀÝ "
 "hävé ä détäïl pägé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/course_metadata/models.py
+msgid "Total number of learners who have enrolled in courses this program"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn çöürsés thïs prögräm Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Total number of learners who have enrolled in courses in this program in the"
+" last 6 months"
+msgstr ""
+"Tötäl nümßér öf léärnérs whö hävé énrölléd ïn çöürsés ïn thïs prögräm ïn thé"
+" läst 6 mönths Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/course_metadata/models.py
 msgid "The actual rank number"

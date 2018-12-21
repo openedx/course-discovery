@@ -378,6 +378,14 @@ class Course(TimeStampedModel):
     faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
     learner_testimonials = models.TextField(default=None, null=True, blank=True)
     has_ofac_restrictions = models.BooleanField(default=False, verbose_name=_('Course Has OFAC Restrictions'))
+    enrollment_count = models.IntegerField(
+        null=True, blank=True, default=0, help_text=_('Total number of learners who have enrolled in this course')
+    )
+    recent_enrollment_count = models.IntegerField(
+        null=True, blank=True, default=0, help_text=_(
+            'Total number of learners who have enrolled in this course in the last 6 months'
+        )
+    )
 
     # TODO Remove this field.
     number = models.CharField(
@@ -401,6 +409,13 @@ class Course(TimeStampedModel):
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
+
+    def clean(self):
+        # We need to populate the value with 0 - model blank and null definitions are to validate the admin form.
+        if self.enrollment_count is None:
+            self.enrollment_count = 0
+        if self.recent_enrollment_count is None:
+            self.recent_enrollment_count = 0
 
     @property
     def image_url(self):
@@ -522,6 +537,14 @@ class CourseRun(TimeStampedModel):
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
                                    choices=CourseRunPacing.choices, validators=[CourseRunPacing.validator])
     syllabus = models.ForeignKey(SyllabusItem, default=None, null=True, blank=True)
+    enrollment_count = models.IntegerField(
+        null=True, blank=True, default=0, help_text=_('Total number of learners who have enrolled in this course run')
+    )
+    recent_enrollment_count = models.IntegerField(
+        null=True, blank=True, default=0, help_text=_(
+            'Total number of learners who have enrolled in this course run in the last 6 months'
+        )
+    )
 
     # TODO Ditch this, and fallback to the course
     card_image_url = models.URLField(null=True, blank=True)
@@ -562,6 +585,13 @@ class CourseRun(TimeStampedModel):
         prerequisites) associated with this CourseRun.
         """
         return self.seats.exclude(type__in=Seat.SEATS_WITH_PREREQUISITES).filter(price__gt=0.0)
+
+    def clean(self):
+        # See https://stackoverflow.com/questions/47819247
+        if self.enrollment_count is None:
+            self.enrollment_count = 0
+        if self.recent_enrollment_count is None:
+            self.recent_enrollment_count = 0
 
     @property
     def first_enrollable_paid_seat_price(self):
@@ -1063,10 +1093,27 @@ class Program(TimeStampedModel):
     hidden = models.BooleanField(
         default=False, db_index=True,
         help_text=_('Hide program on marketing site landing and search pages. This program MAY have a detail page.'))
+    enrollment_count = models.IntegerField(
+        null=True, blank=True, default=0, help_text=_(
+            'Total number of learners who have enrolled in courses this program'
+        )
+    )
+    recent_enrollment_count = models.IntegerField(
+        null=True, blank=True, default=0, help_text=_(
+            'Total number of learners who have enrolled in courses in this program in the last 6 months'
+        )
+    )
     objects = ProgramQuerySet.as_manager()
 
     def __str__(self):
         return self.title
+
+    def clean(self):
+        # See https://stackoverflow.com/questions/47819247
+        if self.enrollment_count is None:
+            self.enrollment_count = 0
+        if self.recent_enrollment_count is None:
+            self.recent_enrollment_count = 0
 
     @property
     def is_program_eligible_for_one_click_purchase(self):
