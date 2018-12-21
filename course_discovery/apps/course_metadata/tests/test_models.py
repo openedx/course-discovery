@@ -25,7 +25,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel, AbstractValueModel,
     CorporateEndorsement, Course, CourseRun, Curriculum, DegreeCost, DegreeDeadline, Endorsement,
-    Ranking, Seat, SeatType, Subject, Topic
+    Program, Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -684,6 +684,53 @@ class ProgramTests(TestCase):
             type=program_type,
         )
         self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+
+    def test_clean_enrollment_counts_on_save(self):
+        """ Verify that the 'clean' method ensures that we don't save NULL counts to DB """
+        course_run = factories.CourseRunFactory()
+
+        course_run.enrollment_count = None
+        course_run.recent_enrollment_count = None
+        course_run.clean()
+        course_run.save()
+        course_run_from_db = CourseRun.objects.get(uuid=course_run.uuid)
+        self.assertEqual(0, course_run_from_db.enrollment_count)
+        self.assertEqual(0, course_run_from_db.recent_enrollment_count)
+
+        course_run.enrollment_count = 3
+        course_run.recent_enrollment_count = 2
+        course_run.clean()
+        course_run.save()
+        course_run_from_db = CourseRun.objects.get(uuid=course_run.uuid)
+        self.assertEqual(3, course_run_from_db.enrollment_count)
+        self.assertEqual(2, course_run_from_db.recent_enrollment_count)
+
+        course = course_run.course
+        course.enrollment_count = None
+        course.recent_enrollment_count = None
+        course.clean()
+        course.save()
+        course_from_db = Course.objects.get(uuid=course.uuid)
+        self.assertEqual(0, course_from_db.enrollment_count)
+        self.assertEqual(0, course_from_db.recent_enrollment_count)
+
+        course.enrollment_count = 4
+        course.recent_enrollment_count = 5
+        course.clean()
+        course.save()
+        course_from_db = Course.objects.get(uuid=course.uuid)
+        self.assertEqual(4, course_from_db.enrollment_count)
+        self.assertEqual(5, course_from_db.recent_enrollment_count)
+
+        program = factories.ProgramFactory(courses=[course])
+        program.enrollment_count = None
+        program.recent_enrollment_count = None
+        program.clean()
+        program.save()
+
+        program_from_db = Program.objects.get(uuid=program.uuid)
+        self.assertEqual(0, program_from_db.enrollment_count)
+        self.assertEqual(0, program_from_db.recent_enrollment_count)
 
     def test_one_click_purchase_eligible(self):
         """ Verify that program is one click purchase eligible. """

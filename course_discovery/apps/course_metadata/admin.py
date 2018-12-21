@@ -70,7 +70,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'title',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
-    readonly_fields = ('uuid',)
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count',)
     search_fields = ('uuid', 'key', 'title',)
 
 
@@ -100,7 +100,7 @@ class CourseRunAdmin(admin.ModelAdmin):
     )
     ordering = ('key',)
     raw_id_fields = ('course',)
-    readonly_fields = ('uuid',)
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count',)
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug',)
     save_error = False
 
@@ -128,7 +128,8 @@ class ProgramAdmin(admin.ModelAdmin):
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
     list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden',)
     ordering = ('uuid', 'title', 'status')
-    readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs',)
+    readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count',
+                       'recent_enrollment_count',)
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
 
@@ -140,6 +141,7 @@ class ProgramAdmin(admin.ModelAdmin):
         'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
         'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden', 'corporate_endorsements', 'faq',
         'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
+        'enrollment_count', 'recent_enrollment_count',
     )
 
     save_error = False
