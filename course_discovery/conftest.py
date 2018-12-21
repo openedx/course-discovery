@@ -54,9 +54,6 @@ def get_course_run_states():
     def end_future(course_run):
         course_run.end = future
 
-    def slug_null(course_run):
-        course_run.slug = None
-
     def slug_blank(course_run):
         course_run.slug = ''
 
@@ -75,7 +72,7 @@ def get_course_run_states():
     def unpublished(course_run):
         course_run.status = CourseRunStatus.Unpublished
 
-    # The Cartesian product of these lists represents the 324 possible course
+    # The Cartesian product of these lists represents the 216 possible course
     # run states that affect a parent course's availability.
     states = [
         [
@@ -94,7 +91,6 @@ def get_course_run_states():
             end_future
         ],
         [
-            slug_null,
             slug_blank,
             slug_valid
         ],

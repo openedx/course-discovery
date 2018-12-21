@@ -752,8 +752,8 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             last_run_data = model_to_dict(last_run)
             # Delete all those fields which should not be copied over from previous run
             del (last_run_data['id'], last_run_data['start'], last_run_data['end'], last_run_data['pacing_type'],
-                 last_run_data['preview_url'], last_run_data['lms_course_id'], last_run_data['changed_by'],
-                 last_run_data['course'], last_run_data['sponsor'])
+                 last_run_data['lms_course_id'], last_run_data['changed_by'], last_run_data['course'],
+                 last_run_data['sponsor'])
 
             language_code = last_run_data.pop('language')
             if language_code:

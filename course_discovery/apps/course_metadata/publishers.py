@@ -348,7 +348,13 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
             node_data.update({'field_course_uuid': str(obj.uuid)})
             node_id = self.create_node(node_data)
             logger.info('Created new marketing site node [%s] for course run [%s].', node_id, obj.key)
-            self.update_node_alias(obj, node_id, previous_obj)
+
+        if node_id and (not previous_obj or obj.slug != previous_obj.slug):
+
+            logger.info('Setting marketing alias of [%s] for course [%s].', obj.slug, obj.key)
+            # Don't pass previous_obj to update_node_alias, because we don't want to delete the old alias.
+            # Not deleting it means that Drupal will automatically have old alias point to new alias.
+            self.update_node_alias(obj, node_id, None)
 
     def serialize_obj(self, obj):
         """

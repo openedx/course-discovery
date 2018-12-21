@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-07 15:22+0000\n"
+"POT-Creation-Date: 2019-01-07 20:18+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1099,6 +1099,12 @@ msgstr "Ìnvälïd çöürsé kéý \"{lms_course_id}\" Ⱡ'σяєм ιρѕυм 
 #, python-brace-format
 msgid "Invalid URL format \"{preview_url}\""
 msgstr "Ìnvälïd ÛRL förmät \"{preview_url}\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/publisher/api/serializers.py
+msgid "Preview URL already in use for another course"
+msgstr ""
+"Prévïéw ÛRL älréädý ïn üsé för änöthér çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/publisher/api/serializers.py apps/publisher/api/serializers.py
 #, python-brace-format

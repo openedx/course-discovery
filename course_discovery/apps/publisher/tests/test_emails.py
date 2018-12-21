@@ -12,6 +12,7 @@ from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import PublisherUserRole
@@ -520,6 +521,7 @@ class CourseRunPublishedEmailTests(SiteMixin, TestCase):
                                         user=project_coordinator)
         self.course_run.lms_course_id = 'course-v1:testX+test45+2017T2'
         self.course_run.save()
+        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
         emails.send_course_run_published_email(self.course_run, self.site)
 
         course_key = CourseKey.from_string(self.course_run.lms_course_id)
@@ -535,7 +537,6 @@ class CourseRunPublishedEmailTests(SiteMixin, TestCase):
 
         self.assertEqual(str(mail.outbox[0].subject), subject)
         body = mail.outbox[0].body.strip()
-        self.assertIn(self.course_run.preview_url, body)
         self.assertIn(self.course_run.preview_url, body)
         self.assertIn('has been published', body)
 
