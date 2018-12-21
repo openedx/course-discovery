@@ -384,7 +384,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
     def format_course_run_data(self, data, course):
         uuid = data['uuid']
         key = data['field_course_id']
-        slug = data['url'].split('/')[-1]
         language_tags = self._extract_language_tags(data['field_course_languages'])
         language = language_tags[0] if language_tags else None
         start = data.get('field_course_start_date')
@@ -399,7 +398,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'uuid': uuid,
             'title_override': self.clean_html(data['field_course_course_title']['value']),
             'language': language,
-            'slug': slug,
             'card_image_url': self._get_nested_url(data.get('field_course_image_promoted')),
             'status': self.get_course_run_status(data),
             'start': start,

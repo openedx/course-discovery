@@ -562,7 +562,7 @@ class CourseRun(TimeStampedModel):
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     video_translation_languages = models.ManyToManyField(
         LanguageTag, blank=True, related_name='+')
-    slug = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    slug = AutoSlugField(max_length=255, populate_from='title', slugify_function=uslugify, db_index=True)
     hidden = models.BooleanField(default=False)
     mobile_available = models.BooleanField(default=False)
     course_overridden = models.BooleanField(
@@ -875,10 +875,11 @@ class CourseRun(TimeStampedModel):
             publisher = CourseRunMarketingSitePublisher(self.course.partner)
             previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
 
-            if not self.slug:
-                # If we are publishing this object to marketing site,
-                # let's make sure slug is defined
-                self.slug = uslugify(self.title)
+            if not self.slug and self.id:
+                # If we are publishing this object to marketing site, let's make sure slug is defined.
+                # Nowadays slugs will be defined at creation time by AutoSlugField for us, so we only need this code
+                # path for database rows that were empty before we started using AutoSlugField.
+                self.slug = CourseRun._meta.get_field('slug').create_slug(self, True)
 
             with transaction.atomic():
                 super(CourseRun, self).save(*args, **kwargs)

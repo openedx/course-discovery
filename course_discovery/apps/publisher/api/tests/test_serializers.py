@@ -9,6 +9,7 @@ from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import (
@@ -102,6 +103,7 @@ class CourseRunSerializerTests(TestCase):
         super(CourseRunSerializerTests, self).setUp()
         self.course_run = CourseRunFactory()
         self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
+        self.discovery_course_run = DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
         self.request = RequestFactory()
         self.user = UserFactory()
         self.request.user = self.user
@@ -125,11 +127,9 @@ class CourseRunSerializerTests(TestCase):
 
     def test_validate_preview_url(self):
         """ Verify that serializer raises error if 'preview_url' has invalid format. """
-        self.course_run.preview_url = 'invalid-preview-url'
-        self.course_run.save()
-        serializer = self.serializer_class(self.course_run)
+        serializer = self.serializer_class(self.course_run, context={'request': self.request})
         with self.assertRaises(ValidationError):
-            serializer.validate_preview_url(self.course_run.preview_url)
+            serializer.validate({'preview_url': 'invalid-url'})
 
     def test_serializer_with_valid_data(self):
         """ Verify that serializer validate course_run object. """
@@ -140,19 +140,42 @@ class CourseRunSerializerTests(TestCase):
         """ Verify that course 'owner_role' will be changed to course_team after updating
         course run with preview url.
         """
-        self.course_run.preview_url = ''
-        self.course_run.save()
+        self.discovery_course_run.slug = ''
+        self.discovery_course_run.save(suppress_publication=True)
         serializer = self.serializer_class(self.course_run, context={'request': self.request})
         serializer.update(self.course_run, {'preview_url': 'https://example.com/abc/course'})
 
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.CourseTeam)
-        self.assertEqual(self.course_run.preview_url, serializer.data['preview_url'])
+        self.assertEqual(self.course_run.preview_url.rsplit('/', 1)[-1], 'course')
+
+    def test_update_preview_url_no_op(self):
+        """ Verify we don't push to marketing if no change required """
+        self.discovery_course_run.slug = ''
+        self.discovery_course_run.save(suppress_publication=True)
+
+        toggle_switch('publish_course_runs_to_marketing_site')
+        serializer = self.serializer_class(self.course_run, context={'request': self.request})
+
+        mock_path = 'course_discovery.apps.course_metadata.publishers.CourseRunMarketingSitePublisher.publish_obj'
+        with mock.patch(mock_path) as mock_save:
+            serializer.update(self.course_run, {'preview_url': 'https://example.com/abc/course'})
+            self.assertEqual(mock_save.call_count, 1)
+
+            # Now when we update a second time, there should be nothing to do, call count should remain at 1
+            serializer.update(self.course_run, {'preview_url': 'https://example.com/abc/course'})
+            self.assertEqual(mock_save.call_count, 1)
+
+    def test_update_preview_url_slug_exists(self):
+        """ Verify we don't push to marketing if no change required """
+        DiscoveryCourseRunFactory(title='course')  # will create the slug 'course'
+        serializer = self.serializer_class(self.course_run, context={'request': self.request})
+
+        with self.assertRaises(Exception) as cm:
+            serializer.update(self.course_run, {'preview_url': 'https://example.com/abc/course'})
+        self.assertEqual(cm.exception.args[0], 'Preview URL already in use for another course')
 
     def test_update_lms_course_id(self):
         """ Verify that 'changed_by' also updated after updating course_run's lms_course_id."""
-        self.course_run.preview_url = None
-        self.course_run.save()
-
         serializer = self.serializer_class(self.course_run, context={'request': self.request})
         serializer.update(self.course_run, serializer.validate(serializer.data))
 
@@ -163,8 +186,6 @@ class CourseRunSerializerTests(TestCase):
         """
         Verify that transaction roll backed if an error occurred.
         """
-        self.course_run.preview_url = ''
-        self.course_run.save()
         serializer = self.serializer_class(self.course_run)
 
         with self.assertRaises(Exception):
@@ -176,8 +197,6 @@ class CourseRunSerializerTests(TestCase):
         Verify that transaction is roll backed if error occurred during email sending.
         """
         toggle_switch('enable_publisher_email_notifications', True)
-        self.course_run.preview_url = ''
-        self.course_run.save()
         serializer = self.serializer_class(self.course_run)
         self.assertEqual(self.course_run.course_run_state.owner_role, PublisherUserRole.Publisher)
 
