@@ -176,6 +176,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'additional_information': course.additional_information,
             'faq': course.faq,
             'learner_testimonials': course.learner_testimonials,
+            'enrollment_count': 0,
+            'recent_enrollment_count': 0,
         })
 
         return expected
@@ -328,6 +330,8 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'license': course_run.license,
             'outcome': course_run.outcome,
             'has_ofac_restrictions': course_run.has_ofac_restrictions,
+            'enrollment_count': 0,
+            'recent_enrollment_count': 0,
         })
 
         return expected
@@ -743,6 +747,8 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'price_ranges': program.price_ranges,
             'subjects': SubjectSerializer(program.subjects, many=True).data,
             'transcript_languages': [serialize_language_to_code(l) for l in program.transcript_languages],
+            'enrollment_count': 0,
+            'recent_enrollment_count': 0,
         })
         return expected
 
