@@ -394,6 +394,12 @@ class Course(TimeStampedModel):
         )
     )
 
+    topics = TaggableManager(
+        blank=True,
+        help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
+        related_name='course_topics',
+    )
+
     additional_information = models.TextField(
         default=None, null=True, blank=True, verbose_name=_('Additional Information')
     )
