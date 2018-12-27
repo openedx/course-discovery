@@ -681,7 +681,7 @@ class MinimalCourseSerializer(TimestampModelSerializer):
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image', 'short_description',)
 
 
-class CourseSerializer(MinimalCourseSerializer):
+class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
     subjects = SubjectSerializer(many=True)
@@ -695,6 +695,7 @@ class CourseSerializer(MinimalCourseSerializer):
     canonical_course_run_key = serializers.SerializerMethodField()
     original_image = ImageField(read_only=True, source='original_image_url')
     extra_description = AdditionalPromoAreaSerializer()
+    topics = TagListSerializerField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
@@ -719,7 +720,7 @@ class CourseSerializer(MinimalCourseSerializer):
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
-            'enrollment_count', 'recent_enrollment_count',
+            'enrollment_count', 'recent_enrollment_count', 'topics',
         )
 
     def get_marketing_url(self, obj):
