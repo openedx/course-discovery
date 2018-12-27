@@ -178,6 +178,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'learner_testimonials': course.learner_testimonials,
             'enrollment_count': 0,
             'recent_enrollment_count': 0,
+            'topics': list(course.topics.names()),
         })
 
         return expected
