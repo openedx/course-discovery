@@ -223,7 +223,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         course_a = CourseFactory(subjects=[subject_a])
         course_ab = CourseFactory(subjects=[subject_a, subject_b])
         course_ba = CourseFactory(subjects=[subject_b, subject_a])
-        course_b = CourseFactory(subjects=[subject_b])
+        course_b = CourseFactory(subjects=[subject_b])  # pylint: disable=unused-variable
 
         courses_with_a = sorted([course_a, course_ab, course_ba], key=lambda course: course.key.lower())
         url = '{root}?subject={s}'.format(root=reverse('api:v1:course-list'), s=subject_a.uuid)
