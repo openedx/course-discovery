@@ -39,7 +39,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
             (OrganizationsApiDataLoader, partner.organizations_api_url, None),
             (CoursesApiDataLoader, partner.courses_api_url, None),
-            (AnalyticsAPIDataLoader, partner.analytics_url, None),
+            (AnalyticsAPIDataLoader, partner.analytics_url, 1),
             (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
             (ProgramsApiDataLoader, partner.programs_api_url, None),
         ]
