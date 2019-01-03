@@ -11,7 +11,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, ProgramFactory, SeatFactory
+    CourseFactory, CourseRunFactory, ProgramFactory, SeatFactory, SubjectFactory
 )
 
 
@@ -215,6 +215,21 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         with self.assertNumQueries(57):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+
+    def test_list_subject(self):
+        """ Verify the endpoint returns courses with the requested subject """
+        subject_a = SubjectFactory()
+        subject_b = SubjectFactory()
+        course_a = CourseFactory(subjects=[subject_a])
+        course_ab = CourseFactory(subjects=[subject_a, subject_b])
+        course_ba = CourseFactory(subjects=[subject_b, subject_a])
+        course_b = CourseFactory(subjects=[subject_b])
+
+        courses_with_a = sorted([course_a, course_ab, course_ba], key=lambda course: course.key.lower())
+        url = '{root}?subject={s}'.format(root=reverse('api:v1:course-list'), s=subject_a.uuid)
+        with self.assertNumQueries(57):
+            response = self.client.get(url)
+            self.assertListEqual(response.data['results'], self.serialize_course(courses_with_a, many=True))
 
     def test_list_key_filter(self):
         """ Verify the endpoint returns a list of courses filtered by the specified keys. """

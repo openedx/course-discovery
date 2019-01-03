@@ -52,9 +52,13 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         partner = self.request.site.partner
         q = self.request.query_params.get('q')
+        subject = self.request.query_params.get('subject')
 
         if q:
             queryset = Course.search(q)
+            queryset = self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
+        elif subject:
+            queryset = Course.objects.filter(subjects__uuid__exact=subject)
             queryset = self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
         else:
             if get_query_param(self.request, 'include_hidden_course_runs'):
@@ -138,6 +142,12 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
               mulitple: false
             - name: q
               description: Elasticsearch querystring query. This filter takes precedence over other filters.
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+            - name: subject
+              description: A subject UUID. This filter takes precedence over other filters.
               required: false
               type: string
               paramType: query
