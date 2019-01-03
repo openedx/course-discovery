@@ -13,6 +13,7 @@ from course_discovery.apps.course_metadata.models import CourseRun as CourseMeta
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, OrganizationFactory
 from course_discovery.apps.publisher.management.commands.load_drupal_data import DrupalCourseMarketingSiteDataLoader
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
+from course_discovery.apps.publisher.tests.factories import CourseFactory as PublisherCourseFactory
 from course_discovery.apps.publisher.tests.factories import DrupalLoaderConfigFactory
 
 ACCESS_TOKEN = str(jwt.encode({'preferred_username': 'bob'}, 'secret'), 'utf-8')
@@ -52,7 +53,8 @@ class TestLoadDrupalData(TestCase):
                             'load_drupal_data.execute_loader') as mock_executor:
                 config = DrupalLoaderConfigFactory.create(
                     course_run_ids='course-v1:SC+BreadX+3T2015',
-                    partner_code=self.partner.short_code
+                    partner_code=self.partner.short_code,
+                    load_unpublished_course_runs=False
                 )
                 call_command('load_drupal_data')
 
@@ -65,6 +67,7 @@ class TestLoadDrupalData(TestCase):
                               1,
                               False,
                               set(config.course_run_ids.split(',')),
+                              config.load_unpublished_course_runs,
                               username=jwt.decode(ACCESS_TOKEN, verify=False)['preferred_username'])
                 ]
                 mock_executor.assert_has_calls(expected_calls)
@@ -79,7 +82,8 @@ class TestLoadDrupalData(TestCase):
 
         config = DrupalLoaderConfigFactory.create(
             course_run_ids=data.get('field_course_id'),
-            partner_code=self.partner.short_code
+            partner_code=self.partner.short_code,
+            load_unpublished_course_runs=False
         )
         data_loader = DrupalCourseMarketingSiteDataLoader(
             self.partner,
@@ -89,6 +93,7 @@ class TestLoadDrupalData(TestCase):
             1,  # Make this a constant of 1 for no concurrency
             False,
             set(config.course_run_ids.split(',')),
+            config.load_unpublished_course_runs
         )
 
         # Need to mock this method so that the GET isn't sent out to the test data server
@@ -112,7 +117,8 @@ class TestLoadDrupalData(TestCase):
 
         config = DrupalLoaderConfigFactory.create(
             course_run_ids=data.get('field_course_id'),
-            partner_code=self.partner.short_code
+            partner_code=self.partner.short_code,
+            load_unpublished_course_runs=False
         )
         data_loader = DrupalCourseMarketingSiteDataLoader(
             self.partner,
@@ -122,6 +128,7 @@ class TestLoadDrupalData(TestCase):
             1,  # Make this a constant of 1 for no concurrency
             False,
             set(config.course_run_ids.split(',')),
+            config.load_unpublished_course_runs
         )
 
         # Need to mock this method so that the GET isn't sent out to the test data server
@@ -141,7 +148,8 @@ class TestLoadDrupalData(TestCase):
 
         config = DrupalLoaderConfigFactory.create(
             course_run_ids='SomeFakeCourseRunId',
-            partner_code=self.partner.short_code
+            partner_code=self.partner.short_code,
+            load_unpublished_course_runs=False
         )
         data_loader = DrupalCourseMarketingSiteDataLoader(
             self.partner,
@@ -151,6 +159,7 @@ class TestLoadDrupalData(TestCase):
             1,  # Make this a constant of 1 for no concurrency
             False,
             set(config.course_run_ids.split(',')),
+            config.load_unpublished_course_runs
         )
 
         # Need to mock this method so that the GET isn't sent out to the test data server
@@ -176,7 +185,8 @@ class TestLoadDrupalData(TestCase):
 
         config = DrupalLoaderConfigFactory.create(
             course_run_ids=data.get('field_course_id'),
-            partner_code=self.partner.short_code
+            partner_code=self.partner.short_code,
+            load_unpublished_course_runs=False
         )
         data_loader = DrupalCourseMarketingSiteDataLoader(
             self.partner,
@@ -186,6 +196,7 @@ class TestLoadDrupalData(TestCase):
             1,  # Make this a constant of 1 for no concurrency
             False,
             set(config.course_run_ids.split(',')),
+            config.load_unpublished_course_runs
         )
 
         with mock.patch('course_discovery.apps.publisher.signals.create_course_run_in_studio_receiver') as mock_signal:
@@ -201,3 +212,88 @@ class TestLoadDrupalData(TestCase):
         publisher_course_run = PublisherCourseRun.objects.get(lms_course_id=course_metadata_course_run.key)
         self.assertIsNotNone(publisher_course_run)
         self.assertIsNotNone(publisher_course_run.course)
+
+    def test_load_unpublished_course_runs_with_flag_enabled(self):
+        # Set the end date in the future
+        data = mock_data.UNIQUE_MARKETING_SITE_API_COURSE_BODIES[0]
+        data['field_course_end_date'] = datetime.datetime.max.strftime('%s')
+        # Set the status to unpublished
+        data['status'] = '0'
+        OrganizationFactory.create(
+            uuid=data.get('field_course_school_node', {})[0].get('uuid')
+        )
+
+        self.course_run.key = data.get('field_course_id')
+        self.course_run.save()
+
+        PublisherCourseFactory.create(course_metadata_pk=self.course_run.course.id)
+
+        load_unpublished_course_runs = True
+
+        config = DrupalLoaderConfigFactory.create(
+            course_run_ids=data.get('field_course_id'),
+            partner_code=self.partner.short_code,
+            load_unpublished_course_runs=load_unpublished_course_runs
+        )
+        data_loader = DrupalCourseMarketingSiteDataLoader(
+            self.partner,
+            self.partner.marketing_site_url_root,
+            ACCESS_TOKEN,
+            'JWT',
+            1,  # Make this a constant of 1 for no concurrency
+            False,
+            set(config.course_run_ids.split(',')),
+            load_unpublished_course_runs
+        )
+
+        # Need to mock this method so that the GET isn't sent out to the test data server
+        with mock.patch('course_discovery.apps.publisher.dataloader.create_courses.'
+                        'transfer_course_image'):
+            data_loader.process_node(mock_data.UNIQUE_MARKETING_SITE_API_COURSE_BODIES[0])
+
+        course_metadata_course_run = CourseMetadataCourseRun.objects.get(key=data.get('field_course_id'))
+        self.assertIsNotNone(course_metadata_course_run)
+        self.assertIsNotNone(course_metadata_course_run.course)
+        publisher_course_run = PublisherCourseRun.objects.get(lms_course_id=course_metadata_course_run.key)
+        self.assertIsNotNone(publisher_course_run)
+        self.assertIsNotNone(publisher_course_run.course)
+
+    def test_load_unpublished_course_runs_with_flag_enabled_no_course_found(self):
+        # Set the end date in the future
+        data = mock_data.UNIQUE_MARKETING_SITE_API_COURSE_BODIES[0]
+        data['field_course_end_date'] = datetime.datetime.max.strftime('%s')
+        # Set the status to unpublished
+        data['status'] = '0'
+        OrganizationFactory.create(
+            uuid=data.get('field_course_school_node', {})[0].get('uuid')
+        )
+
+        self.course_run.key = data.get('field_course_id')
+        self.course_run.save()
+
+        load_unpublished_course_runs = True
+
+        config = DrupalLoaderConfigFactory.create(
+            course_run_ids=data.get('field_course_id'),
+            partner_code=self.partner.short_code,
+            load_unpublished_course_runs=load_unpublished_course_runs
+        )
+        data_loader = DrupalCourseMarketingSiteDataLoader(
+            self.partner,
+            self.partner.marketing_site_url_root,
+            ACCESS_TOKEN,
+            'JWT',
+            1,  # Make this a constant of 1 for no concurrency
+            False,
+            set(config.course_run_ids.split(',')),
+            load_unpublished_course_runs
+        )
+
+        logger_target = 'course_discovery.apps.publisher.management.commands.load_drupal_data.logger'
+        with mock.patch(logger_target) as mock_logger:
+            # Need to mock this method so that the GET isn't sent out to the test data server
+            with mock.patch('course_discovery.apps.publisher.dataloader.create_courses.'
+                            'transfer_course_image'):
+                data_loader.process_node(mock_data.UNIQUE_MARKETING_SITE_API_COURSE_BODIES[0])
+            expected_calls = [mock.call('No Publisher Course found for Course Run [%s]', self.course_run.key)]
+            mock_logger.info.assert_has_calls(expected_calls)

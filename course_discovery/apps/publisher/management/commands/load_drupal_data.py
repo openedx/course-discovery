@@ -12,8 +12,10 @@ from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import CourseMarketingSiteDataLoader
-from course_discovery.apps.publisher.dataloader.create_courses import process_course
-from course_discovery.apps.publisher.models import CourseRun, DrupalLoaderConfig
+from course_discovery.apps.publisher.dataloader.create_courses import create_course_runs, process_course
+from course_discovery.apps.publisher.models import Course as PublisherCourse
+from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
+from course_discovery.apps.publisher.models import DrupalLoaderConfig
 from course_discovery.apps.publisher.signals import create_course_run_in_studio_receiver
 
 logger = logging.getLogger(__name__)
@@ -25,8 +27,10 @@ class DrupalCourseMarketingSiteDataLoader(CourseMarketingSiteDataLoader):
     course_ids = set()
     count = 0
 
-    def __init__(self, partner, api_url, access_token, token_type, max_workers, is_threadsafe, course_ids, **kwargs):
+    def __init__(self, partner, api_url, access_token, token_type, max_workers,
+                 is_threadsafe, course_ids, load_unpublished_course_runs, **kwargs):
         self.course_ids = course_ids
+        self.load_unpublished_course_runs = load_unpublished_course_runs
 
         super(DrupalCourseMarketingSiteDataLoader, self).__init__(
             partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
@@ -68,6 +72,14 @@ class DrupalCourseMarketingSiteDataLoader(CourseMarketingSiteDataLoader):
                             process_course(course, True, course_run=course_run)
                         except AttributeError:
                             pass
+                    elif self.load_unpublished_course_runs:
+                        # Ingest the course and course runs into Publisher tables via the dataloader methods
+                        logger.info('Processing Unpublished Course Run [%s] for Publisher tables', course_run_key)
+                        try:
+                            publisher_course = PublisherCourse.objects.get(course_metadata_pk=course_run.course.id)
+                            create_course_runs(course_run.course, publisher_course, course_run)
+                        except PublisherCourse.DoesNotExist:
+                            logger.info('No Publisher Course found for Course Run [%s]', course_run_key)
                     else:
                         logger.info(
                             'Course_run [%s] is unpublished, so the course [%s] related is not updated.',
@@ -119,7 +131,7 @@ class Command(BaseCommand):
             for signal in (post_save, post_delete):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
         # Disable the post save as we do NOT want to publish these courses to Studio
-        post_save.disconnect(receiver=create_course_run_in_studio_receiver, sender=CourseRun)
+        post_save.disconnect(receiver=create_course_run_in_studio_receiver, sender=PublisherCourseRun)
 
         config = DrupalLoaderConfig.get_solo()
 
@@ -152,6 +164,7 @@ class Command(BaseCommand):
             1,  # Make this a constant of 1 for no concurrency
             False,
             set(config.course_run_ids.split(',')),
+            config.load_unpublished_course_runs,
             **kwargs
         )
-        post_save.connect(receiver=create_course_run_in_studio_receiver, sender=CourseRun)
+        post_save.connect(receiver=create_course_run_in_studio_receiver, sender=PublisherCourseRun)

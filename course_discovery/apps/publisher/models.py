@@ -1102,3 +1102,4 @@ class DrupalLoaderConfig(SingletonModel):
     """
     course_run_ids = models.TextField(default=None, null=False, blank=False, verbose_name=_('Course Run IDs'))
     partner_code = models.TextField(default=None, null=False, blank=False, verbose_name=_('Partner Code'))
+    load_unpublished_course_runs = models.BooleanField(default=False)
