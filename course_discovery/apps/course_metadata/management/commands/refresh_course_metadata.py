@@ -151,11 +151,11 @@ class Command(BaseCommand):
                     (CoursesApiDataLoader, partner.courses_api_url, max_workers),
                 ),
                 (
-                    (AnalyticsAPIDataLoader, partner.analytics_url, 1),
-                ),
-                (
                     (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
                     (ProgramsApiDataLoader, partner.programs_api_url, max_workers),
+                ),
+                (
+                    (AnalyticsAPIDataLoader, partner.analytics_url, 1),
                 ),
             )
 

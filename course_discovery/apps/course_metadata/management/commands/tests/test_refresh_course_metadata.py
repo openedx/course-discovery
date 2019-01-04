@@ -39,9 +39,9 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
             (OrganizationsApiDataLoader, partner.organizations_api_url, None),
             (CoursesApiDataLoader, partner.courses_api_url, None),
-            (AnalyticsAPIDataLoader, partner.analytics_url, 1),
             (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
             (ProgramsApiDataLoader, partner.programs_api_url, None),
+            (AnalyticsAPIDataLoader, partner.analytics_url, 1),
         ]
         self.kwargs = {'username': 'bob'}
 
@@ -210,9 +210,9 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                     CourseMarketingSiteDataLoader,
                     OrganizationsApiDataLoader,
                     CoursesApiDataLoader,
-                    AnalyticsAPIDataLoader,
                     EcommerceApiDataLoader,
                     ProgramsApiDataLoader,
+                    AnalyticsAPIDataLoader,
                 )
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
                 mock_logger.exception.assert_has_calls(expected_calls)
