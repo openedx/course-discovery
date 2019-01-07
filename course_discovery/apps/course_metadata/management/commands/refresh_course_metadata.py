@@ -18,8 +18,8 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    CourseMarketingSiteDataLoader, PersonMarketingSiteDataLoader, SchoolMarketingSiteDataLoader,
-    SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
+    CourseMarketingSiteDataLoader, SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader,
+    SubjectMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig
 
@@ -142,7 +142,6 @@ class Command(BaseCommand):
                     (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
                     (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
                     (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                    (PersonMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
                 ),
                 (
                     (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
