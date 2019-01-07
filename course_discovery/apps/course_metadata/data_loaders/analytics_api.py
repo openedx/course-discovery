@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class AnalyticsAPIDataLoader(AbstractDataLoader):
 
-    API_TIMEOUT = 25  # time in seconds
+    API_TIMEOUT = 120  # time in seconds
 
     def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
                  is_threadsafe=False, **kwargs):
