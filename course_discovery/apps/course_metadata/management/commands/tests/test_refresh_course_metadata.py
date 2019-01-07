@@ -33,7 +33,6 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
         self.partner = PartnerFactory()
         partner = self.partner
         self.pipeline = [
-            (AnalyticsAPIDataLoader, partner.analytics_url, 1),
             (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, None),
             (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, None),
             (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, None),
@@ -42,6 +41,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             (CoursesApiDataLoader, partner.courses_api_url, None),
             (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
             (ProgramsApiDataLoader, partner.programs_api_url, None),
+            (AnalyticsAPIDataLoader, partner.analytics_url, 1),
         ]
         self.kwargs = {'username': 'bob'}
 
@@ -204,7 +204,6 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                 call_command('refresh_course_metadata')
 
                 loader_classes = (
-                    AnalyticsAPIDataLoader,
                     SubjectMarketingSiteDataLoader,
                     SchoolMarketingSiteDataLoader,
                     SponsorMarketingSiteDataLoader,
@@ -213,6 +212,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                     CoursesApiDataLoader,
                     EcommerceApiDataLoader,
                     ProgramsApiDataLoader,
+                    AnalyticsAPIDataLoader,
                 )
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
                 mock_logger.exception.assert_has_calls(expected_calls)

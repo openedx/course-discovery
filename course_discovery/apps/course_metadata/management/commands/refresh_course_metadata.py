@@ -139,9 +139,6 @@ class Command(BaseCommand):
 
             pipeline = (
                 (
-                    (AnalyticsAPIDataLoader, partner.analytics_url, 1),
-                ),
-                (
                     (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
                     (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
                     (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
