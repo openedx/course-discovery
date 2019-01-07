@@ -291,10 +291,10 @@ class Person(TimeStampedModel):
     def __str__(self):
         return self.full_name
 
-    def save(self, ingest=False, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         with transaction.atomic():
             super(Person, self).save(*args, **kwargs)
-            if waffle.switch_is_active('publish_person_to_marketing_site') and not ingest:
+            if waffle.switch_is_active('publish_person_to_marketing_site'):
                 MarketingSitePeople().update_or_publish_person(self)
 
         logger.info('Person saved UUID: %s', self.uuid, exc_info=True)
