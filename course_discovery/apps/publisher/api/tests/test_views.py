@@ -716,9 +716,9 @@ class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
         self.run_state = CourseRunState.objects.get(course_run=self.course_run)
 
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
-        self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
+        self.assertEqual(self.run_state.owner_role, PublisherUserRole.CourseTeam)
 
-        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(len(mail.outbox), 3)
 
     def test_mark_as_reviewed_by_pc(self):
         """
@@ -744,10 +744,9 @@ class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
         self.run_state = CourseRunState.objects.get(course_run=self.course_run)
 
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
-        self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
+        self.assertEqual(self.run_state.owner_role, PublisherUserRole.CourseTeam)
 
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertNotIn(self.course_run.course.course_team_admin.email, mail.outbox[0].to)
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_preview_accepted(self):
         """
