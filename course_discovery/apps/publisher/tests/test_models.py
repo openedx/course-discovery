@@ -15,6 +15,7 @@ from waffle.testutils import override_switch
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory as DiscoveryCourseFactory
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
@@ -1170,6 +1171,25 @@ class CourseRunStateTests(TestCase):
         self.assertNotEqual(self.course_run_state.name, state)
         self.course_run_state.change_state(state=state, user=self.user, site=self.site)
         self.assertEqual(self.course_run_state.name, state)
+
+    def test_published(self):
+        person = PersonFactory()
+        primary = DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[person],
+                                            status=CourseRunStatus.Unpublished, announcement=None)
+        second = DiscoveryCourseRunFactory(course=primary.course, status=CourseRunStatus.Published, end=None)
+        third = DiscoveryCourseRunFactory(course=primary.course, status=CourseRunStatus.Published,
+                                          end=datetime.datetime(2010, 1, 1, tzinfo=UTC))
+
+        user = UserFactory()
+        self.course_run.course_run_state.change_state(CourseRunStateChoices.Published, user)
+        primary.refresh_from_db()
+        second.refresh_from_db()
+        third.refresh_from_db()
+
+        self.assertIsNotNone(primary.announcement)
+        self.assertEqual(primary.status, CourseRunStatus.Published)
+        self.assertEqual(second.status, CourseRunStatus.Published)  # doesn't change end=None runs
+        self.assertEqual(third.status, CourseRunStatus.Unpublished)  # does change archived runs
 
     def test_with_invalid_parent_course_state(self):
         """

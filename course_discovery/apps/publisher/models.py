@@ -2,6 +2,7 @@ import datetime
 import logging
 from urllib.parse import urljoin
 
+import pytz
 import waffle
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -21,7 +22,7 @@ from stdimage.models import StdImageField
 from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, User
-from course_discovery.apps.course_metadata.choices import CourseRunPacing
+from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course as DiscoveryCourse
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
@@ -342,16 +343,6 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     )
     video_language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='video_language')
 
-    @property
-    def preview_url(self):
-        if self.lms_course_id:
-            run = DiscoveryCourseRun.objects.filter(key=self.lms_course_id).first()
-            # test staff as a proxy for if discovery has been published to yet - we don't want to show URL until then
-            run_valid = run and run.staff.exists()
-            return run.marketing_url if run_valid else None
-        else:
-            return None
-
     # temporary field to save the canonical course run image. In 2nd script this url field
     # will be used to download the image and save into course model --> course image.
     card_image_url = models.URLField(null=True, blank=True, verbose_name='canonical course run image')
@@ -394,6 +385,20 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             return history_user.get_full_name() or history_user.username
 
         return
+
+    @property
+    def preview_url(self):
+        run = self.discovery_course_run
+        # test staff as a proxy for if discovery has been published to yet - we don't want to show URL until then
+        run_valid = run and run.staff.exists()
+        return run.marketing_url if run_valid else None
+
+    @property
+    def discovery_course_run(self):
+        if self.lms_course_id:
+            return DiscoveryCourseRun.objects.filter(key=self.lms_course_id).first()
+        else:
+            return None
 
     @property
     def studio_url(self):
@@ -995,7 +1000,31 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
 
     @transition(field=name, source=CourseRunStateChoices.Approved, target=CourseRunStateChoices.Published)
     def published(self, site):
-        emails.send_course_run_published_email(self.course_run, site)
+        # Grab some variables, bailing if anything doesn't make sense
+        publisher_run = self.course_run
+        discovery_run = publisher_run and publisher_run.discovery_course_run
+        discovery_course = discovery_run and discovery_run.course
+        if not discovery_course:
+            return
+
+        now = datetime.datetime.now(pytz.UTC)
+
+        # Publish new course
+        discovery_run.announcement = now
+        discovery_run.status = CourseRunStatus.Published
+        discovery_run.save()
+
+        # Now, find old course runs that are no longer active but still published.
+        # These will be unpublished in favor of the new course.
+        for run in discovery_course.course_runs.all():
+            if run != discovery_run and run.status == CourseRunStatus.Published and run.end and run.end < now:
+                # TODO: move marketing redirect to point at new course
+                run.status = CourseRunStatus.Unpublished
+                run.save()
+
+        # Notify course team
+        if waffle.switch_is_active('enable_publisher_email_notifications'):
+            emails.send_course_run_published_email(self.course_run, site)
 
     def change_state(self, state, user, site=None):
         """
