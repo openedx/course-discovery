@@ -16,6 +16,7 @@ from testfixtures import LogCapture
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.choices import CourseRunStatus as DiscoveryCourseRunStatus
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
@@ -786,6 +787,11 @@ class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
         """
         Verify that publisher user can publish course run.
         """
+        # Needs to be a backing course metadata object for publish to work
+        discovery_run = DiscoveryCourseRunFactory(key=self.course_run.lms_course_id,
+                                                  status=DiscoveryCourseRunStatus.Unpublished,
+                                                  announcement=None)
+
         course = self.course_run.course
         self.run_state.name = CourseRunStateChoices.Approved
         self.run_state.preview_accepted = True
@@ -802,8 +808,11 @@ class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        self.run_state = CourseRunState.objects.get(course_run=self.course_run)
+        discovery_run.refresh_from_db()
+        self.assertIsNotNone(discovery_run.announcement)
+        self.assertEqual(discovery_run.status, DiscoveryCourseRunStatus.Published)
 
+        self.run_state = CourseRunState.objects.get(course_run=self.course_run)
         self.assertTrue(self.run_state.is_published)
 
         self.assertEqual(len(mail.outbox), 1)

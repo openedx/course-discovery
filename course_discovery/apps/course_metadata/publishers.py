@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.exceptions import (
     AliasCreateError, AliasDeleteError, FormRetrievalError, NodeCreateError, NodeDeleteError, NodeEditError,
-    NodeLookupError
+    NodeLookupError, RedirectCreateError
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient, uslugify
 
@@ -38,6 +38,8 @@ class BaseMarketingSitePublisher:
         self.node_api_base = urljoin(self.client.api_url, '/node.json')
         self.alias_api_base = urljoin(self.client.api_url, '/admin/config/search/path')
         self.alias_add_url = '{}/add'.format(self.alias_api_base)
+        self.redirect_api_base = urljoin(self.client.api_url, '/admin/config/search/redirect')
+        self.redirect_add_url = '{}/add'.format(self.redirect_api_base)
 
     def publish_obj(self, obj, previous_obj=None):
         """
@@ -203,7 +205,7 @@ class BaseMarketingSitePublisher:
         )
 
         data = {
-            **self.alias_form_inputs(alias_delete_url),
+            **self.form_inputs(alias_delete_url),
             'confirm': 1,
             'form_id': 'path_admin_delete_confirm',
             'op': 'Confirm'
@@ -214,9 +216,9 @@ class BaseMarketingSitePublisher:
         if response.status_code != 200:
             raise AliasDeleteError
 
-    def alias_form_inputs(self, url):
+    def form_inputs(self, url):
         """
-        Scrape input values from the form used to modify Drupal aliases.
+        Scrape input values from the form used to modify Drupal fields.
 
         Raises:
             FormRetrievalError: If there's a problem getting the form from Drupal.
@@ -290,7 +292,7 @@ class BaseMarketingSitePublisher:
             }
 
             data = {
-                **self.alias_form_inputs(self.alias_add_url),
+                **self.form_inputs(self.alias_add_url),
                 'alias': new_alias,
                 'form_id': 'path_admin_form',
                 'op': 'Save',
@@ -301,6 +303,36 @@ class BaseMarketingSitePublisher:
 
             if response.status_code != 200:
                 raise AliasCreateError
+
+    def add_url_redirect(self, obj, previous_obj):
+        """
+        Add a url redirect from the previous object to the new node_id
+
+        Arguments:
+            obj (CourseRun): string of the node id
+            previous_obj (CourseRun): the old course run to redirect to
+        """
+        logger.info('Setting redirect from [%s] to [%s].', previous_obj.slug, obj.slug)
+
+        node_id = self.node_id(obj)
+        previous_node_id = self.node_id(previous_obj)
+
+        headers = {
+            'content-type': 'application/x-www-form-urlencoded'
+        }
+
+        data = {
+            **self.form_inputs(self.redirect_add_url),
+            'form_id': 'redirect_edit_form',
+            'op': 'Save',
+            'source': 'node/{}'.format(previous_node_id),
+            'redirect': 'node/{}'.format(node_id),
+        }
+
+        response = self.client.api_session.post(self.redirect_add_url, headers=headers, data=data)
+
+        if response.status_code != 200:
+            raise RedirectCreateError
 
 
 class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):

@@ -41,3 +41,7 @@ class PersonToMarketingException(Exception):
         super(PersonToMarketingException, self).__init__(message)
         suffix = 'The person data has not been saved. Please check your marketing site configuration'
         self.message = '{exception_msg} {suffix}'.format(exception_msg=message, suffix=suffix)
+
+
+class RedirectCreateError(MarketingSitePublisherException):
+    pass
