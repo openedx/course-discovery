@@ -520,14 +520,19 @@ class CatalogSerializer(serializers.ModelSerializer):
 class NestedProgramSerializer(serializers.ModelSerializer):
     """
     Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
-    the basic details of the Program and none of the details about its related entities (e.g. courses).
+    the basic details of the Program and none of the details about its related entities, aside from the number
+    of courses in the program.
     """
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    number_of_courses = serializers.SerializerMethodField()
 
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'type', 'marketing_slug', 'marketing_url',)
-        read_only_fields = ('uuid', 'marketing_url',)
+        fields = ('uuid', 'title', 'type', 'marketing_slug', 'marketing_url', 'number_of_courses',)
+        read_only_fields = ('uuid', 'marketing_url', 'number_of_courses',)
+
+    def get_number_of_courses(self, obj):
+        return obj.courses.count()
 
 
 class MinimalPublisherCourseRunSerializer(TimestampModelSerializer):
