@@ -1016,12 +1016,13 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         elif state == CourseRunStateChoices.Approved:
             user_role = self.course_run.course.course_user_roles.get(user=user)
             self.approved_by_role = user_role.role
-            self.change_owner_role(PublisherUserRole.Publisher)
+            self.change_owner_role(PublisherUserRole.CourseTeam)
             self.approved()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
                 emails.send_email_for_mark_as_reviewed_course_run(self.course_run, user, site)
                 emails.send_email_to_publisher(self.course_run, user, site)
+                emails.send_email_preview_page_is_available(self.course_run, site)
 
         elif state == CourseRunStateChoices.Published:
             self.published(site)
