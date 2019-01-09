@@ -1173,7 +1173,8 @@ class CorporateEndorsementSerializerTests(TestCase):
 
 class NestedProgramSerializerTests(TestCase):
     def test_data(self):
-        program = ProgramFactory()
+        course_run = CourseRunFactory()
+        program = ProgramFactory(courses=[course_run.course])
         serializer = NestedProgramSerializer(program)
 
         expected = {
@@ -1182,6 +1183,7 @@ class NestedProgramSerializerTests(TestCase):
             'marketing_url': program.marketing_url,  # pylint: disable=no-member
             'type': program.type.name,
             'title': program.title,
+            'number_of_courses': program.courses.count(),
         }
 
         self.assertDictEqual(serializer.data, expected)
