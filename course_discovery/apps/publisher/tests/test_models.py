@@ -4,6 +4,7 @@ import random
 
 import ddt
 import pytest
+import responses
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
@@ -15,9 +16,12 @@ from waffle.testutils import override_switch
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.publishers import CourseRunMarketingSitePublisher
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory as DiscoveryCourseFactory
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
+from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
@@ -1106,7 +1110,7 @@ class CourseStateTests(TestCase):
 
 
 @ddt.ddt
-class CourseRunStateTests(TestCase):
+class CourseRunStateTests(MarketingSitePublisherTestMixin):
     """ Tests for the publisher `CourseRunState` model. """
 
     @classmethod
@@ -1151,6 +1155,10 @@ class CourseRunStateTests(TestCase):
         self.course_run_state.save()
         self.assertTrue(self.course_run_state.can_send_for_review())
 
+        self.publisher = CourseRunMarketingSitePublisher(self.partner)
+        self.api_root = self.publisher.client.api_url
+        self.username = self.publisher.client.username
+
     def test_str(self):
         """
         Verify casting an instance to a string returns a string containing the current state display name.
@@ -1170,6 +1178,38 @@ class CourseRunStateTests(TestCase):
         self.assertNotEqual(self.course_run_state.name, state)
         self.course_run_state.change_state(state=state, user=self.user, site=self.site)
         self.assertEqual(self.course_run_state.name, state)
+
+    @responses.activate
+    def test_published(self):
+        person = PersonFactory()
+        primary = DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[person],
+                                            status=CourseRunStatus.Unpublished, announcement=None)
+        second = DiscoveryCourseRunFactory(course=primary.course, status=CourseRunStatus.Published, end=None)
+        third = DiscoveryCourseRunFactory(course=primary.course, status=CourseRunStatus.Published,
+                                          end=datetime.datetime(2010, 1, 1, tzinfo=UTC))
+
+        user = UserFactory()
+        self.mock_api_client()
+
+        lookup_value = getattr(primary, self.publisher.unique_field)
+        self.mock_node_retrieval(self.publisher.node_lookup_field, lookup_value)
+        lookup_value = getattr(third, self.publisher.unique_field)
+        self.mock_node_retrieval(self.publisher.node_lookup_field, lookup_value)
+
+        self.mock_get_redirect_form()
+        self.mock_add_redirect()
+
+        self.course_run.course_run_state.name = CourseRunStateChoices.Approved
+        self.course_run.course_run_state.change_state(CourseRunStateChoices.Published, user, self.site)
+        primary.refresh_from_db()
+        second.refresh_from_db()
+        third.refresh_from_db()
+
+        assert responses.calls[-1].request.url.endswith('/admin/config/search/redirect/add')
+        self.assertIsNotNone(primary.announcement)
+        self.assertEqual(primary.status, CourseRunStatus.Published)
+        self.assertEqual(second.status, CourseRunStatus.Published)  # doesn't change end=None runs
+        self.assertEqual(third.status, CourseRunStatus.Unpublished)  # does change archived runs
 
     def test_with_invalid_parent_course_state(self):
         """

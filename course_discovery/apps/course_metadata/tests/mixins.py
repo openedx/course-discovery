@@ -93,7 +93,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
         url = '{root}/node.json?{node_lookup_field}={node_lookup_value}'.format(
             root=self.api_root,
             node_lookup_field=node_lookup_field,
-            node_lookup_value=node_lookup_value,
+            node_lookup_value=urllib.parse.quote(node_lookup_value),
         )
 
         data = {
@@ -189,5 +189,30 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
             '{root}/node.json/{node_id}'.format(root=self.api_root, node_id=self.node_id),
             body='',
             content_type='text/html',
+            status=status
+        )
+
+    def mock_get_redirect_form(self, status=200):
+        responses.add(
+            responses.GET,
+            '{root}/admin/config/search/redirect/add'.format(root=self.api_root),
+            status=status,
+            body='<html><form><input name="form_build_id" value="1">'
+                 '</input><input name="form_token" value="2"></input></form></html>'
+        )
+
+    def mock_add_redirect(self, status=200):
+        previous_node_id = self.node_id + '1'
+        data = {
+            'form_id': 'redirect_edit_form',
+            'op': 'Save',
+            'source': 'node/{}'.format(previous_node_id),
+            'redirect': 'node/{}'.format(self.node_id),
+        }
+
+        responses.add(
+            responses.POST,
+            '{root}/admin/config/search/redirect/add'.format(root=self.api_root),
+            body=urllib.parse.urlencode(data),
             status=status
         )
