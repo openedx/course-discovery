@@ -66,7 +66,7 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
             program = program_dict['program']
             program.enrollment_count = program_dict['count']
             program.recent_enrollment_count = program_dict['recent_count']
-            program.save()
+            program.save(suppress_publication=True)
             logger.info('Updating program: {program_uuid}'.format(program_uuid=program.uuid))
 
     def _process_course_run_summary(self, course_run_summary):
@@ -84,7 +84,7 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
         # Update course run counts
         course_run.enrollment_count = course_run_count
         course_run.recent_enrollment_count = course_run_recent_count
-        course_run.save()
+        course_run.save(suppress_publication=True)
         logger.info('Updating course run: {course_run_key}'.format(course_run_key=course_run_key))
 
         logger.info('Updating course dictionary for course uuid: {course_uuid}'.format(course_uuid=course.uuid))
