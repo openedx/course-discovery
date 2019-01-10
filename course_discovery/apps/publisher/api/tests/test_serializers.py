@@ -103,7 +103,8 @@ class CourseRunSerializerTests(TestCase):
         super(CourseRunSerializerTests, self).setUp()
         self.course_run = CourseRunFactory()
         self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
-        self.discovery_course_run = DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
+        self.person = PersonFactory()
+        self.discovery_course_run = DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[self.person])
         self.request = RequestFactory()
         self.user = UserFactory()
         self.request.user = self.user

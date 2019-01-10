@@ -42,8 +42,6 @@
                             <span class="preview-status">{{course_run.course_run_state.preview_status_for_publisher}}</span>
                                 <button data-url="{% url 'publisher:api:update_course_run' course_run.id %}" class="btn btn-neutral btn-edit-preview-url">{% trans "Edit" %}</button>
                         {% endif %}
-                    {% elif course_run.course.publisher == request.user %}
-                        <button data-url="{% url 'publisher:api:update_course_run' course_run.id %}" class="btn btn-neutral btn-save-preview-url">{% trans "Save" %}</button>
                     {% endif %}
                     </div>
                     <div class="layout-col layout-col-b">
@@ -55,12 +53,7 @@
                                 <span class="preview-url-heading">{% trans "Preview URL" %} - </span>
                                 <a href="{{ course_run.preview_url }}" target="_blank">{% trans "View About page preview" %}</a>
                             {% else %}
-                                {% if course_run.course.publisher == request.user %}
-                                    <input id="id-review-url" type="text">
-                                    <span class="error-message"></span>
-                                {% else %}
-                                    <span>{% trans "Not available" %}</span>
-                                {% endif %}
+                                <span>{% trans "Not available" %}</span>
                             {% endif %}
                         </div>
                     </div>

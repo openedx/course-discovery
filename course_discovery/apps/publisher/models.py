@@ -346,7 +346,9 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     def preview_url(self):
         if self.lms_course_id:
             run = DiscoveryCourseRun.objects.filter(key=self.lms_course_id).first()
-            return run.marketing_url if run else None
+            # test staff as a proxy for if discovery has been published to yet - we don't want to show URL until then
+            run_valid = run and run.staff.exists()
+            return run.marketing_url if run_valid else None
         else:
             return None
 

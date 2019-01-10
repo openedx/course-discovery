@@ -850,7 +850,8 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.course = self.course_run.course
 
         # Add a backing discovery course run so that preview_url is not None
-        CourseRunFactory(key=self.course_run.lms_course_id)
+        person = PersonFactory()
+        CourseRunFactory(key=self.course_run.lms_course_id, staff=[person])
 
         self._generate_seats([Seat.AUDIT, Seat.HONOR, Seat.VERIFIED, Seat.PROFESSIONAL])
         self._generate_credit_seat()
@@ -1456,11 +1457,8 @@ class CourseRunDetailTests(SiteMixin, TestCase):
 
         response = self.client.get(self.page_url)
         self.assertContains(response, 'ABOUT PAGE PREVIEW')
-        self.assertContains(
-            response,
-            '<button data-url="{url}" class="btn btn-neutral btn-save-preview-url">'.format(url=preview_api_url)
-        )
-        self.assertContains(response, '<input id="id-review-url" type="text">')
+        self.assertContains(response, '<span>Not available</span>')
+        self.assertNotContains(response, 'id="id-review-url"')
 
     def test_course_publish_button(self):
         """Verify that publisher user can see Publish button."""

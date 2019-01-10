@@ -343,7 +343,8 @@ class UpdateCourseRunViewTests(SiteMixin, TestCase):
         course_team_role = factories.CourseUserRoleFactory(
             course=self.course_run.course, role=PublisherUserRole.CourseTeam
         )
-        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
+        person = PersonFactory()
+        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[person])
 
         preview_url = 'https://example.com/abc/new-course-preview'
         response = self._make_request(preview_url)
@@ -387,7 +388,8 @@ class UpdateCourseRunViewTests(SiteMixin, TestCase):
             course=self.course_run.course, role=PublisherUserRole.CourseTeam
         )
         factories.UserAttributeFactory(user=course_team_role.user, enable_email_notification=False)
-        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
+        person = PersonFactory()
+        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[person])
 
         preview_url = 'https://example.com/abc/new-course-preview'
         response = self._make_request(preview_url)
