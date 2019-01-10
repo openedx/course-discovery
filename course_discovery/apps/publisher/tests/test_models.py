@@ -82,7 +82,8 @@ class CourseRunTests(TestCase):
     )
     @ddt.unpack
     def test_preview_url(self, course_id, has_preview_url):
-        run = DiscoveryCourseRunFactory(key='testX/test/1')
+        person = PersonFactory()
+        run = DiscoveryCourseRunFactory(key='testX/test/1', staff=[person])
         self.course_run.lms_course_id = course_id
         self.assertEqual(self.course_run.preview_url, run.marketing_url if has_preview_url else None)
 
