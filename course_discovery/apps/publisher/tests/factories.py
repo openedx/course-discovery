@@ -57,6 +57,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     pacing_type = FuzzyChoice(CourseRunPacing.values.keys())
     length = FuzzyInteger(1, 10)
     notes = FuzzyText()
+    preview_url = factory.Faker('url')
     contacted_partner_manager = FuzzyChoice((True, False))
     video_language = factory.Iterator(LanguageTag.objects.all())
     short_description_override = FuzzyText()

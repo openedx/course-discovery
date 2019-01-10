@@ -107,11 +107,8 @@ class CourseRunQuerySetTests(TestCase):
 
     def test_marketable_exclusions(self):
         """ Verify the method excludes CourseRuns without a slug. """
-        course_run = CourseRunFactory()
+        course_run = CourseRunFactory(slug='')
         SeatFactory(course_run=course_run)
-
-        course_run.slug = ''  # blank out auto-generated slug
-        course_run.save()
 
         self.assertEqual(CourseRun.objects.marketable().exists(), False)
 

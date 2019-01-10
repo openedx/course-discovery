@@ -23,7 +23,6 @@ from taggit.managers import TaggableManager
 from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Course as DiscoveryCourse
-from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -341,14 +340,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         )
     )
     video_language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='video_language')
-
-    @property
-    def preview_url(self):
-        if self.lms_course_id:
-            run = DiscoveryCourseRun.objects.filter(key=self.lms_course_id).first()
-            return run.marketing_url if run else None
-        else:
-            return None
+    preview_url = models.URLField(null=True, blank=True)
 
     # temporary field to save the canonical course run image. In 2nd script this url field
     # will be used to download the image and save into course model --> course image.
@@ -1016,13 +1008,12 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         elif state == CourseRunStateChoices.Approved:
             user_role = self.course_run.course.course_user_roles.get(user=user)
             self.approved_by_role = user_role.role
-            self.change_owner_role(PublisherUserRole.CourseTeam)
+            self.change_owner_role(PublisherUserRole.Publisher)
             self.approved()
 
             if waffle.switch_is_active('enable_publisher_email_notifications'):
                 emails.send_email_for_mark_as_reviewed_course_run(self.course_run, user, site)
                 emails.send_email_to_publisher(self.course_run, user, site)
-                emails.send_email_preview_page_is_available(self.course_run, site)
 
         elif state == CourseRunStateChoices.Published:
             self.published(site)

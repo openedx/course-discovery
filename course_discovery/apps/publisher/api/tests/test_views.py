@@ -17,7 +17,6 @@ from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api import views
@@ -336,6 +335,7 @@ class UpdateCourseRunViewTests(SiteMixin, TestCase):
         """Verify the user can update course preview url."""
         self.course_run.lms_course_id = 'course-v1:testX+TC167+2018T1'
         self.course_run.save()
+        preview_url = 'https://example.com/abc/course'
         factories.CourseRunStateFactory.create(course_run=self.course_run, owner_role=PublisherUserRole.Publisher)
         factories.CourseUserRoleFactory(
             course=self.course_run.course, role=PublisherUserRole.Publisher
@@ -343,14 +343,11 @@ class UpdateCourseRunViewTests(SiteMixin, TestCase):
         course_team_role = factories.CourseUserRoleFactory(
             course=self.course_run.course, role=PublisherUserRole.CourseTeam
         )
-        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
-
-        preview_url = 'https://example.com/abc/new-course-preview'
         response = self._make_request(preview_url)
 
         self.assertEqual(response.status_code, 200)
         course_run = CourseRun.objects.get(id=self.course_run.id)
-        self.assertTrue(course_run.preview_url.endswith('/new-course-preview'))
+        self.assertEqual(course_run.preview_url, preview_url)
 
         course_key = CourseKey.from_string(course_run.lms_course_id)
         subject = 'Review requested: Preview for {course_name} {run_number}'.format(
@@ -380,21 +377,18 @@ class UpdateCourseRunViewTests(SiteMixin, TestCase):
         Verify that no email sent on update course preview url if
         notification disabled by user.
         """
-        self.course_run.lms_course_id = 'course-v1:testX+TC167+2018T1'
-        self.course_run.save()
+        preview_url = 'https://example.com/abc/course'
         factories.CourseRunStateFactory.create(course_run=self.course_run, owner_role=PublisherUserRole.Publisher)
         course_team_role = factories.CourseUserRoleFactory(
             course=self.course_run.course, role=PublisherUserRole.CourseTeam
         )
         factories.UserAttributeFactory(user=course_team_role.user, enable_email_notification=False)
-        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
 
-        preview_url = 'https://example.com/abc/new-course-preview'
         response = self._make_request(preview_url)
 
         self.assertEqual(response.status_code, 200)
         course_run = CourseRun.objects.get(id=self.course_run.id)
-        self.assertTrue(course_run.preview_url.endswith('/new-course-preview'))
+        self.assertEqual(course_run.preview_url, preview_url)
         self.assertEqual(len(mail.outbox), 0)
 
 
@@ -716,9 +710,9 @@ class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
         self.run_state = CourseRunState.objects.get(course_run=self.course_run)
 
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
-        self.assertEqual(self.run_state.owner_role, PublisherUserRole.CourseTeam)
+        self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
 
-        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_mark_as_reviewed_by_pc(self):
         """
@@ -744,9 +738,10 @@ class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
         self.run_state = CourseRunState.objects.get(course_run=self.course_run)
 
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
-        self.assertEqual(self.run_state.owner_role, PublisherUserRole.CourseTeam)
+        self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
 
-        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertNotIn(self.course_run.course.course_team_admin.email, mail.outbox[0].to)
 
     def test_preview_accepted(self):
         """

@@ -29,7 +29,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, SubjectFactory
+    CourseFactory, OrganizationFactory, PersonFactory, SubjectFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import (
@@ -849,9 +849,6 @@ class CourseRunDetailTests(SiteMixin, TestCase):
                                                      lms_course_id='course-v1:edX+DemoX+Demo_Course')
         self.course = self.course_run.course
 
-        # Add a backing discovery course run so that preview_url is not None
-        CourseRunFactory(key=self.course_run.lms_course_id)
-
         self._generate_seats([Seat.AUDIT, Seat.HONOR, Seat.VERIFIED, Seat.PROFESSIONAL])
         self._generate_credit_seat()
         self.page_url = reverse('publisher:publisher_course_run_detail', args=[self.course_run.id])
@@ -1451,7 +1448,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         )
 
         # verify with out preview_url
-        self.course_run.lms_course_id = None
+        self.course_run.preview_url = ''
         self.course_run.save()
 
         response = self.client.get(self.page_url)
@@ -1561,10 +1558,9 @@ class CourseRunListViewTests(SiteMixin, TestCase):
         self.course_run_1 = self._create_course_assign_role(CourseRunStateChoices.Draft, self.user1, pc)
         self.course_run_2 = self._create_course_assign_role(CourseRunStateChoices.Approved, self.user1, pc)
 
-        # mark course run 2 as in preview by creating a backing discovery course run, which defines preview_url
-        self.course_run_2.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
+        # mark course as in in preview
+        self.course_run_2.preview_url = 'http://'
         self.course_run_2.save()
-        CourseRunFactory(key=self.course_run_2.lms_course_id, course=CourseFactory(partner=self.partner))
 
         self.course_run_3 = self._create_course_assign_role(CourseRunStateChoices.Published, self.user1, pc)
         self.course_run_4 = self._create_course_assign_role(
@@ -1622,7 +1618,7 @@ class CourseRunListViewTests(SiteMixin, TestCase):
     def test_with_internal_group(self, tab):
         """ Verify that internal user can see courses assigned to the groups. """
         response = self.assert_dashboard_response(
-            studio_count=1, published_count=1, progress_count=2, preview_count=1
+            studio_count=2, published_count=1, progress_count=2, preview_count=1
         )
         self.assertContains(response, '<li role="tab" id="tab-{tab}" class="tab"'.format(tab=tab))
 
@@ -1669,7 +1665,7 @@ class CourseRunListViewTests(SiteMixin, TestCase):
     def test_studio_request_course_runs_as_pc(self):
         """ Verify that PC user can see only those courses on which he is assigned as PC role. """
         response = self.assert_dashboard_response(
-            studio_count=1, published_count=1, progress_count=2, preview_count=1
+            studio_count=2, published_count=1, progress_count=2, preview_count=1
         )
         self._assert_tabs_with_roles(response)
 
@@ -1697,7 +1693,7 @@ class CourseRunListViewTests(SiteMixin, TestCase):
         self.course_run_3.course_run_state.name = CourseRunStateChoices.Draft
         self.course_run_3.course_run_state.save()
         response = self.assert_dashboard_response(
-            studio_count=2, published_count=0, progress_count=3, preview_count=1
+            studio_count=3, published_count=0, progress_count=3, preview_count=1
         )
         self.assertContains(response, 'No About pages have been published yet')
         self._assert_tabs_with_roles(response)
@@ -1705,7 +1701,7 @@ class CourseRunListViewTests(SiteMixin, TestCase):
     def test_published_course_runs(self):
         """ Verify that published tab loads course runs list. """
         response = self.assert_dashboard_response(
-            studio_count=1, published_count=1, progress_count=2, preview_count=1
+            studio_count=2, published_count=1, progress_count=2, preview_count=1
         )
         self.assertContains(response, self.table_class.format(id='published'))
         self.assertContains(response, 'About pages for the following course runs have been published in the')
@@ -1747,14 +1743,14 @@ class CourseRunListViewTests(SiteMixin, TestCase):
         publisher_admin.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         self.client.login(username=publisher_admin.username, password=USER_PASSWORD)
         response = self.assert_dashboard_response(
-            studio_count=3, published_count=1, progress_count=3, preview_count=1
+            studio_count=4, published_count=1, progress_count=3, preview_count=1
         )
         self._assert_tabs_with_roles(response)
 
     def test_with_preview_ready_course_runs(self):
         """ Verify that preview ready tabs loads the course runs list. """
         response = self.assert_dashboard_response(
-            studio_count=1, preview_count=1, progress_count=2, published_count=1
+            studio_count=2, preview_count=1, progress_count=2, published_count=1
         )
         self.assertContains(response, self.table_class.format(id='preview'))
         self.assertContains(response, 'About page previews for the following course runs are available for course team')
@@ -1762,8 +1758,7 @@ class CourseRunListViewTests(SiteMixin, TestCase):
 
     def test_without_preview_ready_course_runs(self):
         """ Verify preview ready tabs shows a message if no course run available. """
-        self.course_run_2.lms_course_id = None
-        self.course_run_2.save()
+        self.course_run_2.preview_url = ''
         self.course_run_2.course_run_state.name = CourseRunStateChoices.Draft
         self.course_run_2.course_run_state.save()
         response = self.assert_dashboard_response(
@@ -1776,12 +1771,12 @@ class CourseRunListViewTests(SiteMixin, TestCase):
         preview url is added or not.
         """
         response = self.assert_dashboard_response(
-            studio_count=1, preview_count=1, progress_count=2, published_count=1
+            studio_count=2, preview_count=1, progress_count=2, published_count=1
         )
         self._assert_tabs_with_roles(response)
 
         # without preview url
-        self.course_run_2.lms_course_id = None
+        self.course_run_2.preview_url = ''
         self.course_run_2.save()
         response = self.assert_dashboard_response(
             studio_count=2, preview_count=1, progress_count=2, published_count=1
@@ -1791,7 +1786,7 @@ class CourseRunListViewTests(SiteMixin, TestCase):
     def test_with_in_progress_course_runs(self):
         """ Verify that in progress tabs loads the course runs list. """
         response = self.assert_dashboard_response(
-            studio_count=1, preview_count=1, progress_count=2, published_count=1
+            studio_count=2, preview_count=1, progress_count=2, published_count=1
         )
         self.assertContains(response, self.table_class.format(id='in-progress'))
         self._assert_tabs_with_roles(response)

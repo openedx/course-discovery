@@ -235,17 +235,16 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         *args
     ):  # pylint: disable=unused-argument
         toggle_switch('auto_course_about_page_creation', True)
-        self.publisher.publish_obj(self.obj)
+        self.publisher.publish_obj(self.obj, previous_obj=self.obj)
         mock_node_id.assert_called_with(self.obj)
         mock_serialize_obj.assert_called_with(self.obj)
         mock_create_node.assert_called_with({'data': 'test', 'field_course_uuid': str(self.obj.uuid)})
-        mock_update_node_alias.assert_called_with(self.obj, 'node1', None)
+        mock_update_node_alias.assert_called_with(self.obj, 'node1', self.obj)
 
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value='node_id')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'edit_node', return_value=None)
-    @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
-    def test_publish_obj_edit(self, mock_node_alias, mock_edit_node, *args):  # pylint: disable=unused-argument
+    def test_publish_obj_edit(self, mock_edit_node, *args):  # pylint: disable=unused-argument
         """
         Verify that the publisher attempts to publish when course run status changes.
         """
@@ -260,7 +259,6 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         previous_obj = CourseRunFactory(status=CourseRunStatus.Unpublished)
         self.publisher.publish_obj(self.obj, previous_obj=previous_obj)
         mock_edit_node.assert_called_with('node_id', 'data')
-        mock_node_alias.assert_called_with(self.obj, 'node_id', None)
 
     @responses.activate
     def test_serialize_obj(self):

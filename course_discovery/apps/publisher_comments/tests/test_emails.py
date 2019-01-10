@@ -10,7 +10,6 @@ from waffle.testutils import override_switch
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.models import CourseRun, CourseUserRole
@@ -59,6 +58,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         UserAttributeFactory(user=self.user, enable_email_notification=True)
         UserAttributeFactory(user=self.user_3, enable_email_notification=False)
         toggle_switch('enable_publisher_email_notifications', True)
+        self.url = 'http://www.test.com'
 
     def test_course_comment_email(self):
         """ Verify that after adding a comment against a course emails send
@@ -224,9 +224,11 @@ class CommentsEmailTests(SiteMixin, TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.Publisher, user=user
         )
+        self.course_run.lms_course_id = 'course-v1:testX+testX2.0+testCourse'
+        self.course_run.save()
 
-        comment = self._create_decline_comment()
         course_key = CourseKey.from_string(self.course_run.lms_course_id)
+        comment = self._create_decline_comment()
         subject = 'Preview declined: {title} {run}'.format(title=self.course.title, run=course_key.run)
         self.assertEqual([user.email], mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), subject)
@@ -268,10 +270,7 @@ class CommentsEmailTests(SiteMixin, TestCase):
         )
 
     def _create_decline_comment(self):
-        # First, establish a preview_url
-        self.course_run.lms_course_id = 'course-v1:testX+testX2.0+testCourse'
+        self.course_run.preview_url = self.url
         self.course_run.save()
-        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
-
         factories.CourseRunStateFactory(course_run=self.course_run, owner_role=PublisherUserRole.CourseTeam)
         return self.create_comment(content_object=self.course_run, comment_type=CommentTypeChoices.Decline_Preview)

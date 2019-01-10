@@ -12,26 +12,12 @@ from opaque_keys.edx.keys import CourseKey
 from rest_framework import serializers
 
 from course_discovery.apps.core.models import User
-from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.emails import (
     send_change_role_assignment_email, send_email_for_studio_instance_created, send_email_preview_accepted,
     send_email_preview_page_is_available
 )
 from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, CourseUserRole
-
-
-class UnvalidatedField(serializers.Field):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.allow_blank = True
-        self.allow_null = True
-
-    def to_internal_value(self, data):
-        return data
-
-    def to_representation(self, value):
-        return value
 
 
 class CourseUserRoleSerializer(serializers.ModelSerializer):
@@ -81,7 +67,6 @@ class CourseRunSerializer(serializers.ModelSerializer):
     """
     Serializer for the `CourseRun` model.
     """
-    preview_url = UnvalidatedField()  # Otherwise the @property method gets stripped from validated_data
 
     class Meta:
         model = CourseRun
@@ -109,8 +94,6 @@ class CourseRunSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         validated_values = super(CourseRunSerializer, self).validate(data)
-        if 'preview_url' in data:
-            self.validate_preview_url(data['preview_url'])
 
         if validated_values.get('lms_course_id'):
             request = self.context.get('request')
@@ -119,33 +102,11 @@ class CourseRunSerializer(serializers.ModelSerializer):
 
         return validated_values
 
-    def update_preview_url(self, preview_url, course_id):
-        # Note: we are assuming the preview URL is mostly right - we don't bother checking hostname etc.
-        # This is calculated laziness - publisher has a short shelf life and the URL is presented to the user
-        # correctly, so they'd have to go out of their way to muck it up. This approach was preferred over changing
-        # the publisher UI to only show a slug, instead of a full URL, simply to save effort.
-        slug = preview_url.rstrip('/').rsplit('/', 1)[-1]
-
-        current = DiscoveryCourseRun.objects.filter(key=course_id).first()
-        if not current or current.slug == slug:
-            return  # nothing to do here
-
-        if DiscoveryCourseRun.objects.filter(slug=slug).exists():
-            raise Exception(_('Preview URL already in use for another course'))
-
-        current.slug = slug
-        current.save()  # this will push the new slug to the marketing site
-
     @transaction.atomic
     def update(self, instance, validated_data):
-        lms_course_id = validated_data.get('lms_course_id')
-
-        # Handle saving the preview URL as a slug first
-        preview_url = validated_data.pop('preview_url', None)
-        if preview_url:
-            self.update_preview_url(preview_url, lms_course_id or instance.lms_course_id)
-
         instance = super(CourseRunSerializer, self).update(instance, validated_data)
+        preview_url = validated_data.get('preview_url')
+        lms_course_id = validated_data.get('lms_course_id')
         request = self.context['request']
 
         if preview_url:

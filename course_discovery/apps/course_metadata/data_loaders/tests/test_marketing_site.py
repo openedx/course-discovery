@@ -512,6 +512,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             'key': data['field_course_id'],
             'title_override': self.loader.clean_html(data['field_course_course_title']['value']),
             'language': language,
+            'slug': data['url'].split('/')[-1],
             'card_image_url': (data.get('field_course_image_promoted') or {}).get('url'),
             'status': self.loader.get_course_run_status(data),
             'start': start,

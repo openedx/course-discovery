@@ -232,21 +232,6 @@ class CourseRunTests(TestCase):
         self.course_run.slug = ''
         self.assertIsNone(self.course_run.marketing_url)
 
-    def test_slug_defined_on_create(self):
-        """ Verify the slug is created on first save from the title. """
-        course_run = CourseRunFactory(title='Test Title')
-        self.assertEqual(course_run.slug, 'test-title')
-
-    def test_empty_slug_defined_on_save(self):
-        """ Verify the slug is defined on publication if it wasn't set already. """
-        toggle_switch('publish_course_runs_to_marketing_site')
-
-        with mock.patch.object(CourseRunMarketingSitePublisher, 'publish_obj', return_value=None):
-            self.course_run.slug = ''
-            self.course_run.title = 'Test Title'
-            self.course_run.save()
-            self.assertEqual(self.course_run.slug, 'test-title')
-
     def test_program_types(self):
         """ Verify the property retrieves program types correctly based on programs. """
         courses = [self.course_run.course]

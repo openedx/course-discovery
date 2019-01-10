@@ -75,17 +75,6 @@ class CourseRunTests(TestCase):
                                             id=self.course_run.lms_course_id)
         assert actual == self.course_run.studio_url
 
-    @ddt.data(
-        (None, False),
-        ('absent', False),
-        ('testX/test/1', True),
-    )
-    @ddt.unpack
-    def test_preview_url(self, course_id, has_preview_url):
-        run = DiscoveryCourseRunFactory(key='testX/test/1')
-        self.course_run.lms_course_id = course_id
-        self.assertEqual(self.course_run.preview_url, run.marketing_url if has_preview_url else None)
-
     def test_studio_schedule_and_details_url(self):
         assert self.course_run.studio_schedule_and_details_url is None
 

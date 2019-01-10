@@ -187,7 +187,6 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         for course_run in expected:
             SeatFactory(course_run=course_run)
 
-        CourseRunFactory.create_batch(3, slug=None, course__partner=self.partner)
         CourseRunFactory.create_batch(3, slug='', course__partner=self.partner)
 
         url = reverse('api:v1:course_run-list') + '?marketable=1'
