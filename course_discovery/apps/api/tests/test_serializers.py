@@ -13,6 +13,7 @@ from haystack.query import SearchQuerySet
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
 from rest_framework.test import APIRequestFactory
+from taggit.models import Tag
 from waffle.models import Switch
 from waffle.testutils import override_switch
 
@@ -655,9 +656,11 @@ class MinimalProgramSerializerTests(TestCase):
         organizations = OrganizationFactory.create_batch(2)
         person = PersonFactory()
 
+        topic = Tag.objects.create(name="topic")
         courses = CourseFactory.create_batch(3)
         for course in courses:
             CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.datetime.now(UTC))
+            course.topics.set(topic)
 
         return ProgramFactory(
             courses=courses,
@@ -750,6 +753,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'transcript_languages': [serialize_language_to_code(l) for l in program.transcript_languages],
             'enrollment_count': 0,
             'recent_enrollment_count': 0,
+            'topics': [topic.name for topic in program.topics],
         })
         return expected
 
@@ -1691,7 +1695,7 @@ class TestProgramSearchSerializer(TestCase):
             'language': [serialize_language(language) for language in program.languages],
             'hidden': program.hidden,
             'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
-            'search_card_display': []
+            'search_card_display': [],
         }
 
     def serialize_program(self, program, request):
