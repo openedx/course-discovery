@@ -1158,7 +1158,7 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='course_run.title')
     desc = serializers.CharField(source='course_run.full_description')
     purl = serializers.CharField(source='course_run.marketing_url')
-    imgurl = serializers.CharField(source='course_run.card_image_url')
+    imgurl = serializers.SerializerMethodField()
     category = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
 
@@ -1219,6 +1219,9 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
 
     def get_custom4(self, obj):
         return ','.join(org.name for org in obj.course_run.authoring_organizations.all())
+
+    def get_imgurl(self, obj):
+        return obj.course_run.card_image_url or obj.course_run.course.card_image_url
 
 
 class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
