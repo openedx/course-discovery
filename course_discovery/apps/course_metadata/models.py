@@ -1228,6 +1228,16 @@ class Program(TimeStampedModel):
         return common_primary + common_others
 
     @property
+    def topics(self):
+        """
+        :return: The set of topic tags associated with this program's courses
+        """
+        topic_set = set()
+        for course in self.courses.all():
+            topic_set.update(course.topics.all())
+        return topic_set
+
+    @property
     def seats(self):
         applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
 

@@ -16,6 +16,7 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase
 from freezegun import freeze_time
+from taggit.models import Tag
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency
@@ -1071,6 +1072,24 @@ class ProgramTests(TestCase):
         course5 = factories.CourseFactory(subjects=self.subjects[::-2])  # C, A; and A the most common overall in p2
         program2 = factories.ProgramFactory(courses=[course1, course2, course3, course4, course5])
         self.assertEqual(program2.subjects, [self.subjects[2], self.subjects[0], self.subjects[1]])
+
+    def test_program_topics(self):
+        """
+        Verify the program aggregates its courses' topic tags
+        """
+        topicA = Tag.objects.create(name="topicA")
+        topicB = Tag.objects.create(name="topicB")
+        topicC = Tag.objects.create(name="topicC")
+
+        course1 = factories.CourseFactory()
+        course1.topics.set(topicA)
+        course2 = factories.CourseFactory()
+        course2.topics.set(topicA, topicB)
+        course3 = factories.CourseFactory()
+        course3.topics.set(topicB, topicC)
+
+        program1 = factories.ProgramFactory(courses=[course1, course2, course3])
+        self.assertEqual(program1.topics, set((topicA, topicB, topicC)))
 
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
