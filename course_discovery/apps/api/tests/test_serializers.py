@@ -1418,7 +1418,7 @@ class AffiliateWindowSerializerTests(TestCase):
     def test_data(self):
         user = UserFactory()
         CatalogFactory(query='*:*', viewers=[user])
-        course_run = CourseRunFactory()
+        course_run = CourseRunFactory(card_image_url='')
         seat = SeatFactory(course_run=course_run)
         serializer = AffiliateWindowSerializer(seat)
 
@@ -1435,7 +1435,7 @@ class AffiliateWindowSerializerTests(TestCase):
                 'actualp': seat.price
             },
             'currency': seat.currency.code,
-            'imgurl': course_run.card_image_url,
+            'imgurl': course_run.course.card_image_url,
             'category': 'Other Experiences',
             'validfrom': course_run.start.strftime('%Y-%m-%d'),
             'validto': course_run.end.strftime('%Y-%m-%d'),
