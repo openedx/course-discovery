@@ -99,6 +99,9 @@ class CourseRunSerializer(serializers.ModelSerializer):
         return value
 
     def validate_preview_url(self, value):
+        if value is None:
+            return value
+
         if not re.match(r'https?://(?:www)?(?:[\w-]{2,255}(?:\.\w{2,6}){1,2})(?:/[\w&%?#-]{1,300})?', value):
             # pylint: disable=no-member
             raise serializers.ValidationError(

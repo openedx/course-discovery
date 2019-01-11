@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-07 20:18+0000\n"
+"POT-Creation-Date: 2019-01-10 17:59+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1795,11 +1795,6 @@ msgstr "Àççéptéd Ⱡ'σяєм ιρѕυм ∂#"
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Publish"
 msgstr "Püßlïsh Ⱡ'σяєм ιρѕυм #"
-
-#: apps/publisher/templates/publisher/_approval_widget.html
-#: apps/publisher/templates/publisher/seat_form.html
-msgid "Save"
-msgstr "Sävé Ⱡ'σяєм ι#"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "ABOUT PAGE PREVIEW"
@@ -4493,6 +4488,10 @@ msgstr ""
 #: apps/publisher/templates/publisher/seat_form.html
 msgid "Seat Form"
 msgstr "Séät Förm Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/publisher/templates/publisher/seat_form.html
+msgid "Save"
+msgstr "Sävé Ⱡ'σяєм ι#"
 
 #: apps/publisher/validators.py
 #, python-format

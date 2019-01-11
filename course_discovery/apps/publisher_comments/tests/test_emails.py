@@ -11,6 +11,7 @@ from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
+from course_discovery.apps.course_metadata.tests.factories import PersonFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.models import CourseRun, CourseUserRole
@@ -271,7 +272,8 @@ class CommentsEmailTests(SiteMixin, TestCase):
         # First, establish a preview_url
         self.course_run.lms_course_id = 'course-v1:testX+testX2.0+testCourse'
         self.course_run.save()
-        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
+        person = PersonFactory()
+        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[person])
 
         factories.CourseRunStateFactory(course_run=self.course_run, owner_role=PublisherUserRole.CourseTeam)
         return self.create_comment(content_object=self.course_run, comment_type=CommentTypeChoices.Decline_Preview)

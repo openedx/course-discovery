@@ -343,7 +343,8 @@ class UpdateCourseRunViewTests(SiteMixin, TestCase):
         course_team_role = factories.CourseUserRoleFactory(
             course=self.course_run.course, role=PublisherUserRole.CourseTeam
         )
-        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
+        person = PersonFactory()
+        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[person])
 
         preview_url = 'https://example.com/abc/new-course-preview'
         response = self._make_request(preview_url)
@@ -387,7 +388,8 @@ class UpdateCourseRunViewTests(SiteMixin, TestCase):
             course=self.course_run.course, role=PublisherUserRole.CourseTeam
         )
         factories.UserAttributeFactory(user=course_team_role.user, enable_email_notification=False)
-        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id)
+        person = PersonFactory()
+        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[person])
 
         preview_url = 'https://example.com/abc/new-course-preview'
         response = self._make_request(preview_url)
@@ -716,9 +718,9 @@ class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
         self.run_state = CourseRunState.objects.get(course_run=self.course_run)
 
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
-        self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
+        self.assertEqual(self.run_state.owner_role, PublisherUserRole.CourseTeam)
 
-        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(len(mail.outbox), 3)
 
     def test_mark_as_reviewed_by_pc(self):
         """
@@ -744,10 +746,9 @@ class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
         self.run_state = CourseRunState.objects.get(course_run=self.course_run)
 
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
-        self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
+        self.assertEqual(self.run_state.owner_role, PublisherUserRole.CourseTeam)
 
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertNotIn(self.course_run.course.course_team_admin.email, mail.outbox[0].to)
+        self.assertEqual(len(mail.outbox), 2)
 
     def test_preview_accepted(self):
         """
