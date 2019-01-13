@@ -10,6 +10,7 @@
 # Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2017
 # Laura Silva <lingison@edx.org>, 2016
 # Luis Benites <lbenitesanchez@gmail.com>, 2016
+# Luis Manuel Moreno <luis.moreno@edunext.co>, 2019
 # Marina Pastor <mpastor@edx.org>, 2018
 # Ned Weitzman <nweitzman@edx.org>, 2016-2017
 # Ernesto Sánchez Benitez <sbernesto@gmail.com>, 2016
@@ -17,9 +18,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-21 15:02+0000\n"
-"PO-Revision-Date: 2018-12-12 19:01+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2019-01-10 17:59+0000\n"
+"PO-Revision-Date: 2019-01-11 02:10+0000\n"
+"Last-Translator: Luis Manuel Moreno <luis.moreno@edunext.co>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
