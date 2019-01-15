@@ -358,9 +358,8 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         return course_run
 
     def get_or_create_course(self, data):
-        course_run_key = CourseKey.from_string(data['field_course_id'])
-        key = self.get_course_key_from_course_run_key(course_run_key)
-        defaults = self.format_course_data(data, key=key)
+        defaults = self.format_course_data(data, set_key=True)
+        key = defaults['key']
 
         course, created = Course.objects.get_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
 
@@ -422,15 +421,13 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         return defaults
 
-    def format_course_data(self, data, key=None):
-        if not key:
-            course_run_key = CourseKey.from_string(data['field_course_id'])
-            key = self.get_course_key_from_course_run_key(course_run_key)
+    def format_course_data(self, data, set_key=False):
+        # Parse key up front to ensure it's a valid key.
+        # If the course is so messed up that we can't even parse the key, we don't want it.
+        course_run_key = CourseKey.from_string(data['field_course_id'])
 
         defaults = {
-            'key': key,
             'title': self.clean_html(data['field_course_course_title']['value']),
-            'number': data['field_course_code'],
             'full_description': self.get_description(data),
             'video': self.get_video(data),
             'short_description': self.clean_html(data['field_course_sub_title_long']['value']),
@@ -441,6 +438,11 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'prerequisites_raw': (data.get('field_course_prerequisites', {}) or {}).get('value'),
             'extra_description': self.get_extra_description(data)
         }
+
+        if set_key:
+            # Only set key/number values if we're asked to, normally we don't want to change these in Discovery
+            defaults['key'] = self.get_course_key_from_course_run_key(course_run_key)
+            defaults['number'] = data['field_course_code']
 
         return defaults
 
