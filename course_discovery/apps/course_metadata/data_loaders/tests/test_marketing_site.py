@@ -557,6 +557,23 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             self.assert_course_loaded(datum)
 
     @responses.activate
+    def test_update_does_not_change_key(self):
+        # First make a course run & course with different keys than will be ingested
+        course = factories.CourseFactory(key='HarvardX/Previous', number='Previous', title='Foo')  # bad course code
+        factories.CourseRunFactory(key='HarvardX/PH207x/2012_Fall', course=course)
+
+        # Now ingest
+        self.mock_login_response()
+        self.mock_api()
+        self.loader.ingest()
+
+        # Test that key/number didn't change (even though other fields did)
+        course.refresh_from_db()
+        self.assertTrue(course.title.startswith('Health in Numbers:'))
+        self.assertEqual(course.key, 'HarvardX/Previous')
+        self.assertEqual(course.number, 'Previous')
+
+    @responses.activate
     def test_course_run_creation(self):
         self.mocked_data = [
             mock_data.ORIGINAL_MARKETING_SITE_API_COURSE_BODY,
