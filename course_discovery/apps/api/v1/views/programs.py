@@ -32,7 +32,10 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
         partner = self.request.site.partner
-        return self.get_serializer_class().prefetch_queryset(partner)
+        q = self.request.query_params.get('q')
+        queryset = q and Program.search(q)
+
+        return self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
@@ -81,6 +84,12 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
               multiple: false
             - name: types
               description: Filter by comma-separated list of program type slugs
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+            - name: q
+              description: Elasticsearch querystring query. This filter takes precedence over other filters
               required: false
               type: string
               paramType: query

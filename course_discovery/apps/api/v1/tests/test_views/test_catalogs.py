@@ -13,7 +13,7 @@ from django.core.cache import cache
 from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, FuzzyInt, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -181,7 +181,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             # to be included.
             filtered_course_run = CourseRunFactory(course=course)
 
-            with self.assertNumQueries(25):
+            with self.assertNumQueries(FuzzyInt(23, 2)):
                 response = self.client.get(url)
 
             assert response.status_code == 200
