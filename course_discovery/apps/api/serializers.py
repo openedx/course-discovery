@@ -937,8 +937,11 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     degree = DegreeSerializer()
 
     @classmethod
-    def prefetch_queryset(cls, partner):
-        return Program.objects.filter(partner=partner).select_related('type', 'partner').prefetch_related(
+    def prefetch_queryset(cls, partner, queryset=None):
+        # Explicitly check if the queryset is None before selecting related
+        queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
+
+        return queryset.select_related('type', 'partner').prefetch_related(
             'excluded_course_runs',
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
@@ -1065,7 +1068,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     topics = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, partner):
+    def prefetch_queryset(cls, partner, queryset=None):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
@@ -1073,7 +1076,9 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        return Program.objects.filter(partner=partner).select_related('type', 'video', 'partner').prefetch_related(
+        queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
+
+        return queryset.select_related('type', 'video', 'partner').prefetch_related(
             'excluded_course_runs',
             'expected_learning_items',
             'faq',

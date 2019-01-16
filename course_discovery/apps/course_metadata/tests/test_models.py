@@ -660,6 +660,29 @@ class ProgramTests(TestCase):
 
         return factories.ProgramFactory(type=program_type, courses=[course_run.course])
 
+    def test_search(self):
+        """
+        Verify that the program endpoint correctly handles basic elasticsearch queries
+        """
+        title = 'Some random title'
+        expected = set(factories.ProgramFactory.create_batch(1, title=title))
+        # Create an extra program that should not show up
+        factories.ProgramFactory()
+        query = 'title:' + title
+        self.assertSetEqual(set(Program.search(query)), expected)
+
+    def test_subject_search(self):
+        """
+        Verify that the program endpoint correctly handles elasticsearch queries on the subject uuid
+        """
+        subject = factories.SubjectFactory()
+        course = factories.CourseFactory(subjects=[subject])
+        expected = set(factories.ProgramFactory.create_batch(1, courses=[course]))
+        # Create an extra program that should not show up
+        factories.ProgramFactory()
+        query = str(subject.uuid)
+        self.assertSetEqual(set(Program.search(query)), expected)
+
     def create_program_with_entitlements_and_seats(self):
         verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])

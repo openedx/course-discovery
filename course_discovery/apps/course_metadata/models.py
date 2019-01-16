@@ -344,7 +344,35 @@ class Position(TimeStampedModel):
         return name
 
 
-class Course(TimeStampedModel):
+class PkSearchableMixin:
+    """
+    Represents objects that have a search method to query elasticsearch and load by primary key.
+    """
+
+    @classmethod
+    def search(cls, query):
+        """ Queries the search index.
+
+        Args:
+            query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
+
+        Returns:
+            QuerySet
+        """
+        query = clean_query(query)
+
+        if query == '(*)':
+            # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
+            # want everything, we don't need to actually query elasticsearch at all.
+            return cls.objects.all()
+
+        results = SearchQuerySet().models(cls).raw_search(query)
+        ids = {result.pk for result in results}
+
+        return cls.objects.filter(pk__in=ids)
+
+
+class Course(PkSearchableMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner)
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
@@ -476,35 +504,6 @@ class Course(TimeStampedModel):
                 return course_run.first_enrollable_paid_seat_price
 
         return None
-
-    @classmethod
-    def search(cls, query):
-        """ Queries the search index.
-
-        Args:
-            query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
-
-        Returns:
-            QuerySet
-        """
-        query = clean_query(query)
-
-        if query == '(*)':
-            # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
-            # want everything, we don't need to actually query elasticsearch at all.
-            # No point logging if log_course_search_queries is enabled for this wildcard, so skip that too.
-            return cls.objects.all()
-
-        results = SearchQuerySet().models(cls).raw_search(query)
-        ids = {result.pk for result in results}
-
-        if waffle.switch_is_active('log_course_search_queries'):
-            logger.info('Course search query {query} returned the following ids: {course_ids}'.format(
-                query=query,
-                course_ids=ids
-            ))
-
-        return cls.objects.filter(pk__in=ids)
 
 
 class CourseRun(TimeStampedModel):
@@ -1029,7 +1028,7 @@ class ProgramType(TimeStampedModel):
         return self.name
 
 
-class Program(TimeStampedModel):
+class Program(PkSearchableMixin, TimeStampedModel):
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
         help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
