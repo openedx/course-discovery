@@ -56,6 +56,11 @@ urlpatterns = auth_urlpatterns + [
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
 ]
 
+# edx-drf-extensions csrf app
+urlpatterns += [
+    url(r'', include('csrf.urls')),
+]
+
 # Add the catalog extension urls if edx_catalog_extensions is installed.
 if 'course_discovery.apps.edx_catalog_extensions' in settings.INSTALLED_APPS:
     urlpatterns.append(
