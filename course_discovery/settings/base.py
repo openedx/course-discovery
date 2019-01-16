@@ -56,6 +56,8 @@ THIRD_PARTY_APPS = [
     'solo',
     'webpack_loader',
     'parler',
+    # edx-drf-extensions
+    'csrf.apps.CsrfAppConfig',  # Enables frontend apps to retrieve CSRF tokens.
 ]
 
 PROJECT_APPS = [
