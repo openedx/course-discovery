@@ -33,7 +33,10 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
         # which happens when the queryset is stored in a class property.
         partner = self.request.site.partner
         q = self.request.query_params.get('q')
-        queryset = q and Program.search(q)
+        queryset = None
+
+        if q:
+            queryset = Program.search(q)
 
         return self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
 
