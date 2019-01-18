@@ -58,6 +58,7 @@ THIRD_PARTY_APPS = [
     'parler',
     # edx-drf-extensions
     'csrf.apps.CsrfAppConfig',  # Enables frontend apps to retrieve CSRF tokens.
+    'corsheaders',
 ]
 
 PROJECT_APPS = [
@@ -80,6 +81,7 @@ INSTALLED_APPS += PROJECT_APPS
 INSTALLED_APPS += ['haystack']
 
 MIDDLEWARE_CLASSES = (
+    'corsheaders.middleware.CorsMiddleware',
     'edx_django_utils.cache.middleware.RequestCacheMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
