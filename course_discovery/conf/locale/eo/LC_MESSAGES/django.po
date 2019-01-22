@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-24 15:50+0000\n"
+"POT-Creation-Date: 2019-02-06 21:16+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -75,6 +75,50 @@ msgid ""
 msgstr ""
 "Längüägés thät çöürsé rüns ïn thïs prögräm hävé äväïläßlé tränsçrïpts ïn. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid "Missing value for: [{name}]. "
+msgstr "Mïssïng välüé för: [{name}].  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/api/v1/views/courses.py
+msgid "Organization does not exist. "
+msgstr "Örgänïzätïön döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/api/v1/views/courses.py
+msgid "Entitlement Track does not exist. "
+msgstr ""
+"Éntïtlémént Träçk döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/api/v1/views/courses.py
+msgid "Incorrect data sent. "
+msgstr "Ìnçörréçt dätä sént.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid ""
+"The following error occurred while creating the Course Entitlement in "
+"E-commerce: {ecom_error}"
+msgstr ""
+"Thé föllöwïng érrör öççürréd whïlé çréätïng thé Çöürsé Éntïtlémént ïn "
+"É-çömmérçé: {ecom_error} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/api/v1/views/courses.py
+msgid "Failed to add course data due to a failure in product creation."
+msgstr ""
+"Fäïléd tö ädd çöürsé dätä düé tö ä fäïlüré ïn prödüçt çréätïön. Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/v1/views/courses.py
+#, python-format
+msgid "An error occurred while creating the Course [%s]."
+msgstr ""
+"Àn érrör öççürréd whïlé çréätïng thé Çöürsé [%s]. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/v1/views/courses.py
+msgid "Failed to add course data."
+msgstr "Fäïléd tö ädd çöürsé dätä. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/api/views.py
 msgid "You are not permitted to access the API documentation."

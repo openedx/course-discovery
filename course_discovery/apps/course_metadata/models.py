@@ -960,7 +960,7 @@ class CourseEntitlement(TimeStampedModel):
     mode = models.ForeignKey(SeatType)
     partner = models.ForeignKey(Partner, null=True, blank=False)
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
-    currency = models.ForeignKey(Currency)
+    currency = models.ForeignKey(Currency, default='USD')
     sku = models.CharField(max_length=128, null=True, blank=True)
     expires = models.DateTimeField(null=True, blank=True)
 
