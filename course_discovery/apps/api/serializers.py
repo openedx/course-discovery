@@ -146,7 +146,7 @@ def get_utm_source_for_user(partner, user):
 
 class TimestampModelSerializer(serializers.ModelSerializer):
     """Serializer for timestamped models."""
-    modified = serializers.DateTimeField()
+    modified = serializers.DateTimeField(required=False)
 
 
 class ContentTypeSerializer(serializers.Serializer):
@@ -670,7 +670,7 @@ class ContainedCourseRunsSerializer(serializers.Serializer):
 
 class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     course_runs = MinimalCourseRunSerializer(many=True)
-    entitlements = CourseEntitlementSerializer(many=True)
+    entitlements = CourseEntitlementSerializer(required=False, many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
     image = ImageField(read_only=True, source='image_url')
 
@@ -694,18 +694,18 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
-    subjects = SubjectSerializer(many=True)
-    prerequisites = PrerequisiteSerializer(many=True)
+    subjects = SubjectSerializer(required=False, many=True)
+    prerequisites = PrerequisiteSerializer(required=False, many=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    video = VideoSerializer()
-    owners = OrganizationSerializer(many=True, source='authoring_organizations')
-    sponsors = OrganizationSerializer(many=True, source='sponsoring_organizations')
+    video = VideoSerializer(required=False)
+    owners = OrganizationSerializer(required=False, many=True, source='authoring_organizations')
+    sponsors = OrganizationSerializer(required=False, many=True, source='sponsoring_organizations')
     course_runs = CourseRunSerializer(many=True)
     marketing_url = serializers.SerializerMethodField()
     canonical_course_run_key = serializers.SerializerMethodField()
     original_image = ImageField(read_only=True, source='original_image_url')
-    extra_description = AdditionalPromoAreaSerializer()
-    topics = TagListSerializerField()
+    extra_description = AdditionalPromoAreaSerializer(required=False)
+    topics = TagListSerializerField(required=False)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
@@ -726,12 +726,15 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     class Meta(MinimalCourseSerializer.Meta):
         model = Course
         fields = MinimalCourseSerializer.Meta.fields + (
-            'short_description', 'full_description', 'level_type', 'subjects', 'prerequisites',
+            'full_description', 'level_type', 'subjects', 'prerequisites',
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
-            'enrollment_count', 'recent_enrollment_count', 'topics',
+            'enrollment_count', 'recent_enrollment_count', 'topics', 'partner',
         )
+        extra_kwargs = {
+            'partner': {'write_only': True}
+        }
 
     def get_marketing_url(self, obj):
         return get_marketing_url_for_user(
@@ -745,6 +748,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         if obj.canonical_course_run:
             return obj.canonical_course_run.key
         return None
+
+    def create(self, validated_data):
+        return Course.objects.create(**validated_data)
 
 
 class CourseWithProgramsSerializer(CourseSerializer):

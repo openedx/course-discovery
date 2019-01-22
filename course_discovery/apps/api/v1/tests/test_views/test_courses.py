@@ -1,17 +1,23 @@
 import datetime
+import json
 
 import ddt
 import pytest
 import pytz
+import responses
+from django.db import IntegrityError
 from django.db.models.functions import Lower
+from mock import mock
 from rest_framework.reverse import reverse
+from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
+from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, CourseEntitlement
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, ProgramFactory, SeatFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory, SeatFactory
 )
 
 
@@ -24,6 +30,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course = CourseFactory(partner=self.partner)
+        self.org = OrganizationFactory(key='edX')
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
@@ -212,7 +219,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
-        with self.assertNumQueries(57):
+        with self.assertNumQueries(54):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -248,3 +255,180 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
             response.data['results'],
             self.serialize_course([self.course], many=True, extra_context=context)
         )
+
+    def test_create_without_authentication(self):
+        """ Verify authentication is required when creating a person. """
+        self.client.logout()
+        Course.objects.all().delete()
+
+        url = reverse('api:v1:course-list')
+        response = self.client.post(url)
+        assert response.status_code == 403
+        assert Course.objects.count() == 0
+
+    @responses.activate
+    def test_create_with_authentication(self):
+        responses.add(
+            responses.POST,
+            self.partner.lms_url + '/oauth2/access_token',
+            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
+            status=200,
+        )
+        url = reverse('api:v1:course-list')
+        course_data = {
+            'title': 'Course title',
+            'number': 'test101',
+            'org': self.org.key,
+            'mode': 'verified',
+            'price': 100,
+        }
+        ecom_url = self.partner.ecommerce_api_url + 'products/'
+        ecom_entitlement_data = {
+            'product_class': 'Course Entitlement',
+            'title': course_data['title'],
+            'price': course_data['price'],
+            'certificate_type': course_data['mode'],
+            'uuid': '00000000-0000-0000-0000-000000000000',
+            'stockrecords': [{'partner_sku': 'ABC123'}],
+        }
+        responses.add(
+            responses.POST,
+            ecom_url,
+            body=json.dumps(ecom_entitlement_data),
+            content_type='application/json',
+            status=201,
+            match_querystring=True
+        )
+        response = self.client.post(url, course_data, format='json')
+
+        course = Course.objects.last()
+        self.assertDictEqual(response.data, self.serialize_course(course))
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(course.title, course_data['title'])
+        expected_course_key = '{org}+{number}'.format(org=course_data['org'], number=course_data['number'])
+        self.assertEqual(course.key, expected_course_key)
+        self.assertEqual(course.title, course_data['title'])
+        self.assertEqual(1, CourseEntitlement.objects.count())
+
+    def test_create_fails_with_missing_field(self):
+        url = reverse('api:v1:course-list')
+        course_data = {
+            'title': 'Course title',
+            'org': self.org.key,
+            'mode': 'audit',
+        }
+        response = self.client.post(url, course_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        expected_error_message = 'Incorrect data sent. Missing value for: [number].'
+        self.assertEqual(response.data, expected_error_message)
+
+    def test_create_fails_with_nonexistent_org(self):
+        url = reverse('api:v1:course-list')
+        course_data = {
+            'title': 'Course title',
+            'number': 'test101',
+            'org': 'fake org',
+            'mode': 'audit',
+        }
+        response = self.client.post(url, course_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        expected_error_message = 'Incorrect data sent. Organization does not exist.'
+        self.assertEqual(response.data, expected_error_message)
+
+    def test_create_fails_with_nonexistent_mode(self):
+        url = reverse('api:v1:course-list')
+        course_data = {
+            'title': 'Course title',
+            'number': 'test101',
+            'org': self.org.key,
+            'mode': 'fake mode',
+        }
+        response = self.client.post(url, course_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        expected_error_message = 'Incorrect data sent. Entitlement Track does not exist.'
+        self.assertEqual(response.data, expected_error_message)
+
+    @ddt.data(
+        (
+            {'title': 'Course title', 'number': 'test101', 'org': 'fake org', 'mode': 'fake mode'},
+            'Incorrect data sent. Organization does not exist. Entitlement Track does not exist.'
+        ),
+        (
+            {'title': 'Course title', 'org': 'edX', 'mode': 'fake mode'},
+            'Incorrect data sent. Missing value for: [number]. Entitlement Track does not exist.'
+        ),
+        (
+            {'title': 'Course title', 'org': 'fake org', 'mode': 'audit'},
+            'Incorrect data sent. Missing value for: [number]. Organization does not exist.'
+        ),
+        (
+            {'number': 'test101', 'org': 'fake org', 'mode': 'fake mode'},
+            'Incorrect data sent. Missing value for: [title]. Organization does not exist. '
+            'Entitlement Track does not exist.'
+        ),
+    )
+    @ddt.unpack
+    def test_create_fails_with_multiple_errors(self, course_data, expected_error_message):
+        url = reverse('api:v1:course-list')
+        response = self.client.post(url, course_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data, expected_error_message)
+
+    def test_create_with_api_exception(self):
+        url = reverse('api:v1:course-list')
+        course_data = {
+            'title': 'Course title',
+            'number': 'test101',
+            'org': self.org.key,
+            'mode': 'audit',
+        }
+        with mock.patch(
+            'course_discovery.apps.api.v1.views.courses.CourseViewSet.perform_create',
+            side_effect=IntegrityError
+        ):
+            with LogCapture(course_logger.name) as log_capture:
+                response = self.client.post(url, course_data, format='json')
+                self.assertEqual(response.status_code, 400)
+                log_capture.check(
+                    (
+                        course_logger.name,
+                        'ERROR',
+                        'An error occurred while creating the Course [{title}].'.format(title=course_data['title'])
+                    )
+                )
+
+    @responses.activate
+    def test_create_with_ecom_api_exception(self):
+        responses.add(
+            responses.POST,
+            self.partner.lms_url + '/oauth2/access_token',
+            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
+            status=200,
+        )
+        url = reverse('api:v1:course-list')
+        course_data = {
+            'title': 'Course title',
+            'number': 'test101',
+            'org': self.org.key,
+            'mode': 'verified',
+            'price': 100,
+        }
+        ecom_url = self.partner.ecommerce_api_url + 'products/'
+        expected_error_message = 'Missing or bad value for: [title].'
+        responses.add(
+            responses.POST,
+            ecom_url,
+            body=expected_error_message,
+            status=400,
+        )
+        with LogCapture(course_logger.name) as log_capture:
+            response = self.client.post(url, course_data, format='json')
+            self.assertEqual(response.status_code, 400)
+            log_capture.check(
+                (
+                    course_logger.name,
+                    'ERROR',
+                    'The following error occurred while creating the Course Entitlement in E-commerce: '
+                    '{ecom_error}'.format(ecom_error=expected_error_message)
+                )
+            )

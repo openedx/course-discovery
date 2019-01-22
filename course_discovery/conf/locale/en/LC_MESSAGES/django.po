@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-24 15:50+0000\n"
+"POT-Creation-Date: 2019-02-06 21:16+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -28,33 +28,70 @@ msgid ""
 "parameter."
 msgstr ""
 
-#: apps/api/serializers.py:499
+#: apps/api/serializers.py:500
 msgid "Number of courses contained in this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:502
+#: apps/api/serializers.py:503
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:595
+#: apps/api/serializers.py:596
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:666
+#: apps/api/serializers.py:667
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:831
+#: apps/api/serializers.py:838
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1058
+#: apps/api/serializers.py:1065
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1062
+#: apps/api/serializers.py:1069
 msgid ""
 "Languages that course runs in this program have available transcripts in."
+msgstr ""
+
+#: apps/api/v1/views/courses.py:122
+#, python-brace-format
+msgid "Missing value for: [{name}]. "
+msgstr ""
+
+#: apps/api/v1/views/courses.py:124
+msgid "Organization does not exist. "
+msgstr ""
+
+#: apps/api/v1/views/courses.py:126
+msgid "Entitlement Track does not exist. "
+msgstr ""
+
+#: apps/api/v1/views/courses.py:128
+msgid "Incorrect data sent. "
+msgstr ""
+
+#: apps/api/v1/views/courses.py:166
+#, python-brace-format
+msgid ""
+"The following error occurred while creating the Course Entitlement in E-"
+"commerce: {ecom_error}"
+msgstr ""
+
+#: apps/api/v1/views/courses.py:169
+msgid "Failed to add course data due to a failure in product creation."
+msgstr ""
+
+#: apps/api/v1/views/courses.py:173
+#, python-format
+msgid "An error occurred while creating the Course [%s]."
+msgstr ""
+
+#: apps/api/v1/views/courses.py:175
+msgid "Failed to add course data."
 msgstr ""
 
 #: apps/api/views.py:52
@@ -368,8 +405,8 @@ msgstr ""
 #: apps/course_metadata/models.py:112 apps/course_metadata/models.py:151
 #: apps/course_metadata/models.py:216 apps/course_metadata/models.py:261
 #: apps/course_metadata/models.py:378 apps/course_metadata/models.py:511
-#: apps/course_metadata/models.py:1032 apps/course_metadata/models.py:1651
-#: apps/course_metadata/models.py:1699 apps/journal/models.py:23
+#: apps/course_metadata/models.py:1032 apps/course_metadata/models.py:1653
+#: apps/course_metadata/models.py:1723 apps/journal/models.py:23
 #: apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
@@ -684,119 +721,119 @@ msgstr ""
 msgid "The Hubspot form ID for the lead capture form"
 msgstr ""
 
-#: apps/course_metadata/models.py:1496
+#: apps/course_metadata/models.py:1497
 msgid "URL to micromasters landing page"
 msgstr ""
 
-#: apps/course_metadata/models.py:1502
+#: apps/course_metadata/models.py:1503
 msgid "Micromasters verbose title"
 msgstr ""
 
-#: apps/course_metadata/models.py:1508
+#: apps/course_metadata/models.py:1509
 msgid "Micromasters descriptive paragraph"
 msgstr ""
 
-#: apps/course_metadata/models.py:1521
+#: apps/course_metadata/models.py:1522
 msgid "Customized background image for the MicroMasters section."
 msgstr ""
 
-#: apps/course_metadata/models.py:1524
+#: apps/course_metadata/models.py:1525
 msgid "Ranking display for search card (e.g. \"#1 in the U.S.\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1530
+#: apps/course_metadata/models.py:1531
 msgid "Cost display for search card (e.g. \"$9,999\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1536
+#: apps/course_metadata/models.py:1537
 msgid "Number of courses for search card (e.g. \"11 Courses\""
 msgstr ""
 
-#: apps/course_metadata/models.py:1568
+#: apps/course_metadata/models.py:1569
 msgid "Bell"
 msgstr ""
 
-#: apps/course_metadata/models.py:1569
+#: apps/course_metadata/models.py:1570
 msgid "Certificate"
 msgstr ""
 
-#: apps/course_metadata/models.py:1570
+#: apps/course_metadata/models.py:1571
 msgid "Checkmark"
 msgstr ""
 
-#: apps/course_metadata/models.py:1571
+#: apps/course_metadata/models.py:1572
 msgid "Clock"
 msgstr ""
 
-#: apps/course_metadata/models.py:1572
+#: apps/course_metadata/models.py:1573
 msgid "Desktop"
 msgstr ""
 
-#: apps/course_metadata/models.py:1573
+#: apps/course_metadata/models.py:1574
 msgid "Info"
 msgstr ""
 
-#: apps/course_metadata/models.py:1574
+#: apps/course_metadata/models.py:1575
 msgid "Sitemap"
 msgstr ""
 
-#: apps/course_metadata/models.py:1575
+#: apps/course_metadata/models.py:1576
 msgid "User"
 msgstr ""
 
-#: apps/course_metadata/models.py:1576
+#: apps/course_metadata/models.py:1577
 msgid "Dollar"
 msgstr ""
 
-#: apps/course_metadata/models.py:1577
+#: apps/course_metadata/models.py:1578
 msgid "Book"
 msgstr ""
 
-#: apps/course_metadata/models.py:1578
+#: apps/course_metadata/models.py:1579
 msgid "Mortar Board"
 msgstr ""
 
-#: apps/course_metadata/models.py:1579
+#: apps/course_metadata/models.py:1580
 msgid "Star"
 msgstr ""
 
-#: apps/course_metadata/models.py:1580
+#: apps/course_metadata/models.py:1581
 msgid "Trophy"
 msgstr ""
 
-#: apps/course_metadata/models.py:1584
+#: apps/course_metadata/models.py:1585
 msgid "Icon FA class"
 msgstr ""
 
-#: apps/course_metadata/models.py:1585
+#: apps/course_metadata/models.py:1586
 msgid "Paired text"
 msgstr ""
 
-#: apps/course_metadata/models.py:1604
+#: apps/course_metadata/models.py:1605
 msgid "Deadline applies for this semester (e.g. Spring 2019"
 msgstr ""
 
-#: apps/course_metadata/models.py:1608
+#: apps/course_metadata/models.py:1609
 msgid "Describes the deadline (e.g. Early Admission Deadline)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1612
+#: apps/course_metadata/models.py:1613
 msgid "The date after which the deadline expires (e.g. January 1, 2019)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1616
+#: apps/course_metadata/models.py:1617
 msgid "The time after which the deadline expires (e.g. 11:59 PM EST)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1634
+#: apps/course_metadata/models.py:1636
 msgid "Describes what the cost is for (e.g. Tuition)"
 msgstr ""
 
-#: apps/course_metadata/models.py:1638
+#: apps/course_metadata/models.py:1640
 msgid "String-based field stating how much the cost is (e.g. $1000)."
 msgstr ""
 
-#: apps/course_metadata/models.py:1658
+#: apps/course_metadata/models.py:1666
 msgid ""
 "A high-level overview of the degree's courseware. The \"brief\"\n"
 "            text is the first 750 characters of \"marketing_text\" and must "
@@ -804,39 +841,39 @@ msgid ""
 "            valid HTML."
 msgstr ""
 
-#: apps/course_metadata/models.py:1666
+#: apps/course_metadata/models.py:1674
 msgid "A high-level overview of the degree's courseware."
 msgstr ""
 
-#: apps/course_metadata/models.py:1704
+#: apps/course_metadata/models.py:1728
 msgid "Organization name"
 msgstr ""
 
-#: apps/course_metadata/models.py:1726
+#: apps/course_metadata/models.py:1750
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 
-#: apps/course_metadata/models.py:1738
+#: apps/course_metadata/models.py:1762
 msgid "Facebook"
 msgstr ""
 
-#: apps/course_metadata/models.py:1739
+#: apps/course_metadata/models.py:1763
 msgid "Twitter"
 msgstr ""
 
-#: apps/course_metadata/models.py:1740
+#: apps/course_metadata/models.py:1764
 msgid "Blog"
 msgstr ""
 
-#: apps/course_metadata/models.py:1741
+#: apps/course_metadata/models.py:1765
 msgid "Others"
 msgstr ""
 
-#: apps/course_metadata/models.py:1806 apps/publisher/models.py:1144
+#: apps/course_metadata/models.py:1830 apps/publisher/models.py:1144
 msgid "Course Run IDs"
 msgstr ""
 
-#: apps/course_metadata/models.py:1814
+#: apps/course_metadata/models.py:1838
 msgid "Profile Image UUIDs"
 msgstr ""
 
@@ -1507,7 +1544,7 @@ msgid "Accepted"
 msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html:38
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:53
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:52
 msgid "Publish"
 msgstr ""
 
@@ -3024,41 +3061,41 @@ msgstr ""
 msgid "Reason for declining preview"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:18
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:17
 #, python-format
 msgid ""
 "The About page for this course run was published on %(course_publish_date)s."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:22
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:21
 msgid "View it on edx.org at"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:33
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:32
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html:8
 msgid "All"
 msgstr ""
 
 #. Translators: Studio is an edX tool for course creation.
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:35
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:34
 msgid "STUDIO"
 msgstr ""
 
 #. Translators: CAT is an acronym for Course Administration Tool.
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:37
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:36
 msgid "CAT"
 msgstr ""
 
 #. Translators: DRUPAL is an edX marketing site.
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:39
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:38
 msgid "DRUPAL"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:159
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:158
 msgid "Successfully published to Studio, E-Commerce, and Discovery."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:162
+#: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html:161
 msgid "Publication failed."
 msgstr ""
 

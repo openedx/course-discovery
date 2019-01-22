@@ -22,7 +22,7 @@ class OverridableUserRateThrottle(UserRateThrottle):
     def allow_request(self, request, view):
         user = request.user
 
-        if user and user.is_authenticated():
+        if user and user.is_authenticated:
             if user.is_superuser or user.is_staff:
                 return True
             try:

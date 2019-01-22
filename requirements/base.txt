@@ -41,7 +41,7 @@ edx-django-sites-extensions==2.3.0
 edx-django-utils==1.0.1
 edx-drf-extensions==2.0.1
 edx-opaque-keys==0.3.1
-edx-rest-api-client==1.8.2
+edx-rest-api-client==1.9.0
 elasticsearch>=1.0.0,<2.0.0
 html2text==2016.9.19
 jsonfield==1.0.3
