@@ -390,8 +390,8 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     @property
     def preview_url(self):
         run = self.discovery_course_run
-        # test staff as a proxy for if discovery has been published to yet - we don't want to show URL until then
-        run_valid = run and run.staff.exists()
+        # test language as a proxy for if discovery has been published to yet - we don't want to show URL until then
+        run_valid = run and run.language
         return run.marketing_url if run_valid else None
 
     @property
