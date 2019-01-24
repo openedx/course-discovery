@@ -1486,6 +1486,11 @@ class Degree(Program):
         },
         help_text=_('Please provide an image file for the lead capture banner.'),
     )
+    hubspot_lead_capture_form_id = models.CharField(
+        help_text=_('The Hubspot form ID for the lead capture form'),
+        null=True,
+        max_length=128,
+    )
 
     micromasters_url = models.URLField(
         help_text=_('URL to micromasters landing page'),

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-10 17:59+0000\n"
+"POT-Creation-Date: 2019-01-24 15:50+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -870,6 +870,12 @@ msgid "Please provide an image file for the lead capture banner."
 msgstr ""
 "Pléäsé prövïdé än ïmägé fïlé för thé léäd çäptüré ßännér. Ⱡ'σяєм ιρѕυм ∂σłσя"
 " ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The Hubspot form ID for the lead capture form"
+msgstr ""
+"Thé Hüßspöt förm ÌD för thé léäd çäptüré förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
 msgid "URL to micromasters landing page"
