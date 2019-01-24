@@ -1,9 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from guardian.shortcuts import get_objects_for_user
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
+from course_discovery.apps.publisher.models import OrganizationExtension
 
 
 # pylint: disable=no-member
@@ -22,8 +24,23 @@ class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = ProxiedPagination
 
     def get_queryset(self):
+        user = self.request.user
         partner = self.request.site.partner
-        return serializers.OrganizationSerializer.prefetch_queryset(partner=partner)
+
+        if user.is_staff:
+            return serializers.OrganizationSerializer.prefetch_queryset(partner=partner)
+        else:
+            organizations = get_objects_for_user(
+                user,
+                OrganizationExtension.VIEW_COURSE,
+                OrganizationExtension,
+                use_groups=True,
+                with_superuser=False
+            ).values_list('organization')
+            orgs_queryset = serializers.OrganizationSerializer.prefetch_queryset(partner=partner).filter(
+                pk__in=organizations
+            )
+            return orgs_queryset
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all organizations. """
