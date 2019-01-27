@@ -16,13 +16,14 @@
 # romain couturat <romain.couturat@fun-mooc.fr>, 2016
 # Sébastien Vigneau <sebastien.vigneau@gmail.com>, 2016-2017
 # Sébastien Vigneau <sebastien.vigneau@gmail.com>, 2017
+# willyedoo <willyedoo@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-12-06 23:21+0000\n"
-"Last-Translator: rafcha <raphael.chay@gmail.com>\n"
+"PO-Revision-Date: 2019-01-25 15:29+0000\n"
+"Last-Translator: willyedoo <willyedoo@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/open-edx/edx-platform/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -341,7 +342,7 @@ msgstr "Personnes"
 
 #: apps/course_metadata/models.py
 msgid "Add the course image"
-msgstr ""
+msgstr "Ajouter l'image du cours"
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
@@ -640,7 +641,7 @@ msgstr ""
 
 #: apps/publisher/emails.py
 msgid "Course team"
-msgstr ""
+msgstr "Équipe pédagogique"
 
 #: apps/publisher/emails.py
 msgid "Legal Team"
@@ -653,18 +654,18 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Remove Image"
-msgstr ""
+msgstr "Enlever l'image"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Organization Name"
-msgstr ""
+msgstr "Nom de l'organisation"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Course Title"
-msgstr ""
+msgstr "Titre du cours"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -674,26 +675,26 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
-msgstr ""
+msgstr "Numéro du cours"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Short Description"
-msgstr ""
+msgstr "Description courte"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Long Description"
-msgstr ""
+msgstr "Description longue"
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Prerequisites"
-msgstr ""
+msgstr "Pré-requis"
 
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
@@ -701,7 +702,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Primary"
-msgstr ""
+msgstr "Primaire"
 
 #: apps/publisher/forms.py
 msgid "Additional Subject (optional)"
@@ -710,12 +711,12 @@ msgstr ""
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Level"
-msgstr ""
+msgstr "Niveau"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "What You Will Learn"
-msgstr ""
+msgstr "Ce que vous allez apprendre"
 
 #: apps/publisher/forms.py
 msgid "Learner Testimonial"
@@ -734,11 +735,11 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "This course title already exists"
-msgstr ""
+msgstr "Ce titre du cours est déjà utilisé"
 
 #: apps/publisher/forms.py
 msgid "This course number already exists"
-msgstr ""
+msgstr "Ce numéro du cours est déjà utilisé"
 
 #: apps/publisher/forms.py
 msgid "Find Course"
@@ -746,23 +747,23 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Course Start Date"
-msgstr ""
+msgstr "Date de début du cours"
 
 #: apps/publisher/forms.py
 msgid "Course End Date"
-msgstr ""
+msgstr "Date de fin du cours"
 
 #: apps/publisher/forms.py
 msgid "Instructor"
-msgstr ""
+msgstr "Enseignant"
 
 #: apps/publisher/forms.py
 msgid "Pacing"
-msgstr ""
+msgstr "Rythme"
 
 #: apps/publisher/forms.py
 msgid "Transcript Languages"
-msgstr ""
+msgstr "Langues des transcriptions"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -776,7 +777,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Professional Certificate"
-msgstr ""
+msgstr "Certificat professionnel"
 
 #: apps/publisher/forms.py
 msgid "XSeries Name"
@@ -793,7 +794,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Video Language"
-msgstr ""
+msgstr "Langue de la vidéo"
 
 #: apps/publisher/forms.py
 msgid "Start date cannot be after the End date"
@@ -825,7 +826,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Choose enrollment track"
-msgstr ""
+msgstr "Choisir le parcours d'inscription"
 
 #: apps/publisher/forms.py
 msgid "Audit only"
@@ -851,15 +852,15 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Price is required."
-msgstr ""
+msgstr "Le prix est requis."
 
 #: apps/publisher/forms.py
 msgid "This field is required."
-msgstr ""
+msgstr "Ce champ est requis."
 
 #: apps/publisher/forms.py
 msgid "Invalid course key."
-msgstr ""
+msgstr "Clé de cours invalide."
 
 #: apps/publisher/forms.py
 msgid "Owner role can not be publisher if the state is draft or review"
@@ -879,16 +880,16 @@ msgstr "Titre du cours"
 
 #: apps/publisher/models.py
 msgid "Course number"
-msgstr ""
+msgstr "Numéro du cours"
 
 #: apps/publisher/models.py
 msgid "Brief Description"
-msgstr ""
+msgstr "Description brève"
 
 #: apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Full Description"
-msgstr ""
+msgstr "Description complète"
 
 #: apps/publisher/models.py
 msgid "Partner Name"
@@ -919,23 +920,23 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 1"
-msgstr ""
+msgstr "Niveau 1"
 
 #: apps/publisher/models.py
 msgid "Level 2"
-msgstr ""
+msgstr "Niveau 2"
 
 #: apps/publisher/models.py
 msgid "Level 3"
-msgstr ""
+msgstr "Niveau 3"
 
 #: apps/publisher/models.py
 msgid "Level 4"
-msgstr ""
+msgstr "Niveau 4"
 
 #: apps/publisher/models.py
 msgid "Level 5"
-msgstr ""
+msgstr "Niveau 5"
 
 #: apps/publisher/models.py
 msgid "Content Language"
@@ -943,7 +944,7 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Length of course, in number of weeks"
-msgstr ""
+msgstr "Durée du cours, en nombre de semaines"
 
 #: apps/publisher/models.py
 msgid ""
@@ -1026,7 +1027,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "The image dimensions must be less than 110 x 110"
-msgstr ""
+msgstr "Les dimensions de l'image doivent être inférieures à 110 x 110"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "The image size must be less than 256KB"
@@ -1034,22 +1035,22 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "First Name"
-msgstr ""
+msgstr "Prénom"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "required"
-msgstr ""
+msgstr "requis"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Last Name"
-msgstr ""
+msgstr "Nom"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
-msgstr ""
+msgstr "Titre"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
@@ -1070,7 +1071,7 @@ msgstr "Un email institutionnel est préféré"
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
-msgstr ""
+msgstr "Organisation"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Enter a different organization"
@@ -1091,7 +1092,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "optional"
-msgstr ""
+msgstr "facultatif"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Twitter URL"
@@ -1132,16 +1133,16 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Accept"
-msgstr ""
+msgstr "Accepter"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Accepted"
-msgstr ""
+msgstr "Accepté"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Publish"
-msgstr ""
+msgstr "Publier"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Submitted for review"
@@ -1170,7 +1171,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Not available"
-msgstr ""
+msgstr "Indisponible"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Sent for Review"
@@ -1202,7 +1203,7 @@ msgstr " Conditions d'utilisation"
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Politique de confidentialité"
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Legal"
@@ -1217,24 +1218,24 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Powered by Open edX"
-msgstr ""
+msgstr "Site réalisé avec Open edX"
 
 #: apps/publisher/templates/publisher/_header.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Account"
-msgstr ""
+msgstr "Compte"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Account Navigation"
-msgstr ""
+msgstr "Navigation du compte"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Contextual Online Help"
-msgstr ""
+msgstr "Aide contextuelle en ligne"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Help"
-msgstr ""
+msgstr "Aide"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Email notifications"
@@ -1250,7 +1251,7 @@ msgstr "OFF"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Sign Out"
-msgstr ""
+msgstr "Se déconnecter"
 
 #: apps/publisher/templates/publisher/_history_widget.html
 msgid "REVISION HISTORY"
@@ -2422,7 +2423,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Close"
-msgstr ""
+msgstr "Fermer"
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Accept About Page Preview"
