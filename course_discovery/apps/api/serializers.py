@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
+from drf_dynamic_fields import DynamicFieldsMixin
 from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer, HaystackSerializerMixin
 from rest_framework import serializers
 from rest_framework.fields import DictField
@@ -667,7 +668,7 @@ class ContainedCourseRunsSerializer(serializers.Serializer):
     )
 
 
-class MinimalCourseSerializer(TimestampModelSerializer):
+class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     course_runs = MinimalCourseRunSerializer(many=True)
     entitlements = CourseEntitlementSerializer(many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
