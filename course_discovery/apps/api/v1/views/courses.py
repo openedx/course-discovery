@@ -3,6 +3,7 @@ import re
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters as rest_framework_filters
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
@@ -17,7 +18,9 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun
 # pylint: disable=no-member
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """ Course resource. """
-    filter_backends = (DjangoFilterBackend,)
+
+    # Check if there's available syntax for ordering by join children elements
+    filter_backends = (DjangoFilterBackend, rest_framework_filters.OrderingFilter)
     filter_class = filters.CourseFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX + '|' + COURSE_UUID_REGEX
