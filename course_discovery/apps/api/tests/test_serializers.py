@@ -701,7 +701,8 @@ class MinimalProgramSerializerTests(TestCase):
             'authoring_organizations': MinimalOrganizationSerializer(program.authoring_organizations, many=True).data,
             'card_image_url': program.card_image_url,
             'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
-            'degree': None
+            'degree': None,
+            'curricula': [],
         }
 
     def test_data(self):
@@ -963,7 +964,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
 
         rankings = RankingFactory.create_batch(3)
         degree = DegreeFactory.create(rankings=rankings)
-        curriculum = CurriculumFactory.create(degree=degree)
+        curriculum = CurriculumFactory.create(degree=degree, program=degree)
         degree.curriculum = curriculum
         quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
         degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
@@ -978,6 +979,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         expected_degree_costs = DegreeCostSerializer(degree.cost, many=True).data
 
         # Tack in degree data
+        expected['curricula'] = [expected_curriculum]
         expected['degree'] = {
             'application_requirements': degree.application_requirements,
             'apply_url': degree.apply_url,

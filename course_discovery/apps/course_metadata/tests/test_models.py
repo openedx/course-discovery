@@ -1438,7 +1438,7 @@ class CurriculumTests(TestCase):
 
     def test_str(self):
         uuid_string = uuid.uuid4()
-        curriculum = Curriculum.objects.create(degree=self.degree, uuid=uuid_string)
+        curriculum = Curriculum.objects.create(degree=self.degree, program=self.degree, uuid=uuid_string)
         self.assertEqual(str(curriculum), str(uuid_string))
 
 
@@ -1551,7 +1551,7 @@ class DegreeTests(TestCase):
         self.course_run = factories.CourseRunFactory()
         self.courses = [self.course_run.course]
         self.degree = factories.DegreeFactory(courses=self.courses)
-        self.curriculum = factories.CurriculumFactory(degree=self.degree)
+        self.curriculum = factories.CurriculumFactory(degree=self.degree, program=self.degree)
 
     def test_basic_degree(self):
         assert self.degree.curriculum is not None
