@@ -339,13 +339,14 @@ class DegreeCourseCurriculumAdmin(admin.ModelAdmin):
 
 @admin.register(Curriculum)
 class CurriculumAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'degree')
+    list_display = ('uuid', 'degree', 'program')
     inlines = (DegreeProgramCurriculumInline, DegreeCourseCurriculumInline)
 
 
 class CurriculumAdminInline(admin.StackedInline):
     model = Curriculum
     extra = 1
+    fk_name = 'program'
 
 
 class IconTextPairingInline(admin.StackedInline):

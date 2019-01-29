@@ -1652,6 +1652,13 @@ class Curriculum(TimeStampedModel):
     """
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     degree = models.OneToOneField(Degree, on_delete=models.CASCADE, related_name='curriculum')
+    program = models.ForeignKey(
+        Program,
+        on_delete=models.CASCADE,
+        related_name='curricula',
+        null=True,
+        default=None,
+    )
     marketing_text_brief = models.TextField(
         null=True,
         blank=True,
