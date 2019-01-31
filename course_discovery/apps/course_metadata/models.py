@@ -1489,6 +1489,7 @@ class Degree(Program):
     hubspot_lead_capture_form_id = models.CharField(
         help_text=_('The Hubspot form ID for the lead capture form'),
         null=True,
+        blank=True,
         max_length=128,
     )
 
