@@ -1442,22 +1442,34 @@ class CurriculumTests(TestCase):
         self.assertEqual(str(curriculum), str(uuid_string))
 
 
+@ddt.ddt
 class DegreeDeadlineTests(TestCase):
     """ Tests the DegreeDeadline model."""
     def setUp(self):
         self.course_run = factories.CourseRunFactory()
         self.courses = [self.course_run.course]
         self.degree = factories.DegreeFactory(courses=self.courses)
+        self.deadline_name = 'A test deadline'
+        self.deadline_date = 'January 1, 2019'
 
     def test_str(self):
-        deadline_name = "A test deadline"
-        deadline_date = "January 1, 2019"
         degree_deadline = DegreeDeadline.objects.create(
             degree=self.degree,
-            name=deadline_name,
-            date=deadline_date,
+            name=self.deadline_name,
+            date=self.deadline_date,
         )
-        self.assertEqual(str(degree_deadline), "{} {}".format(deadline_name, deadline_date))
+        self.assertEqual(str(degree_deadline), "{} {}".format(self.deadline_name, self.deadline_date))
+        self.assertEqual(degree_deadline.time, '')
+
+    @ddt.data('12:30PM EST', '')
+    def test_time_field(self, deadline_time):
+        degree_deadline = DegreeDeadline.objects.create(
+            degree=self.degree,
+            name=self.deadline_name,
+            date=self.deadline_date,
+            time=deadline_time
+        )
+        self.assertEqual(degree_deadline.time, deadline_time)
 
 
 class DegreeCostTests(TestCase):

@@ -1616,6 +1616,7 @@ class DegreeDeadline(TimeStampedModel):
     time = models.CharField(
         help_text=_('The time after which the deadline expires (e.g. 11:59 PM EST).'),
         max_length=255,
+        blank=True,
     )
 
     def __str__(self):
