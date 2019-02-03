@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2019-01-18 19:31+0000\n"
+"PO-Revision-Date: 2019-02-01 16:37+0000\n"
 "Last-Translator: Katerina Ligkovanli <kaligova@gmail.com>\n"
 "Language-Team: Greek (http://www.transifex.com/open-edx/edx-platform/language/el/)\n"
 "MIME-Version: 1.0\n"
@@ -263,7 +263,7 @@ msgstr ""
 
 #: apps/course_metadata/choices.py
 msgid "Deleted"
-msgstr ""
+msgstr "Διαγράφηκε"
 
 #: apps/course_metadata/forms.py
 msgid "Programs can only be activated if they have a banner image."
@@ -740,7 +740,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Course End Date"
-msgstr ""
+msgstr "Ημερομηνία Λήξης του Μαθήματος"
 
 #: apps/publisher/forms.py
 msgid "Instructor"
@@ -823,7 +823,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Professional education"
-msgstr ""
+msgstr "Επαγγελματική κατάρτιση"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -1492,7 +1492,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE END DATE"
-msgstr ""
+msgstr "ΗΜΕΡΟΜΗΝΙΑ ΛΗΞΗΣ ΤΟΥ ΜΑΘΗΜΑΤΟΣ"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
@@ -1536,7 +1536,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Submit"
-msgstr ""
+msgstr "Υποβολή"
 
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 msgid "Add comment"
@@ -2061,7 +2061,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
-msgstr ""
+msgstr "Τίτλος Μαθήματος"
 
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Runs"
@@ -2289,7 +2289,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_cat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course ID"
-msgstr ""
+msgstr "Ταυτότητα μαθήματος"
 
 #: apps/publisher/templates/publisher/course_run_detail/_cat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -2339,7 +2339,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Staff"
-msgstr ""
+msgstr "ΠΡΟΣΩΠΙΚΟ"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "to"
@@ -2525,7 +2525,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Start Date"
-msgstr ""
+msgstr "Ημερομηνία Έναρξης"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "End Date"
@@ -3181,7 +3181,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 msgid "Course end date"
-msgstr ""
+msgstr "Ημερομηνία λήξης του μαθήματος"
 
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
