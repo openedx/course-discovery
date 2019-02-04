@@ -397,7 +397,7 @@ class CurriculumFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     marketing_text_brief = FuzzyText()
     marketing_text = FuzzyText()
-    degree = factory.SubFactory(DegreeFactory)
+    program = factory.SubFactory(ProgramFactory)
 
     @factory.post_generation
     def program_curriculum(self, create, extracted, **kwargs):

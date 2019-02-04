@@ -964,8 +964,8 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
 
         rankings = RankingFactory.create_batch(3)
         degree = DegreeFactory.create(rankings=rankings)
-        curriculum = CurriculumFactory.create(degree=degree, program=degree)
-        degree.curriculum = curriculum
+        curriculum = CurriculumFactory.create(program=degree)
+        degree.curricula = [curriculum]
         quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
         degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
         degree.cost = DegreeCostFactory.create_batch(size=3, degree=degree)
@@ -987,7 +987,6 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'banner_border_color': degree.banner_border_color,
             'campus_image': degree.campus_image,
             'costs': expected_degree_costs,
-            'curriculum': expected_curriculum,
             'deadlines': expected_degree_deadlines,
             'quick_facts': expected_quick_facts,
             'prerequisite_coursework': degree.prerequisite_coursework,
