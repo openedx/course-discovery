@@ -1647,11 +1647,10 @@ class DegreeCost(TimeStampedModel):
 
 class Curriculum(TimeStampedModel):
     """
-    This model links a degree to the curriculum associated with that degree, that is, the
-    courses and programs that compose the degree.
+    This model links a program to the curriculum associated with that program, that is, the
+    courses and programs that compose the program.
     """
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
-    degree = models.OneToOneField(Degree, on_delete=models.CASCADE, related_name='curriculum')
     program = models.ForeignKey(
         Program,
         on_delete=models.CASCADE,

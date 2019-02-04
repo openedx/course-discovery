@@ -912,7 +912,6 @@ class DegreeSerializer(serializers.ModelSerializer):
     campus_image = serializers.ImageField()
     title_background_image = serializers.ImageField()
     costs = DegreeCostSerializer(many=True)
-    curriculum = CurriculumSerializer()
     quick_facts = IconTextPairingSerializer(many=True)
     lead_capture_image = StdImageSerializerField()
     deadlines = DegreeDeadlineSerializer(many=True)
@@ -923,7 +922,7 @@ class DegreeSerializer(serializers.ModelSerializer):
         model = Degree
         fields = (
             'application_requirements', 'apply_url', 'banner_border_color', 'campus_image', 'title_background_image',
-            'costs', 'curriculum', 'deadlines', 'lead_capture_list_name', 'quick_facts',
+            'costs', 'deadlines', 'lead_capture_list_name', 'quick_facts',
             'overall_ranking', 'prerequisite_coursework', 'rankings',
             'lead_capture_image', 'micromasters_url', 'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'costs_fine_print', 'deadlines_fine_print', 'hubspot_lead_capture_form_id',
