@@ -346,7 +346,7 @@ class CurriculumAdmin(admin.ModelAdmin):
 class CurriculumAdminInline(admin.StackedInline):
     model = Curriculum
     extra = 1
-    fk_name = 'program'
+    fk_name = 'degree'
 
 
 class IconTextPairingInline(admin.StackedInline):
