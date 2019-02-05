@@ -1658,6 +1658,8 @@ class Curriculum(TimeStampedModel):
         null=True,
         default=None,
     )
+    name = models.CharField(blank=True, max_length=255)
+    is_active = models.BooleanField(default=True)
     marketing_text_brief = models.TextField(
         null=True,
         blank=True,
