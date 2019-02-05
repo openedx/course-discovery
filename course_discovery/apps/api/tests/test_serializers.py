@@ -23,7 +23,7 @@ from course_discovery.apps.api.serializers import (
     ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer, CourseEntitlementSerializer,
     CourseRunSearchModelSerializer, CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer,
     CourseSearchModelSerializer, CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer,
-    DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer,
+    CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer,
     FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer,
     MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer, MinimalProgramCourseSerializer,
     MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PathwaySerializer,
@@ -41,7 +41,7 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSA
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory,
+    AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumFactory,
     DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
     IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
     PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
@@ -964,6 +964,8 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
 
         rankings = RankingFactory.create_batch(3)
         degree = DegreeFactory.create(rankings=rankings)
+        curriculum = CurriculumFactory.create(program=degree)
+        degree.curricula = [curriculum]
         quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
         degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
         degree.cost = DegreeCostFactory.create_batch(size=3, degree=degree)
@@ -971,12 +973,13 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         serializer = self.serializer_class(degree, context={'request': request})
         expected = self.get_expected_data(degree, request)
         expected_rankings = RankingSerializer(rankings, many=True).data
+        expected_curriculum = CurriculumSerializer(curriculum).data
         expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
         expected_degree_deadlines = DegreeDeadlineSerializer(degree.deadline, many=True).data
         expected_degree_costs = DegreeCostSerializer(degree.cost, many=True).data
 
         # Tack in degree data
-        expected['curricula'] = []
+        expected['curricula'] = [expected_curriculum]
         expected['degree'] = {
             'application_requirements': degree.application_requirements,
             'apply_url': degree.apply_url,
