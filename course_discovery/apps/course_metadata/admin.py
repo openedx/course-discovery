@@ -339,7 +339,7 @@ class CurriculumCourseMembershipAdmin(admin.ModelAdmin):
 
 @admin.register(Curriculum)
 class CurriculumAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'program')
+    list_display = ('uuid', 'program', 'name', 'is_active')
     inlines = (CurriculumProgramMembershipInline, CurriculumCourseMembershipInline)
 
 
