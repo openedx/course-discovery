@@ -317,30 +317,30 @@ class NamedModelAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
-class DegreeProgramCurriculumInline(admin.TabularInline):
-    model = DegreeProgramCurriculum
+class CurriculumProgramMembershipInline(admin.TabularInline):
+    model = CurriculumProgramMembership
     extra = 1
 
 
-class DegreeCourseCurriculumInline(admin.TabularInline):
-    model = DegreeCourseCurriculum
+class CurriculumCourseMembershipInline(admin.TabularInline):
+    model = CurriculumCourseMembership
     extra = 1
 
 
-@admin.register(DegreeProgramCurriculum)
-class DegreeProgramCurriculumAdmin(admin.ModelAdmin):
+@admin.register(CurriculumProgramMembership)
+class CurriculumProgramMembershipAdmin(admin.ModelAdmin):
     list_display = ('curriculum', 'program')
 
 
-@admin.register(DegreeCourseCurriculum)
-class DegreeCourseCurriculumAdmin(admin.ModelAdmin):
+@admin.register(CurriculumCourseMembership)
+class CurriculumCourseMembershipAdmin(admin.ModelAdmin):
     list_display = ('curriculum', 'course')
 
 
 @admin.register(Curriculum)
 class CurriculumAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'program')
-    inlines = (DegreeProgramCurriculumInline, DegreeCourseCurriculumInline)
+    inlines = (CurriculumProgramMembershipInline, CurriculumCourseMembershipInline)
 
 
 class CurriculumAdminInline(admin.StackedInline):
