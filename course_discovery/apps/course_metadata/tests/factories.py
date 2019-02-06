@@ -430,6 +430,22 @@ class DegreeCostFactory(factory.DjangoModelFactory):
     amount = FuzzyText()
 
 
+class CurriculumProgramMembershipFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = CurriculumProgramMembership
+
+    program = factory.SubFactory(ProgramFactory)
+    curriculum = factory.SubFactory(CurriculumFactory)
+
+
+class CurriculumCourseMembershipFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = CurriculumCourseMembership
+
+    course = factory.SubFactory(CourseFactory)
+    curriculum = factory.SubFactory(CurriculumFactory)
+
+
 class DegreeProgramCurriculumFactory(factory.DjangoModelFactory):
     class Meta(object):
         model = DegreeProgramCurriculum
