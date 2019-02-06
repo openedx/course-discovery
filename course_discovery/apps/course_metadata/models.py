@@ -1684,6 +1684,22 @@ class Curriculum(TimeStampedModel):
         return str(self.uuid)
 
 
+class CurriculumProgramMembership(TimeStampedModel):
+    """
+    Represents the Programs that compose the curriculum of a degree.
+    """
+    program = models.ForeignKey(Program, on_delete=models.CASCADE)
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
+
+
+class CurriculumCourseMembership(TimeStampedModel):
+    """
+    Represents the Courses that compose the curriculum of a degree.
+    """
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+
 class DegreeProgramCurriculum(TimeStampedModel):
     """
     Represents the Programs that compose the curriculum of a degree.
