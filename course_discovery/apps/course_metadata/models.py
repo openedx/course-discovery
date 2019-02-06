@@ -1674,10 +1674,10 @@ class Curriculum(TimeStampedModel):
         help_text=_('A high-level overview of the degree\'s courseware.'),
     )
     program_curriculum = models.ManyToManyField(
-        Program, through='course_metadata.DegreeProgramCurriculum', related_name='degree_program_curricula'
+        Program, through='course_metadata.CurriculumProgramMembership', related_name='degree_program_curricula'
     )
     course_curriculum = models.ManyToManyField(
-        Course, through='course_metadata.DegreeCourseCurriculum', related_name='degree_course_curricula'
+        Course, through='course_metadata.CurriculumCourseMembership', related_name='degree_course_curricula'
     )
 
     def __str__(self):
