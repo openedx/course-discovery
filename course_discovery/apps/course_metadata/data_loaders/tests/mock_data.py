@@ -4,6 +4,21 @@ EXISTING_COURSE = {
     'title': 'A partial course',
 }
 
+STAGE_TAG_FIELD_RESPONSE_DATA = [
+    {
+        'uri': 'https://www.edx.org/taxonomy_term/1721',
+        'id': '1721',
+        'resource': 'taxonomy_term',
+        'uuid': 'c53b2abf-d4bd-429f-a0a5-211aac95487d'
+    },
+    {
+        'uri': 'https://www.edx.org/taxonomy_term/1706',
+        'id': '1706',
+        'resource': 'taxonomy_term',
+        'uuid': '57dc60cb-e05c-464c-900f-333d60d249d1'
+    }
+]
+
 EXISTING_COURSE_AND_RUN_DATA = (
     {
         'course_run_key': 'course-v1:SC+BreadX+3T2015',
@@ -1315,7 +1330,7 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_has_prerequisites': True,
         'field_course_enrollment_credit': None,
         'field_course_is_disabled': None,
-        'field_course_tags': [],
+        'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
         'field_course_sub_title_short': 'An introduction to the intellectual enterprises of computer science and the '
                                         'art of programming.',
         'field_course_length_weeks': None,
@@ -1666,7 +1681,7 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_has_prerequisites': True,
         'field_course_enrollment_credit': False,
         'field_course_is_disabled': None,
-        'field_course_tags': [],
+        'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
         'field_course_sub_title_short': 'PH207x is the online adaptation of material from the Harvard School of Public '
                                         'Health\u0027s classes in epidemiology and biostatistics.',
         'field_course_length_weeks': '13 weeks',
@@ -1935,7 +1950,7 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_has_prerequisites': True,
         'field_course_enrollment_credit': None,
         'field_course_is_disabled': None,
-        'field_course_tags': [],
+        'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
         'field_course_sub_title_short': 'A survey of ancient Greek literature focusing on classical concepts of the '
                                         'hero and how they can inform our understanding of the human condition.',
         'field_course_length_weeks': '23 weeks',
@@ -2206,7 +2221,7 @@ ORIGINAL_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_has_prerequisites': True,
     'field_course_enrollment_credit': None,
     'field_course_is_disabled': None,
-    'field_course_tags': [],
+    'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
     'field_course_sub_title_short': 'ORIGINAL A survey of ancient Greek literature focusing on classical concepts of'
                                     ' the hero and how they can inform our understanding of the human condition.',
     'field_course_length_weeks': '23 weeks',
@@ -2476,7 +2491,7 @@ UPDATED_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_has_prerequisites': True,
     'field_course_enrollment_credit': None,
     'field_course_is_disabled': None,
-    'field_course_tags': [],
+    'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
     'field_course_sub_title_short': 'UPDATED A survey of ancient Greek literature focusing on classical concepts of'
                                     ' the hero and how they can inform our understanding of the human condition.',
     'field_course_length_weeks': '23 weeks',
@@ -2746,7 +2761,7 @@ NEW_RUN_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_has_prerequisites': True,
     'field_course_enrollment_credit': None,
     'field_course_is_disabled': None,
-    'field_course_tags': [],
+    'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
     'field_course_sub_title_short': 'NEW_RUN A survey of ancient Greek literature focusing on classical concepts of'
                                     ' the hero and how they can inform our understanding of the human condition.',
     'field_course_length_weeks': '23 weeks',
@@ -3018,7 +3033,7 @@ DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_has_prerequisites': True,
     'field_course_enrollment_credit': None,
     'field_course_is_disabled': None,
-    'field_course_tags': [],
+    'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
     'field_course_sub_title_short': 'NEW_RUN A survey of ancient Greek literature focusing on classical concepts of'
                                     ' the hero and how they can inform our understanding of the human condition.',
     'field_course_length_weeks': '23 weeks',
