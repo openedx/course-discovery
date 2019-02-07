@@ -12,6 +12,7 @@ from dateutil import rrule
 from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import logger as marketing_site_logger
@@ -477,6 +478,11 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
 
         self.validate_relationships(data, data_map)
 
+    def assert_topics_loaded(self, data):
+        # Verify the topics were loaded from course tags
+        course = self._get_course(data)
+        self.assertEqual(list(course.topics.names()), [u'professional-programs', u'communications'])
+
     def assert_no_override_unpublished_course_fields(self, data):
         course = self._get_course(data)
 
@@ -555,6 +561,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         for datum in data:
             self.assert_course_run_loaded(datum)
             self.assert_course_loaded(datum)
+            self.assert_topics_loaded(datum)
 
     @responses.activate
     def test_update_does_not_change_key(self):
@@ -588,10 +595,12 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         course_run = self.assert_course_run_loaded(mock_data.UPDATED_MARKETING_SITE_API_COURSE_BODY)
         self.assert_course_loaded(mock_data.UPDATED_MARKETING_SITE_API_COURSE_BODY)
         self.assertTrue(course_run.canonical_for_course)
+        self.assert_topics_loaded(mock_data.UPDATED_MARKETING_SITE_API_COURSE_BODY)
 
         course_run = self.assert_course_run_loaded(mock_data.NEW_RUN_MARKETING_SITE_API_COURSE_BODY)
-        course = course_run.course
+        self.assert_topics_loaded(mock_data.NEW_RUN_MARKETING_SITE_API_COURSE_BODY)
 
+        course = course_run.course
         new_run_title = mock_data.NEW_RUN_MARKETING_SITE_API_COURSE_BODY['field_course_course_title']['value']
         self.assertNotEqual(course.title, new_run_title)
         with self.assertRaises(AttributeError):
@@ -619,6 +628,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             )
 
     @responses.activate
+    @override_switch('production_data_for_tag_migration', active=True)
     def test_discovery_unpublished_course_run(self):
         self.mocked_data = [
             mock_data.UPDATED_MARKETING_SITE_API_COURSE_BODY,
@@ -628,6 +638,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         self.mock_login_response()
         self.mock_api()
 
+        # Because we are using the prod data, we should NOT see a log message around updating course tags.
         with LogCapture(marketing_site_logger.name) as lc:
             self.loader.ingest()
             lc.check(
@@ -645,3 +656,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
                         mock_data.ORIGINAL_MARKETING_SITE_API_COURSE_BODY['field_course_code'])
                 )
             )
+
+        # Verify the topics for prod data were NOT loaded from course tags
+        course = self._get_course(mock_data.UPDATED_MARKETING_SITE_API_COURSE_BODY)
+        self.assertEqual(list(course.topics.slugs()), [])

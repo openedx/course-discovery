@@ -7,6 +7,7 @@ from urllib.parse import parse_qs, urlencode, urlparse
 from uuid import UUID
 
 import pytz
+import waffle
 from dateutil import rrule
 from django.utils.functional import cached_property
 from opaque_keys import InvalidKeyError
@@ -271,6 +272,33 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         '中文': 'zh-cmn',
     }
 
+    # Drupal provides a taxonomy term uuid for taxonomy terms, which is the structural model for our course tags in
+    # Drupal.  We map these term uuids to discovery's primary identifier for tags, which is the tag name itself.
+    STAGE_COURSE_TAG_ID_MAP = {
+        'c53b2abf-d4bd-429f-a0a5-211aac95487d': 'professional-programs',
+        '57dc60cb-e05c-464c-900f-333d60d249d1': 'communications',
+        'd109afc2-d590-40ff-8f0f-04f4e89c39a6': 'accounting',
+    }
+    PROD_COURSE_TAG_ID_MAP = {
+        # Computer Science
+        '999c2f3c-268e-4b10-b2df-1fbec5136d05': 'python',
+        'c5a55483-f2f0-413a-9943-692731b7fc6c': 'computer-programming',
+        '87b215aa-fbd7-47c9-b046-20f20575166a': 'java',
+        '906cd957-9d92-41e8-aa02-805ef2d44b29': 'cybersecurity',
+        '3939d24d-58d5-4c56-8698-fed85e99f3aa': 'web-development',
+        '9f7be9df-9cac-43dc-af47-888f58a77753': 'c-programming',
+        '23dad84d-4fc8-40e6-8055-89b41119a631': 'app-development',
+        '7720bd23-f193-4e3b-b9ff-06e9b13b4912': 'information-technology',
+        '929a3eba-161b-4fb7-966a-af0fea56651a': 'linux',
+        'fa854fe6-46fa-4aa8-93aa-640464d0ca18': 'blockchain',
+        # Data Science
+        '5c9b6677-aa25-4748-89a4-3820972edeae': 'r-programming',
+        '4dd710f0-4892-46d1-8a70-edc75be8a7a1': 'data-analysis',
+        '0f324ca6-a0a0-4f22-a0ed-1359c76f847f': 'excel',
+        '03df0b9d-eac5-4f4b-9b79-28d5001291f9': 'machine-learning',
+        '196a9089-0f11-49fc-8077-0f82e3522bd4': 'sql',
+    }
+
     @property
     def node_type(self):
         return 'course'
@@ -289,8 +317,9 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
     def process_node(self, data):
 
+        course_run = self.get_course_run(data)
+
         if not data.get('field_course_uuid'):
-            course_run = self.get_course_run(data)
 
             if course_run:
                 self.update_course_run(course_run, data)
@@ -332,6 +361,10 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
                 data['field_course_id'],
                 data['field_course_uuid']
             )
+
+        # Once we've ingested the course and course run, we update the topic tags with any marketing site tags found.
+        if course_run:
+            self.set_topic_tags(course_run.course, data)
 
     def get_course_run(self, data):
         course_run_key = data['field_course_id']
@@ -517,6 +550,25 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
                 description=extra_description
             )
             return extra
+
+    def set_topic_tags(self, course, raw_objects_data):
+        updated = False
+
+        course_tag_map = self.STAGE_COURSE_TAG_ID_MAP
+        if waffle.switch_is_active('production_data_for_tag_migration'):
+            course_tag_map = self.PROD_COURSE_TAG_ID_MAP
+
+        for term_object in raw_objects_data.get('field_course_tags'):
+            term_uuid = term_object.get('uuid')
+            if term_uuid in course_tag_map.keys():
+                tag_name = course_tag_map.get(term_uuid)
+                if tag_name not in course.topics.names():
+                    course.topics.add(tag_name)
+                    updated = True
+
+        if updated:
+            course.save()
+            logger.info('Updated course tags for course [%s].', course.uuid)
 
     def set_authoring_organizations(self, course, data):
         schools = self._get_objects_by_uuid(Organization, data['field_course_school_node'])
