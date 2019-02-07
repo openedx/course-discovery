@@ -446,22 +446,6 @@ class CurriculumCourseMembershipFactory(factory.DjangoModelFactory):
     curriculum = factory.SubFactory(CurriculumFactory)
 
 
-class DegreeProgramCurriculumFactory(factory.DjangoModelFactory):
-    class Meta(object):
-        model = DegreeProgramCurriculum
-
-    program = factory.SubFactory(ProgramFactory)
-    curriculum = factory.SubFactory(CurriculumFactory)
-
-
-class DegreeCourseCurriculumFactory(factory.DjangoModelFactory):
-    class Meta(object):
-        model = DegreeCourseCurriculum
-
-    course = factory.SubFactory(CourseFactory)
-    curriculum = factory.SubFactory(CurriculumFactory)
-
-
 class PathwayFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     partner = factory.SubFactory(PartnerFactory)
