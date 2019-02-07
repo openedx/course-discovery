@@ -104,7 +104,10 @@ class Video(AbstractMediaModel):
 
 class LevelType(AbstractNamedModel):
     """ LevelType model. """
-    pass
+    order = models.PositiveSmallIntegerField(default=0, db_index=True)
+
+    class Meta:
+        ordering = ('order',)
 
 
 class Subject(TranslatableModel, TimeStampedModel):
