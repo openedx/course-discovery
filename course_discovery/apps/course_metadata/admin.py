@@ -1,3 +1,4 @@
+from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin, messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -311,9 +312,16 @@ class VideoAdmin(admin.ModelAdmin):
     search_fields = ('src', 'description',)
 
 
-class NamedModelAdmin(admin.ModelAdmin):
+@admin.register(Prerequisite)
+class PrerequisiteAdmin(admin.ModelAdmin):
     list_display = ('name',)
     ordering = ('name',)
+    search_fields = ('name',)
+
+
+@admin.register(LevelType)
+class LevelTypeAdmin(SortableAdminMixin, admin.ModelAdmin):
+    list_display = ('name', 'order')
     search_fields = ('name',)
 
 
@@ -395,10 +403,6 @@ class DegreeAdmin(admin.ModelAdmin):
         'hubspot_lead_capture_form_id', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url',
         'micromasters_background_image', 'faq', 'costs_fine_print', 'deadlines_fine_print',
     )
-
-# Register children of AbstractNamedModel
-for model in (LevelType, Prerequisite,):
-    admin.site.register(model, NamedModelAdmin)
 
 # Register remaining models using basic ModelAdmin classes
 for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,

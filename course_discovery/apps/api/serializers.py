@@ -1,7 +1,9 @@
 # pylint: disable=abstract-method,no-member
 import datetime
 import json
+from collections import OrderedDict
 from urllib.parse import urlencode
+from uuid import uuid4
 
 import pytz
 import waffle
@@ -13,7 +15,8 @@ from django.utils.translation import ugettext_lazy as _
 from drf_dynamic_fields import DynamicFieldsMixin
 from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer, HaystackSerializerMixin
 from rest_framework import serializers
-from rest_framework.fields import DictField
+from rest_framework.fields import CreateOnlyDefault, DictField, UUIDField
+from rest_framework.metadata import SimpleMetadata
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
@@ -23,7 +26,7 @@ from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Curriculum, Degree,
-    DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, Organization, Pathway, Person,
+    DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, LevelType, Organization, Pathway, Person,
     PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType,
     Subject, Topic, Video
 )
@@ -144,6 +147,34 @@ def get_utm_source_for_user(partner, user):
     return slugify(utm_source)
 
 
+class MetadataWithRelatedChoices(SimpleMetadata):
+    """ A version of the normal DRF metadata class that also returns choices for RelatedFields """
+
+    def determine_metadata(self, request, view):
+        self.view = view  # pylint: disable=attribute-defined-outside-init
+        return super().determine_metadata(request, view)
+
+    def get_field_info(self, field):
+        info = super().get_field_info(field)
+
+        in_whitelist = False
+        if hasattr(self.view, 'metadata_related_choices_whitelist'):
+            in_whitelist = field.field_name in self.view.metadata_related_choices_whitelist
+
+        # The normal metadata class excludes RelatedFields, but we want them! So we do the same thing the normal
+        # class does, but without the RelatedField check.
+        if in_whitelist and not info.get('read_only') and hasattr(field, 'choices'):
+            info['choices'] = [
+                {
+                    'value': choice_value,
+                    'display_name': choice_name,
+                }
+                for choice_value, choice_name in field.choices.items()
+            ]
+
+        return info
+
+
 class TimestampModelSerializer(serializers.ModelSerializer):
     """Serializer for timestamped models."""
     modified = serializers.DateTimeField(required=False)
@@ -198,6 +229,11 @@ class SubjectSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = Subject
         fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug', 'uuid')
+
+    @property
+    def choices(self):
+        # choices shows the possible values via HTTP's OPTIONS verb
+        return OrderedDict(sorted([(x.slug, x.name) for x in Subject.objects.all()], key=lambda x: x[1]))
 
 
 class PrerequisiteSerializer(NamedModelSerializer):
@@ -463,7 +499,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
     )
     currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
     sku = serializers.CharField()
-    mode = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all())
+    mode = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all().order_by('name'))
     expires = serializers.DateTimeField()
 
     @classmethod
@@ -673,6 +709,7 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     entitlements = CourseEntitlementSerializer(required=False, many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
     image = ImageField(read_only=True, source='image_url')
+    uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -693,8 +730,8 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
-    level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
-    subjects = SubjectSerializer(required=False, many=True)
+    level_type = serializers.SlugRelatedField(required=False, slug_field='name', queryset=LevelType.objects.all())
+    subjects = SubjectSerializer(required=False, many=True)  # if you change, change to_internal_value too
     prerequisites = PrerequisiteSerializer(required=False, many=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
     video = VideoSerializer(required=False)
@@ -748,6 +785,16 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         if obj.canonical_course_run:
             return obj.canonical_course_run.key
         return None
+
+    def to_internal_value(self, data):
+        # Allow incoming writes to just specify a list of slugs for subjects
+        self.fields['subjects'] = serializers.SlugRelatedField(slug_field='slug',
+                                                               required=False,
+                                                               many=True,
+                                                               queryset=Subject.objects.all())
+        rv = super().to_internal_value(data)
+        self.fields['subjects'] = SubjectSerializer(required=False, many=True)
+        return rv
 
     def create(self, validated_data):
         return Course.objects.create(**validated_data)

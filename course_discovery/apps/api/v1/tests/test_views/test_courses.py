@@ -15,10 +15,24 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, Se
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseEntitlement
+from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory, SeatFactory
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory,
+    SeatFactory, SeatTypeFactory, SubjectFactory
 )
+
+
+def oauth_login(func):
+    def inner(self, *args, **kwargs):
+        responses.add(
+            responses.POST,
+            self.partner.lms_url + '/oauth2/access_token',
+            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
+            status=200,
+        )
+        func(self, *args, **kwargs)
+
+    return inner
 
 
 @ddt.ddt
@@ -29,7 +43,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.course = CourseFactory(partner=self.partner)
+        self.course = CourseFactory(partner=self.partner, title='Fake Test')
         self.org = OrganizationFactory(key='edX')
 
     def test_get(self):
@@ -266,14 +280,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         assert response.status_code == 403
         assert Course.objects.count() == 0
 
+    @oauth_login
     @responses.activate
     def test_create_with_authentication(self):
-        responses.add(
-            responses.POST,
-            self.partner.lms_url + '/oauth2/access_token',
-            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
-            status=200,
-        )
         url = reverse('api:v1:course-list')
         course_data = {
             'title': 'Course title',
@@ -393,18 +402,13 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                     (
                         course_logger.name,
                         'ERROR',
-                        'An error occurred while creating the Course [{title}].'.format(title=course_data['title'])
+                        'An error occurred while setting Course data.',
                     )
                 )
 
+    @oauth_login
     @responses.activate
     def test_create_with_ecom_api_exception(self):
-        responses.add(
-            responses.POST,
-            self.partner.lms_url + '/oauth2/access_token',
-            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
-            status=200,
-        )
         url = reverse('api:v1:course-list')
         course_data = {
             'title': 'Course title',
@@ -428,7 +432,161 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                 (
                     course_logger.name,
                     'ERROR',
-                    'The following error occurred while creating the Course Entitlement in E-commerce: '
+                    'The following error occurred while setting the Course Entitlement data in E-commerce: '
                     '{ecom_error}'.format(ecom_error=expected_error_message)
                 )
             )
+
+    def test_update_without_authentication(self):
+        """ Verify authentication is required when updating a course. """
+        self.client.logout()
+        Course.objects.all().delete()
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.patch(url)
+        assert response.status_code == 403
+        assert Course.objects.count() == 0
+
+    @ddt.data('put', 'patch')
+    @oauth_login
+    @responses.activate
+    def test_update_success(self, method):
+        entitlement = CourseEntitlementFactory(course=self.course)
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        course_data = {
+            'title': 'Course title',
+            'partner': self.partner.id,
+            'key': self.course.key,
+            'entitlements': [
+                {
+                    'mode': entitlement.mode.slug,
+                    'price': 1000,
+                    'sku': entitlement.sku,
+                    'expires': entitlement.expires,
+                },
+            ],
+        }
+        ecom_url = '{0}stockrecords/{1}/'.format(self.partner.ecommerce_api_url, entitlement.sku)
+        responses.add(
+            responses.PUT,
+            ecom_url,
+            status=200,
+        )
+        response = getattr(self.client, method)(url, course_data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        self.course.refresh_from_db()
+        entitlement.refresh_from_db()
+        self.assertEqual(self.course.title, 'Course title')
+        self.assertEqual(entitlement.price, 1000)
+        self.assertDictEqual(response.data, self.serialize_course(self.course))
+
+    @ddt.data(
+        (
+            {'entitlements': [{}]},
+            'Entitlements must have a mode specified.',
+        ),
+        (
+            {'entitlements': [{'mode': 'NOPE'}]},
+            'Entitlement mode NOPE not found.'
+        ),
+        (
+            {'entitlements': [{'mode': 'mode2'}]},
+            'Existing entitlement not found for mode mode2 in course Org/Course/Number.'
+        ),
+        (
+            {'entitlements': [{'mode': 'mode1'}]},
+            'Entitlement does not have a valid SKU assigned.'
+        ),
+    )
+    @ddt.unpack
+    def test_update_fails_with_multiple_errors(self, course_data, expected_error_message):
+        course = CourseFactory(partner=self.partner, key='Org/Course/Number')
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        mode1 = SeatTypeFactory(name='Mode1')
+        SeatTypeFactory(name='Mode2')
+        CourseEntitlementFactory(course=course, mode=mode1, sku=None)
+        response = self.client.patch(url, course_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data, expected_error_message)
+
+    def test_update_with_api_exception(self):
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        course_data = {
+            'title': 'Course title',
+            'entitlements': [
+                {
+                    'price': 1000,
+                },
+            ],
+        }
+        with mock.patch(
+            'course_discovery.apps.api.v1.views.courses.CourseViewSet.update_entitlement',
+            side_effect=IntegrityError
+        ):
+            with LogCapture(course_logger.name) as log_capture:
+                response = self.client.patch(url, course_data, format='json')
+                self.assertEqual(response.status_code, 400)
+                log_capture.check(
+                    (
+                        course_logger.name,
+                        'ERROR',
+                        'An error occurred while setting Course data.',
+                    )
+                )
+
+    @oauth_login
+    @responses.activate
+    def test_update_with_ecom_api_exception(self):
+        entitlement = CourseEntitlementFactory(course=self.course)
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        course_data = {
+            'title': 'Course title',
+            'entitlements': [
+                {
+                    'mode': entitlement.mode.slug,
+                    'price': 1000,
+                },
+            ],
+        }
+        ecom_url = '{0}stockrecords/{1}/'.format(self.partner.ecommerce_api_url, entitlement.sku)
+        expected_error_message = 'Nope'
+        responses.add(
+            responses.PUT,
+            ecom_url,
+            body=expected_error_message,
+            status=400,
+        )
+        with LogCapture(course_logger.name) as log_capture:
+            response = self.client.patch(url, course_data, format='json')
+            self.assertEqual(response.status_code, 400)
+            log_capture.check(
+                (
+                    course_logger.name,
+                    'ERROR',
+                    'The following error occurred while setting the Course Entitlement data in E-commerce: '
+                    '{ecom_error}'.format(ecom_error=expected_error_message)
+                )
+            )
+
+    @oauth_login
+    @responses.activate
+    def test_options(self):
+        SubjectFactory(name='Subject1')
+        CourseEntitlementFactory(course=self.course, mode=SeatType.objects.get(slug='verified'))
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.options(url)
+        self.assertEqual(response.status_code, 200)
+
+        data = response.data['actions']['PUT']
+        self.assertEqual(data['level_type']['choices'],
+                         [{'display_name': self.course.level_type.name, 'value': self.course.level_type.name}])
+        self.assertEqual(data['entitlements']['child']['children']['mode']['choices'],
+                         [{'display_name': 'Audit', 'value': 'audit'},
+                          {'display_name': 'Credit', 'value': 'credit'},
+                          {'display_name': 'Professional', 'value': 'professional'},
+                          {'display_name': 'Verified', 'value': 'verified'}])
+        self.assertEqual(data['subjects']['child']['choices'],
+                         [{'display_name': 'Subject1', 'value': 'subject1'}])
+        self.assertFalse('choices' in data['partner'])  # we don't whitelist partner to show its choices
