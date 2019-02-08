@@ -1692,6 +1692,7 @@ class CurriculumProgramMembership(TimeStampedModel):
     """
     program = models.ForeignKey(Program, on_delete=models.CASCADE)
     curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
 
 class CurriculumCourseMembership(TimeStampedModel):
@@ -1700,6 +1701,7 @@ class CurriculumCourseMembership(TimeStampedModel):
     """
     curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
 
 
 class Pathway(TimeStampedModel):
