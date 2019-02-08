@@ -83,6 +83,7 @@ INSTALLED_APPS += ['haystack']
 MIDDLEWARE_CLASSES = (
     'corsheaders.middleware.CorsMiddleware',
     'edx_django_utils.cache.middleware.RequestCacheMiddleware',
+    'edx_rest_framework_extensions.auth.jwt.middleware.JwtAuthCookieMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -383,6 +384,7 @@ JWT_AUTH = {
     'JWT_ISSUER': 'course-discovery',
     'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler',
     'JWT_VERIFY_AUDIENCE': False,
+    'JWT_AUTH_COOKIE': 'edx-jwt-cookie',
 }
 
 SWAGGER_SETTINGS = {
