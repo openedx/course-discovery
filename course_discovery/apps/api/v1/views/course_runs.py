@@ -1,3 +1,5 @@
+import logging
+
 from django.db.models.functions import Lower
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -12,6 +14,9 @@ from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import CourseRun
+
+
+log = logging.getLogger(__name__)
 
 
 # pylint: disable=no-member
@@ -43,13 +48,14 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         """
         q = self.request.query_params.get('q')
         partner = self.request.site.partner
-
         if q:
+            log.info("getting queryset based on query parameter: {q}".format(q=q))
             qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))
             # This is necessary to avoid issues with the filter backend.
             qs.model = self.queryset.model
             return qs
         else:
+            log.info("getting queryset based on partner: {partner}".format(partner=partner))
             queryset = super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
             return self.get_serializer_class().prefetch_queryset(queryset=queryset)
 
@@ -133,7 +139,13 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
-        return super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)
+        log.info("Getting detail of course run based on the following args:{args} and "
+                 "kwargs:{kwargs}".format(args=args, kwargs=kwargs))
+        response = super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)
+        log.info("following data was received: {data} with status_code:{code}"
+                 .format(data=response.data, code=response.status_code))
+
+        return response
 
     @list_route()
     def contains(self, request):
