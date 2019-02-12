@@ -1,5 +1,6 @@
 {% extends 'publisher/base.html' %}
 
+{% load compress %}
 {% load i18n %}
 {% load static %}
 
@@ -118,6 +119,9 @@
     <script src="{% static 'js/publisher/preview-url.js' %}"></script>
     <script src="{% static 'js/publisher/change-state.js' %}"></script>
     <script src="{% static 'js/publisher/modal-screen.js' %}"></script>
+{% endblock %}
+
+{% block js_without_compress %}
     <script>
         'use strict';
 
