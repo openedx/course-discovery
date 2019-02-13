@@ -17,6 +17,7 @@ from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from haystack.query import SearchQuerySet
 from parler.models import TranslatableModel, TranslatedFieldsModel
+from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
@@ -1622,6 +1623,8 @@ class DegreeDeadline(TimeStampedModel):
         blank=True,
     )
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return "{} {}".format(self.name, self.date)
 
@@ -1643,6 +1646,8 @@ class DegreeCost(TimeStampedModel):
         help_text=_('String-based field stating how much the cost is (e.g. $1000).'),
         max_length=255,
     )
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return str('{}, {}'.format(self.description, self.amount))
@@ -1685,6 +1690,8 @@ class Curriculum(TimeStampedModel):
         Course, through='course_metadata.CurriculumCourseMembership', related_name='degree_course_curricula'
     )
 
+    history = HistoricalRecords()
+
     def __str__(self):
         return str(self.uuid)
 
@@ -1697,6 +1704,8 @@ class CurriculumProgramMembership(TimeStampedModel):
     curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
 
+    history = HistoricalRecords()
+
 
 class CurriculumCourseMembership(TimeStampedModel):
     """
@@ -1705,6 +1714,8 @@ class CurriculumCourseMembership(TimeStampedModel):
     curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+
+    history = HistoricalRecords()
 
 
 class Pathway(TimeStampedModel):
