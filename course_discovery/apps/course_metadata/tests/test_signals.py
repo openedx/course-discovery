@@ -29,7 +29,9 @@ class TestCacheInvalidation:
         for model in apps.get_app_config('course_metadata').get_models():
             # Ignore models that aren't exposed by the API or are only used for testing.
             if model in [DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, SubjectTranslation,
-                         TopicTranslation, ProfileImageDownloadConfig] or 'abstract' in model.__name__.lower():
+                         TopicTranslation, ProfileImageDownloadConfig]:
+                continue
+            if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue
 
             factory = factory_map.get(model)
