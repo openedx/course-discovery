@@ -4,6 +4,7 @@ import math
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 
 logger = logging.getLogger(__name__)
 
@@ -30,13 +31,10 @@ class StudioAPI:
         trimester = math.ceil(start.month / 4.)
         run = '{trimester}T{year}'.format(trimester=trimester, year=start.year)
 
-        try:
-            discovery_course = course_run.course.discovery_counterpart
-        except:  # pylint:disable=bare-except
-            logger.exception('Failed to get Discovery counterpart for Publisher course [%d]', course_run.course.id)
-            return run
+        related_course_runs = DiscoveryCourseRun.objects.filter(
+            key__contains=course_run.course.number
+        ).values_list('key', flat=True)
 
-        related_course_runs = discovery_course.course_runs.values_list('key', flat=True)
         related_course_runs = [CourseKey.from_string(key).run for key in related_course_runs]
         return cls._get_next_run(run, '', related_course_runs)
 
