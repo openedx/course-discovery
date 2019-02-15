@@ -1,6 +1,5 @@
 # noinspection PyUnresolvedReferences
 from course_discovery.settings._debug_toolbar import *  # isort:skip
-from corsheaders.defaults import default_headers as corsheaders_default_headers
 from course_discovery.settings.production import *
 
 DEBUG = True
@@ -13,10 +12,6 @@ LOGGING['handlers']['local'] = {
 # Determine which requests should render Django Debug Toolbar
 INTERNAL_IPS = ('127.0.0.1',)
 
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = corsheaders_default_headers + (
-    'use-jwt-cookie',
-)
 CORS_ORIGIN_WHITELIST = (
     'localhost:18400',  # publisher-frontend
 )
