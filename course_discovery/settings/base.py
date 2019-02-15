@@ -4,6 +4,8 @@ from logging.handlers import SysLogHandler
 from os.path import abspath, dirname, join
 from sys import path
 
+from corsheaders.defaults import default_headers as corsheaders_default_headers
+
 here = lambda *x: join(abspath(dirname(__file__)), *x)
 PROJECT_ROOT = here('..')
 root = lambda *x: abspath(join(abspath(PROJECT_ROOT), *x))
@@ -243,6 +245,12 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
 )
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = corsheaders_default_headers + (
+    'use-jwt-cookie',
+)
+# CORS_ORIGIN_WHITELIST is empty by default so above is not used unless the whitelist is set elsewhere
 
 # Guardian settings
 ANONYMOUS_USER_NAME = None  # Do not allow anonymous user access
