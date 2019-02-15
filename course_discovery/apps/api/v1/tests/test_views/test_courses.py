@@ -317,6 +317,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         expected_course_key = '{org}+{number}'.format(org=course_data['org'], number=course_data['number'])
         self.assertEqual(course.key, expected_course_key)
         self.assertEqual(course.title, course_data['title'])
+        self.assertListEqual(list(course.authoring_organizations.all()), [self.org])
         self.assertEqual(1, CourseEntitlement.objects.count())
 
     def test_create_fails_with_missing_field(self):

@@ -187,6 +187,10 @@ class CourseViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
 
         course = serializer.save()
+
+        organization = Organization.objects.get(key=course_creation_fields['org'])
+        course.authoring_organizations.add(organization)
+
         price = request.data.get('price', 0.00)
         mode = SeatType.objects.get(slug=course_creation_fields['mode'])
         entitlement = CourseEntitlement.objects.create(
