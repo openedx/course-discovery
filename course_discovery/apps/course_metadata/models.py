@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import pytz
 import waffle
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models.functions import Lower
@@ -508,6 +509,19 @@ class Course(PkSearchableMixin, TimeStampedModel):
                 return course_run.first_enrollable_paid_seat_price
 
         return None
+
+
+class CourseEditor(TimeStampedModel):
+    """
+    CourseEditor model, defining who can edit a course and its course runs.
+
+    .. no_pii:
+    """
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='courses_edited')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='editors')
+
+    class Meta(object):
+        unique_together = ('user', 'course',)
 
 
 class CourseRun(TimeStampedModel):

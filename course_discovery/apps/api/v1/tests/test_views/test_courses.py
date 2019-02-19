@@ -17,9 +17,10 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory,
-    SeatFactory, SeatTypeFactory, SubjectFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory,
+    ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
+from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
 
 def oauth_login(func):
@@ -40,17 +41,18 @@ def oauth_login(func):
 class CourseViewSetTests(SerializationMixin, APITestCase):
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
-        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.user = UserFactory(is_staff=True)
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course = CourseFactory(partner=self.partner, title='Fake Test')
-        self.org = OrganizationFactory(key='edX')
+        self.org = OrganizationFactory(key='edX', partner=self.partner)
+        self.course.authoring_organizations.add(self.org)  # pylint: disable=no-member
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(27):
+        with self.assertNumQueries(30):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -59,7 +61,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(27):
+        with self.assertNumQueries(30):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -81,7 +83,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_deleted_programs=1'
-        with self.assertNumQueries(31):
+        with self.assertNumQueries(34):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -217,7 +219,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(32):
+        with self.assertNumQueries(35):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(
@@ -270,8 +272,102 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
             self.serialize_course([self.course], many=True, extra_context=context)
         )
 
+    @ddt.data(
+        ('get', False, False, True),
+        ('options', False, False, True),
+        ('post', False, False, False),
+        ('post', False, True, True),
+        ('post', True, False, True),
+    )
+    @ddt.unpack
+    def test_editor_access_list_endpoint(self, method, is_staff, in_org, allowed):
+        """ Verify we check editor access correctly when hitting the courses endpoint. """
+        self.user.is_staff = is_staff
+        self.user.save()
+
+        if in_org:
+            org_ext = OrganizationExtensionFactory(organization=self.org)
+            self.user.groups.add(org_ext.group)
+
+        response = getattr(self.client, method)(reverse('api:v1:course-list'), {'org': self.org.key}, format='json')
+
+        if not allowed:
+            self.assertEqual(response.status_code, 403)
+        else:
+            self.assertNotEqual(response.status_code, 403)
+
+    @ddt.data(
+        ('get', False, False, False, True),
+        ('options', False, False, False, True),
+        ('put', False, False, False, False),  # no access
+        ('put', True, False, False, True),  # is staff
+        ('patch', False, True, False, False),  # is in org
+        ('patch', False, False, True, False),  # is editor but not in org
+        ('put', False, True, True, True),  # editor and in org
+    )
+    @ddt.unpack
+    def test_editor_access_detail_endpoint(self, method, is_staff, in_org, is_editor, allowed):
+        """ Verify we check editor access correctly when hitting the course object endpoint. """
+        self.user.is_staff = is_staff
+        self.user.save()
+
+        # Add another editor, because we have some logic that allows access anyway if a course has no valid editors.
+        # That code path is checked in test_course_without_editors below.
+        org_ext = OrganizationExtensionFactory(organization=self.org)
+        user2 = UserFactory()
+        user2.groups.add(org_ext.group)
+        CourseEditorFactory(user=user2, course=self.course)
+
+        if in_org:
+            # Editors must be in the org to get editor access
+            self.user.groups.add(org_ext.group)
+
+        if is_editor:
+            CourseEditorFactory(user=self.user, course=self.course)
+
+        response = getattr(self.client, method)(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}))
+
+        if not allowed:
+            self.assertEqual(response.status_code, 403)
+        else:
+            # We'll probably fail because we didn't include the right data - but at least we'll have gotten in
+            self.assertNotEqual(response.status_code, 403)
+
+    def test_course_without_editors(self):
+        """ Verify we can modify a course with no editors if we're in its authoring org. """
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        self.user.is_staff = False
+        self.user.save()
+
+        # Try without being in the organization nor an editor
+        self.assertEqual(self.client.patch(url).status_code, 403)
+
+        # Add to authoring org, and we should be let in
+        org_ext = OrganizationExtensionFactory(organization=self.org)
+        self.user.groups.add(org_ext.group)
+        self.assertNotEqual(self.client.patch(url).status_code, 403)
+
+        # Now add a random other user as an editor to the course, so that we will no longer be granted access.
+        editor = UserFactory()
+        CourseEditorFactory(user=editor, course=self.course)
+        editor.groups.add(org_ext.group)
+        self.assertEqual(self.client.patch(url).status_code, 403)
+
+        # But if the editor is no longer valid (even though they exist), we're back to having access.
+        editor.groups.remove(org_ext.group)
+        self.assertNotEqual(self.client.patch(url).status_code, 403)
+
+        # And finally, for a sanity check, confirm we have access when we become an editor also
+        CourseEditorFactory(user=self.user, course=self.course)
+        self.assertNotEqual(self.client.patch(url).status_code, 403)
+
+    def test_delete_not_allowed(self):
+        """ Verify we don't allow deleting a course from the API. """
+        response = self.client.delete(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}))
+        self.assertEqual(response.status_code, 405)
+
     def test_create_without_authentication(self):
-        """ Verify authentication is required when creating a person. """
+        """ Verify authentication is required when creating a course. """
         self.client.logout()
         Course.objects.all().delete()
 
