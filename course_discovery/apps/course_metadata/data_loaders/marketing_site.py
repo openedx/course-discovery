@@ -363,7 +363,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             )
 
         # Once we've ingested the course and course run, we update the topic tags with any marketing site tags found.
-        if course_run:
+        if waffle.switch_is_active('migrate_drupal_tags') and course_run:
             self.set_topic_tags(course_run.course, data)
 
     def get_course_run(self, data):
