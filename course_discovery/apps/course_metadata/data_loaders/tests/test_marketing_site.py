@@ -552,6 +552,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
                                   partner=self.partner)
 
     @responses.activate
+    @override_switch('migrate_drupal_tags', active=True)
     def test_ingest(self):
         self.mock_login_response()
         data = self.mock_api()
@@ -581,6 +582,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         self.assertEqual(course.number, 'Previous')
 
     @responses.activate
+    @override_switch('migrate_drupal_tags', active=True)
     def test_course_run_creation(self):
         self.mocked_data = [
             mock_data.ORIGINAL_MARKETING_SITE_API_COURSE_BODY,
