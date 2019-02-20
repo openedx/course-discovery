@@ -205,7 +205,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         if not partner_has_marketing_site:
             expected_values.update({
                 'start': start,
-                'card_image_url': body['media'].get('image', {}).get('raw'),
+                'card_image_url': None,
                 'title_override': body['name'],
                 'short_description_override': self.loader.clean_string(body['short_description']),
                 'video': self.loader.get_courserun_video(body),
@@ -213,6 +213,9 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
                 'pacing_type': pacing_type,
                 'mobile_available': body['mobile_available'] or False,
             })
+
+            # Check if the course card_image_url was correctly updated
+            self.assertEqual(course.card_image_url, body['media'].get('image', {}).get('raw'),)
 
         if is_publisher_read_only_switch_active:
             expected_values.update({
