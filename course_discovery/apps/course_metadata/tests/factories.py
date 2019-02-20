@@ -158,7 +158,11 @@ class CourseRunFactory(factory.DjangoModelFactory):
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):
         if create:
-            add_m2m_data(self.staff, extracted)
+            if extracted:
+                add_m2m_data(self.staff, extracted)
+            else:
+                staff = PersonFactory.create_batch(3)
+                add_m2m_data(self.staff, staff)
 
     class Meta:
         model = CourseRun

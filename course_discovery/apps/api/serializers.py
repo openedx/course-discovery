@@ -2,6 +2,7 @@
 import datetime
 import json
 from collections import OrderedDict
+from operator import attrgetter
 from urllib.parse import urlencode
 from uuid import uuid4
 
@@ -304,7 +305,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return Person.objects.all().select_related(
             'position__organization'
-        ).prefetch_related('person_networks')
+        ).prefetch_related('person_networks', 'areas_of_expertise')
 
     class Meta(object):
         model = Person
@@ -339,19 +340,21 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
         }
 
     def get_urls_detailed(self, obj):
+        # This is sorted in python to avoid re-querying the already prefeteched person_networks
         return [{
             'id': network.id,
             'type': network.type,
             'title': network.title,
             'display_title': network.display_title,
             'url': network.url,
-        } for network in obj.person_networks.all().order_by('id')]
+        } for network in sorted(obj.person_networks.all(), key=attrgetter('id'))]
 
     def get_areas_of_expertise(self, obj):
+        # This is sorted in python to avoid re-querying the already prefeteched areas_of_expertise
         return [{
             'id': area_of_expertise.id,
             'value': area_of_expertise.value,
-        } for area_of_expertise in obj.areas_of_expertise.all().order_by('id')]
+        } for area_of_expertise in sorted(obj.areas_of_expertise.all(), key=attrgetter('id'))]
 
     def get_email(self, _obj):
         # We are removing this field so this is to not break any APIs
