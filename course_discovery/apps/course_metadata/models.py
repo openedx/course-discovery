@@ -1703,6 +1703,9 @@ class Curriculum(TimeStampedModel):
     course_curriculum = models.ManyToManyField(
         Course, through='course_metadata.CurriculumCourseMembership', related_name='degree_course_curricula'
     )
+    excluded_course_runs = models.ManyToManyField(
+        CourseRun, through='course_metadata.CurriculumCourseRunExclusion', related_name='excluded_degree_curricula'
+    )
 
     history = HistoricalRecords()
 
@@ -1728,6 +1731,16 @@ class CurriculumCourseMembership(TimeStampedModel):
     curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
+
+    history = HistoricalRecords()
+
+
+class CurriculumCourseRunExclusion(TimeStampedModel):
+    """
+    Represents Course Run exclusions for a Curriculum of a degree.
+    """
+    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
+    course_run = models.ForeignKey(CourseRun, on_delete=models.CASCADE)
 
     history = HistoricalRecords()
 
