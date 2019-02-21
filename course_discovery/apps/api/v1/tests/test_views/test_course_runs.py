@@ -8,6 +8,7 @@ from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 from rest_framework.test import APIRequestFactory
 
+from course_discovery.apps.api.serializers import CourseRunSerializer
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
@@ -32,7 +33,12 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(
+            1 +  # Current Site
+            1 +  # Partner for site
+            1 +  # Waffle Switch: enforce_jwt_scopes
+            CourseRunSerializer.expected_prefetch_query_count
+        ):
             response = self.client.get(url)
 
         assert response.status_code == 200

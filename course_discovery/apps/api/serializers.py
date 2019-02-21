@@ -1,6 +1,7 @@
 # pylint: disable=abstract-method,no-member
 import datetime
 import json
+
 from collections import OrderedDict
 from operator import attrgetter
 from urllib.parse import urlencode
@@ -301,12 +302,13 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
     areas_of_expertise = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
 
+    expected_prefetch_query_count = 3
+
     @classmethod
     def prefetch_queryset(cls):
         return Person.objects.all().select_related(
             'position__organization'
         ).prefetch_related('person_networks', 'areas_of_expertise')
-
     class Meta(object):
         model = Person
         fields = (
@@ -485,6 +487,8 @@ class SeatSerializer(serializers.ModelSerializer):
     sku = serializers.CharField()
     bulk_sku = serializers.CharField()
 
+    expected_prefetch_query_count = 1
+
     @classmethod
     def prefetch_queryset(cls):
         return Seat.objects.all().select_related('currency')
@@ -595,14 +599,19 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
     marketing_url = serializers.SerializerMethodField()
     seats = SeatSerializer(many=True)
 
+    expected_prefetch_query_count = (
+        1 + # Course runs
+        SeatSerializer.expected_prefetch_query_count  + # Seats
+        1  # Waffle Switch: use_company_name_as_utm_source_value
+    )
+
     @classmethod
     def prefetch_queryset(cls, queryset=None):
         # Explicitly check for None to avoid returning all CourseRuns when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
-        return queryset.select_related('course').prefetch_related(
-            'course__partner',
+        return queryset.select_related('course__partner').prefetch_related(
             Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
         )
 
@@ -641,14 +650,18 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     staff = MinimalPersonSerializer(many=True)
     level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
 
+    expected_prefetch_query_count = (
+        MinimalCourseRunSerializer.expected_prefetch_query_count +
+        1 + # Transcript Languages
+        MinimalPersonSerializer.expected_prefetch_query_count
+    )
+
     @classmethod
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.select_related('language', 'video').prefetch_related(
-            'course__level_type',
+        return queryset.select_related('language', 'video', 'course__level_type', 'video__image').prefetch_related(
             'transcript_languages',
-            'video__image',
             Prefetch('staff', queryset=MinimalPersonSerializer.prefetch_queryset()),
         )
 
@@ -669,6 +682,11 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 class CourseRunWithProgramsSerializer(CourseRunSerializer):
     """A ``CourseRunSerializer`` which includes programs derived from parent course."""
     programs = serializers.SerializerMethodField()
+
+    expected_prefetch_query_count = (
+        CourseRunSerializer.expected_prefetch_query_count +
+        1  # Program
+    )
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
