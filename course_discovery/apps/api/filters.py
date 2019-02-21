@@ -14,7 +14,7 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Person, Program, Subject, Topic
+    Course, CourseEditor, CourseRun, Organization, Person, Program, Subject, Topic
 )
 
 logger = logging.getLogger(__name__)
@@ -131,10 +131,17 @@ class FilterSetMixin:
 class CourseFilter(filters.FilterSet):
     keys = CharListFilter(name='key', lookup_expr='in')
     uuids = UUIDListFilter()
+    editable = filters.BooleanFilter(method='filter_editable')
 
     class Meta:
         model = Course
         fields = ('keys', 'uuids',)
+
+    def filter_editable(self, queryset, name, value):
+        if self.request and cast2int(value, name):
+            return CourseEditor.editable_courses(self.request.user, queryset)
+        else:
+            return queryset
 
 
 class CourseRunFilter(FilterSetMixin, filters.FilterSet):

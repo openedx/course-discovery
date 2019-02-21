@@ -10,8 +10,8 @@ import waffle
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
+from django.db.models import F, Q
 from django.db.models.functions import Lower
-from django.db.models.query_utils import Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
@@ -522,6 +522,47 @@ class CourseEditor(TimeStampedModel):
 
     class Meta(object):
         unique_together = ('user', 'course',)
+
+    # The logic for whether a user can edit a course gets a little complicated, so try to use the following class
+    # utility methods when possible. Read 0003-publisher-permission.rst for more context on the why.
+
+    @classmethod
+    def can_create_course(cls, user, organization_key):
+        if user.is_staff:
+            return True
+
+        # You must be a member of the organization within which you are creating a course
+        return user.groups.filter(organization_extension__organization__key=organization_key).exists()
+
+    @classmethod
+    def is_course_editable(cls, user, course):
+        if user.is_staff:
+            return True
+
+        authoring_orgs = course.authoring_organizations.all()
+
+        # No matter what, if an editor or their organization has been removed from the course, they can't be an editor
+        # for it. This handles cases of being dropped from an org... But might be too restrictive in case we want
+        # to allow outside guest editors on a course? Let's try this for now and see how it goes.
+        valid_editors = course.editors.filter(user__groups__organization_extension__organization__in=authoring_orgs)
+
+        if not valid_editors.exists():
+            # No valid editors - this is an edge case where we just grant anyone in an authoring org access
+            return user.groups.filter(organization_extension__organization__in=authoring_orgs).exists()
+        else:
+            return user in {x.user for x in valid_editors}
+
+    @classmethod
+    def editable_courses(cls, user, queryset):
+        if user.is_staff:
+            return queryset
+
+        user_orgs = Organization.objects.filter(organization_extension__group__in=user.groups.all())
+        has_valid_editors = Q(
+            editors__user__groups__organization_extension__organization__in=F('authoring_organizations')
+        )
+        has_user_editor = Q(editors__user=user)
+        return queryset.filter(has_user_editor | ~has_valid_editors, authoring_organizations__in=user_orgs)
 
 
 class CourseRun(TimeStampedModel):
