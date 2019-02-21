@@ -48,11 +48,12 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         """
         q = self.request.query_params.get('q')
         partner = self.request.site.partner
+        serializer = self.get_serializer_class()
         if q:
             log.info("getting queryset based on query parameter: {q}".format(q=q))
             qs = SearchQuerySetWrapper(
                 CourseRun.search(q).filter(partner=partner.short_code),
-                prefetch_related_objects=self.get_serializer_class().prefetch_related_objects,
+                prefetch_related_objects=serializer.prefetch_related_objects + serializer.select_related_fields,
             )
             # This is necessary to avoid issues with the filter backend.
             qs.model = self.queryset.model
@@ -60,7 +61,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         else:
             log.info("getting queryset based on partner: {partner}".format(partner=partner))
             queryset = super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
-            return self.get_serializer_class().prefetch_queryset(queryset=queryset)
+            return serializer.prefetch_queryset(queryset=queryset)
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
