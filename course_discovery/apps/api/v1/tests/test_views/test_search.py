@@ -32,7 +32,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         return self.client.get(url)
 
     def build_facet_url(self, params):
-        return 'http://testserver.fake{path}?{query}'.format(
+        return 'http://testserver{path}?{query}'.format(
             path=self.faceted_path, query=urllib.parse.urlencode(params)
         )
 

@@ -8,7 +8,7 @@ from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFacto
 class SiteMixin(object):
     def setUp(self):
         super(SiteMixin, self).setUp()
-        domain = 'testserver.fake'
+        domain = 'testserver'
         self.client = self.client_class(SERVER_NAME=domain)
         Site.objects.all().delete()
         self.site = SiteFactory(id=settings.SITE_ID, domain=domain)
