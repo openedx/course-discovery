@@ -107,8 +107,9 @@ class SearchQuerySetWrapper(object):
     Decorates a SearchQuerySet object using a generator for efficient iteration
     """
 
-    def __init__(self, qs):
+    def __init__(self, qs, prefetch_related_objects=None):
         self.qs = qs
+        self.prefetch_related_objects = prefetch_related_objects
 
     def __getattr__(self, item):
         try:
@@ -119,12 +120,16 @@ class SearchQuerySetWrapper(object):
             return getattr(self.qs, item)
 
     def __iter__(self):
+        prefetch_related_objects(self.qs, *self.prefetch_related_objects)
         for result in self.qs:
             yield result.object
 
     def __getitem__(self, key):
         if isinstance(key, int) and (key >= 0 or key < self.count()):
+            result = self.qs[key]
+            if self.prefetch_related_objects:
+                prefetch_related_objects([result.object], *self.prefetch_related_objects)
             # return the object at the specified position
-            return self.qs[key].object
+            return result.object
         # Pass the slice/range on to the delegate
-        return SearchQuerySetWrapper(self.qs[key])
+        return SearchQuerySetWrapper(self.qs[key], prefetch_related_objects=self.prefetch_related_objects)

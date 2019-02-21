@@ -193,6 +193,27 @@ class ContentTypeSerializer(serializers.Serializer):
         fields = ('content_type',)
 
 
+class PrefetchingSerializer(serializers.ModelSerializer):
+    """Serializer that declares how to query the data it needs efficiently."""
+
+    select_related_fields = []
+    prefetch_related_objects = []
+
+    @classmethod
+    def prefetch_queryset(cls, queryset=None):
+        # Explicitly check for None to avoid returning all objects when the
+        # queryset passed in happens to be empty.
+        if queryset is None:
+            queryset = cls.Meta.model.objects.all()
+
+        if cls.select_related_fields:
+            queryset = queryset.select_related(*cls.select_related_fields)
+
+        if cls.prefetch_related_objects:
+            queryset = queryset.prefetch_related(*cls.prefetch_related_objects)
+
+        return queryset
+
 class NamedModelSerializer(serializers.ModelSerializer):
     """Serializer for models inheriting from ``AbstractNamedModel``."""
     name = serializers.CharField()
@@ -594,7 +615,7 @@ class MinimalPublisherCourseRunSerializer(TimestampModelSerializer):
         return obj.title_override or obj.course.title
 
 
-class MinimalCourseRunSerializer(TimestampModelSerializer):
+class MinimalCourseRunSerializer(TimestampModelSerializer, PrefetchingSerializer):
     image = ImageField(read_only=True, source='image_url')
     marketing_url = serializers.SerializerMethodField()
     seats = SeatSerializer(many=True)
@@ -605,15 +626,8 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
         1  # Waffle Switch: use_company_name_as_utm_source_value
     )
 
-    @classmethod
-    def prefetch_queryset(cls, queryset=None):
-        # Explicitly check for None to avoid returning all CourseRuns when the
-        # queryset passed in happens to be empty.
-        queryset = queryset if queryset is not None else CourseRun.objects.all()
-
-        return queryset.select_related('course__partner').prefetch_related(
-            Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
-        )
+    select_related_fields = ['course__partner']
+    prefetch_related_objects = [Prefetch('seats', queryset=SeatSerializer.prefetch_queryset())]
 
     class Meta:
         model = CourseRun
@@ -656,14 +670,11 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         MinimalPersonSerializer.expected_prefetch_query_count
     )
 
-    @classmethod
-    def prefetch_queryset(cls, queryset=None):
-        queryset = super().prefetch_queryset(queryset=queryset)
-
-        return queryset.select_related('language', 'video', 'course__level_type', 'video__image').prefetch_related(
-            'transcript_languages',
-            Prefetch('staff', queryset=MinimalPersonSerializer.prefetch_queryset()),
-        )
+    select_related_fields = MinimalCourseRunSerializer.select_related_fields + ['language', 'video', 'course__level_type', 'video__image']
+    prefetch_related_objects = MinimalCourseRunSerializer.prefetch_related_objects + [
+        'transcript_languages',
+        Prefetch('staff', queryset=MinimalPersonSerializer.prefetch_queryset()),
+    ]
 
     class Meta(MinimalCourseRunSerializer.Meta):
         fields = MinimalCourseRunSerializer.Meta.fields + (
@@ -688,11 +699,7 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
         1  # Program
     )
 
-    @classmethod
-    def prefetch_queryset(cls, queryset=None):
-        queryset = super().prefetch_queryset(queryset=queryset)
-
-        return queryset.prefetch_related('course__programs__excluded_course_runs')
+    prefetch_related_objects = CourseRunSerializer.prefetch_related_objects + ['course__programs__excluded_course_runs']
 
     def get_programs(self, obj):
         programs = []

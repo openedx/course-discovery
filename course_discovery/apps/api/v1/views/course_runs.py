@@ -50,7 +50,10 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         partner = self.request.site.partner
         if q:
             log.info("getting queryset based on query parameter: {q}".format(q=q))
-            qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))
+            qs = SearchQuerySetWrapper(
+                CourseRun.search(q).filter(partner=partner.short_code),
+                prefetch_related_objects=self.get_serializer_class().prefetch_related_objects,
+            )
             # This is necessary to avoid issues with the filter backend.
             qs.model = self.queryset.model
             return qs
