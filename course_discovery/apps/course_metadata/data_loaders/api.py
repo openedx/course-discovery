@@ -502,6 +502,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
     def update_seats(self, body):
         course_run_key = body['id']
+        logger.info('Processing seats for course with key [%s].', course_run_key)
         try:
             course_run = CourseRun.objects.get(key__iexact=course_run_key)
         except CourseRun.DoesNotExist:
@@ -517,6 +518,11 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         # Remove seats which no longer exist for that course run
         certificate_types = [self.get_certificate_type(product) for product in body['products']
                              if product['structure'] == 'child']
+        logger.info(
+            'Removing seats for course with key [%s] except [%s].',
+            course_run_key,
+            ', '.join(certificate_types)
+        )
         course_run.seats.exclude(type__in=certificate_types).delete()
 
     def update_seat(self, course_run, product_body):
@@ -553,6 +559,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             currency=currency,
             defaults=defaults
         )
+
+        logger.info('Processed seat for course with key [%s] and sku [%s].', course_run.key, sku)
 
     def validate_stockrecord(self, stockrecords, title, product_class):
         """

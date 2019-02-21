@@ -75,6 +75,13 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ('uuid', 'key', 'title',)
 
 
+@admin.register(CourseEditor)
+class CourseEditorAdmin(admin.ModelAdmin):
+    list_display = ('user', 'course',)
+    search_fields = ('user__username', 'course__title', 'course__key',)
+    raw_id_fields = ('user', 'course',)
+
+
 @admin.register(CourseEntitlement)
 class CourseEntitlementAdmin(admin.ModelAdmin):
     list_display = ['course', 'get_course_number', 'mode']

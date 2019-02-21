@@ -5,7 +5,7 @@ import factory
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 
-from course_discovery.apps.core.tests.factories import PartnerFactory, add_m2m_data
+from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory, add_m2m_data
 from course_discovery.apps.core.tests.utils import FuzzyURL
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
@@ -120,6 +120,14 @@ class CourseFactory(factory.DjangoModelFactory):
     def sponsoring_organizations(self, create, extracted, **kwargs):
         if create:
             add_m2m_data(self.sponsoring_organizations, extracted)
+
+
+class CourseEditorFactory(factory.DjangoModelFactory):
+    user = factory.SubFactory(UserFactory)
+    course = factory.SubFactory(CourseFactory)
+
+    class Meta:
+        model = CourseEditor
 
 
 class CourseRunFactory(factory.DjangoModelFactory):

@@ -10,12 +10,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from edx_rest_api_client.client import OAuthAPIClient
 from rest_framework import filters as rest_framework_filters
 from rest_framework import status, viewsets
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
-from course_discovery.apps.api.permissions import WriteOnlyByStaffUser
+from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
@@ -37,6 +38,8 @@ def writable_request_wrapper(method):
         except ValidationError as exc:
             return Response(exc.message if hasattr(exc, 'message') else str(exc),
                             status=status.HTTP_400_BAD_REQUEST)
+        except PermissionDenied:
+            raise  # just pass a 403 along
         except EcommerceAPIClientException as e:
             logger.exception(
                 _('The following error occurred while setting the Course Entitlement data in E-commerce: '
@@ -60,7 +63,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     filter_class = filters.CourseFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX + '|' + COURSE_UUID_REGEX
-    permission_classes = (IsAuthenticated, WriteOnlyByStaffUser,)
+    permission_classes = (IsAuthenticated, IsCourseEditorOrReadOnly,)
     serializer_class = serializers.CourseWithProgramsSerializer
     metadata_class = MetadataWithRelatedChoices
     metadata_related_choices_whitelist = ('mode', 'level_type', 'subjects',)
@@ -262,6 +265,11 @@ class CourseViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *_args, **_kwargs):
         """ Partially update details for a course. """
         return self.update_course(request.data, partial=True)
+
+    def destroy(self, _request, *_args, **_kwargs):
+        """ Delete a course. """
+        # Not supported
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def list(self, request, *args, **kwargs):
         """ List all courses.
