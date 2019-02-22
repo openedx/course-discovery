@@ -53,7 +53,7 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
     def test_sanity_check_success(self):
         """ Verify the command does not raise a CommandError error if the new index passes the sanity check. """
         CourseRunFactory.create_batch(30)
-        record_count = 60
+        record_count = 150
         additional_runs = int(10 * settings.INDEX_SIZE_CHANGE_THRESHOLD - 1)
         CourseRunFactory.create_batch(additional_runs)
 
