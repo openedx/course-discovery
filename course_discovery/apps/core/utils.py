@@ -2,6 +2,7 @@ import datetime
 import logging
 
 from django.conf import settings
+from django.db.models.query import prefetch_related_objects
 
 from course_discovery.settings.process_synonyms import get_synonyms
 
