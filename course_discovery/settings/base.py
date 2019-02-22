@@ -534,6 +534,8 @@ SOLO_CACHE_TIMEOUT = 3600
 
 PUBLISHER_FROM_EMAIL = None
 
+USERNAME_REPLACEMENT_WORKER = "REPLACE WITH VALID USERNAME"
+
 # If no upgrade deadline is specified for a course run seat, when the course is published the deadline will default to
 # the course run end date minus the specified number of days.
 PUBLISHER_UPGRADE_DEADLINE_DAYS = 10
