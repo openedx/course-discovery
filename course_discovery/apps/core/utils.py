@@ -107,10 +107,21 @@ class SearchQuerySetWrapper(object):
     """
     Decorates a SearchQuerySet object using a generator for efficient iteration
     """
-
-    def __init__(self, qs, prefetch_related_objects=None):
+    def __init__(self, qs, prefetch_related_objects=None, sliced=False):
+        """
+        Arguments:
+            qs (:class:`~haystack.query.SearchQuerySet`): The underlying queryset to return data from
+            prefetch_related_objects (list): A list of strings or :class:`~django.db.models.query.Prefetch`
+                objects that specify what related data will be needed by the consumer of this SearchQuery
+                (and which should be fetched as efficiently as possible). This assumes that all objects
+                being returned by this query are of the same type.
+            sliced (bool): If true, then the underlying queryset has already been sliced, and thus has all
+                of its results pre-fetched. That means that it's safe to iterate all of them when efficiently
+                querying for django objects.
+        """
         self.qs = qs
         self.prefetch_related_objects = prefetch_related_objects
+        self.sliced = sliced
 
     def __getattr__(self, item):
         try:
@@ -121,16 +132,25 @@ class SearchQuerySetWrapper(object):
             return getattr(self.qs, item)
 
     def __iter__(self):
-        prefetch_related_objects(self.qs, *self.prefetch_related_objects)
-        for result in self.qs:
-            yield result.object
+        if sliced and self.prefetch_related_objects:
+            objects = [result.object for result in self.qs]
+            prefetch_related_objects(objects, *self.prefetch_related_objects)
+            for obj in objects:
+                yield obj
+        else:
+            for result in self.qs:
+                obj = result.object
+                if self.prefetch_related_objects:
+                    prefetch_related_objects([objects], *self.prefetch_related_objects)
+                yield obj
 
     def __getitem__(self, key):
         if isinstance(key, int) and (key >= 0 or key < self.count()):
             result = self.qs[key]
+            obj = result.object
             if self.prefetch_related_objects:
-                prefetch_related_objects([result.object], *self.prefetch_related_objects)
+                prefetch_related_objects([obj], *self.prefetch_related_objects)
             # return the object at the specified position
-            return result.object
+            return obj
         # Pass the slice/range on to the delegate
-        return SearchQuerySetWrapper(self.qs[key], prefetch_related_objects=self.prefetch_related_objects)
+        return SearchQuerySetWrapper(self.qs[key], prefetch_related_objects=self.prefetch_related_objects, sliced=True)
