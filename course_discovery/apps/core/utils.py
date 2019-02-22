@@ -129,7 +129,12 @@ class SearchQuerySetWrapper(object):
 
     def __iter__(self):
         for result in self.qs:
+            # This will perform a Django query to fetch the correct django object
             obj = result.object
+
+            # If the calling code has provided a list of objects to prefetch, we can
+            # minimize future queries by prefetching all of the related objects
+            # before returning the newly generated django object to the caller
             if self.prefetch_related_objects:
                 prefetch_related_objects([objects], *self.prefetch_related_objects)
             yield obj
@@ -137,6 +142,8 @@ class SearchQuerySetWrapper(object):
     def __getitem__(self, key):
         if isinstance(key, int) and (key >= 0 or key < self.count()):
             result = self.qs[key]
+            # As in __iter__, we fetch a single django object (incurring a query)
+            # and then prefetch all of the declared related objects (minimizing future queries)
             obj = result.object
             if self.prefetch_related_objects:
                 prefetch_related_objects([obj], *self.prefetch_related_objects)
@@ -144,6 +151,9 @@ class SearchQuerySetWrapper(object):
             return obj
         else:
             # Retrieve the results of the slice on the queryset
+            # SearchQuerySet returns a list of results when __getitem__ is called with a
+            # slice, so we can prefetch the related data for all of those objects in bulk.
+            # This is the codepath that we expect DRF pagers to use.
             results = self.qs[key]
             objects = [result.object for result in self.qs]
             if self.prefetch_related_objects:
