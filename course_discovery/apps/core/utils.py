@@ -115,13 +115,9 @@ class SearchQuerySetWrapper(object):
                 objects that specify what related data will be needed by the consumer of this SearchQuery
                 (and which should be fetched as efficiently as possible). This assumes that all objects
                 being returned by this query are of the same type.
-            sliced (bool): If true, then the underlying queryset has already been sliced, and thus has all
-                of its results pre-fetched. That means that it's safe to iterate all of them when efficiently
-                querying for django objects.
         """
         self.qs = qs
         self.prefetch_related_objects = prefetch_related_objects
-        self.sliced = sliced
 
     def __getattr__(self, item):
         try:
@@ -132,17 +128,11 @@ class SearchQuerySetWrapper(object):
             return getattr(self.qs, item)
 
     def __iter__(self):
-        if sliced and self.prefetch_related_objects:
-            objects = [result.object for result in self.qs]
-            prefetch_related_objects(objects, *self.prefetch_related_objects)
-            for obj in objects:
-                yield obj
-        else:
-            for result in self.qs:
-                obj = result.object
-                if self.prefetch_related_objects:
-                    prefetch_related_objects([objects], *self.prefetch_related_objects)
-                yield obj
+        for result in self.qs:
+            obj = result.object
+            if self.prefetch_related_objects:
+                prefetch_related_objects([objects], *self.prefetch_related_objects)
+            yield obj
 
     def __getitem__(self, key):
         if isinstance(key, int) and (key >= 0 or key < self.count()):
@@ -152,5 +142,9 @@ class SearchQuerySetWrapper(object):
                 prefetch_related_objects([obj], *self.prefetch_related_objects)
             # return the object at the specified position
             return obj
-        # Pass the slice/range on to the delegate
-        return SearchQuerySetWrapper(self.qs[key], prefetch_related_objects=self.prefetch_related_objects, sliced=True)
+        else:
+            # Retrieve the results of the slice on the queryset
+            results = self.qs[key]
+            objects = [result.object for result in self.qs]
+            prefetch_related_objects(objects, *self.prefetch_related_objects)
+            return objects
