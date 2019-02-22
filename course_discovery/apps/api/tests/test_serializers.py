@@ -1732,7 +1732,7 @@ class TestProgramSearchSerializer(TestCase):
         program = ProgramFactory(courses=[course_run.course])
         serializer = self.serialize_program(program, self.request)
         expected = self.get_expected_data(program, self.request)
-        assert serializer.data == expected
+        assert sorted(serializer.data) == sorted(expected)
         if 'language' in expected:
             assert {'English', 'Chinese - Mandarin'} == {*expected['language']}
         else:
