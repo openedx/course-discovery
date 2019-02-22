@@ -1,7 +1,10 @@
+from django.conf import settings
 from rest_framework.permissions import SAFE_METHODS, BasePermission, DjangoModelPermissions
 
 from course_discovery.apps.course_metadata.models import CourseEditor
 from course_discovery.apps.course_metadata.utils import parse_course_key_fragment
+
+USERNAME_REPLACEMENT_GROUP = "username_replacement_admin"
 
 
 class ReadOnlyByPublisherUser(BasePermission):
@@ -58,3 +61,11 @@ class IsCourseRunEditorOrDjangoOrReadOnly(BasePermission):
             return True
         else:
             return CourseEditor.is_course_editable(request.user, obj.course)
+
+
+class CanReplaceUsername(BasePermission):
+    """
+    Grants access to the Username Replacement API for the service user.
+    """
+    def has_permission(self, request, view):
+        return request.user.username == getattr(settings, "USERNAME_REPLACEMENT_WORKER")
