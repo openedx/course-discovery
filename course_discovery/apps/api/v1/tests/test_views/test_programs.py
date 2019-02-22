@@ -88,7 +88,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
 
-        with django_assert_num_queries(FuzzyInt(61, 2)):
+        with django_assert_num_queries(FuzzyInt(55, 2)):
             response = self.assert_retrieve_success(program)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
@@ -110,7 +110,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(FuzzyInt(45, 2)):
+        with django_assert_num_queries(FuzzyInt(41, 2)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())  # pylint: disable=no-member
@@ -147,7 +147,7 @@ class TestProgramViewSet(SerializationMixin):
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
 
-        self.assert_list_results(self.list_path, expected, 31)
+        self.assert_list_results(self.list_path, expected, 27)
 
     def test_uuids_only(self):
         """
@@ -268,7 +268,7 @@ class TestProgramViewSet(SerializationMixin):
         program.marketing_slug = SLUG
         program.save()
 
-        self.assert_list_results(url, [program], 21)
+        self.assert_list_results(url, [program], 18)
 
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
