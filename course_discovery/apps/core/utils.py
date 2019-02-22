@@ -146,5 +146,6 @@ class SearchQuerySetWrapper(object):
             # Retrieve the results of the slice on the queryset
             results = self.qs[key]
             objects = [result.object for result in self.qs]
-            prefetch_related_objects(objects, *self.prefetch_related_objects)
+            if self.prefetch_related_objects:
+                prefetch_related_objects(objects, *self.prefetch_related_objects)
             return objects
