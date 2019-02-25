@@ -10,11 +10,13 @@ import pytz
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from drf_dynamic_fields import DynamicFieldsMixin
 from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer, HaystackSerializerMixin
+from opaque_keys.edx.locator import CourseLocator
 from rest_framework import serializers
 from rest_framework.fields import CreateOnlyDefault, DictField, UUIDField
 from rest_framework.metadata import SimpleMetadata
@@ -31,7 +33,10 @@ from course_discovery.apps.course_metadata.models import (
     PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType,
     Subject, Topic, Video
 )
+from course_discovery.apps.course_metadata.utils import parse_course_key_fragment
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
+from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 
 User = get_user_model()
 
@@ -600,10 +605,15 @@ class MinimalPublisherCourseRunSerializer(TimestampModelSerializer):
         return obj.title_override or obj.course.title
 
 
-class MinimalCourseRunSerializer(TimestampModelSerializer):
+class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     image = ImageField(read_only=True, source='image_url')
     marketing_url = serializers.SerializerMethodField()
-    seats = SeatSerializer(many=True)
+    seats = SeatSerializer(required=False, many=True)
+    key = serializers.CharField(required=False)
+    title = serializers.CharField(required=False)
+    short_description = serializers.CharField(required=False)
+    start = serializers.DateTimeField(required=True)  # required so we can craft key number from it
+    end = serializers.DateTimeField(required=True)  # required by studio
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -636,20 +646,65 @@ class MinimalCourseRunSerializer(TimestampModelSerializer):
 
         return marketing_url
 
+    def ensure_key(self, data):
+        course = data['course']  # required
+
+        # There are two paths here - either the key was provided or start date was and we generate key from that.
+        # We prefer the start date path and only allow certain organizations to provide a key.
+
+        allow_key_override = False
+        for organization in course.authoring_organizations.all():
+            try:
+                # This flag is oddly named - it's because creating an instance in studio generated the key in old
+                # publisher. Nowadays, we always push to studio and allow overriding the key if that's what the org
+                # really wants.
+                if not organization.organization_extension.auto_create_in_studio:
+                    allow_key_override = True
+                    break
+            except ObjectDoesNotExist:
+                pass  # no organization extension
+
+        if allow_key_override and 'key' in data:
+            return
+
+        # Now, override whatever value for key was provided by looking at the start date
+        start = data['start']  # required
+        org, number = parse_course_key_fragment(course.key)
+        run = StudioAPI.calculate_course_run_key_run_value(number, start)
+        key = CourseLocator(org=org, course=number, run=run)
+        data['key'] = str(key)
+
+    def validate(self, data):
+        start = data.get('start', self.instance.start if self.instance else None)
+        end = data.get('end', self.instance.end if self.instance else None)
+
+        if start and end and start > end:
+            raise serializers.ValidationError({'start': _('Start date cannot be after the End date')})
+
+        if not self.instance:  # if we're creating an object, we need to make sure to generate a key
+            self.ensure_key(data)
+        elif 'key' in data and self.instance.key != data['key']:
+            raise serializers.ValidationError({'key': _('Key cannot be changed')})
+
+        return super().validate(data)
+
 
 class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
-    course = serializers.SlugRelatedField(read_only=True, slug_field='key')
+    course = serializers.SlugRelatedField(required=True, slug_field='key', queryset=Course.objects.all())
     content_language = serializers.SlugRelatedField(
-        read_only=True, slug_field='code', source='language',
+        required=False, slug_field='code', source='language', queryset=LanguageTag.objects.all(),
         help_text=_('Language in which the course is administered')
     )
-    transcript_languages = serializers.SlugRelatedField(many=True, read_only=True, slug_field='code')
-    video = VideoSerializer(source='get_video')
-    seats = SeatSerializer(many=True)
+    transcript_languages = serializers.SlugRelatedField(
+        required=False, many=True, slug_field='code', queryset=LanguageTag.objects.all()
+    )
+    video = VideoSerializer(required=False, source='get_video')
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
-    staff = MinimalPersonSerializer(many=True)
-    level_type = serializers.SlugRelatedField(read_only=True, slug_field='name')
+    staff = MinimalPersonSerializer(required=False, many=True)  # if you change, change to_internal_value too
+    level_type = serializers.SlugRelatedField(required=False, slug_field='name', queryset=LevelType.objects.all())
+    full_description = serializers.CharField(required=False)
+    outcome = serializers.CharField(required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -670,10 +725,60 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions',
             'enrollment_count', 'recent_enrollment_count',
         )
+        read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
         return []
+
+    def to_internal_value(self, data):
+        # Allow incoming writes to just specify a list of slugs for staff
+        self.fields['staff'] = serializers.SlugRelatedField(slug_field='uuid', required=False, many=True,
+                                                            queryset=Person.objects.all())
+        rv = super().to_internal_value(data)
+        self.fields['staff'] = MinimalPersonSerializer(required=False, many=True)
+        return rv
+
+    def update_video(self, instance, video_data):
+        # A separate video object is a historical concept. These days, we really just use the link address. So
+        # we look up a foreign key just based on the link and don't bother trying to match or set any other fields.
+        # This matches the behavior of our traditional built-in publisher tool. Similarly, we don't try to delete
+        # old video entries (just like the publisher tool didn't).
+        video_url = video_data and video_data.get('src')
+        if video_url:
+            video, _ = Video.objects.get_or_create(src=video_url)
+            instance.video = video
+        else:
+            instance.video = None
+        # save() will be called by main update()
+
+    def update(self, instance, validated_data):
+        # Handle writing nested video data separately
+        if 'get_video' in validated_data:
+            self.update_video(instance, validated_data.pop('get_video'))
+
+        # Write all other attributes to the instance
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
+    def validate(self, data):
+        course = data.get('course', None)
+        if course and self.instance and self.instance.course != course:
+            raise serializers.ValidationError({'course': _('Course cannot be changed for an existing course run')})
+
+        min_effort = data.get('min_effort', self.instance.min_effort if self.instance else None)
+        max_effort = data.get('max_effort', self.instance.max_effort if self.instance else None)
+        if min_effort and max_effort and min_effort > max_effort:
+            raise serializers.ValidationError({'min_effort': _('Minimum effort cannot be greater than Maximum effort')})
+        if min_effort and max_effort and min_effort == max_effort:
+            raise serializers.ValidationError({'min_effort': _('Minimum effort and Maximum effort cannot be the same')})
+        if not max_effort and min_effort:
+            raise serializers.ValidationError({'max_effort': _('Maximum effort cannot be empty')})
+
+        return super().validate(data)
 
 
 class CourseRunWithProgramsSerializer(CourseRunSerializer):

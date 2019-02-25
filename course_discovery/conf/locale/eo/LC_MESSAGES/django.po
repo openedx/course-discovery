@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-04 17:33+0000\n"
+"POT-Creation-Date: 2019-03-06 21:34+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -45,11 +45,43 @@ msgstr ""
 "Ûsérnämés öf üsérs wïth éxplïçït äççéss tö vïéw thïs çätälög Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
+#: apps/api/serializers.py apps/publisher/forms.py
+msgid "Start date cannot be after the End date"
+msgstr ""
+"Stärt däté çännöt ßé äftér thé Énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/api/serializers.py
+msgid "Key cannot be changed"
+msgstr "Kéý çännöt ßé çhängéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
 #: apps/api/serializers.py
 msgid "Language in which the course is administered"
 msgstr ""
 "Längüägé ïn whïçh thé çöürsé ïs ädmïnïstéréd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
+
+#: apps/api/serializers.py
+msgid "Course cannot be changed for an existing course run"
+msgstr ""
+"Çöürsé çännöt ßé çhängéd för än éxïstïng çöürsé rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py apps/publisher/forms.py
+msgid "Minimum effort cannot be greater than Maximum effort"
+msgstr ""
+"Mïnïmüm éffört çännöt ßé gréätér thän Mäxïmüm éffört Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py
+msgid "Minimum effort and Maximum effort cannot be the same"
+msgstr ""
+"Mïnïmüm éffört änd Mäxïmüm éffört çännöt ßé thé sämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py
+msgid "Maximum effort cannot be empty"
+msgstr "Mäxïmüm éffört çännöt ßé émptý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course run IDs to boolean values"
@@ -75,6 +107,17 @@ msgid ""
 msgstr ""
 "Längüägés thät çöürsé rüns ïn thïs prögräm hävé äväïläßlé tränsçrïpts ïn. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/api/v1/views/course_runs.py
+msgid "An error occurred while setting course run data."
+msgstr ""
+"Àn érrör öççürréd whïlé séttïng çöürsé rün dätä. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/v1/views/course_runs.py
+msgid "Failed to set course run data: {}"
+msgstr ""
+"Fäïléd tö sét çöürsé rün dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/api/v1/views/courses.py
 #, python-brace-format
@@ -1461,18 +1504,6 @@ msgstr "MïçröMästérs Nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм
 #: apps/publisher/forms.py
 msgid "Video Language"
 msgstr "Vïdéö Längüägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
-
-#: apps/publisher/forms.py
-msgid "Start date cannot be after the End date"
-msgstr ""
-"Stärt däté çännöt ßé äftér thé Énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя#"
-
-#: apps/publisher/forms.py
-msgid "Minimum effort cannot be greater than Maximum effort"
-msgstr ""
-"Mïnïmüm éffört çännöt ßé gréätér thän Mäxïmüm éffört Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/publisher/forms.py
 msgid "Minimum effort and Maximum effort can not be same"

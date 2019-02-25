@@ -1,22 +1,41 @@
 import logging
 
+from django.db import transaction
 from django.db.models.functions import Lower
+from django.utils.translation import ugettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import list_route
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
-from course_discovery.apps.api.utils import get_query_param
+from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrReadOnly
+from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
+from course_discovery.apps.api.utils import StudioAPI, get_query_param
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
-from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 
 log = logging.getLogger(__name__)
+
+
+def writable_request_wrapper(method):
+    def inner(*args, **kwargs):
+        try:
+            with transaction.atomic():
+                return method(*args, **kwargs)
+        except (PermissionDenied, ValidationError):
+            raise  # just pass along
+        except Exception as e:  # pylint: disable=broad-except
+            log.exception(_('An error occurred while setting course run data.'))
+            return Response(_('Failed to set course run data: {}').format(str(e)),
+                            status=status.HTTP_400_BAD_REQUEST)
+    return inner
 
 
 # pylint: disable=no-member
@@ -27,9 +46,11 @@ class CourseRunViewSet(viewsets.ModelViewSet):
     lookup_field = 'key'
     lookup_value_regex = COURSE_RUN_ID_REGEX
     ordering_fields = ('start',)
-    permission_classes = (IsAuthenticated, DjangoModelPermissions)
+    permission_classes = (IsAuthenticated, IsCourseRunEditorOrDjangoOrReadOnly)
     queryset = CourseRun.objects.all().order_by(Lower('key'))
     serializer_class = serializers.CourseRunWithProgramsSerializer
+    metadata_class = MetadataWithRelatedChoices
+    metadata_related_choices_whitelist = ('content_language', 'level_type', 'transcript_languages',)
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
@@ -133,9 +154,45 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         """
         return super(CourseRunViewSet, self).list(request, *args, **kwargs)
 
-    def partial_update(self, request, *args, **kwargs):
+    @classmethod
+    def push_to_studio(cls, request, course_run, create=False, old_course_run=None):
+        if course_run.course.partner.studio_url:
+            api = StudioAPI(course_run.course.partner.studio_api_client)
+            api.push_to_studio(course_run, create, old_course_run, user=request.user)
+        else:
+            log.info('Not pushing course run info for %s to Studio as partner %s has no studio_url set.',
+                     course_run.key, course_run.course.partner.short_code)
+
+    @writable_request_wrapper
+    def create(self, request, *args, **kwargs):
+        """ Create a course run object. """
+        # Set a pacing default when creating (studio requires this to be set, even though discovery does not)
+        request.data.setdefault('pacing_type', 'instructor_paced')
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # Grab any existing course run for this course (we'll use it when talking to studio to form basis of rerun)
+        course_key = request.data['course']  # required field
+        course = Course.objects.get(key=course_key)
+        old_course_run = course.canonical_course_run
+
+        # And finally, save to database and push to studio
+        course_run = serializer.save()
+        self.push_to_studio(request, course_run, create=True, old_course_run=old_course_run)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    @writable_request_wrapper
+    def update(self, request, *args, **kwargs):
         """ Update one, or more, fields for a course run. """
-        return super(CourseRunViewSet, self).partial_update(request, *args, **kwargs)
+        response = super().update(request, *args, **kwargs)
+
+        course_run = self.get_object()
+        self.push_to_studio(request, course_run, create=False)
+
+        return response
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
