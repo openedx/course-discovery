@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-04 17:33+0000\n"
+"POT-Creation-Date: 2019-03-06 21:34+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -28,33 +28,65 @@ msgid ""
 "parameter."
 msgstr ""
 
-#: apps/api/serializers.py:549
+#: apps/api/serializers.py:553
 msgid "Number of courses contained in this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:552
+#: apps/api/serializers.py:556
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:645
+#: apps/api/serializers.py:682 apps/publisher/forms.py:357
+msgid "Start date cannot be after the End date"
+msgstr ""
+
+#: apps/api/serializers.py:687
+msgid "Key cannot be changed"
+msgstr ""
+
+#: apps/api/serializers.py:697
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:716
+#: apps/api/serializers.py:770
+msgid "Course cannot be changed for an existing course run"
+msgstr ""
+
+#: apps/api/serializers.py:775 apps/publisher/forms.py:359
+msgid "Minimum effort cannot be greater than Maximum effort"
+msgstr ""
+
+#: apps/api/serializers.py:777
+msgid "Minimum effort and Maximum effort cannot be the same"
+msgstr ""
+
+#: apps/api/serializers.py:779
+msgid "Maximum effort cannot be empty"
+msgstr ""
+
+#: apps/api/serializers.py:821
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:905
+#: apps/api/serializers.py:1010
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1142
+#: apps/api/serializers.py:1247
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1146
+#: apps/api/serializers.py:1251
 msgid ""
 "Languages that course runs in this program have available transcripts in."
+msgstr ""
+
+#: apps/api/v1/views/course_runs.py:36
+msgid "An error occurred while setting course run data."
+msgstr ""
+
+#: apps/api/v1/views/course_runs.py:37
+msgid "Failed to set course run data: {}"
 msgstr ""
 
 #: apps/api/v1/views/courses.py:45
@@ -434,7 +466,7 @@ msgstr ""
 #: apps/course_metadata/models.py:220 apps/course_metadata/models.py:265
 #: apps/course_metadata/models.py:382 apps/course_metadata/models.py:576
 #: apps/course_metadata/models.py:1119 apps/course_metadata/models.py:1744
-#: apps/course_metadata/models.py:1831 apps/journal/models.py:23
+#: apps/course_metadata/models.py:1828 apps/journal/models.py:23
 #: apps/journal/models.py:67
 msgid "UUID"
 msgstr ""
@@ -873,35 +905,35 @@ msgstr ""
 msgid "A high-level overview of the degree's courseware."
 msgstr ""
 
-#: apps/course_metadata/models.py:1836
+#: apps/course_metadata/models.py:1833
 msgid "Organization name"
 msgstr ""
 
-#: apps/course_metadata/models.py:1858
+#: apps/course_metadata/models.py:1855
 msgid "These programs are for a different partner than the pathway itself: {}"
 msgstr ""
 
-#: apps/course_metadata/models.py:1870
+#: apps/course_metadata/models.py:1867
 msgid "Facebook"
 msgstr ""
 
-#: apps/course_metadata/models.py:1871
+#: apps/course_metadata/models.py:1868
 msgid "Twitter"
 msgstr ""
 
-#: apps/course_metadata/models.py:1872
+#: apps/course_metadata/models.py:1869
 msgid "Blog"
 msgstr ""
 
-#: apps/course_metadata/models.py:1873
+#: apps/course_metadata/models.py:1870
 msgid "Others"
 msgstr ""
 
-#: apps/course_metadata/models.py:1938 apps/publisher/models.py:1144
+#: apps/course_metadata/models.py:1935 apps/publisher/models.py:1144
 msgid "Course Run IDs"
 msgstr ""
 
-#: apps/course_metadata/models.py:1946
+#: apps/course_metadata/models.py:1943
 msgid "Profile Image UUIDs"
 msgstr ""
 
@@ -1202,14 +1234,6 @@ msgstr ""
 
 #: apps/publisher/forms.py:292
 msgid "Video Language"
-msgstr ""
-
-#: apps/publisher/forms.py:357
-msgid "Start date cannot be after the End date"
-msgstr ""
-
-#: apps/publisher/forms.py:359
-msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr ""
 
 #: apps/publisher/forms.py:361

@@ -13,7 +13,9 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
-from course_discovery.apps.publisher.tests.factories import CourseRunFactory, OrganizationExtensionFactory
+from course_discovery.apps.publisher.tests.factories import (
+    CourseFactory, CourseRunFactory, OrganizationExtensionFactory
+)
 
 
 @freeze_time('2017-01-01T00:00:00Z')
@@ -140,17 +142,19 @@ class TestCreateCourseRunInStudio:
         url = '{}/api/v1/course_runs/'.format(studio_url_root)
         responses.add(responses.POST, url, json=body, status=200)
 
+        course = CourseFactory(organizations=[organization])
+
         with mock.patch('course_discovery.apps.publisher.signals.logger.exception') as mock_logger:
-            publisher_course_run = CourseRunFactory(
-                start=start,
-                lms_course_id=None,
-                course__organizations=[organization]
-            )
+            with pytest.raises(Exception):
+                CourseRunFactory(
+                    course=course,
+                    start=start,
+                    lms_course_id=None,
+                )
 
         assert len(responses.calls) == 1
-        assert publisher_course_run.lms_course_id == course_run_key
 
-        mock_logger.assert_called_with('Failed to update Studio image for course run [%s]', course_run_key)
+        mock_logger.assert_called_with('Failed to create course run [%s] on Studio', course.key)
 
     # pylint: disable=unused-argument
     @responses.activate
@@ -174,18 +178,20 @@ class TestCreateCourseRunInStudio:
         )
         responses.add(responses.POST, url, json=body, status=500)
 
+        course = CourseFactory(organizations=[organization])
+
         with mock.patch('course_discovery.apps.publisher.signals.logger.exception') as mock_logger:
-            publisher_course_run = CourseRunFactory(
-                start=start,
-                lms_course_id=None,
-                course__organizations=[organization]
-            )
+            with pytest.raises(HttpServerError):
+                CourseRunFactory(
+                    course=course,
+                    start=start,
+                    lms_course_id=None,
+                )
 
         assert len(responses.calls) == 2
-        assert publisher_course_run.lms_course_id == course_run_key
 
         mock_logger.assert_called_with(
-            'Failed to update Studio image for course run [%s]: %s', course_run_key, json.dumps(body).encode('utf8')
+            'Failed to create course run [%s] on Studio: %s', course.key, json.dumps(body).encode('utf8')
         )
 
     @responses.activate
@@ -241,8 +247,8 @@ class TestCreateCourseRunInStudio:
 
             assert len(responses.calls) == 1
             mock_logger.assert_called_with(
-                'Failed to create course re-run [%s] on Studio: %s',
-                discovery_course_run.key,
+                'Failed to create course run [%s] on Studio: %s',
+                course_key,
                 json.dumps(body).encode('utf8')
             )
 

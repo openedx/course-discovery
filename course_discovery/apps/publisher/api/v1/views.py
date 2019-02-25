@@ -75,8 +75,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         api = StudioAPI(partner.studio_api_client)
 
         try:
-            api.update_course_run_details_in_studio(course_run)
-            api.update_course_run_image_in_studio(course_run)
+            api.push_to_studio(course_run)
             return self.PUBLICATION_SUCCESS_STATUS
         except SlumberBaseException as ex:
             content = ex.content.decode('utf8')

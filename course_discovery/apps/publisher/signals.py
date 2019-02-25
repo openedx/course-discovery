@@ -44,39 +44,19 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
 
         logger.info('Publishing course run [%d] to Studio...', instance.id)
         api = StudioAPI(instance.course.partner.studio_api_client)
-
         discovery_course_run = instance.discovery_counterpart_latest_by_start_date
 
-        if discovery_course_run:
-            try:
-                logger.info('Creating a re-run of [%s]...', discovery_course_run.key)
-                response = api.create_course_rerun_in_studio(instance, discovery_course_run)
-            except SlumberBaseException as ex:
-                logger.exception(
-                    'Failed to create course re-run [%s] on Studio: %s',
-                    discovery_course_run.key,
-                    ex.content
-                )
-                raise
-        else:
-            try:
-                logger.info('Creating a new run of [%s]...', instance.course.key)
-                response = api.create_course_run_in_studio(instance)
-            except SlumberBaseException as ex:
-                logger.exception('Failed to create course run [%s] on Studio: %s', instance.id, ex.content)
-                raise
+        try:
+            response = api.push_to_studio(instance, create=True, old_course_run=discovery_course_run)
+        except SlumberBaseException as ex:
+            logger.exception('Failed to create course run [%s] on Studio: %s', course.key, ex.content)
+            raise
+        except Exception:  # pylint: disable=broad-except
+            logger.exception('Failed to create course run [%s] on Studio', course.key)
+            raise
 
         instance.lms_course_id = response['id']
         instance.save()
-
-        try:
-            api.update_course_run_image_in_studio(instance)
-        except SlumberBaseException as ex:
-            logger.exception(
-                'Failed to update Studio image for course run [%s]: %s', instance.lms_course_id, ex.content
-            )
-        except:  # pylint: disable=bare-except
-            logger.exception('Failed to update Studio image for course run [%s]', instance.lms_course_id)
 
         logger.info('Completed creation of course run [%s] on Studio.', instance.lms_course_id)
 

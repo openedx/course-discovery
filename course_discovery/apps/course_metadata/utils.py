@@ -89,6 +89,20 @@ def uslugify(string):
     return slug
 
 
+def parse_course_key_fragment(fragment):
+    """
+    Parses a course key fragment like "edX+DemoX" or "edX/DemoX" into org and course number. We call this a fragment,
+    because this kind of "course key" is not to be confused with the CourseKey class that parses a full course run key
+    like "course-v1:edX+DemoX+1T2019".
+
+    Returns a two values: (org, course number). If the key could not be parsed, then ValueError is raised.
+    """
+    split = fragment.split('/') if '/' in fragment else fragment.split('+')
+    if len(split) != 2:
+        raise ValueError('Could not understand course key fragment "{}".'.format(fragment))
+    return split[0], split[1]
+
+
 class MarketingSiteAPIClient(object):
     """
     The marketing site API client we can use to communicate with the marketing site
