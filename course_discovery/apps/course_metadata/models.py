@@ -1768,7 +1768,20 @@ class CurriculumCourseMembership(TimeStampedModel):
     """
     curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course_run_exclusions = models.ManyToManyField(
+        CourseRun, through='course_metadata.CurriculumCourseRunExclusion', related_name='curriculum_course_membership'
+    )
     is_active = models.BooleanField(default=True)
+
+    history = HistoricalRecords()
+
+
+class CurriculumCourseRunExclusion(TimeStampedModel):
+    """
+    Represents the CourseRuns that are excluded from a course curriculum.
+    """
+    course_membership = models.ForeignKey(CurriculumCourseMembership, on_delete=models.CASCADE)
+    course_run = models.ForeignKey(CourseRun, on_delete=models.CASCADE)
 
     history = HistoricalRecords()
 
