@@ -342,6 +342,12 @@ class CurriculumCourseMembershipInline(admin.TabularInline):
     extra = 1
 
 
+class CurriculumCourseRunExclusionInline(admin.TabularInline):
+    model = CurriculumCourseRunExclusion
+    raw_id_fields = ('course_run',)
+    extra = 1
+
+
 @admin.register(CurriculumProgramMembership)
 class CurriculumProgramMembershipAdmin(admin.ModelAdmin):
     list_display = ('curriculum', 'program')
@@ -350,6 +356,12 @@ class CurriculumProgramMembershipAdmin(admin.ModelAdmin):
 @admin.register(CurriculumCourseMembership)
 class CurriculumCourseMembershipAdmin(admin.ModelAdmin):
     list_display = ('curriculum', 'course')
+    inlines = (CurriculumCourseRunExclusionInline,)
+
+
+@admin.register(CurriculumCourseRunExclusion)
+class CurriculumCourseRunExclusionAdmin(admin.ModelAdmin):
+    list_display = ("course_membership", "course_run")
 
 
 @admin.register(Curriculum)

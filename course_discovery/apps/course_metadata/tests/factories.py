@@ -453,6 +453,19 @@ class CurriculumCourseMembershipFactory(factory.DjangoModelFactory):
     course = factory.SubFactory(CourseFactory)
     curriculum = factory.SubFactory(CurriculumFactory)
 
+    @factory.post_generation
+    def course_curriculum(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.course_run_exclusions, extracted)
+
+
+class CurriculumCourseRunExclusionFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = CurriculumCourseRunExclusion
+
+    course_membership = factory.SubFactory(CurriculumCourseMembershipFactory)
+    course_run = factory.SubFactory(CourseRunFactory)
+
 
 class PathwayFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
