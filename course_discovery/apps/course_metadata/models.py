@@ -11,7 +11,6 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import F, Q
-from django.db.models.functions import Lower
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
@@ -504,7 +503,14 @@ class Course(PkSearchableMixin, TimeStampedModel):
 
     @property
     def first_enrollable_paid_seat_price(self):
-        for course_run in self.active_course_runs.order_by(Lower('key')):
+        """
+        Sort the course runs with sorted rather than order_by to avoid
+        additional calls to the database
+        """
+        for course_run in sorted(
+            self.active_course_runs,
+            key=lambda active_course_run: active_course_run.key.lower(),
+        ):
             if course_run.has_enrollable_paid_seats():
                 return course_run.first_enrollable_paid_seat_price
 
@@ -649,12 +655,27 @@ class CourseRun(TimeStampedModel):
 
     objects = CourseRunQuerySet.as_manager()
 
+    def _upgrade_deadline_sort(self, seat):
+        """
+        Stub missing upgrade_deadlines to max datetime so they are ordered last
+        """
+        if seat and seat.upgrade_deadline:
+            return seat.upgrade_deadline
+        return datetime.datetime.max.replace(tzinfo=pytz.UTC)
+
     def _enrollable_paid_seats(self):
         """
-        Return a QuerySet that may be used to fetch the enrollable paid Seats (Seats with price > 0 and no
+        Return a list that may be used to fetch the enrollable paid Seats (Seats with price > 0 and no
         prerequisites) associated with this CourseRun.
+
+        We don't use django's built in filter() here since the API should have prefetched seats and
+        filter() would hit the database again
         """
-        return self.seats.exclude(type__in=Seat.SEATS_WITH_PREREQUISITES).filter(price__gt=0.0)
+        seats = []
+        for seat in self.seats.all():
+            if seat.type not in Seat.SEATS_WITH_PREREQUISITES and seat.price > 0.0:
+                seats.append(seat)
+        return seats
 
     def clean(self):
         # See https://stackoverflow.com/questions/47819247
@@ -665,7 +686,8 @@ class CourseRun(TimeStampedModel):
 
     @property
     def first_enrollable_paid_seat_price(self):
-        seats = list(self._enrollable_paid_seats().order_by('upgrade_deadline'))
+        # Sort in python to avoid an additional request to the database for order_by
+        seats = sorted(self._enrollable_paid_seats(), key=self._upgrade_deadline_sort)
         if not seats:
             # Enrollable paid seats are not available for this CourseRun.
             return None
@@ -674,7 +696,8 @@ class CourseRun(TimeStampedModel):
         return price
 
     def first_enrollable_paid_seat_sku(self):
-        seats = list(self._enrollable_paid_seats().order_by('upgrade_deadline'))
+        # Sort in python to avoid an additional request to the database for order_by
+        seats = sorted(self._enrollable_paid_seats(), key=self._upgrade_deadline_sort)
         if not seats:
             # Enrollable paid seats are not available for this CourseRun.
             return None
@@ -710,7 +733,12 @@ class CourseRun(TimeStampedModel):
         Return the final date for which an unenrolled user may enroll and purchase a paid Seat for this CourseRun, or
         None if the date is unknown or enrollable paid Seats are not available.
         """
-        seats = list(self._enrollable_paid_seats().order_by('-upgrade_deadline'))
+        # Sort in python to avoid an additional request to the database for order_by
+        seats = sorted(
+            self._enrollable_paid_seats(),
+            key=self._upgrade_deadline_sort,
+            reverse=True,
+        )
         if not seats:
             # Enrollable paid seats are not available for this CourseRun.
             return None

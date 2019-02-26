@@ -59,7 +59,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
         url += '?include_deleted_programs=1'
 
-        with self.assertNumQueries(17):
+        with self.assertNumQueries(14):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == \
@@ -86,7 +86,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, APITestC
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
         url += '?include_unpublished_programs=1'
 
-        with self.assertNumQueries(17):
+        with self.assertNumQueries(14):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == \

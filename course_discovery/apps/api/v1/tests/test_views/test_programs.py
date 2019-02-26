@@ -147,7 +147,7 @@ class TestProgramViewSet(SerializationMixin):
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
 
-        self.assert_list_results(self.list_path, expected, 31)
+        self.assert_list_results(self.list_path, expected, 26)
 
     def test_uuids_only(self):
         """
@@ -209,7 +209,7 @@ class TestProgramViewSet(SerializationMixin):
         'status,is_marketable,expected_query_count',
         (
             (ProgramStatus.Unpublished, False, 5),
-            (ProgramStatus.Active, True, 16),
+            (ProgramStatus.Active, True, 14),
         )
     )
     def test_filter_by_marketable(self, status, is_marketable, expected_query_count):

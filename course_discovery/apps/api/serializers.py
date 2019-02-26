@@ -2,6 +2,7 @@
 import datetime
 import json
 from collections import OrderedDict
+from operator import attrgetter
 from urllib.parse import urlencode
 from uuid import uuid4
 
@@ -224,7 +225,7 @@ class SubjectSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return Subject.objects.filter()
+        return Subject.objects.all().prefetch_related('translations')
 
     class Meta(object):
         model = Subject
@@ -304,7 +305,11 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return Person.objects.all().select_related(
             'position__organization'
-        ).prefetch_related('person_networks')
+        ).prefetch_related(
+            'person_networks',
+            'areas_of_expertise',
+            'position__organization__partner'
+        )
 
     class Meta(object):
         model = Person
@@ -339,19 +344,27 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
         }
 
     def get_urls_detailed(self, obj):
+        """
+        Sort the person_networks with sorted rather than order_by to avoid
+        additional calls to the database
+        """
         return [{
             'id': network.id,
             'type': network.type,
             'title': network.title,
             'display_title': network.display_title,
             'url': network.url,
-        } for network in obj.person_networks.all().order_by('id')]
+        } for network in sorted(obj.person_networks.all(), key=attrgetter('id'))]
 
     def get_areas_of_expertise(self, obj):
+        """
+        Sort the areas_of_expertise with sorted rather than order_by to avoid
+        additional calls to the database
+        """
         return [{
             'id': area_of_expertise.id,
             'value': area_of_expertise.value,
-        } for area_of_expertise in obj.areas_of_expertise.all().order_by('id')]
+        } for area_of_expertise in sorted(obj.areas_of_expertise.all(), key=attrgetter('id'))]
 
     def get_email(self, _obj):
         # We are removing this field so this is to not break any APIs
@@ -719,7 +732,7 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 
         return queryset.select_related('partner').prefetch_related(
             'authoring_organizations',
-            'entitlements',
+            Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
             Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
         )
 
@@ -750,11 +763,17 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
 
-        return queryset.select_related('level_type', 'video', 'partner', 'extra_description').prefetch_related(
+        return queryset.select_related(
+            'level_type',
+            'video',
+            'video__image',
+            'partner',
+            'extra_description'
+        ).prefetch_related(
             'expected_learning_items',
             'prerequisites',
             'subjects',
-            'entitlements',
+            'topics',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
@@ -812,16 +831,16 @@ class CourseWithProgramsSerializer(CourseSerializer):
         filtered CourseRun queryset.
         """
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
-
-        return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
+        return queryset.select_related('level_type', 'video', 'video__image', 'partner').prefetch_related(
             'expected_learning_items',
             'prerequisites',
-            'subjects',
+            Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset()),
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
         )
 
+    # Executes as an n+1 query because of dependence on context
     def get_course_runs(self, course):
         return CourseRunSerializer(
             course.course_runs,
@@ -832,6 +851,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
             }
         ).data
 
+    # Executes as an n+1 query because of dependence on context
     def get_programs(self, obj):
         if self.context.get('include_deleted_programs'):
             eligible_programs = obj.programs.all()
@@ -1010,6 +1030,8 @@ class MinimalProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
             # `ProgramType` on `Program`.
             'type__applicable_seat_types',
             'authoring_organizations',
+            'degree',
+            'curricula',
             Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
         )
 
