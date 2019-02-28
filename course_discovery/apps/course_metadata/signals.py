@@ -1,11 +1,16 @@
+import logging
+
 import waffle
 from django.apps import apps
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 
 from course_discovery.apps.api.cache import api_change_receiver
-from course_discovery.apps.course_metadata.models import Program
+from course_discovery.apps.course_metadata.models import CurriculumCourseMembership, Program
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
+from course_discovery.apps.course_metadata.waffle import masters_course_mode_enabled
+
+logger = logging.getLogger(__name__)
 
 
 @receiver(pre_delete, sender=Program)
@@ -18,6 +23,15 @@ def delete_program(sender, instance, **kwargs):  # pylint: disable=unused-argume
     if is_publishable:
         publisher = ProgramMarketingSitePublisher(instance.partner)
         publisher.delete_obj(instance)
+
+
+@receiver(post_save, sender=CurriculumCourseMembership)
+def add_masters_track_on_course(sender, **kwargs):  # pylint: disable=unused-argument
+    if masters_course_mode_enabled():
+        logger.info("""When this waffle flag is enabled we are eventually going to
+        make an api call here to ensure that the 'masters' course_mode is added to
+        that course""")
+    # otherwise we will still save but we won't do any other side effects
 
 
 # Invalidate API cache when any model in the course_metadata app is saved or
