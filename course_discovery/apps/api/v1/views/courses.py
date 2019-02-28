@@ -58,7 +58,6 @@ def writable_request_wrapper(method):
 class CourseViewSet(viewsets.ModelViewSet):
     """ Course resource. """
 
-    # Check if there's available syntax for ordering by join children elements
     filter_backends = (DjangoFilterBackend, rest_framework_filters.OrderingFilter)
     filter_class = filters.CourseFilter
     lookup_field = 'key'
