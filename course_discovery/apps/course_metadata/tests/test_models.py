@@ -17,6 +17,7 @@ from django.db import IntegrityError
 from django.test import TestCase
 from freezegun import freeze_time
 from taggit.models import Tag
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency
@@ -25,8 +26,8 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel, AbstractValueModel,
-    CorporateEndorsement, Course, CourseRun, Curriculum, DegreeCost, DegreeDeadline, Endorsement,
-    Program, Ranking, Seat, SeatType, Subject, Topic
+    CorporateEndorsement, Course, CourseRun, Curriculum, CurriculumCourseMembership, DegreeCost, DegreeDeadline,
+    Endorsement, Program, Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -1440,6 +1441,36 @@ class CurriculumTests(TestCase):
         uuid_string = uuid.uuid4()
         curriculum = Curriculum(program=self.degree, uuid=uuid_string)
         self.assertEqual(str(curriculum), str(uuid_string))
+
+
+class CurriculumCourseMembershipTests(TestCase):
+    """ Tests of the CurriculumCourseMembership model. """
+    def setUp(self):
+        self.course_run = factories.CourseRunFactory()
+        self.course = self.course_run.course
+        self.degree = factories.DegreeFactory(courses=[self.course])
+        self.curriculum = Curriculum.objects.create(program=self.degree, uuid=uuid.uuid4())
+
+    @override_switch('masters_course_mode_enabled', active=True)
+    @mock.patch('course_discovery.apps.course_metadata.signals.logger')
+    def test_course_curriculum_membership_side_effect(self, mock_logger):
+        expected_msg = """When this waffle flag is enabled we are eventually going to
+        make an api call here to ensure that the 'masters' course_mode is added to
+        that course"""
+        CurriculumCourseMembership.objects.create(
+            course=self.course,
+            curriculum=self.curriculum
+        )
+        mock_logger.info.assert_called_with(expected_msg)
+
+    @override_switch('masters_course_mode_enabled', active=False)
+    @mock.patch('course_discovery.apps.course_metadata.signals.logger')
+    def test_course_curriculum_membership_side_effect_flag_inactive(self, mock_logger):
+        CurriculumCourseMembership.objects.create(
+            course=self.course,
+            curriculum=self.curriculum
+        )
+        self.assertFalse(mock_logger.info.called)
 
 
 @ddt.ddt
