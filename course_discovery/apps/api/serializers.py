@@ -982,7 +982,15 @@ class DegreeSerializer(serializers.ModelSerializer):
         )
 
 
-class MinimalProgramSerializer(serializers.ModelSerializer):
+class MinimalProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+    """
+    Basic program serializer
+
+    When using the DynamicFieldsMixin to get the courses field on a program,
+    you will also need to include the fields you want on the course object
+    since the course serializer also uses drf_dynamic_fields.
+    Eg: ?fields=courses,course_runs
+    """
     authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
