@@ -8,7 +8,7 @@ from django.urls import reverse
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory
 )
 from course_discovery.apps.publisher.tests import factories
 
@@ -48,6 +48,34 @@ class TestAutocomplete:
         course_run = course_runs[0]
         self.assert_valid_query_result(admin_client, path, course_run.key[14:], course_run)
         self.assert_valid_query_result(admin_client, path, course_run.title[12:], course_run)
+
+        course = course_run.course
+        CourseRunFactory.create_batch(3, course=course)
+        response = admin_client.get(path + '?forward={f}'.format(f=json.dumps({'course': course.pk})))
+        data = json.loads(response.content.decode('utf-8'))
+        assert response.status_code == 200
+        assert len(data['results']) == 4
+
+    def test_program_autocomplete(self, admin_client):
+        """ Verify Program autocomplete returns the data. """
+        programs = ProgramFactory.create_batch(3)
+        path = reverse('admin_metadata:program-autocomplete')
+        response = admin_client.get(path)
+        data = json.loads(response.content.decode('utf-8'))
+        assert response.status_code == 200
+        assert len(data['results']) == 3
+
+        # Search for substrings of program titles
+        program = programs[0]
+        self.assert_valid_query_result(admin_client, path, program.title[5:], program)
+        program = programs[1]
+        self.assert_valid_query_result(admin_client, path, program.title[5:], program)
+
+        admin_client.logout()
+        response = admin_client.get(path)
+        data = json.loads(response.content.decode('utf-8'))
+        assert response.status_code == 200
+        assert len(data['results']) == 0
 
     def test_organization_autocomplete(self, admin_client):
         """ Verify Organization autocomplete returns the data. """

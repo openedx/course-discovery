@@ -1776,7 +1776,7 @@ class Curriculum(TimeStampedModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return str(self.uuid)
+        return str(self.name) if self.name else str(self.uuid)
 
 
 class CurriculumProgramMembership(TimeStampedModel):
@@ -1802,6 +1802,13 @@ class CurriculumCourseMembership(TimeStampedModel):
     is_active = models.BooleanField(default=True)
 
     history = HistoricalRecords()
+
+    @property
+    def course_runs(self):
+        return set(self.course.course_runs.all()) - set(self.course_run_exclusions.all())
+
+    def __str__(self):
+        return str(self.curriculum) + " : " + str(self.course)
 
 
 class CurriculumCourseRunExclusion(TimeStampedModel):

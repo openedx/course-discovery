@@ -26,8 +26,8 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel, AbstractValueModel,
-    CorporateEndorsement, Course, CourseRun, Curriculum, CurriculumCourseMembership, DegreeCost, DegreeDeadline,
-    Endorsement, Program, Ranking, Seat, SeatType, Subject, Topic
+    CorporateEndorsement, Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumCourseRunExclusion,
+    DegreeCost, DegreeDeadline, Endorsement, Program, Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -1471,6 +1471,25 @@ class CurriculumCourseMembershipTests(TestCase):
             curriculum=self.curriculum
         )
         self.assertFalse(mock_logger.info.called)
+
+    def test_course_run_exclusions(self):
+        course_runs = factories.CourseRunFactory.create_batch(4, course=self.course)
+        course_runs.append(self.course_run)
+        course_membership = CurriculumCourseMembership.objects.create(
+            course=self.course,
+            curriculum=self.curriculum
+        )
+        CurriculumCourseRunExclusion.objects.create(
+            course_membership=course_membership,
+            course_run=course_runs[0]
+        )
+        CurriculumCourseRunExclusion.objects.create(
+            course_membership=course_membership,
+            course_run=course_runs[1]
+        )
+        self.assertEqual(course_membership.course_runs, set(course_runs[2:]))
+        self.assertIn(str(self.curriculum), str(course_membership))
+        self.assertIn(str(self.course), str(course_membership))
 
 
 @ddt.ddt
