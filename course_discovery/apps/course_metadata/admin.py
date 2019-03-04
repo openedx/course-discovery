@@ -9,7 +9,10 @@ from parler.admin import TranslatableAdmin
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
-from course_discovery.apps.course_metadata.forms import CourseAdminForm, PathwayAdminForm, ProgramAdminForm
+from course_discovery.apps.course_metadata.forms import (
+    CourseAdminForm, CurriculumCourseMembershipInlineAdminForm, CurriculumCourseRunExclusionInlineAdminForm,
+    CurriculumProgramMembershipInlineAdminForm, PathwayAdminForm, ProgramAdminForm
+)
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 
 PUBLICATION_FAILURE_MSG_TPL = _(
@@ -334,18 +337,39 @@ class LevelTypeAdmin(SortableAdminMixin, admin.ModelAdmin):
 
 class CurriculumProgramMembershipInline(admin.TabularInline):
     model = CurriculumProgramMembership
-    extra = 1
+    form = CurriculumProgramMembershipInlineAdminForm
+    fields = ('program', 'is_active')
+    extra = 0
 
 
-class CurriculumCourseMembershipInline(admin.TabularInline):
+class CurriculumCourseMembershipInline(admin.StackedInline):
     model = CurriculumCourseMembership
-    extra = 1
+    form = CurriculumCourseMembershipInlineAdminForm
+    readonly_fields = ("custom_course_runs_display", "course_run_exclusions", "get_edit_link",)
+
+    def custom_course_runs_display(self, obj):
+        return mark_safe('<br>'.join([str(run) for run in obj.course_runs]))
+
+    custom_course_runs_display.short_description = _('Included course runs')
+
+    def get_edit_link(self, obj=None):
+        if obj and obj.pk:
+            url = reverse('admin:{}_{}_change'.format(obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
+            return """<a href="{url}">{text}</a>""".format(
+                url=url,
+                text=_("Edit course run exclusions"),
+            )
+        return _("(save and continue editing to create a link)")
+    get_edit_link.short_description = _("Edit link")
+    get_edit_link.allow_tags = True
+
+    extra = 0
 
 
 class CurriculumCourseRunExclusionInline(admin.TabularInline):
     model = CurriculumCourseRunExclusion
-    raw_id_fields = ('course_run',)
-    extra = 1
+    form = CurriculumCourseRunExclusionInlineAdminForm
+    extra = 0
 
 
 @admin.register(CurriculumProgramMembership)

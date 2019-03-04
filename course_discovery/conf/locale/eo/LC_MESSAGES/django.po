@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-13 16:19+0000\n"
+"POT-Creation-Date: 2019-03-04 17:33+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -365,9 +365,23 @@ msgstr "Ýés Ⱡ'σяєм#"
 msgid "No"
 msgstr "Nö Ⱡ'σя#"
 
-#: apps/course_metadata/admin.py
+#: apps/course_metadata/admin.py apps/course_metadata/admin.py
 msgid "Included course runs"
 msgstr "Ìnçlüdéd çöürsé rüns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/admin.py
+msgid "Edit course run exclusions"
+msgstr "Édït çöürsé rün éxçlüsïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/admin.py
+msgid "(save and continue editing to create a link)"
+msgstr ""
+"(sävé änd çöntïnüé édïtïng tö çréäté ä lïnk) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/admin.py
+msgid "Edit link"
+msgstr "Édït lïnk Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
 msgid "Published"
