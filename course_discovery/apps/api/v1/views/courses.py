@@ -1,7 +1,9 @@
+import base64
 import logging
 import re
 
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404
@@ -21,7 +23,9 @@ from course_discovery.apps.api.serializers import CourseEntitlementSerializer, M
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
-from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Organization, SeatType
+from course_discovery.apps.course_metadata.models import (
+    Course, CourseEntitlement, CourseRun, Organization, Seat, SeatType, Video
+)
 
 logger = logging.getLogger(__name__)
 
@@ -193,19 +197,20 @@ class CourseViewSet(viewsets.ModelViewSet):
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
 
-        price = request.data.get('price', 0.00)
-        mode = SeatType.objects.get(slug=course_creation_fields['mode'])
-        entitlement = CourseEntitlement.objects.create(
-            course=course,
-            mode=mode,
-            partner=partner,
-            price=price,
-        )
+        if course_creation_fields['mode'] in Seat.ENTITLEMENT_MODES:
+            price = request.data.get('price', 0.00)
+            mode = SeatType.objects.get(slug=course_creation_fields['mode'])
+            entitlement = CourseEntitlement.objects.create(
+                course=course,
+                mode=mode,
+                partner=partner,
+                price=price,
+            )
 
-        ecom_response = self.push_ecommerce_entitlement(partner, course, entitlement)
-        stockrecord = ecom_response.json()['stockrecords'][0]
-        entitlement.sku = stockrecord['partner_sku']
-        entitlement.save()
+            ecom_response = self.push_ecommerce_entitlement(partner, course, entitlement)
+            stockrecord = ecom_response.json()['stockrecords'][0]
+            entitlement.sku = stockrecord['partner_sku']
+            entitlement.save()
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -237,6 +242,8 @@ class CourseViewSet(viewsets.ModelViewSet):
         """ Updates an existing course from incoming data. """
         # Pop nested writables that we will handle ourselves (the serializer won't handle them)
         entitlements_data = data.pop('entitlements', [])
+        image_data = data.pop('image', None)
+        video_data = data.pop('video', None)
 
         # Get and validate object serializer
         course = self.get_object()
@@ -247,6 +254,19 @@ class CourseViewSet(viewsets.ModelViewSet):
         entitlements = []
         for entitlement_data in entitlements_data:
             entitlements.append(self.update_entitlement(course, entitlement_data, partial=partial))
+
+        # Save video if a new video source is provided
+        if video_data and video_data['src'] and video_data['src'] != course.video.src:
+            video, __ = Video.objects.get_or_create(src=video_data['src'])
+            course.video = video
+
+        # Save image and convert to the correct format
+        if image_data and isinstance(image_data, str) and image_data.startswith('data:image'):
+            # base64 encoded image - decode
+            file_format, imgstr = image_data.split(';base64,')  # format ~= data:image/X;base64,/xxxyyyzzz/
+            ext = file_format.split('/')[-1]  # guess file extension
+            image_data = ContentFile(base64.b64decode(imgstr), name='tmp.' + ext)
+            course.image.save('', image_data)
 
         # Then the course itself
         serializer.save()

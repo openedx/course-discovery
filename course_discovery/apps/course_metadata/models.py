@@ -998,6 +998,7 @@ class Seat(TimeStampedModel):
     CREDIT = 'credit'
 
     SEAT_TYPES = [HONOR, AUDIT, VERIFIED, PROFESSIONAL, CREDIT]
+    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL]
 
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.

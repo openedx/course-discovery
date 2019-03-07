@@ -378,7 +378,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
 
     @oauth_login
     @responses.activate
-    def test_create_with_authentication(self):
+    def test_create_with_authentication_verified_mode(self):
         url = reverse('api:v1:course-list')
         course_data = {
             'title': 'Course title',
@@ -415,6 +415,30 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(course.title, course_data['title'])
         self.assertListEqual(list(course.authoring_organizations.all()), [self.org])
         self.assertEqual(1, CourseEntitlement.objects.count())
+
+    @oauth_login
+    def test_create_with_authentication_audit_mode(self):
+        """
+        When creating with audit mode, no entitlement should be created.
+        """
+        url = reverse('api:v1:course-list')
+        course_data = {
+            'title': 'Course title',
+            'number': 'test101',
+            'org': self.org.key,
+            'mode': 'audit',
+        }
+        response = self.client.post(url, course_data, format='json')
+
+        course = Course.objects.last()
+        self.assertDictEqual(response.data, self.serialize_course(course))
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(course.title, course_data['title'])
+        expected_course_key = '{org}+{number}'.format(org=course_data['org'], number=course_data['number'])
+        self.assertEqual(course.key, expected_course_key)
+        self.assertEqual(course.title, course_data['title'])
+        self.assertListEqual(list(course.authoring_organizations.all()), [self.org])
+        self.assertEqual(0, CourseEntitlement.objects.count())
 
     def test_create_fails_with_missing_field(self):
         url = reverse('api:v1:course-list')
@@ -489,7 +513,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
             'mode': 'audit',
         }
         with mock.patch(
-            'course_discovery.apps.api.v1.views.courses.CourseViewSet.perform_create',
+            # We are using get_course_key because it is called prior to tryig to contact the
+            # e-commerce service and still gives the effect of an api exception.
+            'course_discovery.apps.api.v1.views.courses.CourseViewSet.get_course_key',
             side_effect=IntegrityError
         ):
             with LogCapture(course_logger.name) as log_capture:
@@ -562,6 +588,10 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                     'expires': entitlement.expires,
                 },
             ],
+            # The API is expecting the image to be base64 encoded. We are simulating that here.
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+            'video': {'src': 'https://link.to.video.for.testing/watch?t_s=5'},
         }
         ecom_url = '{0}stockrecords/{1}/'.format(self.partner.ecommerce_api_url, entitlement.sku)
         responses.add(
