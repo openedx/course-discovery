@@ -5,7 +5,7 @@
 # 
 # Translators:
 # e3b3f2a569bf1a7e02f24d7ea86f47f5, 2016
-# Ali Işıngör <ali@artistanbul.io>, 2017-2018
+# Ali Işıngör <ali@artistanbul.io>, 2017-2019
 # e3b3f2a569bf1a7e02f24d7ea86f47f5, 2016
 # Nilgün Güleç <gulecnilgun@gmail.com>, 2016
 msgid ""
@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-10-04 10:03+0000\n"
+"PO-Revision-Date: 2019-03-08 12:57+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
@@ -1725,7 +1725,7 @@ msgid ""
 "course for you! Scratch is the computer programming language that makes it "
 "easy and fun to create interactive stories, games and animations and share "
 "them online."
-msgstr ""
+msgstr "Bilgisayar programlamayı öğrenmek istiyor ama nereden başlayacağınızı bilmiyor musunuz? Bu ders tam sizin için! Scratch, bilgisayar programlama öğrenmeyi kolaylaştıran; etkileşimli hikayeler, oyunlar ve animasyonlarla çevrimiçi paylaşmanızı sağlayan eğlenceli bir yazılım dilidir."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1957,7 +1957,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "The About video should answer these key questions."
-msgstr ""
+msgstr "Hakkında videosu bu anahtar sorulara cevap vermelidir."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Why should a learner register?"
@@ -2214,7 +2214,7 @@ msgstr "SÜRE"
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
 "The length of the course, in weeks, rounded to the nearest whole number."
-msgstr ""
+msgstr "En yakın tam rakama yuvarlatılmış, hafta cinsinden ders süresi."
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Update Course Run"
@@ -2561,7 +2561,7 @@ msgstr "Bu ders yayınının Hakkında sayfası %(course_publish_date)s tarihind
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "View it on edx.org at"
-msgstr ""
+msgstr "edx.org adresinde görüntüle"
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
