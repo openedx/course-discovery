@@ -433,3 +433,23 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         updated_person = Person.objects.get(id=self.person.id)
 
         self.assertEqual(updated_person.position.title, data['position']['title'])
+
+    def test_options_org_choices(self):
+        """ Verify that an OPTIONS request will provide a list of organizations. """
+
+        self.organization.key = 'bbb'
+        self.organization.name = 'Test'
+        self.organization.save()
+        org2 = OrganizationFactory(partner=self.partner, name='', key='aaa')
+
+        response = self.client.options(self.people_list_url)
+        self.assertEqual(response.status_code, 200)
+
+        data = response.data['actions']['POST']
+        self.assertEqual(
+            data['position']['children']['organization']['choices'],
+            [
+                {'display_name': 'aaa', 'value': org2.id},
+                {'display_name': 'bbb: Test', 'value': self.organization.id},
+            ]
+        )

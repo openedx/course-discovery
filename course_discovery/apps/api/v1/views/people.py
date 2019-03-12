@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import PageNumberPagination
+from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException, PersonToMarketingException
 
@@ -25,6 +26,8 @@ class PersonViewSet(viewsets.ModelViewSet):
     queryset = serializers.PersonSerializer.prefetch_queryset()
     serializer_class = serializers.PersonSerializer
     pagination_class = PageNumberPagination
+    metadata_class = MetadataWithRelatedChoices
+    metadata_related_choices_whitelist = ('organization',)
 
     def create(self, request, *args, **kwargs):
         """
