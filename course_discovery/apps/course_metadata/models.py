@@ -250,7 +250,10 @@ class Organization(TimeStampedModel):
         ordering = ['created']
 
     def __str__(self):
-        return '{key}: {name}'.format(key=self.key, name=self.name)
+        if self.name and self.name != self.key:
+            return '{key}: {name}'.format(key=self.key, name=self.name)
+        else:
+            return self.key
 
     @property
     def marketing_url(self):

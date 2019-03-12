@@ -277,6 +277,9 @@ class VideoSerializer(MediaSerializer):
 class PositionSerializer(serializers.ModelSerializer):
     """Serializer for the ``Position`` model."""
     organization_marketing_url = serializers.SerializerMethodField()
+    # Order organization by key so that frontends will display dropdowns of organization choices that way
+    organization = serializers.PrimaryKeyRelatedField(allow_null=True, write_only=True, required=False,
+                                                      queryset=Organization.objects.all().order_by('key'))
 
     class Meta(object):
         model = Position
