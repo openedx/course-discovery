@@ -256,7 +256,8 @@ class CourseViewSet(viewsets.ModelViewSet):
             entitlements.append(self.update_entitlement(course, entitlement_data, partial=partial))
 
         # Save video if a new video source is provided
-        if video_data and video_data['src'] and video_data['src'] != course.video.src:
+        if (video_data and video_data.get('src') and
+           (not course.video or video_data.get('src') != course.video.src)):
             video, __ = Video.objects.get_or_create(src=video_data['src'])
             course.video = video
 
