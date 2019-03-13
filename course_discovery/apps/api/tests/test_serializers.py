@@ -1495,7 +1495,11 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 'end': course_run.end,
             }],
             'uuid': str(course.uuid),
-            'subjects': [subject.name for subject in course.subjects.all()]
+            'subjects': [subject.name for subject in course.subjects.all()],
+            'languages': [
+                serialize_language(course_run.language) for course_run in course.course_runs.all()
+                if course_run.language
+            ]
         }
 
 

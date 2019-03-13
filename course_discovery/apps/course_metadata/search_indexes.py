@@ -155,6 +155,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     expected_learning_items = indexes.MultiValueField()
 
     prerequisites = indexes.MultiValueField(faceted=True)
+    languages = indexes.MultiValueField()
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
@@ -179,6 +180,11 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_subject_uuids(self, obj):
         return [str(subject.uuid) for subject in obj.subjects.all()]
+
+    def prepare_languages(self, obj):
+        return [
+            self._prepare_language(course_run.language) for course_run in obj.course_runs.all() if course_run.language
+        ]
 
 
 class CourseRunIndex(BaseCourseIndex, indexes.Indexable):

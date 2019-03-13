@@ -1609,6 +1609,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'course_runs',
             'uuid',
             'subjects',
+            'languages',
         )
 
 
@@ -1781,7 +1782,8 @@ class AggregateSearchSerializer(HaystackSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         ignore_fields = COMMON_IGNORED_FIELDS
-        fields = CourseRunSearchSerializer.Meta.fields + ProgramSearchSerializer.Meta.fields
+        fields = CourseRunSearchSerializer.Meta.fields + ProgramSearchSerializer.Meta.fields + \
+            CourseSearchSerializer.Meta.fields
         serializers = {
             search_indexes.CourseRunIndex: CourseRunSearchSerializer,
             search_indexes.CourseIndex: CourseSearchSerializer,
