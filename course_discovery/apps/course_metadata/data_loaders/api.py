@@ -137,7 +137,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
                         # we should only update the course information from the marketing site.
                         # Therefore, we don't need to do the statements below
                         course = self.update_course(course, body)
-                        logger.info('Processed course with key [%s].', course.key)
                 else:
                     course, created = self.get_or_create_course(body)
                     course_run = self.create_course_run(course, body)
