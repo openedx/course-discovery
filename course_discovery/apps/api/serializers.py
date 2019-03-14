@@ -28,10 +28,10 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Curriculum, Degree,
-    DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, LevelType, Organization, Pathway, Person,
-    PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType,
-    Subject, Topic, Video
+    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Curriculum,
+    CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline, Endorsement,
+    IconTextPairing, Image, LevelType, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork,
+    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
 )
 from course_discovery.apps.course_metadata.utils import parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -1077,9 +1077,93 @@ class DegreeCostSerializer(serializers.ModelSerializer):
 
 class CurriculumSerializer(serializers.ModelSerializer):
     """ Curriculum model serializer """
+    courses = serializers.SerializerMethodField()
+    programs = serializers.SerializerMethodField()
+
     class Meta:
         model = Curriculum
-        fields = ('name', 'marketing_text', 'marketing_text_brief', 'is_active')
+        fields = ('uuid', 'name', 'marketing_text', 'marketing_text_brief', 'is_active', 'courses', 'programs')
+
+    def get_courses(self, curriculum):
+
+        course_serializer = MinimalProgramCourseSerializer(
+            self.prefetched_courses(curriculum),
+            many=True,
+            context={
+                'request': self.context.get('request'),
+                'published_course_runs_only': self.context.get('published_course_runs_only'),
+                'exclude_utm': self.context.get('exclude_utm'),
+                'course_runs': self.prefetched_course_runs(curriculum),
+                'use_full_course_serializer': self.context.get('use_full_course_serializer', False),
+            }
+        )
+
+        return course_serializer.data
+
+    def get_programs(self, curriculum):
+
+        program_serializer = MinimalProgramSerializer(
+            self.prefetched_programs(curriculum),
+            many=True,
+            context={
+                'request': self.context.get('request'),
+                'published_course_runs_only': self.context.get('published_course_runs_only'),
+                'exclude_utm': self.context.get('exclude_utm'),
+                'use_full_course_serializer': self.context.get('use_full_course_serializer', False),
+            }
+        )
+
+        return program_serializer.data
+
+    def prefetch_course_memberships(self, curriculum):
+        """
+        Prefetch all member courses and related objects for this curriculum
+        """
+        if not hasattr(self, '_prefetched_memberships'):
+            queryset = CurriculumCourseMembership.objects.filter(curriculum=curriculum).prefetch_related(
+                'course',
+                'course__course_runs',
+                'course__course_runs__seats',
+                'course__entitlements',
+                'course__authoring_organizations',
+                'course__partner',
+                'course_run_exclusions',
+            )
+            self._prefetched_memberships = [membership for membership in queryset]  # pylint: disable=attribute-defined-outside-init
+
+    def prefetch_program_memberships(self, curriculum):
+        """
+        Prefetch all child programs and related objects for this curriculum
+        """
+        if not hasattr(self, '_prefetched_program_memberships'):
+            queryset = CurriculumProgramMembership.objects.filter(curriculum=curriculum).select_related(
+                'program__type', 'program__partner'
+            ).prefetch_related(
+                'program__excluded_course_runs',
+                # `type` is serialized by a third-party serializer. Providing this field name allows us to
+                # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
+                # `ProgramType` on `Program`.
+                'program__type__applicable_seat_types',
+                'program__authoring_organizations',
+                'program__degree',
+                Prefetch('program__courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
+            )
+            self._prefetched_program_memberships = [membership for membership in queryset]  # pylint: disable=attribute-defined-outside-init
+
+    def prefetched_programs(self, curriculum):
+        self.prefetch_program_memberships(curriculum)
+        return [membership.program for membership in self._prefetched_program_memberships]
+
+    def prefetched_courses(self, curriculum):
+        self.prefetch_course_memberships(curriculum)
+        return [membership.course for membership in self._prefetched_memberships]
+
+    def prefetched_course_runs(self, curriculum):
+        self.prefetch_course_memberships(curriculum)
+        return [
+            course_run for membership in self._prefetched_memberships
+            for course_run in membership.course_runs
+        ]
 
 
 class IconTextPairingSerializer(serializers.ModelSerializer):
@@ -1139,7 +1223,6 @@ class MinimalProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
             'type__applicable_seat_types',
             'authoring_organizations',
             'degree',
-            'curricula',
             Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
         )
 

@@ -481,7 +481,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
     def assert_topics_loaded(self, data):
         # Verify the topics were loaded from course tags
         course = self._get_course(data)
-        self.assertEqual(list(course.topics.names()), [u'professional-programs', u'communications'])
+        self.assertEqual(sorted(list(course.topics.names())), [u'communications', u'professional-programs'])
 
     def assert_no_override_unpublished_course_fields(self, data):
         course = self._get_course(data)
