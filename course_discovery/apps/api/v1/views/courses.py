@@ -267,6 +267,8 @@ class CourseViewSet(viewsets.ModelViewSet):
             file_format, imgstr = image_data.split(';base64,')  # format ~= data:image/X;base64,/xxxyyyzzz/
             ext = file_format.split('/')[-1]  # guess file extension
             image_data = ContentFile(base64.b64decode(imgstr), name='tmp.' + ext)
+            # The image requires a name in order to save; however, we don't do anything with that name so
+            # we are passing in an empty string so it doesn't break. None is not supported.
             course.image.save('', image_data)
 
         # Then the course itself
