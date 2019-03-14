@@ -17,7 +17,6 @@ from django.db import IntegrityError
 from django.test import TestCase
 from freezegun import freeze_time
 from taggit.models import Tag
-from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency
@@ -1450,27 +1449,6 @@ class CurriculumCourseMembershipTests(TestCase):
         self.course = self.course_run.course
         self.degree = factories.DegreeFactory(courses=[self.course])
         self.curriculum = Curriculum.objects.create(program=self.degree, uuid=uuid.uuid4())
-
-    @override_switch('masters_course_mode_enabled', active=True)
-    @mock.patch('course_discovery.apps.course_metadata.signals.logger')
-    def test_course_curriculum_membership_side_effect(self, mock_logger):
-        expected_msg = """When this waffle flag is enabled we are eventually going to
-        make an api call here to ensure that the 'masters' course_mode is added to
-        that course"""
-        CurriculumCourseMembership.objects.create(
-            course=self.course,
-            curriculum=self.curriculum
-        )
-        mock_logger.info.assert_called_with(expected_msg)
-
-    @override_switch('masters_course_mode_enabled', active=False)
-    @mock.patch('course_discovery.apps.course_metadata.signals.logger')
-    def test_course_curriculum_membership_side_effect_flag_inactive(self, mock_logger):
-        CurriculumCourseMembership.objects.create(
-            course=self.course,
-            curriculum=self.curriculum
-        )
-        self.assertFalse(mock_logger.info.called)
 
     def test_course_run_exclusions(self):
         course_runs = factories.CourseRunFactory.create_batch(4, course=self.course)
