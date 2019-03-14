@@ -1377,6 +1377,7 @@ class PersonSerializerTests(MinimalPersonSerializerTests):
     def setUp(self):
         super().setUp()
         self.serializer = PersonSerializer
+        self.expected['authoring_organizations'] = []
 
 
 class PositionSerializerTests(TestCase):
@@ -1610,7 +1611,7 @@ class PersonSearchSerializerTest(ElasticsearchTestMixin, TestCase):
             'content_type': 'person',
             'aggregation_key': 'person:' + str(person.uuid),
             'profile_image_url': person.get_profile_image_url,
-            'full_name': person.full_name
+            'full_name': person.full_name,
         }
 
     def test_data(self):

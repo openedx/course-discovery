@@ -218,6 +218,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                 'organization': self.organization.id
             },
             'major_works': 'Delores\nTeddy\nMaive',
+            'authoring_organizations': [
+                {
+                    'key': self.organization.key,
+                    'name': self.organization.name,
+                }
+            ],
             'urls_detailed': [
                 {
                     'id': '1',

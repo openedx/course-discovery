@@ -286,6 +286,10 @@ class Person(TimeStampedModel):
         blank=True,
         help_text=_('A list of major works by this person. Must be valid HTML.'),
     )
+    # This is used to partition the list of people, so that only members of
+    # the same organization(s) can edit other people in that organization.
+    # Not to be confused with position.organization.
+    authoring_organizations = SortedManyToManyField(Organization)
     published = models.BooleanField(default=False)
 
     class Meta:

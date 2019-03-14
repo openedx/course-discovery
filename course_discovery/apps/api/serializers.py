@@ -296,6 +296,26 @@ class PositionSerializer(serializers.ModelSerializer):
             return obj.organization.marketing_url
 
 
+class MinimalOrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ('uuid', 'key', 'name',)
+
+
+class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
+    """Serializer for the ``Organization`` model."""
+    tags = TagListSerializerField()
+
+    @classmethod
+    def prefetch_queryset(cls, partner):
+        return Organization.objects.filter(partner=partner).select_related('partner').prefetch_related('tags')
+
+    class Meta(MinimalOrganizationSerializer.Meta):
+        fields = MinimalOrganizationSerializer.Meta.fields + (
+            'certificate_logo_image_url', 'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url',
+        )
+
+
 class MinimalPersonSerializer(serializers.ModelSerializer):
     """
     Minimal serializer for the ``Person`` model.
@@ -316,7 +336,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
         ).prefetch_related(
             'person_networks',
             'areas_of_expertise',
-            'position__organization__partner'
+            'position__organization__partner',
         )
 
     class Meta(object):
@@ -382,6 +402,20 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
 class PersonSerializer(MinimalPersonSerializer):
     """Full serializer for the ``Person`` model."""
 
+    authoring_organizations = MinimalOrganizationSerializer(required=False, many=True)
+
+    @classmethod
+    def prefetch_queryset(cls):
+        queryset = super(PersonSerializer, cls).prefetch_queryset()
+        return queryset.prefetch_related('authoring_organizations')
+
+    class Meta:
+        model = Person
+        fields = MinimalPersonSerializer.Meta.fields + ('authoring_organizations',)
+        extra_kwargs = {
+            'partner': {'write_only': True}
+        }
+
     def validate(self, data):
         validated_data = super(PersonSerializer, self).validate(data)
         validated_data['urls_detailed'] = self.initial_data.get('urls_detailed', [])
@@ -392,6 +426,9 @@ class PersonSerializer(MinimalPersonSerializer):
         position_data = validated_data.pop('position')
         urls_detailed_data = validated_data.pop('urls_detailed')
         areas_of_expertise_data = validated_data.pop('areas_of_expertise')
+        authoring_organizations_data = validated_data.pop('authoring_organizations')
+        authoring_orgs_keys = [org['key'] for org in authoring_organizations_data]
+        authoring_orgs = Organization.objects.filter(key__in=authoring_orgs_keys)
 
         person = Person.objects.create(**validated_data)
         Position.objects.create(person=person, **position_data)
@@ -407,6 +444,9 @@ class PersonSerializer(MinimalPersonSerializer):
         for area_of_expertise in areas_of_expertise_data:
             areas_of_expertise.append(PersonAreaOfExpertise(person=person, value=area_of_expertise['value'],))
         PersonAreaOfExpertise.objects.bulk_create(areas_of_expertise)
+
+        for org in authoring_orgs:
+            person.authoring_organizations.add(org)
 
         return person
 
@@ -530,26 +570,6 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = CourseEntitlement
         fields = ('mode', 'price', 'currency', 'sku', 'expires')
-
-
-class MinimalOrganizationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Organization
-        fields = ('uuid', 'key', 'name',)
-
-
-class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
-    """Serializer for the ``Organization`` model."""
-    tags = TagListSerializerField()
-
-    @classmethod
-    def prefetch_queryset(cls, partner):
-        return Organization.objects.filter(partner=partner).select_related('partner').prefetch_related('tags')
-
-    class Meta(MinimalOrganizationSerializer.Meta):
-        fields = MinimalOrganizationSerializer.Meta.fields + (
-            'certificate_logo_image_url', 'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url',
-        )
 
 
 class CatalogSerializer(serializers.ModelSerializer):
