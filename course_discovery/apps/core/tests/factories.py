@@ -44,6 +44,7 @@ class PartnerFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'test-partner-{}'.format(n))  # pylint: disable=unnecessary-lambda
     short_code = factory.Sequence(lambda n: 'test{}'.format(n))  # pylint: disable=unnecessary-lambda
     courses_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
+    lms_commerce_api_url = '{root}/api/commerce/v1/'.format(root=FuzzyUrlRoot().fuzz())
     ecommerce_api_url = '{root}/api/v2/'.format(root=FuzzyUrlRoot().fuzz())
     organizations_api_url = '{root}/api/organizations/v1/'.format(root=FuzzyUrlRoot().fuzz())
     programs_api_url = '{root}/api/programs/v1/'.format(root=FuzzyUrlRoot().fuzz())

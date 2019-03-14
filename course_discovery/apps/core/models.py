@@ -67,6 +67,7 @@ class Partner(TimeStampedModel):
         max_length=8, unique=True, null=False, blank=False, verbose_name=_('Short Code'),
         help_text=_('Convenient code/slug used to identify this Partner (e.g. for management commands.)'))
     courses_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Courses API URL'))
+    lms_commerce_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Commerce API URL'))
     ecommerce_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('E-Commerce API URL'))
     organizations_api_url = models.URLField(max_length=255, null=True, blank=True,
                                             verbose_name=_('Organizations API URL'))
