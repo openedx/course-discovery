@@ -41,7 +41,8 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSA
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumFactory,
+    AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory,
+    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory,
     DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
     IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
     PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
@@ -249,6 +250,66 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             context={'request': self.request, 'include_deleted_programs': 1}
         )
         self.assertEqual(serializer.data, self.get_expected_data(self.course, self.request))
+
+
+class CurriculumSerializerTests(TestCase):
+    serializer_class = CurriculumSerializer
+
+    @classmethod
+    def get_expected_data(cls, curriculum, request):
+
+        curriculum_programs = [m.program for m in list(curriculum.curriculumprogrammembership_set.all())]
+        curriculum_courses = [m.course for m in list(curriculum.curriculumcoursemembership_set.all())]
+        curriculum_course_runs = [
+            course_run for course in curriculum_courses
+            for course_run in list(course.course_runs.all())
+        ]
+
+        return {
+            'uuid': str(curriculum.uuid),
+            'name': curriculum.name,
+            'marketing_text': curriculum.marketing_text,
+            'marketing_text_brief': curriculum.marketing_text_brief,
+            'is_active': curriculum.is_active,
+            'courses': MinimalProgramCourseSerializer(
+                curriculum_courses,
+                many=True,
+                context={
+                    'request': request,
+                    'course_runs': curriculum_course_runs
+                }
+            ).data,
+            'programs': MinimalProgramSerializer(
+                curriculum_programs,
+                many=True,
+                context={
+                    'request': request
+                }
+            ).data
+        }
+
+    def test_data(self):
+        request = make_request()
+
+        person = PersonFactory()
+        parent_program = ProgramFactory()
+        child_program = ProgramFactory()
+
+        curriculum = CurriculumFactory(program=parent_program)
+        course = CourseFactory()
+        CourseRunFactory(course=course, staff=[person])
+        CurriculumCourseMembershipFactory(
+            course=course,
+            curriculum=curriculum
+        )
+        CurriculumProgramMembershipFactory(
+            program=child_program,
+            curriculum=curriculum
+        )
+        expected = self.get_expected_data(curriculum, request)
+
+        serializer = CurriculumSerializer(curriculum, context={'request': request})
+        self.assertDictEqual(serializer.data, expected)
 
 
 class MinimalCourseRunBaseTestSerializer(TestCase):

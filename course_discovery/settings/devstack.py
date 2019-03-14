@@ -50,7 +50,7 @@ PARLER_LANGUAGES = {
          'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
          'hide_untranslated': False,
      }
- }
+}
 
 #####################################################################
 # Lastly, see if the developer has any local overrides.

@@ -12,7 +12,8 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory,
+    CurriculumFactory, CurriculumProgramMembershipFactory, EndorsementFactory, ExpectedLearningItemFactory,
     JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory, VideoFactory
 )
 
@@ -42,15 +43,16 @@ class TestProgramViewSet(SerializationMixin):
         self.partner = partner
         self.request = request
 
-    def create_program(self):
+    def create_program(self, courses=None):
         organizations = [OrganizationFactory(partner=self.partner)]
         person = PersonFactory()
 
-        course = CourseFactory(partner=self.partner)
-        CourseRunFactory(course=course, staff=[person])
+        if courses is None:
+            courses = [CourseFactory(partner=self.partner)]
+            CourseRunFactory(course=courses[0], staff=[person])
 
         program = ProgramFactory(
-            courses=[course],
+            courses=courses,
             authoring_organizations=organizations,
             credit_backing_organizations=organizations,
             corporate_endorsements=CorporateEndorsementFactory.create_batch(1),
@@ -63,6 +65,21 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner
         )
         return program
+
+    def create_curriculum(self, parent_program):
+        person = PersonFactory()
+        course = CourseFactory(partner=self.partner)
+        CourseRunFactory(course=course, staff=[person])
+        CourseRunFactory(course=course, staff=[person])
+
+        curriculum = CurriculumFactory(
+            program=parent_program
+        )
+        CurriculumCourseMembershipFactory(
+            course=course,
+            curriculum=curriculum
+        )
+        return curriculum
 
     def assert_retrieve_success(self, program, querystring=None):
         """ Verify the retrieve endpoint succesfully returns a serialized program. """
@@ -97,6 +114,43 @@ class TestProgramViewSet(SerializationMixin):
         # Verify that requests including querystring parameters are cached separately.
         response = self.assert_retrieve_success(program, querystring={'use_full_course_serializer': 1})
         assert response.data == self.serialize_program(program, extra_context={'use_full_course_serializer': 1})
+
+    def test_retrieve_basic_curriculum(self, django_assert_num_queries):
+        program = self.create_program(courses=[])
+        self.create_curriculum(program)
+
+        # Notes on this query count:
+        # 36 queries to get program without a curriculum and no courses
+        # +2 for curriculum details (related courses, related programs)
+        # +8 for course details on 1 or more courses across all sibling curricula
+        with django_assert_num_queries(FuzzyInt(46, 2)):
+            response = self.assert_retrieve_success(program)
+        assert response.data == self.serialize_program(program)
+
+    def test_retrieve_curriculum_with_child_programs(self, django_assert_num_queries):
+        parent_program = self.create_program(courses=[])
+        curriculum = self.create_curriculum(parent_program)
+
+        child_program1 = self.create_program()
+        child_program2 = self.create_program()
+        CurriculumProgramMembershipFactory(
+            program=child_program1,
+            curriculum=curriculum
+        )
+        CurriculumProgramMembershipFactory(
+            program=child_program2,
+            curriculum=curriculum
+        )
+
+        # Notes on query count:
+        # 46 queries to get program with single curriculum (test_retrieve_basic_curriculum)
+        # +6 for first child program
+        # +1 for additional child program
+        # +8 for 1 or more first child program courses
+        # +3 for 1 or more additional child program courses
+        with django_assert_num_queries(FuzzyInt(64, 2)):
+            response = self.assert_retrieve_success(parent_program)
+        assert response.data == self.serialize_program(parent_program)
 
     @pytest.mark.parametrize('order_courses_by_start_date', (True, False,))
     def test_retrieve_with_sorting_flag(self, order_courses_by_start_date, django_assert_num_queries):
@@ -147,7 +201,7 @@ class TestProgramViewSet(SerializationMixin):
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
 
-        self.assert_list_results(self.list_path, expected, 26)
+        self.assert_list_results(self.list_path, expected, 28)
 
     def test_uuids_only(self):
         """
