@@ -26,6 +26,7 @@ class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
     load_all = True
     lookup_field = 'key'
     permission_classes = (IsAuthenticated,)
+    ensure_published = True
 
     def list(self, request, *args, **kwargs):
         """
@@ -80,8 +81,9 @@ class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
         facet_serializer_cls = self.get_facet_serializer_class()
         field_queries = getattr(facet_serializer_cls.Meta, 'field_queries', {})
 
-        # Ensure we only return published, non-hidden items
-        queryset = queryset.filter(published=True).exclude(hidden=True)
+        if self.ensure_published:
+            # Ensure we only return published, non-hidden items
+            queryset = queryset.filter(published=True).exclude(hidden=True)
 
         for facet in self.request.query_params.getlist('selected_query_facets'):
             query = field_queries.get(facet)
@@ -154,10 +156,15 @@ class PersonSearchViewSet(BaseHaystackViewSet):
     """
     Generic person search
     """
+    permission_classes = (IsAuthenticated,)
     index_models = (Person,)
+    filter_backends = (CatalogDataFilterBackend,)
     detail_serializer_class = serializers.PersonSearchModelSerializer
     facet_serializer_class = serializers.PersonFacetSerializer
     serializer_class = serializers.PersonSearchSerializer
+    ensure_published = False
+    document_uid = 'uuid'
+    lookup_field = 'uuid'
 
 
 class TypeaheadSearchView(APIView):

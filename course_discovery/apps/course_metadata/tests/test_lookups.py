@@ -114,26 +114,34 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.courses = factories.CourseFactory.create_batch(3, title='Some random course title')
 
-        for course in self.courses:
-            factories.CourseRunFactory(course=course)
-
-        self.organizations = OrganizationFactory.create_batch(3)
-        self.organization_extensions = []
-
-        for organization in self.organizations:
-            self.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
-
-        self.user.groups.add(self.organization_extensions[0].group)
         first_instructor = PersonFactory(given_name="First", family_name="Instructor")
         second_instructor = PersonFactory(given_name="Second", family_name="Instructor")
         self.instructors = [first_instructor, second_instructor]
 
+        self.organizations = OrganizationFactory.create_batch(3)
+        self.organization_extensions = []
+
         for instructor in self.instructors:
             PositionFactory(organization=self.organizations[0], title="professor", person=instructor)
 
-    def query(self, q):
+        self.course_runs = [factories.CourseRunFactory(course=course) for course in self.courses]
+
+        for organization in self.organizations:
+            self.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
+
+        disco_course = CourseFactory(authoring_organizations=[self.organizations[0]])
+        CourseRunFactory(course=disco_course, staff=[first_instructor])
+
+        self.user.groups.add(self.organization_extensions[0].group)
+
+    def query(self, q, org=None):
+        query_params = '?q={q}'.format(q=q)
+
+        if org:
+            query_params = query_params + '&org={org}'.format(org=org)
+
         return self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q=q)
+            reverse('admin_metadata:person-autocomplete') + query_params
         )
 
     def test_instructor_autocomplete(self):
@@ -243,6 +251,11 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         data = json.loads(response.content.decode('utf-8'))
         expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
         assert data.get('results') == expected_results
+
+    def test_autocomplete_limit_by_org(self):
+        org = self.organizations[0]
+        response = self.query('ins', org=org.key)
+        self._assert_response(response, 1)
 
     def _make_user_non_staff(self):
         self.client.logout()

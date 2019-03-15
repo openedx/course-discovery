@@ -103,7 +103,16 @@ class PersonViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         # Only include people from the current request's site
-        return self.queryset.filter(partner=self.request.site.partner)
+        queryset = self.queryset.filter(partner=self.request.site.partner)
+        org_keys = self.request.query_params.getlist('org', None)
+
+        if org_keys:
+            # We are pulling the people who are part of course runs belonging to the given organizations.
+            # This blank order_by is there to offset the default ordering on people since
+            # we don't care about the order in which they are returned.
+            queryset = queryset.filter(courses_staffed__course__authoring_organizations__key__in=org_keys).order_by()
+
+        return queryset
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)

@@ -296,6 +296,26 @@ class PositionSerializer(serializers.ModelSerializer):
             return obj.organization.marketing_url
 
 
+class MinimalOrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ('uuid', 'key', 'name',)
+
+
+class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
+    """Serializer for the ``Organization`` model."""
+    tags = TagListSerializerField()
+
+    @classmethod
+    def prefetch_queryset(cls, partner):
+        return Organization.objects.filter(partner=partner).select_related('partner').prefetch_related('tags')
+
+    class Meta(MinimalOrganizationSerializer.Meta):
+        fields = MinimalOrganizationSerializer.Meta.fields + (
+            'certificate_logo_image_url', 'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url',
+        )
+
+
 class MinimalPersonSerializer(serializers.ModelSerializer):
     """
     Minimal serializer for the ``Person`` model.
@@ -316,7 +336,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
         ).prefetch_related(
             'person_networks',
             'areas_of_expertise',
-            'position__organization__partner'
+            'position__organization__partner',
         )
 
     class Meta(object):
@@ -530,26 +550,6 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = CourseEntitlement
         fields = ('mode', 'price', 'currency', 'sku', 'expires')
-
-
-class MinimalOrganizationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Organization
-        fields = ('uuid', 'key', 'name',)
-
-
-class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
-    """Serializer for the ``Organization`` model."""
-    tags = TagListSerializerField()
-
-    @classmethod
-    def prefetch_queryset(cls, partner):
-        return Organization.objects.filter(partner=partner).select_related('partner').prefetch_related('tags')
-
-    class Meta(MinimalOrganizationSerializer.Meta):
-        fields = MinimalOrganizationSerializer.Meta.fields + (
-            'certificate_logo_image_url', 'description', 'homepage_url', 'tags', 'logo_image_url', 'marketing_url',
-        )
 
 
 class CatalogSerializer(serializers.ModelSerializer):
@@ -1721,6 +1721,7 @@ class PersonSearchSerializer(HaystackSerializer):
             'bio_language',
             'profile_image_url',
             'position',
+            'organizations',
         )
 
 
@@ -1734,7 +1735,10 @@ class PersonFacetSerializer(BaseHaystackFacetSerializer):
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         ignore_fields = COMMON_IGNORED_FIELDS
         index_classes = [search_indexes.PersonIndex]
-        fields = ()
+        fields = ('organizations',)
+        field_options = {
+            'organizations': {},
+        }
 
 
 class ProgramSearchSerializer(HaystackSerializer):

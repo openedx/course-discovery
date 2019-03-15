@@ -13,7 +13,8 @@ from course_discovery.apps.course_metadata.models import Person, Position
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
-    OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory,
+    PersonSocialNetworkFactory, PositionFactory
 )
 
 User = get_user_model()
@@ -197,6 +198,53 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], self.serialize_person([person], many=True))
+
+    def test_with_no_org(self):
+        org1 = OrganizationFactory()
+        course = CourseFactory(authoring_organizations=[org1])
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+            person1 = PersonFactory(partner=self.partner)
+            PersonFactory(partner=self.partner)
+            CourseRunFactory(staff=[person1], course=course)
+            url = '{url}?org='.format(url=self.people_list_url)
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.data['results']), 0)
+
+    def test_list_with_org_single(self):
+        org1 = OrganizationFactory()
+        course = CourseFactory(authoring_organizations=[org1])
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+            person1 = PersonFactory(partner=self.partner)
+            PersonFactory(partner=self.partner)
+            PersonFactory(partner=self.partner)
+            CourseRunFactory(staff=[person1], course=course)
+            url = '{url}?org={org_key}'.format(url=self.people_list_url, org_key=org1.key)
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.data['results']), 1)
+            self.assertEqual(response.data['results'], self.serialize_person([person1], many=True))
+
+    def test_list_with_org_multiple(self):
+        org1 = OrganizationFactory()
+        org2 = OrganizationFactory()
+        course1 = CourseFactory(authoring_organizations=[org1])
+        course2 = CourseFactory(authoring_organizations=[org2])
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+            person1 = PersonFactory(partner=self.partner)
+            person2 = PersonFactory(partner=self.partner)
+            PersonFactory(partner=self.partner)
+            CourseRunFactory(staff=[person1], course=course1)
+            CourseRunFactory(staff=[person2], course=course2)
+            url = '{url}?org={org1_key}&org={org2_key}'.format(
+                url=self.people_list_url,
+                org1_key=org1.key,
+                org2_key=org2.key,
+            )
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.data['results']), 2)
+            self.assertEqual(response.data['results'], self.serialize_person([person1, person2], many=True))
 
     def test_create_without_waffle_switch(self):
         """ Verify endpoint proceeds if waffle switch is disabled. """
@@ -433,6 +481,19 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         updated_person = Person.objects.get(id=self.person.id)
 
         self.assertEqual(updated_person.position.title, data['position']['title'])
+
+    def test_update_with_org_restrictions(self):
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+        url = url + '?org=invalid-org'
+
+        data = self._update_person_data()
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value={}):
+            response = self.client.patch(url, data, format='json')
+            self.assertEqual(response.status_code, 404)
+
+        # Verify that the person wasn't updated.
+        updated_person = Person.objects.get(id=self.person.id)
+        self.assertEqual(updated_person.given_name, self.person.given_name)
 
     def test_options_org_choices(self):
         """ Verify that an OPTIONS request will provide a list of organizations. """
