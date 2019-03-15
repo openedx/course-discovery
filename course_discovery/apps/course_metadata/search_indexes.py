@@ -355,9 +355,16 @@ class PersonIndex(BaseIndex, indexes.Indexable):
     bio_language = indexes.CharField(model_attr='bio_language', null=True)
     get_profile_image_url = indexes.CharField(model_attr='get_profile_image_url', null=True)
     position = indexes.MultiValueField()
+    organizations = indexes.MultiValueField(faceted=True)
 
     def prepare_aggregation_key(self, obj):
         return 'person:{}'.format(obj.uuid)
+
+    def prepare_organizations(self, obj):
+        course_runs = obj.courses_staffed.all()
+        all_organizations = [course_run.course.authoring_organizations.all() for course_run in course_runs]
+        formatted_organizations = [org.key for orgs in all_organizations for org in orgs]
+        return formatted_organizations
 
     def prepare_position(self, obj):
         try:

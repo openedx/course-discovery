@@ -13,7 +13,7 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, ProgramFactory
 )
 
 
@@ -570,3 +570,38 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
                          self.serialize_program_search(harvard_program)]
         }
         self.assertDictEqual(response.data, expected)
+
+
+class TestPersonFacetSearchViewSet(mixins.SerializationMixin, mixins.LoginMixin,
+                                   ElasticsearchTestMixin, mixins.APITestCase):
+    path = reverse('api:v1:search-people-facets')
+
+    def test_search_single(self):
+        org = OrganizationFactory()
+        course = CourseFactory(authoring_organizations=[org])
+        person1 = PersonFactory(partner=self.partner)
+        person2 = PersonFactory(partner=self.partner)
+        PersonFactory(partner=self.partner)
+        CourseRunFactory(staff=[person1, person2], course=course)
+
+        facet_name = 'organizations_exact:{org_key}'.format(org_key=org.key)
+        self.reindex_people(person1)
+        self.reindex_people(person2)
+
+        query = {'selected_facets': facet_name}
+        qs = urllib.parse.urlencode(query)
+        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertEqual(response_data['objects']['count'], 2)
+
+        query = {'selected_facets': facet_name, 'q': person1.uuid}
+        qs = urllib.parse.urlencode(query)
+        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertEqual(response_data['objects']['count'], 1)
+        self.assertEqual(response_data['objects']['results'][0]['uuid'], str(person1.uuid))
+        self.assertEqual(response_data['objects']['results'][0]['full_name'], person1.full_name)
