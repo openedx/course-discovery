@@ -1,6 +1,5 @@
 {% extends 'publisher/base.html' %}
 
-{% load compress %}
 {% load i18n %}
 {% load static %}
 
@@ -9,10 +8,8 @@
 {% endblock title %}
 
 {% block css %}
-  {% compress css %}
-      <link rel="stylesheet" href="{% static 'bower_components/tinymce/skins/lightgray/content.min.css' %}" type="text/x-scss">
-      <link rel="stylesheet" href="{% static 'bower_components/tinymce/skins/lightgray/skin.min.css' %}" type="text/x-scss">
-  {% endcompress %}
+      <link rel="stylesheet" href="{% static 'bower_components/tinymce/skins/lightgray/content.min.css' %}" type="text/css">
+      <link rel="stylesheet" href="{% static 'bower_components/tinymce/skins/lightgray/skin.min.css' %}" type="text/css">
     {{ block.super }}
 {% endblock %}
 

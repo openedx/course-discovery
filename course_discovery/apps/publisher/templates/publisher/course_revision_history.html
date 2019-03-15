@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
-{% load compress %}
 
 {% block title %}
   {% trans "Revision History" %}
@@ -166,9 +165,7 @@
 
 {% block js %}
   {{ block.super }}
-    {% compress js %}
         <script src="{% static 'bower_components/jquery/dist/jquery.js' %}"></script>
         <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
         <script src="{% static 'js/publisher/comparing-objects.js' %}"></script>
-    {% endcompress %}
 {% endblock %}
