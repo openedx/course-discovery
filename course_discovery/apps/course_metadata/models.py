@@ -65,13 +65,17 @@ class AbstractValueModel(TimeStampedModel):
 
 class AbstractMediaModel(TimeStampedModel):
     """ Abstract base class for media-related (e.g. image, video) models. """
-    src = models.URLField(max_length=255, unique=True)
+    src = models.URLField(max_length=255)
     description = models.CharField(max_length=255, null=True, blank=True)
+    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
     def __str__(self):
         return self.src
 
     class Meta(object):
+        unique_together = (
+            ('src', 'draft'),
+        )
         abstract = True
 
 
@@ -287,10 +291,11 @@ class Person(TimeStampedModel):
         help_text=_('A list of major works by this person. Must be valid HTML.'),
     )
     published = models.BooleanField(default=False)
+    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
     class Meta:
         unique_together = (
-            ('partner', 'uuid'),
+            ('partner', 'uuid', 'draft'),
         )
         verbose_name_plural = _('People')
         ordering = ['created']
@@ -443,13 +448,14 @@ class Course(PkSearchableMixin, TimeStampedModel):
     additional_information = models.TextField(
         default=None, null=True, blank=True, verbose_name=_('Additional Information')
     )
+    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
     objects = CourseQuerySet.as_manager()
 
     class Meta:
         unique_together = (
-            ('partner', 'uuid'),
-            ('partner', 'key'),
+            ('partner', 'uuid', 'draft'),
+            ('partner', 'key', 'draft'),
         )
         ordering = ['id']
 
@@ -578,7 +584,7 @@ class CourseRun(TimeStampedModel):
     """ CourseRun model. """
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, related_name='course_runs')
-    key = models.CharField(max_length=255, unique=True)
+    key = models.CharField(max_length=255)
     status = models.CharField(default=CourseRunStatus.Unpublished, max_length=255, null=False, blank=False,
                               db_index=True, choices=CourseRunStatus.choices, validators=[CourseRunStatus.validator])
     title_override = models.CharField(
@@ -655,8 +661,14 @@ class CourseRun(TimeStampedModel):
         default=False,
         verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site')
     )
+    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
     objects = CourseRunQuerySet.as_manager()
+
+    class Meta:
+        unique_together = (
+            ('key', 'draft'),
+        )
 
     def _upgrade_deadline_sort(self, seat):
         """
@@ -1031,10 +1043,11 @@ class Seat(TimeStampedModel):
     credit_hours = models.IntegerField(null=True, blank=True)
     sku = models.CharField(max_length=128, null=True, blank=True)
     bulk_sku = models.CharField(max_length=128, null=True, blank=True)
+    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
     class Meta(object):
         unique_together = (
-            ('course_run', 'type', 'currency', 'credit_provider')
+            ('course_run', 'type', 'currency', 'credit_provider', 'draft')
         )
         ordering = ['created']
 
@@ -1054,10 +1067,11 @@ class CourseEntitlement(TimeStampedModel):
     currency = models.ForeignKey(Currency, default='USD')
     sku = models.CharField(max_length=128, null=True, blank=True)
     expires = models.DateTimeField(null=True, blank=True)
+    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
     class Meta(object):
         unique_together = (
-            ('course', 'mode')
+            ('course', 'mode', 'draft')
         )
         ordering = ['created']
 
