@@ -5,14 +5,14 @@
 # 
 # Translators:
 # e2f_HE c1 <e2f_HE_c1@outlook.com>, 2016-2017
-# e2f he_r1 <e2f_he_r1@outlook.com>, 2016
+# da4b3b3e32ebb4f0ec5430359fde7fbb, 2016
 # qualityalltext <quality@alltext.co.il>, 2016-2017
 # Yaron Shahrabani <sh.yaron@gmail.com>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-04 17:33+0000\n"
+"POT-Creation-Date: 2019-03-06 21:34+0000\n"
 "PO-Revision-Date: 2018-12-12 19:01+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Hebrew (http://www.transifex.com/open-edx/edx-platform/language/he/)\n"
