@@ -5,7 +5,7 @@
 # 
 # Translators:
 # Ahmed Gad <ahmed3oss46@gmail.com>, 2016
-# AR C2 <e2f458fd4s512@outlook.com>, 2016
+# 6e68c7971a89e50e680ae9444d303c8f, 2016
 # e2f_ar r3 <e2f_ar_r3@outlook.com>, 2017
 # e2f_ar t3 <e2f_ar_t3@outlook.com>, 2016
 # Omar Al-Ithawi <oithawi@qrf.org>, 2016
@@ -15,7 +15,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-03-04 17:33+0000\n"
+"POT-Creation-Date: 2019-03-06 21:34+0000\n"
 "PO-Revision-Date: 2018-12-12 19:01+0000\n"
 "Last-Translator: Ned Batchelder <ned@edx.org>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
