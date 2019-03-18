@@ -46,9 +46,8 @@ class DraftModelMixin(models.Model):
     """
     Defines a draft boolean field and an object manager to make supporting drafts more transparent.
 
-    This defines an 'objects' manager, so be aware that your default manager will exclude draft versions by default
-    unless you also define the 'objects' manager. You can still get all rows through self._base_manager or
-    self.objects.with_drafts().
+    This defines two managers. The 'everything' manager will return all rows. The 'objects' manager will exclude
+    draft versions by default unless you also define the 'objects' manager.
 
     Remember to add 'draft' to your unique_together clauses.
 
@@ -61,6 +60,7 @@ class DraftModelMixin(models.Model):
     draft_version = models.OneToOneField('self', models.CASCADE, null=True, blank=True,
                                          related_name='official_version', limit_choices_to={'draft': True})
 
+    everything = models.Manager()
     objects = DraftManager()
 
     class Meta(object):
@@ -474,6 +474,7 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         default=None, null=True, blank=True, verbose_name=_('Additional Information')
     )
 
+    everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
 
     class Meta:
@@ -686,6 +687,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site')
     )
 
+    everything = CourseRunQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseRunQuerySet)()
 
     class Meta:
