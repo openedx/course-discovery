@@ -27,6 +27,7 @@ from taggit_autosuggest.managers import TaggableManager
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
 from course_discovery.apps.course_metadata.constants import PathwayType
+from course_discovery.apps.course_metadata.managers import DraftManager
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -39,6 +40,29 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 logger = logging.getLogger(__name__)
+
+
+class DraftModelMixin(models.Model):
+    """
+    Defines a draft boolean field and an object manager to make supporting drafts more transparent.
+
+    This defines an 'objects' manager, so be aware that your default manager will exclude draft versions by default
+    unless you also define the 'objects' manager. You can still get all rows through self._base_manager or
+    self.objects.with_drafts().
+
+    Remember to add 'draft' to your unique_together clauses.
+
+    Django doesn't allow real model mixins, but since everything has to inherit from models.Model, we shouldn't be
+    stepping on anyone's toes. This is the best advice I could find (at time of writing for Django 1.11).
+
+    .. no_pii:
+    """
+    draft = models.BooleanField(default=False, help_text='Is this a draft version?')
+
+    objects = DraftManager()
+
+    class Meta(object):
+        abstract = True
 
 
 class AbstractNamedModel(TimeStampedModel):
@@ -63,11 +87,10 @@ class AbstractValueModel(TimeStampedModel):
         abstract = True
 
 
-class AbstractMediaModel(TimeStampedModel):
+class AbstractMediaModel(DraftModelMixin, TimeStampedModel):
     """ Abstract base class for media-related (e.g. image, video) models. """
     src = models.URLField(max_length=255)
     description = models.CharField(max_length=255, null=True, blank=True)
-    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
     def __str__(self):
         return self.src
@@ -267,7 +290,7 @@ class Organization(TimeStampedModel):
         return None
 
 
-class Person(TimeStampedModel):
+class Person(DraftModelMixin, TimeStampedModel):
     """ Person model. """
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
     partner = models.ForeignKey(Partner, null=True, blank=False)
@@ -291,7 +314,6 @@ class Person(TimeStampedModel):
         help_text=_('A list of major works by this person. Must be valid HTML.'),
     )
     published = models.BooleanField(default=False)
-    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
     class Meta:
         unique_together = (
@@ -384,7 +406,7 @@ class PkSearchableMixin:
         return cls.objects.filter(pk__in=ids)
 
 
-class Course(PkSearchableMixin, TimeStampedModel):
+class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner)
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
@@ -448,9 +470,8 @@ class Course(PkSearchableMixin, TimeStampedModel):
     additional_information = models.TextField(
         default=None, null=True, blank=True, verbose_name=_('Additional Information')
     )
-    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
-    objects = CourseQuerySet.as_manager()
+    objects = DraftManager.from_queryset(CourseQuerySet)()
 
     class Meta:
         unique_together = (
@@ -580,7 +601,7 @@ class CourseEditor(TimeStampedModel):
         return queryset.filter(has_user_editor | ~has_valid_editors, authoring_organizations__in=user_orgs)
 
 
-class CourseRun(TimeStampedModel):
+class CourseRun(DraftModelMixin, TimeStampedModel):
     """ CourseRun model. """
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, related_name='course_runs')
@@ -661,9 +682,8 @@ class CourseRun(TimeStampedModel):
         default=False,
         verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site')
     )
-    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
-    objects = CourseRunQuerySet.as_manager()
+    objects = DraftManager.from_queryset(CourseRunQuerySet)()
 
     class Meta:
         unique_together = (
@@ -1004,7 +1024,7 @@ class SeatType(TimeStampedModel):
         return self.name
 
 
-class Seat(TimeStampedModel):
+class Seat(DraftModelMixin, TimeStampedModel):
     """ Seat model. """
     HONOR = 'honor'
     AUDIT = 'audit'
@@ -1043,7 +1063,6 @@ class Seat(TimeStampedModel):
     credit_hours = models.IntegerField(null=True, blank=True)
     sku = models.CharField(max_length=128, null=True, blank=True)
     bulk_sku = models.CharField(max_length=128, null=True, blank=True)
-    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
     class Meta(object):
         unique_together = (
@@ -1052,7 +1071,7 @@ class Seat(TimeStampedModel):
         ordering = ['created']
 
 
-class CourseEntitlement(TimeStampedModel):
+class CourseEntitlement(DraftModelMixin, TimeStampedModel):
     """ Model storing product metadata for a Course. """
     PRICE_FIELD_CONFIG = {
         'decimal_places': 2,
@@ -1067,7 +1086,6 @@ class CourseEntitlement(TimeStampedModel):
     currency = models.ForeignKey(Currency, default='USD')
     sku = models.CharField(max_length=128, null=True, blank=True)
     expires = models.DateTimeField(null=True, blank=True)
-    draft = models.BooleanField(default=False, null=False, help_text='Is this a draft version?')
 
     class Meta(object):
         unique_together = (
