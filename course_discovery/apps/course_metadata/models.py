@@ -156,7 +156,7 @@ class Subject(TranslatableModel, TimeStampedModel):
             ('partner', 'slug'),
             ('partner', 'uuid'),
         )
-        ordering = ['created']
+        ordering = ['id']
 
     def validate_unique(self, *args, **kwargs):  # pylint: disable=arguments-differ
         super(Subject, self).validate_unique(*args, **kwargs)
@@ -194,7 +194,7 @@ class Topic(TranslatableModel, TimeStampedModel):
             ('partner', 'slug'),
             ('partner', 'uuid'),
         )
-        ordering = ['created']
+        ordering = ['id']
 
     def validate_unique(self, *args, **kwargs):  # pylint: disable=arguments-differ
         super(Topic, self).validate_unique(*args, **kwargs)
@@ -274,7 +274,7 @@ class Organization(TimeStampedModel):
             ('partner', 'key'),
             ('partner', 'uuid'),
         )
-        ordering = ['created']
+        ordering = ['id']
 
     def __str__(self):
         if self.name and self.name != self.key:
@@ -321,6 +321,7 @@ class Person(TimeStampedModel):
             ('partner', 'uuid', 'draft'),
         )
         verbose_name_plural = _('People')
+        ordering = ['id']
 
     def __str__(self):
         return self.full_name
@@ -1068,7 +1069,7 @@ class Seat(DraftModelMixin, TimeStampedModel):
         unique_together = (
             ('course_run', 'type', 'currency', 'credit_provider', 'draft')
         )
-        ordering = ['created']
+        ordering = ['id']
 
 
 class CourseEntitlement(DraftModelMixin, TimeStampedModel):
@@ -1091,7 +1092,7 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
         unique_together = (
             ('course', 'mode', 'draft')
         )
-        ordering = ['created']
+        ordering = ['id']
 
 
 class Endorsement(TimeStampedModel):
@@ -1119,7 +1120,7 @@ class FAQ(TimeStampedModel):
     class Meta:
         verbose_name = _('FAQ')
         verbose_name_plural = _('FAQs')
-        ordering = ['created']
+        ordering = ['id']
 
     def __str__(self):
         return self.question
@@ -1721,7 +1722,7 @@ class DegreeDeadline(TimeStampedModel):
     displays in the Degree product page's "Details" section.
     """
     class Meta:
-        ordering = ['created']
+        ordering = ['id']
 
     degree = models.ForeignKey(Degree, on_delete=models.CASCADE, related_name='deadlines', null=True)
     semester = models.CharField(
@@ -1754,7 +1755,7 @@ class DegreeCost(TimeStampedModel):
     a Degree product page's "Details" section.
     """
     class Meta:
-        ordering = ['created']
+        ordering = ['id']
 
     degree = models.ForeignKey(Degree, on_delete=models.CASCADE, related_name='costs', null=True)
     description = models.CharField(
@@ -1917,7 +1918,7 @@ class PersonSocialNetwork(TimeStampedModel):
         unique_together = (
             ('person', 'type', 'title'),
         )
-        ordering = ['created']
+        ordering = ['id']
 
     def __str__(self):
         return '{title}: {url}'.format(title=self.display_title, url=self.url)
