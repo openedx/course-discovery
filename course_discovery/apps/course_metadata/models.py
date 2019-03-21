@@ -290,7 +290,7 @@ class Organization(TimeStampedModel):
         return None
 
 
-class Person(DraftModelMixin, TimeStampedModel):
+class Person(TimeStampedModel):
     """ Person model. """
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
     partner = models.ForeignKey(Partner, null=True, blank=False)
@@ -314,6 +314,7 @@ class Person(DraftModelMixin, TimeStampedModel):
         help_text=_('A list of major works by this person. Must be valid HTML.'),
     )
     published = models.BooleanField(default=False)
+    draft = models.BooleanField(default=False, help_text='Is this a draft version?')  # deprecated
 
     class Meta:
         unique_together = (
