@@ -89,7 +89,7 @@ class AbstractValueModel(TimeStampedModel):
 
 class AbstractMediaModel(TimeStampedModel):
     """ Abstract base class for media-related (e.g. image, video) models. """
-    src = models.URLField(max_length=255)
+    src = models.URLField(max_length=255, unique=True)
     description = models.CharField(max_length=255, null=True, blank=True)
     draft = models.BooleanField(default=False, help_text='Is this a draft version?')  # deprecated
 
@@ -97,9 +97,6 @@ class AbstractMediaModel(TimeStampedModel):
         return self.src
 
     class Meta(object):
-        unique_together = (
-            ('src', 'draft'),
-        )
         abstract = True
 
 
@@ -319,7 +316,7 @@ class Person(TimeStampedModel):
 
     class Meta:
         unique_together = (
-            ('partner', 'uuid', 'draft'),
+            ('partner', 'uuid'),
         )
         verbose_name_plural = _('People')
         ordering = ['created']
