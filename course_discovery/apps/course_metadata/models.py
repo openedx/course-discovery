@@ -91,7 +91,6 @@ class AbstractMediaModel(TimeStampedModel):
     """ Abstract base class for media-related (e.g. image, video) models. """
     src = models.URLField(max_length=255, unique=True)
     description = models.CharField(max_length=255, null=True, blank=True)
-    draft = models.BooleanField(default=False, help_text='Is this a draft version?')  # deprecated
 
     def __str__(self):
         return self.src
@@ -312,7 +311,6 @@ class Person(TimeStampedModel):
         help_text=_('A list of major works by this person. Must be valid HTML.'),
     )
     published = models.BooleanField(default=False)
-    draft = models.BooleanField(default=False, help_text='Is this a draft version?')  # deprecated
 
     class Meta:
         unique_together = (
