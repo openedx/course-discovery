@@ -87,10 +87,11 @@ class AbstractValueModel(TimeStampedModel):
         abstract = True
 
 
-class AbstractMediaModel(DraftModelMixin, TimeStampedModel):
+class AbstractMediaModel(TimeStampedModel):
     """ Abstract base class for media-related (e.g. image, video) models. """
     src = models.URLField(max_length=255)
     description = models.CharField(max_length=255, null=True, blank=True)
+    draft = models.BooleanField(default=False, help_text='Is this a draft version?')  # deprecated
 
     def __str__(self):
         return self.src
