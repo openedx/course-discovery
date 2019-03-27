@@ -381,26 +381,30 @@ class PkSearchableMixin:
     """
 
     @classmethod
-    def search(cls, query):
+    def search(cls, query, queryset=None):
         """ Queries the search index.
 
         Args:
             query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
+            queryset (models.QuerySet) -- base queryset to search, defaults to objects.all()
 
         Returns:
             QuerySet
         """
         query = clean_query(query)
 
+        if queryset is None:
+            queryset = cls.objects.all()
+
         if query == '(*)':
             # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
             # want everything, we don't need to actually query elasticsearch at all.
-            return cls.objects.all()
+            return queryset
 
         results = SearchQuerySet().models(cls).raw_search(query)
         ids = {result.pk for result in results}
 
-        return cls.objects.filter(pk__in=ids)
+        return queryset.filter(pk__in=ids)
 
 
 class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
