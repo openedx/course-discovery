@@ -333,6 +333,26 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
             # We'll probably fail because we didn't include the right data - but at least we'll have gotten in
             self.assertNotEqual(response.status_code, 403)
 
+    def test_editable_list_gives_drafts(self):
+        draft = CourseFactory(partner=self.partner, uuid=self.course.uuid, key=self.course.key, draft=True)
+        extra = CourseFactory(partner=self.partner, key=self.course.key + 'Z')  # set key so it sorts later
+
+        response = self.client.get(reverse('api:v1:course-list') + '?editable=1')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['results'], self.serialize_course([draft, extra], many=True))
+
+    def test_editable_get_gives_drafts(self):
+        draft = CourseFactory(partner=self.partner, uuid=self.course.uuid, key=self.course.key, draft=True)
+        extra = CourseFactory(partner=self.partner)
+
+        response = self.client.get(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}) + '?editable=1')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.serialize_course(draft, many=False))
+
+        response = self.client.get(reverse('api:v1:course-detail', kwargs={'key': extra.uuid}) + '?editable=1')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.serialize_course(extra, many=False))
+
     def test_course_without_editors(self):
         """ Verify we can modify a course with no editors if we're in its authoring org. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})

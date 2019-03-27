@@ -24,7 +24,7 @@ from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEntitlement, CourseRun, Organization, Seat, SeatType, Video
+    Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Seat, SeatType, Video
 )
 
 logger = logging.getLogger(__name__)
@@ -100,8 +100,15 @@ class CourseViewSet(viewsets.ModelViewSet):
         partner = self.request.site.partner
         q = self.request.query_params.get('q')
 
+        # Start with either draft versions or real versions of the courses
+        if get_query_param(self.request, 'editable'):
+            queryset = Course.objects.filter_drafts()
+            queryset = CourseEditor.editable_courses(self.request.user, queryset)
+        else:
+            queryset = self.queryset
+
         if q:
-            queryset = Course.search(q)
+            queryset = Course.search(q, queryset=queryset)
             queryset = self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
         else:
             if get_query_param(self.request, 'include_hidden_course_runs'):
@@ -119,7 +126,7 @@ class CourseViewSet(viewsets.ModelViewSet):
                 course_runs = course_runs.filter(status=CourseRunStatus.Published)
 
             queryset = self.get_serializer_class().prefetch_queryset(
-                queryset=self.queryset,
+                queryset=queryset,
                 course_runs=course_runs,
                 partner=partner
             )
