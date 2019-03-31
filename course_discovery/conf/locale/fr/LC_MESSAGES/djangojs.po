@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-03-22 17:38+0000\n"
-"PO-Revision-Date: 2019-03-13 15:46+0000\n"
+"PO-Revision-Date: 2019-03-27 16:30+0000\n"
 "Last-Translator: willyedoo <willyedoo@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/open-edx/edx-platform/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -120,7 +120,7 @@ msgstr ""
 
 #: static/js/publisher/instructors.js:314
 msgid " Unsupported Image extension"
-msgstr ""
+msgstr "Extension de l'image non autorisée"
 
 #: static/js/publisher/instructors.js:431
 msgid "Update staff member"

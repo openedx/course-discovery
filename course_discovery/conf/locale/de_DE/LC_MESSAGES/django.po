@@ -13,7 +13,7 @@
 # Litera TUGO <literatugo@ibr.cs.tu-bs.de>, 2016
 # Marc Höfken <marchoefken@gmx.de>, 2016
 # johmik <mikulasc@in.tum.de>, 2016
-# Physik Online <elearning@th.physik.uni-frankfurt.de>, 2017
+# 9e6d57405f548b8b8d60fb744413d707, 2017
 # Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018
 msgid ""
 msgstr ""
