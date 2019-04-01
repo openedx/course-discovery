@@ -537,6 +537,9 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
                 'credit_provider': [],
                 'credit_hours': [],
             },
+            'masters': {
+                'type': ''
+            },
         }
 
         for seat in course_run.seats.all():

@@ -1555,6 +1555,9 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
                 'credit_provider': [],
                 'credit_hours': [],
             },
+            'masters': {
+                'type': ''
+            }
         }
 
         for seat in obj.seats.all():
