@@ -5,6 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 from django.template.loader import render_to_string
 
+from course_discovery.apps.api.serializers import PersonSerializer
 from .models import Course, CourseRun, Organization, Person, Program
 
 
@@ -95,8 +96,12 @@ class PersonAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
 
     def get_result_label(self, result):
         http_referer = self.request.META.get('HTTP_REFERER')
+        serialize = self.request.GET.get('serialize')
         if http_referer and '/admin/' in http_referer:
             return super(PersonAutocomplete, self).get_result_label(result)
+        elif serialize:
+            context = {'request': self.request}
+            return PersonSerializer(result, context=context).data
         else:
             context = {
                 'uuid': result.uuid,
