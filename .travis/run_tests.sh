@@ -3,7 +3,7 @@
 . /edx/app/discovery/nodeenvs/discovery/bin/activate
 
 apt update
-apt install -y xvfb firefox gettext wget
+apt install -y xvfb firefox gettext
 
 cd /edx/app/discovery/discovery
 export PATH=$PATH:$PWD/node_modules/.bin

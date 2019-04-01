@@ -76,6 +76,7 @@ class CourseAdmin(admin.ModelAdmin):
     ordering = ('key', 'title',)
     readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count',)
     search_fields = ('uuid', 'key', 'title',)
+    raw_id_fields = ('draft_version',)
 
 
 @admin.register(CourseEditor)
@@ -94,7 +95,7 @@ class CourseEntitlementAdmin(admin.ModelAdmin):
 
     get_course_number.short_description = 'Course number'
 
-    raw_id_fields = ['course']
+    raw_id_fields = ('course', 'draft_version',)
     search_fields = ['course__title', 'course__number']
 
 
@@ -110,7 +111,7 @@ class CourseRunAdmin(admin.ModelAdmin):
         'license',
     )
     ordering = ('key',)
-    raw_id_fields = ('course',)
+    raw_id_fields = ('course', 'draft_version',)
     readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count',)
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug',)
     save_error = False
@@ -218,6 +219,7 @@ class ProgramTypeAdmin(admin.ModelAdmin):
 @admin.register(Seat)
 class SeatAdmin(admin.ModelAdmin):
     list_display = ('course_run', 'type')
+    raw_id_fields = ('draft_version',)
 
 
 @admin.register(SeatType)

@@ -335,6 +335,8 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
 
     def test_editable_list_gives_drafts(self):
         draft = CourseFactory(partner=self.partner, uuid=self.course.uuid, key=self.course.key, draft=True)
+        self.course.draft_version = draft
+        self.course.save()
         extra = CourseFactory(partner=self.partner, key=self.course.key + 'Z')  # set key so it sorts later
 
         response = self.client.get(reverse('api:v1:course-list') + '?editable=1')
@@ -343,6 +345,8 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
 
     def test_editable_get_gives_drafts(self):
         draft = CourseFactory(partner=self.partner, uuid=self.course.uuid, key=self.course.key, draft=True)
+        self.course.draft_version = draft
+        self.course.save()
         extra = CourseFactory(partner=self.partner)
 
         response = self.client.get(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}) + '?editable=1')
