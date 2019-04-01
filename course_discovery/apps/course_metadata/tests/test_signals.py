@@ -1,20 +1,22 @@
 import uuid
-from datetime import datetime
 
 import mock
 import pytest
 from django.apps import apps
 from django.test import TestCase
 from factory import DjangoModelFactory
-from pytz import UTC
+from testfixtures import LogCapture
 from waffle.testutils import override_switch
 
+from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
     Curriculum, CurriculumCourseMembership, DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
-    ProfileImageDownloadConfig, ProgramType, SubjectTranslation, TopicTranslation
+    ProfileImageDownloadConfig, ProgramType, Seat, SubjectTranslation, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _seats_for_course_run
 from course_discovery.apps.course_metadata.tests import factories
+
+LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
 
 
 @pytest.mark.django_db
@@ -57,6 +59,108 @@ class TestCacheInvalidation:
             mock_set_api_timestamp.reset_mock()
 
 
+class SeatSignalsTests(TestCase):
+    """ Tests for the signal to save seats model into database """
+    def setUp(self):
+        self.course_runs = factories.CourseRunFactory.create_batch(3)
+        self.course = self.course_runs[0].course
+        self.course_run = self.course_runs[0]
+        self.program_type = ProgramType.objects.get(slug='masters')
+        self.partner = factories.PartnerFactory()
+        self.degree = factories.DegreeFactory(courses=[self.course], type=self.program_type, partner=self.partner)
+        self.currency = Currency.objects.get(code='USD')
+        self.curriculum = Curriculum.objects.create(program=self.degree, uuid=uuid.uuid4())
+        self.curriculum_course = factories.CurriculumCourseMembershipFactory(
+            curriculum=self.curriculum,
+            course=self.course
+        )
+
+    @override_switch('masters_course_mode_enabled', active=False)
+    @mock.patch('course_discovery.apps.course_metadata.signals.OAuthAPIClient')
+    def test_seat_post_save_waffle_inactive(self, mock_client_init):
+        mock_client = mock_client_init.return_value
+
+        Seat.objects.create(
+            course_run=self.course_run,
+            type=Seat.MASTERS,
+            currency=self.currency
+        )
+
+        self.assertFalse(mock_client.put.called)
+
+    @override_switch('masters_course_mode_enabled', active=True)
+    @mock.patch('course_discovery.apps.course_metadata.signals.OAuthAPIClient')
+    def test_seat_post_save_waffle_flag_active(self, mock_client_init):
+        mock_client = mock_client_init.return_value
+
+        Seat.objects.create(
+            course_run=self.course_run,
+            type=Seat.MASTERS,
+            currency=self.currency
+        )
+
+        course_run_key = self.course_run.key
+        expected_call_url = self.partner.lms_commerce_api_url + 'courses/{}/'.format(course_run_key)
+        expected_call_data = {
+            'id': course_run_key,
+            'modes': _seats_for_course_run(self.course_run),
+        }
+
+        mock_client.put.assert_called_with(expected_call_url, json=expected_call_data)
+
+    @override_switch('masters_course_mode_enabled', active=True)
+    @mock.patch('course_discovery.apps.course_metadata.signals.OAuthAPIClient')
+    def test_seat_post_save_waffle_flag_active_bad_response(self, mock_client_init):
+        mock_client = mock_client_init.return_value
+        course_run_key = self.course_run.key
+        mock_client.put.return_value.ok = False
+
+        with LogCapture(LOGGER_NAME) as log:
+            Seat.objects.create(
+                course_run=self.course_run,
+                type=Seat.MASTERS,
+                currency=self.currency
+            )
+            log.check(
+                (
+                    LOGGER_NAME,
+                    'ERROR',
+                    'Failed to add masters course_mode to course_run [{}] in commerce api to LMS.'.format(
+                        course_run_key)
+                )
+            )
+
+    @override_switch('masters_course_mode_enabled', active=True)
+    @mock.patch('course_discovery.apps.course_metadata.signals.OAuthAPIClient')
+    def test_seat_post_save_program_not_masters(self, mock_client_init):
+        mock_client = mock_client_init.return_value
+        self.program_type.slug = 'not_masters'
+        self.program_type.save()
+
+        Seat.objects.create(
+            course_run=self.course_run,
+            type=Seat.MASTERS,
+            currency=self.currency
+        )
+
+        self.assertFalse(mock_client.put.called)
+
+    @override_switch('masters_course_mode_enabled', active=True)
+    @mock.patch('course_discovery.apps.course_metadata.signals.OAuthAPIClient')
+    def test_seat_post_save_empty_commerce_api_url(self, mock_client_init):
+        mock_client = mock_client_init.return_value
+        self.partner.lms_commerce_api_url = ''
+        self.partner.save()
+
+        Seat.objects.create(
+            course_run=self.course_run,
+            type=Seat.MASTERS,
+            currency=self.currency
+        )
+
+        self.assertFalse(mock_client.put.called)
+
+
 class CurriculumCourseMembershipTests(TestCase):
     """ Tests of the CurriculumCourseMembership model """
     def setUp(self):
@@ -68,40 +172,31 @@ class CurriculumCourseMembershipTests(TestCase):
         self.curriculum = Curriculum.objects.create(program=self.degree, uuid=uuid.uuid4())
 
     @override_switch('masters_course_mode_enabled', active=False)
-    @mock.patch('course_discovery.apps.course_metadata.signals.OAuthAPIClient')
-    def test_course_curriculum_membership_side_effect_flag_inactive(self, mock_client_init):
-        mock_client = mock_client_init.return_value
+    def test_course_curriculum_membership_side_effect_flag_inactive(self):
 
         CurriculumCourseMembership.objects.create(
             course=self.course,
             curriculum=self.curriculum
         )
 
-        self.assertFalse(mock_client.put.called)
+        for course_run in self.course_runs:
+            for seat in course_run.seats.all():
+                self.assertFalse(seat.type == Seat.MASTERS)
 
     @override_switch('masters_course_mode_enabled', active=True)
-    @mock.patch('course_discovery.apps.course_metadata.signals.OAuthAPIClient')
-    def test_course_curriculum_membership_side_effect_flag_active(self, mock_client_init):
-        mock_client = mock_client_init.return_value
+    def test_course_curriculum_membership_side_effect_flag_active(self):
+        with mock.patch('course_discovery.apps.course_metadata.signals.OAuthAPIClient'):
+            CurriculumCourseMembership.objects.create(
+                course=self.course,
+                curriculum=self.curriculum
+            )
 
-        CurriculumCourseMembership.objects.create(
-            course=self.course,
-            curriculum=self.curriculum
-        )
-
-        course_run_key = self.course_runs[0].key
-        expected_call_url = self.partner.lms_commerce_api_url + 'courses/{}/'.format(course_run_key)
-        expected_call_data = {
-            'id': course_run_key,
-            'modes': _seats_for_course_run(self.course_runs[0]),
-        }
-
-        mock_client.put.assert_called_with(expected_call_url, json=expected_call_data)
+            for course_run in self.course_runs:
+                for seat in course_run.seats.all():
+                    self.assertTrue(seat.type == Seat.MASTERS)
 
     @override_switch('masters_course_mode_enabled', active=True)
-    @mock.patch('course_discovery.apps.course_metadata.signals.OAuthAPIClient')
-    def test_course_curriculum_membership_side_effect_not_masters(self, mock_client_init):
-        mock_client = mock_client_init.return_value
+    def test_course_curriculum_membership_side_effect_not_masters(self):
         self.program_type.slug = 'not_masters'
         self.program_type.save()
 
@@ -110,60 +205,6 @@ class CurriculumCourseMembershipTests(TestCase):
             curriculum=self.curriculum
         )
 
-        self.assertFalse(mock_client.put.called)
-
-    @override_switch('masters_course_mode_enabled', active=True)
-    @mock.patch('course_discovery.apps.course_metadata.signals.OAuthAPIClient')
-    def test_course_curriculum_membership_side_effect_empty_commerce_api_url(self, mock_client_init):
-        mock_client = mock_client_init.return_value
-        self.partner.lms_commerce_api_url = ''
-        self.partner.save()
-
-        CurriculumCourseMembership.objects.create(
-            course=self.course,
-            curriculum=self.curriculum
-        )
-
-        self.assertFalse(mock_client.put.called)
-
-    def test_seats_for_course_run_helper_method_has_seats(self):
-        course_run = factories.CourseRunFactory(
-            end=datetime(9999, 1, 1, tzinfo=UTC),
-            enrollment_end=datetime(9999, 1, 1, tzinfo=UTC)
-        )
-        seat = factories.SeatFactory(course_run=course_run, upgrade_deadline=None)
-
-        expected_seat_list = [{
-            'bulk_sku': seat.bulk_sku,
-            'currency': seat.currency.code,
-            'expires': None,
-            'name': seat.type,
-            'price': int(seat.price),
-            'sku': seat.sku
-        }, {
-            'bulk_sku': None,
-            'currency': 'usd',
-            'expires': None,
-            'name': 'masters',
-            'price': 0,
-            'sku': None
-        }]
-
-        self.assertEqual(_seats_for_course_run(course_run), expected_seat_list)
-
-    def test_seats_for_course_run_helper_method_no_seats(self):
-        course_run = factories.CourseRunFactory(
-            end=datetime(9999, 1, 1, tzinfo=UTC),
-            enrollment_end=datetime(9999, 1, 1, tzinfo=UTC)
-        )
-
-        expected_seat_list = [{
-            'bulk_sku': None,
-            'currency': 'usd',
-            'expires': None,
-            'name': 'masters',
-            'price': 0,
-            'sku': None
-        }]
-
-        self.assertEqual(_seats_for_course_run(course_run), expected_seat_list)
+        for course_run in self.course_runs:
+            for seat in course_run.seats.all():
+                self.assertFalse(seat.type == Seat.MASTERS)

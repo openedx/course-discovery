@@ -1034,8 +1034,9 @@ class Seat(DraftModelMixin, TimeStampedModel):
     VERIFIED = 'verified'
     PROFESSIONAL = 'professional'
     CREDIT = 'credit'
+    MASTERS = 'masters'
 
-    SEAT_TYPES = [HONOR, AUDIT, VERIFIED, PROFESSIONAL, CREDIT]
+    SEAT_TYPES = [HONOR, AUDIT, VERIFIED, PROFESSIONAL, CREDIT, MASTERS]
     ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL]
 
     # Seat types that may not be purchased without first purchasing another Seat type.
@@ -1048,6 +1049,7 @@ class Seat(DraftModelMixin, TimeStampedModel):
         (VERIFIED, _('Verified')),
         (PROFESSIONAL, _('Professional')),
         (CREDIT, _('Credit')),
+        (MASTERS, _('Masters')),
     )
 
     PRICE_FIELD_CONFIG = {
@@ -1834,7 +1836,7 @@ class CurriculumCourseMembership(TimeStampedModel):
     Represents the Courses that compose the curriculum of a degree.
     """
     curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='curriculum_course_membership')
     course_run_exclusions = models.ManyToManyField(
         CourseRun, through='course_metadata.CurriculumCourseRunExclusion', related_name='curriculum_course_membership'
     )
