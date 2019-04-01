@@ -9,7 +9,7 @@ class DraftManagerTests(TestCase):
     def setUp(self):
         self.draft = CourseRunFactory(draft=True)
         self.nondraft = CourseRunFactory(draft=False, uuid=self.draft.uuid, key=self.draft.key,
-                                         course=self.draft.course)
+                                         course=self.draft.course, draft_version=self.draft)
 
     def test_base_filter(self):
         """
@@ -27,27 +27,6 @@ class DraftManagerTests(TestCase):
         self.assertEqual(CourseRun._base_manager.count(), 2)  # pylint: disable=protected-access
         self.assertEqual(CourseRun.objects.with_drafts().count(), 2)
         self.assertEqual(CourseRun.objects.count(), 1)  # sanity check
-
-    def test_find_drafts(self):
-        extra_draft = CourseRunFactory(draft=True)
-        extra_nondraft = CourseRunFactory(draft=False)
-
-        result = CourseRun.objects.find_drafts()
-        self.assertIsInstance(result, list)
-        self.assertEqual(len(result), 3)
-        self.assertEqual(set(result), {extra_draft, extra_nondraft, self.draft})
-
-    def test_find_drafts_with_kwargs(self):
-        extra = CourseRunFactory()
-
-        result = CourseRun.objects.find_drafts(course=extra.course)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0], extra)
-
-    def test_find_drafts_ignores_draft_arg(self):
-        result = CourseRun.objects.find_drafts(draft=False)
-        self.assertEqual(len(result), 1)
-        self.assertTrue(result[0].draft)
 
     def test_filter_drafts(self):
         extra = CourseRunFactory()
