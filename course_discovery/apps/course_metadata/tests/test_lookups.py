@@ -130,15 +130,14 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
             self.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
 
         disco_course = CourseFactory(authoring_organizations=[self.organizations[0]])
+        disco_course2 = CourseFactory(authoring_organizations=[self.organizations[1]])
         CourseRunFactory(course=disco_course, staff=[first_instructor])
+        CourseRunFactory(course=disco_course2, staff=[second_instructor])
 
         self.user.groups.add(self.organization_extensions[0].group)
 
-    def query(self, q, org=None):
+    def query(self, q):
         query_params = '?q={q}'.format(q=q)
-
-        if org:
-            query_params = query_params + '&org={org}'.format(org=org)
 
         return self.client.get(
             reverse('admin_metadata:person-autocomplete') + query_params
@@ -252,10 +251,29 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
         assert data.get('results') == expected_results
 
+    def test_instructor_autocomplete_without_rendering(self):
+        person_autocomplete_url = reverse(
+            'admin_metadata:person-autocomplete'
+        ) + '?q={q}&serialize=1'.format(q=self.instructors[0].uuid)
+
+        response = self.client.get(person_autocomplete_url)
+        data = json.loads(response.content.decode('utf-8'))
+        self._assert_response(response, 1)
+        assert data['results'][0]['text']['bio'] == self.instructors[0].bio
+
     def test_autocomplete_limit_by_org(self):
         org = self.organizations[0]
-        response = self.query('ins', org=org.key)
+        person_autocomplete_url = reverse(
+            'admin_metadata:person-autocomplete'
+        ) + '?q=ins'
+        single_autocomplete_url = person_autocomplete_url + '&org={key}'.format(key=org.key)
+        response = self.client.get(single_autocomplete_url)
         self._assert_response(response, 1)
+
+        org2 = self.organizations[1]
+        multiple_autocomplete_url = single_autocomplete_url + '&org={key}'.format(key=org2.key)
+        response = self.client.get(multiple_autocomplete_url)
+        self._assert_response(response, 2)
 
     def _make_user_non_staff(self):
         self.client.logout()
