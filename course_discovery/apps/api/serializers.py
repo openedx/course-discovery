@@ -614,7 +614,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     seats = SeatSerializer(required=False, many=True)
     key = serializers.CharField(required=False)
     title = serializers.CharField(required=False)
-    short_description = serializers.CharField(required=False)
+    short_description = serializers.CharField(required=False, allow_blank=True)
     start = serializers.DateTimeField(required=True)  # required so we can craft key number from it
     end = serializers.DateTimeField(required=True)  # required by studio
 
@@ -696,18 +696,23 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
     course = serializers.SlugRelatedField(required=True, slug_field='key', queryset=Course.objects.all())
     content_language = serializers.SlugRelatedField(
-        required=False, slug_field='code', source='language', queryset=LanguageTag.objects.all(),
+        required=False, allow_null=True, slug_field='code', source='language', queryset=LanguageTag.objects.all(),
         help_text=_('Language in which the course is administered')
     )
     transcript_languages = serializers.SlugRelatedField(
         required=False, many=True, slug_field='code', queryset=LanguageTag.objects.all()
     )
-    video = VideoSerializer(required=False, source='get_video')
+    video = VideoSerializer(required=False, allow_null=True, source='get_video')
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
     staff = MinimalPersonSerializer(required=False, many=True)  # if you change, change to_internal_value too
-    level_type = serializers.SlugRelatedField(required=False, slug_field='name', queryset=LevelType.objects.all())
-    full_description = serializers.CharField(required=False)
-    outcome = serializers.CharField(required=False)
+    level_type = serializers.SlugRelatedField(
+        required=False,
+        allow_null=True,
+        slug_field='name',
+        queryset=LevelType.objects.all()
+    )
+    full_description = serializers.CharField(required=False, allow_blank=True)
+    outcome = serializers.CharField(required=False, allow_blank=True)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
