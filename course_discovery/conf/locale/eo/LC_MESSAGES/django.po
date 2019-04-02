@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-05 20:27+0000\n"
+"POT-Creation-Date: 2019-04-09 15:00+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -107,6 +107,12 @@ msgid ""
 msgstr ""
 "Längüägés thät çöürsé rüns ïn thïs prögräm hävé äväïläßlé tränsçrïpts ïn. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/api/v1/exceptions.py
+msgid "Specifying both editable=1 and a q parameter is not supported."
+msgstr ""
+"Spéçïfýïng ßöth édïtäßlé=1 änd ä q pärämétér ïs nöt süppörtéd. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/api/v1/views/course_runs.py
 msgid "An error occurred while setting course run data."

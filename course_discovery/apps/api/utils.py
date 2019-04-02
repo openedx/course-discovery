@@ -99,7 +99,7 @@ class StudioAPI:
         trimester = math.ceil(start.month / 4.)
         run = '{trimester}T{year}'.format(trimester=trimester, year=start.year)
 
-        related_course_runs = DiscoveryCourseRun.objects.filter(
+        related_course_runs = DiscoveryCourseRun.everything.filter(
             key__contains=course_num
         ).values_list('key', flat=True)
 

@@ -2,13 +2,14 @@ import logging
 
 from django.db import transaction
 from django.db.models.functions import Lower
+from django.http.response import Http404
 from django.utils.translation import ugettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
@@ -16,10 +17,11 @@ from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrReadOnly
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import StudioAPI, get_query_param
-from course_discovery.apps.core.utils import SearchQuerySetWrapper
+from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
+from course_discovery.apps.api.v1.views.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
-from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
 
 
 log = logging.getLogger(__name__)
@@ -30,8 +32,8 @@ def writable_request_wrapper(method):
         try:
             with transaction.atomic():
                 return method(*args, **kwargs)
-        except (PermissionDenied, ValidationError):
-            raise  # just pass along
+        except (PermissionDenied, ValidationError, Http404):
+            raise  # just pass these along
         except Exception as e:  # pylint: disable=broad-except
             log.exception(_('An error occurred while setting course run data.'))
             return Response(_('Failed to set course run data: {}').format(str(e)),
@@ -70,14 +72,22 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         """
         q = self.request.query_params.get('q')
         partner = self.request.site.partner
-        if q:
-            qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))
-            # This is necessary to avoid issues with the filter backend.
-            qs.model = self.queryset.model
-            return qs
+        edit_mode = get_query_param(self.request, 'editable') or self.request.method not in SAFE_METHODS
+
+        if edit_mode and q:
+            raise EditableAndQUnsupported()
+
+        if edit_mode:
+            queryset = CourseRun.objects.filter_drafts()
+            queryset = CourseEditor.editable_course_runs(self.request.user, queryset)
         else:
-            queryset = super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
-            return self.get_serializer_class().prefetch_queryset(queryset=queryset)
+            queryset = self.queryset
+
+        if q:
+            queryset = CourseRun.search(q, queryset=queryset)
+
+        queryset = queryset.filter(course__partner=partner)
+        return self.get_serializer_class().prefetch_queryset(queryset=queryset)
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
@@ -178,6 +188,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         # And finally, save to database and push to studio
         course_run = serializer.save()
+        course_run.draft = True
+        course_run.save()
         self.push_to_studio(request, course_run, create=True, old_course_run=old_course_run)
 
         headers = self.get_success_headers(serializer.data)
@@ -186,8 +198,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
     @writable_request_wrapper
     def update(self, request, *args, **kwargs):
         """ Update one, or more, fields for a course run. """
-
         course_run = self.get_object()
+        course_run = ensure_draft_world(course_run)  # always work on drafts
 
         # Disallow patch or put if the course run is in review.
         if course_run.in_review:
@@ -208,9 +220,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
-        response = super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)
-
-        return response
+        return super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)
 
     @list_route()
     def contains(self, request):
@@ -247,7 +257,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         if query and course_run_ids:
             course_run_ids = course_run_ids.split(',')
-            course_runs = CourseRun.search(query).filter(partner=partner.short_code).filter(key__in=course_run_ids). \
+            course_runs = CourseRun.search(query).filter(course__partner=partner).filter(key__in=course_run_ids). \
                 values_list('key', flat=True)
             contains = {course_run_id: course_run_id in course_runs for course_run_id in course_run_ids}
 
@@ -255,3 +265,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             serializer = serializers.ContainedCourseRunsSerializer(instance)
             return Response(serializer.data)
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, _request, *_args, **_kwargs):
+        """ Delete a course run. """
+        # Not supported
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)

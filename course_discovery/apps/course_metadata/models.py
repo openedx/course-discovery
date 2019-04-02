@@ -604,8 +604,20 @@ class CourseEditor(TimeStampedModel):
         has_user_editor = Q(editors__user=user)
         return queryset.filter(has_user_editor | ~has_valid_editors, authoring_organizations__in=user_orgs)
 
+    @classmethod
+    def editable_course_runs(cls, user, queryset):
+        if user.is_staff:
+            return queryset
 
-class CourseRun(DraftModelMixin, TimeStampedModel):
+        user_orgs = Organization.objects.filter(organization_extension__group__in=user.groups.all())
+        has_valid_editors = Q(
+            course__editors__user__groups__organization_extension__organization__in=F('course__authoring_organizations')
+        )
+        has_user_editor = Q(course__editors__user=user)
+        return queryset.filter(has_user_editor | ~has_valid_editors, course__authoring_organizations__in=user_orgs)
+
+
+class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
     """ CourseRun model. """
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, related_name='course_runs')
@@ -969,26 +981,6 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
     def get_video(self):
         return self.video or self.course.video
 
-    @classmethod
-    def search(cls, query):
-        """ Queries the search index.
-
-        Args:
-            query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
-
-        Returns:
-            SearchQuerySet
-        """
-        query = clean_query(query)
-        queryset = SearchQuerySet().models(cls)
-
-        if query == '(*)':
-            # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
-            # want everything, we don't need to actually query elasticsearch at all.
-            return queryset.load_all()
-
-        return queryset.raw_search(query).load_all()
-
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
@@ -999,7 +991,8 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             self.course.partner.has_marketing_site and
             waffle.switch_is_active('publish_course_runs_to_marketing_site') and
             # Pop to clean the kwargs for the base class save call below
-            not suppress_publication
+            not suppress_publication and
+            not self.draft
         )
 
         if is_publishable:
@@ -1016,7 +1009,6 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
                 super(CourseRun, self).save(*args, **kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
-            logger.info('Course run [%s] is not publishable.', self.key)
             super(CourseRun, self).save(*args, **kwargs)
 
         if is_new_course_run:

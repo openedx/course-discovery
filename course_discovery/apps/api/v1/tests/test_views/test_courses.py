@@ -11,6 +11,7 @@ from mock import mock
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 
+from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
@@ -364,6 +365,16 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(reverse('api:v1:course-detail', kwargs={'key': extra.uuid}) + '?editable=1')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_course(extra, many=False))
+
+    def test_list_query_with_editable_raises_exception(self):
+        """ Verify the endpoint raises an exception if both a q param and editable=1 are passed in """
+        query = 'title:Some random title'
+        url = '{root}?q={query}&editable=1'.format(root=reverse('api:v1:course-list'), query=query)
+
+        with pytest.raises(EditableAndQUnsupported) as exc:
+            self.client.get(url)
+
+        self.assertEqual(str(exc.value), 'Specifying both editable=1 and a q parameter is not supported.')
 
     def test_course_without_editors(self):
         """ Verify we can modify a course with no editors if we're in its authoring org. """

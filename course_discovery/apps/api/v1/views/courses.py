@@ -22,6 +22,7 @@ from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import get_query_param
+from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.views.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
@@ -102,6 +103,9 @@ class CourseViewSet(viewsets.ModelViewSet):
         partner = self.request.site.partner
         q = self.request.query_params.get('q')
         edit_mode = get_query_param(self.request, 'editable') or self.request.method not in SAFE_METHODS
+
+        if edit_mode and q:
+            raise EditableAndQUnsupported()
 
         # Start with either draft versions or real versions of the courses
         if edit_mode:
