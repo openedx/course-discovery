@@ -33,7 +33,7 @@ class CatalogQueryContainsViewSet(GenericAPIView):
                 course_run_ids = course_run_ids.split(',')
                 specified_course_ids = course_run_ids
                 identified_course_ids.update(CourseRun.search(query).filter(
-                    partner=partner.short_code, key__in=course_run_ids).values_list('key', flat=True))
+                    course__partner=partner, key__in=course_run_ids).values_list('key', flat=True))
             if course_uuids:
                 course_uuids = [UUID(course_uuid) for course_uuid in course_uuids.split(',')]
                 specified_course_ids += course_uuids

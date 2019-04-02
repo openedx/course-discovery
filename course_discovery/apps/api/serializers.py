@@ -525,7 +525,7 @@ class SeatSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return Seat.objects.all().select_related('currency')
+        return Seat.everything.all().select_related('currency')
 
     class Meta(object):
         model = Seat
@@ -545,7 +545,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return CourseEntitlement.objects.all().select_related('currency', 'mode')
+        return CourseEntitlement.everything.all().select_related('currency', 'mode')
 
     class Meta(object):
         model = CourseEntitlement

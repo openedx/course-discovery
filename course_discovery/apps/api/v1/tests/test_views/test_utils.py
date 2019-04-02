@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.views import utils
-from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory
 )
@@ -91,8 +91,9 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
 
         # Seat checks
         draft_seats = ensured_draft_course_run.seats.all()
-        not_draft_seats = Seat.objects.filter(course_run=not_draft_course_run)
+        not_draft_seats = not_draft_course_run.seats.all()
         self.assertNotEqual(draft_seats, not_draft_seats)
+        self.assertEqual(len(draft_seats), len(not_draft_seats))
         for i, __ in enumerate(draft_seats):
             self.assertEqual(draft_seats[i].price, not_draft_seats[i].price)
             self.assertEqual(draft_seats[i].sku, not_draft_seats[i].sku)
@@ -102,8 +103,8 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
             self.assertEqual(not_draft_seats[i].draft_version, draft_seats[i])
 
         # Check draft course is also created
-        not_draft_course = Course.objects.get(uuid=course.uuid)
         draft_course = ensured_draft_course_run.course
+        not_draft_course = Course.objects.get(uuid=course.uuid)
         self.assertNotEqual(draft_course, not_draft_course)
         self.assertEqual(draft_course.uuid, not_draft_course.uuid)
         self.assertTrue(draft_course.draft)
@@ -152,7 +153,7 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
 
         # Entitlement checks
         draft_entitlement = ensured_draft_course.entitlements.first()
-        not_draft_entitlement = CourseEntitlement.objects.get(course=not_draft_course)
+        not_draft_entitlement = not_draft_course.entitlements.first()
         self.assertNotEqual(draft_entitlement, not_draft_entitlement)
         self.assertEqual(draft_entitlement.price, not_draft_entitlement.price)
         self.assertEqual(draft_entitlement.sku, not_draft_entitlement.sku)
