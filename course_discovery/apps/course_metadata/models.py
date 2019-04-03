@@ -58,8 +58,8 @@ class DraftModelMixin(models.Model):
     .. no_pii:
     """
     draft = models.BooleanField(default=False, help_text='Is this a draft version?')
-    draft_version = models.OneToOneField('self', models.CASCADE, null=True, related_name='official_version',
-                                         limit_choices_to={'draft': True})
+    draft_version = models.OneToOneField('self', models.CASCADE, null=True, blank=True,
+                                         related_name='official_version', limit_choices_to={'draft': True})
 
     objects = DraftManager()
 
