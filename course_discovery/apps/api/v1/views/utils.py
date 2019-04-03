@@ -20,14 +20,25 @@ def set_draft_state(obj, model, attrs=None):
     original_obj = model.objects.get(pk=obj.pk)
     obj.pk = None
     obj.draft = True
+
+    # Now set fields we were told to
     if attrs:
         for key, value in attrs.items():
             setattr(obj, key, value)
+
     # Will throw an integrity error if the draft row already exists, but this
     # should be caught as part of a try catch in the API calling ensure_draft_world
     obj.save()
+
     original_obj.draft_version = obj
     original_obj.save()
+
+    # Copy many-to-many fields manually (they are not copied by the pk=None trick above).
+    # This must be done after the save() because we need an id.
+    for field in model._meta.get_fields():
+        if field.many_to_many and not field.auto_created:
+            getattr(obj, field.name).add(*list(getattr(original_obj, field.name).all()))
+
     return obj, original_obj
 
 

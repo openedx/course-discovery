@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models.functions import Lower
+from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django_filters.rest_framework import DjangoFilterBackend
@@ -13,7 +14,7 @@ from edx_rest_api_client.client import OAuthAPIClient
 from rest_framework import filters as rest_framework_filters
 from rest_framework import status, viewsets
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
@@ -21,6 +22,7 @@ from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import get_query_param
+from course_discovery.apps.api.v1.views.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
@@ -42,8 +44,8 @@ def writable_request_wrapper(method):
         except ValidationError as exc:
             return Response(exc.message if hasattr(exc, 'message') else str(exc),
                             status=status.HTTP_400_BAD_REQUEST)
-        except PermissionDenied:
-            raise  # just pass a 403 along
+        except (PermissionDenied, Http404):
+            raise  # just pass these along
         except EcommerceAPIClientException as e:
             logger.exception(
                 _('The following error occurred while setting the Course Entitlement data in E-commerce: '
@@ -99,9 +101,10 @@ class CourseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         partner = self.request.site.partner
         q = self.request.query_params.get('q')
+        edit_mode = get_query_param(self.request, 'editable') or self.request.method not in SAFE_METHODS
 
         # Start with either draft versions or real versions of the courses
-        if get_query_param(self.request, 'editable'):
+        if edit_mode:
             queryset = Course.objects.filter_drafts()
             queryset = CourseEditor.editable_courses(self.request.user, queryset)
         else:
@@ -111,10 +114,13 @@ class CourseViewSet(viewsets.ModelViewSet):
             queryset = Course.search(q, queryset=queryset)
             queryset = self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
         else:
-            if get_query_param(self.request, 'include_hidden_course_runs'):
-                course_runs = CourseRun.objects.filter(course__partner=partner)
+            if edit_mode:
+                course_runs = CourseRun.objects.filter_drafts(course__partner=partner)
             else:
-                course_runs = CourseRun.objects.filter(course__partner=partner).exclude(hidden=True)
+                course_runs = CourseRun.objects.filter(course__partner=partner)
+
+            if not get_query_param(self.request, 'include_hidden_course_runs'):
+                course_runs = course_runs.exclude(hidden=True)
 
             if get_query_param(self.request, 'marketable_course_runs_only'):
                 course_runs = course_runs.marketable().active()
@@ -199,7 +205,13 @@ class CourseViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=course_creation_fields)
         serializer.is_valid(raise_exception=True)
 
+        # Confirm that this course doesn't already exist in an official non-draft form
+        if Course.objects.filter(partner=partner, key=course_creation_fields['key']).exists():
+            raise Exception(_('A course with key {key} already exists.').format(key=course_creation_fields['key']))
+
         course = serializer.save()
+        course.draft = True
+        course.save()
 
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
@@ -212,6 +224,7 @@ class CourseViewSet(viewsets.ModelViewSet):
                 mode=mode,
                 partner=partner,
                 price=price,
+                draft=True,
             )
 
             ecom_response = self.push_ecommerce_entitlement(partner, course, entitlement)
@@ -231,7 +244,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         if not mode:
             raise ValidationError(_('Entitlement mode {} not found.').format(data['mode']))
 
-        entitlement = CourseEntitlement.objects.filter(course=course, mode=mode).first()
+        entitlement = CourseEntitlement.everything.filter(course=course, mode=mode, draft=True).first()
         if not entitlement:
             raise ValidationError(_('Existing entitlement not found for mode {0} in course {1}.')
                                   .format(data['mode'], course.key))
@@ -254,6 +267,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         # Get and validate object serializer
         course = self.get_object()
+        course = ensure_draft_world(course)  # always work on drafts
         serializer = self.get_serializer(course, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
