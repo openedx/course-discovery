@@ -5,7 +5,7 @@ from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.views import utils
 from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, SeatFactory
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory
 )
 
 
@@ -121,6 +121,8 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
             course.course_runs.add(run)
         course.canonical_course_run = course_runs[0]
         course.save()
+        org = OrganizationFactory()
+        course.authoring_organizations.add(org)  # pylint: disable=no-member
 
         ensured_draft_course = utils.ensure_draft_world(course)
         not_draft_course = Course.objects.get(uuid=course.uuid)
@@ -131,6 +133,10 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
 
         # Check slugs are equal
         self.assertEqual(ensured_draft_course.slug, not_draft_course.slug)
+
+        # Check authoring orgs are equal
+        self.assertEqual(list(ensured_draft_course.authoring_organizations.all()),
+                         list(not_draft_course.authoring_organizations.all()))
 
         # Check canonical course run was updated
         self.assertNotEqual(ensured_draft_course.canonical_course_run, not_draft_course.canonical_course_run)

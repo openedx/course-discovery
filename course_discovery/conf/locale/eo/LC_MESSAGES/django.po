@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-03 19:58+0000\n"
+"POT-Creation-Date: 2019-04-05 13:17+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -167,6 +167,13 @@ msgstr ""
 #: apps/api/v1/views/courses.py
 msgid "Incorrect data sent. "
 msgstr "Ìnçörréçt dätä sént.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid "A course with key {key} already exists."
+msgstr ""
+"À çöürsé wïth kéý {key} älréädý éxïsts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
 
 #: apps/api/v1/views/courses.py
 msgid "Entitlements must have a mode specified."
