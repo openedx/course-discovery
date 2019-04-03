@@ -13,7 +13,7 @@ from rest_framework.test import APIRequestFactory
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseRunFactory, OrganizationFactory, PersonFactory, ProgramFactory, SeatFactory
@@ -355,6 +355,40 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         self.course_run.refresh_from_db()
         self.assertEqual(self.course_run.title_override, 'New Title')
+
+    @ddt.data(
+        CourseRunStatus.LegalReview,
+        CourseRunStatus.InternalReview,
+    )
+    def test_patch_put_restrict_when_reviewing(self, status):
+        self.course_run.status = status
+        self.course_run.save()
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
+        response = self.client.put(url, {
+            'course': self.course_run.course.key,  # required, so we need for a put
+            'start': self.course_run.start,  # required, so we need for a put
+            'end': self.course_run.end,  # required, so we need for a put
+        }, format='json')
+        assert response.status_code == 403
+
+        response = self.client.patch(url, {}, format='json')
+        assert response.status_code == 403
+
+    @responses.activate
+    def test_patch_put_reset_status(self):
+        self.mock_patch_to_studio(self.course_run.key)
+        self.course_run.status = CourseRunStatus.Reviewed
+        self.course_run.save()
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
+        response = self.client.put(url, {
+            'course': self.course_run.course.key,  # required, so we need for a put
+            'start': self.course_run.start,  # required, so we need for a put
+            'end': self.course_run.end,  # required, so we need for a put
+            'status': 'reviewed',
+        }, format='json')
+        assert response.status_code == 200
+        self.course_run.refresh_from_db()
+        assert self.course_run.status == CourseRunStatus.Unpublished
 
     def test_list(self):
         """ Verify the endpoint returns a list of all course runs. """

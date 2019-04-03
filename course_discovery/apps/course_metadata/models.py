@@ -895,6 +895,10 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
     def outcome(self):
         return self.outcome_override or self.course.outcome
 
+    @property
+    def in_review(self):
+        return self.status in CourseRunStatus.REVIEW_STATES()
+
     @outcome.setter
     def outcome(self, value):
         # Treat empty strings as NULL

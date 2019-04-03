@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-01 20:10+0000\n"
+"POT-Creation-Date: 2019-04-03 19:58+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -118,6 +118,12 @@ msgstr ""
 msgid "Failed to set course run data: {}"
 msgstr ""
 "Fäïléd tö sét çöürsé rün dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/api/v1/views/course_runs.py
+msgid "Course run is in review. Editing disabled."
+msgstr ""
+"Çöürsé rün ïs ïn révïéw. Édïtïng dïsäßléd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/api/v1/views/courses.py
 #, python-brace-format
@@ -437,6 +443,19 @@ msgstr "Püßlïshéd Ⱡ'σяєм ιρѕυм ∂σł#"
 #: apps/course_metadata/choices.py apps/course_metadata/choices.py
 msgid "Unpublished"
 msgstr "Ûnpüßlïshéd Ⱡ'σяєм ιρѕυм ∂σłσя #"
+
+#: apps/course_metadata/choices.py
+#: apps/publisher/templates/publisher/_approval_widget.html
+msgid "Reviewed"
+msgstr "Révïéwéd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/choices.py
+msgid "Awaiting Review from Legal"
+msgstr "Àwäïtïng Révïéw fröm Légäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Awaiting Internal Review"
+msgstr "Àwäïtïng Ìntérnäl Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #. Translators: Instructor-paced refers to course runs that operate on a
 #. schedule set by the instructor,
@@ -1940,10 +1959,6 @@ msgstr "Nöt äväïläßlé Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Sent for Review"
 msgstr "Sént för Révïéw Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
-
-#: apps/publisher/templates/publisher/_approval_widget.html
-msgid "Reviewed"
-msgstr "Révïéwéd Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "day in ownership"

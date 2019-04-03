@@ -5,6 +5,13 @@ from djchoices import ChoiceItem, DjangoChoices
 class CourseRunStatus(DjangoChoices):
     Published = ChoiceItem('published', _('Published'))
     Unpublished = ChoiceItem('unpublished', _('Unpublished'))
+    Reviewed = ChoiceItem('reviewed', _('Reviewed'))
+    LegalReview = ChoiceItem('review_by_legal', _('Awaiting Review from Legal'))
+    InternalReview = ChoiceItem('review_by_internal', _('Awaiting Internal Review'))
+
+    @classmethod
+    def REVIEW_STATES(cls):
+        return [cls.LegalReview, cls.InternalReview]
 
 
 class CourseRunPacing(DjangoChoices):
