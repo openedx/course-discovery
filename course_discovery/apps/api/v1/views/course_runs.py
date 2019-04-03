@@ -17,6 +17,7 @@ from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrRea
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import StudioAPI, get_query_param
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 
@@ -185,9 +186,22 @@ class CourseRunViewSet(viewsets.ModelViewSet):
     @writable_request_wrapper
     def update(self, request, *args, **kwargs):
         """ Update one, or more, fields for a course run. """
-        response = super().update(request, *args, **kwargs)
 
         course_run = self.get_object()
+
+        # Disallow patch or put if the course run is in review.
+        if course_run.in_review:
+            return Response(
+                _('Course run is in review. Editing disabled.'),
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # If changes are made after review and before publish,
+        # revert status to unpublished.
+        if course_run.status == CourseRunStatus.Reviewed:
+            request.data['status'] = CourseRunStatus.Unpublished
+
+        response = super().update(request, *args, **kwargs)
         self.push_to_studio(request, course_run, create=False)
 
         return response
