@@ -133,9 +133,10 @@ class Course(TimeStampedModel, ChangedByMixin):
         against a course. By default if attribute value does not exists
         then user will be eligible for emails.
         """
-        users_list_roles = [obj.user for obj in self.course_user_roles.all()]
-
-        user_emails = [user.email for user in users_list_roles if is_email_notification_enabled(user)]
+        user_emails = [
+            role.user.email for role in self.course_user_roles.all()
+            if is_email_notification_enabled(role.user)
+        ]
 
         return user_emails
 
