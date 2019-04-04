@@ -403,6 +403,19 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             return None
 
     @property
+    def discovery_course(self):
+        """
+        To retrieve the Discovery course run's parent course.
+
+        This property can be helpful in cases where we want to check if
+        Discovery run's parent course and Publisher run's parent course are
+        same.
+        """
+        discovery_run = self.discovery_course_run
+        if discovery_run:
+            return discovery_run.course
+
+    @property
     def studio_url(self):
         if self.lms_course_id and self.course.partner and self.course.partner.studio_url:
             path = 'course/{lms_course_id}'.format(lms_course_id=self.lms_course_id)

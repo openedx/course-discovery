@@ -17,7 +17,7 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import CourseRun, SeatType, Video
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
@@ -224,6 +224,63 @@ class CourseRunViewSetTests(APITestCase):
             price=verified_seat.price,
             **common_seat_kwargs
         )
+
+    @responses.activate
+    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    def test_publish_after_discovery_courserun_course_change(self, mock_access_token):  # pylint: disable=unused-argument,too-many-statements
+        """
+        Verify publish works fine when Parent course of a discovery course run
+        is changed manually.
+
+        Scenario: Given that a course run is created in Publisher
+        After pressing Publish, it is published to Discovery
+        Change the newly created Discovery course run's parent course
+        Publish the discovery course run again
+        The publish should work without any error
+        and course run's parent course will not change
+        """
+        publisher_course_run = self._create_course_run_for_publication()
+        partner = publisher_course_run.course.organizations.first().partner
+        self._set_test_client_domain_and_login(partner)
+        self._mock_studio_api_success(publisher_course_run)
+        self._mock_ecommerce_api(publisher_course_run)
+
+        with LogCapture(LOGGER_NAME) as log:
+            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+            response = self.client.post(url, {})
+            assert response.status_code == 200
+            log.check((LOGGER_NAME, 'INFO',
+                       'Published course run with id: [{}] lms_course_id: [{}], user: [{}], date: [{}]'.format(
+                           publisher_course_run.id, publisher_course_run.lms_course_id, self.user, date.today())))
+
+        expected = {
+            'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
+            'ecommerce': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
+            'studio': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
+        }
+        assert response.data == expected
+
+        discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
+        course_run_prev_course = discovery_course_run.course
+
+        new_discovery_course = CourseFactory(title="My Test Course")
+        discovery_course_run.course = new_discovery_course
+        discovery_course_run.save()
+
+        # Verify new course has been associated to the course run
+        assert discovery_course_run.course.title == "My Test Course"
+        assert discovery_course_run.course != course_run_prev_course
+
+        # Publish the course run
+        url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+        response = self.client.post(url, {})
+        assert response.status_code == 200
+        assert response.data == expected
+
+        # Verify that Discovery Course Run is still associated with the manually associated course
+        discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
+        assert discovery_course_run.course.title == new_discovery_course.title
+        assert discovery_course_run.course.uuid == new_discovery_course.uuid
 
     # pylint: disable=unused-argument
     @responses.activate

@@ -154,6 +154,13 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'weeks_to_complete': course_run.length,
             'has_ofac_restrictions': course_run.has_ofac_restrictions
         }
+
+        # Give priority to Discovery course run's parent course rather than
+        # Publisher course run's parent course.
+        discovery_course_run = course_run.discovery_course_run
+        if discovery_course_run and course_run.discovery_course:
+            discovery_course = course_run.discovery_course
+
         discovery_course_run, __ = DiscoveryCourseRun.objects.update_or_create(
             course=discovery_course,
             key=course_run.lms_course_id,
