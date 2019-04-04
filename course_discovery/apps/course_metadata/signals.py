@@ -4,7 +4,6 @@ import waffle
 from django.apps import apps
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
-from edx_rest_api_client.client import OAuthAPIClient
 
 from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Currency
@@ -82,60 +81,70 @@ def publish_masters_track(sender, instance, **kwargs):  # pylint: disable=unused
     related_masters = get_related_masters_program(seat.course_run)
 
     if related_masters:
-        if not related_masters.partner.lms_commerce_api_url:
-            logger.info('No lms commerce api url configured. Masters seat not published')
+        partner = related_masters.partner
+
+        if not partner.lms_api_client:
+            logger.info(
+                'LMS api client is not initiated. Cannot publish [%s] track for [%s] program',
+                seat.type,
+                related_masters.title
+            )
             return
 
-        partner = related_masters.partner
-        commerce_api_client = OAuthAPIClient(partner.lms_url, partner.oidc_key, partner.oidc_secret)
-        _add_masters_track_on_commerce_course_run(
-            seat.course_run, partner.lms_commerce_api_url,
-            commerce_api_client
-        )
+        if not partner.lms_coursemode_api_url:
+            logger.info(
+                'No lms coursemode api url configured. Masters seat for program [%s] not published',
+                related_masters.title
+            )
+            return
+
+        _create_masters_track_on_lms_if_necessary(seat, partner)
 
 
-def _add_masters_track_on_commerce_course_run(course_run, api_url, commerce_api_client):
+def _create_masters_track_on_lms_if_necessary(seat, partner):
     """
-    Given a course_run, api_url, and a commerce_api_client, this helper method will call the commerce api to
-    add the masters track to a course run.
+    Given a seat, the partner object, this helper method will call the course mode api to
+    create the masters track to a course run, if the masters track isn't already created
     """
-
-    course_run_key = course_run.key
-    url = api_url + 'courses/{}/'.format(course_run_key)
+    course_run_key = seat.course_run.key
+    url = partner.lms_coursemode_api_url.rstrip('/') + '/courses/{}/'.format(course_run_key)
+    get_response = partner.lms_api_client.get(url)
+    if _seat_type_exists(get_response.json(), Seat.MASTERS):
+        logger.info('Creating [{}] track on LMS for [{}] while it already have the track.'.format(
+            seat.type,
+            course_run_key,
+        ))
+        return
 
     data = {
-        'id': course_run_key,
-        'modes': _seats_for_course_run(course_run),
+        'course_id': seat.course_run.key,
+        'mode_slug': seat.type,
+        'mode_display_name': seat.type.capitalize(),
+        'currency': str(seat.currency.code) if seat.currency else '',
+        'min_price': int(seat.price),
     }
 
-    response = commerce_api_client.put(url, json=data)
+    response = partner.lms_api_client.post(url, json=data)
 
     if response.ok:
-        logger.info('Successfully published commerce data for [%s].', course_run_key)
+        logger.info('Successfully published [%s] seat data for [%s].', seat.type, course_run_key)
     else:
         logger.exception(
-            'Failed to add masters course_mode to course_run [%s] in commerce api to LMS.',
+            'Failed to add [%s] course_mode to course_run [%s] in course_mode api to LMS.',
+            seat.type,
             course_run_key
         )
 
 
-def _seats_for_course_run(course_run):
-    seats = course_run.enrollable_seats()
-    current_seat_types = [_serialize_seat_as_course_mode_for_commerce_api(seat) for seat in seats]
-    return current_seat_types
+def _seat_type_exists(course_modes, seat_type):
+    """
+    Check if a seat of the specified seat_type already exist within the list passed in.
+    """
+    for course_mode in course_modes:
+        if course_mode['mode_slug'] == seat_type:
+            return True
+    return False
 
-
-def _serialize_seat_as_course_mode_for_commerce_api(seat):
-    """ Serializes a course seat product to a dict that can be further serialized to JSON. """
-
-    return {
-        'name': seat.type,
-        'currency': str(seat.currency.code) if seat.currency else '',
-        'price': int(seat.price),
-        'sku': seat.sku,
-        'bulk_sku': seat.bulk_sku,
-        'expires': seat.upgrade_deadline.isoformat() if seat.upgrade_deadline else None,
-    }
 
 # Invalidate API cache when any model in the course_metadata app is saved or
 # deleted. Given how interconnected our data is and how infrequently our models
