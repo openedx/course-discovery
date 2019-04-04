@@ -1,5 +1,4 @@
 import logging
-
 from django.conf import settings
 from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
@@ -25,7 +24,7 @@ def send_email_for_studio_instance_created(course_run, site):
     try:
         course_key = CourseKey.from_string(course_run.lms_course_id)
         object_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
-        subject = _('Studio URL created: {title} {run_number}').format(     # pylint: disable=no-member
+        subject = _('Studio URL created: {title} {run_number}').format(  # pylint: disable=no-member
             title=course_run.course.title,
             run_number=course_key.run
         )
@@ -430,7 +429,7 @@ def send_email_preview_page_is_available(course_run, site):
     try:
         if is_email_notification_enabled(course_team_user):
             course_key = CourseKey.from_string(course_run.lms_course_id)
-            subject = _('Review requested: Preview for {course_name} {run_number}').format(     # pylint: disable=no-member
+            subject = _('Review requested: Preview for {course_name} {run_number}').format(  # pylint: disable=no-member
                 course_name=course_run.course.title,
                 run_number=course_key.run
             )
@@ -480,7 +479,7 @@ def send_course_run_published_email(course_run, site):
     try:
         if is_email_notification_enabled(course_team_user):
             course_key = CourseKey.from_string(course_run.lms_course_id)
-            subject = _('Publication complete: About page for {course_name} {run_number}').format(     # pylint: disable=no-member
+            subject = _('Publication complete: About page for {course_name} {run_number}').format(  # pylint:disable=no-member
                 course_name=course_run.course.title,
                 run_number=course_key.run
             )
@@ -534,30 +533,34 @@ def send_change_role_assignment_email(course_role, former_user, site):
     """
     txt_template = 'publisher/email/role_assignment_changed.txt'
     html_template = 'publisher/email/role_assignment_changed.html'
+    course = course_role.course
+    project_coordinator = course.project_coordinator
+    course_team_admin = course.course_team_admin
+    from_address = settings.PUBLISHER_FROM_EMAIL
 
     try:
         role_name = course_role.get_role_display()
         subject = _('{role_name} changed for {course_title}').format(  # pylint: disable=no-member
             role_name=role_name.lower(),
-            course_title=course_role.course.title
+            course_title=course.title
         )
-        to_addresses = course_role.course.get_course_users_emails()
-        to_addresses.append(former_user.email)
-        if course_role.course.course_team_admin:
-            to_addresses.remove(course_role.course.course_team_admin.email)
 
-        from_address = settings.PUBLISHER_FROM_EMAIL
-        project_coordinator = course_role.course.project_coordinator
-        page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course_role.course.id})
+        to_addresses = course.get_course_users_emails()
+        if former_user.email not in to_addresses:
+            to_addresses.append(former_user.email)
+
+        if course_team_admin and course_team_admin.email in to_addresses:
+            to_addresses.remove(course_team_admin.email)
+
+        page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course.id})
+        course_url = 'https://{host}{path}'.format(host=site.domain.strip('/'), path=page_path)
         context = {
-            'course_title': course_role.course.title,
+            'course_title': course.title,
             'role_name': role_name.lower(),
             'former_user_name': former_user.get_full_name() or former_user.username,
             'current_user_name': course_role.user.get_full_name() or course_role.user.username,
-            'contact_us_email': project_coordinator.email if project_coordinator else '',
-            'course_url': 'https://{host}{path}'.format(
-                host=site.domain.strip('/'), path=page_path
-            ),
+            'contact_us_email': getattr(project_coordinator, 'email', ''),
+            'course_url': course_url,
             'platform_name': settings.PLATFORM_NAME,
         }
         template = get_template(txt_template)
@@ -565,9 +568,7 @@ def send_change_role_assignment_email(course_role, former_user, site):
         template = get_template(html_template)
         html_content = template.render(context)
 
-        email_msg = EmailMultiAlternatives(
-            subject, plain_content, from_address, to=to_addresses
-        )
+        email_msg = EmailMultiAlternatives(subject, plain_content, from_address, to=to_addresses)
         email_msg.attach_alternative(html_content, 'text/html')
         email_msg.send()
 

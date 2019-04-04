@@ -564,15 +564,22 @@ class CourseChangeRoleAssignmentEmailTests(SiteMixin, TestCase):
 
         self.marketing_role = factories.CourseUserRoleFactory(role=PublisherUserRole.MarketingReviewer, user=self.user)
         self.course = self.marketing_role.course
+        self.course_team_role = factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.CourseTeam,
+                                                                user=self.user)
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher)
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator)
-        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.CourseTeam)
 
         toggle_switch('enable_publisher_email_notifications', True)
 
+    def update_user_email_notification_status(self, user, enable=True):
+        """Update user attribute which indicate if the user should receive emails or not."""
+        user_attribute, __ = UserAttributes.objects.get_or_create(user=user)
+        user_attribute.enable_email_notification = enable
+        user_attribute.save()
+
     def test_change_role_assignment_email(self):
         """
-        Verify that course role assignment chnage email functionality works fine.
+        Verify that course role assignment change email functionality works fine.
         """
         emails.send_change_role_assignment_email(self.marketing_role, self.user, self.site)
         expected_subject = '{role_name} changed for {course_title}'.format(
@@ -580,17 +587,37 @@ class CourseChangeRoleAssignmentEmailTests(SiteMixin, TestCase):
             course_title=self.course.title
         )
 
-        expected_emails = set(self.course.get_course_users_emails())
+        expected_emails = self.course.get_course_users_emails()
         expected_emails.remove(self.course.course_team_admin.email)
 
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(expected_emails, set(mail.outbox[0].to))
+        self.assertEqual(expected_emails, mail.outbox[0].to)
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
         body = mail.outbox[0].body.strip()
         page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
         page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=page_path)
         self.assertIn(page_url, body)
         self.assertIn('has changed.', body)
+
+    def test_change_role_with_no_email(self):
+        """
+        Verify that course role assignment change email when a user opt-out of email
+        notifications.
+        """
+        self.update_user_email_notification_status(self.course_team_role.user, enable=False)
+
+        emails.send_change_role_assignment_email(self.marketing_role, self.user, self.site)
+        expected_subject = '{role_name} changed for {course_title}'.format(
+            role_name=self.marketing_role.get_role_display().lower(),
+            course_title=self.course.title
+        )
+
+        expected_emails = self.course.get_course_users_emails()
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertNotIn(self.course_team_role.user.email, mail.outbox[0].to)
+        self.assertEqual(expected_emails, mail.outbox[0].to)
+        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
     def test_change_role_assignment_email_with_error(self):
         """
