@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-05 13:17+0000\n"
+"POT-Creation-Date: 2019-04-05 20:27+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -328,8 +328,8 @@ msgid "Courses API URL"
 msgstr "Çöürsés ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/core/models.py
-msgid "Commerce API URL"
-msgstr "Çömmérçé ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+msgid "Course Mode API URL"
+msgstr "Çöürsé Mödé ÀPÌ ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/core/models.py
 msgid "E-Commerce API URL"

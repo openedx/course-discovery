@@ -8,7 +8,7 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from edx_rest_api_client.client import EdxRestApiClient
+from edx_rest_api_client.client import EdxRestApiClient, OAuthAPIClient
 from guardian.mixins import GuardianUserMixin
 
 
@@ -67,7 +67,9 @@ class Partner(TimeStampedModel):
         max_length=8, unique=True, null=False, blank=False, verbose_name=_('Short Code'),
         help_text=_('Convenient code/slug used to identify this Partner (e.g. for management commands.)'))
     courses_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Courses API URL'))
-    lms_commerce_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Commerce API URL'))
+    lms_coursemode_api_url = models.URLField(
+        max_length=255, null=True, blank=True,
+        verbose_name=_('Course Mode API URL'))
     ecommerce_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('E-Commerce API URL'))
     organizations_api_url = models.URLField(max_length=255, null=True, blank=True,
                                             verbose_name=_('Organizations API URL'))
@@ -128,3 +130,10 @@ class Partner(TimeStampedModel):
     def studio_api_client(self):
         studio_api_url = '{root}/api/v1/'.format(root=self.studio_url.strip('/'))
         return EdxRestApiClient(studio_api_url, jwt=self.access_token)
+
+    @cached_property
+    def lms_api_client(self):
+        if not self.lms_url:
+            return None
+
+        return OAuthAPIClient(self.lms_url.strip('/'), self.oidc_key, self.oidc_secret)

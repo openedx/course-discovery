@@ -50,7 +50,7 @@ class PartnerAdmin(admin.ModelAdmin):
         (_('API Configuration'), {
             'description': _('Configure the APIs that will be used to retrieve data.'),
             'fields': ('courses_api_url',
-                       'lms_commerce_api_url',
+                       'lms_coursemode_api_url',
                        'ecommerce_api_url',
                        'organizations_api_url',
                        'programs_api_url',)

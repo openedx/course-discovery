@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-05 13:17+0000\n"
+"POT-Creation-Date: 2019-04-05 20:27+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -48,35 +48,35 @@ msgstr ""
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:773
+#: apps/api/serializers.py:778
 msgid "Course cannot be changed for an existing course run"
 msgstr ""
 
-#: apps/api/serializers.py:778 apps/publisher/forms.py:359
+#: apps/api/serializers.py:783 apps/publisher/forms.py:359
 msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr ""
 
-#: apps/api/serializers.py:780
+#: apps/api/serializers.py:785
 msgid "Minimum effort and Maximum effort cannot be the same"
 msgstr ""
 
-#: apps/api/serializers.py:782
+#: apps/api/serializers.py:787
 msgid "Maximum effort cannot be empty"
 msgstr ""
 
-#: apps/api/serializers.py:824
+#: apps/api/serializers.py:829
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1013
+#: apps/api/serializers.py:1018
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1333
+#: apps/api/serializers.py:1338
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1337
+#: apps/api/serializers.py:1342
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -112,42 +112,42 @@ msgstr ""
 msgid "Failed to set course data: {}"
 msgstr ""
 
-#: apps/api/v1/views/courses.py:190
+#: apps/api/v1/views/courses.py:194
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:192
+#: apps/api/v1/views/courses.py:196
 msgid "Organization does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:194
+#: apps/api/v1/views/courses.py:198
 msgid "Entitlement Track does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:196
+#: apps/api/v1/views/courses.py:200
 msgid "Incorrect data sent. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:206
+#: apps/api/v1/views/courses.py:210
 #, python-brace-format
 msgid "A course with key {key} already exists."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:237
+#: apps/api/v1/views/courses.py:241
 msgid "Entitlements must have a mode specified."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:241
+#: apps/api/v1/views/courses.py:245
 msgid "Entitlement mode {} not found."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:245
+#: apps/api/v1/views/courses.py:249
 #, python-brace-format
 msgid "Existing entitlement not found for mode {0} in course {1}."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:248
+#: apps/api/v1/views/courses.py:252
 msgid "Entitlement does not have a valid SKU assigned."
 msgstr ""
 
@@ -255,72 +255,72 @@ msgstr ""
 msgid "Courses API URL"
 msgstr ""
 
-#: apps/core/models.py:70
-msgid "Commerce API URL"
+#: apps/core/models.py:71
+msgid "Course Mode API URL"
 msgstr ""
 
-#: apps/core/models.py:71
+#: apps/core/models.py:72
 msgid "E-Commerce API URL"
 msgstr ""
 
-#: apps/core/models.py:73
+#: apps/core/models.py:74
 msgid "Organizations API URL"
 msgstr ""
 
-#: apps/core/models.py:74
+#: apps/core/models.py:75
 msgid "Programs API URL"
 msgstr ""
 
-#: apps/core/models.py:76
+#: apps/core/models.py:77
 msgid "Marketing Site API URL"
 msgstr ""
 
-#: apps/core/models.py:78
+#: apps/core/models.py:79
 msgid "Marketing Site URL"
 msgstr ""
 
-#: apps/core/models.py:80
+#: apps/core/models.py:81
 msgid "Marketing Site API Username"
 msgstr ""
 
-#: apps/core/models.py:82
+#: apps/core/models.py:83
 msgid "Marketing Site API Password"
 msgstr ""
 
-#: apps/core/models.py:83
+#: apps/core/models.py:84
 msgid "OpenID Connect URL"
 msgstr ""
 
-#: apps/core/models.py:84
+#: apps/core/models.py:85
 msgid "OpenID Connect Key"
 msgstr ""
 
-#: apps/core/models.py:85
+#: apps/core/models.py:86
 msgid "OpenID Connect Secret"
 msgstr ""
 
-#: apps/core/models.py:86 apps/publisher/forms.py:289
+#: apps/core/models.py:87 apps/publisher/forms.py:289
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:7
 msgid "Studio URL"
 msgstr ""
 
-#: apps/core/models.py:88
+#: apps/core/models.py:89
 msgid "LMS URL"
 msgstr ""
 
-#: apps/core/models.py:89
+#: apps/core/models.py:90
 msgid "Analytics API URL"
 msgstr ""
 
-#: apps/core/models.py:90
+#: apps/core/models.py:91
 msgid "Analytics Access Token"
 msgstr ""
 
-#: apps/core/models.py:96
+#: apps/core/models.py:97
 msgid "Partner"
 msgstr ""
 
-#: apps/core/models.py:97
+#: apps/core/models.py:98
 msgid "Partners"
 msgstr ""
 
