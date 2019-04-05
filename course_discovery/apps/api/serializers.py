@@ -81,7 +81,7 @@ SELECT_RELATED_FIELDS = {
 }
 
 
-def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False):
+def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False, draft=False, official_version=None):
     """
     Return the given marketing URL with affiliate query parameters for the user.
 
@@ -92,11 +92,12 @@ def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False):
 
     Keyword Arguments:
         exclude_utm (bool): Whether to exclude UTM parameters from marketing URLs.
-
+        draft (bool): True if this is a Draft version
+        official_version: Object for the Official version of the Object, None otherwise
     Returns:
         str | None
     """
-    if not marketing_url:
+    if not marketing_url or (draft and not official_version):
         return None
     elif exclude_utm:
         return marketing_url
@@ -625,6 +626,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
         return queryset.select_related('course').prefetch_related(
+            '_official_version',
             'course__partner',
             Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
         )
@@ -644,7 +646,9 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
                 obj.course.partner,
                 self.context['request'].user,
                 obj.marketing_url,
-                exclude_utm=self.context.get('exclude_utm')
+                exclude_utm=self.context.get('exclude_utm'),
+                draft=obj.draft,
+                official_version=obj.official_version
             )
 
         return marketing_url
@@ -882,7 +886,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'video',
             'video__image',
             'partner',
-            'extra_description'
+            'extra_description',
+            '_official_version',
         ).prefetch_related(
             'expected_learning_items',
             'prerequisites',
@@ -911,7 +916,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             obj.partner,
             self.context['request'].user,
             obj.marketing_url,
-            exclude_utm=self.context.get('exclude_utm')
+            exclude_utm=self.context.get('exclude_utm'),
+            draft=obj.draft,
+            official_version=obj.official_version,
         )
 
     def get_canonical_course_run_key(self, obj):
@@ -945,7 +952,13 @@ class CourseWithProgramsSerializer(CourseSerializer):
         filtered CourseRun queryset.
         """
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
-        return queryset.select_related('level_type', 'video', 'video__image', 'partner').prefetch_related(
+        return queryset.select_related(
+            'level_type',
+            'video',
+            'video__image',
+            'partner',
+        ).prefetch_related(
+            '_official_version',
             'expected_learning_items',
             'prerequisites',
             Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset()),
