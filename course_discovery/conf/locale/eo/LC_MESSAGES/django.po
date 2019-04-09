@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-09 19:08+0000\n"
+"POT-Creation-Date: 2019-04-11 17:08+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1565,6 +1565,10 @@ msgstr "Pröféssïönäl édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Enrollment Track"
 msgstr "Énröllmént Träçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/publisher/forms.py
+msgid "Create Master's Track"
+msgstr "Çréäté Mästér's Träçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/publisher/forms.py apps/publisher/forms.py
 msgid "Price must be greater than or equal to 0.01"

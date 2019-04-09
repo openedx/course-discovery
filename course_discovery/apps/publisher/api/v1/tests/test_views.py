@@ -359,3 +359,26 @@ class CourseRunViewSetTests(APITestCase):
             'studio': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
         }
         assert response.data == expected
+
+    @responses.activate
+    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
+    def test_publish_masters_track_seat(self, mock_access_token):
+        """
+        Test that publishing a seat with masters_track creates a masters seat and masters track
+        """
+        publisher_course_run = self._create_course_run_for_publication()
+        audit_seat_with_masters_track = SeatFactory(type="Audit", course_run=publisher_course_run, masters_track=True)
+        publisher_course_run.seats.add(audit_seat_with_masters_track)
+
+        partner = publisher_course_run.course.organizations.first().partner
+        self._set_test_client_domain_and_login(partner)
+
+        self._mock_studio_api_success(publisher_course_run)
+        self._mock_ecommerce_api(publisher_course_run)
+
+        publish_url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+        response = self.client.post(publish_url, {})
+        assert response.status_code == 200
+        discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
+        assert discovery_course_run.seats.all().count() == 2
+        assert discovery_course_run.seats.filter(type=DiscoverySeat.MASTERS).count() == 1

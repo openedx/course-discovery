@@ -408,9 +408,10 @@ class SeatForm(BaseForm):
     type = forms.ChoiceField(choices=TYPE_CHOICES, required=True, label=_('Enrollment Track'))
     price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
     credit_price = forms.DecimalField(max_digits=6, decimal_places=2, required=False, initial=0.00)
+    masters_track = forms.BooleanField(required=False, initial=False, label=_("Create Master's Track"))
 
     class Meta:
-        fields = ('price', 'type', 'credit_price')
+        fields = ('price', 'type', 'credit_price', 'masters_track')
         model = Seat
 
     def save(self, commit=True, course_run=None, changed_by=None):  # pylint: disable=arguments-differ

@@ -7,6 +7,7 @@ from django.dispatch import receiver
 
 from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.models import CurriculumCourseMembership, Program, Seat
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.waffle import masters_course_mode_enabled
@@ -27,7 +28,7 @@ def delete_program(sender, instance, **kwargs):  # pylint: disable=unused-argume
 
 
 def is_program_masters(program):
-    return program and program.type.slug == 'masters'
+    return program and program.type.slug == MASTERS_PROGRAM_TYPE_SLUG
 
 
 @receiver(post_save, sender=CurriculumCourseMembership)

@@ -23,6 +23,9 @@ from django.views.generic import CreateView, DetailView, ListView, TemplateView,
 from guardian.shortcuts import get_objects_for_user
 
 from course_discovery.apps.core.models import User
+from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
+from course_discovery.apps.course_metadata.models import Course as DiscoveryCourse
+from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
@@ -37,8 +40,8 @@ from course_discovery.apps.publisher.models import (
     PublisherUser, Seat, UserAttributes
 )
 from course_discovery.apps.publisher.utils import (
-    get_internal_users, has_role_for_course, is_internal_user, is_project_coordinator_user, is_publisher_admin,
-    make_bread_crumbs
+    get_course_key, get_internal_users, has_role_for_course, is_internal_user, is_project_coordinator_user,
+    is_publisher_admin, make_bread_crumbs
 )
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -743,6 +746,36 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
 
         return self.last_run
 
+    def _get_discovery_course(self, publisher_course):
+        """
+        Given a pubisher course, lookup the course_metadata course
+        """
+        course_key = get_course_key(publisher_course)
+        try:
+            return DiscoveryCourse.objects.get(key=course_key)
+        except DiscoveryCourse.DoesNotExist:
+            return None
+
+    def _course_in_masters_program(self, discovery_course):
+        """
+        Returns whether or not discovery_course is in a masters program
+        """
+        curriculum_memberships = discovery_course.curriculum_course_membership.all()
+        for membership in curriculum_memberships:
+            if membership.curriculum.program.type.slug == MASTERS_PROGRAM_TYPE_SLUG:
+                return True
+        return False
+
+    def _canonical_run_has_masters_seat(self, discovery_course):
+        """
+        Returns whether or not the canonical run of dicovery_course has a masters seat
+        """
+        if discovery_course.canonical_course_run:
+            for seat in discovery_course.canonical_course_run.seats.all():
+                if seat.type == DiscoverySeat.MASTERS:
+                    return True
+        return False
+
     def _set_last_run_data(self, new_run):
         """
         Copy data of last run to newly created run
@@ -772,8 +805,8 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
 
         new_run.save()
 
-    def _initialize_seat_form(self, last_run):
-        initial_seat_data = {}
+    def _initialize_seat_form(self, last_run, last_run_masters_seat):
+        initial_seat_data = {'masters_track': last_run_masters_seat}
         if not last_run:
             return self.seat_form(initial=initial_seat_data)
 
@@ -786,10 +819,10 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         try:
             latest_seat = _get_latest_seat()
             initial_seat_data = model_to_dict(latest_seat)
+            initial_seat_data['masters_track'] = last_run_masters_seat
             del initial_seat_data['id'], initial_seat_data['course_run'], initial_seat_data['changed_by']
         except Seat.DoesNotExist:
             pass
-
         return self.seat_form(initial=initial_seat_data)
 
     def _format_post_exception_message(self, exception):
@@ -920,15 +953,20 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
 
     def get_context_data(self, **kwargs):
         parent_course = self._get_parent_course()
+        course_in_masters, last_run_masters_seat = False, False
+        discovery_course = self._get_discovery_course(parent_course)
+        if discovery_course:
+            course_in_masters = self._course_in_masters_program(discovery_course)
+            last_run_masters_seat = course_in_masters and self._canonical_run_has_masters_seat(discovery_course)
         last_run = self._get_last_run(parent_course)
         run_form = self._initialize_run_form(last_run)
-        seat_form = self._initialize_seat_form(last_run)
-
+        seat_form = self._initialize_seat_form(last_run, last_run_masters_seat)
         context = {
             'cancel_url': reverse('publisher:publisher_course_detail', kwargs={'pk': parent_course.pk}),
             'run_form': run_form,
             'seat_form': seat_form,
             'hide_seat_form': parent_course.uses_entitlements,
+            'course_in_masters': course_in_masters,
             'publisher_enable_read_only_fields': waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
         }
         return context
@@ -1425,9 +1463,6 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         """Post method for import page."""
 
-        #  inline import to avoid any circular issues.
-        from course_discovery.apps.course_metadata.models import Course as CourseMetaData
-
         if not (self.request.user.is_superuser and waffle.switch_is_active('publisher_enable_course_import')):
             raise Http404
 
@@ -1438,7 +1473,7 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
             create_course_run = self.request.POST.get('create_course_run')
 
             try:
-                course = CourseMetaData.objects.select_related('canonical_course_run', 'level_type', 'video').get(
+                course = DiscoveryCourse.objects.select_related('canonical_course_run', 'level_type', 'video').get(
                     id=start_id
                 )
                 process_course(course, create_course_run)
