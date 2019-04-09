@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-09 15:00+0000\n"
+"POT-Creation-Date: 2019-04-09 19:08+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -132,21 +132,6 @@ msgstr ""
 "¢σηѕє¢тєтυя #"
 
 #: apps/api/v1/views/courses.py
-#, python-brace-format
-msgid ""
-"The following error occurred while setting the Course Entitlement data in "
-"E-commerce: {ecom_error}"
-msgstr ""
-"Thé föllöwïng érrör öççürréd whïlé séttïng thé Çöürsé Éntïtlémént dätä ïn "
-"É-çömmérçé: {ecom_error} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: apps/api/v1/views/courses.py
-msgid "Failed to set course data due to a failure updating the product."
-msgstr ""
-"Fäïléd tö sét çöürsé dätä düé tö ä fäïlüré üpdätïng thé prödüçt. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/api/v1/views/courses.py
 msgid "An error occurred while setting Course data."
 msgstr ""
 "Àn érrör öççürréd whïlé séttïng Çöürsé dätä. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -197,12 +182,6 @@ msgid "Existing entitlement not found for mode {0} in course {1}."
 msgstr ""
 "Éxïstïng éntïtlémént nöt föünd för mödé {0} ïn çöürsé {1}. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/api/v1/views/courses.py
-msgid "Entitlement does not have a valid SKU assigned."
-msgstr ""
-"Éntïtlémént döés nöt hävé ä välïd SKÛ ässïgnéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
-" ¢σηѕє¢тєтυя α#"
 
 #: apps/api/views.py
 msgid "You are not permitted to access the API documentation."

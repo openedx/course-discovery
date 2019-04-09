@@ -10,7 +10,6 @@ from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from edx_rest_api_client.client import OAuthAPIClient
 from rest_framework import filters as rest_framework_filters
 from rest_framework import status, viewsets
 from rest_framework.exceptions import PermissionDenied
@@ -33,10 +32,6 @@ from course_discovery.apps.course_metadata.models import (
 logger = logging.getLogger(__name__)
 
 
-class EcommerceAPIClientException(Exception):
-    pass
-
-
 def writable_request_wrapper(method):
     def inner(*args, **kwargs):
         try:
@@ -47,13 +42,6 @@ def writable_request_wrapper(method):
                             status=status.HTTP_400_BAD_REQUEST)
         except (PermissionDenied, Http404):
             raise  # just pass these along
-        except EcommerceAPIClientException as e:
-            logger.exception(
-                _('The following error occurred while setting the Course Entitlement data in E-commerce: '
-                  '{ecom_error}').format(ecom_error=e)
-            )
-            return Response(_('Failed to set course data due to a failure updating the product.'),
-                            status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:  # pylint: disable=broad-except
             logger.exception(_('An error occurred while setting Course data.'))
             return Response(_('Failed to set course data: {}').format(str(e)),
@@ -155,32 +143,6 @@ class CourseViewSet(viewsets.ModelViewSet):
     def get_course_key(self, data):
         return '{org}+{number}'.format(org=data['org'], number=data['number'])
 
-    def push_ecommerce_entitlement(self, partner, course, entitlement, partial=False):
-        """ Creates or updates the stockrecord information on the ecommerce side. """
-        api_client = OAuthAPIClient(partner.lms_url, partner.oidc_key, partner.oidc_secret)
-
-        if partial:
-            method = 'PUT'
-            url = '{0}stockrecords/{1}/'.format(partner.ecommerce_api_url, entitlement.sku)
-            data = {
-                'price_excl_tax': entitlement.price,
-            }
-        else:
-            method = 'POST'
-            url = '{0}products/'.format(partner.ecommerce_api_url)
-            data = {
-                'product_class': 'Course Entitlement',
-                'title': course.title,
-                'price': entitlement.price,
-                'certificate_type': entitlement.mode.slug,
-                'uuid': str(course.uuid),
-            }
-
-        response = api_client.request(method, url, data=data)
-        if not response.ok:
-            raise EcommerceAPIClientException(response.text)
-        return response
-
     @writable_request_wrapper
     def create(self, request, *args, **kwargs):
         """
@@ -223,18 +185,13 @@ class CourseViewSet(viewsets.ModelViewSet):
         if course_creation_fields['mode'] in Seat.ENTITLEMENT_MODES:
             price = request.data.get('price', 0.00)
             mode = SeatType.objects.get(slug=course_creation_fields['mode'])
-            entitlement = CourseEntitlement.objects.create(
+            CourseEntitlement.objects.create(
                 course=course,
                 mode=mode,
                 partner=partner,
                 price=price,
                 draft=True,
             )
-
-            ecom_response = self.push_ecommerce_entitlement(partner, course, entitlement)
-            stockrecord = ecom_response.json()['stockrecords'][0]
-            entitlement.sku = stockrecord['partner_sku']
-            entitlement.save()
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -252,8 +209,6 @@ class CourseViewSet(viewsets.ModelViewSet):
         if not entitlement:
             raise ValidationError(_('Existing entitlement not found for mode {0} in course {1}.')
                                   .format(data['mode'], course.key))
-        if not entitlement.sku:
-            raise ValidationError(_('Entitlement does not have a valid SKU assigned.'))
 
         # We have an entitlement object, now let's deserialize the incoming data and update it
         serializer = CourseEntitlementSerializer(entitlement, data=data, partial=partial)
@@ -298,10 +253,6 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         # Then the course itself
         serializer.save()
-
-        # And finally, send updates to ecommerce
-        for entitlement in entitlements:
-            self.push_ecommerce_entitlement(self.request.site.partner, course, entitlement, partial=True)
 
         return Response(serializer.data)
 
