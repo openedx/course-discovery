@@ -638,6 +638,7 @@ class Seat(TimeStampedModel, ChangedByMixin):
     credit_provider = models.CharField(max_length=255, null=True, blank=True)
     credit_hours = models.IntegerField(null=True, blank=True)
     credit_price = models.DecimalField(**PRICE_FIELD_CONFIG)
+    masters_track = models.BooleanField(default=False)
 
     history = HistoricalRecords()
 
@@ -652,7 +653,8 @@ class Seat(TimeStampedModel, ChangedByMixin):
         return (
             self.type == self.AUDIT or
             (self.type in [self.VERIFIED, self.PROFESSIONAL] and self.price > 0) or
-            (self.type == self.CREDIT and self.credit_price > 0 and self.price > 0)
+            (self.type == self.CREDIT and self.credit_price > 0 and self.price > 0) or
+            self.masters_track
         )
 
     @property

@@ -21,7 +21,7 @@ from course_discovery.apps.publisher.forms import (
 )
 from course_discovery.apps.publisher.models import Group, OrganizationExtension, Seat
 from course_discovery.apps.publisher.tests.factories import (
-    CourseFactory, CourseUserRoleFactory, OrganizationExtensionFactory, SeatFactory
+    CourseFactory, CourseRunFactory, CourseUserRoleFactory, OrganizationExtensionFactory, SeatFactory
 )
 
 
@@ -506,6 +506,7 @@ class CourseSearchFormTests(TestCase):
         self.assertTrue(self._check_form())
 
 
+@ddt.ddt
 class SeatFormTests(TestCase):
     """
     Tests for Seat Form
@@ -529,3 +530,18 @@ class SeatFormTests(TestCase):
 
         seat_form_with_type = SeatForm(data={'type': Seat.AUDIT})
         self.assertTrue(seat_form_with_type.is_valid())
+
+        seat_form_masters = SeatForm(data={'masters_track': True})
+        self.assertFalse(seat_form_masters.is_valid())
+
+    @ddt.data(
+        {'type': 'audit'},
+        {'type': 'audit', 'masters_track': True},
+        {'type': 'audit', 'masters_track': False},
+    )
+    def test_create_seat_masters_track(self, form_data):
+        course_run = CourseRunFactory()
+        form = SeatForm(data=form_data)
+        seat = form.save(course_run=course_run)
+        expected_masters = 'masters_track' in form_data and form_data['masters_track']
+        self.assertEqual(expected_masters, seat.masters_track)

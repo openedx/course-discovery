@@ -134,3 +134,11 @@ def parse_datetime_field(date):
 
     except ValueError:
         return
+
+
+def get_course_key(publisher_course):
+    """ Construct the course key to look up a course_metadata course from a publisher course """
+    return '{org}+{number}'.format(
+        org=publisher_course.organizations.first().key,
+        number=publisher_course.number
+    )

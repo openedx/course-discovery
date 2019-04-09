@@ -20,6 +20,7 @@ from course_discovery.apps.publisher.api.utils import (
 )
 from course_discovery.apps.publisher.models import CourseRun, Seat
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
+from course_discovery.apps.publisher.utils import get_course_key
 
 logger = logging.getLogger(__name__)
 
@@ -32,10 +33,6 @@ class CourseRunViewSet(viewsets.GenericViewSet):
     permission_classes = (permissions.IsAdminUser,)
 
     PUBLICATION_SUCCESS_STATUS = 'SUCCESS'
-
-    def get_course_key(self, publisher_course):
-        return '{org}+{number}'.format(org=publisher_course.organizations.first().key,
-                                       number=publisher_course.number)
 
     @detail_route(methods=['post'])
     def publish(self, request, pk=None):
@@ -86,7 +83,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             return 'FAILED: ' + str(ex)
 
     def publish_to_ecommerce(self, partner, course_run):
-        course_key = self.get_course_key(course_run.course)
+        course_key = get_course_key(course_run.course)
         discovery_course = Course.objects.get(partner=partner, key=course_key)
 
         api = EdxRestApiClient(partner.ecommerce_api_url, jwt=partner.access_token)
@@ -114,7 +111,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
 
     def publish_to_discovery(self, partner, course_run):
         publisher_course = course_run.course
-        course_key = self.get_course_key(publisher_course)
+        course_key = get_course_key(publisher_course)
 
         video = None
         if publisher_course.video_link:
@@ -187,6 +184,16 @@ class CourseRunViewSet(viewsets.GenericViewSet):
                     'upgrade_deadline': seat.calculated_upgrade_deadline,
                 }
             )
+            if seat.masters_track:
+                DiscoverySeat.objects.update_or_create(
+                    course_run=discovery_course_run,
+                    type=DiscoverySeat.MASTERS,
+                    currency=seat.currency,
+                    defaults={
+                        'price': seat.price,
+                        'upgrade_deadline': seat.calculated_upgrade_deadline,
+                    }
+                )
 
         if created:
             discovery_course.canonical_course_run = discovery_course_run

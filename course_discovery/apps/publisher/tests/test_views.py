@@ -27,9 +27,12 @@ from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.models import ProgramType as DiscoveryProgramType
+from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, SubjectFactory
+    CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory, OrganizationFactory,
+    PersonFactory, ProgramFactory, SeatFactory, SubjectFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import (
@@ -48,7 +51,7 @@ from course_discovery.apps.publisher.tests.utils import create_non_staff_user_an
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
 from course_discovery.apps.publisher.views import logger as publisher_views_logger
 from course_discovery.apps.publisher.views import (
-    COURSE_ROLES, COURSES_ALLOWED_PAGE_SIZES, CourseRunDetailView, get_course_role_widgets_data
+    COURSE_ROLES, COURSES_ALLOWED_PAGE_SIZES, CourseRunDetailView, CreateCourseRunView, get_course_role_widgets_data
 )
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.models import CommentTypeChoices
@@ -632,12 +635,63 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         price_attribute = response_content.find(
             "input", {"value": verified_seat.price, "id": "id_price", "step": "0.01", "type": "number"}
         )
+        masters_block_attribute = response_content.find("div", {'id': "mastersTrackBlock"})
 
         # Verify that existing course run and seat values auto populated on form.
         self.assertIsNotNone(seat_type_attribute)
         self.assertIn('selected=""', str(seat_type_attribute))
         self.assertIsNotNone(price_attribute)
         self.assertIn(str(verified_seat_price), str(price_attribute))
+
+        # Verify that masters track checkbox is hidden
+        self.assertIsNotNone(masters_block_attribute)
+        self.assertIn('hidden', str(masters_block_attribute))
+
+    @ddt.data(True, False)
+    def test_masters_course_mode_checkbox(self, last_run_masters_seat):
+        """
+        Verify that when we attempt to create a new course run, the master's course mode
+        checkbox appears if the course is part of a master's program
+
+        Also check that if the current canonical course run has a masters seat, the checkbox is
+        checked by default and visa versa
+        """
+        verified_seat_price = 550.0
+        latest_run = self.course.course_runs.latest('created')
+        factories.SeatFactory(course_run=latest_run, type=Seat.VERIFIED, price=verified_seat_price)
+        factories.SeatFactory(course_run=latest_run, type=Seat.AUDIT)
+
+        masters_program_type = DiscoveryProgramType.objects.get(slug='masters')
+        discovery_program = ProgramFactory(type=masters_program_type)
+        discovery_curriculum = CurriculumFactory(program=discovery_program)
+        discovery_course = CourseFactory()
+        CurriculumCourseMembershipFactory(
+            course=discovery_course,
+            curriculum=discovery_curriculum
+        )
+        if last_run_masters_seat:
+            discovery_course.canonical_course_run = CourseRunFactory(course=discovery_course)
+            discovery_course.save()
+            discovery_course.canonical_course_run.seats.add(SeatFactory(type=DiscoverySeat.MASTERS))
+            discovery_course.canonical_course_run.save()
+
+        with mock.patch('course_discovery.apps.publisher.views.get_course_key', return_value=discovery_course.key):
+            response = self.client.get(self.create_course_run_url_new)
+
+        response_content = BeautifulSoup(response.content)
+        masters_block_attribute = response_content.find("div", {'id': "mastersTrackBlock"})
+        masters_track_checkbox = response_content.find("input", {'id': "id_masters_track"})
+
+        # Verify that masters track checkbox is visible and correctly checked
+        self.assertIsNotNone(masters_block_attribute)
+        self.assertNotIn('hidden', str(masters_block_attribute))
+        self.assertIsNotNone(masters_track_checkbox)
+        # Verify that the box is checked if the canonical course run has a masters seat
+        view = CreateCourseRunView()
+        view.kwargs = {'parent_course_id': self.course.id}
+        with mock.patch('course_discovery.apps.publisher.views.get_course_key', return_value=discovery_course.key):
+            context_data = view.get_context_data()
+        self.assertEqual(last_run_masters_seat, context_data['seat_form'].initial['masters_track'])
 
     def test_credit_type_without_price(self):
         """ Verify that without credit price course-run cannot be created with credit seat type. """
