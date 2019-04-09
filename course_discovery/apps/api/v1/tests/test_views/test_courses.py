@@ -442,23 +442,6 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
             'mode': 'verified',
             'price': 100,
         }
-        ecom_url = self.partner.ecommerce_api_url + 'products/'
-        ecom_entitlement_data = {
-            'product_class': 'Course Entitlement',
-            'title': 'Course title',
-            'price': course_data['price'],
-            'certificate_type': course_data['mode'],
-            'uuid': '00000000-0000-0000-0000-000000000000',
-            'stockrecords': [{'partner_sku': 'ABC123'}],
-        }
-        responses.add(
-            responses.POST,
-            ecom_url,
-            body=json.dumps(ecom_entitlement_data),
-            content_type='application/json',
-            status=201,
-            match_querystring=True
-        )
         response = self.create_course(course_data)
 
         course = Course.everything.last()
@@ -489,24 +472,6 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
     @oauth_login
     def test_create_makes_draft(self):
         """ When creating a course, it should start as a draft. """
-        ecom_url = self.partner.ecommerce_api_url + 'products/'
-        ecom_entitlement_data = {
-            'product_class': 'Course Entitlement',
-            'title': 'Course title',
-            'price': '0.0',
-            'certificate_type': 'verified',
-            'uuid': '00000000-0000-0000-0000-000000000000',
-            'stockrecords': [{'partner_sku': 'ABC123'}],
-        }
-        responses.add(
-            responses.POST,
-            ecom_url,
-            body=json.dumps(ecom_entitlement_data),
-            content_type='application/json',
-            status=201,
-            match_querystring=True
-        )
-
         response = self.create_course({'mode': 'verified'})
         self.assertEqual(response.status_code, 201)
 
@@ -590,29 +555,6 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                     )
                 )
 
-    @oauth_login
-    @responses.activate
-    def test_create_with_ecom_api_exception(self):
-        ecom_url = self.partner.ecommerce_api_url + 'products/'
-        expected_error_message = 'Missing or bad value for: [title].'
-        responses.add(
-            responses.POST,
-            ecom_url,
-            body=expected_error_message,
-            status=400,
-        )
-        with LogCapture(course_logger.name) as log_capture:
-            response = self.create_course({'mode': 'verified', 'price': 100})
-            self.assertEqual(response.status_code, 400)
-            log_capture.check(
-                (
-                    course_logger.name,
-                    'ERROR',
-                    'The following error occurred while setting the Course Entitlement data in E-commerce: '
-                    '{ecom_error}'.format(ecom_error=expected_error_message)
-                )
-            )
-
     def test_update_without_authentication(self):
         """ Verify authentication is required when updating a course. """
         self.client.logout()
@@ -646,12 +588,6 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                      '42YAAAAASUVORK5CYII=',
             'video': {'src': 'https://link.to.video.for.testing/watch?t_s=5'},
         }
-        ecom_url = '{0}stockrecords/{1}/'.format(self.partner.ecommerce_api_url, entitlement.sku)
-        responses.add(
-            responses.PUT,
-            ecom_url,
-            status=200,
-        )
         response = getattr(self.client, method)(url, course_data, format='json')
         self.assertEqual(response.status_code, 200)
 
@@ -692,10 +628,6 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
             {'entitlements': [{'mode': 'mode2'}]},
             'Existing entitlement not found for mode mode2 in course Org/Course/Number.'
         ),
-        (
-            {'entitlements': [{'mode': 'mode1'}]},
-            'Entitlement does not have a valid SKU assigned.'
-        ),
     )
     @ddt.unpack
     def test_update_fails_with_multiple_errors(self, course_data, expected_error_message):
@@ -732,40 +664,6 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                         'An error occurred while setting Course data.',
                     )
                 )
-
-    @oauth_login
-    @responses.activate
-    def test_update_with_ecom_api_exception(self):
-        entitlement = CourseEntitlementFactory(course=self.course)
-        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        course_data = {
-            'title': 'Course title',
-            'entitlements': [
-                {
-                    'mode': entitlement.mode.slug,
-                    'price': 1000,
-                },
-            ],
-        }
-        ecom_url = '{0}stockrecords/{1}/'.format(self.partner.ecommerce_api_url, entitlement.sku)
-        expected_error_message = 'Nope'
-        responses.add(
-            responses.PUT,
-            ecom_url,
-            body=expected_error_message,
-            status=400,
-        )
-        with LogCapture(course_logger.name) as log_capture:
-            response = self.client.patch(url, course_data, format='json')
-            self.assertEqual(response.status_code, 400)
-            log_capture.check(
-                (
-                    course_logger.name,
-                    'ERROR',
-                    'The following error occurred while setting the Course Entitlement data in E-commerce: '
-                    '{ecom_error}'.format(ecom_error=expected_error_message)
-                )
-            )
 
     @oauth_login
     @responses.activate
