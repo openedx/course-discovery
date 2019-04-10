@@ -141,9 +141,9 @@ class StudioAPI:
             'pacing_type': cls._run_pacing(course_run),
         }
 
-    def create_course_rerun_in_studio(self, course_run, old_run, user=None):
+    def create_course_rerun_in_studio(self, course_run, old_course_run, user=None):
         data = self.generate_data_for_studio_api(course_run, user=user)
-        return self._api.course_runs(old_run.key).rerun.post(data)
+        return self._api.course_runs(old_course_run.key).rerun.post(data)
 
     def create_course_run_in_studio(self, publisher_course_run, user=None):
         data = self.generate_data_for_studio_api(publisher_course_run, user=user)
