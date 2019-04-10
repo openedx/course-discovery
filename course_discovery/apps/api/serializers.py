@@ -694,7 +694,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 
 class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
-    course = serializers.SlugRelatedField(required=True, slug_field='key', queryset=Course.objects.all())
+    course = serializers.SlugRelatedField(required=True, slug_field='key', queryset=Course.objects.filter_drafts())
     content_language = serializers.SlugRelatedField(
         required=False, allow_null=True, slug_field='code', source='language', queryset=LanguageTag.objects.all(),
         help_text=_('Language in which the course is administered')

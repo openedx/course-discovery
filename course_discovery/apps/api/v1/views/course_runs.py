@@ -183,7 +183,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         # Grab any existing course run for this course (we'll use it when talking to studio to form basis of rerun)
         course_key = request.data['course']  # required field
-        course = Course.objects.get(key=course_key)
+        course = Course.objects.filter_drafts().get(key=course_key)
+        course = ensure_draft_world(course)
         old_course_run = course.canonical_course_run
 
         # And finally, save to database and push to studio

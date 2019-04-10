@@ -18,7 +18,8 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseRunFactory, OrganizationFactory, PersonFactory, ProgramFactory, SeatFactory
+    CourseEditorFactory, CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, ProgramFactory,
+    SeatFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -32,7 +33,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.client.force_authenticate(self.user)
         self.course_run = CourseRunFactory(course__partner=self.partner)
         self.course_run_2 = CourseRunFactory(course__key='Test+Course', course__partner=self.partner)
-        self.draft_course_run = CourseRunFactory(course__partner=self.partner, draft=True)
+        self.draft_course = CourseFactory(partner=self.partner, draft=True)
+        self.draft_course_run = CourseRunFactory(course=self.draft_course, draft=True)
         self.draft_course_run.course.authoring_organizations.add(OrganizationFactory(key='course-id'))
         self.refresh_index()
         self.request = APIRequestFactory().get('/')
