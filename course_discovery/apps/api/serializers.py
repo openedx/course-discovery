@@ -540,7 +540,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
         max_digits=CourseEntitlement.PRICE_FIELD_CONFIG['max_digits']
     )
     currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
-    sku = serializers.CharField()
+    sku = serializers.CharField(allow_blank=True, allow_null=True)
     mode = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all().order_by('name'))
     expires = serializers.DateTimeField()
 
@@ -859,7 +859,8 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
-    level_type = serializers.SlugRelatedField(required=False, slug_field='name', queryset=LevelType.objects.all())
+    level_type = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='name',
+                                              queryset=LevelType.objects.all())
     subjects = SubjectSerializer(required=False, many=True)  # if you change, change to_internal_value too
     prerequisites = PrerequisiteSerializer(required=False, many=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
