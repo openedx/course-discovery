@@ -97,7 +97,8 @@ class CourseViewSet(viewsets.ModelViewSet):
 
         # Start with either draft versions or real versions of the courses
         if edit_mode:
-            queryset = Course.objects.filter_drafts()
+            # TODO: For now hardcode in draft=True until we choose to roll this out live, DISCO-818
+            queryset = Course.objects.filter_drafts(draft=True)
             queryset = CourseEditor.editable_courses(self.request.user, queryset)
         else:
             queryset = self.queryset
