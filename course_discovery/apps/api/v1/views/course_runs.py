@@ -178,6 +178,9 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # Set a pacing default when creating (studio requires this to be set, even though discovery does not)
         request.data.setdefault('pacing_type', 'instructor_paced')
 
+        # Guard against externally setting the draft state
+        request.data.pop('draft', None)
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -208,6 +211,10 @@ class CourseRunViewSet(viewsets.ModelViewSet):
                 _('Course run is in review. Editing disabled.'),
                 status=status.HTTP_403_FORBIDDEN
             )
+
+        # Guard against externally setting the draft state
+        # (For now, soon that should trigger status change to review)
+        request.data.pop('draft', None)
 
         # If changes are made after review and before publish,
         # revert status to unpublished.
