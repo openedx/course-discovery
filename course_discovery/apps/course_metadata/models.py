@@ -38,6 +38,7 @@ from course_discovery.apps.course_metadata.utils import (
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
+from simple_history.models import HistoricalRecords
 
 logger = logging.getLogger(__name__)
 
@@ -476,6 +477,7 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
 
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
+    history = HistoricalRecords()
 
     class Meta:
         unique_together = (
@@ -701,6 +703,7 @@ class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
 
     everything = CourseRunQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseRunQuerySet)()
+    history = HistoricalRecords()
 
     class Meta:
         unique_together = (
