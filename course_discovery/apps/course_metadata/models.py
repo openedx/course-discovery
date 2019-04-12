@@ -8,7 +8,7 @@ from uuid import uuid4
 import pytz
 import waffle
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
@@ -58,22 +58,10 @@ class DraftModelMixin(models.Model):
     """
     draft = models.BooleanField(default=False, help_text='Is this a draft version?')
     draft_version = models.OneToOneField('self', models.CASCADE, null=True, blank=True,
-                                         related_name='_official_version', limit_choices_to={'draft': True})
+                                         related_name='official_version', limit_choices_to={'draft': True})
 
     everything = models.Manager()
     objects = DraftManager()
-
-    @property
-    def official_version(self):
-        """
-        Related name fields will return an exception when there is no connection.  In that case we want to return None
-        Returns:
-            None: if there is no Official Version
-        """
-        try:
-            return self._official_version
-        except ObjectDoesNotExist:
-            return None
 
     class Meta(object):
         abstract = True

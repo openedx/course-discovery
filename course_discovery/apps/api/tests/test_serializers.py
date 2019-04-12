@@ -204,32 +204,6 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
 
         self.assertEqual(serializer.data['canonical_course_run_key'], course_runs[0].key)
 
-    def test_draft_no_marketing_url(self):
-        request = make_request()
-        course_draft = CourseFactory(draft=True)
-        draft_course_run = CourseRunFactory(draft=True, course=course_draft)
-        course_draft.canonical_course_run = draft_course_run
-        course_draft.save()
-        serializer = self.serializer_class(course_draft, context={'request': request, 'exclude_utm': 1, 'editable': 1})
-
-        self.assertIsNone(serializer.data['marketing_url'])
-
-    def test_draft_and_official(self):
-        request = make_request()
-        course_draft = CourseFactory(draft=True)
-        draft_course_run = CourseRunFactory(draft=True, course=course_draft)
-        course_draft.canonical_course_run = draft_course_run
-        course_draft.save()
-
-        course = CourseFactory(draft=False, draft_version_id=course_draft.id)
-        course_run = CourseRunFactory(draft=False, course=course, draft_version_id=draft_course_run.id)
-        course.canonical_course_run = course_run
-        course.save()
-
-        serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1, 'editable': 1})
-        self.assertIsNotNone(serializer.data['marketing_url'])
-        self.assertEqual(serializer.data['marketing_url'], course.marketing_url)
-
 
 @ddt.ddt
 class CourseWithProgramsSerializerTests(CourseSerializerTests):
@@ -422,6 +396,7 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'enrollment_count': 0,
             'recent_enrollment_count': 0,
         })
+
         return expected
 
     def test_exclude_utm(self):
@@ -429,22 +404,6 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         course_run = CourseRunFactory()
         serializer = self.serializer_class(course_run, context={'request': request, 'exclude_utm': 1})
 
-        self.assertEqual(serializer.data['marketing_url'], course_run.marketing_url)
-
-    def test_draft_no_marketing_url(self):
-        request = make_request()
-        draft_course_run = CourseRunFactory(draft=True)
-        serializer = self.serializer_class(draft_course_run, context={'request': request, 'editable': 1})
-
-        self.assertIsNone(serializer.data['marketing_url'])
-
-    def test_draft_and_official(self):
-        request = make_request()
-        draft_course_run = CourseRunFactory(draft=True)
-        course_run = CourseRunFactory(draft=False, draft_version_id=draft_course_run.id)
-
-        serializer = self.serializer_class(course_run, context={'request': request, 'exclude_utm': 1, 'editable': 1})
-        self.assertIsNotNone(serializer.data['marketing_url'])
         self.assertEqual(serializer.data['marketing_url'], course_run.marketing_url)
 
 
