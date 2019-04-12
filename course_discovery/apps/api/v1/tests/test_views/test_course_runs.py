@@ -148,6 +148,28 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertEqual(str(new_course_run.end), '2001-01-01 00:00:00+00:00')  # spot check that input made it
         self.assertTrue(new_course_run.draft)
 
+    @ddt.data(True, False, "bogus")
+    @responses.activate
+    def test_create_draft_ignored(self, draft):
+        """ Verify the endpoint supports creating a course_run, but always as a draft. """
+        course = self.draft_course_run.course
+        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        self.mock_post_to_studio(new_key)
+        url = reverse('api:v1:course_run-list')
+
+        # Send minimum + draft: True/False/bogus
+        response = self.client.post(url, {
+            'course': course.key,
+            'start': '2000-01-01T00:00:00Z',
+            'end': '2001-01-01T00:00:00Z',
+            'draft': draft,
+        }, format='json')
+
+        self.assertEqual(response.status_code, 201)
+        new_course_run = CourseRun.everything.get(key=new_key)
+        self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
+        self.assertTrue(new_course_run.draft)
+
     @responses.activate
     def test_create_with_key(self):
         """ Verify the endpoint supports creating a course_run when specifying a key (if allowed). """
