@@ -7,6 +7,20 @@ from uuid import uuid4
 
 import pytz
 import waffle
+from course_discovery.apps.core.models import Currency, Partner
+from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
+from course_discovery.apps.course_metadata.constants import PathwayType
+from course_discovery.apps.course_metadata.managers import DraftManager
+from course_discovery.apps.course_metadata.people import MarketingSitePeople
+from course_discovery.apps.course_metadata.publishers import (
+    CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
+)
+from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
+from course_discovery.apps.course_metadata.utils import (
+    UploadToFieldNamePath, clean_query, custom_render_variations, uslugify
+)
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
@@ -23,22 +37,6 @@ from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from stdimage.utils import UploadToAutoSlug
 from taggit_autosuggest.managers import TaggableManager
-
-from course_discovery.apps.core.models import Currency, Partner
-from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
-from course_discovery.apps.course_metadata.constants import PathwayType
-from course_discovery.apps.course_metadata.managers import DraftManager
-from course_discovery.apps.course_metadata.people import MarketingSitePeople
-from course_discovery.apps.course_metadata.publishers import (
-    CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
-)
-from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
-from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, uslugify
-)
-from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
-from simple_history.models import HistoricalRecords
 
 logger = logging.getLogger(__name__)
 
