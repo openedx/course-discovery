@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytz
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
@@ -58,10 +58,22 @@ class DraftModelMixin(models.Model):
     """
     draft = models.BooleanField(default=False, help_text='Is this a draft version?')
     draft_version = models.OneToOneField('self', models.CASCADE, null=True, blank=True,
-                                         related_name='official_version', limit_choices_to={'draft': True})
+                                         related_name='_official_version', limit_choices_to={'draft': True})
 
     everything = models.Manager()
     objects = DraftManager()
+
+    @property
+    def official_version(self):
+        """
+        Related name fields will return an exception when there is no connection.  In that case we want to return None
+        Returns:
+            None: if there is no Official Version
+        """
+        try:
+            return self._official_version
+        except ObjectDoesNotExist:
+            return None
 
     class Meta(object):
         abstract = True
@@ -484,6 +496,10 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
             ('partner', 'key', 'draft'),
         )
         ordering = ['id']
+        indexes = [
+            models.Index(fields=['id', 'draft']),
+            models.Index(fields=['id', 'draft_version']),
+        ]
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
@@ -708,6 +724,10 @@ class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         unique_together = (
             ('key', 'draft'),
         )
+        indexes = [
+            models.Index(fields=['id', 'draft']),
+            models.Index(fields=['id', 'draft_version']),
+        ]
 
     def _upgrade_deadline_sort(self, seat):
         """
@@ -1074,6 +1094,10 @@ class Seat(DraftModelMixin, TimeStampedModel):
             ('course_run', 'type', 'currency', 'credit_provider', 'draft')
         )
         ordering = ['created']
+        indexes = [
+            models.Index(fields=['id', 'draft']),
+            models.Index(fields=['id', 'draft_version']),
+        ]
 
 
 class CourseEntitlement(DraftModelMixin, TimeStampedModel):
@@ -1097,6 +1121,10 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
             ('course', 'mode', 'draft')
         )
         ordering = ['created']
+        indexes = [
+            models.Index(fields=['id', 'draft']),
+            models.Index(fields=['id', 'draft_version']),
+        ]
 
 
 class Endorsement(TimeStampedModel):
