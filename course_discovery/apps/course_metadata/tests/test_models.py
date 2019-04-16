@@ -514,6 +514,80 @@ class CourseRunTests(TestCase):
         self.course_run.save()
         assert self.course_run.get_video == self.course_run.course.video
 
+    def test_official_created(self):
+        self.course_run.draft = True
+        self.course_run.status = CourseRunStatus.Reviewed
+        self.course_run.course.draft = True
+        factories.SeatFactory(course_run=self.course_run, draft=True)
+        factories.CourseEntitlementFactory(course=self.course_run.course, draft=True)
+        self.course_run.course.save()
+        self.course_run.save()
+        assert CourseRun.everything.all().count() == 2
+        official_run = CourseRun.everything.get(key=self.course_run.key, draft=False)
+        draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
+
+        assert official_run.draft_version == draft_run
+        assert official_run != draft_run
+        assert official_run.slug == draft_run.slug
+
+        assert official_run.course.draft is False
+        assert official_run.course.draft_version == draft_run.course
+        assert official_run.course != draft_run.course
+        assert official_run.course.slug == draft_run.course.slug
+
+        official_entitlement = official_run.course.entitlements.first()
+        draft_entitlement = draft_run.course.entitlements.first()
+        assert official_entitlement.draft_version == draft_entitlement
+        assert official_entitlement.draft is False
+        assert draft_entitlement.draft is True
+        assert official_entitlement != draft_entitlement
+
+        official_seat = official_run.seats.first()
+        draft_seat = draft_run.seats.first()
+        assert official_seat.draft_version == draft_seat
+        assert official_seat.draft is False
+        assert draft_seat.draft is True
+        assert official_seat != draft_seat
+
+    def test_official_canonical_updates_to_official(self):
+        self.course_run.draft = True
+        self.course_run.status = CourseRunStatus.Reviewed
+        self.course_run.course.canonical_course_run = self.course_run
+        self.course_run.course.draft = True
+        self.course_run.course.save()
+        self.course_run.save()
+
+        official_run = CourseRun.everything.get(key=self.course_run.key, draft=False)
+        assert official_run.course.canonical_course_run == official_run
+
+        draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
+        assert draft_run.course.canonical_course_run == draft_run
+
+    def test_canonical_becomes_first_reviewed(self):
+        course = factories.CourseFactory(draft=True)
+        (run_a, run_b) = tuple(factories.CourseRunFactory.create_batch(2, course=course, draft=True))
+        course.canonical_course_run = run_a
+        run_b.status = CourseRunStatus.Reviewed
+        course.save()
+        run_a.save()
+        run_b.save()
+
+        draft_run_b = CourseRun.everything.get(key=run_b.key, draft=True)
+        assert draft_run_b.course.canonical_course_run == draft_run_b
+
+        official_run_b = CourseRun.everything.get(key=run_b.key, draft=False)
+        assert official_run_b.course.canonical_course_run == official_run_b
+
+    def test_no_duplicate_official(self):
+        self.course_run.draft = True
+        official_version = factories.CourseRunFactory.create(status=CourseRunStatus.Unpublished)
+        official_version.draft_version = self.course_run
+        official_version.save()
+
+        self.course_run.status = CourseRunStatus.Reviewed
+        self.course_run.save()
+        assert CourseRun.everything.all().count() == 2
+
 
 @ddt.ddt
 class OrganizationTests(TestCase):

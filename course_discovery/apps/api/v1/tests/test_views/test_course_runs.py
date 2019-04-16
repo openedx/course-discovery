@@ -450,7 +450,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         }, format='json')
         assert response.status_code == 200
         self.draft_course_run.refresh_from_db()
-        assert self.draft_course_run.status == CourseRunStatus.Unpublished
+        draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
+        assert draft_course_run.status == CourseRunStatus.Unpublished
 
     @ddt.data(
         CourseRunStatus.Unpublished,
@@ -470,8 +471,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'draft': False,
         }, format='json')
         assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
-        self.draft_course_run.refresh_from_db()
-        assert self.draft_course_run.status == CourseRunStatus.LegalReview
+        draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
+        assert draft_course_run.status == CourseRunStatus.LegalReview
 
     def test_list(self):
         """ Verify the endpoint returns a list of all course runs. """

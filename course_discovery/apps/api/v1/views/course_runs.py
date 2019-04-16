@@ -18,10 +18,10 @@ from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrRea
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import StudioAPI, get_query_param
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
-from course_discovery.apps.api.v1.views.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
+from course_discovery.apps.course_metadata.utils import ensure_draft_world
 
 
 log = logging.getLogger(__name__)

@@ -34,7 +34,7 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, uslugify
+    UploadToFieldNamePath, clean_query, custom_render_variations, set_official_state, uslugify
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -562,6 +562,23 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
 
         return None
 
+    def ensure_official_version(self, course_run):
+        if self.official_version:
+            return self.official_version
+
+        self.canonical_course_run = None
+        official_course = set_official_state(self, Course, {'canonical_course_run': course_run})
+        official_course.slug = official_course.draft_version.slug
+        official_course.save()
+
+        draft_version = official_course.draft_version
+        for entitlement in draft_version.entitlements.all():
+            set_official_state(entitlement, CourseEntitlement, {'course': official_course})
+        draft_version.canonical_course_run = course_run.draft_version
+        draft_version.save()
+
+        return official_course
+
 
 class CourseEditor(TimeStampedModel):
     """
@@ -718,6 +735,10 @@ class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         unique_together = (
             ('key', 'draft'),
         )
+
+    def __init__(self, *args, **kwargs):
+        super(CourseRun, self).__init__(*args, **kwargs)
+        self._old_status = self.status
 
     def _upgrade_deadline_sort(self, seat):
         """
@@ -996,6 +1017,21 @@ class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
+    def ensure_official_version(self):
+        # If there isn't an official version yet, create one.
+        if not self.official_version:
+            official_version = set_official_state(self, CourseRun)
+            draft_version = official_version.draft_version
+            official_version.slug = draft_version.slug
+            for seat in draft_version.seats.all():
+                set_official_state(seat, Seat, {'course_run': official_version})
+
+            # If there's an official course, associate the new one with it.
+            # Otherwise, create it.
+            course = self.course.ensure_official_version(official_version)
+            official_version.course = course
+            official_version.save()
+
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         is_new_course_run = not self.pk
         suppress_publication = kwargs.pop('suppress_publication', False)
@@ -1022,6 +1058,9 @@ class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
             super(CourseRun, self).save(*args, **kwargs)
+
+        if self.draft and self._old_status != self.status and self.status == CourseRunStatus.Reviewed:
+            self.ensure_official_version()
 
         if is_new_course_run:
             retired_programs = self.programs.filter(status=ProgramStatus.Retired)
