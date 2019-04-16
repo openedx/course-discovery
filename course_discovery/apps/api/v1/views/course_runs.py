@@ -212,14 +212,15 @@ class CourseRunViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        # Guard against externally setting the draft state
-        # (For now, soon that should trigger status change to review)
-        request.data.pop('draft', None)
-
         # If changes are made after review and before publish,
         # revert status to unpublished.
         if course_run.status == CourseRunStatus.Reviewed:
             request.data['status'] = CourseRunStatus.Unpublished
+
+        # Sending draft=False triggers the review process
+        draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
+        if not draft and course_run.status != CourseRunStatus.Published:
+            request.data['status'] = CourseRunStatus.LegalReview
 
         response = super().update(request, *args, **kwargs)
         self.push_to_studio(request, course_run, create=False)

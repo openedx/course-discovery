@@ -452,6 +452,27 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.draft_course_run.refresh_from_db()
         assert self.draft_course_run.status == CourseRunStatus.Unpublished
 
+    @ddt.data(
+        CourseRunStatus.Unpublished,
+        CourseRunStatus.Reviewed,
+    )
+    @responses.activate
+    def test_patch_put_draft_false(self, status):
+        """ Verify that setting draft to False moves status to LegalReview. """
+        self.mock_patch_to_studio(self.draft_course_run.key)
+        self.draft_course_run.status = status
+        self.draft_course_run.save()
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
+        response = self.client.put(url, {
+            'course': self.draft_course_run.course.key,  # required, so we need for a put
+            'start': self.draft_course_run.start,  # required, so we need for a put
+            'end': self.draft_course_run.end,  # required, so we need for a put
+            'draft': False,
+        }, format='json')
+        assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
+        self.draft_course_run.refresh_from_db()
+        assert self.draft_course_run.status == CourseRunStatus.LegalReview
+
     def test_list(self):
         """ Verify the endpoint returns a list of all course runs. """
         url = reverse('api:v1:course_run-list')
