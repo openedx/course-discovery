@@ -483,10 +483,6 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
             ('partner', 'key', 'draft'),
         )
         ordering = ['id']
-        indexes = [
-            models.Index(fields=['id', 'draft']),
-            models.Index(fields=['id', 'draft_version']),
-        ]
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
@@ -710,10 +706,6 @@ class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         unique_together = (
             ('key', 'draft'),
         )
-        indexes = [
-            models.Index(fields=['id', 'draft']),
-            models.Index(fields=['id', 'draft_version']),
-        ]
 
     def _upgrade_deadline_sort(self, seat):
         """
@@ -1080,10 +1072,6 @@ class Seat(DraftModelMixin, TimeStampedModel):
             ('course_run', 'type', 'currency', 'credit_provider', 'draft')
         )
         ordering = ['created']
-        indexes = [
-            models.Index(fields=['id', 'draft']),
-            models.Index(fields=['id', 'draft_version']),
-        ]
 
 
 class CourseEntitlement(DraftModelMixin, TimeStampedModel):
@@ -1107,10 +1095,6 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
             ('course', 'mode', 'draft')
         )
         ordering = ['created']
-        indexes = [
-            models.Index(fields=['id', 'draft']),
-            models.Index(fields=['id', 'draft_version']),
-        ]
 
 
 class Endorsement(TimeStampedModel):
