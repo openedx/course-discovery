@@ -1,12 +1,12 @@
-import ddt
 from django.core.management import CommandError, call_command
 from django.test import TestCase
-from testfixtures import LogCapture
 
+import ddt
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory as DiscoveryCourseFactory
 from course_discovery.apps.publisher.management.commands.republish_course_images import logger as command_logger
 from course_discovery.apps.publisher.tests import factories
+from testfixtures import LogCapture
 
 
 @ddt.ddt

@@ -1,11 +1,10 @@
 from uuid import UUID
 
+from course_discovery.apps.course_metadata.models import Course, CourseRun
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
 from rest_framework.response import Response
-
-from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 
 class CatalogQueryContainsViewSet(GenericAPIView):

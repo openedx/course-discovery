@@ -4,12 +4,12 @@ Publisher courses serializers.
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.translation import ugettext as _
-from rest_framework import serializers
 
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.utils import has_role_for_course
+from rest_framework import serializers
 
 
 class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-method

@@ -1,9 +1,8 @@
-from rest_framework.generics import UpdateAPIView
-from rest_framework.permissions import IsAuthenticated
-
 from course_discovery.apps.publisher_comments.api.permissions import IsOwner
 from course_discovery.apps.publisher_comments.api.serializers import CommentSerializer
 from course_discovery.apps.publisher_comments.models import Comments
+from rest_framework.generics import UpdateAPIView
+from rest_framework.permissions import IsAuthenticated
 
 
 class UpdateCommentView(UpdateAPIView):

@@ -1,16 +1,13 @@
 import datetime
 import json
 
-import ddt
-import pytest
 import pytz
-import responses
 from django.db import IntegrityError
 from django.db.models.functions import Lower
-from mock import mock
-from rest_framework.reverse import reverse
-from testfixtures import LogCapture
 
+import ddt
+import pytest
+import responses
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
@@ -18,10 +15,13 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory,
-    ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory,
+    SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
+from mock import mock
+from rest_framework.reverse import reverse
+from testfixtures import LogCapture
 
 
 def oauth_login(func):

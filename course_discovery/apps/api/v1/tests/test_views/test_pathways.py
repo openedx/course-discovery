@@ -1,8 +1,8 @@
-import pytest
 from django.contrib.auth.models import Group
 from django.test import RequestFactory
 from django.urls import reverse
 
+import pytest
 from course_discovery.apps.api.v1.tests.test_views.mixins import SerializationMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests.factories import PathwayFactory, ProgramFactory

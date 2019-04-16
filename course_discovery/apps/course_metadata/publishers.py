@@ -2,9 +2,9 @@ import json
 import logging
 from urllib.parse import urljoin
 
-import waffle
 from bs4 import BeautifulSoup
 
+import waffle
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.exceptions import (
     AliasCreateError, AliasDeleteError, FormRetrievalError, NodeCreateError, NodeDeleteError, NodeEditError,

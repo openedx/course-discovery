@@ -2,13 +2,13 @@ import logging
 
 from django.apps import apps
 from django.db import transaction
+
+from course_discovery.apps.api.permissions import CanReplaceUsername
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
-
-from course_discovery.apps.api.permissions import CanReplaceUsername
 
 log = logging.getLogger(__name__)
 

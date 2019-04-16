@@ -1,10 +1,10 @@
+from django.test import TestCase
+
 import ddt
 import mock
-from django.test import TestCase
+from course_discovery.apps.api.utils import cast2int, get_query_param
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
-
-from course_discovery.apps.api.utils import cast2int, get_query_param
 
 LOGGER_PATH = 'course_discovery.apps.api.utils.logger.exception'
 

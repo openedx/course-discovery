@@ -1,11 +1,11 @@
 import datetime
 
-import jwt
-import mock
-import responses
 from django.core.management import call_command
 from django.test import TestCase
 
+import jwt
+import mock
+import responses
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data

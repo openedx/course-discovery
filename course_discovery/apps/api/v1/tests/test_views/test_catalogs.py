@@ -4,14 +4,13 @@ import datetime
 import urllib
 from io import StringIO
 
-import ddt
-import pytest
 import pytz
-import responses
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from rest_framework.reverse import reverse
 
+import ddt
+import pytest
+import responses
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, FuzzyInt, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.catalogs.models import Catalog
@@ -21,6 +20,7 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
 from course_discovery.conftest import get_course_run_states
+from rest_framework.reverse import reverse
 
 User = get_user_model()
 

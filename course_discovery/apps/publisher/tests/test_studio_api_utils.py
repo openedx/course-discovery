@@ -3,8 +3,6 @@ from itertools import product
 
 import mock
 import pytest
-from waffle.testutils import override_switch
-
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory as DiscoveryCourseFactory
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
@@ -13,6 +11,7 @@ from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 from course_discovery.apps.publisher.tests.factories import CourseFactory, CourseRunFactory, CourseUserRoleFactory
+from waffle.testutils import override_switch
 
 test_data = (
     list(product(range(1, 5), ['1T2017'])) +

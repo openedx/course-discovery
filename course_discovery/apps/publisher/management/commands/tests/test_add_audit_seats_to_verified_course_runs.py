@@ -1,6 +1,6 @@
-import pytest
 from django.core.management import call_command
 
+import pytest
 from course_discovery.apps.publisher.models import Seat
 from course_discovery.apps.publisher.tests.factories import SeatFactory
 

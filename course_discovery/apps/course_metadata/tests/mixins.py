@@ -2,11 +2,11 @@ import json
 import random
 import urllib
 
-import responses
 from django.test import TestCase
-from factory.fuzzy import FuzzyInteger, FuzzyText
 
+import responses
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
+from factory.fuzzy import FuzzyInteger, FuzzyText
 
 
 class MarketingSiteAPIClientTestMixin(TestCase):

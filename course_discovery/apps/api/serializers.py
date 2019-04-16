@@ -7,21 +7,14 @@ from urllib.parse import urlencode
 from uuid import uuid4
 
 import pytz
-import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
-from drf_dynamic_fields import DynamicFieldsMixin
-from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer, HaystackSerializerMixin
-from opaque_keys.edx.locator import CourseLocator
-from rest_framework import serializers
-from rest_framework.fields import CreateOnlyDefault, DictField, UUIDField
-from rest_framework.metadata import SimpleMetadata
-from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
+import waffle
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
@@ -37,6 +30,13 @@ from course_discovery.apps.course_metadata.utils import parse_course_key_fragmen
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
+from drf_dynamic_fields import DynamicFieldsMixin
+from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer, HaystackSerializerMixin
+from opaque_keys.edx.locator import CourseLocator
+from rest_framework import serializers
+from rest_framework.fields import CreateOnlyDefault, DictField, UUIDField
+from rest_framework.metadata import SimpleMetadata
+from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 User = get_user_model()
 

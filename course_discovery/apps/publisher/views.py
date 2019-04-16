@@ -6,7 +6,6 @@ import logging
 from datetime import datetime, timedelta
 from functools import reduce
 
-import waffle
 from django.contrib import messages
 from django.contrib.sites.models import Site
 from django.core.exceptions import ObjectDoesNotExist
@@ -22,6 +21,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, UpdateView, View
 from guardian.shortcuts import get_objects_for_user
 
+import waffle
 from course_discovery.apps.core.models import User
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.models import Course as DiscoveryCourse

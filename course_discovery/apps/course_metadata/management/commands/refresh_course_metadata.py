@@ -1,16 +1,15 @@
-import concurrent.futures
 import itertools
 import logging
 import time
 
-import jwt
-import waffle
 from django.apps import apps
 from django.core.management import BaseCommand, CommandError
 from django.db import connection
 from django.db.models.signals import post_delete, post_save
-from edx_rest_api_client.client import EdxRestApiClient
 
+import concurrent.futures
+import jwt
+import waffle
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
@@ -22,6 +21,7 @@ from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     SubjectMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig
+from edx_rest_api_client.client import EdxRestApiClient
 
 logger = logging.getLogger(__name__)
 

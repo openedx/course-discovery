@@ -1,14 +1,11 @@
 import datetime
 import json
 
+from django.contrib.auth.models import Permission
+
 import mock
 import pytest
 import responses
-from django.contrib.auth.models import Permission
-from freezegun import freeze_time
-from slumber.exceptions import HttpServerError
-from waffle.testutils import override_switch
-
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
@@ -16,6 +13,9 @@ from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 from course_discovery.apps.publisher.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationExtensionFactory
 )
+from freezegun import freeze_time
+from slumber.exceptions import HttpServerError
+from waffle.testutils import override_switch
 
 
 @freeze_time('2017-01-01T00:00:00Z')

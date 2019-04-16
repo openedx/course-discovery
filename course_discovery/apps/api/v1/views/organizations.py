@@ -1,11 +1,11 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from guardian.shortcuts import get_objects_for_user
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.publisher.models import OrganizationExtension
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 
 
 # pylint: disable=no-member

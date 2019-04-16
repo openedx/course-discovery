@@ -1,4 +1,3 @@
-import concurrent.futures
 import logging
 import math
 import threading
@@ -7,11 +6,11 @@ from decimal import Decimal
 from io import BytesIO
 
 import requests
-import waffle
 from django.core.files import File
 from django.core.management import CommandError
-from opaque_keys.edx.keys import CourseKey
 
+import concurrent.futures
+import waffle
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
@@ -19,6 +18,7 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
 )
 from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
+from opaque_keys.edx.keys import CourseKey
 
 logger = logging.getLogger(__name__)
 

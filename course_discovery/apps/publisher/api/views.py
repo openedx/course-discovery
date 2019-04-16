@@ -3,11 +3,6 @@ import logging
 from dal import autocomplete
 from django.apps import apps
 from django.contrib.auth.mixins import LoginRequiredMixin
-from rest_framework import status
-from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.api.paginations import LargeResultsSetPagination
@@ -22,6 +17,11 @@ from course_discovery.apps.publisher.forms import CourseForm
 from course_discovery.apps.publisher.models import (
     Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension, PublisherUser
 )
+from rest_framework import status
+from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 logger = logging.getLogger(__name__)
 

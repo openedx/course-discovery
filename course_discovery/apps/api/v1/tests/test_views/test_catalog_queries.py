@@ -1,10 +1,9 @@
 import urllib
 
-from rest_framework.reverse import reverse
-
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
+from rest_framework.reverse import reverse
 
 
 class CatalogQueryViewSetTests(APITestCase):

@@ -2,14 +2,6 @@ import logging
 from collections import OrderedDict
 from datetime import date
 
-from edx_rest_api_client.client import EdxRestApiClient
-from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
-from rest_framework import permissions, serializers, status, viewsets
-from rest_framework.authentication import SessionAuthentication
-from rest_framework.decorators import detail_route
-from rest_framework.response import Response
-from slumber.exceptions import SlumberBaseException
-
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
@@ -21,6 +13,13 @@ from course_discovery.apps.publisher.api.utils import (
 from course_discovery.apps.publisher.models import CourseRun, Seat
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 from course_discovery.apps.publisher.utils import get_course_key
+from edx_rest_api_client.client import EdxRestApiClient
+from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
+from rest_framework import permissions, serializers, status, viewsets
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
+from slumber.exceptions import SlumberBaseException
 
 logger = logging.getLogger(__name__)
 

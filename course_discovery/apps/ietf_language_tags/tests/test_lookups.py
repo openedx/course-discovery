@@ -1,9 +1,9 @@
 import json
 
-import ddt
 from django.test import TestCase
 from django.urls import reverse
 
+import ddt
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag

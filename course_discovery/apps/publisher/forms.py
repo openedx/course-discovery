@@ -1,7 +1,5 @@
-import html
 import logging
 
-import waffle
 from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
@@ -9,9 +7,9 @@ from django.core.validators import MaxLengthValidator
 from django.db.models.functions import Lower
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from opaque_keys import InvalidKeyError
-from opaque_keys.edx.keys import CourseKey
 
+import html
+import waffle
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -26,6 +24,8 @@ from course_discovery.apps.publisher.models import (
 )
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY, is_internal_user
 from course_discovery.apps.publisher.validators import validate_text_count
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
 
 logger = logging.getLogger(__name__)
 

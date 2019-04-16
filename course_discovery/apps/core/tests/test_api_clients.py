@@ -1,10 +1,10 @@
 import logging
 
-import mock
-import responses
 from django.core.cache import cache
 from django.test import TestCase
 
+import mock
+import responses
 from course_discovery.apps.core.api_client import lms
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory

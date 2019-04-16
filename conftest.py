@@ -1,14 +1,14 @@
 import logging
 
-import pytest
 from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.test.client import Client
 from haystack import connections as haystack_connections
-from pytest_django.lazy_django import skip_if_no_django
 
+import pytest
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 from course_discovery.apps.core.utils import ElasticsearchUtils
+from pytest_django.lazy_django import skip_if_no_django
 
 logger = logging.getLogger(__name__)
 

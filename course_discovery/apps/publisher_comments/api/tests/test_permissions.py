@@ -1,10 +1,10 @@
 from django.test import TestCase
-from rest_framework.request import Request
-from rest_framework.test import APIRequestFactory, force_authenticate
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher_comments.api.permissions import IsOwner
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
+from rest_framework.request import Request
+from rest_framework.test import APIRequestFactory, force_authenticate
 
 
 class IsOwnerTests(TestCase):

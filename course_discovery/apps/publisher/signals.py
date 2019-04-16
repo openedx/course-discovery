@@ -1,14 +1,14 @@
 import logging
 
-import waffle
 from django.contrib.auth.models import Permission
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from slumber.exceptions import SlumberBaseException
 
+import waffle
 from course_discovery.apps.publisher.models import CourseRun, OrganizationExtension
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
+from slumber.exceptions import SlumberBaseException
 
 logger = logging.getLogger(__name__)
 

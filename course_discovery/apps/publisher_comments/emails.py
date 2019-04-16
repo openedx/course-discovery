@@ -5,10 +5,10 @@ from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
-from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.publisher.models import CourseRun
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
+from opaque_keys.edx.keys import CourseKey
 
 log = logging.getLogger(__name__)
 

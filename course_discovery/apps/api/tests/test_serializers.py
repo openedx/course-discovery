@@ -3,20 +3,15 @@ import datetime
 import itertools
 from urllib.parse import urlencode
 
+from django.test import TestCase
+from django.utils.text import slugify
+from haystack.query import SearchQuerySet
+from pytz import UTC
+
 import ddt
 import mock
 import pytest
 import responses
-from django.test import TestCase
-from django.utils.text import slugify
-from haystack.query import SearchQuerySet
-from opaque_keys.edx.keys import CourseKey
-from pytz import UTC
-from rest_framework.test import APIRequestFactory
-from taggit.models import Tag
-from waffle.models import Switch
-from waffle.testutils import override_switch
-
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
     AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer,
@@ -42,14 +37,18 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory,
-    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory,
-    DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
-    PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory,
-    VideoFactory
+    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory, DegreeCostFactory,
+    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory,
+    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory,
+    PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
+    RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from opaque_keys.edx.keys import CourseKey
+from rest_framework.test import APIRequestFactory
+from taggit.models import Tag
+from waffle.models import Switch
+from waffle.testutils import override_switch
 
 
 def json_date_format(datetime_obj):

@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+
 from stdimage.validators import BaseSizeValidator
 
 

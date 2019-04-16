@@ -1,8 +1,8 @@
 from django.conf import settings
-from rest_framework.permissions import SAFE_METHODS, BasePermission, DjangoModelPermissions
 
 from course_discovery.apps.course_metadata.models import CourseEditor
 from course_discovery.apps.course_metadata.utils import parse_course_key_fragment
+from rest_framework.permissions import SAFE_METHODS, BasePermission, DjangoModelPermissions
 
 USERNAME_REPLACEMENT_GROUP = "username_replacement_admin"
 

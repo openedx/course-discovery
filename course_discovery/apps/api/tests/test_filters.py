@@ -1,7 +1,6 @@
+from course_discovery.apps.api.filters import HaystackRequestFilterMixin
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
-
-from course_discovery.apps.api.filters import HaystackRequestFilterMixin
 
 
 class TestHaystackRequestFilterMixin:

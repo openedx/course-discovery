@@ -2,9 +2,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.db import IntegrityError
-from mock import mock
-from rest_framework.reverse import reverse
-from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.people import logger as people_logger
@@ -16,6 +13,9 @@ from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory,
     PersonSocialNetworkFactory, PositionFactory
 )
+from mock import mock
+from rest_framework.reverse import reverse
+from testfixtures import LogCapture
 
 User = get_user_model()
 

@@ -1,8 +1,7 @@
 import responses
+from course_discovery.apps.course_metadata.tests.factories import PartnerFactory
 from edx_rest_api_client.auth import SuppliedJwtAuth
 from edx_rest_api_client.client import EdxRestApiClient
-
-from course_discovery.apps.course_metadata.tests.factories import PartnerFactory
 
 ACCESS_TOKEN = 'secret'
 ACCESS_TOKEN_TYPE = 'JWT'

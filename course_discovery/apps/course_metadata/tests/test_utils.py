@@ -2,10 +2,10 @@
 
 import re
 
-import ddt
-import responses
 from django.test import TestCase
 
+import ddt
+import responses
 from course_discovery.apps.course_metadata import utils
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
 from course_discovery.apps.course_metadata.tests.factories import ProgramFactory

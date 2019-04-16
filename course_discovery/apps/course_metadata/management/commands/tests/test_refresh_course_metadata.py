@@ -1,12 +1,12 @@
 import json
 
+from django.core.management import CommandError, call_command
+from django.test import TransactionTestCase
+
 import ddt
 import jwt
 import mock
 import responses
-from django.core.management import CommandError, call_command
-from django.test import TransactionTestCase
-
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader

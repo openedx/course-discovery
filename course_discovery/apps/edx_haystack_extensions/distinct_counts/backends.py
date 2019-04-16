@@ -1,7 +1,8 @@
-import elasticsearch
 from django.conf import settings
 from haystack.backends.elasticsearch_backend import ElasticsearchSearchQuery
 from haystack.models import SearchResult
+
+import elasticsearch
 
 
 class DistinctCountsSearchQuery(ElasticsearchSearchQuery):

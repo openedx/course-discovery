@@ -2,18 +2,16 @@
 import datetime
 import random
 
-import ddt
-import pytest
-import responses
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 from django_fsm import TransitionNotAllowed
-from factory.fuzzy import FuzzyDateTime
 from guardian.shortcuts import assign_perm
 from pytz import UTC
-from waffle.testutils import override_switch
 
+import ddt
+import pytest
+import responses
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
@@ -31,6 +29,8 @@ from course_discovery.apps.publisher.models import (
     Course, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat
 )
 from course_discovery.apps.publisher.tests import factories
+from factory.fuzzy import FuzzyDateTime
+from waffle.testutils import override_switch
 
 
 @ddt.ddt

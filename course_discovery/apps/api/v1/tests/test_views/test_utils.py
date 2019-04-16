@@ -1,6 +1,6 @@
-import ddt
 from django.test import TestCase
 
+import ddt
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.views import utils
 from course_discovery.apps.course_metadata.models import Course, CourseRun

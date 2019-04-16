@@ -1,11 +1,9 @@
 """ Views for accessing Pathway data """
-from rest_framework import viewsets
-from rest_framework_extensions.cache.mixins import CacheResponseMixin
-
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.permissions import ReadOnlyByPublisherUser
-
 from course_discovery.apps.course_metadata.models import Pathway
+from rest_framework import viewsets
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 
 class PathwayViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):

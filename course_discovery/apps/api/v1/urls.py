@@ -1,6 +1,5 @@
 """ API v1 URLs. """
 from django.conf.urls import include, url
-from rest_framework import routers
 
 from course_discovery.apps.api.v1.views import search as search_views
 from course_discovery.apps.api.v1.views.affiliates import AffiliateWindowViewSet
@@ -17,6 +16,7 @@ from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.api.v1.views.subjects import SubjectViewSet
 from course_discovery.apps.api.v1.views.topics import TopicViewSet
 from course_discovery.apps.api.v1.views.user_management import UsernameReplacementView
+from rest_framework import routers
 
 partners_router = routers.SimpleRouter()
 partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, base_name='affiliate_window')

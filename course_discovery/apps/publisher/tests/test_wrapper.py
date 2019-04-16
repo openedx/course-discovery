@@ -2,9 +2,9 @@
 from datetime import datetime, timedelta
 from unittest import mock
 
-import ddt
 from django.test import TestCase
 
+import ddt
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.tests.factories import (
     OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory

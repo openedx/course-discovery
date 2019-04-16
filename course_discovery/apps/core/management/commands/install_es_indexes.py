@@ -2,9 +2,9 @@ import logging
 
 from django.conf import settings
 from django.core.management import BaseCommand
-from elasticsearch import Elasticsearch
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
+from elasticsearch import Elasticsearch
 
 logger = logging.getLogger(__name__)
 

@@ -2,15 +2,13 @@
 import datetime
 import urllib
 
+import pytz
+from django.db.models.functions import Lower
+
 import ddt
 import mock
 import pytest
-import pytz
 import responses
-from django.db.models.functions import Lower
-from rest_framework.reverse import reverse
-from rest_framework.test import APIRequestFactory
-
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -23,6 +21,8 @@ from course_discovery.apps.course_metadata.tests.factories import (
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
+from rest_framework.reverse import reverse
+from rest_framework.test import APIRequestFactory
 
 
 @ddt.ddt

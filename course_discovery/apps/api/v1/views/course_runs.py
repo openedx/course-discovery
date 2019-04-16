@@ -5,12 +5,6 @@ from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.utils.translation import ugettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import status, viewsets
-from rest_framework.decorators import list_route
-from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.filters import OrderingFilter
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
-from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
@@ -22,7 +16,12 @@ from course_discovery.apps.api.v1.views.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
-
+from rest_framework import status, viewsets
+from rest_framework.decorators import list_route
+from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.filters import OrderingFilter
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.response import Response
 
 log = logging.getLogger(__name__)
 

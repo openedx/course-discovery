@@ -4,6 +4,7 @@ Helper methods for testing the processing of image files.
 from io import BytesIO
 
 from django.core.files.uploadedfile import SimpleUploadedFile
+
 from PIL import Image
 
 

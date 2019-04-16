@@ -1,11 +1,10 @@
 import uuid
 
 import factory
-from factory.fuzzy import FuzzyDecimal, FuzzyText
-
 from course_discovery.apps.core.tests.factories import CurrencyFactory, PartnerFactory, add_m2m_data
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
 from course_discovery.apps.journal.models import Journal, JournalBundle
+from factory.fuzzy import FuzzyDecimal, FuzzyText
 
 
 class JournalFactory(factory.DjangoModelFactory):

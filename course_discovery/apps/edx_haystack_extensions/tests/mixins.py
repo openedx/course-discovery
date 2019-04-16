@@ -1,11 +1,11 @@
 from django.conf import settings
-from elasticsearch.helpers import bulk
 from haystack import connections as haystack_connections
 from haystack.backends import BaseSearchBackend
-from mock import patch
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.edx_haystack_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
+from elasticsearch.helpers import bulk
+from mock import patch
 
 
 class SearchBackendTestMixin(ElasticsearchTestMixin):

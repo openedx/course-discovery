@@ -1,5 +1,4 @@
 import abc
-import concurrent.futures
 import datetime
 import logging
 import re
@@ -7,12 +6,10 @@ from urllib.parse import parse_qs, urlencode, urlparse
 from uuid import UUID
 
 import pytz
-import waffle
-from dateutil import rrule
 from django.utils.functional import cached_property
-from opaque_keys import InvalidKeyError
-from opaque_keys.edx.keys import CourseKey
 
+import concurrent.futures
+import waffle
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
@@ -20,6 +17,9 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from dateutil import rrule
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
 
 logger = logging.getLogger(__name__)
 

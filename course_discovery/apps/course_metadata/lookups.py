@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.template.loader import render_to_string
 
 from course_discovery.apps.api.serializers import PersonSerializer
+
 from .models import Course, CourseRun, Organization, Person, Program
 
 

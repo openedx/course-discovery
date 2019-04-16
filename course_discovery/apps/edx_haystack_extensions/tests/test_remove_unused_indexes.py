@@ -2,9 +2,9 @@ import datetime
 
 from django.conf import settings
 from django.core.management import call_command
-from freezegun import freeze_time
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
+from freezegun import freeze_time
 
 
 class TestRemoveUnusedIndexes:

@@ -1,11 +1,9 @@
 from datetime import datetime
 
-import factory
 from django.contrib.auth.models import Group
-# pylint:disable=ungrouped-imports
-from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 
+import factory
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.factories import UserFactory, add_m2m_data
 from course_discovery.apps.course_metadata.choices import CourseRunPacing
@@ -16,6 +14,8 @@ from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, DrupalLoaderConfig,
     OrganizationExtension, OrganizationUserRole, Seat, UserAttributes
 )
+# pylint:disable=ungrouped-imports
+from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 
 
 class CourseFactory(factory.DjangoModelFactory):

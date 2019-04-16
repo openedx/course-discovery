@@ -1,15 +1,15 @@
 
 from datetime import datetime
 
-import factory
-from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 
+import factory
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory, add_m2m_data
 from course_discovery.apps.core.tests.utils import FuzzyURL
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 
 
 # pylint: disable=unused-argument

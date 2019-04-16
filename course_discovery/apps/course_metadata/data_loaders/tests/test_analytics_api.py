@@ -1,8 +1,8 @@
 import json
 
-import responses
 from django.test import TestCase
 
+import responses
 from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin

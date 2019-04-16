@@ -10,11 +10,6 @@ from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters as rest_framework_filters
-from rest_framework import status, viewsets
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
-from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
@@ -28,6 +23,11 @@ from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COU
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Seat, SeatType, Video
 )
+from rest_framework import filters as rest_framework_filters
+from rest_framework import status, viewsets
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.response import Response
 
 logger = logging.getLogger(__name__)
 

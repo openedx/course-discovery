@@ -2,10 +2,9 @@ import datetime
 import logging
 
 import pytz
-
+from analyticsclient.client import Client
 from django.utils.functional import cached_property
 
-from analyticsclient.client import Client
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import CourseRun
 

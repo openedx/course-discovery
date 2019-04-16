@@ -1,14 +1,13 @@
 import ddt
 import mock
 import responses
-from testfixtures import LogCapture
-
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.exceptions import PersonToMarketingException
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.tests.factories import PersonFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
+from testfixtures import LogCapture
 
 LOGGER_NAME = 'course_discovery.apps.course_metadata.people'
 

@@ -5,19 +5,15 @@ import itertools
 import uuid
 from decimal import Decimal
 
-import ddt
-import mock
-import pytest
 import pytz
-from dateutil.parser import parse
-from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.test import TestCase
-from freezegun import freeze_time
-from taggit.models import Tag
 
+import ddt
+import mock
+import pytest
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -35,6 +31,10 @@ from course_discovery.apps.course_metadata.tests import factories, toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
+from dateutil.parser import parse
+from dateutil.relativedelta import relativedelta
+from freezegun import freeze_time
+from taggit.models import Tag
 
 
 # pylint: disable=no-member

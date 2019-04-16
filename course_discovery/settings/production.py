@@ -2,9 +2,9 @@ import warnings
 from os import environ
 
 import certifi
-import MySQLdb
 import yaml
 
+import MySQLdb
 from course_discovery.settings.base import *
 
 DEBUG = False
@@ -72,4 +72,3 @@ for override, value in DB_OVERRIDES.items():
 # NOTE (CCB): Treat all MySQL warnings as exceptions. This is especially
 # desired for truncation warnings, which hide potential data integrity issues.
 warnings.filterwarnings('error', category=MySQLdb.Warning)
-

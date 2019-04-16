@@ -1,8 +1,9 @@
 """ Utilities for working with JWT during testing."""
 from time import time
 
-import jwt
 from django.conf import settings
+
+import jwt
 
 
 def generate_jwt_payload(user):

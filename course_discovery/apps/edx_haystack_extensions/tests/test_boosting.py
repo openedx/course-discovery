@@ -1,13 +1,13 @@
 import datetime
 
-import pytest
 import pytz
-from dateutil.relativedelta import relativedelta
 from haystack.query import SearchQuerySet
-from mock import patch
 
+import pytest
 from course_discovery.apps.course_metadata.models import CourseRun, Program, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
+from dateutil.relativedelta import relativedelta
+from mock import patch
 
 
 @pytest.mark.django_db

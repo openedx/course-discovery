@@ -1,9 +1,9 @@
 import urllib.parse
 
-import pytest
 from django.test import RequestFactory
 from django.urls import reverse
 
+import pytest
 from course_discovery.apps.api.serializers import MinimalProgramSerializer
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt, SerializationMixin
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
@@ -12,9 +12,9 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory,
-    CurriculumFactory, CurriculumProgramMembershipFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory, VideoFactory
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
+    CurriculumProgramMembershipFactory, EndorsementFactory, ExpectedLearningItemFactory, JobOutlookItemFactory,
+    OrganizationFactory, PersonFactory, ProgramFactory, VideoFactory
 )
 
 

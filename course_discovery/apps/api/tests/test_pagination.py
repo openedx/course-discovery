@@ -1,9 +1,9 @@
 from django.test import TestCase
+
+from course_discovery.apps.api.pagination import PageNumberPagination, ProxiedPagination
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
-
-from course_discovery.apps.api.pagination import PageNumberPagination, ProxiedPagination
 
 
 class ProxiedPaginationTests(TestCase):

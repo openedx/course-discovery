@@ -15,7 +15,6 @@ Including another URLconf
 
 import os
 
-from auth_backends.urls import auth_urlpatterns
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -23,6 +22,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django.views.i18n import javascript_catalog
 
+from auth_backends.urls import auth_urlpatterns
 from course_discovery.apps.api.views import SwaggerSchemaView
 from course_discovery.apps.core import views as core_views
 from course_discovery.apps.course_metadata.views import QueryPreviewView

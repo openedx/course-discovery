@@ -6,6 +6,16 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.db import models, transaction
+from django.db.models import F, Q
+from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.fields import AutoSlugField
+from django_extensions.db.models import TimeStampedModel
+from haystack.query import SearchQuerySet
+
 import waffle
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
@@ -21,15 +31,6 @@ from course_discovery.apps.course_metadata.utils import (
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
-from django.db import models, transaction
-from django.db.models import F, Q
-from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
-from django_extensions.db.fields import AutoSlugField
-from django_extensions.db.models import TimeStampedModel
-from haystack.query import SearchQuerySet
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel

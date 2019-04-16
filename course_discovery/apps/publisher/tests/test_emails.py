@@ -1,13 +1,11 @@
 # pylint: disable=no-member
 
-import mock
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
-from opaque_keys.edx.keys import CourseKey
-from testfixtures import LogCapture
 
+import mock
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -20,6 +18,8 @@ from course_discovery.apps.publisher.constants import LEGAL_TEAM_GROUP_NAME
 from course_discovery.apps.publisher.models import UserAttributes
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
+from opaque_keys.edx.keys import CourseKey
+from testfixtures import LogCapture
 
 
 class StudioInstanceCreatedEmailTests(SiteMixin, TestCase):

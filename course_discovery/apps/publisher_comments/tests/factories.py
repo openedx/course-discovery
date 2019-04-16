@@ -1,5 +1,4 @@
 import factory
-
 from course_discovery.apps.core.tests.factories import SiteFactory, UserFactory
 from course_discovery.apps.publisher.tests.factories import CourseRunFactory
 from course_discovery.apps.publisher_comments.models import Comments

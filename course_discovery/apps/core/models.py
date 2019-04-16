@@ -8,8 +8,9 @@ from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from edx_rest_api_client.client import EdxRestApiClient, OAuthAPIClient
 from guardian.mixins import GuardianUserMixin
+
+from edx_rest_api_client.client import EdxRestApiClient, OAuthAPIClient
 
 
 class User(GuardianUserMixin, AbstractUser):

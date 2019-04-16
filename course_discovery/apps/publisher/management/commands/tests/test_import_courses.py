@@ -1,13 +1,12 @@
 import logging
 
-import ddt
-import mock
-import responses
 from django.core.management import CommandError, call_command
 from django.db import IntegrityError
 from django.test import TestCase
-from testfixtures import LogCapture
 
+import ddt
+import mock
+import responses
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import (
@@ -19,6 +18,7 @@ from course_discovery.apps.publisher.dataloader.update_course_runs import logger
 from course_discovery.apps.publisher.models import Course as Publisher_Course
 from course_discovery.apps.publisher.models import CourseRun as Publisher_CourseRun
 from course_discovery.apps.publisher.tests import factories
+from testfixtures import LogCapture
 
 
 @ddt.ddt

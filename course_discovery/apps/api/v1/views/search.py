@@ -1,10 +1,14 @@
 from django.http import QueryDict
-from drf_haystack.filters import HaystackFilter
-from drf_haystack.mixins import FacetMixin
-from drf_haystack.viewsets import HaystackViewSet
 from haystack.backends import SQ
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
+
+from course_discovery.apps.api import filters, mixins, serializers
+from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
+from drf_haystack.filters import HaystackFilter
+from drf_haystack.mixins import FacetMixin
+from drf_haystack.viewsets import HaystackViewSet
 from rest_framework import renderers, status, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.exceptions import ParseError, ValidationError
@@ -12,10 +16,6 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from course_discovery.apps.api import filters, mixins, serializers
-from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 
 
 class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):

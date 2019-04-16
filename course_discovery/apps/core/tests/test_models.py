@@ -1,11 +1,11 @@
 """ Tests for core models. """
+from django.test import TestCase
+
 import ddt
 import responses
-from django.test import TestCase
-from social_django.models import UserSocialAuth
-
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
+from social_django.models import UserSocialAuth
 
 
 class UserTests(TestCase):

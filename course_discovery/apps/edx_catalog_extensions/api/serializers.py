@@ -1,10 +1,9 @@
 # pylint: disable=abstract-method
+from course_discovery.apps.api.serializers import AggregateFacetSearchSerializer, QueryFacetFieldSerializer
 from drf_haystack.fields import FacetDictField, FacetListField
 from drf_haystack.serializers import FacetFieldSerializer
 from rest_framework import serializers
 from rest_framework.fields import DictField
-
-from course_discovery.apps.api.serializers import AggregateFacetSearchSerializer, QueryFacetFieldSerializer
 
 
 class DistinctCountsAggregateFacetSearchSerializer(AggregateFacetSearchSerializer):

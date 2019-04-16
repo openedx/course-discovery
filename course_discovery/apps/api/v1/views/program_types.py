@@ -1,9 +1,8 @@
+from course_discovery.apps.api import serializers
+from course_discovery.apps.course_metadata.models import ProgramType
 from rest_framework import viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-
-from course_discovery.apps.api import serializers
-from course_discovery.apps.course_metadata.models import ProgramType
 
 
 class ProgramTypeViewSet(viewsets.ReadOnlyModelViewSet):

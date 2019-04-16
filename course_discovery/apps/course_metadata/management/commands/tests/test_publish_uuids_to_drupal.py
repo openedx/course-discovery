@@ -1,7 +1,7 @@
-import mock
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
+import mock
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
 from course_discovery.apps.course_metadata.management.commands.publish_uuids_to_drupal import Command

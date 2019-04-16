@@ -1,10 +1,10 @@
 import json
 from urllib.parse import quote
 
-import pytest
 from django.test import TestCase
 from django.urls import reverse
 
+import pytest
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests.factories import (

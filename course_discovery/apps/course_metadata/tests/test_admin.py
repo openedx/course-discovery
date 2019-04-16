@@ -1,18 +1,13 @@
 import itertools
 
-import ddt
 from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.test import LiveServerTestCase, TestCase
 from django.urls import reverse
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select
-from selenium.webdriver.support.wait import WebDriverWait
 
+import ddt
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
@@ -23,6 +18,11 @@ from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.forms import PathwayAdminForm, ProgramAdminForm
 from course_discovery.apps.course_metadata.models import Person, Position, Program, ProgramType, Seat, SeatType
 from course_discovery.apps.course_metadata.tests import factories
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.wait import WebDriverWait
 
 
 # pylint: disable=no-member

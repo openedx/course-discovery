@@ -2,6 +2,7 @@ import logging
 
 import requests
 from django.conf import settings
+
 from rest_framework import views
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response

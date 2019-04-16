@@ -1,12 +1,12 @@
 import logging
 
-import waffle
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django_comments.models import CommentAbstractModel
 from django_extensions.db.fields import ModificationDateTimeField
 from djchoices import ChoiceItem, DjangoChoices
 
+import waffle
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher_comments.emails import send_email_decline_preview, send_email_for_comment
 

@@ -1,13 +1,12 @@
-import mock
-
 from django.conf import settings
 from django.urls import reverse
-from rest_framework.test import APITestCase
 
+import mock
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import UserThrottleRate
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.throttles import OverridableUserRateThrottle, throttling_cache
+from rest_framework.test import APITestCase
 
 
 class RateLimitingExceededTest(SiteMixin, APITestCase):

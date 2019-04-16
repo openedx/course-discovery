@@ -1,13 +1,11 @@
 import datetime
 import logging
 
-import jwt
 from django.apps import apps
 from django.core.management import BaseCommand
 from django.db.models.signals import post_delete, post_save
-from edx_rest_api_client.client import EdxRestApiClient
-from opaque_keys import InvalidKeyError
 
+import jwt
 from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
@@ -17,6 +15,8 @@ from course_discovery.apps.publisher.models import Course as PublisherCourse
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 from course_discovery.apps.publisher.models import DrupalLoaderConfig
 from course_discovery.apps.publisher.signals import create_course_run_in_studio_receiver
+from edx_rest_api_client.client import EdxRestApiClient
+from opaque_keys import InvalidKeyError
 
 logger = logging.getLogger(__name__)
 

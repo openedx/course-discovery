@@ -1,11 +1,11 @@
 from __future__ import unicode_literals
 
-from ddt import data, ddt
 from django.core.management import CommandError, call_command
 from django.test import TestCase
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import SiteFactory
+from ddt import data, ddt
 
 
 @ddt

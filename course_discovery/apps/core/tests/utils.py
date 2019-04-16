@@ -3,9 +3,8 @@ import logging
 import math
 from urllib.parse import parse_qs, urlparse
 
-from factory.fuzzy import BaseFuzzyAttribute, FuzzyChoice, FuzzyText
-
 from course_discovery.apps.core.tests.helpers import make_image_stream
+from factory.fuzzy import BaseFuzzyAttribute, FuzzyChoice, FuzzyText
 
 
 class FuzzyDomain(BaseFuzzyAttribute):

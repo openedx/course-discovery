@@ -1,6 +1,5 @@
 """Test core.views."""
 
-import mock
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import DatabaseError
@@ -9,6 +8,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_text
 
+import mock
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.constants import Status
 

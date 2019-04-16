@@ -4,7 +4,6 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from parler.admin import TranslatableAdmin
 
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
@@ -14,6 +13,7 @@ from course_discovery.apps.course_metadata.forms import (
     CurriculumProgramMembershipInlineAdminForm, PathwayAdminForm, ProgramAdminForm
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
+from parler.admin import TranslatableAdmin
 
 PUBLICATION_FAILURE_MSG_TPL = _(
     'An error occurred while publishing the {model} to the marketing site. '

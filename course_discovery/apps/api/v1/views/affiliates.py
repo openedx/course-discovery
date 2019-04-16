@@ -1,14 +1,14 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.renderers import AffiliateWindowXMLRenderer
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import CourseRun, Seat
+from rest_framework import viewsets
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 
 class AffiliateWindowViewSet(viewsets.ViewSet):

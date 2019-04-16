@@ -1,6 +1,6 @@
-import factory
 from django.contrib.sites.models import Site
 
+import factory
 from course_discovery.apps.core.models import Currency, Partner, User
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
 

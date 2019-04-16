@@ -3,11 +3,9 @@ import datetime
 import xml.etree.ElementTree as ET
 from os.path import abspath, dirname, join
 
-import ddt
 import pytz
-from lxml import etree
-from rest_framework.reverse import reverse
 
+import ddt
 from course_discovery.apps.api.serializers import AffiliateWindowSerializer
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -16,6 +14,8 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import Seat
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
+from lxml import etree
+from rest_framework.reverse import reverse
 
 
 @ddt.ddt

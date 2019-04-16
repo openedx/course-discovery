@@ -1,12 +1,12 @@
 import hashlib
 import logging
 import math
-import six
 
-from opaque_keys.edx.keys import CourseKey
+import six
 
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
+from opaque_keys.edx.keys import CourseKey
 
 logger = logging.getLogger(__name__)
 

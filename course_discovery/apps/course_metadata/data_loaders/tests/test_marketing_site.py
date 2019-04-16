@@ -4,16 +4,12 @@ import math
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID
 
+import pytz
+from django.test import TestCase
+
 import ddt
 import mock
-import pytz
 import responses
-from dateutil import rrule
-from django.test import TestCase
-from opaque_keys.edx.keys import CourseKey
-from testfixtures import LogCapture
-from waffle.testutils import override_switch
-
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import logger as marketing_site_logger
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
@@ -25,6 +21,10 @@ from course_discovery.apps.course_metadata.data_loaders.tests.mixins import Data
 from course_discovery.apps.course_metadata.models import Course, Organization, Subject
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from dateutil import rrule
+from opaque_keys.edx.keys import CourseKey
+from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 ENGLISH_LANGUAGE_TAG = LanguageTag(code='en-us', name='English - United States')
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.marketing_site.logger'

@@ -3,7 +3,6 @@ import logging
 from urllib.parse import urljoin
 
 import pytz
-import waffle
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
@@ -15,12 +14,8 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
 from guardian.shortcuts import get_objects_for_user
-from simple_history.models import HistoricalRecords
-from solo.models import SingletonModel
-from sortedm2m.fields import SortedManyToManyField
-from stdimage.models import StdImageField
-from taggit.managers import TaggableManager
 
+import waffle
 from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course as DiscoveryCourse
@@ -37,6 +32,11 @@ from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY
 from course_discovery.apps.publisher.exceptions import CourseRunEditException
 from course_discovery.apps.publisher.utils import is_email_notification_enabled, is_internal_user, is_publisher_admin
 from course_discovery.apps.publisher.validators import ImageMultiSizeValidator
+from simple_history.models import HistoricalRecords
+from solo.models import SingletonModel
+from sortedm2m.fields import SortedManyToManyField
+from stdimage.models import StdImageField
+from taggit.managers import TaggableManager
 
 logger = logging.getLogger(__name__)
 

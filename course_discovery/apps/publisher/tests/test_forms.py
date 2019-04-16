@@ -1,13 +1,12 @@
 from datetime import datetime, timedelta
 
-import ddt
-import pytest
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
 from pytz import timezone
-from waffle.testutils import override_switch
 
+import ddt
+import pytest
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
@@ -23,6 +22,7 @@ from course_discovery.apps.publisher.models import Group, OrganizationExtension,
 from course_discovery.apps.publisher.tests.factories import (
     CourseFactory, CourseRunFactory, CourseUserRoleFactory, OrganizationExtensionFactory, SeatFactory
 )
+from waffle.testutils import override_switch
 
 
 class UserModelChoiceFieldTests(TestCase):

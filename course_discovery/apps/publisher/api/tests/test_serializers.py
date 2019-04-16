@@ -1,10 +1,8 @@
 """Tests API Serializers."""
-import mock
 from django.core import mail
 from django.test import RequestFactory, TestCase
-from opaque_keys.edx.keys import CourseKey
-from rest_framework.exceptions import ValidationError
 
+import mock
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -22,6 +20,8 @@ from course_discovery.apps.publisher.tests.factories import (
     CourseFactory, CourseRunFactory, CourseRunStateFactory, CourseStateFactory, CourseUserRoleFactory,
     OrganizationExtensionFactory, SeatFactory
 )
+from opaque_keys.edx.keys import CourseKey
+from rest_framework.exceptions import ValidationError
 
 
 class CourseUserRoleSerializerTests(SiteMixin, TestCase):

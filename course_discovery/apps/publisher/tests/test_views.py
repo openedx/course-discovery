@@ -3,9 +3,6 @@ import json
 import random
 from datetime import datetime, timedelta
 
-import ddt
-import factory
-import mock
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -18,11 +15,11 @@ from django.http import Http404
 from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
-from opaque_keys.edx.keys import CourseKey
 from pytz import timezone
-from testfixtures import LogCapture
-from waffle.testutils import override_switch
 
+import ddt
+import factory
+import mock
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
@@ -56,6 +53,9 @@ from course_discovery.apps.publisher.views import (
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.models import CommentTypeChoices
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
+from opaque_keys.edx.keys import CourseKey
+from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 
 @ddt.ddt

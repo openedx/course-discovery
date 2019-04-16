@@ -1,8 +1,7 @@
-from rest_framework.permissions import BasePermission
-
 from course_discovery.apps.publisher.mixins import check_course_organization_permission, check_roles_access
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.utils import is_internal_user, is_publisher_user
+from rest_framework.permissions import BasePermission
 
 
 class CanViewAssociatedCourse(BasePermission):

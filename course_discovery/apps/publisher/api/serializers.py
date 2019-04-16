@@ -1,16 +1,13 @@
 """Publisher API Serializers"""
 import re
 
-import waffle
 from django.apps import apps
 from django.db import transaction
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django_fsm import TransitionNotAllowed
-from opaque_keys import InvalidKeyError
-from opaque_keys.edx.keys import CourseKey
-from rest_framework import serializers
 
+import waffle
 from course_discovery.apps.core.models import User
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.publisher.choices import PublisherUserRole
@@ -19,6 +16,9 @@ from course_discovery.apps.publisher.emails import (
     send_email_preview_page_is_available
 )
 from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, CourseUserRole
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
+from rest_framework import serializers
 
 
 class UnvalidatedField(serializers.Field):

@@ -1,6 +1,6 @@
-import ddt
 from django.test import TestCase
 
+import ddt
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests import factories
 from course_discovery.apps.core.tests.factories import UserFactory

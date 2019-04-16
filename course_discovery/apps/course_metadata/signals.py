@@ -1,10 +1,10 @@
 import logging
 
-import waffle
 from django.apps import apps
 from django.db.models.signals import post_delete, post_save, pre_delete
 from django.dispatch import receiver
 
+import waffle
 from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG

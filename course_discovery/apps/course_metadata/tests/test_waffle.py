@@ -1,7 +1,7 @@
 from django.test import TestCase
-from waffle.testutils import override_switch
 
 from course_discovery.apps.course_metadata.waffle import masters_course_mode_enabled
+from waffle.testutils import override_switch
 
 
 class CurriculumWaffleTests(TestCase):

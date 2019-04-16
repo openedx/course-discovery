@@ -1,8 +1,8 @@
 """ Tests for core models. """
 from django.test import TestCase
-from pytest import mark
 
 from course_discovery.apps.journal.tests.factories import JournalBundleFactory, JournalFactory
+from pytest import mark
 
 
 @mark.django_db

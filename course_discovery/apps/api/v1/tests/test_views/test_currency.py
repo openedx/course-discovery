@@ -1,8 +1,8 @@
-import mock
-import pytest
 from django.core.cache import cache
 from django.urls import reverse
 
+import mock
+import pytest
 from course_discovery.apps.api.v1.views.currency import CurrencyView, exchange_rate_cache_key
 
 

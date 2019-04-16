@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from guardian.admin import GuardedModelAdminMixin
-from simple_history.admin import SimpleHistoryAdmin
 
 from course_discovery.apps.publisher.assign_permissions import assign_permissions
 from course_discovery.apps.publisher.choices import InternalUserRole
@@ -18,6 +17,7 @@ from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, DrupalLoaderConfig,
     OrganizationExtension, OrganizationUserRole, PublisherUser, Seat, UserAttributes
 )
+from simple_history.admin import SimpleHistoryAdmin
 
 
 @admin.register(CourseUserRole)

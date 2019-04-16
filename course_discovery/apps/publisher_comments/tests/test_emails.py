@@ -1,12 +1,9 @@
-import ddt
-import mock
 from django.core import mail
 from django.test import TestCase
 from django.urls import reverse
-from opaque_keys.edx.keys import CourseKey
-from testfixtures import LogCapture
-from waffle.testutils import override_switch
 
+import ddt
+import mock
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests import toggle_switch
@@ -20,6 +17,9 @@ from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 from course_discovery.apps.publisher_comments.emails import log as comments_email_logger
 from course_discovery.apps.publisher_comments.models import CommentTypeChoices
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
+from opaque_keys.edx.keys import CourseKey
+from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 
 @ddt.ddt

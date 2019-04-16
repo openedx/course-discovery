@@ -2,13 +2,12 @@ import datetime
 import json
 from decimal import Decimal
 
+from django.test import TestCase
+from pytz import UTC
+
 import ddt
 import mock
 import responses
-from django.test import TestCase
-from pytz import UTC
-from waffle.testutils import override_switch
-
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.api import (
@@ -24,6 +23,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     VideoFactory
 )
 from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
+from waffle.testutils import override_switch
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
 

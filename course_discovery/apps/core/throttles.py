@@ -1,8 +1,8 @@
 """Custom API throttles."""
 from django.core.cache import InvalidCacheBackendError, caches
-from rest_framework.throttling import UserRateThrottle
 
 from course_discovery.apps.core.models import UserThrottleRate
+from rest_framework.throttling import UserRateThrottle
 
 
 def throttling_cache():

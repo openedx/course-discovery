@@ -1,13 +1,12 @@
 """ Tests publisher.utils"""
 from datetime import datetime
 
-import ddt
 from django.contrib.auth.models import Group
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
-from mock import Mock
 
+import ddt
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.publisher.constants import (
     ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
@@ -21,6 +20,7 @@ from course_discovery.apps.publisher.utils import (
     get_internal_users, has_role_for_course, is_email_notification_enabled, is_internal_user,
     is_project_coordinator_user, is_publisher_admin, is_publisher_user, make_bread_crumbs, parse_datetime_field
 )
+from mock import Mock
 
 
 @ddt.ddt

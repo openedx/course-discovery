@@ -1,11 +1,11 @@
 # pylint: disable=no-member
 import datetime
 
-import ddt
-import pytest
 import pytz
 from django.test import TestCase
 
+import ddt
+import pytest
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory, SeatFactory

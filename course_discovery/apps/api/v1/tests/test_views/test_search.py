@@ -1,10 +1,10 @@
 import datetime
 import urllib.parse
 
-import ddt
 import pytz
 from django.urls import reverse
 
+import ddt
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.v1.tests.test_views import mixins
 from course_discovery.apps.api.v1.views.search import TypeaheadSearchView

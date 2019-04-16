@@ -1,7 +1,7 @@
-import ddt
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
+import ddt
 from course_discovery.apps.publisher.validators import validate_text_count
 
 

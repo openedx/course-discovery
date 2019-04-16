@@ -2,14 +2,11 @@ import json
 import random
 from datetime import date
 
-import mock
-import responses
 from django.test import override_settings
 from django.urls import reverse
-from rest_framework.test import APITestCase
-from testfixtures import LogCapture
-from waffle.testutils import override_switch
 
+import mock
+import responses
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -26,6 +23,9 @@ from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
 from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.models import CourseEntitlement, Seat
 from course_discovery.apps.publisher.tests.factories import CourseEntitlementFactory, CourseRunFactory, SeatFactory
+from rest_framework.test import APITestCase
+from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
 

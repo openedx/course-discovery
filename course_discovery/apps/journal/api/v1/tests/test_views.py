@@ -1,12 +1,11 @@
 import uuid
 
-from pytest import mark
-from rest_framework.reverse import reverse
-from rest_framework.test import APITestCase
-
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.journal.models import Journal
 from course_discovery.apps.journal.tests.factories import JournalBundleFactory, JournalFactory
+from pytest import mark
+from rest_framework.reverse import reverse
+from rest_framework.test import APITestCase
 
 
 @mark.django_db

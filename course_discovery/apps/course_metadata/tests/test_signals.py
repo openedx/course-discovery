@@ -1,19 +1,19 @@
 import uuid
 
-import mock
-import pytest
 from django.apps import apps
 from django.test import TestCase
-from factory import DjangoModelFactory
-from testfixtures import LogCapture
-from waffle.testutils import override_switch
 
+import mock
+import pytest
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
     Curriculum, CurriculumCourseMembership, DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
     ProfileImageDownloadConfig, ProgramType, Seat, SubjectTranslation, TopicTranslation
 )
 from course_discovery.apps.course_metadata.tests import factories
+from factory import DjangoModelFactory
+from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
 

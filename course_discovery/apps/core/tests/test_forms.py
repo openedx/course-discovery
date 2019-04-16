@@ -1,7 +1,7 @@
 """Tests for core forms."""
-import ddt
 from django.test import TestCase
 
+import ddt
 from course_discovery.apps.core.forms import UserThrottleRateForm
 from course_discovery.apps.core.tests.factories import UserFactory
 

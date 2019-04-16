@@ -2,12 +2,12 @@
 Tests for affiliate tracking cookies.
 """
 from django.test import TestCase
-from selenium import webdriver
 
 from acceptance_tests.config import (
     AFFILIATE_COOKIE_NAME, BASIC_AUTH_PASSWORD, BASIC_AUTH_USERNAME, COOKIE_DOMAIN, ECOMMERCE_URL_ROOT, LMS_URL_ROOT,
     MARKETING_SITE_URL_ROOT
 )
+from selenium import webdriver
 
 
 def _with_basic_auth(url):

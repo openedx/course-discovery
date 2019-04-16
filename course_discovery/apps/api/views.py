@@ -2,6 +2,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import ugettext as _
+
 from rest_framework.permissions import AllowAny
 from rest_framework.renderers import CoreJSONRenderer
 from rest_framework.response import Response

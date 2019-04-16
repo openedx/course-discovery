@@ -2,17 +2,14 @@
 import json
 from urllib.parse import quote
 
-import ddt
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
-from mock import mock, patch
-from opaque_keys.edx.keys import CourseKey
-from testfixtures import LogCapture
 
+import ddt
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -28,6 +25,9 @@ from course_discovery.apps.publisher.models import (
     Course, CourseRun, CourseRunState, CourseState, OrganizationExtension, Seat
 )
 from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE, factories
+from mock import mock, patch
+from opaque_keys.edx.keys import CourseKey
+from testfixtures import LogCapture
 
 
 @ddt.ddt

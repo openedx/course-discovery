@@ -4,11 +4,11 @@ import uuid
 
 import requests
 from django.utils.functional import cached_property
+
+from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
 from slugify import slugify
 from stdimage.models import StdImageFieldFile
 from stdimage.utils import UploadTo
-
-from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
 
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
 
