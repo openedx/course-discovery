@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
 
+import pytest
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from guardian.shortcuts import assign_perm
 from pytz import timezone
 
 import ddt
-import pytest
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory

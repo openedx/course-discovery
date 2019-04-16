@@ -1,8 +1,9 @@
 import datetime
 from itertools import product
 
-import mock
 import pytest
+
+import mock
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory as DiscoveryCourseFactory
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory

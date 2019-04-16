@@ -1,10 +1,10 @@
 import json
 import logging
 
+import pytest
 from django.conf import settings
 from haystack import connections as haystack_connections
 
-import pytest
 import responses
 from course_discovery.apps.core.utils import ElasticsearchUtils
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person

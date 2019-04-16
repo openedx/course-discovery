@@ -1,8 +1,9 @@
 import json
 
+import pytest
+
 import ddt
 import mock
-import pytest
 import responses
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus

@@ -1,9 +1,9 @@
 # pylint: disable=no-member
 import base64
 
+import pytest
 from django.core.files.base import ContentFile
 
-import pytest
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.tests.test_serializers import make_request
 from course_discovery.apps.core.tests.helpers import make_image_file

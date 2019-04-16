@@ -5,6 +5,7 @@ import itertools
 import uuid
 from decimal import Decimal
 
+import pytest
 import pytz
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -13,7 +14,6 @@ from django.test import TestCase
 
 import ddt
 import mock
-import pytest
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file

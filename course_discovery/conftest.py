@@ -2,9 +2,9 @@ import datetime
 from functools import partial
 from itertools import product
 
+import pytest
 import pytz
 
-import pytest
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.tests.factories import SeatFactory
 

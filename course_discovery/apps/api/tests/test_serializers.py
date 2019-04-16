@@ -3,6 +3,7 @@ import datetime
 import itertools
 from urllib.parse import urlencode
 
+import pytest
 from django.test import TestCase
 from django.utils.text import slugify
 from haystack.query import SearchQuerySet
@@ -10,7 +11,6 @@ from pytz import UTC
 
 import ddt
 import mock
-import pytest
 import responses
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (

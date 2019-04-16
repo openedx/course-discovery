@@ -4,12 +4,12 @@ import datetime
 import urllib
 from io import StringIO
 
+import pytest
 import pytz
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 
 import ddt
-import pytest
 import responses
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, FuzzyInt, OAuth2Mixin, SerializationMixin

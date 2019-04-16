@@ -1,10 +1,10 @@
 import uuid
 
+import pytest
 from django.apps import apps
 from django.test import TestCase
 
 import mock
-import pytest
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
     Curriculum, CurriculumCourseMembership, DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,

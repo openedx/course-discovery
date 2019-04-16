@@ -1,7 +1,7 @@
+import pytest
 from django.core.management import call_command
 
 import mock
-import pytest
 import responses
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 

@@ -1,10 +1,10 @@
 import datetime
 import json
 
+import pytest
 from django.contrib.auth.models import Permission
 
 import mock
-import pytest
 import responses
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory

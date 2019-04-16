@@ -1,9 +1,9 @@
 import datetime
 
+import pytest
 import pytz
 from haystack.query import SearchQuerySet
 
-import pytest
 from course_discovery.apps.course_metadata.models import CourseRun, Program, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
 from dateutil.relativedelta import relativedelta

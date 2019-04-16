@@ -1,9 +1,9 @@
+import pytest
 from django.conf import settings
 from django.core.management import CommandError, call_command
 from django.test import TestCase, override_settings
 
 import mock
-import pytest
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
 from course_discovery.apps.edx_haystack_extensions.tests.mixins import SearchIndexTestMixin

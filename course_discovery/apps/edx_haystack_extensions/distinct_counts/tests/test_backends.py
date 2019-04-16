@@ -1,11 +1,11 @@
 import datetime
 
+import pytest
 from haystack.backends import SQ
 from haystack.backends.elasticsearch_backend import ElasticsearchSearchQuery
 from haystack.query import SearchQuerySet
 
 import mock
-import pytest
 from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
 from course_discovery.apps.edx_haystack_extensions.distinct_counts.backends import (

@@ -2,12 +2,12 @@
 import datetime
 import urllib
 
+import pytest
 import pytz
 from django.db.models.functions import Lower
 
 import ddt
 import mock
-import pytest
 import responses
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin

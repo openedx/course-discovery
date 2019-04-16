@@ -1,12 +1,12 @@
 import datetime
 import json
 
+import pytest
 import pytz
 from django.db import IntegrityError
 from django.db.models.functions import Lower
 
 import ddt
-import pytest
 import responses
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin

@@ -1,4 +1,5 @@
 import pytest
+
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.publisher.api.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api

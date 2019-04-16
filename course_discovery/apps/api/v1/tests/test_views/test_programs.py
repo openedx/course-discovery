@@ -1,9 +1,9 @@
 import urllib.parse
 
+import pytest
 from django.test import RequestFactory
 from django.urls import reverse
 
-import pytest
 from course_discovery.apps.api.serializers import MinimalProgramSerializer
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt, SerializationMixin
 from course_discovery.apps.api.v1.views.programs import ProgramViewSet
