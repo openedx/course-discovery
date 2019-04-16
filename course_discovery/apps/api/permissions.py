@@ -24,7 +24,11 @@ class IsCourseEditorOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         if request.method == 'POST':
             org = request.data.get('org')
-            return org and CourseEditor.can_create_course(request.user, org)
+            if not org:
+                # Fail happily because OPTIONS goes down this path too with a fake POST.
+                # If this is a real POST, we'll complain about the missing org in the view.
+                return True
+            return CourseEditor.can_create_course(request.user, org)
         else:
             return True  # other write access attempts will be caught by object permissions below
 
@@ -50,7 +54,9 @@ class IsCourseRunEditorOrDjangoOrReadOnly(BasePermission):
         elif request.method == 'POST':
             course = request.data.get('course')
             if not course:
-                return False
+                # Fail happily because OPTIONS goes down this path too with a fake POST.
+                # If this is a real POST, we'll complain about the missing course in the view.
+                return True
             org, _ = parse_course_key_fragment(course)
             return org and CourseEditor.can_create_course(request.user, org)
         else:
