@@ -526,7 +526,7 @@ class SeatSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return Seat.everything.all().select_related('currency', '_official_version')
+        return Seat.everything.all().select_related('currency')
 
     class Meta(object):
         model = Seat
@@ -546,7 +546,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return CourseEntitlement.everything.all().select_related('currency', 'mode', '_official_version')
+        return CourseEntitlement.everything.all().select_related('currency', 'mode')
 
     class Meta(object):
         model = CourseEntitlement
@@ -721,7 +721,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
 
-        return queryset.select_related('language', 'video', '_official_version').prefetch_related(
+        return queryset.select_related('language', 'video').prefetch_related(
             'course__level_type',
             'transcript_languages',
             'video__image',

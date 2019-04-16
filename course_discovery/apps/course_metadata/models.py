@@ -497,7 +497,7 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         ordering = ['id']
         indexes = [
             models.Index(fields=['id', 'draft']),
-            models.Index(fields=['id', 'draft_version']),
+            models.Index(fields=['id', 'draft_version_id']),
         ]
 
     def __str__(self):
@@ -724,7 +724,7 @@ class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         )
         indexes = [
             models.Index(fields=['id', 'draft']),
-            models.Index(fields=['id', 'draft_version']),
+            models.Index(fields=['id', 'draft_version_id']),
         ]
 
     def _upgrade_deadline_sort(self, seat):
@@ -1094,7 +1094,7 @@ class Seat(DraftModelMixin, TimeStampedModel):
         ordering = ['created']
         indexes = [
             models.Index(fields=['id', 'draft']),
-            models.Index(fields=['id', 'draft_version']),
+            models.Index(fields=['id', 'draft_version_id']),
         ]
 
 
@@ -1121,7 +1121,7 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
         ordering = ['created']
         indexes = [
             models.Index(fields=['id', 'draft']),
-            models.Index(fields=['id', 'draft_version']),
+            models.Index(fields=['id', 'draft_version_id']),
         ]
 
 
