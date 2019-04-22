@@ -40,8 +40,8 @@ def clean_query(query):
 
 def set_official_state(obj, model, attrs=None):
     """
-    Given an object and the model of that object, ensure that an official version is created
-    and set the attributes of that object accordingly.
+    Given a draft object and the model of that object, ensure that an official version is created
+    or updated to match the draft version and set the attributes of that object accordingly.
 
     Args
         obj (instance of a model class)
@@ -53,20 +53,19 @@ def set_official_state(obj, model, attrs=None):
     """
     if obj.draft:
         official_obj = obj.official_version
+        draft_version = model.everything.get(pk=obj.pk)
 
-        # Create it if it doesn't exist.
-        if not official_obj:
-            draft_version = model.everything.get(pk=obj.pk)
-            obj.pk = None
-            obj.draft = False
-            obj.draft_version = draft_version
-            obj.save()
-            official_obj = obj
-            # Copy many-to-many fields manually (they are not copied by the pk=None trick above).
-            # This must be done after the save() because we need an id.
-            for field in model._meta.get_fields():
-                if field.many_to_many and not field.auto_created:
-                    getattr(official_obj, field.name).add(*list(getattr(draft_version, field.name).all()))
+        obj.pk = official_obj.pk if official_obj else None  # pk=None will create it if it didn't exist.
+        obj.draft = False
+        obj.draft_version = draft_version
+        obj.save()
+        official_obj = obj
+        # Copy many-to-many fields manually (they are not copied by the pk trick above).
+        # This must be done after the save() because we need an id.
+        for field in model._meta.get_fields():
+            if field.many_to_many and not field.auto_created:
+                getattr(official_obj, field.name).add(*list(getattr(draft_version, field.name).all()))
+
     else:
         official_obj = obj
 

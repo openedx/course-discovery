@@ -21,7 +21,7 @@ from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
-from course_discovery.apps.course_metadata.utils import ensure_draft_world
+from course_discovery.apps.course_metadata.utils import ensure_draft_world, set_official_state
 
 
 log = logging.getLogger(__name__)
@@ -217,13 +217,17 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         if course_run.status == CourseRunStatus.Reviewed:
             request.data['status'] = CourseRunStatus.Unpublished
 
-        # Sending draft=False triggers the review process
+        # Sending draft=False triggers the review process for unpublished courses
         draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
         if not draft and course_run.status != CourseRunStatus.Published:
             request.data['status'] = CourseRunStatus.LegalReview
 
         response = super().update(request, *args, **kwargs)
         self.push_to_studio(request, course_run, create=False)
+
+        # Published courses can be re-published directly
+        if not draft and course_run.status == CourseRunStatus.Published:
+            set_official_state(course_run, CourseRun)
 
         return response
 
