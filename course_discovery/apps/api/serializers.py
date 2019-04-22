@@ -633,8 +633,8 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 
     class Meta:
         model = CourseRun
-        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url', 'seats',
-                  'start', 'end', 'enrollment_start', 'enrollment_end', 'pacing_type', 'type', 'status',)
+        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url', 'seats', 'start', 'end',
+                  'go_live_date', 'enrollment_start', 'enrollment_end', 'pacing_type', 'type', 'status',)
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -684,9 +684,13 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     def validate(self, data):
         start = data.get('start', self.instance.start if self.instance else None)
         end = data.get('end', self.instance.end if self.instance else None)
+        go_live_date = data.get('go_live_date', self.instance.go_live_date if self.instance else None)
 
         if start and end and start > end:
             raise serializers.ValidationError({'start': _('Start date cannot be after the End date')})
+
+        if go_live_date and start and go_live_date > start:
+            raise serializers.ValidationError({'go_live_date': _('Go Live date cannot be after the Start date.')})
 
         if not self.instance:  # if we're creating an object, we need to make sure to generate a key
             self.ensure_key(data)
@@ -1695,6 +1699,7 @@ class CourseSearchSerializer(HaystackSerializer):
                 'key': course_run.key,
                 'enrollment_start': course_run.enrollment_start,
                 'enrollment_end': course_run.enrollment_end,
+                'go_live_date': course_run.go_live_date,
                 'start': course_run.start,
                 'end': course_run.end,
             }
@@ -1753,6 +1758,7 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'first_enrollable_paid_seat_sku',
             'first_enrollable_paid_seat_price',
             'full_description',
+            'go_live_date',
             'has_enrollable_seats',
             'image_url',
             'key',

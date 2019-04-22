@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-11 17:08+0000\n"
+"POT-Creation-Date: 2019-04-22 17:00+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -50,6 +50,12 @@ msgid "Start date cannot be after the End date"
 msgstr ""
 "Stärt däté çännöt ßé äftér thé Énd däté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
+
+#: apps/api/serializers.py
+msgid "Go Live date cannot be after the Start date."
+msgstr ""
+"Gö Lïvé däté çännöt ßé äftér thé Stärt däté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/api/serializers.py
 msgid "Key cannot be changed"
