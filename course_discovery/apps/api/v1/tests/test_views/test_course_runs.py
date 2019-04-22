@@ -289,7 +289,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         with mock.patch('course_discovery.apps.api.v1.views.course_runs.log.info') as mock_logger:
             response = self.client.patch(url, {}, format='json')
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, "Status {}: {}".format(response.status_code, response.content))
         mock_logger.assert_called_with(
             'Not pushing course run info for %s to Studio as partner %s has no studio_url set.',
             self.draft_course_run.key,
@@ -448,7 +448,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'end': self.draft_course_run.end,  # required, so we need for a put
             'status': 'reviewed',
         }, format='json')
-        assert response.status_code == 200
+        assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
         self.draft_course_run.refresh_from_db()
         draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
         assert draft_course_run.status == CourseRunStatus.Unpublished
@@ -473,6 +473,52 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
         draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
         assert draft_course_run.status == CourseRunStatus.LegalReview
+
+    @responses.activate
+    def test_patch_published(self):
+        """ Verify that draft rows can be updated and re-published with draft=False. """
+        self.mock_patch_to_studio(self.draft_course_run.key)
+        self.draft_course_run.min_effort = 0
+        self.draft_course_run.max_effort = 1
+        self.draft_course_run.status = CourseRunStatus.Reviewed  # Triggers creation of official versions
+        self.draft_course_run.save()
+
+        official_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=False)
+        draft_run = official_run.draft_version
+        official_run.status = CourseRunStatus.Published
+        draft_run.status = CourseRunStatus.Published
+        official_run.save()
+        draft_run.save()
+
+        # Edit; should only touch draft
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
+        updated_min_effort = 867
+        updated_max_effort = 5309
+        data = {
+            'max_effort': updated_max_effort,
+            'min_effort': updated_min_effort,
+        }
+        response = self.client.patch(url, data, format='json')
+        assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
+
+        draft_run.refresh_from_db()
+        assert draft_run.status == CourseRunStatus.Published
+        assert draft_run.min_effort == updated_min_effort
+        assert draft_run.max_effort == updated_max_effort
+
+        official_run.refresh_from_db()
+        assert official_run.status == CourseRunStatus.Published
+        assert official_run.min_effort != updated_min_effort
+        assert official_run.max_effort != updated_max_effort
+
+        # Re-publish; should update official
+        response = self.client.patch(url, {'draft': False}, format='json')
+        assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
+
+        official_run.refresh_from_db()
+        assert official_run.status == CourseRunStatus.Published
+        assert official_run.min_effort == updated_min_effort
+        assert official_run.max_effort == updated_max_effort
 
     def test_list(self):
         """ Verify the endpoint returns a list of all course runs. """
