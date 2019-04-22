@@ -311,6 +311,10 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'Start date cannot be after the End date',
         ),
         (
+            {'start': '2010-01-01T00:00:00Z', 'go_live_date': '2011-01-01T00:00:00Z'},
+            'Go Live date cannot be after the Start date.',
+        ),
+        (
             {'key': 'course-v1:Blarg+Hello+Run'},
             'Key cannot be changed',
         ),

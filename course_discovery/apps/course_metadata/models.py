@@ -659,6 +659,7 @@ class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
             "Title specific for this run of a course. Leave this value blank to default to the parent course's title."))
     start = models.DateTimeField(null=True, blank=True, db_index=True)
     end = models.DateTimeField(null=True, blank=True, db_index=True)
+    go_live_date = models.DateTimeField(null=True, blank=True)
     enrollment_start = models.DateTimeField(null=True, blank=True)
     enrollment_end = models.DateTimeField(null=True, blank=True, db_index=True)
     announcement = models.DateTimeField(null=True, blank=True)
