@@ -14,13 +14,13 @@
 # Marc Höfken <marchoefken@gmx.de>, 2016
 # johmik <mikulasc@in.tum.de>, 2016
 # 9e6d57405f548b8b8d60fb744413d707, 2017
-# Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018
+# Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018-2019
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-11-28 14:16+0000\n"
+"PO-Revision-Date: 2019-04-18 14:40+0000\n"
 "Last-Translator: Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
