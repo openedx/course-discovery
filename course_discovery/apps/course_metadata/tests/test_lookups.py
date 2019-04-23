@@ -251,20 +251,6 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
         assert data.get('results') == expected_results
 
-    def test_autocomplete_limit_by_org(self):
-        org = self.organizations[0]
-        person_autocomplete_url = reverse(
-            'admin_metadata:person-autocomplete'
-        ) + '?q=ins'
-        single_autocomplete_url = person_autocomplete_url + '&org={key}'.format(key=org.key)
-        response = self.client.get(single_autocomplete_url)
-        self._assert_response(response, 1)
-
-        org2 = self.organizations[1]
-        multiple_autocomplete_url = single_autocomplete_url + '&org={key}'.format(key=org2.key)
-        response = self.client.get(multiple_autocomplete_url)
-        self._assert_response(response, 2)
-
     def _make_user_non_staff(self):
         self.client.logout()
         self.user = UserFactory(is_staff=False)
