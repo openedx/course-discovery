@@ -24,6 +24,7 @@ partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, b
 urlpatterns = [
     url(r'^partners/', include(partners_router.urls, namespace='partners')),
     url(r'search/typeahead', search_views.TypeaheadSearchView.as_view(), name='search-typeahead'),
+    url(r'^search/person_typeahead', search_views.PersonTypeaheadSearchView.as_view(), name='person-search-typeahead'),
     url(r'currency', CurrencyView.as_view(), name='currency'),
     url(r'^catalog/query_contains/?', CatalogQueryContainsViewSet.as_view(), name='catalog-query_contains'),
     url(r'^replace_usernames/$', UsernameReplacementView.as_view(), name="replace_usernames"),
