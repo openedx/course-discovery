@@ -216,6 +216,10 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # revert status to unpublished.
         if course_run.status == CourseRunStatus.Reviewed:
             request.data['status'] = CourseRunStatus.Unpublished
+            course_run.ensure_official_version()  # An official version should already exist, but just make sure
+            official_run = course_run.official_version
+            official_run.status = CourseRunStatus.Unpublished
+            official_run.save()
 
         # Sending draft=False triggers the review process for unpublished courses
         draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
