@@ -71,7 +71,7 @@ class PersonAreaOfExpertiseInline(admin.TabularInline):
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     form = CourseAdminForm
-    list_display = ('uuid', 'key', 'title',)
+    list_display = ('uuid', 'key', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
     readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count',)
@@ -88,7 +88,7 @@ class CourseEditorAdmin(admin.ModelAdmin):
 
 @admin.register(CourseEntitlement)
 class CourseEntitlementAdmin(admin.ModelAdmin):
-    list_display = ['course', 'get_course_number', 'mode']
+    list_display = ['course', 'get_course_number', 'mode', 'draft']
 
     def get_course_number(self, obj):
         return obj.course.number
@@ -102,7 +102,7 @@ class CourseEntitlementAdmin(admin.ModelAdmin):
 @admin.register(CourseRun)
 class CourseRunAdmin(admin.ModelAdmin):
     inlines = (SeatInline,)
-    list_display = ('uuid', 'key', 'title', 'status',)
+    list_display = ('uuid', 'key', 'title', 'status', 'draft',)
     list_filter = (
         'course__partner',
         'hidden',
@@ -218,7 +218,7 @@ class ProgramTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Seat)
 class SeatAdmin(admin.ModelAdmin):
-    list_display = ('course_run', 'type')
+    list_display = ('course_run', 'type', 'draft')
     raw_id_fields = ('draft_version',)
 
 
