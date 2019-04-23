@@ -417,7 +417,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'end': self.draft_course_run.end,  # required, so we need for a put
             'title': 'New Title',
         }, format='json')
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
 
         self.draft_course_run.refresh_from_db()
         self.assertEqual(self.draft_course_run.title_override, 'New Title')
@@ -445,6 +445,9 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.mock_patch_to_studio(self.draft_course_run.key)
         self.draft_course_run.status = CourseRunStatus.Reviewed
         self.draft_course_run.save()
+        official_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=False)
+        assert official_course_run.status == CourseRunStatus.Reviewed
+
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
         response = self.client.put(url, {
             'course': self.draft_course_run.course.key,  # required, so we need for a put
@@ -456,6 +459,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.draft_course_run.refresh_from_db()
         draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
         assert draft_course_run.status == CourseRunStatus.Unpublished
+        assert draft_course_run.official_version.status == CourseRunStatus.Unpublished
 
     @ddt.data(
         CourseRunStatus.Unpublished,
