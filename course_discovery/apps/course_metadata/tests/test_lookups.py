@@ -251,16 +251,6 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
         assert data.get('results') == expected_results
 
-    def test_instructor_autocomplete_without_rendering(self):
-        person_autocomplete_url = reverse(
-            'admin_metadata:person-autocomplete'
-        ) + '?q={q}&serialize=1'.format(q=self.instructors[0].uuid)
-
-        response = self.client.get(person_autocomplete_url)
-        data = json.loads(response.content.decode('utf-8'))
-        self._assert_response(response, 1)
-        assert data['results'][0]['text']['bio'] == self.instructors[0].bio
-
     def test_autocomplete_limit_by_org(self):
         org = self.organizations[0]
         person_autocomplete_url = reverse(
