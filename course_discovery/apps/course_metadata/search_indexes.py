@@ -196,7 +196,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     status = indexes.CharField(model_attr='status', faceted=True)
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
     end = indexes.DateTimeField(model_attr='end', null=True)
-    go_live_date = indexes.DateTimeField(model_attr='go_live_date', null=True)
+    publish_date = indexes.DateTimeField(model_attr='publish_date', null=True)
     enrollment_start = indexes.DateTimeField(model_attr='enrollment_start', null=True)
     enrollment_end = indexes.DateTimeField(model_attr='enrollment_end', null=True)
     announcement = indexes.DateTimeField(model_attr='announcement', null=True)

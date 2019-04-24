@@ -141,7 +141,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     language = factory.Iterator(LanguageTag.objects.all())
     start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
-    go_live_date = FuzzyDateTime(datetime.datetime(2014, 1, 1, microsecond=1, tzinfo=UTC)).start_dt
+    publish_date = FuzzyDateTime(datetime.datetime(2014, 1, 1, microsecond=1, tzinfo=UTC)).start_dt
     enrollment_start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     enrollment_end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
     announcement = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
