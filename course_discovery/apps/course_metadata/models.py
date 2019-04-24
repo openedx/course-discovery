@@ -731,6 +731,7 @@ class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
 
     everything = CourseRunQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseRunQuerySet)()
+    history = HistoricalRecords(excluded_fields=['slug'])
 
     class Meta:
         unique_together = (
