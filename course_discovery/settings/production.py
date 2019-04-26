@@ -73,3 +73,11 @@ for override, value in DB_OVERRIDES.items():
 # desired for truncation warnings, which hide potential data integrity issues.
 warnings.filterwarnings('error', category=MySQLdb.Warning)
 
+# Minify CSS
+COMPRESS_CSS_FILTERS += [
+    'compressor.filters.cssmin.CSSMinFilter',
+]
+
+# Enable offline compression of CSS/JS
+COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True

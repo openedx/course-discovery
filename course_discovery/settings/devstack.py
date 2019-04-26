@@ -41,6 +41,10 @@ MEDIA_URL = 'http://localhost:18381' + LOCAL_DISCOVERY_MEDIA_URL
 
 DEFAULT_PARTNER_ID = 1
 
+# Allow live changes to JS and CSS
+COMPRESS_OFFLINE = False
+COMPRESS_ENABLED = False
+
 PARLER_LANGUAGES = {
     1: (
         {'code': LANGUAGE_CODE, },
