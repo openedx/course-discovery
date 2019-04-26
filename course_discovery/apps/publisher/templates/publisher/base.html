@@ -6,9 +6,11 @@
 
 {% block css %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'bower_components/font-awesome/css/font-awesome.min.css' %}" type="text/css">
-    <link rel="stylesheet" href="{% static 'bower_components/pikaday/css/pikaday.css' %}" type="text/css">
-    <link rel="stylesheet" href="{% static 'bower_components/datatables/media/css/jquery.dataTables.min.css' %}" type="text/css">
+    {% compress css %}
+        <link rel="stylesheet" href="{% static 'bower_components/font-awesome/css/font-awesome.min.css' %}" type="text/x-scss">
+        <link rel="stylesheet" href="{% static 'bower_components/pikaday/css/pikaday.css' %}" type="text/x-scss">
+        <link rel="stylesheet" href="{% static 'bower_components/datatables/media/css/jquery.dataTables.min.css' %}" type="text/x-scss">
+    {% endcompress %}
 {% endblock %}
 
 {% block content %}
@@ -56,6 +58,7 @@
 {% block js %}
     {{ block.super }}
 
+    {% compress js %}
         <script src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
         <script src="{% static 'admin/js/jquery.init.js' %}"></script>
         <script src="{% static 'bower_components/js-cookie/src/js.cookie.js' %}"></script>
@@ -67,6 +70,7 @@
         <script src="{% static 'js/publisher/views/navbar.js' %}"></script>
         <script src="{% static 'js/publisher/utils.js' %}"></script>
         <script src="{% static 'js/publisher/ajax-loading.js' %}"></script>
+    {% endcompress %}
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -75,8 +79,10 @@
         });
     </script>
 
+    {% compress js %}
         {% block extra_js %}
         {% endblock %}
+    {% endcompress %}
 
     {% block js_without_compress %}{% endblock %}
 {% endblock %}

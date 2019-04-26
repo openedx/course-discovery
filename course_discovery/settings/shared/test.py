@@ -19,4 +19,8 @@ EDX_DRF_EXTENSIONS = {
 
 DEFAULT_PARTNER_ID = 1
 
+# Enable offline compression of CSS/JS
+COMPRESS_ENABLED = True
+COMPRESS_OFFLINE = True
+
 SOLO_CACHE = None
