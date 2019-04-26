@@ -1,9 +1,10 @@
 from functools import wraps
+from urllib import parse
 
 from dal import autocomplete
 from django.contrib.auth.decorators import login_required
 from django.db.models.functions import Lower
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponseForbidden, HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 
 from course_discovery.apps.core.models import User
@@ -11,6 +12,22 @@ from course_discovery.apps.course_metadata.models import Organization
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import Course, CourseUserRole, Seat
 from course_discovery.apps.publisher.utils import is_internal_user, is_publisher_admin, is_publisher_user
+
+
+def enforce_site_host(func):
+    """
+    Decorator to redirect any incoming request where the hostname does not match the site's domain.
+    In such cases, we redirect the user to the same URL using the domain from the site.
+
+    This is useful when migrating from one hostname to another.
+    """
+    def inner(self, request, *args, **kwargs):
+        if request.get_host() != request.site.domain:
+            parts = parse.urlparse(request.build_absolute_uri())
+            url = parse.urlunparse(parts._replace(netloc=request.site.domain))
+            return HttpResponsePermanentRedirect(url)
+        return func(self, request, *args, **kwargs)
+    return inner
 
 
 class PublisherPermissionMixin(object):
@@ -51,6 +68,7 @@ class PublisherPermissionMixin(object):
     def permission_failed(self):
         return HttpResponseForbidden()
 
+    @enforce_site_host
     def dispatch(self, request, *args, **kwargs):
         if not self.has_user_access(request.user):
             return self.permission_failed()
@@ -60,6 +78,7 @@ class PublisherPermissionMixin(object):
 
 class LoginRequiredMixin(object):
 
+    @enforce_site_host
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
@@ -117,6 +136,7 @@ class PublisherUserRequiredMixin(object):
     """
     Mixin to view the user is part of any publisher app group.
     """
+    @enforce_site_host
     @method_decorator(publisher_user_required)
     def dispatch(self, request, *args, **kwargs):
         return super(PublisherUserRequiredMixin, self).dispatch(request, *args, **kwargs)
