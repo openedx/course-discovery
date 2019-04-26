@@ -382,7 +382,6 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
             logger.info('Created new marketing site node [%s] for course run [%s].', node_id, obj.key)
 
         if node_id and (not previous_obj or obj.slug != previous_obj.slug):
-
             logger.info('Setting marketing alias of [%s] for course [%s].', obj.slug, obj.key)
             # Don't pass previous_obj to update_node_alias, because we don't want to delete the old alias.
             # Not deleting it means that Drupal will automatically have old alias point to new alias.
@@ -399,10 +398,14 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
             dict: Data to PUT to the Drupal API.
         """
         data = super().serialize_obj(obj)
+        if obj.status == CourseRunStatus.Reviewed or obj.status == CourseRunStatus.Published:
+            status = 1
+        else:
+            status = 0
 
         return {
             **data,
-            'status': 1 if obj.status == CourseRunStatus.Published else 0,
+            'status': status,
             'title': obj.title,
             'field_course_id': obj.key,
             'type': 'course',

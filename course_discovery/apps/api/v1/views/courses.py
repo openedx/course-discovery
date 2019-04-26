@@ -177,9 +177,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         if Course.objects.filter(partner=partner, key=course_creation_fields['key']).exists():
             raise Exception(_('A course with key {key} already exists.').format(key=course_creation_fields['key']))
 
-        course = serializer.save()
-        course.draft = True
-        course.save()
+        course = serializer.save(draft=True)
 
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
