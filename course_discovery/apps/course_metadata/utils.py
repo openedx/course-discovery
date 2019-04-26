@@ -51,6 +51,13 @@ def set_official_state(obj, model, attrs=None):
     Returns
         the official version of that object with the attributes updated to attrs
     """
+    from course_discovery.apps.course_metadata.models import CourseRun
+    # This is so we don't create the marketing node with an incorrect slug.
+    # We correct the slug after setting official state, but the AutoSlugField initially overwrites it.
+    if isinstance(obj, CourseRun):
+        save_kwargs = {'suppress_publication': True}
+    else:
+        save_kwargs = {}
     if obj.draft:
         official_obj = obj.official_version
         draft_version = model.everything.get(pk=obj.pk)
@@ -58,7 +65,7 @@ def set_official_state(obj, model, attrs=None):
         obj.pk = official_obj.pk if official_obj else None  # pk=None will create it if it didn't exist.
         obj.draft = False
         obj.draft_version = draft_version
-        obj.save()
+        obj.save(**save_kwargs)
         official_obj = obj
         # Copy many-to-many fields manually (they are not copied by the pk trick above).
         # This must be done after the save() because we need an id.
@@ -74,7 +81,7 @@ def set_official_state(obj, model, attrs=None):
         for key, value in attrs.items():
             setattr(official_obj, key, value)
 
-    official_obj.save()
+    official_obj.save(**save_kwargs)
     return official_obj
 
 

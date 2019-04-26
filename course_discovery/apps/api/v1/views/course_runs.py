@@ -191,9 +191,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         old_course_run = course.canonical_course_run
 
         # And finally, save to database and push to studio
-        course_run = serializer.save()
-        course_run.draft = True
-        course_run.save()
+        course_run = serializer.save(draft=True)
         self.push_to_studio(request, course_run, create=True, old_course_run=old_course_run)
 
         headers = self.get_success_headers(serializer.data)
