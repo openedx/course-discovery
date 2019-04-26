@@ -14,7 +14,7 @@ from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.forms import model_to_dict
-from django.http import Http404
+from django.http import Http404, HttpRequest
 from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
@@ -2104,7 +2104,7 @@ class CourseListViewTests(SiteMixin, PaginationMixin, TestCase):
 @ddt.ddt
 @mock.patch('course_discovery.apps.publisher.views.COURSES_DEFAULT_PAGE_SIZE', 2)
 @mock.patch('course_discovery.apps.publisher.views.COURSES_ALLOWED_PAGE_SIZES', (2, 3, 4))
-class CourseListViewPaginationTests(PaginationMixin, TestCase):
+class CourseListViewPaginationTests(SiteMixin, PaginationMixin, TestCase):
     """ Pagination tests for `CourseListView` """
 
     def setUp(self):
@@ -2304,7 +2304,7 @@ class CourseListViewPaginationTests(PaginationMixin, TestCase):
                              course_numbers)
 
 
-class CourseDetailViewTests(TestCase):
+class CourseDetailViewTests(SiteMixin, TestCase):
     """ Tests for the course detail view. """
 
     def setUp(self):
@@ -2750,6 +2750,19 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
         self.edit_page_url = reverse('publisher:publisher_courses_edit', args=[self.course.id])
         self.course_detail_url = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
+
+    def test_redirect_on_bad_hostname(self):
+        """ Verify that we redirect the user if the hostname doesn't match what we expect. """
+
+        self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
+        with mock.patch.object(HttpRequest, 'get_host', return_value='not-the-site'):
+            response = self.client.get(self.edit_page_url)
+
+        self.assertRedirects(
+            response,
+            expected_url='http://' + self.site.domain + self.edit_page_url,
+            status_code=301
+        )
 
     def test_edit_page_without_permission(self):
         """
