@@ -469,6 +469,10 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         )
     )
 
+    # Do not record the slug field in the history table because AutoSlugField is not compatible with
+    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
+    history = HistoricalRecords(excluded_fields=['slug'])
+
     # TODO Remove this field.
     number = models.CharField(
         max_length=50, null=True, blank=True, help_text=_(
@@ -731,6 +735,9 @@ class CourseRun(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
 
     everything = CourseRunQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseRunQuerySet)()
+
+    # Do not record the slug field in the history table because AutoSlugField is not compatible with
+    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
 
     class Meta:
