@@ -1576,7 +1576,14 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
 
     def test_data(self):
         request = make_request()
-        course = CourseFactory(subjects=SubjectFactory.create_batch(3))
+        organization = OrganizationFactory()
+        # 'organizations' in serialzed data should not return duplicate organization names
+        # Add the same organization twice to the course and make sure only one is in the serialized data
+        course = CourseFactory(
+            subjects=SubjectFactory.create_batch(3),
+            authoring_organizations=[organization],
+            sponsoring_organizations=[organization],
+        )
         course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
         course.save()
@@ -1600,12 +1607,21 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 'go_live_date': course_run.go_live_date,
                 'start': course_run.start,
                 'end': course_run.end,
+                'availability': course_run.availability,
+                'pacing_type': course_run.pacing_type,
+                'enrollment_mode': course_run.type,
             }],
             'uuid': str(course.uuid),
             'subjects': [subject.name for subject in course.subjects.all()],
             'languages': [
                 serialize_language(course_run.language) for course_run in course.course_runs.all()
                 if course_run.language
+            ],
+            'organizations': [
+                '{key}: {name}'.format(
+                    key=course.sponsoring_organizations.first().key,
+                    name=course.sponsoring_organizations.first().name,
+                )
             ]
         }
 
