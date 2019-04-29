@@ -3,11 +3,11 @@ from djchoices import ChoiceItem, DjangoChoices
 
 
 class CourseRunStatus(DjangoChoices):
-    Published = ChoiceItem('published', _('Published'))
     Unpublished = ChoiceItem('unpublished', _('Unpublished'))
-    Reviewed = ChoiceItem('reviewed', _('Reviewed'))
     LegalReview = ChoiceItem('review_by_legal', _('Awaiting Review from Legal'))
     InternalReview = ChoiceItem('review_by_internal', _('Awaiting Internal Review'))
+    Reviewed = ChoiceItem('reviewed', _('Reviewed'))
+    Published = ChoiceItem('published', _('Published'))
 
     @classmethod
     def REVIEW_STATES(cls):

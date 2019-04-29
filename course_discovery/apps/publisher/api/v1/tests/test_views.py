@@ -93,14 +93,9 @@ class CourseRunViewSetTests(APITestCase):
         publisher_course_run = self._create_course_run_for_publication()
         currency = Currency.objects.get(code='USD')
 
-        common_entitlement_kwargs = {
-            'course': publisher_course_run.course,
-            'currency': currency,
-        }
-        professional_entitlement = CourseEntitlementFactory(mode=CourseEntitlement.PROFESSIONAL,
-                                                            **common_entitlement_kwargs)
         verified_entitlement = CourseEntitlementFactory(mode=CourseEntitlement.VERIFIED,
-                                                        **common_entitlement_kwargs)
+                                                        course=publisher_course_run.course,
+                                                        currency=currency)
 
         common_seat_kwargs = {
             'course_run': publisher_course_run,
@@ -139,7 +134,6 @@ class CourseRunViewSetTests(APITestCase):
             serialize_seat_for_ecommerce_api(audit_seat),
             serialize_seat_for_ecommerce_api(professional_seat),
             serialize_seat_for_ecommerce_api(verified_seat),
-            serialize_entitlement_for_ecommerce_api(professional_entitlement),
             serialize_entitlement_for_ecommerce_api(verified_entitlement),
         ]
         assert ecommerce_body['products'] == expected
@@ -191,20 +185,12 @@ class CourseRunViewSetTests(APITestCase):
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}
         assert set(discovery_course.subjects.all()) == expected
 
-        common_entitlement_kwargs = {
-            'course': discovery_course,
-            'currency': currency,
-        }
-        self.assertEqual(2, DiscoveryCourseEntitlement.objects.all().count())
-        DiscoveryCourseEntitlement.objects.get(
-            mode=SeatType.objects.get(slug=DiscoverySeat.PROFESSIONAL),
-            price=professional_entitlement.price,
-            **common_entitlement_kwargs
-        )
+        self.assertEqual(1, DiscoveryCourseEntitlement.objects.all().count())
         DiscoveryCourseEntitlement.objects.get(
             mode=SeatType.objects.get(slug=DiscoverySeat.VERIFIED),
             price=verified_entitlement.price,
-            **common_entitlement_kwargs
+            course=discovery_course,
+            currency=currency,
         )
 
         common_seat_kwargs = {

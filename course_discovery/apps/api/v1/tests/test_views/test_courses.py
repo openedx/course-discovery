@@ -650,6 +650,99 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         # self.assertFalse(self.course.entitlements.first().draft)
         # self.assertEqual(self.course.title, 'Fake Test')
 
+    @oauth_login
+    @responses.activate
+    def test_patch_published(self):
+        """
+        Verify that draft rows can be updated and re-published with draft=False. This should also
+        update and publish the official version.
+        """
+        draft_course = CourseFactory(partner=self.partner, key='test101', draft=True)
+        mode = SeatType.objects.get(slug='verified')
+        entitlement = CourseEntitlementFactory(course=draft_course, mode=mode, price=49, draft=True)
+        draft_course_run = CourseRunFactory(course=draft_course, draft=True)
+        draft_course_run.status = CourseRunStatus.Reviewed  # Triggers creation of official versions
+        draft_course_run.save()
+
+        # Edit; should only touch draft
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+        updated_short_desc = 'New short desc'
+        data = {
+            'short_description': updated_short_desc,
+        }
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        self.assertEqual(draft_course.short_description, updated_short_desc)
+        self.assertNotEqual(official_course.short_description, updated_short_desc)
+
+        # Re-publish; should update official with new and old information
+        updated_full_desc = 'New long desc'
+        response = self.client.patch(url, {'full_description': updated_full_desc, 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        self.assertEqual(draft_course.short_description, updated_short_desc)
+        self.assertEqual(official_course.short_description, updated_short_desc)
+        self.assertEqual(draft_course.full_description, updated_full_desc)
+        self.assertEqual(official_course.full_description, updated_full_desc)
+
+        updated_entitlement = {
+            'mode': entitlement.mode.slug,
+            'price': 1000,
+        }
+        response = self.client.patch(url, {'entitlements': [updated_entitlement], 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        self.assertEqual(draft_course.entitlements.first().price, updated_entitlement['price'])
+        self.assertEqual(official_course.entitlements.first().price, updated_entitlement['price'])
+
+    @oauth_login
+    @responses.activate
+    def test_patch_published_switch_audit_to_verified(self):
+        """
+        Verify that draft rows can be updated and re-published with draft=False. This should also
+        update and publish the official version.
+        """
+        draft_course = CourseFactory(partner=self.partner, key='test101', draft=True)
+        mode = SeatType.objects.get(slug='audit')
+        CourseEntitlementFactory(course=draft_course, mode=mode, draft=True)
+        draft_course_run = CourseRunFactory(course=draft_course, draft=True)
+        draft_course_run.status = CourseRunStatus.Reviewed  # Triggers creation of official versions
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        # We only expect the draft course to have an entitlement since we don't create official Audit entitlements
+        self.assertEqual(CourseEntitlement.everything.count(), 1)  # pylint: disable=no-member
+        self.assertEqual(draft_course.entitlements.first().mode.slug, 'audit')
+        self.assertTrue(draft_course.entitlements.first().draft)
+        self.assertIsNone(official_course.entitlements.first())
+
+        # Republish with a verified slug
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+        updated_entitlement = {
+            'mode': SeatType.objects.get(slug='verified').slug,
+            'price': 1000,
+        }
+        response = self.client.patch(url, {'entitlements': [updated_entitlement], 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        self.assertEqual(CourseEntitlement.everything.count(), 2)  # pylint: disable=no-member
+        self.assertEqual(draft_course.entitlements.first().price, updated_entitlement['price'])
+        self.assertEqual(draft_course.entitlements.first().mode.slug, updated_entitlement['mode'])
+        self.assertEqual(official_course.entitlements.first().price, updated_entitlement['price'])
+        self.assertEqual(official_course.entitlements.first().mode.slug, updated_entitlement['mode'])
+
     @ddt.data(
         (
             {'entitlements': [{}]},
@@ -661,7 +754,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         ),
         (
             {'entitlements': [{'mode': 'mode2'}]},
-            'Existing entitlement not found for mode mode2 in course Org/Course/Number.'
+            'Existing entitlement not found for course Org/Course/Number.'
         ),
     )
     @ddt.unpack

@@ -539,14 +539,18 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert official_run.min_effort != updated_min_effort
         assert official_run.max_effort != updated_max_effort
 
-        # Re-publish; should update official
-        response = self.client.patch(url, {'draft': False}, format='json')
+        # Re-publish; should update official with old and new changes.
+        updated_end = datetime.datetime(2021, 1, 1, tzinfo=pytz.UTC)
+        response = self.client.patch(url, {'end': updated_end, 'draft': False}, format='json')
         assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
 
         official_run.refresh_from_db()
+        draft_run.refresh_from_db()
         assert official_run.status == CourseRunStatus.Published
         assert official_run.min_effort == updated_min_effort
         assert official_run.max_effort == updated_max_effort
+        assert draft_run.end == updated_end
+        assert official_run.end == updated_end
 
     def test_list(self):
         """ Verify the endpoint returns a list of all course runs. """

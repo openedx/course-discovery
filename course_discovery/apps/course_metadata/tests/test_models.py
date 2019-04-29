@@ -519,7 +519,10 @@ class CourseRunTests(TestCase):
         self.course_run.status = CourseRunStatus.Reviewed
         self.course_run.course.draft = True
         factories.SeatFactory(course_run=self.course_run, draft=True)
-        factories.CourseEntitlementFactory(course=self.course_run.course, draft=True)
+        # We have to specify a SeatType that exists in Seat.ENTITLEMENT_MODES in order for the
+        # official version of the Entitlement to be created
+        entitlement_mode = SeatType.objects.get(slug='verified')
+        factories.CourseEntitlementFactory(course=self.course_run.course, mode=entitlement_mode, draft=True)
         self.course_run.course.save()
         self.course_run.save()
         assert CourseRun.everything.all().count() == 2
@@ -1010,8 +1013,9 @@ class ProgramTests(TestCase):
         program, courses = self.create_program_with_entitlements_and_seats()
         credit_seat_type, __ = SeatType.objects.get_or_create(name=Seat.CREDIT)
         program.type.applicable_seat_types.add(credit_seat_type)
-        factories.CourseEntitlementFactory(mode=credit_seat_type, expires=None, course=courses[0])
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+        # We are limiting each course to a single entitlement so this should raise an IntegrityError
+        with self.assertRaises(IntegrityError):
+            factories.CourseEntitlementFactory(mode=credit_seat_type, expires=None, course=courses[0])
 
     def test_one_click_purchase_eligible_with_unpublished_runs(self):
         """ Verify that program with unpublished course runs is one click purchase eligible. """
@@ -1188,18 +1192,19 @@ class ProgramTests(TestCase):
 
     def test_entitlements(self):
         """ Test entitlements returns only applicable course entitlements. """
-        course = factories.CourseFactory()
+        courses = factories.CourseFactory.create_batch(3)
         verified_mode = SeatType.objects.get(name='verified')
         credit_mode = SeatType.objects.get(name='credit')
         professional_mode = SeatType.objects.get(name='professional')
-        for mode in [verified_mode, credit_mode, professional_mode]:
-            factories.CourseEntitlementFactory(course=course, mode=mode)
+        for i, mode in enumerate([verified_mode, credit_mode, professional_mode]):
+            factories.CourseEntitlementFactory(course=courses[i], mode=mode)
         applicable_seat_types = SeatType.objects.filter(name__in=['verified', 'professional'])
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
-        program = factories.ProgramFactory(type=program_type, courses=[course])
-
-        assert set(course.entitlements.filter(mode__in=applicable_seat_types)) == set(program.entitlements)
+        program = factories.ProgramFactory(type=program_type, courses=courses)
+        expected = set([c.entitlements.filter(mode__in=applicable_seat_types).first() for c in courses])
+        expected.remove(None)
+        self.assertEqual(expected, set(program.entitlements))
 
     def test_languages(self):
         expected_languages = set([course_run.language for course_run in self.course_runs])
