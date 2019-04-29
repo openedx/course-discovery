@@ -27,8 +27,7 @@ from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COU
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Seat, SeatType, Video
 )
-
-from course_discovery.apps.course_metadata.utils import ensure_draft_world, validate_course_number
+from course_discovery.apps.course_metadata.utils import ensure_draft_world, set_official_state, validate_course_number
 
 logger = logging.getLogger(__name__)
 
@@ -185,16 +184,15 @@ class CourseViewSet(viewsets.ModelViewSet):
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
 
-        if course_creation_fields['mode'] in Seat.ENTITLEMENT_MODES:
-            price = request.data.get('price', 0.00)
-            mode = SeatType.objects.get(slug=course_creation_fields['mode'])
-            CourseEntitlement.objects.create(
-                course=course,
-                mode=mode,
-                partner=partner,
-                price=price,
-                draft=True,
-            )
+        price = request.data.get('price', 0.00)
+        mode = SeatType.objects.get(slug=course_creation_fields['mode'])
+        CourseEntitlement.objects.create(
+            course=course,
+            mode=mode,
+            partner=partner,
+            price=price,
+            draft=True,
+        )
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -208,20 +206,21 @@ class CourseViewSet(viewsets.ModelViewSet):
         if not mode:
             raise ValidationError(_('Entitlement mode {} not found.').format(data['mode']))
 
-        entitlement = CourseEntitlement.everything.filter(course=course, mode=mode, draft=True).first()
+        entitlement = CourseEntitlement.everything.filter(course=course, draft=True).first()
         if not entitlement:
-            raise ValidationError(_('Existing entitlement not found for mode {0} in course {1}.')
-                                  .format(data['mode'], course.key))
+            raise ValidationError(_('Existing entitlement not found for course {0}.')
+                                  .format(course.key))
 
         # We have an entitlement object, now let's deserialize the incoming data and update it
         serializer = CourseEntitlementSerializer(entitlement, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return entitlement
+        return serializer.save()
 
     @writable_request_wrapper
     def update_course(self, data, partial=False):
         """ Updates an existing course from incoming data. """
+        # Sending draft=False means the course data is live and updates should be pushed out immediately
+        draft = data.pop('draft', True)
         # Pop nested writables that we will handle ourselves (the serializer won't handle them)
         entitlements_data = data.pop('entitlements', [])
         image_data = data.pop('image', None)
@@ -237,6 +236,11 @@ class CourseViewSet(viewsets.ModelViewSet):
         entitlements = []
         for entitlement_data in entitlements_data:
             entitlements.append(self.update_entitlement(course, entitlement_data, partial=partial))
+        # We need to grab the entitlement in case we need to update the official version later
+        if entitlements:
+            entitlement = entitlements[0]
+        else:
+            entitlement = CourseEntitlement.everything.filter(course=course, draft=True).first()
 
         # Save video if a new video source is provided
         if (video_data and video_data.get('src') and
@@ -255,7 +259,14 @@ class CourseViewSet(viewsets.ModelViewSet):
             course.image.save('', image_data)
 
         # Then the course itself
-        serializer.save()
+        course = serializer.save()
+        if not draft:
+            official_course = set_official_state(course, Course)
+            if entitlement.mode != SeatType.objects.get(slug=Seat.AUDIT):
+                # This will update the price for existing entitlements. Additionally, if a course team
+                # originally chose Audit and decides to switch to a paid mode, this will enable creation
+                # of the paid Entitlement mode.
+                set_official_state(entitlement, CourseEntitlement, {'course': official_course})
 
         return Response(serializer.data)
 

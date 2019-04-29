@@ -577,7 +577,10 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
 
         draft_version = official_course.draft_version
         for entitlement in draft_version.entitlements.all():
-            set_official_state(entitlement, CourseEntitlement, {'course': official_course})
+            # The draft version could have audit entitlements, but we only
+            # want to create official entitlements for the valid entitlement modes.
+            if entitlement.mode.slug in Seat.ENTITLEMENT_MODES:
+                set_official_state(entitlement, CourseEntitlement, {'course': official_course})
         draft_version.canonical_course_run = course_run.draft_version
         draft_version.save()
 
@@ -1152,7 +1155,7 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
 
     class Meta(object):
         unique_together = (
-            ('course', 'mode', 'draft')
+            ('course', 'draft')
         )
         ordering = ['created']
 
