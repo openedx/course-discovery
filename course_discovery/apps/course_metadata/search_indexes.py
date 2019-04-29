@@ -123,7 +123,7 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
         return [subject.name for subject in obj.subjects.all()]
 
     def prepare_organizations(self, obj):
-        return self.prepare_authoring_organizations(obj) + self.prepare_sponsoring_organizations(obj)
+        return set(self.prepare_authoring_organizations(obj) + self.prepare_sponsoring_organizations(obj))
 
     def prepare_authoring_organizations(self, obj):
         return self._prepare_organizations(obj.authoring_organizations.all())
@@ -182,9 +182,9 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         return [str(subject.uuid) for subject in obj.subjects.all()]
 
     def prepare_languages(self, obj):
-        return [
+        return {
             self._prepare_language(course_run.language) for course_run in obj.course_runs.all() if course_run.language
-        ]
+        }
 
 
 class CourseRunIndex(BaseCourseIndex, indexes.Indexable):

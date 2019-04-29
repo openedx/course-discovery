@@ -1702,6 +1702,9 @@ class CourseSearchSerializer(HaystackSerializer):
                 'go_live_date': course_run.go_live_date,
                 'start': course_run.start,
                 'end': course_run.end,
+                'availability': course_run.availability,
+                'pacing_type': course_run.pacing_type,
+                'enrollment_mode': course_run.type,
             }
             for course_run in result.object.course_runs.all()
         ]
@@ -1720,6 +1723,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'uuid',
             'subjects',
             'languages',
+            'organizations',
         )
 
 
