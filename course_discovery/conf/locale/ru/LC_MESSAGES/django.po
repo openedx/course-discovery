@@ -14,13 +14,14 @@
 # Maxim Alexeev <ma1exe@yandex.com>, 2018
 # Roman Polin <descello@gmail.com>, 2018
 # Svetlana Ugaine <locovilly@yahoo.com>, 2016
+# Валентина Пицик <lushalusha007@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2019-01-28 10:23+0000\n"
-"Last-Translator: Alexander Eroshkin <gjrfytne@gmail.com>\n"
+"PO-Revision-Date: 2019-04-30 14:37+0000\n"
+"Last-Translator: Валентина Пицик <lushalusha007@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/open-edx/edx-platform/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -61,12 +62,12 @@ msgstr "Словарное отображение курса идентифик�
 
 #: apps/api/serializers.py
 msgid "Languages that course runs in this program are offered in."
-msgstr ""
+msgstr "Предлагаются языки, на которых ведется обучение по этой программе."
 
 #: apps/api/serializers.py
 msgid ""
 "Languages that course runs in this program have available transcripts in."
-msgstr ""
+msgstr "Языки, на которых проводится курс в рамках этой программы, имеют доступные расшифровки."
 
 #: apps/api/views.py
 msgid "You are not permitted to access the API documentation."
@@ -148,13 +149,13 @@ msgstr "Ограничить скорость запросов пользова�
 
 #: apps/core/models.py
 msgid "Short Code"
-msgstr ""
+msgstr "Короткий код"
 
 #: apps/core/models.py
 msgid ""
 "Convenient code/slug used to identify this Partner (e.g. for management "
 "commands.)"
-msgstr ""
+msgstr "Удобный код/слаг, используемый для идентификации данного партнера (например, для команд управления)."
 
 #: apps/core/models.py
 msgid "Courses API URL"
@@ -198,16 +199,16 @@ msgstr "OpenID Connect Key"
 
 #: apps/core/models.py
 msgid "OpenID Connect Secret"
-msgstr ""
+msgstr "Секрет соединения OpenID"
 
 #: apps/core/models.py apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Studio URL"
-msgstr ""
+msgstr "Студия url"
 
 #: apps/core/models.py
 msgid "LMS URL"
-msgstr ""
+msgstr "Система управления обучением url"
 
 #: apps/core/models.py
 msgid "Partner"
@@ -222,7 +223,7 @@ msgstr "Партнеры"
 msgid ""
 "An error occurred while publishing the {model} to the marketing site. Please"
 " try again. If the error persists, please contact the Engineering Team."
-msgstr ""
+msgstr "Возникла ошибка при публикации {модели} на маркетинговом сайте. Пожалуйста, попробуйте еще раз. Если ошибка не исчезает, пожалуйста, свяжитесь с технической группой."
 
 #: apps/course_metadata/admin.py
 msgid "eligible for one-click purchase"
@@ -238,7 +239,7 @@ msgstr "Нет"
 
 #: apps/course_metadata/admin.py
 msgid "Included course runs"
-msgstr ""
+msgstr "Включаемые в курс занятия"
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
 msgid "Published"
@@ -267,7 +268,7 @@ msgstr "Активный"
 
 #: apps/course_metadata/choices.py
 msgid "Retired"
-msgstr ""
+msgstr "В отставке"
 
 #: apps/course_metadata/choices.py
 msgid "Deleted"
@@ -275,7 +276,7 @@ msgstr "Удалено"
 
 #: apps/course_metadata/forms.py
 msgid "Programs can only be activated if they have a banner image."
-msgstr ""
+msgstr "Активация программ возможна только в том случае, если у них есть изображение баннера."
 
 #: apps/course_metadata/models.py
 msgid "Facebook"
@@ -303,35 +304,35 @@ msgstr "Оставьте это поле пустым, чтобы получит
 
 #: apps/course_metadata/models.py
 msgid "Subject model translations"
-msgstr ""
+msgstr "Тематические переводы моделей"
 
 #: apps/course_metadata/models.py
 msgid "Topic model translations"
-msgstr ""
+msgstr "Тематические переводы моделей"
 
 #: apps/course_metadata/models.py
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen. This key will be used in the course's course key."
-msgstr ""
+msgstr "Пожалуйста, не используйте пробелы или специальные символы, кроме точки, подчеркивания или дефиса. Этот ключ будет использоваться в курсе."
 
 #: apps/course_metadata/models.py
 msgid ""
 "Logo to be displayed on certificates. If this logo is the same as "
 "logo_image_url, copy and paste the same value to both fields."
-msgstr ""
+msgstr "Логотип для отображения на сертификатах. Если этот логотип совпадает с logo_image_url, скопируйте и вставьте одинаковое значение в оба поля."
 
 #: apps/course_metadata/models.py
 msgid ""
 "Pick a tag from the suggestions. To make a new tag, add a comma after the "
 "tag name."
-msgstr ""
+msgstr "Выберите тег из предложений. Чтобы создать новый тег, добавьте запятую после имени тега."
 
 #: apps/course_metadata/models.py
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen in the key field."
-msgstr ""
+msgstr "Пожалуйста, не используйте пробелы или специальные символы, кроме точки, подчеркивания или дефиса в ключевом поле."
 
 #: apps/course_metadata/models.py
 msgid "People"
@@ -339,7 +340,7 @@ msgstr "Люди"
 
 #: apps/course_metadata/models.py
 msgid "Add the course image"
-msgstr ""
+msgstr "Добавить изображение курса"
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
@@ -379,13 +380,13 @@ msgstr "Предполагаемое количество недель, необ
 
 #: apps/course_metadata/models.py
 msgid "Indicates whether the course relation has been manually overridden."
-msgstr ""
+msgstr "Показывает, была ли связь дистанции переопределена вручную."
 
 #: apps/course_metadata/models.py
 msgid ""
 "'What You Will Learn' description for this particular course run. Leave this"
 " value blank to default to the parent course's Outcome attribute."
-msgstr ""
+msgstr "Описание \"Чему вы научитесь\" для этого конкретного курса. Оставьте это значение пустым по умолчанию для атрибута Результат родительского курса."
 
 #: apps/course_metadata/models.py
 msgid "Archived"
@@ -435,7 +436,7 @@ msgstr "Вопросы и ответы"
 
 #: apps/course_metadata/models.py
 msgid "FAQs"
-msgstr ""
+msgstr "FAQs"
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -443,64 +444,64 @@ msgid ""
 "completing associated courses, but enrolled in other seat types, will NOT "
 "have their completion of the course counted toward the completion of the "
 "program."
-msgstr ""
+msgstr "Типы посадочных мест, которые подходят для завершения программ этого типа. Студенты, завершающие сопутствующие курсы, но зачисленные на другие типы мест, НЕ будут засчитываться в итоговый счет по завершении курса."
 
 #: apps/course_metadata/models.py
 msgid "Please provide an image file with transparent background"
-msgstr ""
+msgstr "Пожалуйста, предоставьте файл изображения с прозрачным фоном."
 
 #: apps/course_metadata/models.py
 msgid "The user-facing display title for this Program."
-msgstr ""
+msgstr "Заголовок дисплея, обращенный к пользователю для данной Программы."
 
 #: apps/course_metadata/models.py
 msgid "A brief, descriptive subtitle for the Program."
-msgstr ""
+msgstr "Краткий, описательный подзаголовок для Программы."
 
 #: apps/course_metadata/models.py
 msgid "The lifecycle status of this Program."
-msgstr ""
+msgstr "Статус жизненного цикла данной Программы."
 
 #: apps/course_metadata/models.py
 msgid "Slug used to generate links to the marketing site"
-msgstr ""
+msgstr "Слаг, используемый для генерации ссылок на маркетинговый сайт"
 
 #: apps/course_metadata/models.py
 msgid ""
 "If this box is not checked, courses will be ordered as in the courses select"
 " box above."
-msgstr ""
+msgstr "Если этот флажок не установлен, то курсы будут упорядочены, как в вышеуказанном флажке."
 
 #: apps/course_metadata/models.py
 msgid ""
 "This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
 " complete a course run belonging to this program."
-msgstr ""
+msgstr "Это поле теперь устарело (ECOM-6021). Предполагаемое количество недель, необходимое для прохождения курса, принадлежащего этой программе."
 
 #: apps/course_metadata/models.py
 msgid "Image used for discovery cards"
-msgstr ""
+msgstr "Изображение, используемое для карт обнаружения"
 
 #: apps/course_metadata/models.py
 msgid ""
 "This field can be used by API clients to determine the order in which "
 "instructors will be displayed on program pages. Instructors in this list "
 "should appear before all others associated with this programs courses runs."
-msgstr ""
+msgstr "Это поле может быть использовано клиентами API для определения порядка отображения инструкторов на страницах программы. Преподаватели в этом списке должны появиться перед всеми остальными, кто связан с этими курсами."
 
 #: apps/course_metadata/models.py
 msgid "The description of credit redemption for courses in program"
-msgstr ""
+msgstr "Описание погашения кредитов за обучение по предметам программы"
 
 #: apps/course_metadata/models.py
 msgid "Allow courses in this program to be purchased in a single transaction"
-msgstr ""
+msgstr "Разрешить покупку курсов в рамках этой программы за одну транзакцию."
 
 #: apps/course_metadata/models.py
 msgid ""
 "Hide program on marketing site landing and search pages. This program MAY "
 "have a detail page."
-msgstr ""
+msgstr "Скрыть программу на целевых и поисковых страницах маркетинговых сайтов. У этой программы MAY есть подробная страница."
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
@@ -517,19 +518,19 @@ msgstr "Отмена"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Back to Program"
-msgstr ""
+msgstr "Вернуться к программе"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Save Course Run"
-msgstr ""
+msgstr "сохранить запуск курса"
 
 #: apps/course_metadata/views.py
 msgid "Update excluded course runs"
-msgstr ""
+msgstr "Обновление исключенных циклов курсов"
 
 #: apps/course_metadata/views.py
 msgid "The program was changed successfully."
-msgstr ""
+msgstr "Программа была успешно изменена."
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
@@ -544,11 +545,11 @@ msgstr "Неправильный формат URL \"{preview_url}\""
 #: apps/publisher/api/serializers.py
 #, python-brace-format
 msgid "Cannot switch from state `{state}` to `{target_state}`"
-msgstr ""
+msgstr "Невозможно переключиться с состояния `{state}` на состояние `{target_state}`"
 
 #: apps/publisher/choices.py
 msgid "Partner Manager"
-msgstr ""
+msgstr "Менеджер по работе с партнерами"
 
 #: apps/publisher/choices.py
 #: apps/publisher/templates/publisher/course_list.html
@@ -557,16 +558,16 @@ msgstr "Координатор проекта"
 
 #: apps/publisher/choices.py
 msgid "Marketing Reviewer"
-msgstr ""
+msgstr "Маркетинговый обозреватель"
 
 #: apps/publisher/choices.py
 msgid "Publisher"
-msgstr ""
+msgstr "Публицист"
 
 #: apps/publisher/choices.py
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
-msgstr ""
+msgstr "Команда курса"
 
 #: apps/publisher/choices.py apps/publisher/models.py
 #: apps/publisher/wrappers.py
@@ -575,61 +576,61 @@ msgstr "Черновик"
 
 #: apps/publisher/choices.py
 msgid "Review"
-msgstr ""
+msgstr "рецензирование"
 
 #: apps/publisher/choices.py
 msgid "Approved"
-msgstr ""
+msgstr "Утверждено"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Studio URL created: {title} {run_number}"
-msgstr ""
+msgstr "URL-адрес созданной студии: {title} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Studio URL requested: {title}"
-msgstr ""
+msgstr "URL-адрес запрашиваемой студии:{title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review requested: {title}"
-msgstr ""
+msgstr "рецензирование запрошено: {title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review complete: {title}"
-msgstr ""
+msgstr "рецензирование завершено {title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review requested: {title} {run_number}"
-msgstr ""
+msgstr "рецензирование запрошено: {title} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review complete: {course_name} {run_number}"
-msgstr ""
+msgstr "Рецензирование завершено: {course_name} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Publication requested: {course_name} {run_number}"
-msgstr ""
+msgstr "Запрошенная публикация: {course_name} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Review requested: Preview for {course_name} {run_number}"
-msgstr ""
+msgstr "Запрошенный пересмотр: Предварительный просмотр для  {course_name} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "Publication complete: About page for {course_name} {run_number}"
-msgstr ""
+msgstr "Публикация завершена: О странице для {course_name} {run_number}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
 msgid "{role_name} changed for {course_title}"
-msgstr ""
+msgstr "{role_name} изменено для {course_title}"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -1535,7 +1536,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/base.html
 #: apps/publisher/templates/publisher/course_list.html apps/publisher/views.py
 msgid "Courses"
-msgstr ""
+msgstr "Курсы"
 
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 msgid "Comment:"
@@ -2553,7 +2554,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Pacing Type"
-msgstr ""
+msgstr "Тип порядка обучения "
 
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Reason for declining preview"
@@ -2969,7 +2970,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt
 #, python-format
 msgid "Dear %(publisher_role_name)s,"
-msgstr ""
+msgstr "Дорогой %(publisher_role_name)s,"
 
 #: apps/publisher/templates/publisher/email/course_run/preview_accepted.html
 #, python-format
@@ -3154,7 +3155,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/email/studio_instance_created.txt
 #, python-format
 msgid "Dear %(course_team_name)s,"
-msgstr ""
+msgstr "Дорогой %(course_team_name)s,"
 
 #: apps/publisher/templates/publisher/email/studio_instance_created.html
 #, python-format
