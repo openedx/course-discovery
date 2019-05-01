@@ -287,7 +287,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
 
         with mock.patch('course_discovery.apps.api.v1.views.course_runs.log.info') as mock_logger:
-            response = self.client.patch(url, {}, format='json')
+            # Just pick any date that will be ahead of the ones in the Factory
+            response = self.client.patch(url, {'start': '2019-01-01T00:00:00Z'}, format='json')
 
         self.assertEqual(response.status_code, 200, "Status {}: {}".format(response.status_code, response.content))
         mock_logger.assert_called_with(
@@ -301,7 +302,6 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         user = UserFactory(is_staff=False, is_superuser=False)
         self.client.force_authenticate(user)
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
-
         response = self.client.patch(url, {}, format='json')
         assert response.status_code == 404
 
@@ -441,6 +441,26 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert response.status_code == 403
 
     @responses.activate
+    def test_patch_put_does_not_change_status(self):
+        self.mock_patch_to_studio(self.draft_course_run.key)
+        self.draft_course_run.status = CourseRunStatus.Reviewed
+        self.draft_course_run.save()
+        official_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=False)
+        assert official_course_run.status == CourseRunStatus.Reviewed
+
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
+        response = self.client.put(url, {
+            'course': self.draft_course_run.course.key,  # required, so we need for a put
+            'start': self.draft_course_run.start,  # required, so we need for a put
+            'end': self.draft_course_run.end,  # required, so we need for a put
+        }, format='json')
+        assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
+        self.draft_course_run.refresh_from_db()
+        draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
+        assert draft_course_run.status == CourseRunStatus.Reviewed
+        assert draft_course_run.official_version.status == CourseRunStatus.Reviewed
+
+    @responses.activate
     def test_patch_put_reset_status(self):
         self.mock_patch_to_studio(self.draft_course_run.key)
         self.draft_course_run.status = CourseRunStatus.Reviewed
@@ -453,7 +473,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': self.draft_course_run.course.key,  # required, so we need for a put
             'start': self.draft_course_run.start,  # required, so we need for a put
             'end': self.draft_course_run.end,  # required, so we need for a put
-            'status': 'reviewed',
+            'full_description': 'Some new description',  # required to cause a diff to update status
         }, format='json')
         assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
         self.draft_course_run.refresh_from_db()

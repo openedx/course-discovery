@@ -1,6 +1,7 @@
 import logging
 
 from django.db import transaction
+from django.db.models.fields.related import ManyToManyField
 from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.utils.translation import ugettext as _
@@ -11,6 +12,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
+from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
@@ -198,10 +200,13 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @writable_request_wrapper
-    def update(self, request, *args, **kwargs):
+    def update(self, request, **kwargs):
         """ Update one, or more, fields for a course run. """
         course_run = self.get_object()
         course_run = ensure_draft_world(course_run)  # always work on drafts
+
+        # Sending draft=False triggers the review process for unpublished courses
+        draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
 
         # Disallow patch or put if the course run is in review.
         if course_run.in_review:
@@ -209,29 +214,49 @@ class CourseRunViewSet(viewsets.ModelViewSet):
                 _('Course run is in review. Editing disabled.'),
                 status=status.HTTP_403_FORBIDDEN
             )
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(course_run, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
 
-        # If changes are made after review and before publish,
-        # revert status to unpublished.
-        if course_run.status == CourseRunStatus.Reviewed:
-            request.data['status'] = CourseRunStatus.Unpublished
+        save_kwargs = {}
+        changed = False
+        for key, new_value in serializer.validated_data.items():
+            original_value = getattr(course_run, key, None)
+            if isinstance(new_value, list):
+                field_class = CourseRun._meta.get_field(key).__class__
+                original_value_elements = original_value.all()
+                if len(new_value) != original_value_elements.count():
+                    changed = True
+                elif field_class == ManyToManyField and sorted(new_value) != sorted(original_value_elements):
+                    changed = True
+                elif field_class == SortedManyToManyField:
+                    for new_value_element, original_value_element in zip(new_value, original_value_elements):
+                        if new_value_element != original_value_element:
+                            changed = True
+            elif new_value != original_value:
+                changed = True
+
+        # If changes are made after review and before publish,revert status to unpublished.
+        # Unless we're just switching the status
+        if changed and course_run.status == CourseRunStatus.Reviewed:
+            save_kwargs['status'] = CourseRunStatus.Unpublished
             course_run.ensure_official_version()  # An official version should already exist, but just make sure
             official_run = course_run.official_version
             official_run.status = CourseRunStatus.Unpublished
             official_run.save()
 
-        # Sending draft=False triggers the review process for unpublished courses
-        draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
         if not draft and course_run.status != CourseRunStatus.Published:
-            request.data['status'] = CourseRunStatus.LegalReview
+            save_kwargs['status'] = CourseRunStatus.LegalReview
 
-        response = super().update(request, *args, **kwargs)
+        course_run = serializer.save(**save_kwargs)
+
         self.push_to_studio(request, course_run, create=False)
 
         # Published courses can be re-published directly
         if not draft and course_run.status == CourseRunStatus.Published:
             set_official_state(course_run, CourseRun)
 
-        return response
+        return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
