@@ -147,7 +147,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     announcement = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     card_image_url = FuzzyURL()
     video = factory.SubFactory(VideoFactory)
-    min_effort = FuzzyInteger(1, 10)
+    min_effort = FuzzyInteger(1, 9)
     max_effort = FuzzyInteger(10, 20)
     pacing_type = FuzzyChoice([name for name, __ in CourseRunPacing.choices])
     reporting_type = FuzzyChoice([name for name, __ in ReportingType.choices])
