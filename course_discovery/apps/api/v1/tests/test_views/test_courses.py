@@ -527,6 +527,12 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         expected_error_message = 'Incorrect data sent. Entitlement Track does not exist.'
         self.assertEqual(response.data, expected_error_message)
 
+    def test_create_fails_invalid_course_number(self):
+        response = self.create_course({'number': 'a b c'})
+        self.assertEqual(response.status_code, 400)
+        expected_error_message = 'Failed to set course data: Special characters not allowed in Course Number.'
+        self.assertEqual(response.data, expected_error_message)
+
     @ddt.data(
         (
             {'title': 'Course title', 'number': 'test101', 'org': 'fake org', 'mode': 'fake mode'},

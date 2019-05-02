@@ -4,6 +4,8 @@ import uuid
 
 import requests
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext as _
+from opaque_keys.edx.locator import CourseLocator
 from slugify import slugify
 from stdimage.models import StdImageFieldFile
 from stdimage.utils import UploadTo
@@ -240,6 +242,18 @@ def parse_course_key_fragment(fragment):
     if len(split) != 2:
         raise ValueError('Could not understand course key fragment "{}".'.format(fragment))
     return split[0], split[1]
+
+
+def validate_course_number(course_number):
+    """
+    Verifies that the Course Number does not contain invalid characters. Raises a ValueError if there are
+    invalid characters.
+
+    Args:
+        course_number: Course Number String
+    """
+    if not CourseLocator.ALLOWED_ID_RE.match(course_number):
+        raise ValueError(_('Special characters not allowed in Course Number.'))
 
 
 class MarketingSiteAPIClient(object):

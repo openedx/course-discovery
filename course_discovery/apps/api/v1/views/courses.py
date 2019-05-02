@@ -28,7 +28,7 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Seat, SeatType, Video
 )
 
-from course_discovery.apps.course_metadata.utils import ensure_draft_world
+from course_discovery.apps.course_metadata.utils import ensure_draft_world, validate_course_number
 
 logger = logging.getLogger(__name__)
 
@@ -148,7 +148,7 @@ class CourseViewSet(viewsets.ModelViewSet):
     @writable_request_wrapper
     def create(self, request, *args, **kwargs):
         """
-        Create a Course, Course Entitlement, and Entitlement Product in E-commerce.
+        Create a Course, Course Entitlement, and Entitlement.
         """
         course_creation_fields = {
             'title': request.data.get('title'),
@@ -170,6 +170,9 @@ class CourseViewSet(viewsets.ModelViewSet):
         partner = request.site.partner
         course_creation_fields['partner'] = partner.id
         course_creation_fields['key'] = self.get_course_key(course_creation_fields)
+
+        validate_course_number(course_creation_fields['number'])
+
         serializer = self.get_serializer(data=course_creation_fields)
         serializer.is_valid(raise_exception=True)
 
