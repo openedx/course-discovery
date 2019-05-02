@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-22 17:00+0000\n"
+"POT-Creation-Date: 2019-05-03 12:26+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1229,6 +1229,12 @@ msgstr "Bäçk tö Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Save Course Run"
 msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/utils.py
+msgid "Special characters not allowed in Course Number."
+msgstr ""
+"Spéçïäl çhäräçtérs nöt ällöwéd ïn Çöürsé Nümßér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/views.py
 msgid "Update excluded course runs"
