@@ -398,14 +398,10 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
             dict: Data to PUT to the Drupal API.
         """
         data = super().serialize_obj(obj)
-        if obj.status == CourseRunStatus.Reviewed or obj.status == CourseRunStatus.Published:
-            status = 1
-        else:
-            status = 0
 
         return {
             **data,
-            'status': status,
+            'status': 1 if obj.status == CourseRunStatus.Published else 0,
             'title': obj.title,
             'field_course_id': obj.key,
             'type': 'course',
