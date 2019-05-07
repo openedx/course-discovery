@@ -199,6 +199,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     go_live_date = indexes.DateTimeField(model_attr='go_live_date', null=True)
     enrollment_start = indexes.DateTimeField(model_attr='enrollment_start', null=True)
     enrollment_end = indexes.DateTimeField(model_attr='enrollment_end', null=True)
+    availability = indexes.CharField(model_attr='availability')
     announcement = indexes.DateTimeField(model_attr='announcement', null=True)
     min_effort = indexes.IntegerField(model_attr='min_effort', null=True)
     max_effort = indexes.IntegerField(model_attr='max_effort', null=True)
