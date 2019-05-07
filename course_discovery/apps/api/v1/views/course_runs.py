@@ -227,7 +227,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
                 original_value_elements = original_value.all()
                 if len(new_value) != original_value_elements.count():
                     changed = True
-                elif field_class == ManyToManyField and sorted(new_value) != sorted(original_value_elements):
+                # Just use set compare since none of our fields require duplicates
+                elif field_class == ManyToManyField and set(new_value) != set(original_value_elements):
                     changed = True
                 elif field_class == SortedManyToManyField:
                     for new_value_element, original_value_element in zip(new_value, original_value_elements):
