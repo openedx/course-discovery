@@ -24,7 +24,7 @@ class JournalViewSetTests(APITestCase):
         """ Verify authentication is required when accessing the endpoint. """
         self.client.logout()
         response = self.client.get(self.journal_url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_create_journal(self):
         # create a second journal
@@ -100,7 +100,7 @@ class JournalBundleViewSetTests(APITestCase):
         """ Verify authentication is required when accessing the endpoint. """
         self.client.logout()
         response = self.client.get(self.journal_bundle_url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_list(self):
         """ Verify response on list view. """

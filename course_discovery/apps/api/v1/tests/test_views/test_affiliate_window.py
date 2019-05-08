@@ -41,7 +41,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         """ Verify authentication is required when accessing the endpoint. """
         self.client.logout()
         response = self.client.get(self.affiliate_url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_affiliate_with_supported_seats(self):
         """ Verify that endpoint returns course runs for verified and professional seats only. """

@@ -16,7 +16,7 @@ class TestCurrencyCurrencyView:
 
     def test_authentication_required(self, client):
         response = client.get(self.list_path)
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_get(self, admin_client, django_cache, responses, settings):  # pylint: disable=unused-argument
         settings.OPENEXCHANGERATES_API_KEY = 'test'

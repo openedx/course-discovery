@@ -87,7 +87,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         """ Verify the endpoint requires authentication. """
         self.client.logout()
         response = self.get_response(path=path)
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     @ddt.data(
         (list_path, serializers.CourseRunSearchSerializer,),
@@ -743,7 +743,7 @@ class AutoCompletePersonTests(mixins.APITestCase):
         ) + '?q={q}'.format(q=self.instructors[0].uuid)
 
         response = self.client.get(person_autocomplete_url)
-        self._assert_error_response(response, {'detail': 'Authentication credentials were not provided.'}, 403)
+        self._assert_error_response(response, {'detail': 'Authentication credentials were not provided.'}, 401)
 
     def test_autocomplete_limit_by_org(self):
         org = self.organizations[0]
