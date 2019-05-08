@@ -320,6 +320,47 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         # Verify the updated course run updated the original course run
         self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['hidden'], course_run_orig.hidden)
 
+    @responses.activate
+    def test_ingest_does_not_create_if_draft_exists(self):
+        """
+        Verify the method ingests data from the Courses API, but does not create a
+        Course or CourseRun if a draft version already exists.
+        """
+        self.assertEqual(Course.objects.count(), 0)
+        self.assertEqual(CourseRun.objects.count(), 0)
+
+        self.mock_api([
+            mock_data.COURSES_API_BODY_ORIGINAL,
+            mock_data.COURSES_API_BODY_SECOND,
+        ])
+        key = '{org}+{number}'.format(org=mock_data.COURSES_API_BODY_ORIGINAL['org'],
+                                      number=mock_data.COURSES_API_BODY_ORIGINAL['number'])
+        dummy_course = CourseFactory(key=key, title=mock_data.COURSES_API_BODY_ORIGINAL['name'], partner=self.partner)
+        CourseRunFactory(course=dummy_course, key=mock_data.COURSES_API_BODY_SECOND['id'], draft=True)
+
+        self.loader.ingest()
+
+        self.assertEqual(Course.objects.count(), 1)
+        # The official version of the ORIGINAL should have been created, but not the SECOND
+        self.assertEqual(CourseRun.objects.count(), 1)
+        self.assertEqual(CourseRun.everything.count(), 2)
+
+        course_run_orig = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_ORIGINAL['id'])
+        self.assertEqual(course_run_orig.key, mock_data.COURSES_API_BODY_ORIGINAL['id'])
+        self.assertEqual(course_run_orig.course.title, mock_data.COURSES_API_BODY_ORIGINAL['name'])
+
+        expected_enrollment_start = datetime.datetime.strptime(
+            mock_data.COURSES_API_BODY_ORIGINAL['enrollment_start'], "%Y-%m-%dT%H:%M:%SZ"
+        ).replace(tzinfo=UTC)
+        expected_enrollment_end = datetime.datetime.strptime(
+            mock_data.COURSES_API_BODY_ORIGINAL['enrollment_end'], "%Y-%m-%dT%H:%M:%SZ"
+        ).replace(tzinfo=UTC)
+        self.assertEqual(course_run_orig.enrollment_start, expected_enrollment_start)
+        self.assertEqual(course_run_orig.enrollment_end, expected_enrollment_end)
+
+        course_run_second = CourseRun.objects.filter(key=mock_data.COURSES_API_BODY_SECOND['id']).first()
+        self.assertIsNone(course_run_second)
+
     def test_get_pacing_type_field_missing(self):
         """ Verify the method returns None if the API response does not include a pacing field. """
         self.assertIsNone(self.loader.get_pacing_type({}))

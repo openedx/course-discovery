@@ -110,8 +110,8 @@ COURSES_API_BODIES = [
 COURSES_API_BODY_ORIGINAL = {
     'effort': None,
     'end': None,
-    'enrollment_start': None,
-    'enrollment_end': None,
+    'enrollment_start': '2015-05-15T13:00:00Z',
+    'enrollment_end': '2015-06-29T13:00:00Z',
     'id': 'course-v1:KyotoUx+000x+3T2016',
     'media': {
         'course_image': {

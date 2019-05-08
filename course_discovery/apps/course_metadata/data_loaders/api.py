@@ -138,6 +138,12 @@ class CoursesApiDataLoader(AbstractDataLoader):
                         # Therefore, we don't need to do the statements below
                         course = self.update_course(course, body)
                 else:
+                    # We need to add in this check as part of the Publisher Frontend work. This is caused by
+                    # the creation of a draft version pushing out to Studio and then this function creating the
+                    # official version from the course run in Studio. Instead, we want to prevent the creation of
+                    # official versions if the draft version of the course run already exists.
+                    if CourseRun.everything.filter(key=course_run_id, draft=True).first():
+                        continue
                     course, created = self.get_or_create_course(body)
                     course_run = self.create_course_run(course, body)
                     if created:
