@@ -96,7 +96,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         Catalog.objects.all().delete()
 
         response = self.client.post(self.catalog_list_url, {}, format='json')
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
         self.assertEqual(Catalog.objects.count(), 0)
 
     @ddt.data('put', 'patch', 'delete')
@@ -106,7 +106,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         url = reverse('api:v1:catalog-detail', kwargs={'id': self.catalog.id})
 
         response = getattr(self.client, http_method)(url, {}, format='json')
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_create_with_session_authentication(self):
         """ Verify the endpoint creates a new catalog when the client is authenticated via session authentication. """

@@ -147,7 +147,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         Person.objects.all().delete()
 
         response = self.client.post(self.people_list_url)
-        assert response.status_code == 403
+        assert response.status_code == 401
         assert Person.objects.count() == 0
 
     def test_create_without_permission(self):
@@ -173,7 +173,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.client.logout()
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_list_with_publisher_user(self):
         """ Verify the endpoint returns a list of all people with the publisher user """

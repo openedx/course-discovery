@@ -51,7 +51,7 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
         """ Verify the endpoint requires authentication."""
         self.client.logout()
         response = self.get_response()
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_field_facet_response(self):
         """ Verify that field facets are included in the response and that they are properly formatted."""

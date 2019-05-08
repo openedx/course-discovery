@@ -433,7 +433,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
 
         url = reverse('api:v1:course-list')
         response = self.client.post(url)
-        assert response.status_code == 403
+        assert response.status_code == 401
         assert Course.objects.count() == 0
 
     def create_course(self, data=None, update=True):
@@ -583,7 +583,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         response = self.client.patch(url)
-        assert response.status_code == 403
+        assert response.status_code == 401
         assert Course.objects.count() == 0
 
     @ddt.data('put', 'patch')

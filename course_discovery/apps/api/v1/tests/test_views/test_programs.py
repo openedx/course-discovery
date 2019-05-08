@@ -99,7 +99,7 @@ class TestProgramViewSet(SerializationMixin):
 
         self.client.logout()
         response = self.client.get(self.list_path)
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_retrieve(self, django_assert_num_queries):
         """ Verify the endpoint returns the details for a single program. """

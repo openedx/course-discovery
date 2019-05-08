@@ -445,7 +445,7 @@ class CourseRevisionDetailViewTests(SiteMixin, TestCase):
         self.client.logout()
         revision = self.course.history.first()
         response = self._get_response(revision.history_id)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def _get_response(self, revision_id):
         """Returns response of api against given revision_id."""
@@ -850,7 +850,7 @@ class RevertCourseByRevisionTests(SiteMixin, TestCase):
         self.client.logout()
         revision = self.course.history.first()
         response = self._revert_course(revision.history_id)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_revert_course_revision(self):
         """Verify that api update the course with the according to the revision id. """
@@ -1002,7 +1002,7 @@ class AcceptAllByRevisionTests(SiteMixin, TestCase):
         self.client.logout()
         revision = self.course.history.first()
         response = self._update_all_by_revision_course(revision.history_id)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_update_all_course_revision(self):
         """Verify that api update the course with the according to the revision id. """

@@ -27,7 +27,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
 
         self.client.logout()
         response = self.client.get(self.list_path)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def assert_response_data_valid(self, response, organizations, many=True):
         """ Asserts the response data (only) contains the expected organizations. """
