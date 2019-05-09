@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models.functions import Lower
+from django.http import QueryDict
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
@@ -219,12 +220,22 @@ class CourseViewSet(viewsets.ModelViewSet):
     @writable_request_wrapper
     def update_course(self, data, partial=False):
         """ Updates an existing course from incoming data. """
-        # Sending draft=False means the course data is live and updates should be pushed out immediately
-        draft = data.pop('draft', True)
-        # Pop nested writables that we will handle ourselves (the serializer won't handle them)
-        entitlements_data = data.pop('entitlements', [])
-        image_data = data.pop('image', None)
-        video_data = data.pop('video', None)
+        if isinstance(data, QueryDict):
+            image_data = data.pop('image', None)
+            # The image data is sent as a list of files, but we limit it to one.
+            image_data = image_data[0].read()
+
+            draft = True
+            entitlements_data = []
+            video_data = None
+        else:
+            # Sending draft=False means the course data is live and updates should be pushed out immediately
+            draft = data.pop('draft', True)
+            # Pop nested writables that we will handle ourselves (the serializer won't handle them)
+            entitlements_data = data.pop('entitlements', [])
+            video_data = data.pop('video', None)
+
+            image_data = None
 
         # Get and validate object serializer
         course = self.get_object()
@@ -249,17 +260,19 @@ class CourseViewSet(viewsets.ModelViewSet):
             course.video = video
 
         # Save image and convert to the correct format
-        if image_data and isinstance(image_data, str) and image_data.startswith('data:image'):
+        if image_data and isinstance(image_data, bytes):
+            logger.critical('here')
             # base64 encoded image - decode
-            file_format, imgstr = image_data.split(';base64,')  # format ~= data:image/X;base64,/xxxyyyzzz/
-            ext = file_format.split('/')[-1]  # guess file extension
-            image_data = ContentFile(base64.b64decode(imgstr), name='tmp.' + ext)
+            # file_format, imgstr = image_data.split(';base64,')  # format ~= data:image/X;base64,/xxxyyyzzz/
+            # ext = file_format.split('/')[-1]  # guess file extension
+            # image_data = ContentFile(base64.b64decode(imgstr), name='tmp.' + ext)
+            image_data = ContentFile(image_data, name='tmp.jpg')
             # The image requires a name in order to save; however, we don't do anything with that name so
             # we are passing in an empty string so it doesn't break. None is not supported.
             course.image.save('', image_data)
 
         # Then the course itself
-        course = serializer.save()
+        # course = serializer.save()
         if not draft:
             official_course = set_official_state(course, Course)
             if entitlement.mode != SeatType.objects.get(slug=Seat.AUDIT):
