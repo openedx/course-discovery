@@ -208,7 +208,9 @@ class PersonTypeaheadSearchView(APIView):
             # We are pulling the people who are part of course runs belonging to the given organizations.
             # This blank order_by is there to offset the default ordering on people since
             # we don't care about the order in which they are returned.
-            queryset = queryset.filter(courses_staffed__course__authoring_organizations__key__in=org_keys).order_by()
+            queryset = queryset.filter(
+                courses_staffed__course__authoring_organizations__key__in=org_keys
+            ).distinct().order_by()
 
         for word in words:
             # Progressively filter the same queryset - every word must match something
