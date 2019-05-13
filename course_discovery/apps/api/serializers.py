@@ -226,7 +226,7 @@ class FAQSerializer(serializers.ModelSerializer):
         fields = ('question', 'answer',)
 
 
-class SubjectSerializer(serializers.ModelSerializer):
+class SubjectSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     """Serializer for the ``Subject`` model."""
 
     @classmethod
@@ -576,7 +576,7 @@ class CatalogSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'query', 'courses_count', 'viewers')
 
 
-class NestedProgramSerializer(serializers.ModelSerializer):
+class NestedProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     """
     Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
     the basic details of the Program and none of the details about its related entities, aside from the number
