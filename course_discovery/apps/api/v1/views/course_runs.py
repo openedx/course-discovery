@@ -174,30 +174,43 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             log.info('Not pushing course run info for %s to Studio as partner %s has no studio_url set.',
                      course_run.key, course_run.course.partner.short_code)
 
-    @writable_request_wrapper
-    def create(self, request, *args, **kwargs):
-        """ Create a course run object. """
+    def create_run_helper(self, run_data, request=None):
+        # These are both required to be part of self because when we call self.get_serializer, it tries
+        # to set these two variables as part of the serializer context. When the endpoint is hit directly,
+        # self.request should exist, but when this function is called from the Course POST endpoint in courses.py
+        # we have to manually set these values.
+        if not hasattr(self, 'request'):
+            self.request = request  # pylint: disable=attribute-defined-outside-init
+        if not hasattr(self, 'format_kwarg'):
+            self.format_kwarg = None  # pylint: disable=attribute-defined-outside-init
+
         # Set a pacing default when creating (studio requires this to be set, even though discovery does not)
-        request.data.setdefault('pacing_type', 'instructor_paced')
+        run_data.setdefault('pacing_type', 'instructor_paced')
 
         # Guard against externally setting the draft state
-        request.data.pop('draft', None)
+        run_data.pop('draft', None)
 
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=run_data)
         serializer.is_valid(raise_exception=True)
 
         # Grab any existing course run for this course (we'll use it when talking to studio to form basis of rerun)
-        course_key = request.data['course']  # required field
+        course_key = run_data['course']  # required field
         course = Course.objects.filter_drafts().get(key=course_key)
         course = ensure_draft_world(course)
         old_course_run = course.canonical_course_run
 
         # And finally, save to database and push to studio
         course_run = serializer.save(draft=True)
-        self.push_to_studio(request, course_run, create=True, old_course_run=old_course_run)
+        self.push_to_studio(self.request, course_run, create=True, old_course_run=old_course_run)
+        return serializer.data
 
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    @writable_request_wrapper
+    def create(self, request, *args, **kwargs):
+        """ Create a course run object. """
+        serializer_data = self.create_run_helper(request.data)
+
+        headers = self.get_success_headers(serializer_data)
+        return Response(serializer_data, status=status.HTTP_201_CREATED, headers=headers)
 
     @writable_request_wrapper
     def update(self, request, **kwargs):

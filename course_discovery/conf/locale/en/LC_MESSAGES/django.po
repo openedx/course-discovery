@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-06 21:15+0000\n"
+"POT-Creation-Date: 2019-05-14 21:36+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -89,57 +89,57 @@ msgstr ""
 msgid "Specifying both editable=1 and a q parameter is not supported."
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:38
+#: apps/api/v1/views/course_runs.py:40
 msgid "An error occurred while setting course run data."
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:39
+#: apps/api/v1/views/course_runs.py:41
 msgid "Failed to set course run data: {}"
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:209
+#: apps/api/v1/views/course_runs.py:227
 msgid "Course run is in review. Editing disabled."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:46
-msgid "An error occurred while setting Course data."
-msgstr ""
-
 #: apps/api/v1/views/courses.py:47
-msgid "Failed to set course data: {}"
+msgid "An error occurred while setting Course or Course Run data."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:161
+#: apps/api/v1/views/courses.py:48
+msgid "Failed to set data: {}"
+msgstr ""
+
+#: apps/api/v1/views/courses.py:163
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:163
+#: apps/api/v1/views/courses.py:165
 msgid "Organization does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:165
+#: apps/api/v1/views/courses.py:167
 msgid "Entitlement Track does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:167
+#: apps/api/v1/views/courses.py:169
 msgid "Incorrect data sent. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:180
+#: apps/api/v1/views/courses.py:182
 #, python-brace-format
 msgid "A course with key {key} already exists."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:203
+#: apps/api/v1/views/courses.py:212
 msgid "Entitlements must have a mode specified."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:207
+#: apps/api/v1/views/courses.py:216
 msgid "Entitlement mode {} not found."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:211
+#: apps/api/v1/views/courses.py:220
 #, python-brace-format
 msgid "Existing entitlement not found for course {0}."
 msgstr ""

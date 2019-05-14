@@ -22,6 +22,7 @@ from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
+from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
@@ -43,8 +44,8 @@ def writable_request_wrapper(method):
         except (PermissionDenied, Http404):
             raise  # just pass these along
         except Exception as e:  # pylint: disable=broad-except
-            logger.exception(_('An error occurred while setting Course data.'))
-            return Response(_('Failed to set course data: {}').format(str(e)),
+            logger.exception(_('An error occurred while setting Course or Course Run data.'))
+            return Response(_('Failed to set data: {}').format(str(e)),
                             status=status.HTTP_400_BAD_REQUEST)
     return inner
 
@@ -149,6 +150,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         """
         Create a Course, Course Entitlement, and Entitlement.
         """
+        course_run_creation_fields = request.data.pop('course_run', None)
         course_creation_fields = {
             'title': request.data.get('title'),
             'number': request.data.get('number'),
@@ -193,6 +195,13 @@ class CourseViewSet(viewsets.ModelViewSet):
             price=price,
             draft=True,
         )
+
+        # We want to create the course run here so it is captured as part of the atomic transaction.
+        # Note: We have to send the request object as well because it is used for its metadata
+        # (like request.user and is set as part of the serializer context)
+        if course_run_creation_fields:
+            course_run_creation_fields['course'] = course_creation_fields['key']
+            CourseRunViewSet().create_run_helper(course_run_creation_fields, request)
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
