@@ -16,7 +16,7 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, Se
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, SeatType
+from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory,
     ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
@@ -495,11 +495,47 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertTrue(course.entitlements.first().draft)
 
     @oauth_login
+    def test_create_makes_course_and_course_run(self):
+        """
+        When creating a course and supplying a course_run, it should create both the course
+        and course run as drafts.
+        """
+        data = {
+            'number': 'test101',
+            'org': self.org.key,
+            'course_run': {
+                'start': '2001-01-01T00:00:00Z',
+                'end': '2002-02-02T00:00:00Z',
+            }
+        }
+
+        responses.add(
+            responses.POST,
+            self.partner.oidc_url_root + '/access_token',
+            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
+            status=200,
+        )
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        responses.add(responses.POST, studio_url, status=200)
+        key = 'course-v1:{org}+{number}+1T2001'.format(org=data['org'], number=data['number'])
+        responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=key), status=200)
+
+        response = self.create_course(data)
+        self.assertEqual(response.status_code, 201)
+
+        course = Course.everything.last()
+        self.assertTrue(course.draft)
+        self.assertTrue(course.entitlements.first().draft)
+        course_run = CourseRun.everything.last()
+        self.assertTrue(course_run.draft)
+        self.assertEqual(course_run.course, course)
+
+    @oauth_login
     def test_create_fails_if_official_version_exists(self):
         """ When creating a course, it should not create one if an official version already exists. """
         response = self.create_course({'number': 'Fake101'})
         self.assertEqual(response.status_code, 400)
-        expected_error_message = 'Failed to set course data: A course with key {key} already exists.'
+        expected_error_message = 'Failed to set data: A course with key {key} already exists.'
         self.assertEqual(response.data, expected_error_message.format(key=self.course.key))
 
     def test_create_fails_with_missing_field(self):
@@ -530,7 +566,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
     def test_create_fails_invalid_course_number(self):
         response = self.create_course({'number': 'a b c'})
         self.assertEqual(response.status_code, 400)
-        expected_error_message = 'Failed to set course data: Special characters not allowed in Course Number.'
+        expected_error_message = 'Failed to set data: Special characters not allowed in Course Number.'
         self.assertEqual(response.data, expected_error_message)
 
     @ddt.data(
@@ -572,7 +608,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                     (
                         course_logger.name,
                         'ERROR',
-                        'An error occurred while setting Course data.',
+                        'An error occurred while setting Course or Course Run data.',
                     )
                 )
 
@@ -796,7 +832,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                     (
                         course_logger.name,
                         'ERROR',
-                        'An error occurred while setting Course data.',
+                        'An error occurred while setting Course or Course Run data.',
                     )
                 )
 
