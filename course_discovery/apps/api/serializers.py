@@ -690,7 +690,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
             raise serializers.ValidationError({'start': _('Start date cannot be after the End date')})
 
         if go_live_date and start and go_live_date > start:
-            raise serializers.ValidationError({'go_live_date': _('Go Live date cannot be after the Start date.')})
+            raise serializers.ValidationError({'publish_date': _('Publish date cannot be after the Start date.')})
 
         if not self.instance:  # if we're creating an object, we need to make sure to generate a key
             self.ensure_key(data)
