@@ -1703,6 +1703,7 @@ class CourseSearchSerializer(HaystackSerializer):
                 'go_live_date': course_run.go_live_date,
                 'start': course_run.start,
                 'end': course_run.end,
+                'modified': course_run.modified,
                 'availability': course_run.availability,
                 'pacing_type': course_run.pacing_type,
                 'enrollment_mode': course_run.type,
