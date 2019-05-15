@@ -2,7 +2,8 @@
 # http://open-edx-proposals.readthedocs.io/en/latest/oeps/oep-0002.html#specification
 
 nick: ctlg
-oeps: {}
+oeps:
+  oep-7: True   # Python 3
 openedx-release: {ref: master}
 owner: edx/learner
 track-pulls: true
