@@ -23,10 +23,10 @@ from course_discovery.apps.api.serializers import CourseEntitlementSerializer, M
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Seat, SeatType, Video
+    Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Program, Seat, SeatType, Video
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world, set_official_state, validate_course_number
 
@@ -125,10 +125,16 @@ class CourseViewSet(viewsets.ModelViewSet):
             if get_query_param(self.request, 'published_course_runs_only'):
                 course_runs = course_runs.filter(status=CourseRunStatus.Published)
 
+            if get_query_param(self.request, 'include_deleted_programs'):
+                programs = Program.objects.all()
+            else:
+                programs = Program.objects.exclude(status=ProgramStatus.Deleted)
+
             queryset = self.get_serializer_class().prefetch_queryset(
                 queryset=queryset,
                 course_runs=course_runs,
-                partner=partner
+                partner=partner,
+                programs=programs,
             )
 
         return queryset.order_by(Lower('key'))
@@ -248,6 +254,7 @@ class CourseViewSet(viewsets.ModelViewSet):
         # We need to grab the entitlement in case we need to update the official version later
         if entitlements:
             entitlement = entitlements[0]
+            course.entitlements = entitlements
         else:
             entitlement = CourseEntitlement.everything.filter(course=course, draft=True).first()
 
