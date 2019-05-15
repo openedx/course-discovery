@@ -333,7 +333,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
     @classmethod
     def prefetch_queryset(cls):
         return Person.objects.all().select_related(
-            'position__organization'
+            'position__organization',
         ).prefetch_related(
             'person_networks',
             'areas_of_expertise',
@@ -584,6 +584,12 @@ class NestedProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     """
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
     number_of_courses = serializers.SerializerMethodField()
+
+    @classmethod
+    def prefetch_queryset(cls, queryset=None):
+        # Explicitly check for None to avoid returning all Programs when the
+        # queryset passed in happens to be empty.
+        return queryset if queryset is not None else Program.objects.all()
 
     class Meta:
         model = Program
@@ -892,6 +898,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'partner',
             'extra_description',
             '_official_version',
+            'canonical_course_run',
         ).prefetch_related(
             'expected_learning_items',
             'prerequisites',
@@ -947,10 +954,10 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 class CourseWithProgramsSerializer(CourseSerializer):
     """A ``CourseSerializer`` which includes programs."""
     course_runs = serializers.SerializerMethodField()
-    programs = serializers.SerializerMethodField()
+    programs = NestedProgramSerializer(read_only=True, many=True)
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None, programs=None):
         """
         Similar to the CourseSerializer's prefetch_queryset, but prefetches a
         filtered CourseRun queryset.
@@ -961,17 +968,20 @@ class CourseWithProgramsSerializer(CourseSerializer):
             'video',
             'video__image',
             'partner',
+            'canonical_course_run',
         ).prefetch_related(
             '_official_version',
             'expected_learning_items',
             'prerequisites',
+            'topics',
             Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset()),
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+            Prefetch('programs', queryset=NestedProgramSerializer.prefetch_queryset(queryset=programs)),
+            Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
         )
 
-    # Executes as an n+1 query because of dependence on context
     def get_course_runs(self, course):
         return CourseRunSerializer(
             course.course_runs,
@@ -981,15 +991,6 @@ class CourseWithProgramsSerializer(CourseSerializer):
                 'exclude_utm': self.context.get('exclude_utm'),
             }
         ).data
-
-    # Executes as an n+1 query because of dependence on context
-    def get_programs(self, obj):
-        if self.context.get('include_deleted_programs'):
-            eligible_programs = obj.programs.all()
-        else:
-            eligible_programs = obj.programs.exclude(status=ProgramStatus.Deleted)
-
-        return NestedProgramSerializer(eligible_programs, many=True).data
 
     class Meta(CourseSerializer.Meta):
         model = Course
