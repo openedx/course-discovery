@@ -41,7 +41,6 @@ from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_
 
 logger = logging.getLogger(__name__)
 
-
 class DraftModelMixin(models.Model):
     """
     Defines a draft boolean field and an object manager to make supporting drafts more transparent.
@@ -415,10 +414,7 @@ class PkSearchableMixin:
             # want everything, we don't need to actually query elasticsearch at all.
             return queryset
 
-        results = SearchQuerySet().models(cls).raw_search(query)
-        ids = {result.pk for result in results}
-
-        return queryset.filter(pk__in=ids)
+        return SearchQuerySet().models(cls).raw_search(query).load_all()
 
 
 class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
