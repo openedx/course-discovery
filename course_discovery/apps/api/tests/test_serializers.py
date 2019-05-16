@@ -49,6 +49,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory,
     VideoFactory
 )
+from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -1576,6 +1577,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 'availability': course_run.availability,
                 'pacing_type': course_run.pacing_type,
                 'enrollment_mode': course_run.type,
+                'estimated_hours': get_course_run_estimated_hours(course_run)
             }],
             'uuid': str(course.uuid),
             'subjects': [subject.name for subject in course.subjects.all()],

@@ -259,6 +259,20 @@ def validate_course_number(course_number):
         raise ValueError(_('Special characters not allowed in Course Number.'))
 
 
+def get_course_run_estimated_hours(course_run):
+    """
+    Returns the average estimated work hours to complete the course run.
+
+    Args:
+        course_run: Course Run object.
+    """
+    min_effort = course_run.min_effort or 0
+    max_effort = course_run.max_effort or 0
+    weeks_to_complete = course_run.weeks_to_complete or 0
+    effort = min_effort + max_effort
+    return (effort / 2) * weeks_to_complete if effort and weeks_to_complete else 0
+
+
 class MarketingSiteAPIClient(object):
     """
     The marketing site API client we can use to communicate with the marketing site

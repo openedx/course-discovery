@@ -33,7 +33,7 @@ from course_discovery.apps.course_metadata.models import (
     IconTextPairing, Image, LevelType, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork,
     Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
 )
-from course_discovery.apps.course_metadata.utils import parse_course_key_fragment
+from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
@@ -1717,6 +1717,7 @@ class CourseSearchSerializer(HaystackSerializer):
                 'availability': course_run.availability,
                 'pacing_type': course_run.pacing_type,
                 'enrollment_mode': course_run.type,
+                'estimated_hours': get_course_run_estimated_hours(course_run)
             }
             for course_run in result.object.course_runs.all()
         ]
