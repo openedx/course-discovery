@@ -199,9 +199,18 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         course = ensure_draft_world(course)
         old_course_run = course.canonical_course_run
 
-        # And finally, save to database and push to studio
+        # Save run to database
         course_run = serializer.save(draft=True)
+
+        # Set canonical course run if needed (done this way to match historical behavior - but shouldn't this be
+        # updated *each* time we make a new run?)
+        if not old_course_run:
+            course.canonical_course_run = course_run
+            course.save()
+
+        # And finally, push run to studio
         self.push_to_studio(self.request, course_run, create=True, old_course_run=old_course_run)
+
         return serializer.data
 
     @writable_request_wrapper

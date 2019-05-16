@@ -47,11 +47,14 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         responses.add(responses.PATCH, studio_url, status=status)
         responses.add(responses.POST, '{url}images/'.format(url=studio_url), status=status)
 
-    def mock_post_to_studio(self, key, access_token=True):
+    def mock_post_to_studio(self, key, access_token=True, rerun_key=None):
         if access_token:
             self.mock_access_token()
         studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
-        responses.add(responses.POST, studio_url, status=200)
+        if rerun_key:
+            responses.add(responses.POST, '{url}{key}/rerun/'.format(url=studio_url, key=rerun_key), status=200)
+        else:
+            responses.add(responses.POST, studio_url, status=200)
         responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=key), status=200)
 
     def test_get(self):
@@ -148,6 +151,38 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertEqual(str(new_course_run.end), '2001-01-01 00:00:00+00:00')  # spot check that input made it
         self.assertTrue(new_course_run.draft)
 
+    @ddt.data(True, False)
+    @responses.activate
+    def test_create_sets_canonical_course_run(self, has_canonical_run):
+        """ Verify the endpoint supports setting an empty canonical course run. """
+        course = self.draft_course_run.course
+        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        url = reverse('api:v1:course_run-list')
+
+        self.assertIsNone(course.canonical_course_run)  # sanity check
+        if has_canonical_run:
+            self.mock_post_to_studio(new_key, rerun_key=self.draft_course_run.key)
+            course.canonical_course_run = self.draft_course_run
+            course.save()
+        else:
+            self.mock_post_to_studio(new_key)
+
+        response = self.client.post(url, {
+            'course': course.key,
+            'start': '2000-01-01T00:00:00Z',
+            'end': '2001-01-01T00:00:00Z',
+        }, format='json')
+
+        self.assertEqual(response.status_code, 201)
+        new_course_run = CourseRun.everything.get(key=new_key)
+
+        course.refresh_from_db()
+        if has_canonical_run:
+            # Shouldn't change existing canonical course run
+            self.assertEqual(course.canonical_course_run, self.draft_course_run)
+        else:
+            self.assertEqual(course.canonical_course_run, new_course_run)
+
     @ddt.data(True, False, "bogus")
     @responses.activate
     def test_create_draft_ignored(self, draft):
@@ -196,7 +231,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         org_ext = OrganizationExtensionFactory(organization=course.authoring_organizations.first())
         org_ext.auto_create_in_studio = False  # badly named, but this controls whether we let org name their keys
         org_ext.save()
-        self.mock_post_to_studio(desired_key, access_token=False)
+        self.mock_post_to_studio(desired_key, access_token=False, rerun_key=new_course_run.key)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
         new_course_run = CourseRun.everything.get(key=desired_key)
