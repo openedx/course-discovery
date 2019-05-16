@@ -20,6 +20,7 @@ from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrRea
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import StudioAPI, get_query_param
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
+from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
@@ -86,7 +87,10 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             queryset = self.queryset
 
         if q:
-            queryset = CourseRun.search(q, queryset=queryset)
+            qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))
+            # This is necessary to avoid issues with the filter backend.
+            qs.model = self.queryset.model
+            return qs
 
         queryset = queryset.filter(course__partner=partner)
         return self.get_serializer_class().prefetch_queryset(queryset=queryset)
@@ -320,7 +324,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         if query and course_run_ids:
             course_run_ids = course_run_ids.split(',')
-            course_runs = CourseRun.search(query).filter(course__partner=partner).filter(key__in=course_run_ids). \
+            course_runs = CourseRun.search(query).filter(partner=partner.short_code).filter(key__in=course_run_ids). \
                 values_list('key', flat=True)
             contains = {course_run_id: course_run_id in course_runs for course_run_id in course_run_ids}
 
