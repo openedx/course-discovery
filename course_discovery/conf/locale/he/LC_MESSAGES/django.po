@@ -4,6 +4,7 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
+# Anna Lifshits Agmon <anna@campus.gov.il>, 2019
 # e2f_HE c1 <e2f_HE_c1@outlook.com>, 2016-2017
 # da4b3b3e32ebb4f0ec5430359fde7fbb, 2016
 # ido nahmias <inahmias@gmail.com>, 2016
@@ -15,7 +16,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-09-02 13:16+0000\n"
+"PO-Revision-Date: 2019-05-15 07:53+0000\n"
 "Last-Translator: Anna Lifshits Agmon <anna@campus.gov.il>\n"
 "Language-Team: Hebrew (http://www.transifex.com/open-edx/edx-platform/language/he/)\n"
 "MIME-Version: 1.0\n"
@@ -401,7 +402,7 @@ msgstr "בקרוב"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"
-msgstr "קוד אתי"
+msgstr "מסלול תעודה"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Audit"
@@ -849,7 +850,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "This field is required."
-msgstr ""
+msgstr "זהו שדה חובה."
 
 #: apps/publisher/forms.py
 msgid "Invalid course key."
