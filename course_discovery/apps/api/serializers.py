@@ -1248,6 +1248,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
             'type__applicable_seat_types',
             'authoring_organizations',
             'degree',
+            'curricula',
             Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
         )
 

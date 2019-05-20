@@ -14,6 +14,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -390,7 +391,7 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
             courses=[course_run.course],
             one_click_purchase_enabled=True,
         )
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(FuzzyInt(11, 2)):
             self.assertEqual(
                 list(program_filter.queryset({}, Program.objects.all())),
                 [one_click_purchase_eligible_program]
