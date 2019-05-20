@@ -1728,23 +1728,31 @@ class Degree(Program):
         },
         help_text=_('Customized background image for the MicroMasters section.'),
     )
+    micromasters_org_name_override = models.CharField(
+        help_text=_(
+            'Override org name if micromasters program comes from different organization than Masters program'
+        ),
+        max_length=50,
+        blank=True,
+        null=True,
+    )
     search_card_ranking = models.CharField(
         help_text=_('Ranking display for search card (e.g. "#1 in the U.S."'),
         max_length=50,
         blank=True,
-        null=True
+        null=True,
     )
     search_card_cost = models.CharField(
         help_text=_('Cost display for search card (e.g. "$9,999"'),
         max_length=50,
         blank=True,
-        null=True
+        null=True,
     )
     search_card_courses = models.CharField(
         help_text=_('Number of courses for search card (e.g. "11 Courses"'),
         max_length=50,
         blank=True,
-        null=True
+        null=True,
     )
 
     class Meta(object):

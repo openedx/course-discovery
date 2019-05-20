@@ -1214,7 +1214,8 @@ class DegreeSerializer(serializers.ModelSerializer):
             'costs', 'deadlines', 'lead_capture_list_name', 'quick_facts',
             'overall_ranking', 'prerequisite_coursework', 'rankings',
             'lead_capture_image', 'micromasters_url', 'micromasters_long_title', 'micromasters_long_description',
-            'micromasters_background_image', 'costs_fine_print', 'deadlines_fine_print', 'hubspot_lead_capture_form_id',
+            'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
+            'deadlines_fine_print', 'hubspot_lead_capture_form_id',
         )
 
 

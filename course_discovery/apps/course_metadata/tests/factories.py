@@ -380,6 +380,7 @@ class DegreeFactory(ProgramFactory):
     micromasters_url = FuzzyText()
     micromasters_long_title = FuzzyText()
     micromasters_long_description = FuzzyText()
+    micromasters_org_name_override = FuzzyText()
     search_card_ranking = FuzzyText()
     search_card_cost = FuzzyText()
     search_card_courses = FuzzyText()
