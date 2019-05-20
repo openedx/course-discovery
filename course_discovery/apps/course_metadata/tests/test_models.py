@@ -955,46 +955,10 @@ class ProgramTests(TestCase):
         self.assertTrue(program.is_program_eligible_for_one_click_purchase)
 
     def test_one_click_purchase_eligible_with_entitlements(self):
-        """ Verify that program is one click purchase eligible when its courses have unexpired entitlement products. """
+        """ Verify that program is one click purchase eligible when its courses have entitlement products. """
         # Program has one_click_purchase_enabled set to True,
         # all courses have a verified mode entitlement product and multiple course runs.
         program, __ = self.create_program_with_entitlements_and_seats()
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_ineligible_expired_entitlement(self):
-        """ Verify that program is not one click purchase eligible if course entitlement product is expired. """
-        program, courses = self.create_program_with_entitlements_and_seats()
-        expired_entitlement = courses[2].entitlements.first()
-        expired_entitlement.expires = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=7)
-        expired_entitlement.save()
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_eligible_expired_entitlement_one_run(self):
-        """
-        Verify that program is one click purchase eligible if there is only one
-        published course run for the course whose entitlement product is expired.
-        """
-        program, courses = self.create_program_with_entitlements_and_seats()
-        expired_entitlement = courses[2].entitlements.first()
-        expired_entitlement.expires = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=7)
-        expired_entitlement.save()
-        CourseRun.objects.filter(course=courses[2]).delete()
-        factories.SeatFactory(
-            course_run=factories.CourseRunFactory(
-                end=None,
-                enrollment_end=None,
-                course=courses[2]
-            ),
-            type=Seat.VERIFIED, upgrade_deadline=None
-        )
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
-
-    def test_one_click_purchase_eligible_future_expires(self):
-        """ Verify that program is one click purchase eligible if course entitlement product expires in the future. """
-        program, courses = self.create_program_with_entitlements_and_seats()
-        future_expiring_entitlement = courses[1].entitlements.first()
-        future_expiring_entitlement.expires = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=7)
-        future_expiring_entitlement.save()
         self.assertTrue(program.is_program_eligible_for_one_click_purchase)
 
     def test_one_click_purchase_ineligible_wrong_mode(self):

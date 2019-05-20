@@ -1347,15 +1347,20 @@ class Program(PkSearchableMixin, TimeStampedModel):
             return False
 
         excluded_course_runs = set(self.excluded_course_runs.all())
-        applicable_seat_types = [seat_type.name.lower() for seat_type in self.type.applicable_seat_types.all()]
+        applicable_seat_types = [seat_type.slug for seat_type in self.type.applicable_seat_types.all()]
 
         for course in self.courses.all():
-            entitlement_products = set(course.entitlements.filter(mode__name__in=applicable_seat_types).exclude(
-                expires__lte=datetime.datetime.now(pytz.UTC)))
+            # Filter the entitlements in python, to avoid duplicate queries for entitlements after prefetching
+            all_entitlements = course.entitlements.all()
+            entitlement_products = {entitlement for entitlement in all_entitlements
+                                    if entitlement.mode.slug in applicable_seat_types}
             if len(entitlement_products) == 1:
                 continue
 
-            course_runs = set(course.course_runs.filter(status=CourseRunStatus.Published)) - excluded_course_runs
+            # Filter the course_runs in python, to avoid duplicate queries for course_runs after prefetching
+            all_course_runs = course.course_runs.all()
+            course_runs = {course_run for course_run in all_course_runs
+                           if course_run.status == CourseRunStatus.Published} - excluded_course_runs
 
             if len(course_runs) != 1:
                 return False
