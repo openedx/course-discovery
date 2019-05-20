@@ -1070,6 +1070,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'micromasters_background_image': mm_background_image_field.to_representation(
                 degree.micromasters_background_image
             ),
+            'micromasters_org_name_override': degree.micromasters_org_name_override,
             'costs_fine_print': degree.costs_fine_print,
             'deadlines_fine_print': degree.deadlines_fine_print,
             'title_background_image': degree.title_background_image,
