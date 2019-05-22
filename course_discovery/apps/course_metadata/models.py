@@ -27,6 +27,7 @@ from taggit_autosuggest.managers import TaggableManager
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
 from course_discovery.apps.course_metadata.constants import PathwayType
+from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
 from course_discovery.apps.course_metadata.managers import DraftManager
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.publishers import (
@@ -308,7 +309,7 @@ class Person(TimeStampedModel):
     salutation = models.CharField(max_length=10, null=True, blank=True)
     given_name = models.CharField(max_length=255)
     family_name = models.CharField(max_length=255, null=True, blank=True)
-    bio = models.TextField(null=True, blank=True)
+    bio = NullHtmlField()
     bio_language = models.ForeignKey(LanguageTag, null=True, blank=True)
     profile_image = StdImageField(
         upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/people/profile_images'),
@@ -320,7 +321,7 @@ class Person(TimeStampedModel):
     )
     slug = AutoSlugField(populate_from=('given_name', 'family_name'), editable=True, slugify_function=uslugify)
     email = models.EmailField(null=True, blank=True, max_length=255)
-    major_works = models.TextField(
+    major_works = HtmlField(
         blank=True,
         help_text=_('A list of major works by this person. Must be valid HTML.'),
     )
@@ -430,8 +431,8 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
     )
     key = models.CharField(max_length=255, db_index=True)
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
-    short_description = models.TextField(default=None, null=True, blank=True)
-    full_description = models.TextField(default=None, null=True, blank=True)
+    short_description = NullHtmlField()
+    full_description = NullHtmlField()
     extra_description = models.ForeignKey(
         AdditionalPromoArea, default=None, null=True, blank=True, related_name='extra_description'
     )
@@ -441,9 +442,9 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
-    outcome = models.TextField(blank=True, null=True)
-    prerequisites_raw = models.TextField(blank=True, null=True)
-    syllabus_raw = models.TextField(blank=True, null=True)
+    outcome = NullHtmlField()
+    prerequisites_raw = NullHtmlField()
+    syllabus_raw = NullHtmlField()
     card_image_url = models.URLField(null=True, blank=True)
     image = StdImageField(
         upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/course/image'),
@@ -457,8 +458,8 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
     )
     slug = AutoSlugField(populate_from='key', editable=True, slugify_function=uslugify)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
-    faq = models.TextField(default=None, null=True, blank=True, verbose_name=_('FAQ'))
-    learner_testimonials = models.TextField(default=None, null=True, blank=True)
+    faq = NullHtmlField(verbose_name=_('FAQ'))
+    learner_testimonials = NullHtmlField()
     has_ofac_restrictions = models.BooleanField(default=False, verbose_name=_('Course Has OFAC Restrictions'))
     enrollment_count = models.IntegerField(
         null=True, blank=True, default=0, help_text=_('Total number of learners who have enrolled in this course')
@@ -486,9 +487,7 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         related_name='course_topics',
     )
 
-    additional_information = models.TextField(
-        default=None, null=True, blank=True, verbose_name=_('Additional Information')
-    )
+    additional_information = NullHtmlField(verbose_name=_('Additional Information'))
 
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
@@ -670,13 +669,11 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
     enrollment_start = models.DateTimeField(null=True, blank=True)
     enrollment_end = models.DateTimeField(null=True, blank=True, db_index=True)
     announcement = models.DateTimeField(null=True, blank=True)
-    short_description_override = models.TextField(
-        default=None, null=True, blank=True,
+    short_description_override = NullHtmlField(
         help_text=_(
             "Short description specific for this run of a course. Leave this value blank to default to "
             "the parent course's short_description attribute."))
-    full_description_override = models.TextField(
-        default=None, null=True, blank=True,
+    full_description_override = NullHtmlField(
         help_text=_(
             "Full description specific for this run of a course. Leave this value blank to default to "
             "the parent course's full_description attribute."))
@@ -720,8 +717,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
     reporting_type = models.CharField(max_length=255, choices=ReportingType.choices, default=ReportingType.mooc)
     eligible_for_financial_aid = models.BooleanField(default=True)
     license = models.CharField(max_length=255, blank=True, db_index=True)
-    outcome_override = models.TextField(
-        default=None, blank=True, null=True,
+    outcome_override = NullHtmlField(
         help_text=_(
             "'What You Will Learn' description for this particular course run. Leave this value blank to default "
             "to the parent course's Outcome attribute."))
@@ -1884,9 +1880,7 @@ class Curriculum(TimeStampedModel):
     )
     name = models.CharField(blank=True, max_length=255)
     is_active = models.BooleanField(default=True)
-    marketing_text_brief = models.TextField(
-        null=True,
-        blank=True,
+    marketing_text_brief = NullHtmlField(
         max_length=750,
         help_text=_(
             """A high-level overview of the degree\'s courseware. The "brief"
@@ -1894,7 +1888,7 @@ class Curriculum(TimeStampedModel):
             valid HTML."""
         ),
     )
-    marketing_text = models.TextField(
+    marketing_text = HtmlField(
         null=True,
         blank=False,
         help_text=_('A high-level overview of the degree\'s courseware.'),

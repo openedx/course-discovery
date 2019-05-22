@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-21 17:24+0000\n"
+"POT-Creation-Date: 2019-05-22 16:19+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1243,6 +1243,27 @@ msgid "Special characters not allowed in Course Number."
 msgstr ""
 "Spéçïäl çhäräçtérs nöt ällöwéd ïn Çöürsé Nümßér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/validators.py
+#, python-brace-format
+msgid "Invalid HTML received: {0}"
+msgstr "Ìnvälïd HTML réçéïvéd: {0} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/validators.py
+msgid "Invalid HTML received"
+msgstr "Ìnvälïd HTML réçéïvéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/validators.py apps/course_metadata/validators.py
+#, python-brace-format
+msgid "{0} tag is not allowed"
+msgstr "{0} täg ïs nöt ällöwéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/course_metadata/validators.py
+#, python-brace-format
+msgid "{0} attribute is not allowed on the {1} tag"
+msgstr ""
+"{0} ättrïßüté ïs nöt ällöwéd ön thé {1} täg Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/views.py
 msgid "Update excluded course runs"
