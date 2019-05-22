@@ -41,12 +41,14 @@ from course_discovery.apps.publisher.tests.factories import OrganizationExtensio
 # pylint: disable=no-member
 
 @pytest.mark.django_db
-class TestCourse:
+@pytest.mark.usefixtures('haystack_default_connection')
+@ddt.ddt
+class TestCourse(TestCase):
     def test_str(self):
         course = factories.CourseFactory()
         assert str(course), '{key}: {title}'.format(key=course.key, title=course.title)
 
-    def test_search(self, haystack_default_connection):  # pylint: disable=unused-argument
+    def test_search(self):
         title = 'Some random title'
         expected = set(factories.CourseFactory.create_batch(3, title=title))
         query = 'title:' + title
@@ -69,6 +71,21 @@ class TestCourse:
 
         course.image = None
         assert course.original_image_url is None
+
+    @ddt.data('additional_information', 'faq', 'full_description', 'learner_testimonials', 'outcome',
+              'prerequisites_raw', 'short_description', 'syllabus_raw')
+    def test_html_fields_are_validated(self, field_name):
+        course = factories.CourseFactory()
+
+        # Happy path
+        setattr(course, field_name, '<p>')
+        course.clean_fields()
+
+        # Bad HTML
+        setattr(course, field_name, '<?proc>')
+        with self.assertRaises(ValidationError) as cm:
+            course.clean_fields()
+        self.assertEqual(cm.exception.message_dict[field_name], ['Invalid HTML received'])
 
     def test_first_enrollable_paid_seat_price(self):
         """
@@ -199,6 +216,18 @@ class CourseRunTests(TestCase):
         """ Verify casting an instance to a string returns a string containing the key and title. """
         course_run = self.course_run
         self.assertEqual(str(course_run), '{key}: {title}'.format(key=course_run.key, title=course_run.title))
+
+    @ddt.data('full_description_override', 'outcome_override', 'short_description_override')
+    def test_html_fields_are_validated(self, field_name):
+        # Happy path
+        setattr(self.course_run, field_name, '<p>')
+        self.course_run.clean_fields()
+
+        # Bad HTML
+        setattr(self.course_run, field_name, '<?proc>')
+        with self.assertRaises(ValidationError) as cm:
+            self.course_run.clean_fields()
+        self.assertEqual(cm.exception.message_dict[field_name], ['Invalid HTML received'])
 
     @ddt.data('title', 'short_description', 'full_description')
     def test_override_fields(self, field_name):
@@ -640,6 +669,7 @@ class OrganizationTests(TestCase):
         self.assertIsNone(self.organization.marketing_url)
 
 
+@ddt.ddt
 class PersonTests(TestCase):
     """ Tests for the `Person` model. """
 
@@ -689,6 +719,18 @@ class PersonTests(TestCase):
     def test_str(self):
         """ Verify casting an instance to a string returns the person's full name. """
         self.assertEqual(str(self.person), self.person.full_name)
+
+    @ddt.data('bio', 'major_works')
+    def test_html_fields_are_validated(self, field_name):
+        # Happy path
+        setattr(self.person, field_name, '<p>')
+        self.person.clean_fields()
+
+        # Bad HTML
+        setattr(self.person, field_name, '<?proc>')
+        with self.assertRaises(ValidationError) as cm:
+            self.person.clean_fields()
+        self.assertEqual(cm.exception.message_dict[field_name], ['Invalid HTML received'])
 
 
 class PositionTests(TestCase):
@@ -1535,17 +1577,32 @@ class RankingTests(TestCase):
         self.assertEqual(str(ranking), description)
 
 
+@ddt.ddt
 class CurriculumTests(TestCase):
     """ Tests of the Curriculum model. """
     def setUp(self):
         self.course_run = factories.CourseRunFactory()
         self.courses = [self.course_run.course]
         self.degree = factories.DegreeFactory(courses=self.courses)
+        self.curriculum = Curriculum(program=self.degree)
 
     def test_str(self):
-        uuid_string = uuid.uuid4()
-        curriculum = Curriculum(program=self.degree, uuid=uuid_string)
-        self.assertEqual(str(curriculum), str(uuid_string))
+        self.assertEqual(str(self.curriculum), str(self.curriculum.uuid))
+
+    @ddt.data('marketing_text', 'marketing_text_brief')
+    def test_html_fields_are_validated(self, field_name):
+        # marketing_text is blank=False, so always provide something here
+        self.curriculum.marketing_text = '<p>'
+
+        # Happy path
+        setattr(self.curriculum, field_name, '<p>')
+        self.curriculum.clean_fields()
+
+        # Bad HTML
+        setattr(self.curriculum, field_name, '<?proc>')
+        with self.assertRaises(ValidationError) as cm:
+            self.curriculum.clean_fields()
+        self.assertEqual(cm.exception.message_dict[field_name], ['Invalid HTML received'])
 
 
 class CurriculumCourseMembershipTests(TestCase):
