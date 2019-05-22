@@ -55,13 +55,6 @@ def add_masters_track_on_course(sender, instance, **kwargs):  # pylint: disable=
             )
 
 
-def get_related_masters_program(course_run):
-    curriculum_memberships = course_run.course.curriculum_course_membership.all()
-    for membership in curriculum_memberships:
-        if is_program_masters(membership.curriculum.program) and course_run in membership.course_runs:
-            return membership.curriculum.program
-
-
 @receiver(post_save, sender=Seat)
 def publish_masters_track(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
@@ -79,27 +72,24 @@ def publish_masters_track(sender, instance, **kwargs):  # pylint: disable=unused
         logger.debug('Masters course mode waffle flag is not enabled')
         return
 
-    related_masters = get_related_masters_program(seat.course_run)
+    partner = seat.course_run.course.partner
 
-    if related_masters:
-        partner = related_masters.partner
+    if not partner.lms_api_client:
+        logger.info(
+            'LMS api client is not initiated. Cannot publish [%s] track for [%s] course_run',
+            seat.type,
+            seat.course_run.key,
+        )
+        return
 
-        if not partner.lms_api_client:
-            logger.info(
-                'LMS api client is not initiated. Cannot publish [%s] track for [%s] program',
-                seat.type,
-                related_masters.title
-            )
-            return
+    if not partner.lms_coursemode_api_url:
+        logger.info(
+            'No lms coursemode api url configured. Masters seat for course_run [%s] not published',
+            seat.course_run.key
+        )
+        return
 
-        if not partner.lms_coursemode_api_url:
-            logger.info(
-                'No lms coursemode api url configured. Masters seat for program [%s] not published',
-                related_masters.title
-            )
-            return
-
-        _create_masters_track_on_lms_if_necessary(seat, partner)
+    _create_masters_track_on_lms_if_necessary(seat, partner)
 
 
 def _create_masters_track_on_lms_if_necessary(seat, partner):

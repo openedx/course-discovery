@@ -62,10 +62,11 @@ class SeatSignalsTests(TestCase):
     """ Tests for the signal to save seats model into database """
     def setUp(self):
         self.course_runs = factories.CourseRunFactory.create_batch(3)
+        self.partner = factories.PartnerFactory()
         self.course = self.course_runs[0].course
+        self.course.partner = self.partner
         self.course_run = self.course_runs[0]
         self.program_type = ProgramType.objects.get(slug='masters')
-        self.partner = factories.PartnerFactory()
         self.degree = factories.DegreeFactory(courses=[self.course], type=self.program_type, partner=self.partner)
         self.currency = Currency.objects.get(code='USD')
         self.curriculum = Curriculum.objects.create(program=self.degree, uuid=uuid.uuid4())
@@ -169,21 +170,6 @@ class SeatSignalsTests(TestCase):
 
     @override_switch('masters_course_mode_enabled', active=True)
     @mock.patch('course_discovery.apps.core.models.OAuthAPIClient')
-    def test_seat_post_save_program_not_masters(self, mock_client_init):
-        mock_client = mock_client_init.return_value
-        self.program_type.slug = 'not_masters'
-        self.program_type.save()
-
-        Seat.objects.create(
-            course_run=self.course_run,
-            type=Seat.MASTERS,
-            currency=self.currency
-        )
-
-        self.assertFalse(mock_client.get.called)
-
-    @override_switch('masters_course_mode_enabled', active=True)
-    @mock.patch('course_discovery.apps.core.models.OAuthAPIClient')
     def test_seat_post_save_empty_lms_url(self, mock_client_init):
         mock_client = mock_client_init.return_value
         self.partner.lms_url = ''
@@ -201,9 +187,9 @@ class SeatSignalsTests(TestCase):
                 (
                     LOGGER_NAME,
                     'INFO',
-                    'LMS api client is not initiated. Cannot publish [{}] track for [{}] program'.format(
+                    'LMS api client is not initiated. Cannot publish [{}] track for [{}] course_run'.format(
                         Seat.MASTERS,
-                        self.degree.title
+                        self.course_run.key
                     )
                 )
             )
@@ -227,8 +213,8 @@ class SeatSignalsTests(TestCase):
                 (
                     LOGGER_NAME,
                     'INFO',
-                    'No lms coursemode api url configured. Masters seat for program [{}] not published'.format(
-                        self.degree.title
+                    'No lms coursemode api url configured. Masters seat for course_run [{}] not published'.format(
+                        self.course_run.key
                     ),
                 )
             )
