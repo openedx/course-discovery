@@ -1427,6 +1427,14 @@ class PathwaySerializer(serializers.ModelSerializer):
     destination_url = serializers.CharField()
     pathway_type = serializers.CharField()
 
+    @classmethod
+    def prefetch_queryset(cls, partner):
+        queryset = Pathway.objects.filter(partner=partner)
+
+        return queryset.prefetch_related(
+            Prefetch('programs', queryset=MinimalProgramSerializer.prefetch_queryset(partner=partner)),
+        )
+
     class Meta:
         model = Pathway
         fields = (
