@@ -13,7 +13,7 @@ class TestHtmlValidator(TestCase):
 
     @ddt.data(
         ('<script>', 'Invalid HTML received: script tag is not allowed'),  # start
-        ('</embed>', 'Invalid HTML received: embed tag is not allowed'),  # end
+        ('</foo>', 'Invalid HTML received: foo tag is not allowed'),  # end
         ('<p onload=''>', 'Invalid HTML received: onload attribute is not allowed on the p tag'),  # attr
         ('<!--comment-->', 'Invalid HTML received'),  # comment
         ('<!DOCTYPE html>', 'Invalid HTML received'),  # decl
