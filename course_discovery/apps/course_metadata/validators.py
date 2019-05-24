@@ -5,9 +5,8 @@ from django.utils.translation import ugettext as _
 
 
 class HtmlValidator(HTMLParser):
-    # Embed is allowed temporarily - we'd like to remove it
     ALLOWED_TAGS = {
-        'a', 'b', 'bdo', 'br', 'div', 'em', 'embed', 'i', 'img', 'li', 'ol', 'p', 'span', 'strong',
+        'a', 'b', 'bdo', 'br', 'div', 'em', 'i', 'img', 'li', 'ol', 'p', 'span', 'strong',
         'table', 'td', 'th', 'tr', 'u', 'ul',
     }
     ALLOWED_ATTRS = {  # attrs allowed for any tag
@@ -19,7 +18,6 @@ class HtmlValidator(HTMLParser):
     }
     ALLOWED_TAG_ATTRS = {
         'a': {'href', 'rel', 'target', 'title'},
-        'embed': {'height', 'src', 'type', 'width'},
         'img': {'alt', 'height', 'src', 'width'},
     }
 
