@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-22 16:19+0000\n"
+"POT-Creation-Date: 2019-05-24 14:05+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -64,23 +64,19 @@ msgstr ""
 msgid "Minimum effort and Maximum effort cannot be the same"
 msgstr ""
 
-#: apps/api/serializers.py:801
-msgid "Maximum effort cannot be empty"
-msgstr ""
-
-#: apps/api/serializers.py:843
+#: apps/api/serializers.py:841
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1037
+#: apps/api/serializers.py:1035
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1359
+#: apps/api/serializers.py:1357
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1363
+#: apps/api/serializers.py:1361
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -991,21 +987,21 @@ msgstr ""
 msgid "Special characters not allowed in Course Number."
 msgstr ""
 
-#: apps/course_metadata/validators.py:29
+#: apps/course_metadata/validators.py:31
 #, python-brace-format
 msgid "Invalid HTML received: {0}"
 msgstr ""
 
-#: apps/course_metadata/validators.py:31
+#: apps/course_metadata/validators.py:33
 msgid "Invalid HTML received"
 msgstr ""
 
-#: apps/course_metadata/validators.py:35 apps/course_metadata/validators.py:46
+#: apps/course_metadata/validators.py:37 apps/course_metadata/validators.py:48
 #, python-brace-format
 msgid "{0} tag is not allowed"
 msgstr ""
 
-#: apps/course_metadata/validators.py:42
+#: apps/course_metadata/validators.py:44
 #, python-brace-format
 msgid "{0} attribute is not allowed on the {1} tag"
 msgstr ""

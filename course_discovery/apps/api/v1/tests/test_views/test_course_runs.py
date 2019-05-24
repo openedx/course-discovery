@@ -365,10 +365,6 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             {'min_effort': 10000, 'max_effort': 10000},
             'Minimum effort and Maximum effort cannot be the same',
         ),
-        (
-            {'max_effort': None},
-            'Maximum effort cannot be empty',
-        ),
     )
     @ddt.unpack
     def test_partial_update_common_errors(self, data, error):
