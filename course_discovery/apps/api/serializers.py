@@ -797,8 +797,6 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             raise serializers.ValidationError({'min_effort': _('Minimum effort cannot be greater than Maximum effort')})
         if min_effort and max_effort and min_effort == max_effort:
             raise serializers.ValidationError({'min_effort': _('Minimum effort and Maximum effort cannot be the same')})
-        if not max_effort and min_effort:
-            raise serializers.ValidationError({'max_effort': _('Maximum effort cannot be empty')})
 
         return super().validate(data)
 

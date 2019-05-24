@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-22 16:19+0000\n"
+"POT-Creation-Date: 2019-05-24 14:05+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -84,10 +84,6 @@ msgid "Minimum effort and Maximum effort cannot be the same"
 msgstr ""
 "Mïnïmüm éffört änd Mäxïmüm éffört çännöt ßé thé sämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/api/serializers.py
-msgid "Maximum effort cannot be empty"
-msgstr "Mäxïmüm éffört çännöt ßé émptý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course run IDs to boolean values"
