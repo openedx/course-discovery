@@ -140,6 +140,10 @@ PARLER_LANGUAGES = {
      }
  }
 
+# Parler seems to be a bit overeager with its caching of translated models,
+# and so we get a large number of sets, but rarely any gets
+PARLER_ENABLE_CACHING = False
+
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
