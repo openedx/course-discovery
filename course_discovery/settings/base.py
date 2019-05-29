@@ -115,11 +115,12 @@ WSGI_APPLICATION = 'course_discovery.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'NAME': 'discovery',
+        'USER': 'discov001',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',  # Set to empty string for default.
+        'ATOMIC_REQUESTS': False,
     }
 }
 
@@ -266,11 +267,14 @@ AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
 SOCIAL_AUTH_STRATEGY = 'auth_backends.strategies.EdxDjangoStrategy'
 
 # Set these to the correct values for your OAuth2/OpenID Connect provider (e.g., devstack)
-SOCIAL_AUTH_EDX_OIDC_KEY = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_SECRET = 'replace-me'
+SOCIAL_AUTH_EDX_OIDC_KEY = 'discovery-key'
+SOCIAL_AUTH_EDX_OIDC_SECRET = 'discovery-secret'
 SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'replace-me'
 SOCIAL_AUTH_EDX_OIDC_LOGOUT_URL = 'replace-me'
 SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
+SOCIAL_AUTH_EDX_OIDC_PUBLIC_URL_ROOT = 'http://127.0.0.1:8000/oauth2'
+SOCIAL_AUTH_EDX_OIDC_ISSUER = 'http://127.0.0.1:8000/oauth2'
 
 # Request the user's permissions in the ID token
 EXTRA_SCOPE = ['permissions']
@@ -394,10 +398,21 @@ REST_FRAMEWORK_EXTENSIONS = {
 JWT_AUTH = {
     'JWT_ALGORITHM': 'HS256',
     'JWT_AUDIENCE': 'course-discovery',
-    'JWT_ISSUER': 'course-discovery',
+    'JWT_ISSUER': [
+        {
+            'AUDIENCE': 'SET-ME-PLEASE',
+            'ISSUER': 'http://127.0.0.1:8000/oauth2',
+            'SECRET_KEY': 'SET-ME-PLEASE'
+        }
+    ],
     'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler',
     'JWT_VERIFY_AUDIENCE': False,
     'JWT_AUTH_COOKIE': 'edx-jwt-cookie',
+    'JWT_PUBLIC_SIGNING_JWK_SET': None,
+    'JWT_AUTH_COOKIE_HEADER_PAYLOAD': 'edx-jwt-cookie-header-payload',
+    'JWT_AUTH_COOKIE_SIGNATURE': 'edx-jwt-cookie-signature',
+    'JWT_AUTH_REFRESH_COOKIE': 'edx-jwt-refresh-cookie'
+
 }
 
 SWAGGER_SETTINGS = {
@@ -573,3 +588,42 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'debug_toolbar.panels.redirects.RedirectsPanel',
         'elastic_panel.panel.ElasticDebugPanel'
     ]
+
+AWS_SES_REGION_ENDPOINT = "email.us-east-1.amazonaws.com"
+AWS_SES_REGION_NAME = "us-east-1"
+CORS_ORIGIN_WHITELIST = []
+CSRF_COOKIE_SECURE = False
+ELASTICSEARCH_INDEX_NAME = "catalog"
+ELASTICSEARCH_URL = "http://127.0.0.1:9200/"
+EMAIL_BACKEND = "django_ses.SESBackend"
+EMAIL_HOST = "localhost"
+EMAIL_HOST_PASSWORD = ""
+EMAIL_HOST_USER = ""
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
+EXTRA_APPS = []
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+SOCIAL_AUTH_EDX_OAUTH2_KEY = "discovery-sso-key"
+SOCIAL_AUTH_EDX_OAUTH2_SECRET = "discovery-sso-secret"
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/logout"
+
+BACKEND_SERVICE_EDX_OAUTH2_KEY = "discovery-backend-service-key"
+BACKEND_SERVICE_EDX_OAUTH2_SECRET = "discovery-backend-service-secret"
+BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://127.0.0.1:8000/oauth2"
+EDX_DRF_EXTENSIONS = {
+    "OAUTH2_USER_INFO_URL": "http://127.0.0.1:8000/oauth2/user_info"
+}
+API_ROOT = None
+MEDIA_STORAGE_BACKEND = {
+    'DEFAULT_FILE_STORAGE': 'django.core.files.storage.FileSystemStorage',
+    'MEDIA_ROOT': MEDIA_ROOT,
+    'MEDIA_URL': MEDIA_URL
+}
