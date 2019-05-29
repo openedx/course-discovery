@@ -245,6 +245,12 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
                 many=True,
                 context={'request': request}
             ).data,
+            'marketing_course_runs': CourseRunSerializer(
+                course.marketing_course_runs,
+                many=True,
+                context={'request': request},
+            ).data,
+            'course_run_keys': [course_run.key for course_run in course.course_runs.all()]
         })
 
         return expected
