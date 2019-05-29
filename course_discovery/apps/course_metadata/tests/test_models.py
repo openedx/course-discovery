@@ -116,6 +116,108 @@ class TestCourse(TestCase):
         assert course_run.first_enrollable_paid_seat_price == 100
         assert course.first_enrollable_paid_seat_price == 100
 
+    def test_course_run_sort(self):
+        course = factories.CourseFactory.create()
+        now = datetime.datetime.now(pytz.UTC)
+        first_course_run = factories.CourseRunFactory.create(
+            enrollment_start=now - datetime.timedelta(days=100),
+            start=now + datetime.timedelta(days=100),
+        )
+        second_course_run = factories.CourseRunFactory.create(
+            enrollment_start=now - datetime.timedelta(days=50),
+            start=None,
+        )
+        third_course_run = factories.CourseRunFactory.create(
+            enrollment_start=None,
+            start=now + datetime.timedelta(days=50),
+        )
+        fourth_course_run = factories.CourseRunFactory.create(
+            enrollment_start=None,
+            start=None,
+        )
+
+        out_of_order_runs = [
+            third_course_run,
+            second_course_run,
+            first_course_run,
+            fourth_course_run,
+        ]
+        expected_order = [
+            first_course_run,
+            second_course_run,
+            third_course_run,
+            fourth_course_run,
+        ]
+        self.assertEqual(sorted(out_of_order_runs, key=course.course_run_sort), expected_order)
+
+    def test_marketing_course_runs(self):
+        """
+        Verify that only published, non-archived course runs with open
+        enrollment, a marketing url, and seats are returned if there is a
+        course run with open enrollment.
+        """
+        course = factories.CourseFactory()
+        now = datetime.datetime.now(pytz.UTC)
+
+        unmarketable_run = factories.CourseRunFactory.create(
+            course=course,
+            status=CourseRunStatus.Unpublished,
+            end=None,  # Not archived
+        )
+        unenrollable_run = factories.CourseRunFactory.create(
+            course=course,
+            status=CourseRunStatus.Published,
+            enrollment_start=now + datetime.timedelta(days=50),  # Enrollment not started
+            end=None,  # Not archived
+        )
+        archived_run = factories.CourseRunFactory.create(
+            course=course,
+            status=CourseRunStatus.Published,
+            end=now - datetime.timedelta(days=100),  # Archived as already ended
+        )
+        preferred_run = factories.CourseRunFactory.create(
+            course=course,
+            status=CourseRunStatus.Published,
+            slug='slug',
+            enrollment_start=now - datetime.timedelta(days=50),
+            enrollment_end=now + datetime.timedelta(days=100),  # Enrollment still open
+            end=None,  # Not archived
+        )
+
+        factories.SeatFactory.create(course_run=unmarketable_run)
+        factories.SeatFactory.create(course_run=unenrollable_run)
+        factories.SeatFactory.create(course_run=archived_run)
+        factories.SeatFactory.create(course_run=preferred_run)
+
+        self.assertEqual(course.marketing_course_runs, [preferred_run])
+
+    def test_marketing_course_runs_no_open_enrollment(self):
+        """
+        Verify that the first published, non-archived course run with a
+        marketing url, and seats is returned if there are no runs with open
+        enrollment.
+        """
+        course = factories.CourseFactory()
+        now = datetime.datetime.now(pytz.UTC)
+
+        unenrollable_run = factories.CourseRunFactory.create(
+            course=course,
+            status=CourseRunStatus.Published,
+            enrollment_start=now + datetime.timedelta(days=50),  # Enrollment not started
+            end=now + datetime.timedelta(days=100),  # Not archived
+        )
+        # Unenrollable run that starts later than the first run
+        later_run = factories.CourseRunFactory.create(
+            course=course,
+            status=CourseRunStatus.Published,
+            enrollment_start=now + datetime.timedelta(days=500),  # Enrollment not started even later
+            end=now + datetime.timedelta(days=1000),  # Not archived
+        )
+        factories.SeatFactory.create(course_run=unenrollable_run)
+        factories.SeatFactory.create(course_run=later_run)
+
+        self.assertEqual(course.marketing_course_runs, [unenrollable_run])
+
 
 class TestCourseEditor(TestCase):
     def setUp(self):
@@ -620,6 +722,59 @@ class CourseRunTests(TestCase):
         self.course_run.status = CourseRunStatus.Reviewed
         self.course_run.save()
         assert CourseRun.everything.all().count() == 2
+
+    @ddt.data(
+        (None, None, True),  # No enrollment start or end
+        (
+            datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),
+            None,
+            True,
+        ),  # Enroll start in past, no enroll end
+        (
+            datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+            None,
+            False,
+        ),  # Enroll start in future, no enroll end
+        (
+            None,
+            datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),
+            False,
+        ),  # No enroll start, enroll end in past
+        (
+            None,
+            datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+            True,
+        ),  # No enroll start, enroll end in future
+        (
+            datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),
+            datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10),
+            True,
+        ),  # Enroll start in past, enroll end in future
+    )
+    @ddt.unpack
+    def test_is_enrollable(self, enrollment_start, enrollment_end, expected):
+        course_run = factories.CourseRunFactory.create(enrollment_start=enrollment_start, enrollment_end=enrollment_end)
+        self.assertEqual(course_run.is_enrollable, expected)
+
+    @ddt.data(
+        (CourseRunStatus.Unpublished, False, False, False),  # Not published, no seats, no marketing url
+        (CourseRunStatus.Unpublished, False, True, False),  # Not published, no seats, marketing url
+        (CourseRunStatus.Unpublished, True, False, False),  # Not published, seats, no marketing url
+        (CourseRunStatus.Unpublished, True, False, False),  # Not published, seats, marketing url
+        (CourseRunStatus.Published, False, False, False),  # Published, no seats, no marketing url
+        (CourseRunStatus.Published, True, False, False),  # Published, seats, no marketing url
+        (CourseRunStatus.Published, False, True, False),  # Published, no seats, marketing url
+        (CourseRunStatus.Published, True, True, True),  # Published, seats, marketing url
+    )
+    @ddt.unpack
+    def test_is_marketable(self, status, create_seats, create_marketing_url, expected):
+        course_run = factories.CourseRunFactory.create(status=status)
+        if not create_marketing_url:
+            course_run.slug = None
+        if create_seats:
+            factories.SeatFactory.create(course_run=course_run)
+
+        self.assertEqual(course_run.is_marketable, expected)
 
 
 @ddt.ddt

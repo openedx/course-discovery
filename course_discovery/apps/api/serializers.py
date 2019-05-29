@@ -951,6 +951,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
 class CourseWithProgramsSerializer(CourseSerializer):
     """A ``CourseSerializer`` which includes programs."""
+    course_run_keys = serializers.SerializerMethodField()
+    marketing_course_runs = serializers.SerializerMethodField()
     course_runs = serializers.SerializerMethodField()
     programs = NestedProgramSerializer(read_only=True, many=True)
 
@@ -980,6 +982,19 @@ class CourseWithProgramsSerializer(CourseSerializer):
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
         )
 
+    def get_course_run_keys(self, course):
+        return [course_run.key for course_run in course.course_runs.all()]
+
+    def get_marketing_course_runs(self, course):
+        return CourseRunSerializer(
+            course.marketing_course_runs,
+            many=True,
+            context={
+                'request': self.context.get('request'),
+                'exclude_utm': self.context.get('exclude_utm'),
+            }
+        ).data
+
     def get_course_runs(self, course):
         return CourseRunSerializer(
             course.course_runs,
@@ -992,7 +1007,11 @@ class CourseWithProgramsSerializer(CourseSerializer):
 
     class Meta(CourseSerializer.Meta):
         model = Course
-        fields = CourseSerializer.Meta.fields + ('programs',)
+        fields = CourseSerializer.Meta.fields + (
+            'programs',
+            'marketing_course_runs',
+            'course_run_keys',
+        )
 
 
 class CatalogCourseSerializer(CourseSerializer):

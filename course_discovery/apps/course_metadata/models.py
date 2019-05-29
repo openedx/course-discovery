@@ -531,6 +531,49 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
 
         return url
 
+    def course_run_sort(self, course_run):
+        """
+        Sort course runs by enrollment_start or start, preferring the former
+
+        A missing date is stubbed to max datetime to be sorted last
+        """
+        date = course_run.enrollment_start or course_run.start
+        if date:
+            return date
+        return datetime.datetime.max.replace(tzinfo=pytz.UTC)
+
+    @property
+    def marketing_course_runs(self):
+        """
+        Returns the course_runs relevant to the prospectus marketing site
+
+        Checks to make sure that every course run is marketable, and not
+        archived. Prospectus prefers that all the marketing runs are
+        enrollable, but if there are no marketable runs that are also
+        enrollable, we return the run closest to now from the other marketable
+        runs
+
+        Filtered and sorted in python to avoid additional calls to the database
+        """
+        marketable_runs = []
+        other_marketable_runs = []
+
+        for course_run in self.course_runs.all():
+            if course_run.is_marketable and course_run.availability.lower() != 'archived':
+                if course_run.is_enrollable:
+                    marketable_runs.append(course_run)
+                else:
+                    other_marketable_runs.append(course_run)
+
+        sorted_marketable_runs = sorted(marketable_runs, key=self.course_run_sort)
+        sorted_other_marketable_runs = sorted(other_marketable_runs, key=self.course_run_sort)
+
+        if not sorted_marketable_runs and sorted_other_marketable_runs:
+            # Use the closest run to now as a fallback
+            sorted_marketable_runs.append(sorted_other_marketable_runs[0])
+
+        return sorted_marketable_runs
+
     @property
     def active_course_runs(self):
         """ Returns course runs that have not yet ended and meet the following enrollment criteria:
@@ -1092,6 +1135,34 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             retired_programs = self.programs.filter(status=ProgramStatus.Retired)
             for program in retired_programs:
                 program.excluded_course_runs.add(self)
+
+    @property
+    def is_enrollable(self):
+        """
+        Checks if the course run is currently enrollable
+
+        Note that missing enrollment_end or enrollment_start are considered to
+        mean that the course run does not have a restriction on the respective
+        fields.
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        if ((not self.enrollment_end or self.enrollment_end >= now) and
+                (not self.enrollment_start or self.enrollment_start <= now)):
+            return True
+
+        return False
+
+    @property
+    def is_marketable(self):
+        """
+        Checks if the course_run is currently marketable
+
+        A course run is considered marketable if it's published, has seats, and
+        a non-empty marketing url.
+        """
+        is_published = self.status.lower() == 'published'
+
+        return is_published and self.seats.exists() and bool(self.marketing_url)
 
 
 class SeatType(TimeStampedModel):
