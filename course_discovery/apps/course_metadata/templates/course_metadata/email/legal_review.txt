@@ -1,0 +1,23 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Dear {{ recipient_name }},
+{% endblocktrans %}
+{% blocktrans trimmed %}
+    {{ org_name }} has submitted {{ course_name }} for review.
+{% endblocktrans %}
+
+{{ course_page_url }}
+{% blocktrans trimmed %}
+    View this course run in Publisher above to determine OFAC status.
+{% endblocktrans %}
+
+{{ course_approval_url }}
+{% blocktrans trimmed %}
+    But to actually change OFAC status, visit the admin page above for this course run.
+    Click the OFAC checkbox if needed, tell the PC which countries are restricted, and set the course run status to Internal Review.
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+{% endblocktrans %}

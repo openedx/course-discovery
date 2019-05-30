@@ -86,6 +86,10 @@ class Partner(TimeStampedModel):
     oidc_key = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Key'))
     oidc_secret = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Secret'))
     studio_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Studio URL'))
+    publisher_url = models.URLField(
+        max_length=255, null=True, blank=True, verbose_name=_('Publisher URL'),
+        help_text=_('The base URL of your publisher service, if used. Example: https://publisher.example.com/')
+    )
     site = models.OneToOneField(Site, on_delete=models.PROTECT)
     lms_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('LMS URL'))
     analytics_url = models.URLField(max_length=255, blank=True, verbose_name=_('Analytics API URL'), default='')

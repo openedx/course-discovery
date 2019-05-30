@@ -1,0 +1,25 @@
+{% extends "publisher/email/email_base.html" %}
+{% load i18n %}
+{% block body %}
+<!-- Message Body -->
+
+<p>
+    {% blocktrans trimmed %}
+        Dear {{ recipient_name }},
+    {% endblocktrans %}
+</p>
+<p>
+    {% blocktrans trimmed with link_start='<a href="' link_middle='">' link_end='</a>' %}
+        The {{ link_start }}{{ course_page_url }}{{ link_middle }}{{ course_number }} course run{{ link_end }} of {{ course_name }} has been reviewed and approved by {{ platform_name }}.
+        The review for this course run is now complete.
+    {% endblocktrans %}
+</p>
+
+<p>
+    {% blocktrans trimmed %}
+        Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+    {% endblocktrans %}
+</p>
+
+<!-- End Message Body -->
+{% endblock body %}

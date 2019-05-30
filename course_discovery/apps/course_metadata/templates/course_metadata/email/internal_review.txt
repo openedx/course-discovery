@@ -1,0 +1,20 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Dear {{ recipient_name }},
+{% endblocktrans %}
+{% blocktrans trimmed %}
+    {{ org_name }} has submitted {{ course_key }} for review.
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    Publisher page: {{ course_page_url }}
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+     Studio page: {{ studio_url }}
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+     Visit the admin page to actually mark this course run as reviewed: {{ course_approval_url }}
+{% endblocktrans %}

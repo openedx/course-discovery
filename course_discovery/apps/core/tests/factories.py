@@ -60,6 +60,7 @@ class PartnerFactory(factory.DjangoModelFactory):
     site = factory.SubFactory(SiteFactory)
     studio_url = factory.Faker('url')
     lms_url = factory.Faker('url')
+    publisher_url = factory.Faker('url')
 
     class Meta(object):
         model = Partner
