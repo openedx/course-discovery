@@ -16,7 +16,7 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, Fu
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, SeatType
+from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseEntitlement, CourseRun, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory,
     ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
@@ -493,6 +493,17 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         course = Course.everything.last()
         self.assertTrue(course.draft)
         self.assertTrue(course.entitlements.first().draft)
+
+    @oauth_login
+    def test_create_makes_editor(self):
+        """ When creating a course, it should set the current user as the only editor for that course. """
+        response = self.create_course({'mode': 'verified'})
+        self.assertEqual(response.status_code, 201)
+
+        course = Course.everything.last()
+
+        CourseEditor.objects.get(user=self.user, course=course)
+        self.assertEqual(CourseEditor.objects.count(), 1)
 
     @oauth_login
     def test_create_makes_course_and_course_run(self):
