@@ -202,6 +202,11 @@ class CourseViewSet(viewsets.ModelViewSet):
             draft=True,
         )
 
+        CourseEditor.objects.create(
+            user=request.user,
+            course=course,
+        )
+
         # We want to create the course run here so it is captured as part of the atomic transaction.
         # Note: We have to send the request object as well because it is used for its metadata
         # (like request.user and is set as part of the serializer context)
