@@ -25,6 +25,7 @@ from stdimage.utils import UploadToAutoSlug
 from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
+from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
@@ -653,10 +654,10 @@ class CourseEditor(TimeStampedModel):
         return user.groups.filter(organization_extension__organization__key=organization_key).exists()
 
     @classmethod
-    def is_course_editable(cls, user, course):
-        if user.is_staff:
-            return True
-
+    def course_editors(cls, course):
+        """
+        Returns an iterable of User objects.
+        """
         authoring_orgs = course.authoring_organizations.all()
 
         # No matter what, if an editor or their organization has been removed from the course, they can't be an editor
@@ -664,11 +665,18 @@ class CourseEditor(TimeStampedModel):
         # to allow outside guest editors on a course? Let's try this for now and see how it goes.
         valid_editors = course.editors.filter(user__groups__organization_extension__organization__in=authoring_orgs)
 
-        if not valid_editors.exists():
-            # No valid editors - this is an edge case where we just grant anyone in an authoring org access
-            return user.groups.filter(organization_extension__organization__in=authoring_orgs).exists()
-        else:
-            return user in {x.user for x in valid_editors}
+        if valid_editors:
+            return {editor.user for editor in valid_editors}
+
+        # No valid editors - this is an edge case where we just grant anyone in an authoring org access
+        return get_user_model().objects.filter(groups__organization_extension__organization__in=authoring_orgs)
+
+    @classmethod
+    def is_course_editable(cls, user, course):
+        if user.is_staff:
+            return True
+
+        return user in cls.course_editors(course)
 
     @classmethod
     def editable_courses(cls, user, queryset):
@@ -1101,7 +1109,25 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             official_version.course = course
             official_version.save()
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def handle_status_change(self):
+        """ If a row's status is changing, take any cleanup actions necessary.
+
+            Mostly this is sending email notifications to interested parties or converting a draft row to an official
+            one.
+        """
+        # We currently only care about draft course runs
+        if not self.draft or self._old_status == self.status:
+            return
+
+        if self.status == CourseRunStatus.LegalReview:
+            emails.send_email_for_legal_review(self)
+        elif self.status == CourseRunStatus.InternalReview:
+            emails.send_email_for_internal_review(self)
+        elif self.status == CourseRunStatus.Reviewed:
+            self.ensure_official_version()
+            emails.send_email_for_reviewed(self)
+
+    def save(self, **kwargs):
         is_new_course_run = not self.pk
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
@@ -1123,18 +1149,19 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
                 self.slug = CourseRun._meta.get_field('slug').create_slug(self, True)
 
             with transaction.atomic():
-                super(CourseRun, self).save(*args, **kwargs)
+                super(CourseRun, self).save(**kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
-            super(CourseRun, self).save(*args, **kwargs)
+            super(CourseRun, self).save(**kwargs)
 
-        if self.draft and self._old_status != self.status and self.status == CourseRunStatus.Reviewed:
-            self.ensure_official_version()
+        self.handle_status_change()
 
         if is_new_course_run:
             retired_programs = self.programs.filter(status=ProgramStatus.Retired)
             for program in retired_programs:
                 program.excluded_course_runs.add(self)
+
+        self._old_status = self.status
 
     @property
     def is_enrollable(self):

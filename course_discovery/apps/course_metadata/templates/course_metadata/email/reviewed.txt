@@ -1,0 +1,17 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Dear {{ recipient_name }},
+{% endblocktrans %}
+{% blocktrans trimmed %}
+    The {{ course_number }} course run of {{ course_name }} has been reviewed and approved by {{ platform_name }}.
+    The review for this course run is now complete.
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    View the course run in Publisher: {{ course_page_url }}
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+{% endblocktrans %}
