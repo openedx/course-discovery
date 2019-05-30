@@ -24,7 +24,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
-from course_discovery.apps.course_metadata.utils import ensure_draft_world, set_official_state
+from course_discovery.apps.course_metadata.utils import ensure_draft_world
 
 
 log = logging.getLogger(__name__)
@@ -206,6 +206,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # Save run to database
         course_run = serializer.save(draft=True)
 
+        course_run.update_or_create_seats()
+
         # Set canonical course run if needed (done this way to match historical behavior - but shouldn't this be
         # updated *each* time we make a new run?)
         if not old_course_run:
@@ -263,12 +265,12 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             elif new_value != original_value:
                 changed = True
 
-        # If changes are made after review and before publish,revert status to unpublished.
+        # If changes are made after review and before publish, revert status to unpublished.
         # Unless we're just switching the status
         if changed and course_run.status == CourseRunStatus.Reviewed:
             save_kwargs['status'] = CourseRunStatus.Unpublished
-            course_run.ensure_official_version()  # An official version should already exist, but just make sure
-            official_run = course_run.official_version
+            # An official version should already exist, but just make sure
+            official_run = course_run.update_or_create_official_version()
             official_run.status = CourseRunStatus.Unpublished
             official_run.save()
 
@@ -279,9 +281,9 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         self.push_to_studio(request, course_run, create=False)
 
-        # Published courses can be re-published directly
+        # Published course runs can be re-published directly
         if not draft and course_run.status == CourseRunStatus.Published:
-            set_official_state(course_run, CourseRun)
+            course_run.update_or_create_official_version()
 
         return Response(serializer.data)
 

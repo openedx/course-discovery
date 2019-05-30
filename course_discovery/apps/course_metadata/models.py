@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import pytz
 import waffle
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models, transaction
@@ -609,25 +610,28 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
 
         return None
 
-    def ensure_official_version(self, course_run):
-        if self.official_version:
-            return self.official_version
+    def update_or_create_official_version(self, course_run=None):
+        draft_version = Course.everything.get(pk=self.pk)
+        # If there isn't an official_version set yet, then this is a create instead of update
+        # and we will want to set additional attributes.
+        creating = not self.official_version
 
-        self.canonical_course_run = None
-        official_course = set_official_state(self, Course, {'canonical_course_run': course_run})
-        official_course.slug = official_course.draft_version.slug
-        official_course.save()
+        official_version = set_official_state(draft_version, Course)
 
-        draft_version = official_course.draft_version
-        for entitlement in draft_version.entitlements.all():
+        for entitlement in self.entitlements.all():
             # The draft version could have audit entitlements, but we only
             # want to create official entitlements for the valid entitlement modes.
             if entitlement.mode.slug in Seat.ENTITLEMENT_MODES:
-                set_official_state(entitlement, CourseEntitlement, {'course': official_course})
-        draft_version.canonical_course_run = course_run.draft_version
-        draft_version.save()
+                set_official_state(entitlement, CourseEntitlement, {'course': official_version})
 
-        return official_course
+        if creating:
+            official_version.canonical_course_run = course_run
+            official_version.slug = self.slug
+            official_version.save()
+            self.canonical_course_run = course_run.draft_version
+            self.save()
+
+        return official_version
 
 
 class CourseEditor(TimeStampedModel):
@@ -1095,20 +1099,84 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
-    def ensure_official_version(self):
-        # If there isn't an official version yet, create one.
-        if not self.official_version:
-            official_version = set_official_state(self, CourseRun)
-            draft_version = official_version.draft_version
-            official_version.slug = draft_version.slug
-            for seat in draft_version.seats.all():
-                set_official_state(seat, Seat, {'course_run': official_version})
+    def update_or_create_seats(self):
+        """
+        Updates or creates draft seats for a course run.
 
-            # If there's an official course, associate the new one with it.
-            # Otherwise, create it.
-            course = self.course.ensure_official_version(official_version)
-            official_version.course = course
+        Supports being able to switch seat types to any type before an official version of the
+        course run exists. After an official version of the course run exists, it only supports
+        price changes or upgrades from Audit -> Verified.
+        """
+        course_entitlement = self.course.entitlements.first()
+        mode = Seat.AUDIT
+        price = 0.00
+        if course_entitlement:
+            mode = course_entitlement.mode.slug
+            price = course_entitlement.price
+
+        # If a course run has an official version, then ecom products have already been created and
+        # we only support changing mode from audit -> verified
+        if self.official_version:
+            old_types = set(self.official_version.seats.values_list('type', flat=True))
+            new_types = set([mode])
+            if mode in Seat.REQUIRES_AUDIT_SEAT:
+                new_types.add(Seat.AUDIT)
+            if old_types - new_types:
+                raise ValidationError(_('Switching seat modes after being reviewed is not supported. Please reach out '
+                                        'to your project coordinator for additional help if necessary.'))
+
+        deadline = None
+        # only verified seats have a deadline specified
+        if mode == Seat.VERIFIED:
+            deadline = self.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
+            deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
+        if mode == Seat.AUDIT:
+            price = 0.00
+
+        seat, __ = Seat.everything.update_or_create(  # pylint: disable=no-member
+            course_run=self,
+            type=mode,
+            draft=True,
+            defaults={
+                'price': price,
+                'upgrade_deadline': deadline,
+            },
+        )
+        seats = [seat]
+        if mode in Seat.REQUIRES_AUDIT_SEAT or mode == Seat.AUDIT:
+            Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).exclude(type=Seat.AUDIT).delete()  # pylint: disable=no-member
+            audit_seat, __ = Seat.everything.update_or_create(  # pylint: disable=no-member
+                course_run=self,
+                type=Seat.AUDIT,
+                draft=True,
+                defaults={
+                    'price': 0.00,
+                    'upgrade_deadline': None,
+                },
+            )
+            seats.append(audit_seat)
+        else:
+            Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).delete()  # pylint: disable=no-member
+        self.seats.set(seats)
+
+    def update_or_create_official_version(self):
+        draft_version = CourseRun.everything.get(pk=self.pk)
+        # If there isn't already an official_version linked to the draft_version, then
+        # this is our first time.
+        creating = not draft_version.official_version
+
+        official_version = set_official_state(draft_version, CourseRun)
+        for seat in self.seats.all():
+            set_official_state(seat, Seat, {'course_run': official_version})
+
+        official_course = self.course.update_or_create_official_version(official_version)
+
+        if creating:
+            official_version.slug = self.slug
+            official_version.course = official_course
             official_version.save()
+
+        return official_version
 
     def handle_status_change(self):
         """ If a row's status is changing, take any cleanup actions necessary.
@@ -1125,7 +1193,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         elif self.status == CourseRunStatus.InternalReview:
             emails.send_email_for_internal_review(self)
         elif self.status == CourseRunStatus.Reviewed:
-            self.ensure_official_version()
+            self.update_or_create_official_version()
             emails.send_email_for_reviewed(self)
         elif self.status == CourseRunStatus.Published:
             emails.send_email_for_go_live(self)
@@ -1215,6 +1283,8 @@ class Seat(DraftModelMixin, TimeStampedModel):
     SEAT_TYPES = [HONOR, AUDIT, VERIFIED, PROFESSIONAL, CREDIT, MASTERS]
     ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL]
 
+    REQUIRES_AUDIT_SEAT = [VERIFIED]
+
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.
     SEATS_WITH_PREREQUISITES = [CREDIT]
@@ -1238,7 +1308,7 @@ class Seat(DraftModelMixin, TimeStampedModel):
     # TODO Replace with FK to SeatType model
     type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES)
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
-    currency = models.ForeignKey(Currency)
+    currency = models.ForeignKey(Currency, default='USD')
     upgrade_deadline = models.DateTimeField(null=True, blank=True)
     credit_provider = models.CharField(max_length=255, null=True, blank=True)
     credit_hours = models.IntegerField(null=True, blank=True)

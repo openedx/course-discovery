@@ -85,8 +85,8 @@ def set_official_state(obj, model, attrs=None):
     if attrs:
         for key, value in attrs.items():
             setattr(official_obj, key, value)
+        official_obj.save(**save_kwargs)
 
-    official_obj.save(**save_kwargs)
     return official_obj
 
 
@@ -149,7 +149,7 @@ def ensure_draft_world(obj):
     Returns:
         obj (Model object): The returned object will be the draft version on the input object.
     """
-    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat
+    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat, SeatType
     if obj.draft:
         return obj
 
@@ -173,8 +173,19 @@ def ensure_draft_world(obj):
                 set_draft_state(seat, Seat, {'course_run': draft_run})
             if original_course.canonical_course_run and draft_run.uuid == original_course.canonical_course_run.uuid:
                 draft_course.canonical_course_run = draft_run
-        for entitlement in original_course.entitlements.all():
-            set_draft_state(entitlement, CourseEntitlement, {'course': draft_course})
+
+        if original_course.entitlements.exists():
+            for entitlement in original_course.entitlements.all():
+                set_draft_state(entitlement, CourseEntitlement, {'course': draft_course})
+        else:
+            mode = SeatType.objects.get(slug='audit')
+            CourseEntitlement.objects.create(
+                course=draft_course,
+                mode=mode,
+                partner=draft_course.partner,
+                price=0.00,
+                draft=True,
+            )
 
         draft_course.save()
         return draft_course
