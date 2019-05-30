@@ -16,7 +16,7 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OA
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.models import CourseRun, Seat
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, ProgramFactory,
     SeatFactory
@@ -150,6 +150,11 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertEqual(new_course_run.pacing_type, 'instructor_paced')  # default we provide
         self.assertEqual(str(new_course_run.end), '2001-01-01 00:00:00+00:00')  # spot check that input made it
         self.assertTrue(new_course_run.draft)
+
+        new_seat = Seat.everything.get(course_run=new_course_run)
+        self.assertEqual(new_seat.type, 'audit')
+        self.assertEqual(new_seat.price, 0.00)
+        self.assertTrue(new_seat.draft)
 
     @ddt.data(True, False)
     @responses.activate

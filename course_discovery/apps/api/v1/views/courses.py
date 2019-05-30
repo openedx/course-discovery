@@ -2,6 +2,7 @@ import base64
 import logging
 import re
 
+from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -29,7 +30,7 @@ from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COU
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Program, Seat, SeatType, Video
 )
-from course_discovery.apps.course_metadata.utils import ensure_draft_world, set_official_state, validate_course_number
+from course_discovery.apps.course_metadata.utils import ensure_draft_world, validate_course_number
 
 logger = logging.getLogger(__name__)
 
@@ -212,7 +213,11 @@ class CourseViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         # Note: We have to send the request object as well because it is used for its metadata
         # (like request.user and is set as part of the serializer context)
         if course_run_creation_fields:
-            course_run_creation_fields['course'] = course_creation_fields['key']
+            course_run_creation_fields.update({
+                'course': course_creation_fields['key'],
+                'price': price,
+                'mode': course_creation_fields['mode'],
+            })
             CourseRunViewSet().create_run_helper(course_run_creation_fields, request)
 
         headers = self.get_success_headers(serializer.data)
@@ -231,6 +236,15 @@ class CourseViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         if not entitlement:
             raise ValidationError(_('Existing entitlement not found for course {0}.')
                                   .format(course.key))
+
+        # We want to allow upgrading an entitlement from Audit -> Verified, but allow no other
+        # mode changes. We use the official version existing as an indicator for ecom products
+        # having already been created.
+        mode_switch_whitelist = {Seat.AUDIT: Seat.VERIFIED}
+        if (course.official_version and entitlement.mode != mode and
+                mode_switch_whitelist.get(entitlement.mode.slug) != mode.slug):
+            raise ValidationError(_('Switching entitlement modes after being reviewed is not supported. Please reach '
+                                    'out to your project coordinator for additional help if necessary.'))
 
         # We have an entitlement object, now let's deserialize the incoming data and update it
         serializer = CourseEntitlementSerializer(entitlement, data=data, partial=partial)
@@ -257,12 +271,11 @@ class CourseViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         entitlements = []
         for entitlement_data in entitlements_data:
             entitlements.append(self.update_entitlement(course, entitlement_data, partial=partial))
-        # We need to grab the entitlement in case we need to update the official version later
         if entitlements:
-            entitlement = entitlements[0]
             course.entitlements = entitlements
-        else:
-            entitlement = CourseEntitlement.everything.filter(course=course, draft=True).first()
+            # If entitlements were updated, we also want to update seats
+            for course_run in course.course_runs.filter(end__gt=datetime.now()):
+                course_run.update_or_create_seats()
 
         # Save video if a new video source is provided
         if (video_data and video_data.get('src') and
@@ -283,12 +296,10 @@ class CourseViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         # Then the course itself
         course = serializer.save()
         if not draft:
-            official_course = set_official_state(course, Course)
-            if entitlement.mode != SeatType.objects.get(slug=Seat.AUDIT):
-                # This will update the price for existing entitlements. Additionally, if a course team
-                # originally chose Audit and decides to switch to a paid mode, this will enable creation
-                # of the paid Entitlement mode.
-                set_official_state(entitlement, CourseEntitlement, {'course': official_course})
+            for course_run in course.course_runs.filter(end__gt=datetime.now()):
+                if course_run.status == CourseRunStatus.Published:
+                    # This will also update the course
+                    course_run.update_or_create_official_version()
 
         return Response(serializer.data)
 
