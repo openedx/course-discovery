@@ -1325,6 +1325,10 @@ class ProgramType(TimeStampedModel):
     slug = AutoSlugField(populate_from='name', editable=True, unique=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
 
+    # Do not record the slug field in the history table because AutoSlugField is not compatible with
+    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
+    history = HistoricalRecords(excluded_fields=['slug'])
+
     def __str__(self):
         return self.name
 
@@ -1417,6 +1421,8 @@ class Program(PkSearchableMixin, TimeStampedModel):
         )
     )
     objects = ProgramQuerySet.as_manager()
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.title
