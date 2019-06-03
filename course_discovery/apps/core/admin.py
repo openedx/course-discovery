@@ -40,7 +40,7 @@ class CurrencyAdmin(admin.ModelAdmin):
 class PartnerAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-            'fields': ('name', 'short_code', 'lms_url', 'studio_url', 'site')
+            'fields': ('name', 'short_code', 'lms_url', 'studio_url', 'publisher_url', 'site')
         }),
         (_('OpenID Connect'), {
             'description': _(
