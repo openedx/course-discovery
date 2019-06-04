@@ -5,13 +5,23 @@
 {% endblocktrans %}
 {% blocktrans trimmed %}
     The {{ course_number }} course run of {{ course_name }} has been reviewed and approved by {{ platform_name }}.
-    The review for this course run is now complete.
 {% endblocktrans %}
+
+
+{% if go_live_date %}
+{% blocktrans trimmed %}
+    The course run about page will be published on {{ go_live_date }}, pending no further edits.
+{% endblocktrans %}
+{% else %}
+{% blocktrans trimmed %}
+    The course run about page is now published.
+{% endblocktrans %}
+{% endif %}
 
 {% blocktrans trimmed %}
     View the course run in Publisher: {{ course_page_url }}
 {% endblocktrans %}
 
 {% blocktrans trimmed %}
-    Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+    Note: This email address is unable to receive replies. For questions or comments, please contact your Project Coordinator at {{ contact_us_email }}.
 {% endblocktrans %}

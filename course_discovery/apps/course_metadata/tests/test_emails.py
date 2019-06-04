@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
@@ -107,17 +109,19 @@ class EmailTests(TestCase):
                 'Dear legal team,',
                 'MyOrg has submitted MyCourse for review.',
                 'Note: This email address is unable to receive replies.',
-                'For questions or comments, contact pc@example.com.'
             ],
             html_regexes=[
                 '<a href="%s">View this course run in Publisher</a> to determine OFAC status.' % self.publisher_url,
                 'But to actually change OFAC status, visit the <a href="%s">admin page</a> for this course run.' %
                 self.admin_url,
+                'For questions or comments, please contact '
+                '<a href="mailto:pc@example.com">the Project Coordinator</a>.',
             ],
             text_regexes=[
                 '%s\nView this course run in Publisher above to determine OFAC status.' % self.publisher_url,
                 '%s\nBut to actually change OFAC status, visit the admin page above for this course run.' %
                 self.admin_url,
+                'For questions or comments, please contact the Project Coordinator at pc@example.com.',
             ],
         )
 
@@ -157,18 +161,20 @@ class EmailTests(TestCase):
             [self.editor, self.editor2],
             both_regexes=[
                 'Dear course team,',
-                'The review for this course run is now complete.',
+                'The course run about page is now published.',
                 'Note: This email address is unable to receive replies.',
-                'For questions or comments, contact pc@example.com.'
             ],
             html_regexes=[
                 'The <a href="%s">%s course run</a> of %s has been reviewed and approved by %s.' %
                 (self.publisher_url, self.run_num, self.course_run.title, settings.PLATFORM_NAME),
+                'For questions or comments, please contact '
+                '<a href="mailto:pc@example.com">your Project Coordinator</a>.',
             ],
             text_regexes=[
                 'The %s course run of %s has been reviewed and approved by %s.' %
                 (self.run_num, self.course_run.title, settings.PLATFORM_NAME),
                 '\n\nView the course run in Publisher: %s\n' % self.publisher_url,
+                'For questions or comments, please contact your Project Coordinator at pc@example.com.',
             ],
         )
 
@@ -237,3 +243,27 @@ class EmailTests(TestCase):
         """
         CourseEditor.objects.all().delete()
         self.assertEmailSent(emails.send_email_for_reviewed, to_users=[self.editor, self.editor2, self.non_editor])
+
+    def test_reviewed_go_live_date_in_future(self):
+        """
+        Verify that we mention when the course run will go live, if it's in the future
+        """
+        self.course_run.go_live_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=10)
+        self.assertEmailSent(
+            emails.send_email_for_reviewed,
+            both_regexes=[
+                'The course run about page will be published on %s' % self.course_run.go_live_date.strftime('%x'),
+            ],
+        )
+
+    def test_reviewed_go_live_date_in_past(self):
+        """
+        Verify that we mention when the course run is now live, if we missed the go live date
+        """
+        self.course_run.go_live_date = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=10)
+        self.assertEmailSent(
+            emails.send_email_for_reviewed,
+            both_regexes=[
+                'The course run about page is now published.',
+            ],
+        )
