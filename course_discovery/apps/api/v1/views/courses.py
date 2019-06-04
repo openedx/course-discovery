@@ -15,7 +15,7 @@ from rest_framework import status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_extensions.cache.decorators import cache_response
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
@@ -52,7 +52,7 @@ def writable_request_wrapper(method):
 
 
 # pylint: disable=no-member
-class CourseViewSet(viewsets.ModelViewSet):
+class CourseViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     """ Course resource. """
 
     filter_backends = (DjangoFilterBackend, rest_framework_filters.OrderingFilter)
@@ -305,7 +305,6 @@ class CourseViewSet(viewsets.ModelViewSet):
         # Not supported
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @cache_response()
     def list(self, request, *args, **kwargs):
         """ List all courses.
          ---
