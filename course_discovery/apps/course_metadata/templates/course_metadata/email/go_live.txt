@@ -1,0 +1,17 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Dear {{ recipient_name }},
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    The About page for the {{ course_run_number }} course run of {{ course_name }} has been published. No further action is necessary.
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    View this About page. {{ preview_url }}
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    Note: This email address is unable to receive replies. For questions or comments, please contact your Project Coordinator at {{ contact_us_email }}.
+{% endblocktrans %}

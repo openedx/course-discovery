@@ -106,7 +106,7 @@ def send_email(course_run, template_name, subject, to_users, recipient_name, con
     context.update({
         'course_name': course_run.title,
         'course_key': course_run.key,
-        'course_number': CourseKey.from_string(course_run.key).run,
+        'course_run_number': CourseKey.from_string(course_run.key).run,
         'recipient_name': recipient_name,
         'platform_name': settings.PLATFORM_NAME,
         'org_name': org.name,
@@ -114,6 +114,7 @@ def send_email(course_run, template_name, subject, to_users, recipient_name, con
         'course_page_url': review_url,
         'course_approval_url': approve_url,
         'studio_url': run_studio_url,
+        'preview_url': course_run.marketing_url,
     })
 
     txt_template = template_name + '.txt'
@@ -221,3 +222,18 @@ def send_email_for_reviewed(course_run):
     send_email_to_editors(course_run, 'course_metadata/email/reviewed', subject, context={
         'go_live_date': go_live and go_live.strftime('%x'),
     })
+
+
+def send_email_for_go_live(course_run):
+    """ Send email when a course run has successfully gone live and is now publicly available.
+
+        Arguments:
+            course_run (Object): CourseRun object
+    """
+    # We internally use the phrase "go live", but to users, we say "published"
+    subject = _('Published: {title}').format(title=course_run.title)
+    send_email_to_editors(course_run, 'course_metadata/email/go_live', subject)
+
+    # PCs like to see the key too
+    subject = _('Published: {key} - {title}').format(title=course_run.title, key=course_run.key)
+    send_email_to_project_coordinator(course_run, 'course_metadata/email/go_live', subject)
