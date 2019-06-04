@@ -19,5 +19,5 @@
 {% endblocktrans %}
 
 {% blocktrans trimmed %}
-    Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+    Note: This email address is unable to receive replies. For questions or comments, please contact the Project Coordinator at {{ contact_us_email }}.
 {% endblocktrans %}

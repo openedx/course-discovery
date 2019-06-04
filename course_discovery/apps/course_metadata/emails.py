@@ -1,3 +1,4 @@
+import datetime
 import logging
 from urllib.parse import urljoin
 
@@ -28,14 +29,13 @@ def log_missing_project_coordinator(course_run, org, template_name):
     """
     if not org:
         logger.info(
-            _('Not sending notification email for template %s because no organization is defined for course %s'),
-            template_name, course_run.course.key
+            _('Not sending notification email for template {template} because no organization is defined '
+              'for course {course}').format(template=template_name, course=course_run.course.key)
         )
     else:
         logger.info(
-            _('Not sending notification email for template %s because no project coordinator is defined '
-              'for organization %s'),
-            template_name, org.key
+            _('Not sending notification email for template {template} because no project coordinator is defined '
+              'for organization {org}').format(template=template_name, org=org.key)
         )
 
 
@@ -85,16 +85,16 @@ def send_email(course_run, template_name, subject, to_users, recipient_name, con
     publisher_url = partner.publisher_url
     if not publisher_url:
         logger.info(
-            _('Not sending notification email for template %s because no publisher URL is defined for partner %s'),
-            template_name, partner.short_code
+            _('Not sending notification email for template {template} because no publisher URL is defined '
+              'for partner {partner}').format(template=template_name, partner=partner.short_code)
         )
         return
 
     studio_url = partner.studio_url
     if not studio_url:
         logger.info(
-            _('Not sending notification email for template %s because no studio URL is defined for partner %s'),
-            template_name, partner.short_code
+            _('Not sending notification email for template {template} because no studio URL is defined '
+              'for partner {partner}').format(template=template_name, partner=partner.short_code)
         )
         return
 
@@ -215,4 +215,9 @@ def send_email_for_reviewed(course_run):
             course_run (Object): CourseRun object
     """
     subject = _('Review complete: {title}').format(title=course_run.title)
-    send_email_to_editors(course_run, 'course_metadata/email/reviewed', subject)
+    go_live = course_run.go_live_date
+    if go_live and go_live < datetime.datetime.now(datetime.timezone.utc):
+        go_live = None
+    send_email_to_editors(course_run, 'course_metadata/email/reviewed', subject, context={
+        'go_live_date': go_live and go_live.strftime('%x'),
+    })

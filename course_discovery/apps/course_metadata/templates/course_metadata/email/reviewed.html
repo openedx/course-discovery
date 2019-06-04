@@ -11,13 +11,22 @@
 <p>
     {% blocktrans trimmed with link_start='<a href="' link_middle='">' link_end='</a>' %}
         The {{ link_start }}{{ course_page_url }}{{ link_middle }}{{ course_number }} course run{{ link_end }} of {{ course_name }} has been reviewed and approved by {{ platform_name }}.
-        The review for this course run is now complete.
     {% endblocktrans %}
+
+    {% if go_live_date %}
+        {% blocktrans trimmed %}
+            The course run about page will be published on {{ go_live_date }}, pending no further edits.
+        {% endblocktrans %}
+    {% else %}
+        {% blocktrans trimmed %}
+            The course run about page is now published.
+        {% endblocktrans %}
+    {% endif %}
 </p>
 
 <p>
-    {% blocktrans trimmed %}
-        Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.
+    {% blocktrans trimmed with link_start='<a href="mailto:' link_middle='">' link_end='</a>' %}
+        Note: This email address is unable to receive replies. For questions or comments, please contact {{ link_start }}{{ contact_us_email }}{{ link_middle }}your Project Coordinator{{ link_end }}.
     {% endblocktrans %}
 </p>
 

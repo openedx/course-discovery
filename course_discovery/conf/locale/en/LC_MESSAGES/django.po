@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-03 14:59+0000\n"
+"POT-Creation-Date: 2019-06-04 15:50+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -404,32 +404,32 @@ msgstr ""
 msgid "Deleted"
 msgstr ""
 
-#: apps/course_metadata/emails.py:31
-#, python-format
+#: apps/course_metadata/emails.py:32
+#, python-brace-format
 msgid ""
-"Not sending notification email for template %s because no organization is "
-"defined for course %s"
+"Not sending notification email for template {template} because no "
+"organization is defined for course {course}"
 msgstr ""
 
-#: apps/course_metadata/emails.py:36
-#, python-format
+#: apps/course_metadata/emails.py:37
+#, python-brace-format
 msgid ""
-"Not sending notification email for template %s because no project "
-"coordinator is defined for organization %s"
+"Not sending notification email for template {template} because no project "
+"coordinator is defined for organization {org}"
 msgstr ""
 
 #: apps/course_metadata/emails.py:88
-#, python-format
+#, python-brace-format
 msgid ""
-"Not sending notification email for template %s because no publisher URL is "
-"defined for partner %s"
+"Not sending notification email for template {template} because no publisher "
+"URL is defined for partner {partner}"
 msgstr ""
 
 #: apps/course_metadata/emails.py:96
-#, python-format
+#, python-brace-format
 msgid ""
-"Not sending notification email for template %s because no studio URL is "
-"defined for partner %s"
+"Not sending notification email for template {template} because no studio URL "
+"is defined for partner {partner}"
 msgstr ""
 
 #: apps/course_metadata/emails.py:152
@@ -1136,24 +1136,11 @@ msgid ""
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html:24
-#: apps/course_metadata/templates/course_metadata/email/legal_review.txt:21
-#: apps/course_metadata/templates/course_metadata/email/reviewed.html:19
-#: apps/course_metadata/templates/course_metadata/email/reviewed.txt:15
-#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt:15
-#: apps/publisher/templates/publisher/email/course/send_for_review.txt:13
-#: apps/publisher/templates/publisher/email/course/seo_review.txt:13
-#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt:15
-#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt:14
-#: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt:13
-#: apps/publisher/templates/publisher/email/course_run/preview_available.txt:25
-#: apps/publisher/templates/publisher/email/course_run/published.txt:18
-#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.txt:17
-#: apps/publisher/templates/publisher/email/course_run/send_for_review.txt:16
-#: apps/publisher/templates/publisher/email/studio_instance_created.txt:32
 #, python-format
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
-"comments, contact %(contact_us_email)s."
+"comments, please contact %(link_start)s%(contact_us_email)s"
+"%(link_middle)sthe Project Coordinator%(link_end)s."
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.txt:6
@@ -1172,25 +1159,59 @@ msgid ""
 "are restricted, and set the course run status to Internal Review."
 msgstr ""
 
+#: apps/course_metadata/templates/course_metadata/email/legal_review.txt:21
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, please contact the Project Coordinator at %(contact_us_email)s."
+msgstr ""
+
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:12
 #, python-format
 msgid ""
 "The %(link_start)s%(course_page_url)s%(link_middle)s%(course_number)s course "
 "run%(link_end)s of %(course_name)s has been reviewed and approved by "
-"%(platform_name)s. The review for this course run is now complete."
+"%(platform_name)s."
+msgstr ""
+
+#: apps/course_metadata/templates/course_metadata/email/reviewed.html:17
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt:12
+#, python-format
+msgid ""
+"The course run about page will be published on %(go_live_date)s, pending no "
+"further edits."
+msgstr ""
+
+#: apps/course_metadata/templates/course_metadata/email/reviewed.html:21
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt:16
+msgid "The course run about page is now published."
+msgstr ""
+
+#: apps/course_metadata/templates/course_metadata/email/reviewed.html:28
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, please contact %(link_start)s%(contact_us_email)s"
+"%(link_middle)syour Project Coordinator%(link_end)s."
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:6
 #, python-format
 msgid ""
 "The %(course_number)s course run of %(course_name)s has been reviewed and "
-"approved by %(platform_name)s. The review for this course run is now "
-"complete."
+"approved by %(platform_name)s."
 msgstr ""
 
-#: apps/course_metadata/templates/course_metadata/email/reviewed.txt:11
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt:21
 #, python-format
 msgid "View the course run in Publisher: %(course_page_url)s"
+msgstr ""
+
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt:25
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, please contact your Project Coordinator at %(contact_us_email)s."
 msgstr ""
 
 #: apps/course_metadata/utils.py:259
@@ -3623,6 +3644,23 @@ msgstr ""
 msgid ""
 "<p>Note: This email address is unable to receive replies. For questions or "
 "comments, contact %(contact_us_email)s.</p>"
+msgstr ""
+
+#: apps/publisher/templates/publisher/email/course/mark_as_reviewed.txt:15
+#: apps/publisher/templates/publisher/email/course/send_for_review.txt:13
+#: apps/publisher/templates/publisher/email/course/seo_review.txt:13
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed.txt:15
+#: apps/publisher/templates/publisher/email/course_run/mark_as_reviewed_pc.txt:14
+#: apps/publisher/templates/publisher/email/course_run/preview_accepted.txt:13
+#: apps/publisher/templates/publisher/email/course_run/preview_available.txt:25
+#: apps/publisher/templates/publisher/email/course_run/published.txt:18
+#: apps/publisher/templates/publisher/email/course_run/published_course_run_editing.txt:17
+#: apps/publisher/templates/publisher/email/course_run/send_for_review.txt:16
+#: apps/publisher/templates/publisher/email/studio_instance_created.txt:32
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, contact %(contact_us_email)s."
 msgstr ""
 
 #: apps/publisher/templates/publisher/email/course/send_for_review.html:11
