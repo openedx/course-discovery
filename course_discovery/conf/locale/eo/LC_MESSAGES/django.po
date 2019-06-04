@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-04 15:50+0000\n"
+"POT-Creation-Date: 2019-06-04 17:54+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -547,6 +547,16 @@ msgstr "Révïéw réqüéstéd: {key} - {title} Ⱡ'σяєм ιρѕυм ∂σł
 #, python-brace-format
 msgid "Review complete: {title}"
 msgstr "Révïéw çömplété: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Published: {title}"
+msgstr "Püßlïshéd: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Published: {key} - {title}"
+msgstr "Püßlïshéd: {key} - {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/course_metadata/forms.py
 msgid "Programs can only be activated if they have a banner image."
@@ -1306,6 +1316,8 @@ msgstr "Bäçk tö Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 msgid "Save Course Run"
 msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
+#: apps/course_metadata/templates/course_metadata/email/go_live.html
+#: apps/course_metadata/templates/course_metadata/email/go_live.txt
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html
@@ -1334,6 +1346,65 @@ msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #, python-format
 msgid "Dear %(recipient_name)s,"
 msgstr "Déär %(recipient_name)s, Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.html
+#: apps/course_metadata/templates/course_metadata/email/go_live.txt
+#: apps/publisher/templates/publisher/email/course_run/published.html
+#: apps/publisher/templates/publisher/email/course_run/published.txt
+#, python-format
+msgid ""
+"The About page for the %(course_run_number)s course run of %(course_name)s "
+"has been published. No further action is necessary."
+msgstr ""
+"Thé Àßöüt pägé för thé %(course_run_number)s çöürsé rün öf %(course_name)s "
+"häs ßéén püßlïshéd. Nö fürthér äçtïön ïs néçéssärý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, #"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.html
+#, python-format
+msgid ""
+"%(link_start)s%(preview_url)s%(link_middle)sView this About "
+"page.%(link_end)s"
+msgstr ""
+"%(link_start)s%(preview_url)s%(link_middle)sVïéw thïs Àßöüt "
+"pägé.%(link_end)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.html
+#: apps/course_metadata/templates/course_metadata/email/reviewed.html
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, please contact "
+"%(link_start)s%(contact_us_email)s%(link_middle)syour Project "
+"Coordinator%(link_end)s."
+msgstr ""
+"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
+"çömménts, pléäsé çöntäçt "
+"%(link_start)s%(contact_us_email)s%(link_middle)sýöür Pröjéçt "
+"Çöördïnätör%(link_end)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
+"α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα"
+" αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ "
+"ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη "
+"яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα "
+"ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι "
+"σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσяυм#"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.txt
+#, python-format
+msgid "View this About page. %(preview_url)s"
+msgstr ""
+"Vïéw thïs Àßöüt pägé. %(preview_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/templates/course_metadata/email/go_live.txt
+#: apps/course_metadata/templates/course_metadata/email/reviewed.txt
+#, python-format
+msgid ""
+"Note: This email address is unable to receive replies. For questions or "
+"comments, please contact your Project Coordinator at %(contact_us_email)s."
+msgstr ""
+"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
+"çömménts, pléäsé çöntäçt ýöür Pröjéçt Çöördïnätör ät %(contact_us_email)s. "
+"Ⱡ'σ#"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html
 #, python-format
@@ -1475,12 +1546,12 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html
 #, python-format
 msgid ""
-"The %(link_start)s%(course_page_url)s%(link_middle)s%(course_number)s course"
-" run%(link_end)s of %(course_name)s has been reviewed and approved by "
+"The %(link_start)s%(course_page_url)s%(link_middle)s%(course_run_number)s "
+"course run%(link_end)s of %(course_name)s has been reviewed and approved by "
 "%(platform_name)s."
 msgstr ""
-"Thé %(link_start)s%(course_page_url)s%(link_middle)s%(course_number)s çöürsé"
-" rün%(link_end)s öf %(course_name)s häs ßéén révïéwéd änd äpprövéd ßý "
+"Thé %(link_start)s%(course_page_url)s%(link_middle)s%(course_run_number)s "
+"çöürsé rün%(link_end)s öf %(course_name)s häs ßéén révïéwéd änd äpprövéd ßý "
 "%(platform_name)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html
@@ -1500,33 +1571,15 @@ msgstr ""
 "Thé çöürsé rün äßöüt pägé ïs nöw püßlïshéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: apps/course_metadata/templates/course_metadata/email/reviewed.html
-#, python-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact "
-"%(link_start)s%(contact_us_email)s%(link_middle)syour Project "
-"Coordinator%(link_end)s."
-msgstr ""
-"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, pléäsé çöntäçt "
-"%(link_start)s%(contact_us_email)s%(link_middle)sýöür Pröjéçt "
-"Çöördïnätör%(link_end)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
-"α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα"
-" αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ "
-"ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη "
-"яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα "
-"ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι "
-"σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσяυм#"
-
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt
 #, python-format
 msgid ""
-"The %(course_number)s course run of %(course_name)s has been reviewed and "
-"approved by %(platform_name)s."
+"The %(course_run_number)s course run of %(course_name)s has been reviewed "
+"and approved by %(platform_name)s."
 msgstr ""
-"Thé %(course_number)s çöürsé rün öf %(course_name)s häs ßéén révïéwéd änd "
-"äpprövéd ßý %(platform_name)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+"Thé %(course_run_number)s çöürsé rün öf %(course_name)s häs ßéén révïéwéd "
+"änd äpprövéd ßý %(platform_name)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя "
+"α#"
 
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt
 #, python-format
@@ -1534,16 +1587,6 @@ msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr ""
 "Vïéw thé çöürsé rün ïn Püßlïshér: %(course_page_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
 " αмєт, ¢σηѕє¢тєтυ#"
-
-#: apps/course_metadata/templates/course_metadata/email/reviewed.txt
-#, python-format
-msgid ""
-"Note: This email address is unable to receive replies. For questions or "
-"comments, please contact your Project Coordinator at %(contact_us_email)s."
-msgstr ""
-"Nöté: Thïs émäïl äddréss ïs ünäßlé tö réçéïvé réplïés. För qüéstïöns ör "
-"çömménts, pléäsé çöntäçt ýöür Pröjéçt Çöördïnätör ät %(contact_us_email)s. "
-"Ⱡ'σ#"
 
 #: apps/course_metadata/utils.py
 msgid "Special characters not allowed in Course Number."
@@ -4627,17 +4670,6 @@ msgstr ""
 "çömménts, çöntäçt <a "
 "href=\"mailto:%(contact_us_email)s\">%(contact_us_email)s</a>. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт#"
-
-#: apps/publisher/templates/publisher/email/course_run/published.html
-#: apps/publisher/templates/publisher/email/course_run/published.txt
-#, python-format
-msgid ""
-"The About page for the %(course_run_number)s course run of %(course_name)s "
-"has been published. No further action is necessary."
-msgstr ""
-"Thé Àßöüt pägé för thé %(course_run_number)s çöürsé rün öf %(course_name)s "
-"häs ßéén püßlïshéd. Nö fürthér äçtïön ïs néçéssärý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, #"
 
 #: apps/publisher/templates/publisher/email/course_run/published.html
 #, python-format

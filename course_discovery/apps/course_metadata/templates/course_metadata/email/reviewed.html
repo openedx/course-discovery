@@ -10,7 +10,7 @@
 </p>
 <p>
     {% blocktrans trimmed with link_start='<a href="' link_middle='">' link_end='</a>' %}
-        The {{ link_start }}{{ course_page_url }}{{ link_middle }}{{ course_number }} course run{{ link_end }} of {{ course_name }} has been reviewed and approved by {{ platform_name }}.
+        The {{ link_start }}{{ course_page_url }}{{ link_middle }}{{ course_run_number }} course run{{ link_end }} of {{ course_name }} has been reviewed and approved by {{ platform_name }}.
     {% endblocktrans %}
 
     {% if go_live_date %}

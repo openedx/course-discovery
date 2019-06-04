@@ -54,13 +54,9 @@ class EmailTests(TestCase):
             user.groups.set(groups)
         return user
 
-    def assertEmailSent(self, function, subject=None, to_users=None, both_regexes=None, text_regexes=None,
-                        html_regexes=None):
-        function(self.course_run)
-
-        self.assertEqual(len(mail.outbox), 1)
-
-        email = mail.outbox[0]
+    def assertEmailContains(self, subject=None, to_users=None, both_regexes=None, text_regexes=None,
+                            html_regexes=None, index=0):
+        email = mail.outbox[index]
         if to_users is not None:
             self.assertEqual(set(email.to), {u.email for u in to_users})
         if subject is not None:
@@ -80,6 +76,14 @@ class EmailTests(TestCase):
 
         for regex in html_regexes or []:
             self.assertRegex(html, regex)  # pylint: disable=deprecated-method
+
+    def assertEmailSent(self, function, subject=None, to_users=None, both_regexes=None, text_regexes=None,
+                        html_regexes=None, index=0, total=1):
+        function(self.course_run)
+
+        self.assertEqual(len(mail.outbox), total)
+        self.assertEmailContains(subject=subject, to_users=to_users, both_regexes=both_regexes,
+                                 text_regexes=text_regexes, html_regexes=html_regexes, index=index)
 
     def assertEmailNotSent(self, function, reason):
         with LogCapture(emails.logger.name) as log_capture:
@@ -176,6 +180,41 @@ class EmailTests(TestCase):
                 '\n\nView the course run in Publisher: %s\n' % self.publisher_url,
                 'For questions or comments, please contact your Project Coordinator at pc@example.com.',
             ],
+        )
+
+    def test_send_email_for_go_live(self):
+        """
+        Verify that send_email_for_go_live's happy path works as expected
+        """
+        kwargs = {
+            'both_regexes': [
+                'The About page for the %s course run of %s has been published.' %
+                (self.run_num, self.course_run.title),
+                'No further action is necessary.',
+            ],
+            'html_regexes': [
+                '<a href="%s">View this About page.</a>' % self.course_run.marketing_url,
+                'For questions or comments, please contact '
+                '<a href="mailto:pc@example.com">your Project Coordinator</a>.',
+            ],
+            'text_regexes': [
+                '\n\nView this About page. %s\n' % self.course_run.marketing_url,
+                'For questions or comments, please contact your Project Coordinator at pc@example.com.',
+            ],
+        }
+
+        self.assertEmailSent(
+            emails.send_email_for_go_live,
+            '^Published: {}$'.format(self.course_run.title),
+            [self.editor, self.editor2],
+            total=2,
+            **kwargs,
+        )
+        self.assertEmailContains(
+            subject='^Published: {} - {}$'.format(self.course_run.key, self.course_run.title),
+            to_users=[self.pc],
+            index=1,
+            **kwargs,
         )
 
     def test_no_project_coordinator(self):

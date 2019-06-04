@@ -4,7 +4,7 @@
     Dear {{ recipient_name }},
 {% endblocktrans %}
 {% blocktrans trimmed %}
-    The {{ course_number }} course run of {{ course_name }} has been reviewed and approved by {{ platform_name }}.
+    The {{ course_run_number }} course run of {{ course_name }} has been reviewed and approved by {{ platform_name }}.
 {% endblocktrans %}
 
 

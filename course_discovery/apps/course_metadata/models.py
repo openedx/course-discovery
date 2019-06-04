@@ -1126,6 +1126,8 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         elif self.status == CourseRunStatus.Reviewed:
             self.ensure_official_version()
             emails.send_email_for_reviewed(self)
+        elif self.status == CourseRunStatus.Published:
+            emails.send_email_for_go_live(self)
 
     def save(self, **kwargs):
         is_new_course_run = not self.pk
