@@ -5,7 +5,6 @@ import ddt
 import pytest
 import pytz
 import responses
-from django.core.cache import cache
 from django.db import IntegrityError
 from django.db.models.functions import Lower
 from mock import mock
@@ -49,7 +48,6 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.course = CourseFactory(partner=self.partner, title='Fake Test', key='edX+Fake101')
         self.org = OrganizationFactory(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)  # pylint: disable=no-member
-        cache.clear()
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
