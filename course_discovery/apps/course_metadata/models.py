@@ -1245,6 +1245,8 @@ class Seat(DraftModelMixin, TimeStampedModel):
     sku = models.CharField(max_length=128, null=True, blank=True)
     bulk_sku = models.CharField(max_length=128, null=True, blank=True)
 
+    history = HistoricalRecords()
+
     class Meta(object):
         unique_together = (
             ('course_run', 'type', 'currency', 'credit_provider', 'draft')
@@ -1267,6 +1269,8 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
     currency = models.ForeignKey(Currency, default='USD')
     sku = models.CharField(max_length=128, null=True, blank=True)
     expires = models.DateTimeField(null=True, blank=True)
+
+    history = HistoricalRecords()
 
     class Meta(object):
         unique_together = (
