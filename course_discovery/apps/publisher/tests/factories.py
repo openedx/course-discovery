@@ -62,6 +62,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     short_description_override = FuzzyText()
     title_override = FuzzyText()
     full_description_override = FuzzyText()
+    external_key = None
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):  # pylint: disable=unused-argument

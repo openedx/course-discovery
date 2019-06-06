@@ -134,6 +134,7 @@ class CourseRunFactory(factory.DjangoModelFactory):
     status = CourseRunStatus.Published
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-run-id/', suffix='/fake')
+    external_key = None
     course = factory.SubFactory(CourseFactory)
     title_override = None
     short_description_override = None

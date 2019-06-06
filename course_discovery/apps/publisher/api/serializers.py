@@ -81,11 +81,12 @@ class CourseRunSerializer(serializers.ModelSerializer):
     """
     Serializer for the `CourseRun` model.
     """
+    EXTERNAL_COURSE_KEY_PATTERN = r'[A-Za-z0-9-_:]+'
     preview_url = UnvalidatedField()  # Otherwise the @property method gets stripped from validated_data
 
     class Meta:
         model = CourseRun
-        fields = ('lms_course_id', 'changed_by', 'preview_url',)
+        fields = ('lms_course_id', 'external_key', 'changed_by', 'preview_url',)
 
     def validate_lms_course_id(self, value):
         try:
@@ -94,6 +95,18 @@ class CourseRunSerializer(serializers.ModelSerializer):
             # pylint: disable=no-member
             raise serializers.ValidationError(
                 {'lms_course_id': _('Invalid course key "{lms_course_id}"').format(lms_course_id=value)}
+            )
+
+        return value
+
+    def validate_external_key(self, value):
+        if value is None:
+            return value
+
+        if not re.match(self.EXTERNAL_COURSE_KEY_PATTERN, value):
+            # pylint: disable=no-member
+            raise serializers.ValidationError(
+                {'lms_course_id': _('Invalid external course key "{external_key}"').format(external_key=value)}
             )
 
         return value
