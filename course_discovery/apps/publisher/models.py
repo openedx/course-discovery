@@ -290,6 +290,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     course = models.ForeignKey(Course, related_name='publisher_course_runs')
     lms_course_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
+    external_key = models.CharField(max_length=225, blank=True, null=True)
 
     start = models.DateTimeField(null=True, blank=True)
     end = models.DateTimeField(null=True, blank=True)

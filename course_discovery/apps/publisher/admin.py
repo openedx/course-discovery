@@ -104,8 +104,8 @@ class CourseAdmin(SimpleHistoryAdmin):
 class CourseRunAdmin(SimpleHistoryAdmin):
     form = CourseRunAdminForm
     raw_id_fields = ('changed_by',)
-    list_display = ['course_name', 'lms_course_id', 'start', 'end']
-    search_fields = ['id', 'lms_course_id', 'course__title']
+    list_display = ['course_name', 'lms_course_id', 'external_key', 'start', 'end']
+    search_fields = ['id', 'lms_course_id', 'course__title', 'external_key']
 
     def course_name(self, obj):
         return obj.course.title

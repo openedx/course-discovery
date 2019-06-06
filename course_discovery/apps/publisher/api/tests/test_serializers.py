@@ -103,8 +103,12 @@ class CourseRunSerializerTests(TestCase):
         super(CourseRunSerializerTests, self).setUp()
         self.course_run = CourseRunFactory()
         self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
+        self.course_run.external_key = 'testOrg-course-1'
         self.person = PersonFactory()
-        self.discovery_course_run = DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[self.person])
+        self.discovery_course_run = DiscoveryCourseRunFactory(
+            key=self.course_run.lms_course_id,
+            external_key=self.course_run.external_key,
+            staff=[self.person])
         self.request = RequestFactory()
         self.user = UserFactory()
         self.request.user = self.user
@@ -115,7 +119,8 @@ class CourseRunSerializerTests(TestCase):
         return {
             'lms_course_id': self.course_run.lms_course_id,
             'changed_by': self.user,
-            'preview_url': self.course_run.preview_url
+            'preview_url': self.course_run.preview_url,
+            'external_key': self.course_run.external_key,
         }
 
     def test_validate_lms_course_id(self):
@@ -125,6 +130,14 @@ class CourseRunSerializerTests(TestCase):
         serializer = self.serializer_class(self.course_run)
         with self.assertRaises(ValidationError):
             serializer.validate_lms_course_id(self.course_run.lms_course_id)
+
+    def test_validate_external_lms_course_id(self):
+        """ Verify that serializer raises error if 'external_key' has invalid format. """
+        self.course_run.external_key = '~~!bad#$&*key~~'
+        self.course_run.save()
+        serializer = self.serializer_class(self.course_run)
+        with self.assertRaises(ValidationError):
+            serializer.validate_external_key(self.course_run.external_key)
 
     def test_validate_preview_url(self):
         """ Verify that serializer raises error if 'preview_url' has invalid format. """

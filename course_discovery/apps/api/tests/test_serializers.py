@@ -353,6 +353,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'type': course_run.type,
             'seats': SeatSerializer(course_run.seats, many=True).data,
             'status': course_run.status,
+            'external_key': course_run.external_key,
         }
 
 

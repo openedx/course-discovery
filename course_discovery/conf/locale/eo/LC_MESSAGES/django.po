@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-04 17:54+0000\n"
+"POT-Creation-Date: 2019-06-07 14:10+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1633,6 +1633,13 @@ msgstr "Ìnäçtïvé Ⱡ'σяєм ιρѕυм ∂#"
 #, python-brace-format
 msgid "Invalid course key \"{lms_course_id}\""
 msgstr "Ìnvälïd çöürsé kéý \"{lms_course_id}\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/publisher/api/serializers.py
+#, python-brace-format
+msgid "Invalid external course key \"{external_key}\""
+msgstr ""
+"Ìnvälïd éxtérnäl çöürsé kéý \"{external_key}\" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тє#"
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format

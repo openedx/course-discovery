@@ -621,6 +621,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     seats = SeatSerializer(required=False, many=True)
     key = serializers.CharField(required=False)
     title = serializers.CharField(required=False)
+    external_key = serializers.CharField(required=False)
     short_description = serializers.CharField(required=False, allow_blank=True)
     start = serializers.DateTimeField(required=True)  # required so we can craft key number from it
     end = serializers.DateTimeField(required=True)  # required by studio
@@ -639,8 +640,9 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 
     class Meta:
         model = CourseRun
-        fields = ('key', 'uuid', 'title', 'image', 'short_description', 'marketing_url', 'seats', 'start', 'end',
-                  'go_live_date', 'enrollment_start', 'enrollment_end', 'pacing_type', 'type', 'status',)
+        fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
+                  'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
+                  'pacing_type', 'type', 'status',)
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
