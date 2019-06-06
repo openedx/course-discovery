@@ -36,6 +36,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.draft_course = CourseFactory(partner=self.partner, draft=True)
         self.draft_course_run = CourseRunFactory(course=self.draft_course, draft=True)
         self.draft_course_run.course.authoring_organizations.add(OrganizationFactory(key='course-id'))
+        self.draft_seat = SeatFactory(course_run=self.draft_course_run)
         self.refresh_index()
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
@@ -56,6 +57,10 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         else:
             responses.add(responses.POST, studio_url, status=200)
         responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=key), status=200)
+
+    def mock_ecommerce_publication(self):
+        url = '{root}publication/'.format(root=self.partner.ecommerce_api_url)
+        responses.add(responses.POST, url, json={}, status=200)
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
@@ -479,6 +484,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     @responses.activate
     def test_patch_put_does_not_change_status(self):
         self.mock_patch_to_studio(self.draft_course_run.key)
+        self.mock_ecommerce_publication()
         self.draft_course_run.status = CourseRunStatus.Reviewed
         self.draft_course_run.save()
         official_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=False)
@@ -499,6 +505,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     @responses.activate
     def test_patch_put_reset_status(self):
         self.mock_patch_to_studio(self.draft_course_run.key)
+        self.mock_ecommerce_publication()
         self.draft_course_run.status = CourseRunStatus.Reviewed
         self.draft_course_run.save()
         official_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=False)
@@ -520,6 +527,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     @responses.activate
     def test_patch_put_reset_status_transcript_languages(self):
         self.mock_patch_to_studio(self.draft_course_run.key)
+        self.mock_ecommerce_publication()
         self.draft_course_run.status = CourseRunStatus.Reviewed
         self.draft_course_run.save()
         official_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=False)
@@ -546,6 +554,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     def test_patch_put_draft_false(self, status):
         """ Verify that setting draft to False moves status to LegalReview. """
         self.mock_patch_to_studio(self.draft_course_run.key)
+        if status == CourseRunStatus.Reviewed:
+            self.mock_ecommerce_publication()
         self.draft_course_run.status = status
         self.draft_course_run.save()
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
@@ -563,6 +573,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     def test_patch_published(self):
         """ Verify that draft rows can be updated and re-published with draft=False. """
         self.mock_patch_to_studio(self.draft_course_run.key)
+        self.mock_ecommerce_publication()
         self.draft_course_run.min_effort = 0
         self.draft_course_run.max_effort = 1
         self.draft_course_run.status = CourseRunStatus.Reviewed  # Triggers creation of official versions

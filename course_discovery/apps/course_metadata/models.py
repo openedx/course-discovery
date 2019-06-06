@@ -37,7 +37,8 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, set_official_state, uslugify
+    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run,
+    set_official_state, uslugify
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -610,7 +611,12 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
 
         return None
 
-    def update_or_create_official_version(self, course_run=None):
+    def _update_or_create_official_version(self, course_run):
+        """
+        Should only be called from CourseRun.update_or_create_official_version. Because we only need to make draft
+        changes official in the context of a course run and because certain actions (like publishing data to ecommerce)
+        happen when we make official versions and we want to do those as a bundle with the course run.
+        """
         draft_version = Course.everything.get(pk=self.pk)
         # If there isn't an official_version set yet, then this is a create instead of update
         # and we will want to set additional attributes.
@@ -1159,7 +1165,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).delete()  # pylint: disable=no-member
         self.seats.set(seats)
 
-    def update_or_create_official_version(self):
+    def update_or_create_official_version(self, push_to_ecommerce=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
         # If there isn't already an official_version linked to the draft_version, then
         # this is our first time.
@@ -1169,12 +1175,16 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         for seat in self.seats.all():
             set_official_state(seat, Seat, {'course_run': official_version})
 
-        official_course = self.course.update_or_create_official_version(official_version)
+        official_course = self.course._update_or_create_official_version(official_version)  # pylint: disable=protected-access
 
         if creating:
             official_version.slug = self.slug
             official_version.course = official_course
             official_version.save()
+
+        if push_to_ecommerce:
+            # Push any product (seat, entitlement) changes to ecommerce as well
+            push_to_ecommerce_for_course_run(official_version)
 
         return official_version
 
@@ -1284,6 +1294,9 @@ class Seat(DraftModelMixin, TimeStampedModel):
     ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL]
 
     REQUIRES_AUDIT_SEAT = [VERIFIED]
+
+    # Seat types that we don't push to ecommerce -- they are either manually or never created as products
+    NON_PRODUCT_MODES = [CREDIT, MASTERS]
 
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.
@@ -1647,7 +1660,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     @property
     def entitlements(self):
         applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
-        return CourseEntitlement.objects.filter(mode__name__in=applicable_seat_types, course__in=self.courses.all())
+        return CourseEntitlement.objects.filter(mode__slug__in=applicable_seat_types, course__in=self.courses.all())
 
     @property
     def seat_types(self):

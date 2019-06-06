@@ -1,8 +1,12 @@
+import datetime
 import random
 import string
 import uuid
+from urllib.parse import urljoin
 
 import requests
+from django.conf import settings
+from django.db import transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from opaque_keys.edx.locator import CourseLocator
@@ -10,6 +14,7 @@ from slugify import slugify
 from stdimage.models import StdImageFieldFile
 from stdimage.utils import UploadTo
 
+from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
 
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
@@ -282,6 +287,104 @@ def get_course_run_estimated_hours(course_run):
     weeks_to_complete = course_run.weeks_to_complete or 0
     effort = min_effort + max_effort
     return (effort / 2) * weeks_to_complete if effort and weeks_to_complete else 0
+
+
+def calculated_seat_upgrade_deadline(seat):
+    """ Returns upgraded deadline calculated using edX business logic.
+
+    Only verified seats have upgrade deadlines. If the instance does not have an upgrade deadline set, the value
+    will be calculated based on the related course run's end date.
+    """
+    if seat.type == seat.VERIFIED:
+        if seat.upgrade_deadline:
+            return seat.upgrade_deadline
+
+        deadline = seat.course_run.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
+        deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
+        return deadline
+
+    return None
+
+
+def serialize_seat_for_ecommerce_api(seat):
+    # Avoid circular imports
+    from course_discovery.apps.course_metadata.models import Seat
+
+    return {
+        'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
+        'price': str(seat.price),
+        'product_class': 'Seat',
+        'attribute_values': [
+            {
+                'name': 'certificate_type',
+                'value': '' if seat.type == Seat.AUDIT else seat.type,
+            },
+            {
+                'name': 'id_verification_required',
+                'value': seat.type in (Seat.VERIFIED, Seat.PROFESSIONAL),
+            }
+        ]
+    }
+
+
+def serialize_entitlement_for_ecommerce_api(entitlement):
+    return {
+        'price': str(entitlement.price),
+        'product_class': 'Course Entitlement',
+        'attribute_values': [
+            {
+                'name': 'certificate_type',
+                'value': entitlement.mode if isinstance(entitlement.mode, str) else entitlement.mode.slug,
+            },
+        ],
+    }
+
+
+def push_to_ecommerce_for_course_run(course_run):
+    # Avoid circular imports
+    from course_discovery.apps.course_metadata.models import Seat
+
+    course = course_run.course
+    api = course.partner.lms_api_client
+    if not api or not course.partner.ecommerce_api_url:
+        return False
+
+    seats = course_run.seats.exclude(type__in=Seat.NON_PRODUCT_MODES)
+    entitlements = course.entitlements.all()  # no need to exclude - entitlements are always an ecommerce thing
+
+    discovery_products = []
+    serialized_products = []
+    if seats:
+        serialized_products.extend([serialize_seat_for_ecommerce_api(s) for s in seats])
+        discovery_products.extend(list(seats))
+    if entitlements:
+        serialized_products.extend([serialize_entitlement_for_ecommerce_api(e) for e in entitlements])
+        discovery_products.extend(list(entitlements))
+    if not serialized_products:
+        return False  # nothing to do
+
+    url = urljoin(course.partner.ecommerce_api_url, 'publication/')
+    response = api.post(url, json={
+        'id': course_run.key,
+        'uuid': str(course.uuid),
+        'name': course_run.title,
+        'verification_deadline': serialize_datetime(course_run.end),
+        'products': serialized_products,
+    })
+    response.raise_for_status()
+
+    # Now save the returned SKU numbers locally
+    ecommerce_products = response.json().get('products', [])
+    if len(discovery_products) == len(ecommerce_products):
+        with transaction.atomic():
+            for i, discovery_product in enumerate(discovery_products):
+                ecommerce_product = ecommerce_products[i]
+                sku = ecommerce_product.get('partner_sku')
+                if sku:
+                    discovery_product.sku = sku
+                    discovery_product.save()
+
+    return True
 
 
 class MarketingSiteAPIClient(object):

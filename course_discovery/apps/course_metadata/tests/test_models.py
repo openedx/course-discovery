@@ -9,6 +9,7 @@ import ddt
 import mock
 import pytest
 import pytz
+import responses
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
@@ -19,6 +20,7 @@ from freezegun import freeze_time
 from taggit.models import Tag
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
@@ -281,12 +283,17 @@ class TestCourseEditor(TestCase):
 
 
 @ddt.ddt
-class CourseRunTests(TestCase):
+class CourseRunTests(OAuth2Mixin, TestCase):
     """ Tests for the `CourseRun` model. """
 
     def setUp(self):
         super(CourseRunTests, self).setUp()
         self.course_run = factories.CourseRunFactory()
+        self.partner = self.course_run.course.partner
+
+    def mock_ecommerce_publication(self):
+        url = '{root}publication/'.format(root=self.partner.ecommerce_api_url)
+        responses.add(responses.POST, url, json={}, status=200)
 
     def test_enrollable_seats(self):
         """ Verify the expected seats get returned. """
@@ -418,7 +425,7 @@ class CourseRunTests(TestCase):
 
     def test_marketing_url(self):
         """ Verify the property constructs a marketing URL based on the marketing slug. """
-        expected = '{root}/course/{slug}'.format(root=self.course_run.course.partner.marketing_site_url_root.strip('/'),
+        expected = '{root}/course/{slug}'.format(root=self.partner.marketing_site_url_root.strip('/'),
                                                  slug=self.course_run.slug)
         self.assertEqual(self.course_run.marketing_url, expected)
 
@@ -613,8 +620,8 @@ class CourseRunTests(TestCase):
             self.course_run.save(suppress_publication=True)
             assert mock_init.call_count == 0
 
-        self.course_run.course.partner.marketing_site_url_root = ''
-        self.course_run.course.partner.save()
+        self.partner.marketing_site_url_root = ''
+        self.partner.save()
 
         with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
             self.course_run.save()
@@ -647,6 +654,9 @@ class CourseRunTests(TestCase):
         assert self.course_run.get_video == self.course_run.course.video
 
     def test_official_created(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+
         self.course_run.draft = True
         self.course_run.status = CourseRunStatus.Reviewed
         self.course_run.course.draft = True
@@ -1027,7 +1037,7 @@ class ProgramTests(TestCase):
         self.assertSetEqual(set(Program.search(query)), expected)
 
     def create_program_with_entitlements_and_seats(self):
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         courses = []
         for __ in range(3):
@@ -1115,7 +1125,7 @@ class ProgramTests(TestCase):
 
     def test_one_click_purchase_eligible(self):
         """ Verify that program is one click purchase eligible. """
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
 
         # Program has one_click_purchase_enabled set to True,
@@ -1167,7 +1177,7 @@ class ProgramTests(TestCase):
     def test_one_click_purchase_ineligible_wrong_mode(self):
         """ Verify that program is not one click purchase eligible if course entitlement product has the wrong mode. """
         program, courses = self.create_program_with_entitlements_and_seats()
-        honor_seat_type, __ = SeatType.objects.get_or_create(name=Seat.HONOR)
+        honor_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.HONOR)
         honor_mode_entitlement = courses[0].entitlements.first()
         honor_mode_entitlement.mode = honor_seat_type
         honor_mode_entitlement.save()
@@ -1179,7 +1189,7 @@ class ProgramTests(TestCase):
         multiple entitlement products with correct modes.
         """
         program, courses = self.create_program_with_entitlements_and_seats()
-        credit_seat_type, __ = SeatType.objects.get_or_create(name=Seat.CREDIT)
+        credit_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.CREDIT)
         program.type.applicable_seat_types.add(credit_seat_type)
         # We are limiting each course to a single entitlement so this should raise an IntegrityError
         with self.assertRaises(IntegrityError):
@@ -1188,7 +1198,7 @@ class ProgramTests(TestCase):
     def test_one_click_purchase_eligible_with_unpublished_runs(self):
         """ Verify that program with unpublished course runs is one click purchase eligible. """
 
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         published_course_run = factories.CourseRunFactory(
             end=None,
@@ -1214,7 +1224,7 @@ class ProgramTests(TestCase):
         """ Verify that program is one click purchase ineligible. """
         yesterday = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
         tomorrow = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
 
         # Program has one_click_purchase_enabled set to False and
@@ -1361,9 +1371,9 @@ class ProgramTests(TestCase):
     def test_entitlements(self):
         """ Test entitlements returns only applicable course entitlements. """
         courses = factories.CourseFactory.create_batch(3)
-        verified_mode = SeatType.objects.get(name='verified')
-        credit_mode = SeatType.objects.get(name='credit')
-        professional_mode = SeatType.objects.get(name='professional')
+        verified_mode = SeatType.objects.get(slug='verified')
+        credit_mode = SeatType.objects.get(slug='credit')
+        professional_mode = SeatType.objects.get(slug='professional')
         for i, mode in enumerate([verified_mode, credit_mode, professional_mode]):
             factories.CourseEntitlementFactory(course=courses[i], mode=mode)
         applicable_seat_types = SeatType.objects.filter(name__in=['verified', 'professional'])
@@ -1469,7 +1479,7 @@ class ProgramTests(TestCase):
         """ Verifies the price_range property of a program with course entitlement products """
         currency = Currency.objects.get(code='USD')
         test_price = 100
-        verified_mode = SeatType.objects.get(name='verified')
+        verified_mode = SeatType.objects.get(slug='verified')
         for course_run in self.course_runs:
             factories.CourseEntitlementFactory(
                 currency=currency, course=course_run.course, price=test_price, mode=verified_mode
@@ -1480,7 +1490,7 @@ class ProgramTests(TestCase):
             course_run.course.save()
             test_price += 100
 
-        applicable_seat_types = SeatType.objects.filter(name__in=['verified'])
+        applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
         self.program.type = program_type
