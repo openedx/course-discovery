@@ -2,26 +2,27 @@ import json
 import random
 from datetime import date
 
-import mock
 import responses
+from django.core.cache import cache
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
 from testfixtures import LogCapture
 from waffle.testutils import override_switch
 
-from course_discovery.apps.core.models import Currency, Partner
-from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
+from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
+from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.tests.factories import PartnerFactory, StaffUserFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import CourseRun, SeatType, Video
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
-from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.api.utils import (
+from course_discovery.apps.course_metadata.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
 )
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
 from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.models import CourseEntitlement, Seat
@@ -32,7 +33,20 @@ PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
 LOGGER_NAME = 'course_discovery.apps.publisher.api.v1.views'
 
 
-class CourseRunViewSetTests(APITestCase):
+class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.partner = PartnerFactory()
+        self.client = self.client_class(SERVER_NAME=self.partner.site.domain)
+        self.user = StaffUserFactory()
+        self.client.force_login(self.user)
+
+        # Two access tokens, because Studio pusher is using old rest API client and ecommerce pusher is using new one,
+        # so their cache of the access token is not shared yet.
+        self.mock_access_token()
+        self.mock_access_token()
+        cache.clear()  # clear our saved Partner.access_token so that we expect do the same mock requests
 
     def test_without_authentication(self):
         self.client.logout()
@@ -48,7 +62,7 @@ class CourseRunViewSetTests(APITestCase):
         assert response.status_code == 403
 
     def _create_course_run_for_publication(self):
-        organization = OrganizationFactory()
+        organization = OrganizationFactory(partner=self.partner)
         transcript_languages = [LanguageTag.objects.first()]
         mock_image_file = make_image_file('test_image.jpg')
         return CourseRunFactory(
@@ -60,36 +74,27 @@ class CourseRunViewSetTests(APITestCase):
             staff=PersonFactory.create_batch(2)
         )
 
-    def _set_test_client_domain_and_login(self, partner):
-        # pylint:disable=attribute-defined-outside-init
-        self.client = self.client_class(SERVER_NAME=partner.site.domain)
-        self.user = StaffUserFactory()
-        self.client.force_login(self.user)
-
     def _mock_studio_api_success(self, publisher_course_run):
-        partner = publisher_course_run.course.organizations.first().partner
         body = {'id': publisher_course_run.lms_course_id}
         url = '{root}/api/v1/course_runs/{key}/'.format(
-            root=partner.studio_url.strip('/'),
+            root=self.partner.studio_url.strip('/'),
             key=publisher_course_run.lms_course_id
         )
         responses.add(responses.PATCH, url, json=body, status=200)
         url = '{root}/api/v1/course_runs/{key}/images/'.format(
-            root=partner.studio_url.strip('/'),
+            root=self.partner.studio_url.strip('/'),
             key=publisher_course_run.lms_course_id
         )
         responses.add(responses.POST, url, json=body, status=200)
 
     def _mock_ecommerce_api(self, publisher_course_run, status=200, body=None):
-        partner = publisher_course_run.course.organizations.first().partner
         body = body or {'id': publisher_course_run.lms_course_id}
-        url = '{root}publication/'.format(root=partner.ecommerce_api_url)
+        url = '{root}publication/'.format(root=self.partner.ecommerce_api_url)
         responses.add(responses.POST, url, json=body, status=status)
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
     @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
-    def test_publish(self, mock_access_token):  # pylint: disable=unused-argument,too-many-statements
+    def test_publish(self):  # pylint: disable=too-many-statements
         publisher_course_run = self._create_course_run_for_publication()
         currency = Currency.objects.get(code='USD')
 
@@ -107,9 +112,6 @@ class CourseRunViewSetTests(APITestCase):
         professional_seat = SeatFactory(type=Seat.PROFESSIONAL, **common_seat_kwargs)
         verified_seat = SeatFactory(type=Seat.VERIFIED, **common_seat_kwargs)
 
-        partner = publisher_course_run.course.organizations.first().partner
-        self._set_test_client_domain_and_login(partner)
-
         self._mock_studio_api_success(publisher_course_run)
         self._mock_ecommerce_api(publisher_course_run)
         with LogCapture(LOGGER_NAME) as log:
@@ -120,7 +122,7 @@ class CourseRunViewSetTests(APITestCase):
                        'Published course run with id: [{}] lms_course_id: [{}], user: [{}], date: [{}]'.format(
                            publisher_course_run.id, publisher_course_run.lms_course_id, self.user, date.today())))
 
-        assert len(responses.calls) == 3
+        assert len(responses.calls) == 5
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'ecommerce': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
@@ -129,7 +131,7 @@ class CourseRunViewSetTests(APITestCase):
         assert response.data == expected
 
         # Verify the correct deadlines were sent to the E-Commerce API
-        ecommerce_body = json.loads(responses.calls[2].request.body)
+        ecommerce_body = json.loads(responses.calls[-1].request.body)
         expected = [
             serialize_seat_for_ecommerce_api(audit_seat),
             serialize_seat_for_ecommerce_api(professional_seat),
@@ -163,7 +165,7 @@ class CourseRunViewSetTests(APITestCase):
         assert set(discovery_course_run.staff.all()) == set(publisher_course_run.staff.all())
 
         assert discovery_course.canonical_course_run == discovery_course_run
-        assert discovery_course.partner == partner
+        assert discovery_course.partner == self.partner
         assert discovery_course.title == publisher_course.title
         assert discovery_course.short_description == publisher_course.short_description
         assert discovery_course.full_description == publisher_course.full_description
@@ -211,16 +213,11 @@ class CourseRunViewSetTests(APITestCase):
             **common_seat_kwargs
         )
 
-    # pylint: disable=unused-argument
     @responses.activate
     @override_settings(PUBLISHER_UPGRADE_DEADLINE_DAYS=PUBLISHER_UPGRADE_DEADLINE_DAYS)
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_publish_seat_without_upgrade_deadline(self, mock_access_token):
+    def test_publish_seat_without_upgrade_deadline(self):
         publisher_course_run = self._create_course_run_for_publication()
         verified_seat = SeatFactory(type=Seat.VERIFIED, course_run=publisher_course_run, upgrade_deadline=None)
-
-        partner = publisher_course_run.course.organizations.first().partner
-        self._set_test_client_domain_and_login(partner)
 
         self._mock_studio_api_success(publisher_course_run)
         self._mock_ecommerce_api(publisher_course_run)
@@ -237,17 +234,12 @@ class CourseRunViewSetTests(APITestCase):
             course_run=discovery_course_run
         )
 
-    # pylint: disable=unused-argument
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_publish_with_additional_organization(self, mock_access_token):
+    def test_publish_with_additional_organization(self):
         """
         Test that the publish button does not remove existing organization
         """
         publisher_course_run = self._create_course_run_for_publication()
-
-        partner = publisher_course_run.course.organizations.first().partner
-        self._set_test_client_domain_and_login(partner)
 
         self._mock_studio_api_success(publisher_course_run)
         self._mock_ecommerce_api(publisher_course_run)
@@ -266,15 +258,11 @@ class CourseRunViewSetTests(APITestCase):
         assert discovery_course.authoring_organizations.all().count() == 2
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_publish_with_staff_removed(self, mock_access_token):
+    def test_publish_with_staff_removed(self):
         """
         Test that the publish button adds and removes staff from discovery_course_run
         """
         publisher_course_run = self._create_course_run_for_publication()
-
-        partner = publisher_course_run.course.organizations.first().partner
-        self._set_test_client_domain_and_login(partner)
 
         self._mock_studio_api_success(publisher_course_run)
         self._mock_ecommerce_api(publisher_course_run)
@@ -299,15 +287,13 @@ class CourseRunViewSetTests(APITestCase):
         assert response.status_code == 404
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_publish_with_studio_api_error(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_publish_with_studio_api_error(self):
         publisher_course_run = self._create_course_run_for_publication()
-        partner = publisher_course_run.course.organizations.first().partner
-        self._set_test_client_domain_and_login(partner)
+        SeatFactory(type=Seat.VERIFIED, course_run=publisher_course_run)
 
         expected_error = {'error': 'Oops!'}
         url = '{root}/api/v1/course_runs/{key}/'.format(
-            root=partner.studio_url.strip('/'),
+            root=self.partner.studio_url.strip('/'),
             key=publisher_course_run.lms_course_id
         )
         responses.add(responses.PATCH, url, json=expected_error, status=500)
@@ -316,7 +302,7 @@ class CourseRunViewSetTests(APITestCase):
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
         response = self.client.post(url, {})
         assert response.status_code == 502
-        assert len(responses.calls) == 2
+        assert len(responses.calls) == 4
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'ecommerce': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
@@ -325,11 +311,9 @@ class CourseRunViewSetTests(APITestCase):
         assert response.data == expected
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_publish_with_ecommerce_api_error(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_publish_with_ecommerce_api_error(self):
         publisher_course_run = self._create_course_run_for_publication()
-        partner = publisher_course_run.course.organizations.first().partner
-        self._set_test_client_domain_and_login(partner)
+        SeatFactory(type=Seat.VERIFIED, course_run=publisher_course_run)
 
         expected_error = {'error': 'Oops!'}
         self._mock_studio_api_success(publisher_course_run)
@@ -338,7 +322,7 @@ class CourseRunViewSetTests(APITestCase):
         url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
         response = self.client.post(url, {})
         assert response.status_code == 502
-        assert len(responses.calls) == 3
+        assert len(responses.calls) == 5
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'ecommerce': 'FAILED: ' + json.dumps(expected_error),
@@ -347,17 +331,13 @@ class CourseRunViewSetTests(APITestCase):
         assert response.data == expected
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_publish_masters_track_seat(self, mock_access_token):
+    def test_publish_masters_track_seat(self):
         """
         Test that publishing a seat with masters_track creates a masters seat and masters track
         """
         publisher_course_run = self._create_course_run_for_publication()
         audit_seat_with_masters_track = SeatFactory(type="Audit", course_run=publisher_course_run, masters_track=True)
         publisher_course_run.seats.add(audit_seat_with_masters_track)
-
-        partner = publisher_course_run.course.organizations.first().partner
-        self._set_test_client_domain_and_login(partner)
 
         self._mock_studio_api_success(publisher_course_run)
         self._mock_ecommerce_api(publisher_course_run)

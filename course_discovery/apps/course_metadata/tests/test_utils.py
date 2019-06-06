@@ -1,19 +1,27 @@
 # -*- coding: utf-8 -*-
 
 import re
+import urllib
 
 import ddt
+import pytest
+import requests
 import responses
 from django.test import TestCase
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
+from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata import utils
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
-from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Seat, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory, SeatFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
+from course_discovery.apps.course_metadata.utils import (
+    calculated_seat_upgrade_deadline, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
+)
 
 
 @ddt.ddt
@@ -43,7 +51,7 @@ class UploadToFieldNamePathTests(TestCase):
 @ddt.ddt
 class UslugifyTests(TestCase):
     """
-    Test the utiltity function uslugify
+    Test the utility function uslugify
     """
     @ddt.data(
         ('技研究', 'ji-yan-jiu'),
@@ -54,6 +62,143 @@ class UslugifyTests(TestCase):
     def test_uslugify(self, string, expected):
         output = utils.uslugify(string)
         self.assertEqual(output, expected)
+
+
+class PushToEcommerceTests(OAuth2Mixin, TestCase):
+    """
+    Test the utility function push_to_ecommerce_for_course_run
+    """
+    def setUp(self):
+        super().setUp()
+        self.course_run = CourseRunFactory()
+        self.course = self.course_run.course
+        self.partner = self.course.partner
+        self.entitlement = CourseEntitlementFactory(course=self.course, mode=SeatType.objects.get(slug='verified'))
+        self.seat_verified = SeatFactory(course_run=self.course_run, type='verified', sku=None)
+        self.seat_audit = SeatFactory(course_run=self.course_run, type='audit', sku=None)
+        self.seats = [self.seat_verified, self.seat_audit]
+        self.api_root = self.partner.ecommerce_api_url
+
+    def mock_publication(self, status=200):
+        responses.add(
+            responses.POST,
+            urllib.parse.urljoin(self.api_root, 'publication/'),
+            status=status,
+            json={
+                'name': self.course_run.title,
+                'message': None,
+                'products': [
+                    {'expires': '2019-12-21T23:59:59Z', 'product_class': 'Seat', 'price': '50.00',
+                     'partner_sku': 'XXXXXXXX',
+                     'attribute_values': [{'name': 'certificate_type', 'value': 'verified'},
+                                          {'name': 'id_verification_required', 'value': True}]},
+                    {'expires': None, 'product_class': 'Seat', 'price': '0.00',
+                     'partner_sku': 'YYYYYYYY',
+                     'attribute_values': [{'name': 'certificate_type', 'value': ''},
+                                          {'name': 'id_verification_required', 'value': False}]},
+                    {'product_class': 'Course Entitlement', 'price': '50.00',
+                     'partner_sku': 'ZZZZZZZZ',
+                     'attribute_values': [{'name': 'certificate_type', 'value': 'verified'}]},
+                ],
+                'uuid': str(self.course.uuid),
+                'id': self.course_run.key,
+                'verification_deadline': '2019-12-31T00:00:00Z',
+            },
+        )
+
+    @responses.activate
+    def test_push(self):
+        """ Happy path """
+        self.mock_access_token()
+        self.mock_publication()
+        self.assertTrue(utils.push_to_ecommerce_for_course_run(self.course_run))
+        for s in self.seats:
+            s.refresh_from_db()
+        self.entitlement.refresh_from_db()
+        self.assertEqual({s.sku for s in self.seats}, {'XXXXXXXX', 'YYYYYYYY'})
+        self.assertEqual(self.entitlement.sku, 'ZZZZZZZZ')
+
+    def test_status_failure(self):
+        self.mock_access_token()
+        self.mock_publication(status=500)
+        with self.assertRaises(requests.HTTPError):
+            utils.push_to_ecommerce_for_course_run(self.course_run)
+
+    def test_no_products(self):
+        for seat in self.seats:
+            seat.delete()
+        self.entitlement.delete()
+        self.assertFalse(utils.push_to_ecommerce_for_course_run(self.course_run))
+
+    def test_no_ecommerce_url(self):
+        self.partner.ecommerce_api_url = None
+        self.partner.save()
+        self.assertFalse(utils.push_to_ecommerce_for_course_run(self.course_run))
+
+
+@pytest.mark.django_db
+class TestSerializeSeatForEcommerceApi:
+    def test_serialize_seat_for_ecommerce_api(self):
+        seat = SeatFactory()
+        actual = serialize_seat_for_ecommerce_api(seat)
+        assert actual['price'] == str(seat.price)
+        assert actual['product_class'] == 'Seat'
+
+    def test_serialize_seat_for_ecommerce_api_with_audit_seat(self):
+        seat = SeatFactory(type=Seat.AUDIT)
+        actual = serialize_seat_for_ecommerce_api(seat)
+        expected = {
+            'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
+            'price': str(seat.price),
+            'product_class': 'Seat',
+            'attribute_values': [
+                {
+                    'name': 'certificate_type',
+                    'value': '',
+                },
+                {
+                    'name': 'id_verification_required',
+                    'value': False,
+                }
+            ]
+        }
+
+        assert actual == expected
+
+    @pytest.mark.parametrize('seat_type', (Seat.VERIFIED, Seat.PROFESSIONAL))
+    def test_serialize_seat_for_ecommerce_api_with_id_verification(self, seat_type):
+        seat = SeatFactory(type=seat_type)
+        actual = serialize_seat_for_ecommerce_api(seat)
+        expected_attribute_values = [
+            {
+                'name': 'certificate_type',
+                'value': seat_type,
+            },
+            {
+                'name': 'id_verification_required',
+                'value': True,
+            }
+        ]
+        assert actual['attribute_values'] == expected_attribute_values
+
+
+@pytest.mark.django_db
+class TestSerializeEntitlementForEcommerceApi:
+    def test_serialize_entitlement_for_ecommerce_api(self):
+        entitlement = CourseEntitlementFactory()
+        actual = serialize_entitlement_for_ecommerce_api(entitlement)
+        expected = {
+            'price': str(entitlement.price),
+            'product_class': 'Course Entitlement',
+            'attribute_values': [
+                {
+                    'name': 'certificate_type',
+                    'value': entitlement.mode.slug,
+                },
+            ]
+        }
+
+        assert actual == expected
 
 
 class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):

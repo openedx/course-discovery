@@ -12,7 +12,7 @@ from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, FuzzyInt, SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, FuzzyInt, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -26,22 +26,9 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
 
-def oauth_login(func):
-    def inner(self, *args, **kwargs):
-        responses.add(
-            responses.POST,
-            self.partner.lms_url + '/oauth2/access_token',
-            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
-            status=200,
-        )
-        func(self, *args, **kwargs)
-
-    return inner
-
-
 @ddt.ddt
 @pytest.mark.usefixtures('django_cache')
-class CourseViewSetTests(SerializationMixin, APITestCase):
+class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True)
@@ -50,6 +37,10 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.course = CourseFactory(partner=self.partner, title='Fake Test', key='edX+Fake101')
         self.org = OrganizationFactory(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)  # pylint: disable=no-member
+
+    def mock_ecommerce_publication(self):
+        url = '{root}publication/'.format(root=self.course.partner.ecommerce_api_url)
+        responses.add(responses.POST, url, json={}, status=200)
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
@@ -478,9 +469,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=key), status=200)
         return self.create_course(course_data, update)
 
-    @oauth_login
     @responses.activate
     def test_create_with_authentication_verified_mode(self):
+        self.mock_access_token()
         course_data = {
             'mode': 'verified',
             'price': 100,
@@ -496,11 +487,11 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertListEqual(list(course.authoring_organizations.all()), [self.org])
         self.assertEqual(1, CourseEntitlement.everything.count())  # pylint: disable=no-member
 
-    @oauth_login
     def test_create_with_authentication_audit_mode(self):
         """
         When creating with audit mode, no entitlement should be created.
         """
+        self.mock_access_token()
         response = self.create_course()
 
         course = Course.everything.last()
@@ -512,9 +503,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertListEqual(list(course.authoring_organizations.all()), [self.org])
         self.assertEqual(0, CourseEntitlement.objects.count())
 
-    @oauth_login
     def test_create_makes_draft(self):
         """ When creating a course, it should start as a draft. """
+        self.mock_access_token()
         response = self.create_course({'mode': 'verified', 'price': 77})
         self.assertEqual(response.status_code, 201)
 
@@ -522,9 +513,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertTrue(course.draft)
         self.assertTrue(course.entitlements.first().draft)
 
-    @oauth_login
     def test_create_makes_editor(self):
         """ When creating a course, it should set the current user as the only editor for that course. """
+        self.mock_access_token()
         response = self.create_course({'mode': 'verified'})
         self.assertEqual(response.status_code, 201)
 
@@ -533,7 +524,6 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         CourseEditor.objects.get(user=self.user, course=course)
         self.assertEqual(CourseEditor.objects.count(), 1)
 
-    @oauth_login
     def test_create_makes_course_and_course_run(self):
         """
         When creating a course and supplying a course_run, it should create both the course
@@ -555,12 +545,12 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(seat.type, Seat.AUDIT)
         self.assertEqual(seat.price, 0.00)
 
-    @oauth_login
     def test_create_with_course_run_makes_verified_seat(self):
         """
         When creating a course and supplying a course_run, it should create both the course
         and course run as drafts. When mode = 'verified', a verified seat and an audit seat should be created.
         """
+        self.mock_access_token()
         data = {
             'number': 'test101',
             'org': self.org.key,
@@ -583,9 +573,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(audit_seat.price, 0.00)
         self.assertTrue(audit_seat.draft)
 
-    @oauth_login
     def test_create_fails_if_official_version_exists(self):
         """ When creating a course, it should not create one if an official version already exists. """
+        self.mock_access_token()
         response = self.create_course({'number': 'Fake101'})
         self.assertEqual(response.status_code, 400)
         expected_error_message = 'Failed to set data: A course with key {key} already exists.'
@@ -676,9 +666,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         assert Course.objects.count() == 0
 
     @ddt.data('put', 'patch')
-    @oauth_login
     @responses.activate
     def test_update_success(self, method):
+        self.mock_access_token()
         # TODO: Remove draft=True and save lines below as part of DISCO-818
         self.course.draft = True
         self.course.save()
@@ -713,9 +703,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(course.entitlements.first().price, 1000)
         self.assertDictEqual(response.data, self.serialize_course(course))
 
-    @oauth_login
     @responses.activate
     def test_update_operates_on_drafts(self):
+        self.mock_access_token()
         # TODO: Swap commented line with one below it when completing DISCO-818
         # CourseEntitlementFactory(course=self.course)
         CourseEntitlementFactory(course=self.course, draft=True)
@@ -739,13 +729,14 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         # self.assertFalse(self.course.entitlements.first().draft)
         # self.assertEqual(self.course.title, 'Fake Test')
 
-    @oauth_login
     @responses.activate
     def test_patch_published(self):
         """
         Verify that draft rows can be updated and re-published with draft=False. This should also
         update and publish the official version.
         """
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
         data = {
             'mode': 'verified',
             'price': 49,
@@ -800,13 +791,14 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(draft_course.entitlements.first().price, updated_entitlement['price'])
         self.assertEqual(official_course.entitlements.first().price, updated_entitlement['price'])
 
-    @oauth_login
     @responses.activate
     def test_patch_published_switch_audit_to_verified(self):
         """
         Verify that draft rows can be updated and re-published with draft=False. This should also
         update and publish the official version.
         """
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
         self.create_course_and_course_run()
 
         draft_course = Course.everything.last()
@@ -878,13 +870,13 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         ('professional', 'professional', 132),
     )
     @ddt.unpack
-    @oauth_login
     @responses.activate
     def test_patch_updating_entitlements_also_updates_seats(self, original_mode, mode, price):
         """
         Verify that draft rows can be updated and re-published with draft=False. This should also
         update and publish the official version.
         """
+        self.mock_access_token()
         data = {
             'mode': original_mode,
             'price': 49,
@@ -971,9 +963,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
                     )
                 )
 
-    @oauth_login
     @responses.activate
     def test_options(self):
+        self.mock_access_token()
         # TODO: Remove draft=True and save lines below as part of DISCO-818
         self.course.draft = True
         self.course.save()

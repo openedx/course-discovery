@@ -4,7 +4,6 @@ from urllib.parse import urljoin
 
 import pytz
 import waffle
-from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -27,7 +26,7 @@ from course_discovery.apps.course_metadata.models import Course as DiscoveryCour
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.course_metadata.publishers import CourseRunMarketingSitePublisher
-from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
+from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath, calculated_seat_upgrade_deadline
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import (
@@ -660,20 +659,7 @@ class Seat(TimeStampedModel, ChangedByMixin):
 
     @property
     def calculated_upgrade_deadline(self):
-        """ Returns upgraded deadline calculated using edX business logic.
-
-        Only verified seats have upgrade deadlines. If the instance does not have an upgrade deadline set, the value
-        will be calculated based on the related course run's end date.
-        """
-        if self.type == self.VERIFIED:
-            if self.upgrade_deadline:
-                return self.upgrade_deadline
-
-            deadline = self.course_run.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
-            deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
-            return deadline
-
-        return None
+        return calculated_seat_upgrade_deadline(self)
 
 
 class CourseEntitlement(TimeStampedModel):
