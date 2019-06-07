@@ -30,7 +30,6 @@ class TestApiDocs(APITestCase):
         Verify that unauthenticated clients are redirected.
         """
         response = self.client.get(self.path)
-
         assert response.status_code == 302
 
 
