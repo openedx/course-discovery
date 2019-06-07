@@ -19,6 +19,7 @@ class HtmlValidator(HTMLParser):
     ALLOWED_TAG_ATTRS = {
         'a': {'href', 'rel', 'target', 'title'},
         'img': {'alt', 'height', 'src', 'width'},
+        'ol': {'reversed', 'start', 'type'},
     }
 
     def error(self, message=None):
