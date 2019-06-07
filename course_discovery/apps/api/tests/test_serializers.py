@@ -38,6 +38,7 @@ from course_discovery.apps.core.models import Partner, User
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
+from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 from course_discovery.apps.course_metadata.tests.factories import (
@@ -62,12 +63,6 @@ def make_request():
     request = APIRequestFactory().get('/')
     request.user = user
     return request
-
-
-def serialize_datetime_without_timezone(d):
-    # TODO: Remove this function, and replace usage of it with serialize_datetime, after
-    # https://github.com/encode/django-rest-framework/issues/3732 is released.
-    return d.strftime('%Y-%m-%dT%H:%M:%S') if d else None
 
 
 def serialize_language(language):
@@ -1653,11 +1648,11 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'max_effort': course_run.max_effort,
             'weeks_to_complete': course_run.weeks_to_complete,
             'short_description': course_run.short_description,
-            'start': serialize_datetime_without_timezone(course_run.start),
-            'end': serialize_datetime_without_timezone(course_run.end),
-            'go_live_date': serialize_datetime_without_timezone(course_run.go_live_date),
-            'enrollment_start': serialize_datetime_without_timezone(course_run.enrollment_start),
-            'enrollment_end': serialize_datetime_without_timezone(course_run.enrollment_end),
+            'start': serialize_datetime(course_run.start),
+            'end': serialize_datetime(course_run.end),
+            'go_live_date': serialize_datetime(course_run.go_live_date),
+            'enrollment_start': serialize_datetime(course_run.enrollment_start),
+            'enrollment_end': serialize_datetime(course_run.enrollment_end),
             'key': course_run.key,
             'marketing_url': course_run.marketing_url,
             'pacing_type': course_run.pacing_type,
