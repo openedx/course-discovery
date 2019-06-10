@@ -4,6 +4,7 @@ from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
+
 class AddTagToCoursesCommandTests(TestCase):
     def setUp(self):
         super(AddTagToCoursesCommandTests, self).setUp()
@@ -17,7 +18,7 @@ class AddTagToCoursesCommandTests(TestCase):
         self.assertTrue(Course.objects.filter(topics__name="tag0", uuid=self.course1.uuid).exists())
         self.assertTrue(Course.objects.filter(topics__name="tag0", uuid=self.course2.uuid).exists())
         self.assertTrue(Course.objects.filter(uuid=self.course3.uuid).exists())
-        self.assertFalse(Course.objects.filter(topics__name="tag0",uuid=self.course3.uuid).exists())
+        self.assertFalse(Course.objects.filter(topics__name="tag0", uuid=self.course3.uuid).exists())
 
     def testMissingArgument(self):
         with self.assertRaises(CommandError):

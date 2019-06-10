@@ -2,6 +2,7 @@ from django.core.management import BaseCommand
 from django.utils.translation import ugettext as _
 from course_discovery.apps.course_metadata.models import Course
 
+
 class Command(BaseCommand):
     """ Management command to add a single tag to a list of courses specified by uuid.
     Useful for tagging courses to be brought into prospectus, eg
