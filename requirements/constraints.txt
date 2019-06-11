@@ -23,6 +23,9 @@ transifex-client<0.13
 # FIXME: 2.x needs Django 2
 django-debug-toolbar<2
 
+# FIXME: 2.0 needs Django 2.1+
+django-guardian<2
+
 # FIXME: 5+ made using the deprecated funcargnames attribute an error, still used by pytest-django-ordering
 pytest<5
 

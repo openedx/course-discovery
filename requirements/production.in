@@ -3,7 +3,7 @@
 -r base.in
 
 certifi
-django-ses==0.8.1
+django-ses
 gevent
 gunicorn
 mysqlclient
