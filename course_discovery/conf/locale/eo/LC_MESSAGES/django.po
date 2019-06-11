@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-04 17:54+0000\n"
+"POT-Creation-Date: 2019-06-10 20:24+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -563,6 +563,14 @@ msgid "Programs can only be activated if they have a banner image."
 msgstr ""
 "Prögräms çän önlý ßé äçtïvätéd ïf théý hävé ä ßännér ïmägé. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py
+msgid "Tag to add to courses"
+msgstr "Täg tö ädd tö çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py
+msgid "UUIDs of courses to tag"
+msgstr "ÛÛÌDs öf çöürsés tö täg Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py
 msgid "Delete duplicate persons in course_metadata."
