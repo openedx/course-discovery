@@ -1,22 +1,22 @@
 # Packages required for testing
--r base.txt
+-c constraints.txt
+-r base.in
 
-coverage==4.2
-ddt==1.1.0
+coverage
+ddt
 edx-lint==0.5.5
-factory-boy==2.8.1
-freezegun==0.3.7
+factory-boy
+freezegun
 isort==4.2.5
-lxml==3.6.1
-mock==2.0.0
-pep8==1.7.0
-pytest==3.1.0
-pytest-cov==2.5.1
-# See https://github.com/pytest-dev/pytest-django/issues/473
-git+https://github.com/pytest-dev/pytest-django@de31fab4122cfc53e7116b499235b610366d941a#egg=pytest-django==3.1.3.dev47+gde31fab
-pytest-django-ordering==1.0.1
-pytest-responses==0.3.0
-pytest-xdist==1.22.5
-responses==0.7.0
-selenium==3.4.0
-testfixtures==4.13.1
+lxml
+mock
+pep8
+pytest
+pytest-cov
+pytest-django
+pytest-django-ordering
+pytest-responses
+pytest-xdist
+responses
+selenium
+testfixtures
