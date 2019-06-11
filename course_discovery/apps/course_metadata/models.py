@@ -153,6 +153,69 @@ class LevelType(AbstractNamedModel):
         ordering = ('order',)
 
 
+class SeatType(TimeStampedModel):
+    name = models.CharField(max_length=64, unique=True)
+    slug = AutoSlugField(populate_from='name', slugify_function=uslugify)
+
+    def __str__(self):
+        return self.name
+
+
+class ProgramType(TimeStampedModel):
+    XSERIES = 'xseries'
+    MICROMASTERS = 'micromasters'
+    PROFESSIONAL_CERTIFICATE = 'professional-certificate'
+    PROFESSIONAL_PROGRAM_WL = 'professional-program-wl'
+    MASTERS = 'masters'
+
+    name = models.CharField(max_length=32, unique=True, null=False, blank=False)
+    applicable_seat_types = models.ManyToManyField(
+        SeatType, help_text=_('Seat types that qualify for completion of programs of this type. Learners completing '
+                              'associated courses, but enrolled in other seat types, will NOT have their completion '
+                              'of the course counted toward the completion of the program.'),
+    )
+    logo_image = StdImageField(
+        upload_to=UploadToAutoSlug(populate_from='name', path='media/program_types/logo_images'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (256, 256),
+            'medium': (128, 128),
+            'small': (64, 64),
+            'x-small': (32, 32),
+        },
+        help_text=_('Please provide an image file with transparent background'),
+    )
+    slug = AutoSlugField(populate_from='name', editable=True, unique=True, slugify_function=uslugify,
+                         help_text=_('Leave this field blank to have the value generated automatically.'))
+
+    # Do not record the slug field in the history table because AutoSlugField is not compatible with
+    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
+    history = HistoricalRecords(excluded_fields=['slug'])
+
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def get_program_type_data(pub_course_run, program_model):
+        slug = None
+        name = None
+        program_type = None
+
+        if pub_course_run.is_micromasters:
+            slug = ProgramType.MICROMASTERS
+            name = pub_course_run.micromasters_name
+        elif pub_course_run.is_professional_certificate:
+            slug = ProgramType.PROFESSIONAL_CERTIFICATE
+            name = pub_course_run.professional_certificate_name
+        elif pub_course_run.is_xseries:
+            slug = ProgramType.XSERIES
+            name = pub_course_run.xseries_name
+        if slug:
+            program_type = program_model.objects.get(slug=slug)
+        return program_type, name
+
+
 class Subject(TranslatableModel, TimeStampedModel):
     """ Subject model. """
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
@@ -794,6 +857,11 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site')
     )
 
+    # The expected_program_type and expected_program_name are here in support of Publisher and may not reflect the
+    # final program information.
+    expected_program_type = models.ForeignKey(ProgramType, default=None, null=True, blank=True)
+    expected_program_name = models.CharField(max_length=255, default='', blank=True)
+
     everything = CourseRunQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseRunQuerySet)()
 
@@ -1273,14 +1341,6 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         return is_published and self.seats.exists() and bool(self.marketing_url)
 
 
-class SeatType(TimeStampedModel):
-    name = models.CharField(max_length=64, unique=True)
-    slug = AutoSlugField(populate_from='name', slugify_function=uslugify)
-
-    def __str__(self):
-        return self.name
-
-
 class Seat(DraftModelMixin, TimeStampedModel):
     """ Seat model. """
     HONOR = 'honor'
@@ -1391,36 +1451,6 @@ class FAQ(TimeStampedModel):
 
     def __str__(self):
         return self.question
-
-
-class ProgramType(TimeStampedModel):
-    name = models.CharField(max_length=32, unique=True, null=False, blank=False)
-    applicable_seat_types = models.ManyToManyField(
-        SeatType, help_text=_('Seat types that qualify for completion of programs of this type. Learners completing '
-                              'associated courses, but enrolled in other seat types, will NOT have their completion '
-                              'of the course counted toward the completion of the program.'),
-    )
-    logo_image = StdImageField(
-        upload_to=UploadToAutoSlug(populate_from='name', path='media/program_types/logo_images'),
-        blank=True,
-        null=True,
-        variations={
-            'large': (256, 256),
-            'medium': (128, 128),
-            'small': (64, 64),
-            'x-small': (32, 32),
-        },
-        help_text=_('Please provide an image file with transparent background'),
-    )
-    slug = AutoSlugField(populate_from='name', editable=True, unique=True, slugify_function=uslugify,
-                         help_text=_('Leave this field blank to have the value generated automatically.'))
-
-    # Do not record the slug field in the history table because AutoSlugField is not compatible with
-    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
-    history = HistoricalRecords(excluded_fields=['slug'])
-
-    def __str__(self):
-        return self.name
 
 
 class Program(PkSearchableMixin, TimeStampedModel):

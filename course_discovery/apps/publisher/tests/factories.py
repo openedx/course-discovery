@@ -51,6 +51,8 @@ class CourseRunFactory(factory.DjangoModelFactory):
     start = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
     end = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC)).end_dt
     certificate_generation = FuzzyDateTime(datetime(2014, 1, 1, tzinfo=UTC))
+    is_micromasters = False
+    micromasters_name = ""
     min_effort = FuzzyInteger(1, 10)
     max_effort = FuzzyInteger(10, 20)
     language = factory.Iterator(LanguageTag.objects.all())
