@@ -968,7 +968,7 @@ class CoursesAutoCompleteTests(SiteMixin, TestCase):
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(len(data['results']), 2)
 
-        results_by_id = {record['id']: record for record in data['results']}
+        results_by_id = {int(record['id']): record for record in data['results']}
         self.assertFalse(results_by_id[self.course.id]['uses_entitlements'])
         self.assertTrue(results_by_id[self.course2.id]['uses_entitlements'])
 

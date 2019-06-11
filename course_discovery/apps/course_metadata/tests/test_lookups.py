@@ -248,7 +248,8 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         )
         assert response.status_code == 200
         data = json.loads(response.content.decode('utf-8'))
-        expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
+        expected_results = [{'id': str(instructor.id), 'text': str(instructor), 'selected_text': str(instructor)}
+                            for instructor in self.instructors]
         assert data.get('results') == expected_results
 
     def _make_user_non_staff(self):
