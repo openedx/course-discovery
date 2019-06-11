@@ -19,7 +19,7 @@ from course_discovery.apps.api.v1.views.topics import TopicViewSet
 from course_discovery.apps.api.v1.views.user_management import UsernameReplacementView
 
 partners_router = routers.SimpleRouter()
-partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, base_name='affiliate_window')
+partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, basename='affiliate_window')
 
 urlpatterns = [
     url(r'^partners/', include(partners_router.urls, namespace='partners')),
@@ -32,19 +32,19 @@ urlpatterns = [
 
 router = routers.SimpleRouter()
 router.register(r'catalogs', CatalogViewSet)
-router.register(r'courses', CourseViewSet, base_name='course')
-router.register(r'course_runs', CourseRunViewSet, base_name='course_run')
-router.register(r'organizations', OrganizationViewSet, base_name='organization')
-router.register(r'people', PersonViewSet, base_name='person')
-router.register(r'subjects', SubjectViewSet, base_name='subject')
-router.register(r'topics', TopicViewSet, base_name='topic')
-router.register(r'pathways', PathwayViewSet, base_name='pathway')
-router.register(r'programs', ProgramViewSet, base_name='program')
-router.register(r'program_types', ProgramTypeViewSet, base_name='program_type')
-router.register(r'search/all', search_views.AggregateSearchViewSet, base_name='search-all')
-router.register(r'search/courses', search_views.CourseSearchViewSet, base_name='search-courses')
-router.register(r'search/course_runs', search_views.CourseRunSearchViewSet, base_name='search-course_runs')
-router.register(r'search/programs', search_views.ProgramSearchViewSet, base_name='search-programs')
-router.register(r'search/people', search_views.PersonSearchViewSet, base_name='search-people')
+router.register(r'courses', CourseViewSet, basename='course')
+router.register(r'course_runs', CourseRunViewSet, basename='course_run')
+router.register(r'organizations', OrganizationViewSet, basename='organization')
+router.register(r'people', PersonViewSet, basename='person')
+router.register(r'subjects', SubjectViewSet, basename='subject')
+router.register(r'topics', TopicViewSet, basename='topic')
+router.register(r'pathways', PathwayViewSet, basename='pathway')
+router.register(r'programs', ProgramViewSet, basename='program')
+router.register(r'program_types', ProgramTypeViewSet, basename='program_type')
+router.register(r'search/all', search_views.AggregateSearchViewSet, basename='search-all')
+router.register(r'search/courses', search_views.CourseSearchViewSet, basename='search-courses')
+router.register(r'search/course_runs', search_views.CourseRunSearchViewSet, basename='search-course_runs')
+router.register(r'search/programs', search_views.ProgramSearchViewSet, basename='search-programs')
+router.register(r'search/people', search_views.PersonSearchViewSet, basename='search-people')
 
 urlpatterns += router.urls

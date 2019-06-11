@@ -5,7 +5,7 @@ from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthenticat
 from requests import RequestException
 from rest_framework import permissions, serializers, status, viewsets
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from slumber.exceptions import SlumberBaseException
 
@@ -25,7 +25,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
 
     PUBLICATION_SUCCESS_STATUS = 'SUCCESS'
 
-    @detail_route(methods=['post'])
+    @action(detail=True, methods=['post'])
     def publish(self, request, **_kwargs):
         course_run = self.get_object()
         partner = request.site.partner

@@ -11,7 +11,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, FuzzyInt, OAuth2Mixin, SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
@@ -178,7 +178,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             # to be included.
             filtered_course_run = CourseRunFactory(course=course)
 
-            with self.assertNumQueries(FuzzyInt(23, 2)):
+            with self.assertNumQueries(23, threshold=3):
                 response = self.client.get(url)
 
             assert response.status_code == 200
@@ -262,54 +262,55 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)
         expected = [
-            course_run['key'],
-            course_run['title'],
-            course_run['pacing_type'],
-            course_run['start'],
-            course_run['end'],
-            course_run['enrollment_start'],
-            course_run['enrollment_end'],
             course_run['announcement'],
-            course_run['full_description'],
-            course_run['short_description'],
-            course_run['marketing_url'],
-            course_run['image']['src'],
-            '',
-            '',
-            '',
-            course_run['video']['src'],
-            course_run['video']['description'],
-            course_run['video']['image']['src'],
-            course_run['video']['image']['description'],
-            str(course_run['video']['image']['height']),
-            str(course_run['video']['image']['width']),
             course_run['content_language'],
+            course_run['course_key'],
+            course_run['end'],
+            course_run['enrollment_end'],
+            course_run['enrollment_start'],
+            course_run['expected_learning_items'],
+            course_run['full_description'],
+            '',  # image description
+            '',  # image height
+            course_run['image']['src'],
+            '',  # image width
+            course_run['key'],
             str(course_run['level_type']),
+            course_run['marketing_url'],
             str(course_run['max_effort']),
             str(course_run['min_effort']),
-            course_run['subjects'],
-            course_run['expected_learning_items'],
-            course_run['prerequisites'],
-            course_run['owners'],
-            course_run['sponsors'],
-            course_run['seats']['audit']['type'],
-            course_run['seats']['honor']['type'],
-            course_run['seats']['professional']['type'],
-            str(course_run['seats']['professional']['price']),
-            course_run['seats']['professional']['currency'],
-            course_run['seats']['professional']['upgrade_deadline'],
-            course_run['seats']['verified']['type'],
-            str(course_run['seats']['verified']['price']),
-            course_run['seats']['verified']['currency'],
-            course_run['seats']['verified']['upgrade_deadline'],
-            '{}'.format(course_run['seats']['credit']['type']),
-            '{}'.format(str(course_run['seats']['credit']['price'])),
-            '{}'.format(course_run['seats']['credit']['currency']),
-            '{}'.format(course_run['seats']['credit']['upgrade_deadline']),
-            '{}'.format(course_run['seats']['credit']['credit_provider']),
-            '{}'.format(course_run['seats']['credit']['credit_hours']),
             course_run['modified'],
-            course_run['course_key'],
+            course_run['owners'],
+            course_run['pacing_type'],
+            course_run['prerequisites'],
+            course_run['seats']['audit']['type'],
+            '{}'.format(course_run['seats']['credit']['credit_hours']),
+            '{}'.format(course_run['seats']['credit']['credit_provider']),
+            '{}'.format(course_run['seats']['credit']['currency']),
+            '{}'.format(str(course_run['seats']['credit']['price'])),
+            '{}'.format(course_run['seats']['credit']['type']),
+            '{}'.format(course_run['seats']['credit']['upgrade_deadline']),
+            course_run['seats']['honor']['type'],
+            course_run['seats']['masters']['type'],
+            course_run['seats']['professional']['currency'],
+            str(course_run['seats']['professional']['price']),
+            course_run['seats']['professional']['type'],
+            course_run['seats']['professional']['upgrade_deadline'],
+            course_run['seats']['verified']['currency'],
+            str(course_run['seats']['verified']['price']),
+            course_run['seats']['verified']['type'],
+            course_run['seats']['verified']['upgrade_deadline'],
+            course_run['short_description'],
+            course_run['sponsors'],
+            course_run['start'],
+            course_run['subjects'],
+            course_run['title'],
+            course_run['video']['description'],
+            course_run['video']['image']['description'],
+            str(course_run['video']['image']['height']),
+            course_run['video']['image']['src'],
+            str(course_run['video']['image']['width']),
+            course_run['video']['src'],
         ]
 
         # collect streamed content
@@ -323,7 +324,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         content = list(reader)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(expected), set(content[1]))
+        self.assertEqual(expected, content[1])
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single catalog. """
