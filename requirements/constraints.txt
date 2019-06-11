@@ -10,9 +10,11 @@ elasticsearch<2
 # FIXME: 1.8.5 breaks the way we use serialization methods
 # FIXME: 1.8.3 breaks something about OneToOne field validators
 drf-haystack<1.8.3
+djangorestframework<3.10  # newer versions drop features that old drf-haystack above still uses
 
 # FIXME: 2.12+ breaks our tests
 requests<2.12
+docker<3.7  # newer versions require a newer requests
 docker-compose<1.24  # newer versions require a newer requests
 
 # FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify

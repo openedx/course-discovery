@@ -4,7 +4,7 @@ from django.db import transaction
 from django.http import StreamingHttpResponse
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import status, viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
@@ -79,7 +79,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         """ Update a catalog. """
         return super(CatalogViewSet, self).update(request, *args, **kwargs)
 
-    @detail_route()
+    @action(detail=True)
     def courses(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
         """
         Retrieve the list of courses contained within this catalog.
@@ -109,7 +109,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @detail_route()
+    @action(detail=True)
     def contains(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
         """
         Determine if this catalog contains the provided courses.
@@ -148,7 +148,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         serializer = serializers.ContainedCoursesSerializer(instance)
         return Response(serializer.data)
 
-    @detail_route()
+    @action(detail=True)
     def csv(self, request, id=None):  # pylint: disable=redefined-builtin
         """
         Retrieve a CSV containing the course runs contained within this catalog.

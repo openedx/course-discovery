@@ -6,7 +6,7 @@ from django.http.response import Http404
 from django.utils.translation import ugettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
@@ -298,7 +298,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         """ Retrieve details for a course run. """
         return super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)
 
-    @list_route()
+    @action(detail=False)
     def contains(self, request):
         """
         Determine if course runs are found in the query results.

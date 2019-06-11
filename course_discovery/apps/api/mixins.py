@@ -3,7 +3,7 @@ Mixins for the API application.
 """
 # pylint: disable=not-callable
 
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 
@@ -12,7 +12,7 @@ class DetailMixin(object):
 
     detail_serializer_class = None
 
-    @list_route(methods=['get'])
+    @action(detail=False, methods=['get'])
     def details(self, request):  # pylint: disable=unused-argument
         """
         List detailed results.
