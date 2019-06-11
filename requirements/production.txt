@@ -26,7 +26,7 @@ django-fsm==2.6.1
 django-guardian==1.5.1
 django-haystack==2.8.1
 django-libsass==0.7
-django-parler==1.9.2
+django-parler==2.0
 django-rest-swagger==2.2.0
 django-ses==0.8.10
 django-simple-history==2.7.3
