@@ -134,7 +134,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         assert response.data == expected
 
         # Verify the correct deadlines were sent to the E-Commerce API
-        ecommerce_body = json.loads(responses.calls[-1].request.body)
+        ecommerce_body = json.loads(responses.calls[-1].request.body.decode('utf-8'))
         expected = [
             serialize_seat_for_ecommerce_api(audit_seat),
             serialize_seat_for_ecommerce_api(professional_seat),

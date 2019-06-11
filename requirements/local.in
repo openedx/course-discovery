@@ -1,15 +1,11 @@
 # Packages required for local development
--r test.txt
--r docs.txt
+-c constraints.txt
+-r test.in
+-r docs.in
 
-django-debug-toolbar==1.8
-django-elasticsearch-debug-toolbar==1.2.0
-# i18n
-transifex-client==0.12.2
+django-debug-toolbar
+django-elasticsearch-debug-toolbar
+docker-compose
 edx-i18n-tools
-
-# docker devstack
-docker-compose>=1.7.1,<2.0.0
-
-# For devserver code reloading
-pyinotify==0.9.6
+pyinotify                                  # For devserver code reloading
+transifex-client

@@ -1,7 +1,8 @@
 # Packages required in a production environment
--r base.txt
+-c constraints.txt
+-r base.in
 
-certifi==2016.9.26
+certifi
 django-ses==0.8.1
 gevent==1.1.2
 gunicorn==19.6.0
