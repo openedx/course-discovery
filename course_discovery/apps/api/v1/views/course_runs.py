@@ -56,7 +56,9 @@ class CourseRunViewSet(viewsets.ModelViewSet):
     queryset = CourseRun.objects.all().order_by(Lower('key'))
     serializer_class = serializers.CourseRunWithProgramsSerializer
     metadata_class = MetadataWithRelatedChoices
-    metadata_related_choices_whitelist = ('content_language', 'level_type', 'transcript_languages',)
+    metadata_related_choices_whitelist = (
+        'content_language', 'level_type', 'transcript_languages', 'expected_program_type'
+    )
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
