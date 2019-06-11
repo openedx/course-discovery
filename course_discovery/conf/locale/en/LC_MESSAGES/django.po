@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-07 14:10+0000\n"
+"POT-Creation-Date: 2019-06-11 13:45+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -140,7 +140,7 @@ msgstr ""
 msgid "Existing entitlement not found for course {0}."
 msgstr ""
 
-#: apps/api/views.py:52
+#: apps/api/views.py:58
 msgid "You are not permitted to access the API documentation."
 msgstr ""
 
@@ -468,6 +468,14 @@ msgstr ""
 
 #: apps/course_metadata/forms.py:80
 msgid "Programs can only be activated if they have a banner image."
+msgstr ""
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py:14
+msgid "Tag to add to courses"
+msgstr ""
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py:15
+msgid "UUIDs of courses to tag"
 msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:21
@@ -1253,21 +1261,21 @@ msgstr ""
 msgid "Special characters not allowed in Course Number."
 msgstr ""
 
-#: apps/course_metadata/validators.py:29
+#: apps/course_metadata/validators.py:30
 #, python-brace-format
 msgid "Invalid HTML received: {0}"
 msgstr ""
 
-#: apps/course_metadata/validators.py:31
+#: apps/course_metadata/validators.py:32
 msgid "Invalid HTML received"
 msgstr ""
 
-#: apps/course_metadata/validators.py:35 apps/course_metadata/validators.py:46
+#: apps/course_metadata/validators.py:36 apps/course_metadata/validators.py:47
 #, python-brace-format
 msgid "{0} tag is not allowed"
 msgstr ""
 
-#: apps/course_metadata/validators.py:42
+#: apps/course_metadata/validators.py:43
 #, python-brace-format
 msgid "{0} attribute is not allowed on the {1} tag"
 msgstr ""
