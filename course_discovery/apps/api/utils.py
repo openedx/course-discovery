@@ -147,6 +147,9 @@ class StudioAPI:
 
     def create_course_run_in_studio(self, publisher_course_run, user=None):
         data = self.generate_data_for_studio_api(publisher_course_run, user=user)
+        logger.info("POST request to create course: %s with id: %s with data: %s"
+                    , publisher_course_run.course.title, publisher_course_run.course_id, data
+                    )
         return self._api.course_runs.post(data)
 
     def update_course_run_image_in_studio(self, course_run, run_response=None):
