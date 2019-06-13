@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-07 14:10+0000\n"
+"POT-Creation-Date: 2019-06-12 16:05+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -184,6 +184,20 @@ msgid "Existing entitlement not found for course {0}."
 msgstr ""
 "Éxïstïng éntïtlémént nöt föünd för çöürsé {0}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя α#"
+
+#: apps/api/v1/views/courses.py
+msgid ""
+"Switching entitlement modes after being reviewed is not supported. Please "
+"reach out to your project coordinator for additional help if necessary."
+msgstr ""
+"Swïtçhïng éntïtlémént mödés äftér ßéïng révïéwéd ïs nöt süppörtéd. Pléäsé "
+"réäçh öüt tö ýöür pröjéçt çöördïnätör för äddïtïönäl hélp ïf néçéssärý. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂#"
 
 #: apps/api/views.py
 msgid "You are not permitted to access the API documentation."
@@ -564,6 +578,14 @@ msgstr ""
 "Prögräms çän önlý ßé äçtïvätéd ïf théý hävé ä ßännér ïmägé. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
+#: apps/course_metadata/management/commands/add_tag_to_courses.py
+msgid "Tag to add to courses"
+msgstr "Täg tö ädd tö çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py
+msgid "UUIDs of courses to tag"
+msgstr "ÛÛÌDs öf çöürsés tö täg Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
 #: apps/course_metadata/management/commands/delete_person_dups.py
 msgid "Delete duplicate persons in course_metadata."
 msgstr ""
@@ -883,6 +905,20 @@ msgstr "Stärtïng Söön Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 #: apps/course_metadata/models.py
 msgid "Upcoming"
 msgstr "Ûpçömïng Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Switching seat modes after being reviewed is not supported. Please reach out"
+" to your project coordinator for additional help if necessary."
+msgstr ""
+"Swïtçhïng séät mödés äftér ßéïng révïéwéd ïs nöt süppörtéd. Pléäsé réäçh öüt"
+" tö ýöür pröjéçt çöördïnätör för äddïtïönäl hélp ïf néçéssärý. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"

@@ -18,6 +18,9 @@ apigateway_responses: &apigateway_responses
   500:
       statusCode: "500"
 
+produces_json: &produces_json
+  - "application/json"
+
 produces: &produces
   - "application/json"
   - "application/csv"
@@ -123,3 +126,17 @@ endpoints:
           x-amazon-apigateway-integration:
             <<: *apigateway_integration_with_id_parameter
             uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/courses/"
+
+    # /v1/courses
+    courses:
+        get:
+          produces: *produces_json
+          parameters:
+            - *auth_header
+            - *limit_qs_parameter
+            - *offset_qs_parameter
+          operationId: "get_courses"
+          responses: *responses
+          x-amazon-apigateway-integration:
+            <<: *apigateway_integration
+            uri: "https://${stageVariables.discovery_host}/v1/courses/"

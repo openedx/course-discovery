@@ -714,14 +714,20 @@ class CourseRunTests(TestCase):
         assert official_run_b.course.canonical_course_run == official_run_b
 
     def test_no_duplicate_official(self):
+        self.course_run.course.draft = True
+        official_course = factories.CourseFactory.create()
+        official_course.draft_version = self.course_run.course
+        official_course.save()
+
         self.course_run.draft = True
-        official_version = factories.CourseRunFactory.create(status=CourseRunStatus.Unpublished)
+        official_version = factories.CourseRunFactory.create(course=official_course, status=CourseRunStatus.Unpublished)
         official_version.draft_version = self.course_run
         official_version.save()
 
         self.course_run.status = CourseRunStatus.Reviewed
         self.course_run.save()
         assert CourseRun.everything.all().count() == 2
+        assert Course.everything.all().count() == 2
 
     @ddt.data(
         (None, None, True),  # No enrollment start or end

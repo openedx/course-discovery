@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 from django.core.management import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 from course_discovery.apps.course_metadata.models import Course, TagCourseUuidsConfig
+=======
+from django.core.management import BaseCommand
+from django.utils.translation import ugettext as _
+from course_discovery.apps.course_metadata.models import Course
+>>>>>>> master
 
 
 class Command(BaseCommand):
@@ -25,6 +31,9 @@ class Command(BaseCommand):
             if (options['tag'] == None or options['courses'] == None or options['courses'] == []):
                 raise CommandError(_('Missing required arguments'))
             self.add_tag_to_courses(options['tag'], options['courses'])
+
+    def handle(self, *args, **options):
+        self.add_tag_to_courses(options['tag'][0], options['courses'])
 
     def add_tag_to_courses(self, tag, courseUUIDs):
         courses = Course.objects.filter(uuid__in=courseUUIDs)

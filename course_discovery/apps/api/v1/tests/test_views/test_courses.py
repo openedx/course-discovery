@@ -16,7 +16,9 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, Fu
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseEntitlement, CourseRun, SeatType
+from course_discovery.apps.course_metadata.models import (
+    Course, CourseEditor, CourseEntitlement, CourseRun, Seat, SeatType
+)
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory,
     ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
@@ -450,6 +452,32 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
             course_data = data or {}
         return self.client.post(url, course_data, format='json')
 
+    def create_course_and_course_run(self, data=None, update=True):
+        if update:
+            course_data = {
+                'number': 'test101',
+                'org': self.org.key,
+                'course_run': {
+                    'start': '2001-01-01T00:00:00Z',
+                    'end': datetime.datetime.now() + datetime.timedelta(days=1),
+                }
+            }
+            course_data.update(data or {})
+        else:
+            course_data = data or {}
+
+        responses.add(
+            responses.POST,
+            self.partner.oidc_url_root + '/access_token',
+            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
+            status=200,
+        )
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        responses.add(responses.POST, studio_url, status=200)
+        key = 'course-v1:{org}+{number}+1T2001'.format(org=course_data['org'], number=course_data['number'])
+        responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=key), status=200)
+        return self.create_course(course_data, update)
+
     @oauth_login
     @responses.activate
     def test_create_with_authentication_verified_mode(self):
@@ -487,7 +515,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
     @oauth_login
     def test_create_makes_draft(self):
         """ When creating a course, it should start as a draft. """
-        response = self.create_course({'mode': 'verified'})
+        response = self.create_course({'mode': 'verified', 'price': 77})
         self.assertEqual(response.status_code, 201)
 
         course = Course.everything.last()
@@ -509,29 +537,9 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
     def test_create_makes_course_and_course_run(self):
         """
         When creating a course and supplying a course_run, it should create both the course
-        and course run as drafts.
+        and course run as drafts. When mode = 'audit', an audit seat should also be created.
         """
-        data = {
-            'number': 'test101',
-            'org': self.org.key,
-            'course_run': {
-                'start': '2001-01-01T00:00:00Z',
-                'end': '2002-02-02T00:00:00Z',
-            }
-        }
-
-        responses.add(
-            responses.POST,
-            self.partner.oidc_url_root + '/access_token',
-            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
-            status=200,
-        )
-        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
-        responses.add(responses.POST, studio_url, status=200)
-        key = 'course-v1:{org}+{number}+1T2001'.format(org=data['org'], number=data['number'])
-        responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=key), status=200)
-
-        response = self.create_course(data)
+        response = self.create_course_and_course_run()
         self.assertEqual(response.status_code, 201)
 
         course = Course.everything.last()
@@ -540,6 +548,40 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         course_run = CourseRun.everything.last()
         self.assertTrue(course_run.draft)
         self.assertEqual(course_run.course, course)
+
+        # Creating with mode = 'audit' should also create an audit seat
+        self.assertEqual(1, Seat.everything.count())  # pylint: disable=no-member
+        seat = course_run.seats.first()
+        self.assertEqual(seat.type, Seat.AUDIT)
+        self.assertEqual(seat.price, 0.00)
+
+    @oauth_login
+    def test_create_with_course_run_makes_verified_seat(self):
+        """
+        When creating a course and supplying a course_run, it should create both the course
+        and course run as drafts. When mode = 'verified', a verified seat and an audit seat should be created.
+        """
+        data = {
+            'number': 'test101',
+            'org': self.org.key,
+            'mode': 'verified',
+            'price': 77.77,
+            'course_run': {
+                'start': '2001-01-01T00:00:00Z',
+                'end': datetime.datetime.now() + datetime.timedelta(days=1),
+            }
+        }
+        response = self.create_course_and_course_run(data)
+        self.assertEqual(response.status_code, 201)
+
+        course_run = CourseRun.everything.last()
+
+        self.assertEqual(Seat.everything.count(), 2)  # pylint: disable=no-member
+        verified_seat = Seat.everything.get(course_run=course_run, type='verified')  # pylint: disable=no-member
+        self.assertEqual(float(verified_seat.price), data['price'])
+        audit_seat = Seat.everything.get(course_run=course_run, type='audit')  # pylint: disable=no-member
+        self.assertEqual(audit_seat.price, 0.00)
+        self.assertTrue(audit_seat.draft)
 
     @oauth_login
     def test_create_fails_if_official_version_exists(self):
@@ -704,11 +746,18 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         Verify that draft rows can be updated and re-published with draft=False. This should also
         update and publish the official version.
         """
-        draft_course = CourseFactory(partner=self.partner, key='test101', draft=True)
-        mode = SeatType.objects.get(slug='verified')
-        entitlement = CourseEntitlementFactory(course=draft_course, mode=mode, price=49, draft=True)
-        draft_course_run = CourseRunFactory(course=draft_course, draft=True)
+        data = {
+            'mode': 'verified',
+            'price': 49,
+        }
+        self.create_course_and_course_run(data)
+
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
         draft_course_run.status = CourseRunStatus.Reviewed  # Triggers creation of official versions
+        draft_course_run.save()
+        # Only updates to official when there is a Published Course Run
+        draft_course_run.status = CourseRunStatus.Published
         draft_course_run.save()
 
         # Edit; should only touch draft
@@ -738,6 +787,7 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(draft_course.full_description, updated_full_desc)
         self.assertEqual(official_course.full_description, updated_full_desc)
 
+        entitlement = draft_course.entitlements.first()
         updated_entitlement = {
             'mode': entitlement.mode.slug,
             'price': 1000,
@@ -757,11 +807,14 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         Verify that draft rows can be updated and re-published with draft=False. This should also
         update and publish the official version.
         """
-        draft_course = CourseFactory(partner=self.partner, key='test101', draft=True)
-        mode = SeatType.objects.get(slug='audit')
-        CourseEntitlementFactory(course=draft_course, mode=mode, draft=True)
-        draft_course_run = CourseRunFactory(course=draft_course, draft=True)
+        self.create_course_and_course_run()
+
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
         draft_course_run.status = CourseRunStatus.Reviewed  # Triggers creation of official versions
+        draft_course_run.save()
+        # Only updates to official when there is a Published Course Run
+        draft_course_run.status = CourseRunStatus.Published
         draft_course_run.save()
 
         official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
@@ -772,6 +825,15 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(draft_course.entitlements.first().mode.slug, 'audit')
         self.assertTrue(draft_course.entitlements.first().draft)
         self.assertIsNone(official_course.entitlements.first())
+
+        # We expect the draft course run and the official course run to now both have audit Seats
+        official_course_run = CourseRun.objects.get(key=draft_course_run.key)
+        draft_course_run = official_course_run.draft_version
+        self.assertEqual(Seat.everything.count(), 2)  # pylint: disable=no-member
+        self.assertEqual(draft_course_run.seats.first().type, 'audit')
+        self.assertTrue(draft_course_run.seats.first().draft)
+        self.assertEqual(official_course_run.seats.first().type, 'audit')
+        self.assertFalse(official_course_run.seats.first().draft)
 
         # Republish with a verified slug
         url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
@@ -789,6 +851,68 @@ class CourseViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(draft_course.entitlements.first().mode.slug, updated_entitlement['mode'])
         self.assertEqual(official_course.entitlements.first().price, updated_entitlement['price'])
         self.assertEqual(official_course.entitlements.first().mode.slug, updated_entitlement['mode'])
+
+        draft_course_run.refresh_from_db()
+        official_course_run.refresh_from_db()
+        # Verified means there should be both an Audit seat and Verified seat
+        self.assertEqual(Seat.everything.count(), 4)  # pylint: disable=no-member
+        draft_verified_seat = Seat.everything.get(course_run=draft_course_run, type='verified')  # pylint: disable=no-member
+        self.assertEqual(float(draft_verified_seat.price), updated_entitlement['price'])
+        draft_audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')  # pylint: disable=no-member
+        self.assertEqual(draft_audit_seat.price, 0.00)
+
+        official_verified_seat = Seat.everything.get(course_run=official_course_run, type='verified')  # pylint: disable=no-member
+        self.assertEqual(float(official_verified_seat.price), updated_entitlement['price'])
+        official_audit_seat = Seat.everything.get(course_run=official_course_run, type='audit')  # pylint: disable=no-member
+        self.assertEqual(official_audit_seat.price, 0.00)
+
+    @ddt.data(
+        ('audit', 'audit', 0.00),
+        ('audit', 'verified', 77),
+        ('audit', 'professional', 132),
+        ('verified', 'audit', 0.00),
+        ('verified', 'verified', 77),
+        ('verified', 'professional', 132),
+        ('professional', 'audit', 0.00),
+        ('professional', 'verified', 77),
+        ('professional', 'professional', 132),
+    )
+    @ddt.unpack
+    @oauth_login
+    @responses.activate
+    def test_patch_updating_entitlements_also_updates_seats(self, original_mode, mode, price):
+        """
+        Verify that draft rows can be updated and re-published with draft=False. This should also
+        update and publish the official version.
+        """
+        data = {
+            'mode': original_mode,
+            'price': 49,
+        }
+        self.create_course_and_course_run(data)
+
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+        updated_entitlement = {
+            'mode': mode,
+            'price': price,
+        }
+        response = self.client.patch(url, {'entitlements': [updated_entitlement], 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        num_seats = Seat.everything.count()  # pylint: disable=no-member
+        if mode == 'verified':
+            self.assertEqual(num_seats, 2)
+            audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')  # pylint: disable=no-member
+            self.assertEqual(audit_seat.price, 0.00)
+            self.assertTrue(audit_seat.draft)
+        else:
+            self.assertEqual(num_seats, 1)
+        seat = Seat.everything.get(course_run=draft_course_run, type=mode)  # pylint: disable=no-member
+        self.assertEqual(seat.price, price)
+        self.assertTrue(seat.draft)
 
     @ddt.data(
         (
