@@ -148,7 +148,6 @@ msgid ""
 "reach out to your project coordinator for additional help if necessary."
 msgstr ""
 
->>>>>>> master
 #: apps/api/views.py:58
 msgid "You are not permitted to access the API documentation."
 msgstr ""
@@ -498,8 +497,6 @@ msgstr ""
 msgid "Missing required arguments"
 msgstr ""
 
-=======
->>>>>>> master
 #: apps/course_metadata/management/commands/delete_person_dups.py:21
 msgid "Delete duplicate persons in course_metadata."
 msgstr ""
