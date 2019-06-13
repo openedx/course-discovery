@@ -144,3 +144,35 @@ class Partner(TimeStampedModel):
             return None
 
         return OAuthAPIClient(self.lms_url.strip('/'), self.oidc_key, self.oidc_secret)
+
+
+class SalesforceConfiguration(models.Model):
+    partner = models.OneToOneField(Partner)
+    salesforce_username = models.CharField(
+        max_length=255,
+        verbose_name=_('Salesforce Username'),
+        blank=False,
+        null=False,
+    )
+    salesforce_password = models.CharField(
+        max_length=255,
+        blank=False,
+        null=False,
+        verbose_name=_('Salesforce Password'),
+    )
+    salesforce_organization_id = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Salesforce Organization Id'),
+        default=''
+    )
+    salesforce_security_token = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Salesforce Security Token'),
+        default=''
+    )
+    salesforce_is_sandbox = models.BooleanField(
+        verbose_name=_('Is a Salesforce Sandbox?'),
+        default=True
+    )
