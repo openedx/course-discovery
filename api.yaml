@@ -1,5 +1,5 @@
 # This file is a "de-compacted" version of api-compact.yaml. The consuming tools are unable to process YAML anchors.
-# This file was generated using http://www.yamllint.com/.
+# This file was generated using https://onlineyamltools.com/minify-yaml.
 
 ---
 apigateway_responses:
@@ -200,3 +200,60 @@ endpoints:
               statusCode: "400"
           type: http
           uri: "https://${stageVariables.discovery_host}/v1/catalogs/"
+    courses:
+      get:
+        produces:
+          - application/json
+        parameters:
+          -
+            name: Authorization
+            in: header
+            required: true
+            type: string
+          -
+            in: querystring
+            name: limit
+            required: false
+            type: number
+          -
+            in: querystring
+            name: offset
+            required: false
+            type: number
+        operationId: get_courses
+        responses:
+          '200':
+            description: OK
+          '400':
+            description: 'Bad Request'
+          '401':
+            description: Unauthorized
+          '403':
+            description: Forbidden
+          '404':
+            description: 'Not Found'
+          '429':
+            description: 'Too Many Requests'
+          '500':
+            description: 'Internal Server Error'
+        x-amazon-apigateway-integration:
+          responses:
+            '200':
+              statusCode: '200'
+            '401':
+              statusCode: '401'
+            '403':
+              statusCode: '403'
+            '404':
+              statusCode: '404'
+            '429':
+              statusCode: '429'
+            '500':
+              statusCode: '500'
+            default:
+              statusCode: '400'
+          httpMethod: GET
+          type: http
+          requestParameters:
+            integration.request.header.Authorization: method.request.header.Authorization
+          uri: 'https://${stageVariables.discovery_host}/v1/courses/'
