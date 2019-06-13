@@ -38,4 +38,3 @@ class AddTagToCoursesCommandTests(TestCase):
         # test command line args ignored if --args-from-database is set
         call_command('add_tag_to_courses', "tag1", self.course1.uuid, self.course2.uuid, "--args-from-database")
         self.assertFalse(Course.objects.filter(topics__name="tag1").exists())
-        
