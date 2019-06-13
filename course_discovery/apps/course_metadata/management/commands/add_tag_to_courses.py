@@ -18,11 +18,11 @@ class Command(BaseCommand):
                             )
 
     def handle(self, *args, **options):
-        if (options['args_from_database']):
+        if options['args_from_database']:
             optionsDict = self.get_args_from_database()
             self.add_tag_to_courses(optionsDict['tag'], optionsDict['courses'].split())
         else:
-            if (options['tag'] is None or options['courses'] is None or options['courses'] == []):
+            if options['tag'] is None or options['courses'] is None or options['courses'] == []:
                 raise CommandError(_('Missing required arguments'))
             self.add_tag_to_courses(options['tag'], options['courses'])
 
