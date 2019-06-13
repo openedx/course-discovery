@@ -452,5 +452,5 @@ class DegreeAdmin(admin.ModelAdmin):
 
 # Register remaining models using basic ModelAdmin classes
 for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
-              DeletePersonDupsConfig, DrupalPublishUuidConfig, ProfileImageDownloadConfig, PersonAreaOfExpertise):
+              DeletePersonDupsConfig, DrupalPublishUuidConfig, ProfileImageDownloadConfig, PersonAreaOfExpertise, TagCourseUuidsConfig):
     admin.site.register(model)
