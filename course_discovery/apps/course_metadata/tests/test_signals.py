@@ -11,7 +11,7 @@ from waffle.testutils import override_switch
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
     Curriculum, CurriculumCourseMembership, DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
-    ProfileImageDownloadConfig, ProgramType, Seat, SubjectTranslation, TopicTranslation, TagCourseUuidsConfig
+    ProfileImageDownloadConfig, ProgramType, Seat, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.tests import factories
 
