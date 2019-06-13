@@ -140,8 +140,6 @@ msgstr ""
 msgid "Existing entitlement not found for course {0}."
 msgstr ""
 
-<<<<<<< HEAD
-=======
 #: apps/api/v1/views/courses.py:246
 msgid ""
 "Switching entitlement modes after being reviewed is not supported. Please "
@@ -486,7 +484,6 @@ msgstr ""
 msgid "UUIDs of courses to tag"
 msgstr ""
 
-<<<<<<< HEAD
 #: apps/course_metadata/management/commands/add_tag_to_courses.py:17
 msgid ""
 "Use arguments from the TagCourseUUIDsConfig model instead of the command "
