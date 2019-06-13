@@ -26,9 +26,6 @@ class Command(BaseCommand):
                 raise CommandError(_('Missing required arguments'))
             self.add_tag_to_courses(options['tag'], options['courses'])
 
-    def handle(self, *args, **options):
-        self.add_tag_to_courses(options['tag'][0], options['courses'])
-
     def add_tag_to_courses(self, tag, courseUUIDs):
         courses = Course.objects.filter(uuid__in=courseUUIDs)
         for course in courses:
