@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.core.forms import UserThrottleRateForm
-from course_discovery.apps.core.models import Currency, Partner, User, UserThrottleRate
+from course_discovery.apps.core.models import Currency, Partner, SalesforceConfiguration, User, UserThrottleRate
 
 
 @admin.register(User)
@@ -68,3 +68,15 @@ class PartnerAdmin(admin.ModelAdmin):
     list_display = ('name', 'short_code', 'site')
     ordering = ('name', 'short_code', 'site')
     search_fields = ('name', 'short_code')
+
+
+@admin.register(SalesforceConfiguration)
+class SalesforceConfigurationAdmin(admin.ModelAdmin):
+    list_display = (
+        'username',
+        'password',
+        'organization_id',
+        'security_token',
+        'is_sandbox'
+    )
+    search_fields = ('organization_id', 'partner')

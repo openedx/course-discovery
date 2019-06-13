@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-12 16:05+0000\n"
+"POT-Creation-Date: 2019-06-14 13:21+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -327,6 +327,26 @@ msgstr ""
 
 #: apps/core/models.py:106
 msgid "Partners"
+msgstr ""
+
+#: apps/core/models.py:153
+msgid "Salesforce Username"
+msgstr ""
+
+#: apps/core/models.py:161
+msgid "Salesforce Password"
+msgstr ""
+
+#: apps/core/models.py:166
+msgid "Salesforce Organization Id"
+msgstr ""
+
+#: apps/core/models.py:172
+msgid "Salesforce Security Token"
+msgstr ""
+
+#: apps/core/models.py:176
+msgid "Is a Salesforce Sandbox?"
 msgstr ""
 
 #: apps/course_metadata/admin.py:19
