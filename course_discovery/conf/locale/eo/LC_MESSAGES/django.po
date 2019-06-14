@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-14 13:21+0000\n"
+"POT-Creation-Date: 2019-06-12 16:05+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -408,26 +408,6 @@ msgstr "Pärtnér Ⱡ'σяєм ιρѕυм #"
 #: apps/core/models.py
 msgid "Partners"
 msgstr "Pärtnérs Ⱡ'σяєм ιρѕυм ∂#"
-
-#: apps/core/models.py
-msgid "Salesforce Username"
-msgstr "Sälésförçé Ûsérnämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
-
-#: apps/core/models.py
-msgid "Salesforce Password"
-msgstr "Sälésförçé Pässwörd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
-
-#: apps/core/models.py
-msgid "Salesforce Organization Id"
-msgstr "Sälésförçé Örgänïzätïön Ìd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: apps/core/models.py
-msgid "Salesforce Security Token"
-msgstr "Sälésförçé Séçürïtý Tökén Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: apps/core/models.py
-msgid "Is a Salesforce Sandbox?"
-msgstr "Ìs ä Sälésförçé Sändßöx? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/course_metadata/admin.py
 #, python-brace-format
