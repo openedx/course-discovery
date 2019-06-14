@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
             name='TagCourseUuidsConfig',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('tag', models.TextField(default=None, verbose_name='Tag')),
-                ('course_uuids', models.TextField(default=None, verbose_name='Course UUIDs')),
+                ('tag', models.TextField(default=None, null=True, verbose_name='Tag')),
+                ('course_uuids', models.TextField(default=None, null=True, verbose_name='Course UUIDs')),
             ],
             options={
                 'abstract': False,
