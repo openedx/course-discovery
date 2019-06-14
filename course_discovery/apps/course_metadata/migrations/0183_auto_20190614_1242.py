@@ -13,11 +13,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name='drupalpublishuuidconfig',
-            name='course_run_ids',
-            field=models.TextField(default=None, null=True, verbose_name='Course Run IDs'),
-        ),
-        migrations.AlterField(
             model_name='tagcourseuuidsconfig',
             name='course_uuids',
             field=models.TextField(default=None, null=True, verbose_name='Course UUIDs'),
