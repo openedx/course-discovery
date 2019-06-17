@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-14 13:21+0000\n"
+"POT-Creation-Date: 2019-06-17 13:40+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -605,6 +605,18 @@ msgstr "Täg tö ädd tö çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт
 #: apps/course_metadata/management/commands/add_tag_to_courses.py
 msgid "UUIDs of courses to tag"
 msgstr "ÛÛÌDs öf çöürsés tö täg Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py
+msgid ""
+"Use arguments from the TagCourseUUIDsConfig model instead of the command "
+"line."
+msgstr ""
+"Ûsé ärgüménts fröm thé TägÇöürséÛÛÌDsÇönfïg mödél ïnstéäd öf thé çömmänd "
+"lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py
+msgid "Missing required arguments"
+msgstr "Mïssïng réqüïréd ärgüménts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py
 msgid "Delete duplicate persons in course_metadata."
@@ -1350,6 +1362,14 @@ msgstr "Çöürsé Rün ÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 #: apps/course_metadata/models.py
 msgid "Profile Image UUIDs"
 msgstr "Pröfïlé Ìmägé ÛÛÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/models.py
+msgid "Tag"
+msgstr "Täg Ⱡ'σяєм#"
+
+#: apps/course_metadata/models.py
+msgid "Course UUIDs"
+msgstr "Çöürsé ÛÛÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
