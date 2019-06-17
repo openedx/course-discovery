@@ -291,9 +291,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             self.assertNotEqual(response.status_code, 403)
 
     @ddt.data(
-        # TODO: TODO: Swap commented line with one below it when completing DISCO-818
-        # ('get', False, True, False, True),
-        ('get', True, False, False, True),
+        ('get', False, True, False, True),
         ('options', False, False, False, True),
         ('put', False, False, False, False),  # no access
         ('put', True, False, False, True),  # is staff
@@ -306,10 +304,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify we check editor access correctly when hitting the course object endpoint. """
         self.user.is_staff = is_staff
         self.user.save()
-
-        # TODO: Remove conditional, draft=True and save lines below as part of DISCO-818
-        self.course.draft = True
-        self.course.save()
 
         # Add another editor, because we have some logic that allows access anyway if a course has no valid editors.
         # That code path is checked in test_course_without_editors below.
@@ -325,10 +319,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         if is_editor:
             CourseEditorFactory(user=self.user, course=self.course)
 
-        # TODO: Swap commented line with one below it when completing DISCO-818
-        # response = getattr(self.client, method)(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}))
-        response = getattr(self.client, method)(reverse('api:v1:course-detail',
-                                                        kwargs={'key': self.course.uuid}) + '?editable=1')
+        response = getattr(self.client, method)(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}))
 
         if not allowed:
             self.assertEqual(response.status_code, 404)
@@ -346,15 +337,12 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         )
         self.course.draft_version = draft
         self.course.save()
-        # TODO: Uncomment line below when completing DISCO-818
-        # extra = CourseFactory(partner=self.partner, key=self.course.key + 'Z')  # set key so it sorts later
+        extra = CourseFactory(partner=self.partner, key=self.course.key + 'Z')  # set key so it sorts later
 
         response = self.client.get(reverse('api:v1:course-list') + '?editable=1')
         self.assertEqual(response.status_code, 200)
 
-        # TODO: Swap commented line with one below it when completing DISCO-818
-        # self.assertEqual(response.data['results'], self.serialize_course([draft, extra], many=True))
-        self.assertEqual(response.data['results'], self.serialize_course([draft], many=True))
+        self.assertEqual(response.data['results'], self.serialize_course([draft, extra], many=True))
         self.assertEqual(len(response.data['results'][0]['course_runs']), 1)
         self.assertEqual(response.data['results'][0]['course_runs'][0]['uuid'], str(draft_course_run.uuid))
 
@@ -369,10 +357,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(response.data, self.serialize_course(draft, many=False))
 
         response = self.client.get(reverse('api:v1:course-detail', kwargs={'key': extra.uuid}) + '?editable=1')
-        # TODO: Swap commented lines with one below it when completing DISCO-818
-        # self.assertEqual(response.status_code, 200)
-        # self.assertEqual(response.data, self.serialize_course(extra, many=False))
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.serialize_course(extra, many=False))
 
     def test_list_query_with_editable_raises_exception(self):
         """ Verify the endpoint raises an exception if both a q param and editable=1 are passed in """
@@ -669,13 +655,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     @responses.activate
     def test_update_success(self, method):
         self.mock_access_token()
-        # TODO: Remove draft=True and save lines below as part of DISCO-818
-        self.course.draft = True
-        self.course.save()
-        entitlement = CourseEntitlementFactory(course=self.course, draft=True)
-
-        # TODO: Swap commented line with one below it when completing DISCO-818
-        # entitlement = CourseEntitlementFactory(course=self.course)
+        entitlement = CourseEntitlementFactory(course=self.course)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
             'title': 'Course title',
@@ -706,14 +686,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     @responses.activate
     def test_update_operates_on_drafts(self):
         self.mock_access_token()
-        # TODO: Swap commented line with one below it when completing DISCO-818
-        # CourseEntitlementFactory(course=self.course)
-        CourseEntitlementFactory(course=self.course, draft=True)
+        CourseEntitlementFactory(course=self.course)
         self.assertFalse(Course.everything.filter(uuid=self.course.uuid, draft=True).exists())  # sanity check
-
-        # TODO: Remove draft=True and save lines below as part of DISCO-818
-        self.course.draft = True
-        self.course.save()
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         response = self.client.patch(url, {'title': 'Title'}, format='json')
@@ -723,11 +697,10 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertTrue(course.entitlements.first().draft)
         self.assertEqual(course.title, 'Title')
 
-        # TODO: Uncomment block below as part of DISCO-818 when we care about non-drafts again
-        # self.course.refresh_from_db()
-        # self.assertFalse(self.course.draft)
-        # self.assertFalse(self.course.entitlements.first().draft)
-        # self.assertEqual(self.course.title, 'Fake Test')
+        self.course.refresh_from_db()
+        self.assertFalse(self.course.draft)
+        self.assertFalse(self.course.entitlements.first().draft)
+        self.assertEqual(self.course.title, 'Fake Test')
 
     @responses.activate
     def test_patch_published(self):
@@ -917,14 +890,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         ),
         (
             {'entitlements': [{'mode': 'mode2'}]},
-            'Existing entitlement not found for course Org/Course/Number.'
+            'Switching entitlement modes after being reviewed is not supported. Please reach out to your '
+            'project coordinator for additional help if necessary.'
         ),
     )
     @ddt.unpack
     def test_update_fails_with_multiple_errors(self, course_data, expected_error_message):
-        # TODO: Swap commented line with one below it when completing DISCO-818
-        # course = CourseFactory(partner=self.partner, key='Org/Course/Number')
-        course = CourseFactory(partner=self.partner, key='Org/Course/Number', draft=True)
+        course = CourseFactory(partner=self.partner, key='Org/Course/Number')
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         mode1 = SeatTypeFactory(name='Mode1')
         SeatTypeFactory(name='Mode2')
@@ -944,10 +916,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             ],
         }
 
-        # TODO: Remove draft=True and save lines below as part of DISCO-818
-        self.course.draft = True
-        self.course.save()
-
         with mock.patch(
             'course_discovery.apps.api.v1.views.courses.CourseViewSet.update_entitlement',
             side_effect=IntegrityError
@@ -966,14 +934,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     @responses.activate
     def test_options(self):
         self.mock_access_token()
-        # TODO: Remove draft=True and save lines below as part of DISCO-818
-        self.course.draft = True
-        self.course.save()
-
         SubjectFactory(name='Subject1')
-        # TODO: Swap commented line with one below it when completing DISCO-818
-        # CourseEntitlementFactory(course=self.course, mode=SeatType.objects.get(slug='verified'))
-        CourseEntitlementFactory(course=self.course, mode=SeatType.objects.get(slug='verified'), draft=True)
+        CourseEntitlementFactory(course=self.course, mode=SeatType.objects.get(slug='verified'))
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         response = self.client.options(url)
