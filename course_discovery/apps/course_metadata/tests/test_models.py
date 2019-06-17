@@ -740,6 +740,48 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         assert Course.everything.all().count() == 2
 
     @ddt.data(
+        (None, False),
+        (datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10), False),
+        (datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10), True),
+    )
+    @ddt.unpack
+    @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
+    def test_reviewed_with_go_live_date(self, when, published, mock_email):
+        draft = factories.CourseRunFactory(draft=True, go_live_date=when, announcement=None)
+
+        draft.status = CourseRunStatus.Reviewed
+        draft.save()
+        draft.refresh_from_db()
+
+        for run in [draft, draft.official_version]:
+            if published:
+                self.assertEqual(run.status, CourseRunStatus.Published)
+                self.assertIsNotNone(run.announcement)
+                self.assertEqual(mock_email.call_count, 0)
+            else:
+                self.assertEqual(run.status, CourseRunStatus.Reviewed)
+                self.assertIsNone(run.announcement)
+                self.assertEqual(mock_email.call_count, 1)
+
+    def test_publish_ignores_draft_input(self):
+        draft = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, draft=True)
+        self.assertFalse(draft.publish())
+        self.assertEqual(draft.status, CourseRunStatus.Unpublished)
+
+    def test_publish_affects_draft_version_too(self):
+        draft = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, announcement=None, draft=True)
+        official = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, announcement=None, draft=False,
+                                              course=draft.course, draft_version=draft)
+
+        self.assertTrue(official.publish())
+        draft.refresh_from_db()
+
+        self.assertEqual(draft.status, CourseRunStatus.Published)
+        self.assertIsNotNone(draft.announcement)
+        self.assertEqual(official.status, CourseRunStatus.Published)
+        self.assertIsNotNone(official.announcement)
+
+    @ddt.data(
         (None, None, True),  # No enrollment start or end
         (
             datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10),

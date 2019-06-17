@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-17 14:41+0000\n"
+"POT-Creation-Date: 2019-06-19 19:20+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -710,6 +710,27 @@ msgid "You must specify at least one person"
 msgstr ""
 "Ýöü müst spéçïfý ät léäst öné pérsön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/management/commands/publish_live_course_runs.py
+#, python-brace-format
+msgid "Publishing course run {key}"
+msgstr "Püßlïshïng çöürsé rün {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/publish_live_course_runs.py
+#, python-brace-format
+msgid "Failed to publish {key}"
+msgstr "Fäïléd tö püßlïsh {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/management/commands/publish_live_course_runs.py
+#, python-brace-format
+msgid "Successfully published {key}"
+msgstr "Süççéssfüllý püßlïshéd {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/publish_live_course_runs.py
+msgid "One or more course runs failed to publish."
+msgstr ""
+"Öné ör möré çöürsé rüns fäïléd tö püßlïsh. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
 msgid ""

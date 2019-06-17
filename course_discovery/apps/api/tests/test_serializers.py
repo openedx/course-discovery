@@ -55,7 +55,7 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 def json_date_format(datetime_obj):
-    return datetime.datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
+    return datetime_obj and datetime.datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
 
 
 def make_request():

@@ -998,15 +998,11 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         if not discovery_course:
             return
 
-        now = datetime.datetime.now(pytz.UTC)
-
-        # Publish new course
-        discovery_run.announcement = now
-        discovery_run.status = CourseRunStatus.Published
-        discovery_run.save()
+        discovery_run.publish()
 
         # Now, find old course runs that are no longer active but still published.
         # These will be unpublished in favor of the new course.
+        now = datetime.datetime.now(pytz.UTC)
         for run in discovery_course.course_runs.all():
             if run != discovery_run and run.status == CourseRunStatus.Published and run.end and run.end < now:
                 CourseRunMarketingSitePublisher(site.partner).add_url_redirect(discovery_run, run)
