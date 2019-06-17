@@ -729,12 +729,6 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     )
     full_description = serializers.CharField(required=False, allow_blank=True)
     outcome = serializers.CharField(required=False, allow_blank=True)
-    expected_program_type = serializers.SlugRelatedField(
-        required=False,
-        allow_null=True,
-        slug_field='slug',
-        queryset=ProgramType.objects.all()
-    )
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -753,7 +747,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions',
-            'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name'
+            'enrollment_count', 'recent_enrollment_count',
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
 

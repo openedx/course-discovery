@@ -17,7 +17,7 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
-from course_discovery.apps.course_metadata.models import CourseRun, ProgramType, SeatType, Video
+from course_discovery.apps.course_metadata.models import CourseRun, SeatType, Video
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.course_metadata.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
@@ -71,9 +71,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
             course__image__from_file=mock_image_file,
             lms_course_id='a/b/c',
             transcript_languages=transcript_languages,
-            staff=PersonFactory.create_batch(2),
-            is_micromasters=1,
-            micromasters_name="Micromasters",
+            staff=PersonFactory.create_batch(2)
         )
 
     def _mock_studio_api_success(self, publisher_course_run):
@@ -164,8 +162,6 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         assert discovery_course_run.has_ofac_restrictions == publisher_course_run.has_ofac_restrictions
         expected = set(publisher_course_run.transcript_languages.all())
         assert set(discovery_course_run.transcript_languages.all()) == expected
-        assert discovery_course_run.expected_program_type == ProgramType.objects.get(slug=ProgramType.MICROMASTERS)
-        assert discovery_course_run.expected_program_name == 'Micromasters'
         assert set(discovery_course_run.staff.all()) == set(publisher_course_run.staff.all())
 
         assert discovery_course.canonical_course_run == discovery_course_run

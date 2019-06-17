@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-17 14:41+0000\n"
+"POT-Creation-Date: 2019-06-17 13:40+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -711,35 +711,6 @@ msgstr ""
 "Ýöü müst spéçïfý ät léäst öné pérsön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
 
-#: apps/course_metadata/models.py
-msgid ""
-"Seat types that qualify for completion of programs of this type. Learners "
-"completing associated courses, but enrolled in other seat types, will NOT "
-"have their completion of the course counted toward the completion of the "
-"program."
-msgstr ""
-"Séät týpés thät qüälïfý för çömplétïön öf prögräms öf thïs týpé. Léärnérs "
-"çömplétïng ässöçïätéd çöürsés, ßüt énrölléd ïn öthér séät týpés, wïll NÖT "
-"hävé théïr çömplétïön öf thé çöürsé çöüntéd töwärd thé çömplétïön öf thé "
-"prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
-"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
-" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
-"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
-" єѕѕє ¢ιłłυм ∂σłσяє є#"
-
-#: apps/course_metadata/models.py
-msgid "Please provide an image file with transparent background"
-msgstr ""
-"Pléäsé prövïdé än ïmägé fïlé wïth tränspärént ßäçkgröünd Ⱡ'σяєм ιρѕυм ∂σłσя "
-"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py
-msgid "Leave this field blank to have the value generated automatically."
-msgstr ""
-"Léävé thïs fïéld ßlänk tö hävé thé välüé générätéd äütömätïçällý. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
@@ -748,6 +719,13 @@ msgstr ""
 #: apps/journal/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py
+msgid "Leave this field blank to have the value generated automatically."
+msgstr ""
+"Léävé thïs fïéld ßlänk tö hävé thé välüé générätéd äütömätïçällý. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "Subject model translations"
@@ -1003,6 +981,28 @@ msgstr "Mästérs Ⱡ'σяєм ιρѕυм #"
 #: apps/course_metadata/models.py
 msgid "FAQs"
 msgstr "FÀQs Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Seat types that qualify for completion of programs of this type. Learners "
+"completing associated courses, but enrolled in other seat types, will NOT "
+"have their completion of the course counted toward the completion of the "
+"program."
+msgstr ""
+"Séät týpés thät qüälïfý för çömplétïön öf prögräms öf thïs týpé. Léärnérs "
+"çömplétïng ässöçïätéd çöürsés, ßüt énrölléd ïn öthér séät týpés, wïll NÖT "
+"hävé théïr çömplétïön öf thé çöürsé çöüntéd töwärd thé çömplétïön öf thé "
+"prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
+"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
+" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
+"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
+" єѕѕє ¢ιłłυм ∂σłσяє є#"
+
+#: apps/course_metadata/models.py
+msgid "Please provide an image file with transparent background"
+msgstr ""
+"Pléäsé prövïdé än ïmägé fïlé wïth tränspärént ßäçkgröünd Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "The user-facing display title for this Program."
