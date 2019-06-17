@@ -13,7 +13,7 @@ from slumber.exceptions import SlumberBaseException
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
-from course_discovery.apps.course_metadata.models import Course, ProgramType, SeatType, Video
+from course_discovery.apps.course_metadata.models import Course, SeatType, Video
 from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run
 from course_discovery.apps.publisher.models import CourseRun, Seat
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
@@ -119,8 +119,6 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         discovery_course.subjects.clear()
         discovery_course.subjects.add(*subjects)
 
-        expected_program_type, program_name = ProgramType.get_program_type_data(course_run, ProgramType)
-
         defaults = {
             'start': course_run.start_date_temporary,
             'end': course_run.end_date_temporary,
@@ -130,9 +128,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'max_effort': course_run.max_effort,
             'language': course_run.language,
             'weeks_to_complete': course_run.length,
-            'has_ofac_restrictions': course_run.has_ofac_restrictions,
-            'expected_program_name': program_name or '',
-            'expected_program_type': expected_program_type,
+            'has_ofac_restrictions': course_run.has_ofac_restrictions
         }
         discovery_course_run, __ = DiscoveryCourseRun.objects.update_or_create(
             course=discovery_course,
