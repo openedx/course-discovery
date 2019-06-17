@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-14 13:21+0000\n"
+"POT-Creation-Date: 2019-06-17 13:40+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -333,19 +333,19 @@ msgstr ""
 msgid "Salesforce Username"
 msgstr ""
 
-#: apps/core/models.py:161
+#: apps/core/models.py:157
 msgid "Salesforce Password"
 msgstr ""
 
-#: apps/core/models.py:166
+#: apps/core/models.py:162
 msgid "Salesforce Organization Id"
 msgstr ""
 
-#: apps/core/models.py:172
+#: apps/core/models.py:168
 msgid "Salesforce Security Token"
 msgstr ""
 
-#: apps/core/models.py:176
+#: apps/core/models.py:172
 msgid "Is a Salesforce Sandbox?"
 msgstr ""
 
@@ -502,6 +502,16 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/add_tag_to_courses.py:15
 msgid "UUIDs of courses to tag"
+msgstr ""
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py:17
+msgid ""
+"Use arguments from the TagCourseUUIDsConfig model instead of the command "
+"line."
+msgstr ""
+
+#: apps/course_metadata/management/commands/add_tag_to_courses.py:26
+msgid "Missing required arguments"
 msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:21
@@ -1072,6 +1082,14 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2251
 msgid "Profile Image UUIDs"
+msgstr ""
+
+#: apps/course_metadata/models.py:2258
+msgid "Tag"
+msgstr ""
+
+#: apps/course_metadata/models.py:2259
+msgid "Course UUIDs"
 msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24

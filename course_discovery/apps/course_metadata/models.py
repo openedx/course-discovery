@@ -2249,3 +2249,11 @@ class ProfileImageDownloadConfig(SingletonModel):
     Configuration for management command to Download Profile Images from Drupal.
     """
     person_uuids = models.TextField(default=None, null=False, blank=False, verbose_name=_('Profile Image UUIDs'))
+
+
+class TagCourseUuidsConfig(SingletonModel):
+    """
+    Configuration for management command add_tag_to_courses.
+    """
+    tag = models.TextField(default=None, null=True, blank=False, verbose_name=_('Tag'))
+    course_uuids = models.TextField(default=None, null=True, blank=False, verbose_name=_('Course UUIDs'))
