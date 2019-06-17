@@ -1252,60 +1252,97 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         return official_version
 
     def handle_status_change(self):
-        """ If a row's status is changing, take any cleanup actions necessary.
-
-            Mostly this is sending email notifications to interested parties or converting a draft row to an official
-            one.
         """
-        # We currently only care about draft course runs
-        if not self.draft or self._old_status == self.status:
+        If a row's status changed, take any cleanup actions necessary.
+
+        Mostly this is sending email notifications to interested parties or converting a draft row to an official
+        one.
+        """
+        if self._old_status == self.status:
             return
+        self._old_status = self.status
+
+        # We currently only care about draft course runs
+        if not self.draft:
+            return
+
+        # OK, now check for various status change triggers
 
         if self.status == CourseRunStatus.LegalReview:
             emails.send_email_for_legal_review(self)
+
         elif self.status == CourseRunStatus.InternalReview:
             emails.send_email_for_internal_review(self)
+
         elif self.status == CourseRunStatus.Reviewed:
             self.update_or_create_official_version()
-            emails.send_email_for_reviewed(self)
+
+            # If we're due to go live already and we just now got reviewed, immediately go live
+            if self.go_live_date and self.go_live_date <= datetime.datetime.now(pytz.UTC):
+                self.official_version.publish()  # will edit/save us too
+            else:  # The publish status check will send an email for go-live
+                emails.send_email_for_reviewed(self)
+
         elif self.status == CourseRunStatus.Published:
             emails.send_email_for_go_live(self)
 
-    def save(self, **kwargs):
-        is_new_course_run = not self.pk
-        suppress_publication = kwargs.pop('suppress_publication', False)
-        is_publishable = (
-            self.course.partner.has_marketing_site and
-            waffle.switch_is_active('publish_course_runs_to_marketing_site') and
-            # Pop to clean the kwargs for the base class save call below
-            not suppress_publication and
-            not self.draft
-        )
+    def save(self, suppress_publication=False, **kwargs):
+        """
+        Arguments:
+            suppress_publication (bool): if True, we won't push the run data to the marketing site
+        """
+        is_new_course_run = not self.id
+        push_to_marketing = (not suppress_publication and
+                             self.course.partner.has_marketing_site and
+                             waffle.switch_is_active('publish_course_runs_to_marketing_site') and
+                             not self.draft)
 
-        if is_publishable:
-            publisher = CourseRunMarketingSitePublisher(self.course.partner)
-            previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
+        with transaction.atomic():
+            if push_to_marketing:
+                previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
 
-            if not self.slug and self.id:
-                # If we are publishing this object to marketing site, let's make sure slug is defined.
-                # Nowadays slugs will be defined at creation time by AutoSlugField for us, so we only need this code
-                # path for database rows that were empty before we started using AutoSlugField.
-                self.slug = CourseRun._meta.get_field('slug').create_slug(self, True)
+            super().save(**kwargs)
+            self.handle_status_change()
 
-            with transaction.atomic():
-                super(CourseRun, self).save(**kwargs)
-                publisher.publish_obj(self, previous_obj=previous_obj)
-        else:
-            super(CourseRun, self).save(**kwargs)
-
-        self.handle_status_change()
+            if push_to_marketing:
+                self.push_to_marketing_site(previous_obj)
 
         if is_new_course_run:
             retired_programs = self.programs.filter(status=ProgramStatus.Retired)
             for program in retired_programs:
                 program.excluded_course_runs.add(self)
 
-        self._old_status = self.status
+    def publish(self):
+        """
+        Marks the course run as announced and published if it is time to do so.
+
+        Course run must be an official version - both it and any draft version will be published.
+
+        Returns:
+            True if the run was published, False if it was not eligible
+        """
+        if self.draft:
+            return False
+
+        now = datetime.datetime.now(pytz.UTC)
+        with transaction.atomic():
+            for run in filter(None, [self, self.draft_version]):
+                run.announcement = now
+                run.status = CourseRunStatus.Published
+                run.save()
+
+        return True
+
+    def push_to_marketing_site(self, previous_obj):
+        if not self.slug:
+            # If we are pushing this object to marketing site, let's make sure slug is defined.
+            # Nowadays slugs will be defined at creation time by AutoSlugField for us, so we only need this code
+            # path for database rows that were empty before we started using AutoSlugField.
+            self.slug = CourseRun._meta.get_field('slug').create_slug(self, True)
+            self.save()
+
+        publisher = CourseRunMarketingSitePublisher(self.course.partner)
+        publisher.publish_obj(self, previous_obj=previous_obj)
 
     @property
     def is_enrollable(self):
@@ -1331,7 +1368,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         A course run is considered marketable if it's published, has seats, and
         a non-empty marketing url.
         """
-        is_published = self.status.lower() == 'published'
+        is_published = self.status == CourseRunStatus.Published
 
         return is_published and self.seats.exists() and bool(self.marketing_url)
 
