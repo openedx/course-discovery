@@ -271,8 +271,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # Unless we're just switching the status
         if changed and course_run.status == CourseRunStatus.Reviewed:
             save_kwargs['status'] = CourseRunStatus.Unpublished
-            # An official version should already exist, but just make sure
-            official_run = course_run.update_or_create_official_version(push_to_ecommerce=False)
+            official_run = course_run.official_version
             official_run.status = CourseRunStatus.Unpublished
             official_run.save()
 

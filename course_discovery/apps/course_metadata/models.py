@@ -1233,26 +1233,21 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).delete()  # pylint: disable=no-member
         self.seats.set(seats)
 
-    def update_or_create_official_version(self, push_to_ecommerce=True):
+    def update_or_create_official_version(self):
         draft_version = CourseRun.everything.get(pk=self.pk)
-        # If there isn't already an official_version linked to the draft_version, then
-        # this is our first time.
-        creating = not draft_version.official_version
-
         official_version = set_official_state(draft_version, CourseRun)
+
         for seat in self.seats.all():
             set_official_state(seat, Seat, {'course_run': official_version})
 
         official_course = self.course._update_or_create_official_version(official_version)  # pylint: disable=protected-access
 
-        if creating:
-            official_version.slug = self.slug
-            official_version.course = official_course
-            official_version.save()
+        official_version.slug = self.slug
+        official_version.course = official_course
+        official_version.save()
 
-        if push_to_ecommerce:
-            # Push any product (seat, entitlement) changes to ecommerce as well
-            push_to_ecommerce_for_course_run(official_version)
+        # Push any product (seat, entitlement) changes to ecommerce as well
+        push_to_ecommerce_for_course_run(official_version)
 
         return official_version
 

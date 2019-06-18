@@ -20,7 +20,8 @@ from course_discovery.apps.course_metadata.tests.factories import (
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
-    calculated_seat_upgrade_deadline, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
+    calculated_seat_upgrade_deadline, ensure_draft_world, serialize_entitlement_for_ecommerce_api,
+    serialize_seat_for_ecommerce_api
 )
 
 
@@ -70,13 +71,19 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
     """
     def setUp(self):
         super().setUp()
+
+        # Set up an official that we then convert to a draft
         self.course_run = CourseRunFactory()
+        CourseEntitlementFactory(course=self.course_run.course, mode=SeatType.objects.get(slug='verified'))
+        SeatFactory(course_run=self.course_run, type='verified', sku=None)
+        SeatFactory(course_run=self.course_run, type='audit', sku=None)
+        self.course_run = ensure_draft_world(self.course_run).official_version
+
+        # Now we're dealing with just official versions again
         self.course = self.course_run.course
         self.partner = self.course.partner
-        self.entitlement = CourseEntitlementFactory(course=self.course, mode=SeatType.objects.get(slug='verified'))
-        self.seat_verified = SeatFactory(course_run=self.course_run, type='verified', sku=None)
-        self.seat_audit = SeatFactory(course_run=self.course_run, type='audit', sku=None)
-        self.seats = [self.seat_verified, self.seat_audit]
+        self.seats = self.course_run.seats.all()
+        self.entitlement = self.course.entitlements.first()
         self.api_root = self.partner.ecommerce_api_url
 
     def mock_publication(self, status=200):
@@ -117,6 +124,10 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
         self.entitlement.refresh_from_db()
         self.assertEqual({s.sku for s in self.seats}, {'XXXXXXXX', 'YYYYYYYY'})
         self.assertEqual(self.entitlement.sku, 'ZZZZZZZZ')
+
+        # Check draft versions too
+        self.assertEqual({s.sku for s in self.course_run.draft_version.seats.all()}, {'XXXXXXXX', 'YYYYYYYY'})
+        self.assertEqual(self.course.draft_version.entitlements.first().sku, 'ZZZZZZZZ')
 
     def test_status_failure(self):
         self.mock_access_token()
