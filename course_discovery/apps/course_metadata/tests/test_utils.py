@@ -444,7 +444,9 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         self.assertEqual(not_draft_entitlement.draft_version, draft_entitlement)
 
     def test_ensure_draft_world_no_course_entitlement(self):
-        ''' If the official course has no entitlement, a draft audit entitlement should be created. '''
+        """
+        If the official course has no entitlement, a draft audit entitlement should be created.
+        """
         course = CourseFactory()
         ensured_draft_course = utils.ensure_draft_world(course)
 
