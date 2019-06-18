@@ -341,6 +341,10 @@ def serialize_entitlement_for_ecommerce_api(entitlement):
 
 
 def push_to_ecommerce_for_course_run(course_run):
+    """
+    Args:
+        course_run: Official version of a course_metadata CourseRun
+    """
     # Avoid circular imports
     from course_discovery.apps.course_metadata.models import Seat
 
@@ -380,9 +384,15 @@ def push_to_ecommerce_for_course_run(course_run):
             for i, discovery_product in enumerate(discovery_products):
                 ecommerce_product = ecommerce_products[i]
                 sku = ecommerce_product.get('partner_sku')
-                if sku:
-                    discovery_product.sku = sku
-                    discovery_product.save()
+                if not sku:
+                    continue
+
+                discovery_product.sku = sku
+                discovery_product.save()
+
+                if discovery_product.draft_version:
+                    discovery_product.draft_version.sku = sku
+                    discovery_product.draft_version.save()
 
     return True
 
