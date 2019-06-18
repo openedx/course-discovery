@@ -1,7 +1,7 @@
 import factory
 from django.contrib.sites.models import Site
 
-from course_discovery.apps.core.models import Currency, Partner, User
+from course_discovery.apps.core.models import Currency, Partner, SalesforceConfiguration, User
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
 
 USER_PASSWORD = 'password'
@@ -73,3 +73,15 @@ class CurrencyFactory(factory.DjangoModelFactory):
 
     class Meta(object):
         model = Currency
+
+
+class SalesforceConfigurationFactory(factory.DjangoModelFactory):
+    username = factory.fuzzy.FuzzyText()
+    password = factory.fuzzy.FuzzyText()
+    organization_id = factory.fuzzy.FuzzyText()
+    security_token = factory.fuzzy.FuzzyText()
+    is_sandbox = True
+    partner = factory.SubFactory(PartnerFactory)
+
+    class Meta(object):
+        model = SalesforceConfiguration
