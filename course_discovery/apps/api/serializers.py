@@ -1555,7 +1555,7 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
     def get_lang(self, obj):
         language = obj.course_run.language
 
-        return language.code.split('-')[0].upper() if language else 'EN'
+        return language.code.split('-')[0].lower() if language else 'en'
 
     def get_custom3(self, obj):
         return ','.join(subject.name for subject in obj.course_run.subjects.all())
