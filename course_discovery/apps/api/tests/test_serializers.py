@@ -1519,7 +1519,7 @@ class AffiliateWindowSerializerTests(TestCase):
             'category': 'Other Experiences',
             'validfrom': course_run.start.strftime('%Y-%m-%d'),
             'validto': course_run.end.strftime('%Y-%m-%d'),
-            'lang': course_run.language.code.split('-')[0].upper(),
+            'lang': course_run.language.code.split('-')[0].lower(),
             'custom1': course_run.pacing_type,
             'custom2': course_run.level_type.name,
             'custom3': ','.join(subject.name for subject in course_run.subjects.all()),
