@@ -14,9 +14,10 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata import utils
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Seat, SeatType
+from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, Seat, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory, SeatFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory,
+    SeatFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
@@ -400,6 +401,7 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         course.save()
         org = OrganizationFactory()
         course.authoring_organizations.add(org)  # pylint: disable=no-member
+        editor = CourseEditorFactory(course=course)
 
         ensured_draft_course = utils.ensure_draft_world(course)
         not_draft_course = Course.objects.get(uuid=course.uuid)
@@ -419,6 +421,10 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         self.assertNotEqual(ensured_draft_course.canonical_course_run, not_draft_course.canonical_course_run)
         self.assertTrue(ensured_draft_course.canonical_course_run.draft)
         self.assertEqual(ensured_draft_course.canonical_course_run.uuid, not_draft_course.canonical_course_run.uuid)
+
+        # Check course editors are moved from the official version to the draft version
+        self.assertEqual(CourseEditor.objects.count(), 1)
+        self.assertEqual(editor.course, ensured_draft_course)
 
         # Check course runs all share the same UUIDs, but are now all drafts
         not_draft_course_runs_uuids = [run.uuid for run in course_runs]

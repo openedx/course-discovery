@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-24 17:15+0000\n"
+"POT-Creation-Date: 2019-06-26 17:10+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -603,6 +603,45 @@ msgstr ""
 msgid "You must specify at least one person"
 msgstr ""
 
+#: apps/course_metadata/management/commands/migrate_course_editors.py:15
+msgid ""
+"Based on the configuration object, migrates all of the course editors for an "
+"organization from publisher tables to course metadata tables for use in "
+"Publisher Frontend."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_course_editors.py:23
+msgid ""
+"No organization keys were defined. Please add organization keys to the "
+"MigrateCourseEditorsConfig model."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_course_editors.py:26
+msgid "No organization keys were defined."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_course_editors.py:37
+#, python-brace-format
+msgid ""
+"Organization key [{org_key}] is not a valid key for any existing "
+"organization."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_course_editors.py:49
+#, python-brace-format
+msgid ""
+"Course with course number [{course_number}] is not a valid course number for "
+"any existing course in the Publisher tables. As such, there can be no Course "
+"User Roles to move to Course Editors."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_course_editors.py:71
+#, python-brace-format
+msgid ""
+"The following organization keys were not valid for any exisiting "
+"organizations: {exception_org_keys}."
+msgstr ""
+
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:23
 #, python-brace-format
 msgid "Publishing course run {key}"
@@ -1109,15 +1148,19 @@ msgstr ""
 msgid "Course Run IDs"
 msgstr ""
 
-#: apps/course_metadata/models.py:2326
+#: apps/course_metadata/models.py:2328
+msgid "Organization Keys"
+msgstr ""
+
+#: apps/course_metadata/models.py:2338
 msgid "Profile Image UUIDs"
 msgstr ""
 
-#: apps/course_metadata/models.py:2333
+#: apps/course_metadata/models.py:2345
 msgid "Tag"
 msgstr ""
 
-#: apps/course_metadata/models.py:2334
+#: apps/course_metadata/models.py:2346
 msgid "Course UUIDs"
 msgstr ""
 
@@ -1349,7 +1392,7 @@ msgstr ""
 msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr ""
 
-#: apps/course_metadata/utils.py:275
+#: apps/course_metadata/utils.py:282
 msgid "Special characters not allowed in Course Number."
 msgstr ""
 

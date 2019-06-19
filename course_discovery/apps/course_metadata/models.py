@@ -2319,6 +2319,18 @@ class DrupalPublishUuidConfig(SingletonModel):
     push_people = models.BooleanField(default=False)
 
 
+class MigrateCourseEditorsConfig(SingletonModel):
+    """
+    Configuration for the migrate_course_editors command.
+    """
+    org_keys = models.TextField(
+        blank=True,
+        verbose_name=_('Organization Keys'),
+        default='',
+        help_text='Comma separated organization keys e.g. edX, org2x,org3x,  org4x',
+    )
+
+
 class ProfileImageDownloadConfig(SingletonModel):
     """
     Configuration for management command to Download Profile Images from Drupal.
