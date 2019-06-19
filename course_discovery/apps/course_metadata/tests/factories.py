@@ -535,3 +535,8 @@ class DrupalPublishUuidConfigFactory(factory.DjangoModelFactory):
 class ProfileImageDownloadConfigFactory(factory.DjangoModelFactory):
     class Meta:
         model = ProfileImageDownloadConfig
+
+
+class MigrateCourseEditorsConfigFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = MigrateCourseEditorsConfig
