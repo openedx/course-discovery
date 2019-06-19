@@ -162,6 +162,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         assert discovery_course_run.language == publisher_course_run.language
         assert discovery_course_run.weeks_to_complete == publisher_course_run.length
         assert discovery_course_run.has_ofac_restrictions == publisher_course_run.has_ofac_restrictions
+        assert discovery_course_run.external_key == publisher_course_run.external_key
         expected = set(publisher_course_run.transcript_languages.all())
         assert set(discovery_course_run.transcript_languages.all()) == expected
         assert discovery_course_run.expected_program_type == ProgramType.objects.get(slug=ProgramType.MICROMASTERS)

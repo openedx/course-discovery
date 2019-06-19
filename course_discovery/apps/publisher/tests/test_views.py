@@ -4000,6 +4000,67 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         )
         self.assertEqual(str(mail.outbox[0].subject), expected_subject)
 
+    def test_external_key_visible_canonical_course_run(self):
+        """
+        Verify that the external key field is visible when the course_metadata version of the course run
+        is the canonical course run and the course_metadata course run has a Masters seat
+        """
+        masters_program_type = DiscoveryProgramType.objects.get(slug='masters')
+        discovery_program = ProgramFactory(type=masters_program_type)
+        discovery_curriculum = CurriculumFactory(program=discovery_program)
+        course_key = self.new_course.organizations.first().key + '+' + self.new_course.number
+        discovery_course = CourseFactory(key=course_key)
+        CurriculumCourseMembershipFactory(
+            course=discovery_course,
+            curriculum=discovery_curriculum
+        )
+
+        discovery_course.canonical_course_run = CourseRunFactory(course=discovery_course)
+        discovery_course.save()
+        discovery_course.canonical_course_run.seats.add(SeatFactory(type=DiscoverySeat.MASTERS))
+        discovery_course.canonical_course_run.save()
+
+        self.new_course_run.lms_course_id = discovery_course.canonical_course_run.key
+        self.new_course_run.save()
+
+        response = self.client.get(self.edit_page_url)
+        self.assertContains(response, '<div class="field-title" id="institution-course-id">')
+
+    @ddt.data(True, False)
+    def test_external_key_visible_publisher_run_has_masters(self, masters_track):
+        """
+        Verify that the external key field is visible when the publisher course run has a seat
+        with masters_track and is not visible if no seats have a masters_track.
+        """
+        masters_program_type = DiscoveryProgramType.objects.get(slug='masters')
+        discovery_program = ProgramFactory(type=masters_program_type)
+        discovery_curriculum = CurriculumFactory(program=discovery_program)
+        course_key = self.new_course.organizations.first().key + '+' + self.new_course.number
+        discovery_course = CourseFactory(key=course_key)
+        CurriculumCourseMembershipFactory(
+            course=discovery_course,
+            curriculum=discovery_curriculum
+        )
+
+        factories.SeatFactory(course_run=self.new_course_run, masters_track=masters_track)
+
+        response = self.client.get(self.edit_page_url)
+        if masters_track:
+            self.assertContains(response, '<div class="field-title" id="institution-course-id">')
+        else:
+            self.assertNotContains(response, '<div class="field-title" id="institution-course-id">')
+
+    def test_external_key_not_visible_course_not_in_masters(self):
+        """
+        Verify that the external key field is not visible when the discovery course is not in a masters program.
+        """
+        course_key = self.new_course.organizations.first().key + '+' + self.new_course.number
+        # This creates a discovery course which is necessary to test external key
+        CourseFactory(key=course_key)
+
+        response = self.client.get(self.edit_page_url)
+        self.assertNotContains(response, '<div class="field-title" id="institution-course-id">')
+
 
 class CourseRevisionViewTests(SiteMixin, TestCase):
     """ Tests for CourseReview"""

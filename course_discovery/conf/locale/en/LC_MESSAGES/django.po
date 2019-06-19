@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-24 15:10+0000\n"
+"POT-Creation-Date: 2019-06-24 17:15+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -472,8 +472,8 @@ msgstr ""
 msgid "legal team"
 msgstr ""
 
-#: apps/course_metadata/emails.py:189 apps/publisher/views.py:234
-#: apps/publisher/views.py:237
+#: apps/course_metadata/emails.py:189 apps/publisher/views.py:256
+#: apps/publisher/views.py:259
 msgid "course team"
 msgstr ""
 
@@ -1128,7 +1128,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html:161
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html:15
 #: apps/publisher/templates/publisher/course_edit_form.html:618
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:362
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:375
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html:16
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html:19
 msgid "Cancel"
@@ -2144,7 +2144,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_render_required_field.html:6
 #: apps/publisher/templates/publisher/course_detail.html:176
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:69
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:78
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:111
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:215
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:361
@@ -2421,7 +2421,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/base.html:32
 #: apps/publisher/templates/publisher/course_list.html:7
-#: apps/publisher/views.py:208 apps/publisher/views.py:677
+#: apps/publisher/views.py:230 apps/publisher/views.py:699
 msgid "Courses"
 msgstr ""
 
@@ -3126,82 +3126,93 @@ msgid ""
 "the name of the program."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:255
-msgid "COURSE STAFF"
-msgstr ""
-
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:258
-msgid "The primary instructor or instructors for the course."
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:256
+msgid "INSTITUTION COURSE ID"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html:259
+msgid ""
+"Only fill in this field if you are planning to integrate with your "
+"Institution's systems through edX registrar service. If you have any "
+"questions about this, reach out to your PC."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:268
+msgid "COURSE STAFF"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:271
+msgid "The primary instructor or instructors for the course."
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:272
 msgid ""
 "The order that instructors are entered here is the same order they will be "
 "displayed on course pages."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:261
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:274
 msgid ""
 "Make sure that you search for an instructor before you create a new "
 "instructor."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:269
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:282
 msgid "Search for Instructor:"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:279
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:292
 msgid "Create new"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:279
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:292
 msgid "instructor"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:290
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:303
 msgid "ESTIMATED EFFORT"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:293
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:306
 msgid ""
 "The number of hours per week the learner should expect to spend on the "
 "course. This may be a range."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:298
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:311
 msgid "Min Effort"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:305
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:318
 msgid "Max Effort"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:312
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:325
 msgid "LANGUAGE(S)"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:315
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:328
 msgid ""
 "The languages available for videos, video transcripts, and other course "
 "content."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:329
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:342
 msgid "LENGTH"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:332
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:345
 msgid ""
 "The length of the course, in weeks, rounded to the nearest whole number."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:346
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:359
 msgid ""
 "Checking this box will add the OFAC language to the FAQ on the marketing "
 "page."
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run/edit_run_form.html:364
+#: apps/publisher/templates/publisher/course_run/edit_run_form.html:377
 msgid "Update Course Run"
 msgstr ""
 
@@ -3226,51 +3237,55 @@ msgid "Credit Price"
 msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:65
+msgid "Institution Course ID"
+msgstr ""
+
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:74
 msgid "Course Staff"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:91
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:100
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:132
 msgid "Estimated Effort"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:95
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:97
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:104
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:106
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:137
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:139
 msgid "hours per week"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:108
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:117
 msgid "Course Content Language"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:119
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:128
 msgid "Video Transcript Language"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:130
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:139
 msgid "Course Video Language"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:141
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:150
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html:304
 msgid "Course Length (Weeks)"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:152
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:161
 msgid "Has OFAC Restriction text"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:163
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:172
 msgid "MicroMasters Program Name"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:174
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:183
 msgid "XSeries Program Name"
 msgstr ""
 
-#: apps/publisher/templates/publisher/course_run_detail/_all.html:185
+#: apps/publisher/templates/publisher/course_run_detail/_all.html:194
 msgid "Professional Certificate Program Name"
 msgstr ""
 
@@ -4218,39 +4233,39 @@ msgstr ""
 msgid "Mark as Reviewed"
 msgstr ""
 
-#: apps/publisher/views.py:236 apps/publisher/views.py:239
+#: apps/publisher/views.py:258 apps/publisher/views.py:261
 msgid "project coordinator"
 msgstr ""
 
-#: apps/publisher/views.py:323
+#: apps/publisher/views.py:345
 #, python-brace-format
 msgid ""
 "{course_title} has been created successfully. Enter information on this page "
 "to create a course run for this course."
 msgstr ""
 
-#: apps/publisher/views.py:331
+#: apps/publisher/views.py:353
 msgid ""
 "You have successfully created a course. You can edit the course information "
 "or enter information for the course About page at any time before you send "
 "the course to edX marketing for review. "
 msgstr ""
 
-#: apps/publisher/views.py:340 apps/publisher/views.py:1143
+#: apps/publisher/views.py:362 apps/publisher/views.py:1170
 #, python-brace-format
 msgid "An error occurred while saving your changes. {error}"
 msgstr ""
 
-#: apps/publisher/views.py:345 apps/publisher/views.py:535
-#: apps/publisher/views.py:609 apps/publisher/views.py:880
-#: apps/publisher/views.py:925 apps/publisher/views.py:1000
-#: apps/publisher/views.py:1149
+#: apps/publisher/views.py:367 apps/publisher/views.py:557
+#: apps/publisher/views.py:631 apps/publisher/views.py:882
+#: apps/publisher/views.py:927 apps/publisher/views.py:1002
+#: apps/publisher/views.py:1176
 msgid ""
 "The page could not be updated. Make sure that all values are correct, then "
 "try again."
 msgstr ""
 
-#: apps/publisher/views.py:551
+#: apps/publisher/views.py:573
 #, python-brace-format
 msgid ""
 "The entered price does not match the price for the following course run(s): "
@@ -4258,7 +4273,7 @@ msgid ""
 "and future course runs."
 msgstr ""
 
-#: apps/publisher/views.py:561
+#: apps/publisher/views.py:583
 #, python-brace-format
 msgid ""
 "The entered seat type does not match the seat type for the following course "
@@ -4266,53 +4281,53 @@ msgid ""
 "of all active and future course runs."
 msgstr ""
 
-#: apps/publisher/views.py:577
+#: apps/publisher/views.py:599
 msgid ""
 "Enrollment track cannot be unset or changed from verified or professional to "
 "audit or credit."
 msgstr ""
 
-#: apps/publisher/views.py:588
+#: apps/publisher/views.py:610
 #, python-brace-format
 msgid ""
 "The following active course run(s) are published: {course_runs}. You cannot "
 "change the mode if there are published active runs."
 msgstr ""
 
-#: apps/publisher/views.py:655
+#: apps/publisher/views.py:677
 msgid "Course updated successfully."
 msgstr ""
 
-#: apps/publisher/views.py:698 apps/publisher/views.py:701
+#: apps/publisher/views.py:720 apps/publisher/views.py:723
 msgid "course"
 msgstr ""
 
-#: apps/publisher/views.py:700 apps/publisher/views.py:703
+#: apps/publisher/views.py:722 apps/publisher/views.py:725
 msgid "marketing"
 msgstr ""
 
-#: apps/publisher/views.py:829
+#: apps/publisher/views.py:831
 msgid "There was an error saving this course run:"
 msgstr ""
 
-#: apps/publisher/views.py:892
+#: apps/publisher/views.py:894
 msgid ""
 "The certificate configuration for this course is incorrect. Please fix it, "
 "then try again."
 msgstr ""
 
-#: apps/publisher/views.py:917
+#: apps/publisher/views.py:919
 msgid ""
 "Your organization does not have default roles to review/approve this course-"
 "run. Please contact your partner manager to create default roles."
 msgstr ""
 
-#: apps/publisher/views.py:940
+#: apps/publisher/views.py:942
 #, python-brace-format
 msgid "You have successfully created a course run for {course_title}."
 msgstr ""
 
-#: apps/publisher/views.py:1127
+#: apps/publisher/views.py:1154
 msgid "Course run updated successfully."
 msgstr ""
 

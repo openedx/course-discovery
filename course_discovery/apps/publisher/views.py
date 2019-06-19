@@ -74,6 +74,28 @@ EDX_STATUS_COLUMN_INDEX = 6
 COURSE_RUNS_COUNT_INDEX = 3
 
 
+def _get_discovery_course(publisher_course):
+    """
+    Given a pubisher course, lookup the course_metadata course
+    """
+    course_key = get_course_key(publisher_course)
+    try:
+        return DiscoveryCourse.objects.get(key=course_key)
+    except DiscoveryCourse.DoesNotExist:
+        return None
+
+
+def _course_in_masters_program(discovery_course):
+    """
+    Returns whether or not discovery_course is in a masters program
+    """
+    curriculum_memberships = discovery_course.curriculum_course_membership.all()
+    for membership in curriculum_memberships:
+        if membership.curriculum.program.type.slug == MASTERS_PROGRAM_TYPE_SLUG:
+            return True
+    return False
+
+
 class CourseRunListView(mixins.LoginRequiredMixin, ListView):
     default_published_days = 30
 
@@ -746,29 +768,9 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
 
         return self.last_run
 
-    def _get_discovery_course(self, publisher_course):
-        """
-        Given a pubisher course, lookup the course_metadata course
-        """
-        course_key = get_course_key(publisher_course)
-        try:
-            return DiscoveryCourse.objects.get(key=course_key)
-        except DiscoveryCourse.DoesNotExist:
-            return None
-
-    def _course_in_masters_program(self, discovery_course):
-        """
-        Returns whether or not discovery_course is in a masters program
-        """
-        curriculum_memberships = discovery_course.curriculum_course_membership.all()
-        for membership in curriculum_memberships:
-            if membership.curriculum.program.type.slug == MASTERS_PROGRAM_TYPE_SLUG:
-                return True
-        return False
-
     def _canonical_run_has_masters_seat(self, discovery_course):
         """
-        Returns whether or not the canonical run of dicovery_course has a masters seat
+        Returns whether or not the canonical run of discovery_course has a masters seat
         """
         if discovery_course.canonical_course_run:
             for seat in discovery_course.canonical_course_run.seats.all():
@@ -954,9 +956,9 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
     def get_context_data(self, **kwargs):
         parent_course = self._get_parent_course()
         course_in_masters, last_run_masters_seat = False, False
-        discovery_course = self._get_discovery_course(parent_course)
+        discovery_course = _get_discovery_course(parent_course)
         if discovery_course:
-            course_in_masters = self._course_in_masters_program(discovery_course)
+            course_in_masters = _course_in_masters_program(discovery_course)
             last_run_masters_seat = course_in_masters and self._canonical_run_has_masters_seat(discovery_course)
         last_run = self._get_last_run(parent_course)
         run_form = self._initialize_run_form(last_run)
@@ -1015,6 +1017,23 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
     form_class = CourseRunForm
     permission = OrganizationExtension.EDIT_COURSE_RUN
 
+    def _has_masters_seat(self, publisher_course_run, discovery_course):
+        """
+        Returns whether or not the publisher course run has a masters track seat or if
+        the publisher course run is the canonical run of discovery_course and has a masters seat
+        """
+        for publisher_seat in publisher_course_run.seats.all():
+            if publisher_seat.masters_track:
+                return True
+
+        discovery_canonical_run = discovery_course.canonical_course_run
+        if (discovery_canonical_run and
+                publisher_course_run.lms_course_id == discovery_canonical_run.key):
+            for seat in discovery_canonical_run.seats.all():
+                if seat.type == DiscoverySeat.MASTERS:
+                    return True
+        return False
+
     def get_success_url(self):  # pylint: disable=arguments-differ
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
@@ -1022,8 +1041,16 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         user = self.request.user
         course_run = self.get_object()
 
+        parent_course = course_run.course
+        course_in_masters, has_masters_seat = False, False
+        discovery_course = _get_discovery_course(parent_course)
+        if discovery_course:
+            course_in_masters = _course_in_masters_program(discovery_course)
+            has_masters_seat = course_in_masters and self._has_masters_seat(course_run, discovery_course)
+
         return {
             'course_run': course_run,
+            'has_masters_seat': has_masters_seat,
             'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
             'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
             'is_internal_user': mixins.check_roles_access(user),

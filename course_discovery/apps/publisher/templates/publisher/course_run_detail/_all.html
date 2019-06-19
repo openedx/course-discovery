@@ -37,27 +37,36 @@
       <div>{{ course_run.course_type }}</div>
     </div>
 
-      {% if course_run.seat_price %}
-        <div class="info-item">
-          <div class="heading">
-            {% trans "Certificate Price" %}
-          </div>
-          <div>
-              ${{ course_run.seat_price }}
-          </div>
+    {% if course_run.seat_price %}
+      <div class="info-item">
+        <div class="heading">
+          {% trans "Certificate Price" %}
         </div>
-      {% endif %}
+        <div>
+          ${{ course_run.seat_price }}
+        </div>
+      </div>
+    {% endif %}
 
-      {% if course_run.credit_seat_price %}
-        <div class="info-item">
-          <div class="heading">
-            {% trans "Credit Price" %}
-          </div>
-          <div>
-              ${{ course_run.credit_seat_price }}
-          </div>
+    {% if course_run.credit_seat_price %}
+      <div class="info-item">
+        <div class="heading">
+          {% trans "Credit Price" %}
         </div>
-      {% endif %}
+        <div>
+          ${{ course_run.credit_seat_price }}
+        </div>
+      </div>
+    {% endif %}
+
+    {% if course_run.external_key %}
+      <div class="info-item">
+        <div class="heading">
+          {% trans "Institution Course ID" %}
+        </div>
+        <div>{{ course_run.external_key }}</div>
+      </div>
+    {% endif %}
   {% endif %}
 
   <div class="info-item">
