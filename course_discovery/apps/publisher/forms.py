@@ -305,7 +305,7 @@ class CourseRunForm(BaseForm):
             'length', 'transcript_languages', 'language', 'min_effort', 'max_effort', 'target_content', 'pacing_type',
             'video_language', 'staff', 'start', 'end', 'is_xseries', 'xseries_name', 'is_professional_certificate',
             'professional_certificate_name', 'is_micromasters', 'micromasters_name', 'lms_course_id',
-            'has_ofac_restrictions',
+            'has_ofac_restrictions', 'external_key',
         )
 
     def save(self, commit=True, course=None, changed_by=None):  # pylint: disable=arguments-differ

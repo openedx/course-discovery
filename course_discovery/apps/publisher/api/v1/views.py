@@ -131,6 +131,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             'language': course_run.language,
             'weeks_to_complete': course_run.length,
             'has_ofac_restrictions': course_run.has_ofac_restrictions,
+            'external_key': course_run.external_key,
             'expected_program_name': program_name or '',
             'expected_program_type': expected_program_type,
         }
