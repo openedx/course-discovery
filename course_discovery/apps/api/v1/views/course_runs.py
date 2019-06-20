@@ -230,6 +230,29 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         return Response(serializer_data, status=status.HTTP_201_CREATED, headers=headers)
 
     @writable_request_wrapper
+    def _update_course_run(self, course_run, draft, changed, serializer, request, save_kwargs):
+
+        # If changes are made after review and before publish, revert status to unpublished.
+        # Unless we're just switching the status
+        if changed and course_run.status == CourseRunStatus.Reviewed:
+            save_kwargs['status'] = CourseRunStatus.Unpublished
+            official_run = course_run.official_version
+            official_run.status = CourseRunStatus.Unpublished
+            official_run.save()
+
+        if not draft and course_run.status != CourseRunStatus.Published:
+            save_kwargs['status'] = CourseRunStatus.LegalReview
+
+        course_run = serializer.save(**save_kwargs)
+
+        self.push_to_studio(request, course_run, create=False)
+
+        # Published course runs can be re-published directly
+        if not draft and course_run.status == CourseRunStatus.Published:
+            course_run.update_or_create_official_version()
+
+        return Response(serializer.data)
+
     def update(self, request, **kwargs):
         """ Update one, or more, fields for a course run. """
         course_run = self.get_object()
@@ -267,26 +290,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             elif new_value != original_value:
                 changed = True
 
-        # If changes are made after review and before publish, revert status to unpublished.
-        # Unless we're just switching the status
-        if changed and course_run.status == CourseRunStatus.Reviewed:
-            save_kwargs['status'] = CourseRunStatus.Unpublished
-            official_run = course_run.official_version
-            official_run.status = CourseRunStatus.Unpublished
-            official_run.save()
-
-        if not draft and course_run.status != CourseRunStatus.Published:
-            save_kwargs['status'] = CourseRunStatus.LegalReview
-
-        course_run = serializer.save(**save_kwargs)
-
-        self.push_to_studio(request, course_run, create=False)
-
-        # Published course runs can be re-published directly
-        if not draft and course_run.status == CourseRunStatus.Published:
-            course_run.update_or_create_official_version()
-
-        return Response(serializer.data)
+        return self._update_course_run(course_run, draft, changed, serializer, request, save_kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
