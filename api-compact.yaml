@@ -47,10 +47,77 @@ id_parameter: &id_parameter
   required: true
   type: "number"
 
+uuid_paramter: &uuid_parameter
+  name: "uuid"
+  in: "path"
+  required: true
+  type: "string"
+  format: "uuid"
+
 auth_header: &auth_header
   name: "Authorization"
   in: "header"
   required: true
+  type: "string"
+
+limit_qs_parameter: &limit_qs_parameter
+  in: "query"
+  name: "limit"
+  required: false
+  type: "number"
+
+offset_qs_parameter: &offset_qs_parameter
+  in: "query"
+  name: "offset"
+  required: false
+  type: "number"
+
+exclude_utm_parameter: &exclude_utm_parameter
+  in: "query"
+  name: "exclude_utm"
+  required: false
+  type: "number"
+
+fields_parameter: &fields_parameter
+  in: "query"
+  name: "fields"
+  required: false
+  type: "string"
+
+omit_parameter: &omit_parameter
+  in: "query"
+  name: "omit"
+  required: false
+  type: "string"
+
+include_hidden_course_runs_parameter: &include_hidden_course_runs_parameter
+  in: "query"
+  name: "include_hidden_course_runs"
+  required: false
+  type: "number"
+
+published_course_runs_only_parameter: &published_course_runs_only_parameter
+  in: "query"
+  name: "published_course_runs_only"
+  required: false
+  type: "number"
+
+marketable_enrollable_course_runs_with_archived_parameter: &marketable_enrollable_course_runs_with_archived_parameter
+  in: "query"
+  name: "marketable_enrollable_course_runs_with_archived"
+  required: false
+  type: "number"
+
+status_parameter: &status_parameter
+  in: "query"
+  name: "status"
+  required: false
+  type: "string"
+
+q_parameter: &q_parameter
+  in: "query"
+  name: "q"
+  required: false
   type: "string"
 
 # AWS API Gateway vendor extension point. This information is used
@@ -69,6 +136,14 @@ x-amazon-apigateway-integration-with-id: &apigateway_integration_with_id_paramet
   requestParameters:
     integration.request.header.Authorization: "method.request.header.Authorization"
     integration.request.path.id: "method.request.path.id"
+
+x-amazon-apigateway-integration-with-uuid: &apigateway_integration_with_uuid_parameter
+  responses: *apigateway_responses
+  httpMethod: "GET"
+  type: "http"
+  requestParameters:
+    integration.request.header.Authorization: "method.request.header.Authorization"
+    integration.request.path.uuid: "method.request.path.uuid"
 
 endpoints:
   v1:
@@ -117,8 +192,78 @@ endpoints:
           produces: *produces_json
           parameters:
             - *auth_header
+            - *limit_qs_parameter
+            - *offset_qs_parameter
+            - *exclude_utm_parameter
+            - *fields_parameter
+            - *omit_parameter
+            - *include_hidden_course_runs_parameter
+            - *q_parameter
           operationId: "get_courses"
           responses: *responses
           x-amazon-apigateway-integration:
             <<: *apigateway_integration
             uri: "https://${stageVariables.discovery_host}/v1/courses/"
+
+    # /v1/courses/{uuid}
+    coursesByUuid:
+        get:
+          produces: *produces_json
+          parameters:
+            - *auth_header
+            - *uuid_parameter
+            - *limit_qs_parameter
+            - *offset_qs_parameter
+            - *exclude_utm_parameter
+            - *fields_parameter
+            - *omit_parameter
+            - *include_hidden_course_runs_parameter
+            - *q_parameter
+          operationId: "get_courses_by_uuid"
+          responses: *responses
+          x-amazon-apigateway-integration:
+            <<: *apigateway_integration_with_uuid_parameter
+            uri: "https://${stageVariables.discovery_host}/v1/courses/{uuid}/"
+
+    # /v1/programs
+    programs:
+        get:
+          produces: *produces_json
+          parameters:
+            - *auth_header
+            - *limit_qs_parameter
+            - *offset_qs_parameter
+            - *exclude_utm_parameter
+            - *fields_parameter
+            - *omit_parameter
+            - *published_course_runs_only_parameter
+            - *marketable_enrollable_course_runs_with_archived_parameter
+            - *status_parameter
+            - *q_parameter
+          operationId: "get_programs"
+          responses: *responses
+          x-amazon-apigateway-integration:
+            <<: *apigateway_integration
+            uri: "https://${stageVariables.discovery_host}/v1/programs/"
+
+    # /v1/programs/{uuid}
+    programsByUuid:
+        get:
+          produces: *produces_json
+          parameters:
+            - *auth_header
+            - *uuid_parameter
+            - *limit_qs_parameter
+            - *offset_qs_parameter
+            - *exclude_utm_parameter
+            - *fields_parameter
+            - *omit_parameter
+            - *published_course_runs_only_parameter
+            - *marketable_enrollable_course_runs_with_archived_parameter
+            - *status_parameter
+            - *q_parameter
+          operationId: "get_programs_by_uuid"
+          responses: *responses
+          x-amazon-apigateway-integration:
+            <<: *apigateway_integration_with_uuid_parameter
+            uri: "https://${stageVariables.discovery_host}/v1/programs/{uuid}/"

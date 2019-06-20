@@ -189,6 +189,41 @@ endpoints:
             name: Authorization
             required: true
             type: string
+          - 
+            in: query
+            name: limit
+            required: false
+            type: number
+          - 
+            in: query
+            name: offset
+            required: false
+            type: number
+          - 
+            in: query
+            name: exclude_utm
+            required: false
+            type: number
+          - 
+            in: query
+            name: fields
+            required: false
+            type: string
+          - 
+            in: query
+            name: omit
+            required: false
+            type: string
+          - 
+            in: query
+            name: include_hidden_course_runs
+            required: false
+            type: number
+          - 
+            in: query
+            name: q
+            required: false
+            type: string
         produces: 
           - application/json
         responses: 
@@ -227,16 +262,341 @@ endpoints:
               statusCode: "400"
           type: http
           uri: "https://${stageVariables.discovery_host}/v1/courses/"
+    coursesByUuid: 
+      get: 
+        operationId: get_courses_by_uuid
+        parameters: 
+          - 
+            in: header
+            name: Authorization
+            required: true
+            type: string
+          - 
+            format: uuid
+            in: path
+            name: uuid
+            required: true
+            type: string
+          - 
+            in: query
+            name: limit
+            required: false
+            type: number
+          - 
+            in: query
+            name: offset
+            required: false
+            type: number
+          - 
+            in: query
+            name: exclude_utm
+            required: false
+            type: number
+          - 
+            in: query
+            name: fields
+            required: false
+            type: string
+          - 
+            in: query
+            name: omit
+            required: false
+            type: string
+          - 
+            in: query
+            name: include_hidden_course_runs
+            required: false
+            type: number
+          - 
+            in: query
+            name: q
+            required: false
+            type: string
+        produces: 
+          - application/json
+        responses: 
+          200: 
+            description: OK
+          400: 
+            description: "Bad Request"
+          401: 
+            description: Unauthorized
+          403: 
+            description: Forbidden
+          404: 
+            description: "Not Found"
+          429: 
+            description: "Too Many Requests"
+          500: 
+            description: "Internal Server Error"
+        x-amazon-apigateway-integration: 
+          httpMethod: GET
+          requestParameters: 
+            integration.request.header.Authorization: method.request.header.Authorization
+            integration.request.path.uuid: method.request.path.uuid
+          responses: 
+            200: 
+              statusCode: "200"
+            401: 
+              statusCode: "401"
+            403: 
+              statusCode: "403"
+            404: 
+              statusCode: "404"
+            429: 
+              statusCode: "429"
+            500: 
+              statusCode: "500"
+            default: 
+              statusCode: "400"
+          type: http
+          uri: "https://${stageVariables.discovery_host}/v1/courses/{uuid}/"
+    programs: 
+      get: 
+        operationId: get_programs
+        parameters: 
+          - 
+            in: header
+            name: Authorization
+            required: true
+            type: string
+          - 
+            in: query
+            name: limit
+            required: false
+            type: number
+          - 
+            in: query
+            name: offset
+            required: false
+            type: number
+          - 
+            in: query
+            name: exclude_utm
+            required: false
+            type: number
+          - 
+            in: query
+            name: fields
+            required: false
+            type: string
+          - 
+            in: query
+            name: omit
+            required: false
+            type: string
+          - 
+            in: query
+            name: published_course_runs_only
+            required: false
+            type: number
+          - 
+            in: query
+            name: marketable_enrollable_course_runs_with_archived
+            required: false
+            type: number
+          - 
+            in: query
+            name: status
+            required: false
+            type: string
+          - 
+            in: query
+            name: q
+            required: false
+            type: string
+        produces: 
+          - application/json
+        responses: 
+          200: 
+            description: OK
+          400: 
+            description: "Bad Request"
+          401: 
+            description: Unauthorized
+          403: 
+            description: Forbidden
+          404: 
+            description: "Not Found"
+          429: 
+            description: "Too Many Requests"
+          500: 
+            description: "Internal Server Error"
+        x-amazon-apigateway-integration: 
+          httpMethod: GET
+          requestParameters: 
+            integration.request.header.Authorization: method.request.header.Authorization
+          responses: 
+            200: 
+              statusCode: "200"
+            401: 
+              statusCode: "401"
+            403: 
+              statusCode: "403"
+            404: 
+              statusCode: "404"
+            429: 
+              statusCode: "429"
+            500: 
+              statusCode: "500"
+            default: 
+              statusCode: "400"
+          type: http
+          uri: "https://${stageVariables.discovery_host}/v1/programs/"
+    programsByUuid: 
+      get: 
+        operationId: get_programs_by_uuid
+        parameters: 
+          - 
+            in: header
+            name: Authorization
+            required: true
+            type: string
+          - 
+            format: uuid
+            in: path
+            name: uuid
+            required: true
+            type: string
+          - 
+            in: query
+            name: limit
+            required: false
+            type: number
+          - 
+            in: query
+            name: offset
+            required: false
+            type: number
+          - 
+            in: query
+            name: exclude_utm
+            required: false
+            type: number
+          - 
+            in: query
+            name: fields
+            required: false
+            type: string
+          - 
+            in: query
+            name: omit
+            required: false
+            type: string
+          - 
+            in: query
+            name: published_course_runs_only
+            required: false
+            type: number
+          - 
+            in: query
+            name: marketable_enrollable_course_runs_with_archived
+            required: false
+            type: number
+          - 
+            in: query
+            name: status
+            required: false
+            type: string
+          - 
+            in: query
+            name: q
+            required: false
+            type: string
+        produces: 
+          - application/json
+        responses: 
+          200: 
+            description: OK
+          400: 
+            description: "Bad Request"
+          401: 
+            description: Unauthorized
+          403: 
+            description: Forbidden
+          404: 
+            description: "Not Found"
+          429: 
+            description: "Too Many Requests"
+          500: 
+            description: "Internal Server Error"
+        x-amazon-apigateway-integration: 
+          httpMethod: GET
+          requestParameters: 
+            integration.request.header.Authorization: method.request.header.Authorization
+            integration.request.path.uuid: method.request.path.uuid
+          responses: 
+            200: 
+              statusCode: "200"
+            401: 
+              statusCode: "401"
+            403: 
+              statusCode: "403"
+            404: 
+              statusCode: "404"
+            429: 
+              statusCode: "429"
+            500: 
+              statusCode: "500"
+            default: 
+              statusCode: "400"
+          type: http
+          uri: "https://${stageVariables.discovery_host}/v1/programs/{uuid}/"
+exclude_utm_parameter: 
+  in: query
+  name: exclude_utm
+  required: false
+  type: number
+fields_parameter: 
+  in: query
+  name: fields
+  required: false
+  type: string
 id_parameter: 
   in: path
   name: id
   required: true
   type: number
+include_hidden_course_runs_parameter: 
+  in: query
+  name: include_hidden_course_runs
+  required: false
+  type: number
+limit_qs_parameter: 
+  in: query
+  name: limit
+  required: false
+  type: number
+marketable_enrollable_course_runs_with_archived_parameter: 
+  in: query
+  name: marketable_enrollable_course_runs_with_archived
+  required: false
+  type: number
+offset_qs_parameter: 
+  in: query
+  name: offset
+  required: false
+  type: number
+omit_parameter: 
+  in: query
+  name: omit
+  required: false
+  type: string
 produces: 
   - application/json
   - application/csv
 produces_json: 
   - application/json
+published_course_runs_only_parameter: 
+  in: query
+  name: published_course_runs_only
+  required: false
+  type: number
+q_parameter: 
+  in: query
+  name: q
+  required: false
+  type: string
 responses: 
   200: 
     description: OK
@@ -252,6 +612,17 @@ responses:
     description: "Too Many Requests"
   500: 
     description: "Internal Server Error"
+status_parameter: 
+  in: query
+  name: status
+  required: false
+  type: string
+uuid_paramter: 
+  format: uuid
+  in: path
+  name: uuid
+  required: true
+  type: string
 x-amazon-apigateway-integration: 
   httpMethod: GET
   requestParameters: 
@@ -277,6 +648,27 @@ x-amazon-apigateway-integration-with-id:
   requestParameters: 
     integration.request.header.Authorization: method.request.header.Authorization
     integration.request.path.id: method.request.path.id
+  responses: 
+    200: 
+      statusCode: "200"
+    401: 
+      statusCode: "401"
+    403: 
+      statusCode: "403"
+    404: 
+      statusCode: "404"
+    429: 
+      statusCode: "429"
+    500: 
+      statusCode: "500"
+    default: 
+      statusCode: "400"
+  type: http
+x-amazon-apigateway-integration-with-uuid: 
+  httpMethod: GET
+  requestParameters: 
+    integration.request.header.Authorization: method.request.header.Authorization
+    integration.request.path.uuid: method.request.path.uuid
   responses: 
     200: 
       statusCode: "200"
