@@ -205,8 +205,13 @@ def send_email_for_internal_review(course_run):
         Arguments:
             course_run (Object): CourseRun object
     """
+    lms_admin_url = course_run.course.partner.lms_admin_url
+    restricted_url = lms_admin_url and (lms_admin_url.rstrip('/') + '/embargo/restrictedcourse/')
+
     subject = _('Review requested: {key} - {title}').format(title=course_run.title, key=course_run.key)
-    send_email_to_project_coordinator(course_run, 'course_metadata/email/internal_review', subject)
+    send_email_to_project_coordinator(course_run, 'course_metadata/email/internal_review', subject, context={
+        'restricted_admin_url': restricted_url,
+    })
 
 
 def send_email_for_reviewed(course_run):

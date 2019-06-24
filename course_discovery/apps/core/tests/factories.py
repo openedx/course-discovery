@@ -55,6 +55,7 @@ class PartnerFactory(factory.DjangoModelFactory):
     analytics_url = factory.Faker('url')
     analytics_token = factory.Faker('sha256')
     lms_url = FuzzyUrlRoot().fuzz()
+    lms_admin_url = '{root}/admin'.format(root=FuzzyUrlRoot().fuzz())
     oidc_url_root = '{root}/oauth2'.format(root=lms_url)
     oidc_key = factory.Faker('sha256')
     oidc_secret = factory.Faker('sha256')

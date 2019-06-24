@@ -93,6 +93,10 @@ class Partner(TimeStampedModel):
     )
     site = models.OneToOneField(Site, on_delete=models.PROTECT)
     lms_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('LMS URL'))
+    lms_admin_url = models.URLField(
+        max_length=255, null=True, blank=True, verbose_name=_('LMS Admin URL'),
+        help_text=_('The public URL of your LMS Django admin. Example: https://lms-internal.example.com/admin'),
+    )
     analytics_url = models.URLField(max_length=255, blank=True, verbose_name=_('Analytics API URL'), default='')
     analytics_token = models.CharField(max_length=255, blank=True, verbose_name=_('Analytics Access Token'), default='')
 
