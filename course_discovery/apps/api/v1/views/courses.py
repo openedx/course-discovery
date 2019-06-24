@@ -16,9 +16,9 @@ from rest_framework import status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.api import filters, serializers
-from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithRelatedChoices
@@ -31,7 +31,6 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Program, Seat, SeatType, Video
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world, validate_course_number
-
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +53,7 @@ def writable_request_wrapper(method):
 
 
 # pylint: disable=no-member
-class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
+class CourseViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     """ Course resource. """
 
     filter_backends = (DjangoFilterBackend, rest_framework_filters.OrderingFilter)
