@@ -1,16 +1,11 @@
 import logging
 import time
-import zlib
 
-from django.conf import settings
 from django.core.cache import cache
-from django.http.response import HttpResponse
-from rest_framework_extensions.cache.decorators import CacheResponse
 from rest_framework_extensions.key_constructor.bits import KeyBitBase, QueryParamsKeyBit
 from rest_framework_extensions.key_constructor.constructors import (
     DefaultListKeyConstructor, DefaultObjectKeyConstructor
 )
-
 
 logger = logging.getLogger(__name__)
 API_TIMESTAMP_KEY = 'api_timestamp'
@@ -66,73 +61,3 @@ def api_change_receiver(sender, **kwargs):  # pylint: disable=unused-argument
     )
 
     set_api_timestamp(timestamp)
-
-
-class CompressedCacheResponse(CacheResponse):
-    """
-    Subclasses CacheResponse to allow for compression of content going into the cache
-
-    See https://github.com/chibisov/drf-extensions/blob/master/rest_framework_extensions/cache/decorators.py#L64
-    for the implementation of process_cache_response without compression
-    """
-    def process_cache_response(self, view_instance, view_method, request, args, kwargs):
-        key = self.calculate_key(
-            view_instance=view_instance,
-            view_method=view_method,
-            request=request,
-            args=args,
-            kwargs=kwargs
-        )
-
-        response_triple = self.cache.get(key)
-        if not response_triple:
-            # render response to create and cache the content byte string
-            response = view_method(view_instance, request, *args, **kwargs)
-            response = view_instance.finalize_response(request, response, *args, **kwargs)
-            response.render()
-
-            if not response.status_code >= 400 or self.cache_errors:
-                compressed_content = zlib.compress(response.rendered_content)
-                response_triple = (
-                    compressed_content,
-                    response.status_code,
-                    response._headers.copy()  # pylint: disable=protected-access
-                )
-                self.cache.set(key, response_triple, self.timeout)
-        else:
-            # build smaller Django HttpResponse
-            content, status, headers = response_triple
-            try:
-                decompressed_content = zlib.decompress(content)
-            except TypeError:
-                # If we get a type error, the cache contents were never compressed
-                decompressed_content = content
-            response = HttpResponse(content=decompressed_content, status=status)
-            response._headers = headers  # pylint: disable=protected-access
-
-        if not hasattr(response, '_closable_objects'):
-            response._closable_objects = []  # pylint: disable=protected-access
-
-        return response
-
-
-# Decorator for mixin
-compressed_cache_response = CompressedCacheResponse
-
-
-class CompressedCacheResponseMixin():
-    """
-    Acts like drf-extensions CacheResponseMixin, but compresses values before caching
-    """
-    object_cache_key_func = timestamped_object_key_constructor
-    list_cache_key_func = timestamped_list_key_constructor
-    object_cache_timeout = settings.REST_FRAMEWORK_EXTENSIONS['DEFAULT_CACHE_RESPONSE_TIMEOUT']
-    list_cache_timeout = settings.REST_FRAMEWORK_EXTENSIONS['DEFAULT_CACHE_RESPONSE_TIMEOUT']
-
-    @compressed_cache_response(key_func=list_cache_key_func, timeout=list_cache_timeout)
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @compressed_cache_response(key_func=object_cache_key_func, timeout=object_cache_timeout)
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)
