@@ -1579,6 +1579,9 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 'availability': course_run.availability,
                 'pacing_type': course_run.pacing_type,
                 'enrollment_mode': course_run.type,
+                'min_effort': course_run.min_effort,
+                'max_effort': course_run.max_effort,
+                'weeks_to_complete': course_run.weeks_to_complete,
                 'estimated_hours': get_course_run_estimated_hours(course_run)
             }],
             'uuid': str(course.uuid),
