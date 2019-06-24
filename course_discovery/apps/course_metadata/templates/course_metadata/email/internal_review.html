@@ -22,6 +22,13 @@
         Visit the {{ link_start }}{{ course_approval_url }}{{ link_middle }}admin page{{ link_end }} for this course run to actually mark it as reviewed.
     {% endblocktrans %}
 </p>
+{% if restricted_admin_url %}
+    <p>
+        {% blocktrans trimmed with link_start='<a href="' link_middle='">' link_end='</a>' %}
+            Visit the {{ link_start }}{{ restricted_admin_url }}{{ link_middle }}restricted course admin page{{ link_end }} to set embargo rules for this course, as needed.
+        {% endblocktrans %}
+    </p>
+{% endif %}
 
 <!-- End Message Body -->
 {% endblock body %}

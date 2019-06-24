@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-19 19:20+0000\n"
+"POT-Creation-Date: 2019-06-24 15:10+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -392,6 +392,18 @@ msgstr ""
 #: apps/core/models.py
 msgid "LMS URL"
 msgstr "LMS ÛRL Ⱡ'σяєм ιρѕυм #"
+
+#: apps/core/models.py
+msgid "LMS Admin URL"
+msgstr "LMS Àdmïn ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/core/models.py
+msgid ""
+"The public URL of your LMS Django admin. Example: https://lms-"
+"internal.example.com/admin"
+msgstr ""
+"Thé püßlïç ÛRL öf ýöür LMS Djängö ädmïn. Éxämplé: https://lms-"
+"ïntérnäl.éxämplé.çöm/ädmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
 
 #: apps/core/models.py
 msgid "Analytics API URL"
@@ -1534,6 +1546,17 @@ msgstr ""
 "pägé%(link_end)s för thïs çöürsé rün tö äçtüällý märk ït äs révïéwéd. Ⱡ'σяєм"
 " ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
+#: apps/course_metadata/templates/course_metadata/email/internal_review.html
+#, python-format
+msgid ""
+"Visit the %(link_start)s%(restricted_admin_url)s%(link_middle)srestricted "
+"course admin page%(link_end)s to set embargo rules for this course, as "
+"needed."
+msgstr ""
+"Vïsït thé %(link_start)s%(restricted_admin_url)s%(link_middle)sréstrïçtéd "
+"çöürsé ädmïn pägé%(link_end)s tö sét émßärgö rülés för thïs çöürsé, äs "
+"néédéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt
 #, python-format
 msgid "%(org_name)s has submitted %(course_key)s for review."
@@ -1550,6 +1573,13 @@ msgstr "Püßlïshér pägé: %(course_page_url)s Ⱡ'σяєм ιρѕυм ∂σ�
 #, python-format
 msgid "Studio page: %(studio_url)s"
 msgstr "Stüdïö pägé: %(studio_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/course_metadata/templates/course_metadata/email/internal_review.txt
+#, python-format
+msgid "Restricted Course admin: %(restricted_admin_url)s"
+msgstr ""
+"Réstrïçtéd Çöürsé ädmïn: %(restricted_admin_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢#"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.txt
 #, python-format

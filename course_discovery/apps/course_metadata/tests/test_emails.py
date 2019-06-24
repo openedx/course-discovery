@@ -1,4 +1,5 @@
 import datetime
+import re
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -77,6 +78,21 @@ class EmailTests(TestCase):
         for regex in html_regexes or []:
             self.assertRegex(html, regex)  # pylint: disable=deprecated-method
 
+    def assertEmailDoesNotContain(self, both_regexes=None, text_regexes=None, html_regexes=None, index=0):
+        email = mail.outbox[index]
+        text = email.body
+        html = email.alternatives[0][0]
+
+        for regex in both_regexes or []:
+            self.assertNotRegex(text, regex)  # pylint: disable=deprecated-method
+            self.assertNotRegex(html, regex)  # pylint: disable=deprecated-method
+
+        for regex in text_regexes or []:
+            self.assertNotRegex(text, regex)  # pylint: disable=deprecated-method
+
+        for regex in html_regexes or []:
+            self.assertNotRegex(html, regex)  # pylint: disable=deprecated-method
+
     def assertEmailSent(self, function, subject=None, to_users=None, both_regexes=None, text_regexes=None,
                         html_regexes=None, index=0, total=1):
         function(self.course_run)
@@ -133,6 +149,7 @@ class EmailTests(TestCase):
         """
         Verify that send_email_for_internal_review's happy path works as expected
         """
+        restricted_url = self.partner.lms_admin_url.rstrip('/') + '/embargo/restrictedcourse/'
         self.assertEmailSent(
             emails.send_email_for_internal_review,
             '^Review requested: {} - {}$'.format(self.course_run.key, self.course_run.title),
@@ -147,10 +164,13 @@ class EmailTests(TestCase):
                 'This is a good time to <a href="%s">review this course run in Studio</a>.' % self.studio_url,
                 'Visit the <a href="%s">admin page</a> for this course run to actually mark it as reviewed.' %
                 self.admin_url,
+                'Visit the <a href="%s">restricted course admin page</a> to set embargo rules for this course, '
+                'as needed.' % restricted_url,
             ],
             text_regexes=[
                 '\n\nPublisher page: %s\n' % self.publisher_url,
                 '\n\nStudio page: %s\n' % self.studio_url,
+                '\n\nRestricted Course admin: %s\n' % restricted_url,
                 '\n\nVisit the admin page to actually mark this course run as reviewed: %s\n' % self.admin_url,
             ],
         )
@@ -257,6 +277,19 @@ class EmailTests(TestCase):
         self.assertEmailNotSent(
             emails.send_email_for_internal_review,
             'no studio URL is defined for partner %s' % self.partner.short_code
+        )
+
+    def test_no_lms_admin_url(self):
+        """
+        Verify that no link is provided to the restricted course admin if we don't have lms_admin_url
+        """
+        self.partner.lms_admin_url = None
+        self.partner.save()
+        self.assertEmailSent(emails.send_email_for_internal_review)
+        self.assertEmailDoesNotContain(
+            both_regexes=[
+                re.compile('restricted', re.IGNORECASE),
+            ],
         )
 
     def test_no_editors(self):

@@ -15,6 +15,12 @@
      Studio page: {{ studio_url }}
 {% endblocktrans %}
 
+{% if restricted_admin_url %}
+{% blocktrans trimmed %}
+    Restricted Course admin: {{ restricted_admin_url }}
+{% endblocktrans %}
+{% endif %}
+
 {% blocktrans trimmed %}
      Visit the admin page to actually mark this course run as reviewed: {{ course_approval_url }}
 {% endblocktrans %}
