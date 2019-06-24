@@ -3,16 +3,16 @@ from rest_framework import filters as rest_framework_filters
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.models import Program
 
 
 # pylint: disable=no-member
-class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
+class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     """ Program resource. """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
