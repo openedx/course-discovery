@@ -196,14 +196,19 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # Guard against externally setting the draft state
         run_data.pop('draft', None)
 
-        serializer = self.get_serializer(data=run_data)
-        serializer.is_valid(raise_exception=True)
-
         # Grab any existing course run for this course (we'll use it when talking to studio to form basis of rerun)
-        course_key = run_data['course']  # required field
+        course_key = run_data.get('course', None)  # required field
+        if not course_key:
+            raise ValidationError({'course': ['This field is required.']})
+
+        # Before creating the serializer we need to ensure the course has draft rows as expected
+        # The serializer will attempt to retrieve the draft version of the Course
         course = Course.objects.filter_drafts().get(key=course_key)
         course = ensure_draft_world(course)
         old_course_run = course.canonical_course_run
+
+        serializer = self.get_serializer(data=run_data)
+        serializer.is_valid(raise_exception=True)
 
         # Save run to database
         course_run = serializer.save(draft=True)
