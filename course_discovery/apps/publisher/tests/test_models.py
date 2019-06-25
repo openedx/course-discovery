@@ -1183,10 +1183,12 @@ class CourseRunStateTests(MarketingSitePublisherTestMixin):
     def test_published(self):
         person = PersonFactory()
         primary = DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[person],
-                                            status=CourseRunStatus.Unpublished, announcement=None)
-        second = DiscoveryCourseRunFactory(course=primary.course, status=CourseRunStatus.Published, end=None)
+                                            status=CourseRunStatus.Unpublished, announcement=None,
+                                            course__partner=self.partner, end=None, enrollment_end=None)
+        second = DiscoveryCourseRunFactory(course=primary.course, status=CourseRunStatus.Published, end=None,
+                                           enrollment_end=None, start=(primary.start + datetime.timedelta(days=1)))
         third = DiscoveryCourseRunFactory(course=primary.course, status=CourseRunStatus.Published,
-                                          end=datetime.datetime(2010, 1, 1, tzinfo=UTC))
+                                          end=datetime.datetime(2010, 1, 1, tzinfo=UTC), enrollment_end=None)
 
         user = UserFactory()
         self.mock_api_client()

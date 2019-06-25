@@ -864,7 +864,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         # Create a second run with matching start, but later enrollment_start.
         CourseRunFactory(
             course=course_list[1],
-            enrollment_start=datetime.datetime(2014, 1, 2),
+            enrollment_start=datetime.datetime(2014, 1, 2, tzinfo=UTC),
             start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
         )
 
@@ -913,7 +913,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         # Create a run with matching start, but later enrollment_start.
         CourseRunFactory(
             course=course_list[1],
-            enrollment_start=datetime.datetime(2014, 1, 2),
+            enrollment_start=datetime.datetime(2014, 1, 2, tzinfo=UTC),
             start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
         )
 
@@ -953,7 +953,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         # Create a second run with matching start, but later enrollment_start.
         CourseRunFactory(
             course=course_list[1],
-            enrollment_start=datetime.datetime(2014, 1, 2),
+            enrollment_start=datetime.datetime(2014, 1, 2, tzinfo=UTC),
             start=datetime.datetime(2014, 2, 1, tzinfo=UTC),
         )
 

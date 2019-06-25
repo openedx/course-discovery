@@ -1,8 +1,6 @@
-import datetime
 import logging
 from urllib.parse import urljoin
 
-import pytz
 import waffle
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
@@ -21,11 +19,10 @@ from stdimage.models import StdImageField
 from taggit.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, User
-from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
+from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Course as DiscoveryCourse
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
-from course_discovery.apps.course_metadata.publishers import CourseRunMarketingSitePublisher
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath, calculated_seat_upgrade_deadline
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails
@@ -994,20 +991,10 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         # Grab some variables, bailing if anything doesn't make sense
         publisher_run = self.course_run
         discovery_run = publisher_run and publisher_run.discovery_course_run
-        discovery_course = discovery_run and discovery_run.course
-        if not discovery_course:
+        if not discovery_run:
             return
 
         discovery_run.publish()
-
-        # Now, find old course runs that are no longer active but still published.
-        # These will be unpublished in favor of the new course.
-        now = datetime.datetime.now(pytz.UTC)
-        for run in discovery_course.course_runs.all():
-            if run != discovery_run and run.status == CourseRunStatus.Published and run.end and run.end < now:
-                CourseRunMarketingSitePublisher(site.partner).add_url_redirect(discovery_run, run)
-                run.status = CourseRunStatus.Unpublished
-                run.save()
 
         # Notify course team
         if waffle.switch_is_active('enable_publisher_email_notifications'):
