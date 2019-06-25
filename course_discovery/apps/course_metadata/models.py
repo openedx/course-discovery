@@ -2,6 +2,7 @@ import datetime
 import itertools
 import logging
 from collections import Counter, defaultdict
+from operator import attrgetter
 from urllib.parse import urljoin
 from uuid import uuid4
 
@@ -623,9 +624,10 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         """
         marketable_runs = []
         other_marketable_runs = []
+        now = datetime.datetime.now(pytz.UTC)
 
         for course_run in self.course_runs.all():
-            if course_run.is_marketable and course_run.availability.lower() != 'archived':
+            if course_run.is_marketable and not course_run.has_ended(now):
                 if course_run.is_enrollable:
                     marketable_runs.append(course_run)
                 else:
@@ -646,6 +648,8 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
             - Open for enrollment
             - OR will be open for enrollment in the future
             - OR have no specified enrollment close date (e.g. self-paced courses)
+
+        This is basically a QuerySet version of "all runs where has_enrollment_ended is False"
 
         Returns:
             QuerySet
@@ -673,6 +677,43 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
                 return course_run.first_enrollable_paid_seat_price
 
         return None
+
+    def update_marketing_redirects(self, published_runs=None):
+        """
+        Find old course runs that are no longer active but still published.
+        These will be unpublished and linked to an active course run.
+
+        Arguments:
+            published_runs (iterable): optional optimization; pass published CourseRuns to avoid a lookup
+
+        Returns:
+            True if any redirects were changed
+        """
+        if not self.partner.has_marketing_site:
+            return False
+
+        if published_runs is None:
+            published_runs = self.course_runs.filter(status=CourseRunStatus.Published).iterator()
+        published_runs = frozenset(published_runs)
+
+        # Now separate out the active ones from the inactive
+        # (done in Python rather than hitting self.active_course_runs to avoid a second db query)
+        now = datetime.datetime.now(pytz.UTC)
+        inactive_runs = {run for run in published_runs if run.has_enrollment_ended(now)}
+        active_runs = published_runs - inactive_runs
+        if not active_runs or not inactive_runs:
+            return False  # if there are no runs to redirect from or to, there's no point in continuing
+
+        # Find the earliest active run, to which we will redirect any inactive runs
+        earliest_active_run = min(active_runs, key=attrgetter('start'))
+
+        publisher = CourseRunMarketingSitePublisher(self.partner)
+        for run in inactive_runs:
+            publisher.add_url_redirect(earliest_active_run, run)
+            run.status = CourseRunStatus.Unpublished
+            run.save()
+
+        return True
 
     def _update_or_create_official_version(self, course_run):
         """
@@ -966,12 +1007,8 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             # Enrollable paid seats are not available for this CourseRun.
             return None
 
-        # An unenrolled user may not enroll and purchase paid seats after the course has ended.
-        deadline = self.end
-
-        # An unenrolled user may not enroll and purchase paid seats after enrollment has ended.
-        if self.enrollment_end and (deadline is None or self.enrollment_end < deadline):
-            deadline = self.enrollment_end
+        # An unenrolled user may not enroll and purchase paid seats after the course or enrollment has ended.
+        deadline = self.enrollment_deadline
 
         # Note that even though we're sorting in descending order by upgrade_deadline, we will need to look at
         # both the first and last record in the result set to determine which Seat has the latest upgrade_deadline.
@@ -994,17 +1031,12 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             List of Seats
         """
         now = datetime.datetime.now(pytz.UTC)
+
+        enrolls_in_future = self.enrollment_start and self.enrollment_start > now
+        if self.has_enrollment_ended(now) or enrolls_in_future:
+            return []
+
         enrollable_seats = []
-
-        if self.end and now > self.end:
-            return enrollable_seats
-
-        if self.enrollment_start and self.enrollment_start > now:
-            return enrollable_seats
-
-        if self.enrollment_end and now > self.enrollment_end:
-            return enrollable_seats
-
         types = types or Seat.SEAT_TYPES
         for seat in self.seats.all():
             if seat.type in types and (not seat.upgrade_deadline or now < seat.upgrade_deadline):
@@ -1139,7 +1171,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         now = datetime.datetime.now(pytz.UTC)
         upcoming_cutoff = now + datetime.timedelta(days=60)
 
-        if self.end and self.end <= now:
+        if self.has_ended(now):
             return _('Archived')
         elif self.start and (self.start <= now):
             return _('Current')
@@ -1317,6 +1349,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         Marks the course run as announced and published if it is time to do so.
 
         Course run must be an official version - both it and any draft version will be published.
+        Marketing site redirects will also be updated.
 
         Returns:
             True if the run was published, False if it was not eligible
@@ -1331,6 +1364,9 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
                 run.status = CourseRunStatus.Published
                 run.save()
 
+        # It is likely that we are sunsetting an old run in favor of this new run, so update redirects just in case
+        self.course.update_marketing_redirects()
+
         return True
 
     def push_to_marketing_site(self, previous_obj):
@@ -1344,6 +1380,32 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         publisher = CourseRunMarketingSitePublisher(self.course.partner)
         publisher.publish_obj(self, previous_obj=previous_obj)
 
+    def has_ended(self, when=None):
+        """
+        Returns:
+            True if course run has a defined end and it has passed
+        """
+        when = when or datetime.datetime.now(pytz.UTC)
+        return bool(self.end and self.end < when)
+
+    def has_enrollment_ended(self, when=None):
+        """
+        Returns:
+            True if the enrollment deadline is defined and has passed
+        """
+        when = when or datetime.datetime.now(pytz.UTC)
+        deadline = self.enrollment_deadline
+        return bool(deadline and deadline < when)
+
+    @property
+    def enrollment_deadline(self):
+        """
+        Returns:
+            The datetime past which this run cannot be enrolled in (or ideally, marketed) or None if no restriction
+        """
+        dates = set(filter(None, [self.end, self.enrollment_end]))
+        return min(dates) if dates else None
+
     @property
     def is_enrollable(self):
         """
@@ -1354,11 +1416,8 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         fields.
         """
         now = datetime.datetime.now(pytz.UTC)
-        if ((not self.enrollment_end or self.enrollment_end >= now) and
-                (not self.enrollment_start or self.enrollment_start <= now)):
-            return True
-
-        return False
+        return (not self.has_enrollment_ended(now) and
+                (not self.enrollment_start or self.enrollment_start <= now))
 
     @property
     def is_marketable(self):
@@ -1734,8 +1793,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
         the program total price. A seat is most suitable if the related course_run is now enrollable,
         has not ended, and the enrollment_start date is most recent
         """
-        end_valid = candidate_seat.course_run.end is None or \
-            candidate_seat.course_run.end >= datetime.datetime.now(pytz.UTC)
+        end_valid = not candidate_seat.course_run.has_ended()
 
         selected_enrollment_start = selected_seat.course_run.enrollment_start or \
             pytz.utc.localize(datetime.datetime.min)

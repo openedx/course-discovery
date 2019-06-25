@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-26 17:10+0000\n"
+"POT-Creation-Date: 2019-06-27 13:00+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -805,6 +805,26 @@ msgid "One or more course runs failed to publish."
 msgstr ""
 "Öné ör möré çöürsé rüns fäïléd tö püßlïsh. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/update_marketing_redirects.py
+msgid "One or more courses failed to redirect."
+msgstr ""
+"Öné ör möré çöürsés fäïléd tö rédïréçt. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/management/commands/update_marketing_redirects.py
+#, python-brace-format
+msgid "Successfully redirected runs in course {key}"
+msgstr ""
+"Süççéssfüllý rédïréçtéd rüns ïn çöürsé {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/update_marketing_redirects.py
+#, python-brace-format
+msgid "Failed to redirect runs in course {key}"
+msgstr ""
+"Fäïléd tö rédïréçt rüns ïn çöürsé {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
 
 #: apps/course_metadata/models.py
 msgid ""
