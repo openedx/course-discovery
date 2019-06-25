@@ -1,12 +1,10 @@
 import logging
 
-import mock
 import responses
 from django.core.cache import cache
 from django.test import TestCase
 
 from course_discovery.apps.core.api_client import lms
-from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.mixins import LMSAPIClientMixin
 from course_discovery.apps.core.tests.utils import MockLoggingHandler
@@ -21,8 +19,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         logger.addHandler(cls.log_handler)
         cls.log_messages = cls.log_handler.messages
 
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def setUp(self, mock_access_token):  # pylint: disable=unused-argument
+    def setUp(self):  # pylint: disable=unused-argument
         super(TestLMSAPIClient, self).setUp()
         # Reset mock logger for each test.
         self.log_handler.reset()
@@ -45,9 +42,10 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         }
         cache.clear()
 
+        self.mock_access_token()
+
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_get_api_access_request(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_get_api_access_request(self):
         """
         Verify that `get_api_access_request` returns correct value.
         """
@@ -57,19 +55,17 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         assert self.lms.get_api_access_request(self.user) == self.response
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_get_api_access_request_with_404_error(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_get_api_access_request_with_404_error(self):
         """
         Verify that `get_api_access_request` returns None when api_access_request
         API endpoint is not available.
         """
         self.mock_api_access_request(self.partner.lms_url, self.user, status=404)
         assert self.lms.get_api_access_request(self.user) is None
-        assert 'HttpNotFoundError' in self.log_messages['error'][0]
+        assert 'HTTPError' in self.log_messages['error'][0]
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_get_api_access_request_with_empty_response(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_get_api_access_request_with_empty_response(self):
         """
         Verify that `get_api_access_request` returns None when api_access_request
         API endpoint is not available.
@@ -81,8 +77,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         assert 'KeyError' in self.log_messages['error'][0]
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_get_api_access_request_with_invalid_response(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_get_api_access_request_with_invalid_response(self):
         """
         Verify that `get_api_access_request` returns None when api_access_request
         returns an invalid response.
@@ -110,8 +105,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         assert 'KeyError' in self.log_messages['error'][0]
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_get_api_access_request_with_no_results(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_get_api_access_request_with_no_results(self):
         """
         Verify that `get_api_access_request` returns None when api_access_request
         API returns no results.
@@ -123,9 +117,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         assert 'No results for ApiAccessRequest for user [%s].' % self.user.username in self.log_messages['info']
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_get_api_access_request_cache_for_user_with_no_results(self,
-                                                                   mock_access_token):  # pylint: disable=unused-argument
+    def test_get_api_access_request_cache_for_user_with_no_results(self):
         """
         Verify that `get_api_access_request` returns None when api_access_request
         API returns no results and returns the cached result on another call with
@@ -141,9 +133,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         assert len(responses.calls) == 1
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_get_api_access_request_cache_hit(self,
-                                              mock_access_token):  # pylint: disable=unused-argument
+    def test_get_api_access_request_cache_hit(self):
         """
         Verify that `get_api_access_request` returns the correct value and then
         returns the cached results on another call with the same user.
@@ -156,8 +146,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         assert len(responses.calls) == 1
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_get_api_access_request_with_multiple_records(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_get_api_access_request_with_multiple_records(self):
         """
         Verify that `get_api_access_request` logs a warning message and returns the first result
         if endpoint returns multiple api-access-requests for a user.

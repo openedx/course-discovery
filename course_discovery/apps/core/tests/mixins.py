@@ -6,6 +6,7 @@ import responses
 from django.conf import settings
 from haystack import connections as haystack_connections
 
+from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.utils import ElasticsearchUtils
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person
 
@@ -44,7 +45,7 @@ class ElasticsearchTestMixin(object):
         index.update_object(person)
 
 
-class LMSAPIClientMixin(object):
+class LMSAPIClientMixin(OAuth2Mixin):
     def mock_api_access_request(self, lms_url, user, status=200, api_access_request_overrides=None):
         """
         Mock the api access requests endpoint response of the LMS.
