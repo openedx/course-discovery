@@ -1,6 +1,10 @@
 import datetime
+import json
 import urllib.parse
+from collections import defaultdict
 
+import ddt
+import mock
 import pytz
 from django.urls import reverse
 
@@ -8,9 +12,19 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import (
     APITestCase, LoginMixin, SerializationMixin, SynonymTestMixin
 )
 from course_discovery.apps.api.v1.tests.test_views.test_search import ElasticsearchTestMixin
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, ProgramFactory
+from course_discovery.apps.course_metadata.models import (
+    AdditionalPromoArea, Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumCourseRunExclusion, Image,
+    LevelType, Organization, Program, ProgramType, SeatType, Video
+)
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumCourseRunExclusionFactory,
+    CurriculumFactory, OrganizationFactory, ProgramFactory, ProgramTypeFactory, SeatTypeFactory
+)
 from course_discovery.apps.edx_catalog_extensions.api.serializers import DistinctCountsAggregateFacetSearchSerializer
+from course_discovery.apps.edx_catalog_extensions.api.v1.views import ProgramFixtureView
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
@@ -254,3 +268,144 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
             'selected_facets': ['pacing_type_exact:self_paced'],
         }
         self.assert_url_path_and_query(pacing_types['self_paced']['narrow_url'], self.path, expected_query_params)
+
+
+@ddt.ddt
+class TestProgramFixtureView(APITestCase):
+
+    def setUp(self):
+        self.user = UserFactory()
+        self.staff = UserFactory(username='staff', is_staff=True)
+        seat_type = SeatTypeFactory(name="TestSeatType")
+        self.program_type = ProgramTypeFactory(
+            name="TestProgramType",
+            slug="test-program-type",
+            applicable_seat_types=[seat_type],
+        )
+
+    def login_user(self):
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def login_staff(self):
+        self.client.login(username=self.staff.username, password=USER_PASSWORD)
+
+    @staticmethod
+    def queries(n):
+        """ Adjust query count for boilerplate queries (user log in, etc.) """
+        return n + 3
+
+    def get(self, uuids):
+        path = reverse('extensions:api:v1:get-program-fixture')
+        if uuids:
+            uuids_str = ",".join(str(uuid) for uuid in uuids)
+            url = "{}?programs={}".format(path, uuids_str)
+        else:
+            url = path
+        return self.client.get(url)
+
+    def create_program(self, orgs):
+        program = ProgramFactory(
+            authoring_organizations=orgs, type=self.program_type
+        )
+        curr = CurriculumFactory(program=program)
+        course1 = CourseFactory()
+        _run1a = CourseRunFactory(course=course1)
+        _run1b = CourseRunFactory(course=course1)
+        course2 = CourseFactory()
+        _run2a = CourseRunFactory(course=course2)
+        run2b = CourseRunFactory(course=course2)
+        _mem1 = CurriculumCourseMembershipFactory(curriculum=curr, course=course1)
+        mem2 = CurriculumCourseMembershipFactory(curriculum=curr, course=course2)
+        _ex = CurriculumCourseRunExclusionFactory(course_membership=mem2, course_run=run2b)
+        return program
+
+    def test_200(self):
+        self.login_staff()
+        org1 = OrganizationFactory()
+        org2 = OrganizationFactory()
+        program1 = self.create_program([org1])
+        program2 = self.create_program([org2])
+        program12 = self.create_program([org1, org2])
+        programs = [program1, program2, program12]
+        uuids = [program.uuid for program in programs]
+
+        response = self.get(uuids)
+        self.assertEqual(response.status_code, 200)
+        fixture = json.loads(response.content.decode('utf-8'))
+
+        expected_counts_by_model = {
+            Organization: 2,
+            Program: 3,
+            Curriculum: 3,
+            Course: 6,
+            CourseRun: 12,
+            CurriculumCourseMembership: 6,
+            CurriculumCourseRunExclusion: 3,
+            ProgramType: 1,
+            SeatType: 1,
+            AdditionalPromoArea: 6,
+            Image: 21,
+            LevelType: 6,
+            Video: 21,
+            LanguageTag: 12,
+        }
+        expected_counts_by_model_label = {
+            model._meta.label.lower(): n
+            for model, n in expected_counts_by_model.items()
+        }
+
+        actual_appearances_by_model_label = defaultdict(set)
+        for record in fixture:
+            pk = record['pk']
+            model_label = record['model']
+            self.assertNotIn(pk, actual_appearances_by_model_label[model_label])
+            actual_appearances_by_model_label[model_label].add(pk)
+        actual_counts_by_model_label = {
+            model_label: len(appearances)
+            for model_label, appearances
+            in actual_appearances_by_model_label.items()
+        }
+
+        self.maxDiff = None
+        self.assertDictEqual(
+            actual_counts_by_model_label, expected_counts_by_model_label
+        )
+
+    def test_401(self):
+        response = self.get(None)
+        self.assertEqual(response.status_code, 401)
+
+    def test_403(self):
+        self.login_user()
+        response = self.get(None)
+        self.assertEqual(response.status_code, 403)
+
+    def test_404_no_programs(self):
+        self.login_staff()
+        with self.assertNumQueries(self.queries(0)):
+            response = self.get(None)
+        self.assertEqual(response.status_code, 404)
+
+    def test_422_too_many_programs(self):
+        self.login_staff()
+        org1 = OrganizationFactory()
+        program_1 = self.create_program([org1])
+        program_2 = self.create_program([org1])
+        with mock.patch.object(ProgramFixtureView, 'MAX_REQUESTED_PROGRAMS', 1):
+            with self.assertNumQueries(self.queries(2)):
+                response = self.get([program_1.uuid, program_2.uuid])
+        self.assertEqual(response.status_code, 422)
+
+    def test_404_bad_input(self):
+        self.login_staff()
+        with self.assertNumQueries(self.queries(0)):
+            response = self.get(['this-is-not-a-uuid'])
+        self.assertEqual(response.status_code, 404)
+
+    def test_404_nonexistent(self):
+        self.login_staff()
+        program = self.create_program([OrganizationFactory()])
+        bad_uuid = 'e9222eb7-7218-4a8b-9dff-b42bafbf6ed7'
+        with self.assertNumQueries(self.queries(1)):
+            response = self.get([program.uuid, bad_uuid])
+        self.assertEqual(response.status_code, 404)

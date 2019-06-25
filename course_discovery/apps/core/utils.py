@@ -128,3 +128,10 @@ class SearchQuerySetWrapper(object):
             return self.qs[key].object
         # Pass the slice/range on to the delegate
         return SearchQuerySetWrapper(self.qs[key])
+
+
+def use_read_replica_if_available(queryset):
+    """
+    If there is a database called 'read_replica', use that database for the queryset.
+    """
+    return queryset.using("read_replica") if "read_replica" in settings.DATABASES else queryset
