@@ -4,8 +4,9 @@ import zlib
 
 from django.conf import settings
 from django.core.cache import cache
+from rest_framework.renderers import JSONRenderer
 from rest_framework_extensions.cache.decorators import CacheResponse
-from rest_framework_extensions.key_constructor.bits import KeyBitBase, QueryParamsKeyBit, UserKeyBit
+from rest_framework_extensions.key_constructor.bits import KeyBitBase, QueryParamsKeyBit
 from rest_framework_extensions.key_constructor.constructors import (
     DefaultListKeyConstructor, DefaultObjectKeyConstructor
 )
@@ -28,10 +29,6 @@ class TimestampedListKeyConstructor(DefaultListKeyConstructor):
     # cache collisions when other query params are involved. For more, see:
     # https://github.com/chibisov/drf-extensions/blob/master/rest_framework_extensions/key_constructor/bits.py#L48-L49
     querystring = QueryParamsKeyBit()
-    # The UserKeyBit ensures that responses are only cached on a per-user basis,
-    # to avoid the issue where another user's username will appear in the api view
-    # rendered response, even though you are not actually the other user.
-    user = UserKeyBit()
 
 
 class TimestampedObjectKeyConstructor(DefaultObjectKeyConstructor):
@@ -39,10 +36,6 @@ class TimestampedObjectKeyConstructor(DefaultObjectKeyConstructor):
     # The DefaultObjectKeyConstructor doesn't include querystring parameters
     # in its cache key.
     querystring = QueryParamsKeyBit()
-    # The UserKeyBit ensures that responses are only cached on a per-user basis,
-    # to avoid the issue where another user's username will appear in the api view
-    # rendered response, even though you are not actually the other user.
-    user = UserKeyBit()
 
 
 def timestamped_list_key_constructor(*args, **kwargs):  # pylint: disable=unused-argument
@@ -95,7 +88,11 @@ class CompressedCacheResponse(CacheResponse):
             response = view_instance.finalize_response(request, response, *args, **kwargs)
             response.render()  # should be rendered, before pickling while storing to cache
 
-            if not response.status_code >= 400 or self.cache_errors:
+            if (not (response.status_code >= 400 or self.cache_errors) and
+                    isinstance(response.accepted_renderer, JSONRenderer)):
+                # Put the response in the cache only if there are no cache errors, response errors,
+                # and the format is json. We avoid caching for the BrowsableAPIRenderer so that users don't see
+                # different usernames that are cached from the BrowsableAPIRenderer html
                 self.cache.set(key, response, self.timeout)
 
         if not hasattr(response, '_closable_objects'):

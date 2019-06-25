@@ -3,6 +3,7 @@ import zlib
 from django.core.cache import cache
 from django.test import TestCase
 from rest_framework import permissions, views
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework_extensions.test import APIRequestFactory
 
@@ -24,6 +25,7 @@ class CompressedCacheResponseTest(TestCase):
 
         class TestView(views.APIView):
             permission_classes = [permissions.AllowAny]
+            renderer_classes = [JSONRenderer]
 
             @compressed_cache_response(key_func=key_func)
             def get(self, request, *args, **kwargs):
@@ -46,6 +48,7 @@ class CompressedCacheResponseTest(TestCase):
 
         class TestView(views.APIView):
             permission_classes = [permissions.AllowAny]
+            renderer_classes = [JSONRenderer]
 
             @compressed_cache_response(key_func=key_func)
             def get(self, request, *args, **kwargs):
@@ -66,3 +69,23 @@ class CompressedCacheResponseTest(TestCase):
 
         response = view_instance.dispatch(request=self.request)
         self.assertEqual(response.content.decode('utf-8'), '"compressed cached test response"')
+
+    def test_should_not_cache_for_non_json_responses(self):
+        """ Verify that the decorator does not cache if the response is not json """
+        def key_func(**kwargs):  # pylint: disable=unused-argument
+            return 'non_json_cache_key'
+
+        class TestView(views.APIView):
+            permission_classes = [permissions.AllowAny]
+            renderer_classes = [BrowsableAPIRenderer]  # Non-json responses
+
+            @compressed_cache_response(key_func=key_func)
+            def get(self, request, *args, **kwargs):
+                return Response('test response')
+
+        view_instance = TestView()
+        view_instance.headers = {}  # pylint: disable=attribute-defined-outside-init
+        view_instance.dispatch(request=self.request)
+
+        # Verify nothing was cached
+        self.assertEqual(cache.get('non_json_cache_key'), None)
