@@ -139,8 +139,6 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertEqual(response.status_code, 400)
         self.assertDictEqual(response.data, {
             'course': ['This field is required.'],
-            'start': ['This field is required.'],
-            'end': ['This field is required.'],
         })
 
         # Send minimum requested
@@ -268,17 +266,33 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 400)  # missing start, but at least we got that far
 
-    def test_create_fails_with_missing_fields(self):
+    def test_create_fails_with_all_missing_fields(self):
         course = self.draft_course_run.course
         new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
         self.mock_post_to_studio(new_key)
         url = reverse('api:v1:course_run-list')
 
-        # Send nothing - expect complaints
+        # Send nothing - expect missing course complaint
         response = self.client.post(url, {}, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertDictEqual(response.data, {
             'course': ['This field is required.'],
+        })
+
+    def test_create_fails_with_partial_missing_fields(self):
+        course = self.draft_course_run.course
+        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        self.mock_post_to_studio(new_key)
+        url = reverse('api:v1:course_run-list')
+
+        data = {
+            'course': course.key,
+        }
+
+        # Send just course key - expect complaints
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(response.data, {
             'start': ['This field is required.'],
             'end': ['This field is required.'],
         })
