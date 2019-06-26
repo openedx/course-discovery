@@ -18,7 +18,6 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
-from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithRelatedChoices
@@ -53,7 +52,7 @@ def writable_request_wrapper(method):
 
 
 # pylint: disable=no-member
-class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
+class CourseViewSet(viewsets.ModelViewSet):
     """ Course resource. """
 
     filter_backends = (DjangoFilterBackend, rest_framework_filters.OrderingFilter)

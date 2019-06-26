@@ -36,7 +36,13 @@ class CompressedCacheResponseTest(TestCase):
         uncompressed_cached_response = Response('cached test response')
         view_instance.finalize_response(request=self.request, response=uncompressed_cached_response)
         uncompressed_cached_response.render()
-        cache.set(self.cache_response_key, uncompressed_cached_response)
+
+        response_triple = (
+            uncompressed_cached_response.rendered_content,
+            uncompressed_cached_response.status_code,
+            uncompressed_cached_response._headers.copy(),  # pylint: disable=protected-access
+        )
+        cache.set(self.cache_response_key, response_triple)
 
         response = view_instance.dispatch(request=self.request)
         self.assertEqual(response.content.decode('utf-8'), '"cached test response"')
@@ -60,12 +66,13 @@ class CompressedCacheResponseTest(TestCase):
         view_instance.finalize_response(request=self.request, response=compressed_cached_response)
         compressed_cached_response.render()
 
-        # Data is encoded and compressed before response goes into the cache
-        compressed_cached_response.data = zlib.compress(compressed_cached_response.data.encode('utf-8'))
-        cache.set(
-            self.cache_response_key,
-            compressed_cached_response,
+        # Rendered content is compressed before response goes into the cache
+        response_triple = (
+            zlib.compress(compressed_cached_response.rendered_content),
+            compressed_cached_response.status_code,
+            compressed_cached_response._headers.copy(),  # pylint: disable=protected-access
         )
+        cache.set(self.cache_response_key, response_triple)
 
         response = view_instance.dispatch(request=self.request)
         self.assertEqual(response.content.decode('utf-8'), '"compressed cached test response"')
