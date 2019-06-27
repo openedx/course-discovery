@@ -2,10 +2,11 @@
 from rest_framework import viewsets
 
 from course_discovery.apps.api import serializers
+from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.permissions import ReadOnlyByPublisherUser
 
 
-class PathwayViewSet(viewsets.ReadOnlyModelViewSet):
+class PathwayViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     permission_classes = (ReadOnlyByPublisherUser,)
     serializer_class = serializers.PathwaySerializer
 
