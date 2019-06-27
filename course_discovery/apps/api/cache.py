@@ -4,6 +4,7 @@ import zlib
 
 from django.conf import settings
 from django.core.cache import cache
+from django.http.response import HttpResponse
 from rest_framework.renderers import JSONRenderer
 from rest_framework_extensions.cache.decorators import CacheResponse
 from rest_framework_extensions.key_constructor.bits import KeyBitBase, QueryParamsKeyBit
@@ -70,8 +71,8 @@ def api_change_receiver(sender, **kwargs):  # pylint: disable=unused-argument
 class CompressedCacheResponse(CacheResponse):
     """
     Subclasses CacheResponse to allow for compression of content going into the cache
-    See https://github.com/chibisov/drf-extensions/blob/0.3.1/rest_framework_extensions/cache/decorators.py#L52
-    for the implementation of process_cache_response without compression
+    See https://github.com/chibisov/drf-extensions/blob/master/rest_framework_extensions/cache/decorators.py#L52
+    for a similar implementation of process_cache_response without compression
     """
     def process_cache_response(self, view_instance, view_method, request, args, kwargs):
         key = self.calculate_key(
@@ -81,28 +82,41 @@ class CompressedCacheResponse(CacheResponse):
             args=args,
             kwargs=kwargs
         )
-        response = self.cache.get(key)
+        response_triple = self.cache.get(key)
 
-        if not response:
+        if not response_triple:
             response = view_method(view_instance, request, *args, **kwargs)
             response = view_instance.finalize_response(request, response, *args, **kwargs)
-            response.render()  # should be rendered, before pickling while storing to cache
+            response.render()
 
             if (not (response.status_code >= 400 or self.cache_errors) and
                     isinstance(response.accepted_renderer, JSONRenderer)):
                 # Put the response in the cache only if there are no cache errors, response errors,
                 # and the format is json. We avoid caching for the BrowsableAPIRenderer so that users don't see
                 # different usernames that are cached from the BrowsableAPIRenderer html
-                self.cache.set(key, response, self.timeout)
+                response_triple = (
+                    zlib.compress(response.rendered_content),
+                    response.status_code,
+                    response._headers.copy(),  # pylint: disable=protected-access
+                )
+                self.cache.set(key, response_triple, self.timeout)
+        else:
+            # If we get data from the cache, we reassemble the data to build a response
+            # We reassemble the pieces from the cache because we can't actually set rendered_content
+            # which is the part of the response that we compress
+            compressed_content, status, headers = response_triple
+
+            try:
+                decompressed_content = zlib.decompress(compressed_content)
+            except (TypeError, zlib.error):
+                # If we get a type error or a zlib error, the response content was never compressed
+                decompressed_content = compressed_content
+
+            response = HttpResponse(content=decompressed_content, status=status)
+            response._headers = headers  # pylint: disable=protected-access
 
         if not hasattr(response, '_closable_objects'):
             response._closable_objects = []  # pylint: disable=protected-access
-
-        try:
-            response.data = zlib.decompress(response.data)
-        except TypeError:
-            # If we get a type error, the response data was never compressed
-            pass
 
         return response
 
