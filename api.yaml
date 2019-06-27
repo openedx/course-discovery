@@ -245,6 +245,13 @@ endpoints:
           httpMethod: GET
           requestParameters: 
             integration.request.header.Authorization: method.request.header.Authorization
+            integration.request.querystring.exclude_utm: method.request.querystring.exclude_utm
+            integration.request.querystring.fields: method.request.querystring.fields
+            integration.request.querystring.include_hidden_course_runs: method.request.querystring.include_hidden_course_runs
+            integration.request.querystring.limit: method.request.querystring.limit
+            integration.request.querystring.offset: method.request.querystring.offset
+            integration.request.querystring.omit: method.request.querystring.omit
+            integration.request.querystring.q: method.request.querystring.q
           responses: 
             200: 
               statusCode: "200"
@@ -277,16 +284,6 @@ endpoints:
             name: uuid
             required: true
             type: string
-          - 
-            in: query
-            name: limit
-            required: false
-            type: number
-          - 
-            in: query
-            name: offset
-            required: false
-            type: number
           - 
             in: query
             name: exclude_utm
@@ -334,6 +331,13 @@ endpoints:
           requestParameters: 
             integration.request.header.Authorization: method.request.header.Authorization
             integration.request.path.uuid: method.request.path.uuid
+            integration.request.querystring.exclude_utm: method.request.querystring.exclude_utm
+            integration.request.querystring.fields: method.request.querystring.fields
+            integration.request.querystring.include_hidden_course_runs: method.request.querystring.include_hidden_course_runs
+            integration.request.querystring.limit: method.request.querystring.limit
+            integration.request.querystring.offset: method.request.querystring.offset
+            integration.request.querystring.omit: method.request.querystring.omit
+            integration.request.querystring.q: method.request.querystring.q
           responses: 
             200: 
               statusCode: "200"
@@ -426,6 +430,15 @@ endpoints:
           httpMethod: GET
           requestParameters: 
             integration.request.header.Authorization: method.request.header.Authorization
+            integration.request.querystring.exclude_utm: method.request.querystring.exclude_utm
+            integration.request.querystring.fields: method.request.querystring.fields
+            integration.request.querystring.limit: method.request.querystring.limit
+            integration.request.querystring.marketable_enrollable_course_runs_with_archived: method.request.querystring.marketable_enrollable_course_runs_with_archived
+            integration.request.querystring.offset: method.request.querystring.offset
+            integration.request.querystring.omit: method.request.querystring.omit
+            integration.request.querystring.published_course_runs_only: method.request.querystring.published_course_runs_only
+            integration.request.querystring.q: method.request.querystring.q
+            integration.request.querystring.status: method.request.querystring.status
           responses: 
             200: 
               statusCode: "200"
@@ -458,16 +471,6 @@ endpoints:
             name: uuid
             required: true
             type: string
-          - 
-            in: query
-            name: limit
-            required: false
-            type: number
-          - 
-            in: query
-            name: offset
-            required: false
-            type: number
           - 
             in: query
             name: exclude_utm
@@ -525,6 +528,13 @@ endpoints:
           requestParameters: 
             integration.request.header.Authorization: method.request.header.Authorization
             integration.request.path.uuid: method.request.path.uuid
+            integration.request.querystring.exclude_utm: method.request.querystring.exclude_utm
+            integration.request.querystring.fields: method.request.querystring.fields
+            integration.request.querystring.marketable_enrollable_course_runs_with_archived: method.request.querystring.marketable_enrollable_course_runs_with_archived
+            integration.request.querystring.omit: method.request.querystring.omit
+            integration.request.querystring.published_course_runs_only: method.request.querystring.published_course_runs_only
+            integration.request.querystring.q: method.request.querystring.q
+            integration.request.querystring.status: method.request.querystring.status
           responses: 
             200: 
               statusCode: "200"
@@ -643,11 +653,18 @@ x-amazon-apigateway-integration:
     default: 
       statusCode: "400"
   type: http
-x-amazon-apigateway-integration-with-id: 
+x-amazon-apigateway-integration-course-detail: 
   httpMethod: GET
   requestParameters: 
     integration.request.header.Authorization: method.request.header.Authorization
-    integration.request.path.id: method.request.path.id
+    integration.request.path.uuid: method.request.path.uuid
+    integration.request.querystring.exclude_utm: method.request.querystring.exclude_utm
+    integration.request.querystring.fields: method.request.querystring.fields
+    integration.request.querystring.include_hidden_course_runs: method.request.querystring.include_hidden_course_runs
+    integration.request.querystring.limit: method.request.querystring.limit
+    integration.request.querystring.offset: method.request.querystring.offset
+    integration.request.querystring.omit: method.request.querystring.omit
+    integration.request.querystring.q: method.request.querystring.q
   responses: 
     200: 
       statusCode: "200"
@@ -664,11 +681,95 @@ x-amazon-apigateway-integration-with-id:
     default: 
       statusCode: "400"
   type: http
-x-amazon-apigateway-integration-with-uuid: 
+x-amazon-apigateway-integration-course-list: 
+  httpMethod: GET
+  requestParameters: 
+    integration.request.header.Authorization: method.request.header.Authorization
+    integration.request.querystring.exclude_utm: method.request.querystring.exclude_utm
+    integration.request.querystring.fields: method.request.querystring.fields
+    integration.request.querystring.include_hidden_course_runs: method.request.querystring.include_hidden_course_runs
+    integration.request.querystring.limit: method.request.querystring.limit
+    integration.request.querystring.offset: method.request.querystring.offset
+    integration.request.querystring.omit: method.request.querystring.omit
+    integration.request.querystring.q: method.request.querystring.q
+  responses: 
+    200: 
+      statusCode: "200"
+    401: 
+      statusCode: "401"
+    403: 
+      statusCode: "403"
+    404: 
+      statusCode: "404"
+    429: 
+      statusCode: "429"
+    500: 
+      statusCode: "500"
+    default: 
+      statusCode: "400"
+  type: http
+x-amazon-apigateway-integration-program-detail: 
   httpMethod: GET
   requestParameters: 
     integration.request.header.Authorization: method.request.header.Authorization
     integration.request.path.uuid: method.request.path.uuid
+    integration.request.querystring.exclude_utm: method.request.querystring.exclude_utm
+    integration.request.querystring.fields: method.request.querystring.fields
+    integration.request.querystring.marketable_enrollable_course_runs_with_archived: method.request.querystring.marketable_enrollable_course_runs_with_archived
+    integration.request.querystring.omit: method.request.querystring.omit
+    integration.request.querystring.published_course_runs_only: method.request.querystring.published_course_runs_only
+    integration.request.querystring.q: method.request.querystring.q
+    integration.request.querystring.status: method.request.querystring.status
+  responses: 
+    200: 
+      statusCode: "200"
+    401: 
+      statusCode: "401"
+    403: 
+      statusCode: "403"
+    404: 
+      statusCode: "404"
+    429: 
+      statusCode: "429"
+    500: 
+      statusCode: "500"
+    default: 
+      statusCode: "400"
+  type: http
+x-amazon-apigateway-integration-program-list: 
+  httpMethod: GET
+  requestParameters: 
+    integration.request.header.Authorization: method.request.header.Authorization
+    integration.request.querystring.exclude_utm: method.request.querystring.exclude_utm
+    integration.request.querystring.fields: method.request.querystring.fields
+    integration.request.querystring.limit: method.request.querystring.limit
+    integration.request.querystring.marketable_enrollable_course_runs_with_archived: method.request.querystring.marketable_enrollable_course_runs_with_archived
+    integration.request.querystring.offset: method.request.querystring.offset
+    integration.request.querystring.omit: method.request.querystring.omit
+    integration.request.querystring.published_course_runs_only: method.request.querystring.published_course_runs_only
+    integration.request.querystring.q: method.request.querystring.q
+    integration.request.querystring.status: method.request.querystring.status
+  responses: 
+    200: 
+      statusCode: "200"
+    401: 
+      statusCode: "401"
+    403: 
+      statusCode: "403"
+    404: 
+      statusCode: "404"
+    429: 
+      statusCode: "429"
+    500: 
+      statusCode: "500"
+    default: 
+      statusCode: "400"
+  type: http
+x-amazon-apigateway-integration-with-id: 
+  httpMethod: GET
+  requestParameters: 
+    integration.request.header.Authorization: method.request.header.Authorization
+    integration.request.path.id: method.request.path.id
   responses: 
     200: 
       statusCode: "200"
