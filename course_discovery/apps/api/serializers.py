@@ -692,13 +692,9 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     def validate(self, data):
         start = data.get('start', self.instance.start if self.instance else None)
         end = data.get('end', self.instance.end if self.instance else None)
-        go_live_date = data.get('go_live_date', self.instance.go_live_date if self.instance else None)
 
         if start and end and start > end:
             raise serializers.ValidationError({'start': _('Start date cannot be after the End date')})
-
-        if go_live_date and start and go_live_date > start:
-            raise serializers.ValidationError({'publish_date': _('Publish date cannot be after the Start date.')})
 
         if not self.instance:  # if we're creating an object, we need to make sure to generate a key
             self.ensure_key(data)
