@@ -150,8 +150,6 @@ x-amazon-apigateway-integration-course-detail: &apigateway_integration_course_de
   requestParameters:
     integration.request.header.Authorization: "method.request.header.Authorization"
     integration.request.path.uuid: "method.request.path.uuid"
-    integration.request.querystring.limit: "method.request.querystring.limit"
-    integration.request.querystring.offset: "method.request.querystring.offset"
     integration.request.querystring.exclude_utm: "method.request.querystring.exclude_utm"
     integration.request.querystring.fields: "method.request.querystring.fields"
     integration.request.querystring.omit: "method.request.querystring.omit"
