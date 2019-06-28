@@ -334,8 +334,6 @@ endpoints:
             integration.request.querystring.exclude_utm: method.request.querystring.exclude_utm
             integration.request.querystring.fields: method.request.querystring.fields
             integration.request.querystring.include_hidden_course_runs: method.request.querystring.include_hidden_course_runs
-            integration.request.querystring.limit: method.request.querystring.limit
-            integration.request.querystring.offset: method.request.querystring.offset
             integration.request.querystring.omit: method.request.querystring.omit
             integration.request.querystring.q: method.request.querystring.q
           responses: 
@@ -661,8 +659,6 @@ x-amazon-apigateway-integration-course-detail:
     integration.request.querystring.exclude_utm: method.request.querystring.exclude_utm
     integration.request.querystring.fields: method.request.querystring.fields
     integration.request.querystring.include_hidden_course_runs: method.request.querystring.include_hidden_course_runs
-    integration.request.querystring.limit: method.request.querystring.limit
-    integration.request.querystring.offset: method.request.querystring.offset
     integration.request.querystring.omit: method.request.querystring.omit
     integration.request.querystring.q: method.request.querystring.q
   responses: 
