@@ -129,6 +129,66 @@ x-amazon-apigateway-integration: &apigateway_integration
   requestParameters:
     integration.request.header.Authorization: "method.request.header.Authorization"
 
+x-amazon-apigateway-integration-course-list: &apigateway_integration_course_list
+  responses: *apigateway_responses
+  httpMethod: "GET"
+  type: "http"
+  requestParameters:
+    integration.request.header.Authorization: "method.request.header.Authorization"
+    integration.request.querystring.limit: "method.request.querystring.limit"
+    integration.request.querystring.offset: "method.request.querystring.offset"
+    integration.request.querystring.exclude_utm: "method.request.querystring.exclude_utm"
+    integration.request.querystring.fields: "method.request.querystring.fields"
+    integration.request.querystring.omit: "method.request.querystring.omit"
+    integration.request.querystring.include_hidden_course_runs: "method.request.querystring.include_hidden_course_runs"
+    integration.request.querystring.q: "method.request.querystring.q"
+
+x-amazon-apigateway-integration-course-detail: &apigateway_integration_course_detail
+  responses: *apigateway_responses
+  httpMethod: "GET"
+  type: "http"
+  requestParameters:
+    integration.request.header.Authorization: "method.request.header.Authorization"
+    integration.request.path.uuid: "method.request.path.uuid"
+    integration.request.querystring.limit: "method.request.querystring.limit"
+    integration.request.querystring.offset: "method.request.querystring.offset"
+    integration.request.querystring.exclude_utm: "method.request.querystring.exclude_utm"
+    integration.request.querystring.fields: "method.request.querystring.fields"
+    integration.request.querystring.omit: "method.request.querystring.omit"
+    integration.request.querystring.include_hidden_course_runs: "method.request.querystring.include_hidden_course_runs"
+    integration.request.querystring.q: "method.request.querystring.q"
+
+x-amazon-apigateway-integration-program-list: &apigateway_integration_program_list
+  responses: *apigateway_responses
+  httpMethod: "GET"
+  type: "http"
+  requestParameters:
+    integration.request.header.Authorization: "method.request.header.Authorization"
+    integration.request.querystring.limit: "method.request.querystring.limit"
+    integration.request.querystring.offset: "method.request.querystring.offset"
+    integration.request.querystring.exclude_utm: "method.request.querystring.exclude_utm"
+    integration.request.querystring.fields: "method.request.querystring.fields"
+    integration.request.querystring.omit: "method.request.querystring.omit"
+    integration.request.querystring.published_course_runs_only: "method.request.querystring.published_course_runs_only"
+    integration.request.querystring.marketable_enrollable_course_runs_with_archived: "method.request.querystring.marketable_enrollable_course_runs_with_archived"
+    integration.request.querystring.status: "method.request.querystring.status"
+    integration.request.querystring.q: "method.request.querystring.q"
+
+x-amazon-apigateway-integration-program-detail: &apigateway_integration_program_detail
+  responses: *apigateway_responses
+  httpMethod: "GET"
+  type: "http"
+  requestParameters:
+    integration.request.header.Authorization: "method.request.header.Authorization"
+    integration.request.path.uuid: "method.request.path.uuid"
+    integration.request.querystring.exclude_utm: "method.request.querystring.exclude_utm"
+    integration.request.querystring.fields: "method.request.querystring.fields"
+    integration.request.querystring.omit: "method.request.querystring.omit"
+    integration.request.querystring.published_course_runs_only: "method.request.querystring.published_course_runs_only"
+    integration.request.querystring.marketable_enrollable_course_runs_with_archived: "method.request.querystring.marketable_enrollable_course_runs_with_archived"
+    integration.request.querystring.status: "method.request.querystring.status"
+    integration.request.querystring.q: "method.request.querystring.q"
+
 x-amazon-apigateway-integration-with-id: &apigateway_integration_with_id_parameter
   responses: *apigateway_responses
   httpMethod: "GET"
@@ -137,13 +197,6 @@ x-amazon-apigateway-integration-with-id: &apigateway_integration_with_id_paramet
     integration.request.header.Authorization: "method.request.header.Authorization"
     integration.request.path.id: "method.request.path.id"
 
-x-amazon-apigateway-integration-with-uuid: &apigateway_integration_with_uuid_parameter
-  responses: *apigateway_responses
-  httpMethod: "GET"
-  type: "http"
-  requestParameters:
-    integration.request.header.Authorization: "method.request.header.Authorization"
-    integration.request.path.uuid: "method.request.path.uuid"
 
 endpoints:
   v1:
@@ -202,7 +255,7 @@ endpoints:
           operationId: "get_courses"
           responses: *responses
           x-amazon-apigateway-integration:
-            <<: *apigateway_integration
+            <<: *apigateway_integration_course_list
             uri: "https://${stageVariables.discovery_host}/v1/courses/"
 
     # /v1/courses/{uuid}
@@ -212,8 +265,6 @@ endpoints:
           parameters:
             - *auth_header
             - *uuid_parameter
-            - *limit_qs_parameter
-            - *offset_qs_parameter
             - *exclude_utm_parameter
             - *fields_parameter
             - *omit_parameter
@@ -222,7 +273,7 @@ endpoints:
           operationId: "get_courses_by_uuid"
           responses: *responses
           x-amazon-apigateway-integration:
-            <<: *apigateway_integration_with_uuid_parameter
+            <<: *apigateway_integration_course_detail
             uri: "https://${stageVariables.discovery_host}/v1/courses/{uuid}/"
 
     # /v1/programs
@@ -243,7 +294,7 @@ endpoints:
           operationId: "get_programs"
           responses: *responses
           x-amazon-apigateway-integration:
-            <<: *apigateway_integration
+            <<: *apigateway_integration_program_list
             uri: "https://${stageVariables.discovery_host}/v1/programs/"
 
     # /v1/programs/{uuid}
@@ -253,8 +304,6 @@ endpoints:
           parameters:
             - *auth_header
             - *uuid_parameter
-            - *limit_qs_parameter
-            - *offset_qs_parameter
             - *exclude_utm_parameter
             - *fields_parameter
             - *omit_parameter
@@ -265,5 +314,5 @@ endpoints:
           operationId: "get_programs_by_uuid"
           responses: *responses
           x-amazon-apigateway-integration:
-            <<: *apigateway_integration_with_uuid_parameter
+            <<: *apigateway_integration_program_detail
             uri: "https://${stageVariables.discovery_host}/v1/programs/{uuid}/"
