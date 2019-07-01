@@ -703,6 +703,29 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(self.course.title, 'Fake Test')
 
     @responses.activate
+    def test_update_creates_draft_audit_entitlement_if_none_exists(self):
+        """
+        When an official version has no entitlements, it could be an audit course so we can create
+        a draft audit entitlement. This happens as part of the call to ensure_draft_world.
+        """
+        self.mock_access_token()
+        self.assertFalse(CourseEntitlement.everything.filter(course=self.course).exists())  # pylint: disable=no-member
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.patch(url, {'entitlements': [{}]}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        entitlement = course.entitlements.first()
+        self.assertTrue(entitlement.draft)
+        self.assertEqual(entitlement.mode.slug, Seat.AUDIT)
+        self.assertEqual(entitlement.price, 0.00)
+
+        self.course.refresh_from_db()
+        self.assertFalse(self.course.draft)
+        self.assertFalse(self.course.entitlements.exists())
+
+    @responses.activate
     def test_patch_published(self):
         """
         Verify that draft rows can be updated and re-published with draft=False. This should also
@@ -881,7 +904,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @ddt.data(
         (
-            {'entitlements': [{}]},
+            {'entitlements': [{'price': 5}]},
             'Entitlements must have a mode specified.',
         ),
         (

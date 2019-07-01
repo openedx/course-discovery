@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-27 18:59+0000\n"
+"POT-Creation-Date: 2019-07-01 14:50+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -93,50 +93,50 @@ msgstr ""
 msgid "Course run is in review. Editing disabled."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:48
+#: apps/api/v1/views/courses.py:49
 msgid "An error occurred while setting Course or Course Run data."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:49
+#: apps/api/v1/views/courses.py:50
 msgid "Failed to set data: {}"
 msgstr ""
 
-#: apps/api/v1/views/courses.py:169
+#: apps/api/v1/views/courses.py:170
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:171
+#: apps/api/v1/views/courses.py:172
 msgid "Organization does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:173
+#: apps/api/v1/views/courses.py:174
 msgid "Entitlement Track does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:175
+#: apps/api/v1/views/courses.py:176
 msgid "Incorrect data sent. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:188
+#: apps/api/v1/views/courses.py:189
 #, python-brace-format
 msgid "A course with key {key} already exists."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:227
+#: apps/api/v1/views/courses.py:228
 msgid "Entitlements must have a mode specified."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:231
+#: apps/api/v1/views/courses.py:232
 msgid "Entitlement mode {} not found."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:235
+#: apps/api/v1/views/courses.py:236
 #, python-brace-format
 msgid "Existing entitlement not found for course {0}."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:244
+#: apps/api/v1/views/courses.py:245
 msgid ""
 "Switching entitlement modes after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."

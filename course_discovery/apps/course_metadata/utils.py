@@ -190,7 +190,7 @@ def ensure_draft_world(obj):
             for entitlement in original_course.entitlements.all():
                 set_draft_state(entitlement, CourseEntitlement, {'course': draft_course})
         else:
-            mode = SeatType.objects.get(slug='audit')
+            mode = SeatType.objects.get(slug=Seat.AUDIT)
             CourseEntitlement.objects.create(
                 course=draft_course,
                 mode=mode,
