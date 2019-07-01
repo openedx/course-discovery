@@ -269,6 +269,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # First, update nested entitlements
         entitlements = []
         for entitlement_data in entitlements_data:
+            if entitlement_data == {}:
+                continue
             entitlements.append(self.update_entitlement(course, entitlement_data, partial=partial))
         if entitlements:
             course.entitlements = entitlements
