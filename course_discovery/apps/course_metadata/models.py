@@ -778,12 +778,14 @@ class CourseEditor(TimeStampedModel):
         # for it. This handles cases of being dropped from an org... But might be too restrictive in case we want
         # to allow outside guest editors on a course? Let's try this for now and see how it goes.
         valid_editors = course.editors.filter(user__groups__organization_extension__organization__in=authoring_orgs)
+        valid_editors = valid_editors.select_related('user')
 
         if valid_editors:
             return {editor.user for editor in valid_editors}
 
         # No valid editors - this is an edge case where we just grant anyone in an authoring org access
-        return get_user_model().objects.filter(groups__organization_extension__organization__in=authoring_orgs)
+        user_model = get_user_model()
+        return user_model.objects.filter(groups__organization_extension__organization__in=authoring_orgs).distinct()
 
     @classmethod
     def is_course_editable(cls, user, course):
@@ -802,7 +804,11 @@ class CourseEditor(TimeStampedModel):
             editors__user__groups__organization_extension__organization__in=F('authoring_organizations')
         )
         has_user_editor = Q(editors__user=user)
-        return queryset.filter(has_user_editor | ~has_valid_editors, authoring_organizations__in=user_orgs)
+        user_can_edit = has_user_editor | ~has_valid_editors
+
+        # We use distinct() here because the query is complicated enough, spanning tables and following lists of
+        # foreign keys, that django will return duplicate rows if we aren't careful to ask it not to.
+        return queryset.filter(user_can_edit, authoring_organizations__in=user_orgs).distinct()
 
     @classmethod
     def editable_course_runs(cls, user, queryset):
@@ -814,7 +820,11 @@ class CourseEditor(TimeStampedModel):
             course__editors__user__groups__organization_extension__organization__in=F('course__authoring_organizations')
         )
         has_user_editor = Q(course__editors__user=user)
-        return queryset.filter(has_user_editor | ~has_valid_editors, course__authoring_organizations__in=user_orgs)
+        user_can_edit = has_user_editor | ~has_valid_editors
+
+        # We use distinct() here because the query is complicated enough, spanning tables and following lists of
+        # foreign keys, that django will return duplicate rows if we aren't careful to ask it not to.
+        return queryset.filter(user_can_edit, course__authoring_organizations__in=user_orgs).distinct()
 
 
 class CourseRun(DraftModelMixin, TimeStampedModel):
