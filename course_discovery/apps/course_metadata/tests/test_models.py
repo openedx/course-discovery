@@ -4,6 +4,7 @@ import datetime
 import itertools
 import uuid
 from decimal import Decimal
+from functools import partial
 
 import ddt
 import mock
@@ -345,7 +346,8 @@ class TestCourseEditor(TestCase):
     def setUp(self):
         super().setUp()
         self.user = factories.UserFactory()
-        self.qs = Course.objects.all()
+        self.courses_qs = Course.objects.all()
+        self.runs_qs = CourseRun.objects.all()
 
         self.org_ext = OrganizationExtensionFactory()
         self.user.groups.add(self.org_ext.group)
@@ -354,52 +356,88 @@ class TestCourseEditor(TestCase):
 
         # Course with no editors
         self.course_no_editors = factories.CourseFactory(title="no editors")
+        self.run_no_editors = factories.CourseRunFactory(course=self.course_no_editors)
 
         # Course with an invalid editor (no group membership)
         bad_editor = factories.UserFactory()
         self.course_bad_editor = factories.CourseFactory(title="bad editor")
+        self.run_bad_editor = factories.CourseRunFactory(course=self.course_bad_editor)
         factories.CourseEditorFactory(user=bad_editor, course=self.course_bad_editor)
 
         # Course with an invalid editor (but course is in our group)
         self.course_bad_editor_in_group = factories.CourseFactory(title="bad editor in group")
         self.course_bad_editor_in_group.authoring_organizations.add(self.org_ext.organization)  # pylint: disable=no-member
+        self.run_bad_editor_in_group = factories.CourseRunFactory(course=self.course_bad_editor_in_group)
         factories.CourseEditorFactory(user=bad_editor, course=self.course_bad_editor_in_group)
 
         # Course with a valid other editor
-        good_editor = factories.UserFactory()
-        good_editor.groups.add(self.org_ext.group)
+        self.good_editor = factories.UserFactory()
+        self.good_editor.groups.add(self.org_ext.group)
         self.course_good_editor = factories.CourseFactory(title="good editor")
         self.course_good_editor.authoring_organizations.add(self.org_ext.organization)  # pylint: disable=no-member
-        factories.CourseEditorFactory(user=good_editor, course=self.course_good_editor)
+        self.run_good_editor = factories.CourseRunFactory(course=self.course_good_editor)
+        factories.CourseEditorFactory(user=self.good_editor, course=self.course_good_editor)
 
         # Course with user as an invalid editor (no group membership)
         self.course_no_group = factories.CourseFactory(title="no group")
+        self.run_no_group = factories.CourseRunFactory(course=self.course_no_group)
         factories.CourseEditorFactory(user=self.user, course=self.course_no_group)
 
         # Course with user as an valid editor
         self.course_editor = factories.CourseFactory(title="editor")
         self.course_editor.authoring_organizations.add(self.org_ext.organization)  # pylint: disable=no-member
+        self.run_editor = factories.CourseRunFactory(course=self.course_editor)
         factories.CourseEditorFactory(user=self.user, course=self.course_editor)
 
-    def filter_editable(self):
-        return CourseEditor.editable_courses(self.user, self.qs)
+        # Add another authoring_org, which will cause django to return duplicates, if we don't filter them out
+        org_ext2 = OrganizationExtensionFactory()
+        self.user.groups.add(org_ext2.group)
+        self.course_editor.authoring_organizations.add(org_ext2.organization)  # pylint: disable=no-member
+        self.course_bad_editor_in_group.authoring_organizations.add(org_ext2.organization)  # pylint: disable=no-member
+
+    def filter_editable_courses(self):
+        return CourseEditor.editable_courses(self.user, self.courses_qs)
+
+    def filter_editable_course_runs(self):
+        return CourseEditor.editable_course_runs(self.user, self.runs_qs)
+
+    def assertResultsEqual(self, method, expected_result, queries=None):
+        if queries is None:
+            result = list(method())
+        else:
+            with self.assertNumQueries(queries):
+                result = list(method())
+
+        self.assertEqual(len(result), len(expected_result))
+        self.assertEqual(set(result), set(expected_result))
 
     def test_editable_is_staff(self):
-        """ Verify staff users can see all courses. """
+        """ Verify staff users can see everything. """
         self.user.is_staff = True
         self.user.save()
-        with self.assertNumQueries(0):
-            self.assertEqual(self.filter_editable(), self.qs)
+        self.assertResultsEqual(self.filter_editable_courses, self.courses_qs)
+        self.assertResultsEqual(self.filter_editable_course_runs, self.runs_qs)
 
     def test_editable_no_access(self):
         """ Verify users without any editor status see nothing. """
         self.user.groups.clear()
-        self.assertEqual(list(self.filter_editable()), [])
+        self.assertResultsEqual(self.filter_editable_courses, [], queries=1)
+        self.assertResultsEqual(self.filter_editable_course_runs, [], queries=1)
 
-    def test_editable(self):
+    def test_editable_filter(self):
         """ Verify users can see courses they can edit. """
-        with self.assertNumQueries(1):
-            self.assertEqual(list(self.filter_editable()), [self.course_bad_editor_in_group, self.course_editor])
+        self.assertResultsEqual(self.filter_editable_courses, {self.course_bad_editor_in_group, self.course_editor},
+                                queries=1)
+        self.assertResultsEqual(self.filter_editable_course_runs, {self.run_bad_editor_in_group, self.run_editor},
+                                queries=1)
+
+    def test_course_editors_when_valid_editors(self):
+        self.assertResultsEqual(partial(CourseEditor.course_editors, self.course_editor), {self.user}, queries=1)
+
+    def test_course_editors_when_no_editors(self):
+        # two queries: one to check for valid editors, one for everybody in group
+        self.assertResultsEqual(partial(CourseEditor.course_editors, self.course_bad_editor_in_group),
+                                {self.user, self.good_editor}, queries=2)
 
 
 @ddt.ddt
