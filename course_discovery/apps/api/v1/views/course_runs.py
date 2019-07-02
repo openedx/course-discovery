@@ -180,6 +180,16 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             log.info('Not pushing course run info for %s to Studio as partner %s has no studio_url set.',
                      course_run.key, course_run.course.partner.short_code)
 
+    @classmethod
+    def update_course_run_image_in_studio(cls, course_run):
+        if course_run.course.partner.studio_url:
+            api = StudioAPI(course_run.course.partner.studio_api_client)
+            api.update_course_run_image_in_studio(course_run)
+        else:
+            log.info('Not updating course run image for %s to Studio as partner %s has no studio_url set.',
+                     course_run.key, course_run.course.partner.short_code)
+
+    @writable_request_wrapper
     def create_run_helper(self, run_data, request=None):
         # These are both required to be part of self because when we call self.get_serializer, it tries
         # to set these two variables as part of the serializer context. When the endpoint is hit directly,
@@ -224,19 +234,21 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # And finally, push run to studio
         self.push_to_studio(self.request, course_run, create=True, old_course_run=old_course_run)
 
-        return serializer.data
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @writable_request_wrapper
     def create(self, request, *args, **kwargs):
         """ Create a course run object. """
-        serializer_data = self.create_run_helper(request.data)
+        response = self.create_run_helper(request.data)
+        if response.status_code == 201:
+            run_key = response.data.get('key')
+            course_run = CourseRun.everything.get(key=run_key, draft=True)
+            self.update_course_run_image_in_studio(course_run)
 
-        headers = self.get_success_headers(serializer_data)
-        return Response(serializer_data, status=status.HTTP_201_CREATED, headers=headers)
+        return response
 
     @writable_request_wrapper
     def _update_course_run(self, course_run, draft, changed, serializer, request, save_kwargs):
-
         # If changes are made after review and before publish, revert status to unpublished.
         # Unless we're just switching the status
         if changed and course_run.status == CourseRunStatus.Reviewed:
@@ -295,7 +307,11 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             elif new_value != original_value:
                 changed = True
 
-        return self._update_course_run(course_run, draft, changed, serializer, request, save_kwargs)
+        response = self._update_course_run(course_run, draft, changed, serializer, request, save_kwargs)
+
+        self.update_course_run_image_in_studio(course_run)
+
+        return response
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """

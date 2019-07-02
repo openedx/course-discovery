@@ -62,8 +62,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         api = StudioAPI(partner.studio_api_client)
 
         try:
-            api.push_to_studio(course_run)
-            return self.PUBLICATION_SUCCESS_STATUS
+            course_run_response = api.push_to_studio(course_run)
         except SlumberBaseException as ex:
             content = ex.content.decode('utf8')
             logger.exception('Failed to publish course run [%d] to Studio! Error was: [%s]', course_run.pk, content)
@@ -71,6 +70,10 @@ class CourseRunViewSet(viewsets.GenericViewSet):
         except Exception as ex:  # pylint: disable=broad-except
             logger.exception('Failed to publish course run [%d] to Studio!', course_run.pk)
             return 'FAILED: ' + str(ex)
+
+        api.update_course_run_image_in_studio(course_run, course_run_response)
+
+        return self.PUBLICATION_SUCCESS_STATUS
 
     def publish_to_ecommerce(self, course_run):
         discovery_run = course_run.discovery_course_run

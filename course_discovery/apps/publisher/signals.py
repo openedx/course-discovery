@@ -58,6 +58,8 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
         instance.lms_course_id = response['id']
         instance.save()
 
+        api.update_course_run_image_in_studio(instance, response)
+
         logger.info('Completed creation of course run [%s] on Studio.', instance.lms_course_id)
 
 
