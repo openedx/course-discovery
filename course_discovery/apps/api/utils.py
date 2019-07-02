@@ -3,6 +3,7 @@ import logging
 import math
 import six
 
+from django.utils.translation import ugettext as _
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.utils import serialize_datetime
@@ -155,7 +156,13 @@ class StudioAPI:
 
         if image:
             files = {'card_image': image}
-            return self._api.course_runs(self._run_key(course_run, run_response)).images.post(files=files)
+            try:
+                self._api.course_runs(self._run_key(course_run, run_response)).images.post(files=files)
+            except Exception:  # pylint: disable=broad-except
+                logger.exception(
+                    _('An error occurred while setting the course run image for [{key}] in studio. All other fields '
+                      'were successfully saved in Studio.').format(key=self._run_key(course_run, run_response))
+                )
         else:
             logger.warning(
                 'Card image for course run [%d] cannot be updated. The related course [%d] has no image defined.',
@@ -176,7 +183,6 @@ class StudioAPI:
         else:
             response = self.update_course_run_details_in_studio(course_run)
 
-        self.update_course_run_image_in_studio(course_run, run_response=response)
         return response
 
     @classmethod

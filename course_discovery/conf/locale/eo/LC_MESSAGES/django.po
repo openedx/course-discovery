@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-01 14:50+0000\n"
+"POT-Creation-Date: 2019-07-08 18:21+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -103,6 +103,15 @@ msgid ""
 msgstr ""
 "Längüägés thät çöürsé rüns ïn thïs prögräm hävé äväïläßlé tränsçrïpts ïn. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/api/utils.py
+#, python-brace-format
+msgid ""
+"An error occurred while setting the course run image for [{key}] in studio. "
+"All other fields were successfully saved in Studio."
+msgstr ""
+"Àn érrör öççürréd whïlé séttïng thé çöürsé rün ïmägé för [{key}] ïn stüdïö. "
+"Àll öthér fïélds wéré süççéssfüllý sävéd ïn Stüdïö. Ⱡ'σяєм #"
 
 #: apps/api/v1/exceptions.py
 msgid "Specifying both editable=1 and a q parameter is not supported."

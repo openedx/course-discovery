@@ -298,6 +298,33 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         })
 
     @responses.activate
+    def test_create_succeeds_with_failed_image_update_to_studio(self):
+        course = self.draft_course_run.course
+        course.canonical_course_run = self.draft_course_run
+        course.save()
+        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        url = reverse('api:v1:course_run-list')
+
+        self.mock_access_token()
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        responses.add(responses.POST, '{url}{key}/rerun/'.format(url=studio_url, key=self.draft_course_run.key))
+        responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=new_key), status=400)
+
+        with mock.patch('course_discovery.apps.api.utils.logger.exception') as mock_logger:
+            response = self.client.post(url, {
+                'course': course.key,
+                'start': '2000-01-01T00:00:00Z',
+                'end': '2001-01-01T00:00:00Z',
+            }, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        self.assertEqual(mock_logger.call_count, 1)
+        self.assertEqual(mock_logger.call_args_list[0], mock.call(
+            'An error occurred while setting the course run image for [{key}] in studio. All other fields '
+            'were successfully saved in Studio.'.format(key=new_key)
+        ))
+
+    @responses.activate
     def test_update_operates_on_drafts(self):
         self.assertFalse(CourseRun.everything.filter(key=self.course_run.key, draft=True).exists())  # sanity check
         self.mock_patch_to_studio(self.course_run.key)
@@ -350,11 +377,17 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             response = self.client.patch(url, {'start': '2019-01-01T00:00:00Z'}, format='json')
 
         self.assertEqual(response.status_code, 200, "Status {}: {}".format(response.status_code, response.content))
-        mock_logger.assert_called_with(
+        self.assertEqual(mock_logger.call_count, 2)
+        self.assertEqual(mock_logger.call_args_list[0], mock.call(
             'Not pushing course run info for %s to Studio as partner %s has no studio_url set.',
             self.draft_course_run.key,
             self.partner.short_code,
-        )
+        ))
+        self.assertEqual(mock_logger.call_args_list[1], mock.call(
+            'Not updating course run image for %s to Studio as partner %s has no studio_url set.',
+            self.draft_course_run.key,
+            self.partner.short_code,
+        ))
 
     def test_partial_update_bad_permission(self):
         """ Verify partially updating will fail if user doesn't have permission. """

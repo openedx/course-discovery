@@ -2,6 +2,7 @@ import json
 import random
 from datetime import date
 
+import mock
 import responses
 from django.core.cache import cache
 from django.test import override_settings
@@ -312,6 +313,39 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'ecommerce': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
             'studio': 'FAILED: ' + json.dumps(expected_error),
+        }
+        assert response.data == expected
+
+    @responses.activate
+    def test_publish_with_studio_image_error(self):
+        publisher_course_run = self._create_course_run_for_publication()
+        SeatFactory(type=Seat.VERIFIED, course_run=publisher_course_run)
+
+        expected_error = {'error': 'Oops!'}
+        url = '{root}/api/v1/course_runs/{key}/'.format(
+            root=self.partner.studio_url.strip('/'),
+            key=publisher_course_run.lms_course_id
+        )
+        responses.add(responses.PATCH, url, status=200)
+        responses.add(responses.POST, url + '/images/', json=expected_error, status=400)
+        self._mock_ecommerce_api(publisher_course_run)
+
+        url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+        with mock.patch('course_discovery.apps.api.utils.logger.exception') as mock_logger:
+            response = self.client.post(url, {})
+
+        assert mock_logger.call_count == 1
+        assert mock_logger.call_args_list[0] == mock.call(
+            'An error occurred while setting the course run image for [{key}] in studio. All other fields '
+            'were successfully saved in Studio.'.format(key=publisher_course_run.lms_course_id)
+        )
+
+        assert response.status_code == 200
+        assert len(responses.calls) == 5
+        expected = {
+            'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
+            'ecommerce': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
+            'studio': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
         }
         assert response.data == expected
 

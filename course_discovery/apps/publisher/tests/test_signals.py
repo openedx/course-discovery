@@ -12,7 +12,6 @@ from waffle.testutils import override_switch
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory
-from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 from course_discovery.apps.publisher.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationExtensionFactory
 )
@@ -129,10 +128,10 @@ class TestCreateCourseRunInStudio:
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    @mock.patch.object(StudioAPI, 'update_course_run_image_in_studio', side_effect=Exception)
     @override_switch('enable_publisher_create_course_run_in_studio', active=True)
-    def test_create_course_run_in_studio_with_image_failure(self, __, ___):  # pylint: disable=unused-argument
+    def test_create_course_run_in_studio_with_image_failure(self, __):  # pylint: disable=unused-argument
         organization = OrganizationFactory()
+        OrganizationExtensionFactory(organization=organization)
         partner = organization.partner
         start = datetime.datetime.utcnow()
         course_run_key = 'course-v1:TestX+Testing101x+1T2017'
@@ -144,17 +143,22 @@ class TestCreateCourseRunInStudio:
 
         course = CourseFactory(organizations=[organization])
 
-        with mock.patch('course_discovery.apps.publisher.signals.logger.exception') as mock_logger:
-            with pytest.raises(Exception):
-                CourseRunFactory(
-                    course=course,
-                    start=start,
-                    lms_course_id=None,
-                )
+        with mock.patch('course_discovery.apps.api.utils.logger.exception') as mock_logger:
+            publisher_course_run = CourseRunFactory(
+                course=course,
+                start=start,
+                lms_course_id=None,
+            )
 
-        assert len(responses.calls) == 1
+        assert mock_logger.call_count == 1
+        assert mock_logger.call_args_list[0] == mock.call(
+            'An error occurred while setting the course run image for [{key}] in studio. All other fields '
+            'were successfully saved in Studio.'.format(key=course_run_key)
+        )
 
-        mock_logger.assert_called_with('Failed to create course run [%s] on Studio', course.key)
+        publisher_course_run.refresh_from_db()
+        assert len(responses.calls) == 2
+        assert publisher_course_run.lms_course_id == course_run_key
 
     # pylint: disable=unused-argument
     @responses.activate
@@ -162,6 +166,7 @@ class TestCreateCourseRunInStudio:
     @override_switch('enable_publisher_create_course_run_in_studio', active=True)
     def test_create_course_run_in_studio_with_image_api_failure(self, mock_access_token):
         organization = OrganizationFactory()
+        OrganizationExtensionFactory(organization=organization)
         partner = organization.partner
         start = datetime.datetime.utcnow()
         course_run_key = 'course-v1:TestX+Testing101x+1T2017'
@@ -180,19 +185,22 @@ class TestCreateCourseRunInStudio:
 
         course = CourseFactory(organizations=[organization])
 
-        with mock.patch('course_discovery.apps.publisher.signals.logger.exception') as mock_logger:
-            with pytest.raises(HttpServerError):
-                CourseRunFactory(
-                    course=course,
-                    start=start,
-                    lms_course_id=None,
-                )
+        with mock.patch('course_discovery.apps.api.utils.logger.exception') as mock_logger:
+            publisher_course_run = CourseRunFactory(
+                course=course,
+                start=start,
+                lms_course_id=None,
+            )
+
+        assert mock_logger.call_count == 1
+        assert mock_logger.call_args_list[0] == mock.call(
+            'An error occurred while setting the course run image for [{key}] in studio. All other fields '
+            'were successfully saved in Studio.'.format(key=course_run_key)
+        )
 
         assert len(responses.calls) == 2
-
-        mock_logger.assert_called_with(
-            'Failed to create course run [%s] on Studio: %s', course.key, json.dumps(body).encode('utf8')
-        )
+        publisher_course_run.refresh_from_db()
+        assert publisher_course_run.lms_course_id == course_run_key
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
