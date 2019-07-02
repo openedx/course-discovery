@@ -681,6 +681,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
         self.assertEqual(course.title, 'Course title')
         self.assertEqual(course.entitlements.first().price, 1000)
+        self.assertEqual(course.image.name[-4:], '.png')
         self.assertDictEqual(response.data, self.serialize_course(course))
 
     @responses.activate
