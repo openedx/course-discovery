@@ -1,7 +1,6 @@
 import base64
 import logging
 import re
-from datetime import datetime
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
@@ -30,7 +29,9 @@ from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COU
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Program, Seat, SeatType, Video
 )
-from course_discovery.apps.course_metadata.utils import ensure_draft_world, validate_course_number
+from course_discovery.apps.course_metadata.utils import (
+    create_missing_entitlement, ensure_draft_world, validate_course_number
+)
 
 logger = logging.getLogger(__name__)
 
@@ -275,7 +276,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         if entitlements:
             course.entitlements = entitlements
             # If entitlements were updated, we also want to update seats
-            for course_run in course.course_runs.filter(end__gt=datetime.now()):
+            for course_run in course.active_course_runs:
                 course_run.update_or_create_seats()
 
         # Save video if a new video source is provided
@@ -297,7 +298,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # Then the course itself
         course = serializer.save()
         if not draft:
-            for course_run in course.course_runs.filter(end__gt=datetime.now()):
+            for course_run in course.active_course_runs:
                 if course_run.status == CourseRunStatus.Published:
                     # This will also update the course
                     course_run.update_or_create_official_version()
@@ -384,4 +385,14 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course. """
+        # Check if we can convert from run-level seat pricing to course-level entitlements.
+        #
+        # Yes, creating an object is kind of an odd thing to do on a GET endpoint - but it's a one time migration
+        # to entitlements and subsequent calls will not make further objects.
+        # This was deemed simpler than faking that an entitlement exists in the response and making the object when
+        # a client calls PATCH.
+        course = self.get_object()
+        if not course.entitlements.exists():
+            create_missing_entitlement(course)
+
         return super(CourseViewSet, self).retrieve(request, *args, **kwargs)
