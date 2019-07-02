@@ -136,6 +136,64 @@ def set_draft_state(obj, model, attrs=None):
     return obj, original_obj
 
 
+def _calculate_entitlement_for_run(run):
+    from course_discovery.apps.course_metadata.models import Seat
+
+    entitlement_seats = [seat for seat in run.seats.all() if seat.type in Seat.ENTITLEMENT_MODES]
+    if len(entitlement_seats) != 1:
+        return None
+
+    seat = entitlement_seats[0]
+    return seat.type, seat.price, seat.currency
+
+
+def _calculate_entitlement_for_course(course):
+    # Get all active runs or latest inactive run
+    runs = course.active_course_runs
+    if not runs and course.course_runs.exists():
+        runs = [course.course_runs.last()]
+    if not runs:
+        return None
+
+    entitlement_data = {_calculate_entitlement_for_run(run) for run in runs}
+    if len(entitlement_data) > 1:
+        return None  # some runs disagree - we can't form an entitlement from this
+    return entitlement_data.pop()
+
+
+def create_missing_entitlement(course):
+    """
+    Add an entitlement to a course, based on current seats, if possible.
+
+    Returns:
+        True if an entitlement was created, False if we could not make one
+    """
+    from course_discovery.apps.course_metadata.models import CourseEntitlement, SeatType
+
+    calculated_entitlement = _calculate_entitlement_for_course(course)
+    if calculated_entitlement:
+        mode, price, currency = calculated_entitlement
+        CourseEntitlement.objects.create(
+            course=course,
+            mode=SeatType.objects.get(slug=mode),
+            partner=course.partner,
+            price=price,
+            currency=currency,
+            draft=course.draft,
+        )
+
+        if not course.draft and course.canonical_course_run:
+            # We should tell ecommerce about this new entitlement.
+            # We need to provide a run (based on how ecommerce accepts the push request).
+            # But the run we provide doesn't matter - we're not changing its seats at all.
+            # Since we know that the canonical run should already be published in ecommerce, just use it.
+            push_to_ecommerce_for_course_run(course.canonical_course_run)
+
+        return True
+
+    return False
+
+
 def ensure_draft_world(obj):
     """
     Ensures the draft world exists for an object. The draft world is defined as all draft objects related to
@@ -189,7 +247,7 @@ def ensure_draft_world(obj):
         if original_course.entitlements.exists():
             for entitlement in original_course.entitlements.all():
                 set_draft_state(entitlement, CourseEntitlement, {'course': draft_course})
-        else:
+        elif not create_missing_entitlement(draft_course):
             mode = SeatType.objects.get(slug=Seat.AUDIT)
             CourseEntitlement.objects.create(
                 course=draft_course,

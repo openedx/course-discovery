@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 import re
 import urllib
 
 import ddt
+import mock
 import pytest
+import pytz
 import requests
 import responses
 from django.test import TestCase
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
+from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata import utils
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
@@ -21,8 +25,8 @@ from course_discovery.apps.course_metadata.tests.factories import (
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
-    calculated_seat_upgrade_deadline, ensure_draft_world, serialize_entitlement_for_ecommerce_api,
-    serialize_seat_for_ecommerce_api
+    calculated_seat_upgrade_deadline, create_missing_entitlement, ensure_draft_world,
+    serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
 )
 
 
@@ -449,13 +453,143 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         self.assertEqual(draft_entitlement.official_version, not_draft_entitlement)
         self.assertEqual(not_draft_entitlement.draft_version, draft_entitlement)
 
-    def test_ensure_draft_world_no_course_entitlement(self):
+    def test_ensure_draft_world_creates_course_entitlement_from_seats(self):
         """
-        If the official course has no entitlement, a draft audit entitlement should be created.
+        If the official course has no entitlement, an entitlement is created from the seat data from active runs.
+        """
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
+        course = CourseFactory()
+        run = CourseRunFactory(course=course, end=future, enrollment_end=None)
+        seat = SeatFactory(course_run=run, type=Seat.VERIFIED)
+        ensured_draft_course = utils.ensure_draft_world(course)
+
+        draft_entitlement = ensured_draft_course.entitlements.first()
+        self.assertEqual(draft_entitlement.price, seat.price)
+        self.assertEqual(draft_entitlement.currency, seat.currency)
+        self.assertEqual(draft_entitlement.mode.slug, Seat.VERIFIED)
+
+    def test_ensure_draft_world_creates_audit_course_entitlement_as_last_resort(self):
+        """
+        If the official course has no entitlement and odd seats, a draft audit entitlement should be created.
         """
         course = CourseFactory()
         ensured_draft_course = utils.ensure_draft_world(course)
 
         draft_entitlement = ensured_draft_course.entitlements.first()
         self.assertEqual(draft_entitlement.price, 0.00)
-        self.assertEqual(draft_entitlement.mode.slug, 'audit')
+        self.assertEqual(draft_entitlement.mode.slug, Seat.AUDIT)
+
+
+@ddt.ddt
+class TestCreateMissingEntitlement(TestCase):
+    @ddt.data(
+        # single verified seat makes entitlement
+        ([[{'type': Seat.VERIFIED, 'price': 50, 'currency': 'EUR'}]], (Seat.VERIFIED, 50, 'EUR')),
+        # single professional seat makes entitlement too
+        ([[{'type': Seat.PROFESSIONAL, 'price': 70, 'currency': 'USD'}]], (Seat.PROFESSIONAL, 70, 'USD')),
+        ([[{'type': Seat.VERIFIED}, {'type': Seat.PROFESSIONAL}]], None),  # multiple valid seats makes nothing
+        ([[{'type': Seat.AUDIT}]], None),  # no valid seats make nothing
+        ([[]], None),  # no seats at all make nothing
+        ([], None),  # no runs at all make nothing
+        # runs that disagree about valid seats make nothing
+        ([[{'type': Seat.VERIFIED}], [{'type': Seat.PROFESSIONAL}]], None),
+        # runs that disagree about price make nothing
+        ([[{'type': Seat.VERIFIED, 'price': 10}], [{'type': Seat.VERIFIED, 'price': 20}]], None),
+        # runs that disagree about currency make nothing
+        ([[{'type': Seat.VERIFIED, 'price': 10, 'currency': 'EUR'}],
+          [{'type': Seat.VERIFIED, 'price': 10, 'currency': 'USD'}]], None),
+        # multiple agreeing runs makes entitlement
+        ([[{'type': Seat.VERIFIED, 'price': 20, 'currency': 'EUR'}],
+          [{'type': Seat.VERIFIED, 'price': 20, 'currency': 'EUR'}]], (Seat.VERIFIED, 20, 'EUR')),
+        ([[{'type': Seat.MASTERS}, {'type': Seat.CREDIT}, {'type': Seat.PROFESSIONAL, 'price': 10, 'currency': 'USD'}]],
+         (Seat.PROFESSIONAL, 10, 'USD')),  # non-relevant seats don't stop us from making an entitlement
+    )
+    @ddt.unpack
+    def test_seat_combos(self, runs, expected):
+        """ Verify that the right entitlement gets created when possible """
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
+        course = CourseFactory()
+        for seats in runs:
+            run = CourseRunFactory(course=course, end=future, enrollment_end=None)
+            for seat in seats:
+                if 'currency' in seat:
+                    seat['currency'] = Currency.objects.get(code=seat['currency'])
+                SeatFactory(**seat, course_run=run)
+
+        self.assertFalse(course.entitlements.exists())  # sanity check
+        create_missing_entitlement(course)
+
+        self.assertEqual(course.entitlements.count(), 1 if expected else 0)
+        if expected:
+            entitlement = course.entitlements.first()
+            self.assertEqual(entitlement.mode.slug, expected[0])
+            self.assertEqual(entitlement.price, expected[1])
+            self.assertEqual(entitlement.currency.code, expected[2])
+            self.assertEqual(entitlement.partner, course.partner)
+            self.assertFalse(entitlement.draft)  # tested below
+
+    def test_draft_course(self):
+        """ Verifies that a draft course will create a draft entitlement """
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
+        course = CourseFactory(draft=True)
+        run = CourseRunFactory(course=course, end=future, enrollment_end=None, draft=True)
+        seat = SeatFactory(course_run=run, type=Seat.VERIFIED, draft=True)
+
+        self.assertFalse(course.entitlements.exists())  # sanity check
+        create_missing_entitlement(course)
+
+        self.assertEqual(course.entitlements.count(), 1)
+        entitlement = course.entitlements.first()
+        self.assertEqual(entitlement.mode.slug, Seat.VERIFIED)
+        self.assertEqual(entitlement.price, seat.price)
+        self.assertEqual(entitlement.currency, seat.currency)
+        self.assertTrue(entitlement.draft)
+
+    @ddt.data(
+        ((10, -10), 10),
+        ((10, 10), 10),
+        ((10,), 10),
+        ((-10,), -10),
+        ((-10, -20), -20),
+    )
+    @ddt.unpack
+    def test_active_runs(self, dates, expected):
+        """ Verifies that we only consider active runs (or last inactive) """
+
+        def date_to_price(offset):
+            # Because we are just working with date offsets here, to avoid negative prices if we ever require that,
+            # we convert a dates to a positive price number
+            if offset < 0:
+                return offset * -10 + 1
+            else:
+                return offset * 10
+
+        course = CourseFactory()
+        now = datetime.datetime.now(pytz.UTC)
+        usd = Currency.objects.get(code='USD')
+        for date in dates:
+            run = CourseRunFactory(course=course, end=now + datetime.timedelta(days=date), enrollment_end=None)
+            SeatFactory(course_run=run, type=Seat.VERIFIED, price=date_to_price(date), currency=usd)
+
+        self.assertFalse(course.entitlements.exists())  # sanity check
+        self.assertTrue(create_missing_entitlement(course))
+
+        entitlement = course.entitlements.first()
+        self.assertEqual(entitlement.price, date_to_price(expected))
+
+    @mock.patch('course_discovery.apps.course_metadata.utils.push_to_ecommerce_for_course_run')
+    def test_push_to_ecommerce(self, mock_push):
+        """ Verifies that we push new entitlement to ecommerce """
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
+        course = CourseFactory()
+        run = CourseRunFactory(course=course, end=future, enrollment_end=None)
+        SeatFactory(course_run=run, type=Seat.VERIFIED)
+
+        course.canonical_course_run = run
+        course.save()
+
+        self.assertFalse(course.entitlements.exists())  # sanity check
+        self.assertTrue(create_missing_entitlement(course))
+
+        self.assertEqual(mock_push.call_count, 1)
+        self.assertEqual(mock_push.call_args[0][0], run)
