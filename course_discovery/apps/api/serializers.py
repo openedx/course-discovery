@@ -1741,7 +1741,8 @@ class CourseSearchSerializer(HaystackSerializer):
                 'min_effort': course_run.min_effort,
                 'max_effort': course_run.max_effort,
                 'weeks_to_complete': course_run.weeks_to_complete,
-                'estimated_hours': get_course_run_estimated_hours(course_run)
+                'estimated_hours': get_course_run_estimated_hours(course_run),
+                'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0
             }
             for course_run in result.object.course_runs.all()
         ]
