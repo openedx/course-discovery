@@ -1738,7 +1738,8 @@ class CourseSearchSerializer(HaystackSerializer):
                 'availability': course_run.availability,
                 'pacing_type': course_run.pacing_type,
                 'enrollment_mode': course_run.type,
-                'estimated_hours': get_course_run_estimated_hours(course_run)
+                'estimated_hours': get_course_run_estimated_hours(course_run),
+                'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or None
             }
             for course_run in result.object.course_runs.all()
         ]
