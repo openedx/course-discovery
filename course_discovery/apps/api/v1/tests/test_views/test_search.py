@@ -4,11 +4,12 @@ import urllib.parse
 
 import ddt
 import pytz
+from django.test import TestCase
 from django.urls import reverse
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.v1.tests.test_views import mixins
-from course_discovery.apps.api.v1.views.search import TypeaheadSearchView
+from course_discovery.apps.api.v1.views.search import BrowsableAPIRendererWithoutForms, TypeaheadSearchView
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -388,6 +389,26 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         url = '{path}?{qs}'.format(path=self.path, qs=qs)
         response = self.client.get(url)
         assert response.json() == expected
+
+
+class BrowsableAPIRendererWithoutFormsTests(TestCase):
+    def setUp(self):
+        super(BrowsableAPIRendererWithoutFormsTests, self).setUp()
+        self.method_args = ({}, {}, '', {})
+
+    def test_get_rendered_html_form(self):
+        """
+        Verify that `get_rendered_html_form` returns `None`
+        """
+        browsable_api_renderer = BrowsableAPIRendererWithoutForms()
+        assert browsable_api_renderer.get_rendered_html_form(*self.method_args) is None
+
+    def test_get_raw_data_form(self):
+        """
+        Verify that `get_raw_data_form` returns `None`
+        """
+        browsable_api_renderer = BrowsableAPIRendererWithoutForms()
+        assert browsable_api_renderer.get_raw_data_form(*self.method_args) is None
 
 
 class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
