@@ -8,11 +8,12 @@ from drf_haystack.viewsets import HaystackViewSet
 from haystack.backends import SQ
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
-from rest_framework import renderers, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import list_route
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -116,8 +117,18 @@ class CatalogDataFilterBackend(HaystackFilter):
         return request_filters
 
 
+class BrowsableAPIRendererWithoutForms(BrowsableAPIRenderer):
+    """Renders the browsable api without the forms."""
+
+    def get_rendered_html_form(self, data, view, method, request):
+        return None
+
+    def get_raw_data_form(self, data, view, method, request):
+        return None
+
+
 class CatalogDataViewSet(viewsets.GenericViewSet):
-    renderer_classes = [renderers.JSONRenderer]
+    renderer_classes = [JSONRenderer, BrowsableAPIRendererWithoutForms]
     permission_classes = (IsAuthenticated,)
     filter_backends = (CatalogDataFilterBackend,)
 
