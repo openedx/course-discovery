@@ -1002,6 +1002,26 @@ class CourseRunTests(OAuth2Mixin, TestCase):
 
         self.assertEqual(course_run.is_marketable, expected)
 
+    def test_sync_upgrade_deadline_with_publisher_seat(self):
+        key = 'course-run-id/nKWVadtfUwfX/fake'
+        CourseRun.objects.create(course=self.course_run.course, key=key)
+        verified_seat = Seat.objects.create(type='verified', course_run=self.course_run, price=100)
+
+        # Avoid circular import
+        from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun, \
+            Seat as PublisherSeat, Course as PublisherCourse
+
+        publisher_run = PublisherCourseRun.objects.create(
+            lms_course_id=self.course_run.key, course=PublisherCourse.objects.create()
+        )
+        PublisherSeat.objects.create(type='verified', course_run=publisher_run, price=10)
+        verified_seat.upgrade_deadline = datetime.datetime.utcnow()
+        verified_seat.save()
+
+        verified_seat = Seat.objects.first()
+        publisher_seat = PublisherSeat.objects.first()
+        self.assertEqual(verified_seat.upgrade_deadline, publisher_seat.upgrade_deadline)
+
 
 @ddt.ddt
 class OrganizationTests(TestCase):

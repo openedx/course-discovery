@@ -1450,6 +1450,10 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
 
 class Seat(DraftModelMixin, TimeStampedModel):
     """ Seat model. """
+    def __init__(self, *args, **kwargs):
+        super(Seat, self).__init__(*args, **kwargs)
+        self.__original_upgrade_deadline = self.upgrade_deadline
+
     HONOR = 'honor'
     AUDIT = 'audit'
     VERIFIED = 'verified'
@@ -1502,6 +1506,21 @@ class Seat(DraftModelMixin, TimeStampedModel):
             ('course_run', 'type', 'currency', 'credit_provider', 'draft')
         )
         ordering = ['created']
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        super(Seat, self).save(*args, **kwargs)
+        if self.upgrade_deadline and self.upgrade_deadline != self.__original_upgrade_deadline:
+            # Avoid circular imports
+            from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
+            try:
+                run = PublisherCourseRun.objects.get(lms_course_id=self.course_run.key)
+                seat = run.seats.get(type=self.type)
+                seat.upgrade_deadline = self.upgrade_deadline
+                seat.save()
+            except ObjectDoesNotExist as exc:
+                logger.warning(
+                    'An Error occurred while updating upgrade deadline in publisher\'s seat: {}'.format(str(exc))
+                )
 
 
 class CourseEntitlement(DraftModelMixin, TimeStampedModel):
