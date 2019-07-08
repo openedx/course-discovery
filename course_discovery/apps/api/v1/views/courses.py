@@ -1,8 +1,8 @@
 import base64
 import logging
 import re
-
 from datetime import datetime
+
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -22,7 +22,7 @@ from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithRelatedChoices
-from course_discovery.apps.api.utils import get_query_param
+from course_discovery.apps.api.utils import data_has_changed, get_query_param
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -292,6 +292,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             image_data = ContentFile(base64.b64decode(imgstr), name='tmp.{extension}'.format(extension=ext))
             course.image.save(image_data.name, image_data)
 
+        changed = data_has_changed(course, serializer.validated_data.items())
+
         # Then the course itself
         course = serializer.save()
         if not draft:
@@ -299,6 +301,14 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 if course_run.status == CourseRunStatus.Published:
                     # This will also update the course
                     course_run.update_or_create_official_version()
+
+        # Revert any Reviewed course runs back to Unpublished
+        if changed:
+            for course_run in course.course_runs.filter(status=CourseRunStatus.Reviewed):
+                course_run.status = CourseRunStatus.Unpublished
+                course_run.save()
+                course_run.official_version.status = CourseRunStatus.Unpublished
+                course_run.official_version.save()
 
         return Response(serializer.data)
 
