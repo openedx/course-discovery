@@ -44,11 +44,11 @@ run:
 
 Working with memcached locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Some endpoints, such as /api/v1/courses, have their responses cached in memcached through the
-mechanisms such as the CompressedCacheResponseMixin. This caching may make it difficult to see code changes
-reflected in various endpoints without first clearing the cache or updating the cache keys. To update the cache
-keys, make a change to any course_metadata model in the admin dashboard and save it. To flush your local memcached,
-make sure the edx.devstack.memcached container is up and run:
+Some endpoints, such as /api/v1/courses, have their responses cached in memcached through mechanisms such as the
+CompressedCacheResponseMixin. This caching may make it difficult to see code changes reflected in various endpoints
+without first clearing the cache or updating the cache keys. You can update the cache keys by going to any
+course_metadata model in the admin dashboard and clicking save. To flush your local memcached, make sure the
+edx.devstack.memcached container is up and run:
 
 .. code-block:: shell
 
