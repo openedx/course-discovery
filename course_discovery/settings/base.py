@@ -121,7 +121,16 @@ DATABASES = {
         'HOST': 'localhost',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',  # Set to empty string for default.
         'ATOMIC_REQUESTS': False,
-    }
+    },
+    'read_replica': {
+        'ENGINE': 'django.db.backends.',
+        'NAME': 'discovery',
+        'USER': 'discov001',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '',
+        'ATOMIC_REQUESTS': False,
+    },
 }
 
 # Internationalization
