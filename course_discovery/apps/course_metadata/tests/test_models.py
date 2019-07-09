@@ -431,6 +431,14 @@ class TestCourseEditor(TestCase):
         self.assertResultsEqual(self.filter_editable_course_runs, {self.run_bad_editor_in_group, self.run_editor},
                                 queries=1)
 
+    def test_editable_without_checking_editors(self):
+        """ Verify the that we can get a list of *potentially editable* courses (courses in org). """
+        self.assertResultsEqual(
+            partial(CourseEditor.editable_courses, self.user, self.courses_qs, check_editors=False),
+            {self.course_bad_editor_in_group, self.course_good_editor, self.course_editor},
+            queries=1,
+        )
+
     def test_course_editors_when_valid_editors(self):
         self.assertResultsEqual(partial(CourseEditor.course_editors, self.course_editor), {self.user}, queries=1)
 

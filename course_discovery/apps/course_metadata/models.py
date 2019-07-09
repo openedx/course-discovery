@@ -796,20 +796,25 @@ class CourseEditor(TimeStampedModel):
         return user in cls.course_editors(course)
 
     @classmethod
-    def editable_courses(cls, user, queryset):
+    def editable_courses(cls, user, queryset, check_editors=True):
         if user.is_staff:
             return queryset
 
+        # We must be a valid editor for this course
+        if check_editors:
+            has_valid_editors = Q(
+                editors__user__groups__organization_extension__organization__in=F('authoring_organizations')
+            )
+            has_user_editor = Q(editors__user=user)
+            queryset = queryset.filter(has_user_editor | ~has_valid_editors)
+
+        # And the course has to be authored by an org we belong to
         user_orgs = Organization.objects.filter(organization_extension__group__in=user.groups.all())
-        has_valid_editors = Q(
-            editors__user__groups__organization_extension__organization__in=F('authoring_organizations')
-        )
-        has_user_editor = Q(editors__user=user)
-        user_can_edit = has_user_editor | ~has_valid_editors
+        queryset = queryset.filter(authoring_organizations__in=user_orgs)
 
         # We use distinct() here because the query is complicated enough, spanning tables and following lists of
         # foreign keys, that django will return duplicate rows if we aren't careful to ask it not to.
-        return queryset.filter(user_can_edit, authoring_organizations__in=user_orgs).distinct()
+        return queryset.distinct()
 
     @classmethod
     def editable_course_runs(cls, user, queryset):
