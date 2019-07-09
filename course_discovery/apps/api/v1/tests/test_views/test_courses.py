@@ -5,6 +5,7 @@ import ddt
 import pytest
 import pytz
 import responses
+from django.conf import settings
 from django.db import IntegrityError
 from django.db.models.functions import Lower
 from mock import mock
@@ -56,7 +57,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(FuzzyInt(45, 3)):
+        with self.assertNumQueries(FuzzyInt(43, 3)):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -486,7 +487,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         responses.add(
             responses.POST,
-            self.partner.oidc_url_root + '/access_token',
+            settings.BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL + '/access_token',
             body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
             status=200,
         )

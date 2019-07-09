@@ -15,7 +15,7 @@ Including another URLconf
 
 import os
 
-from auth_backends.urls import auth_urlpatterns
+from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -31,13 +31,13 @@ admin.site.site_header = _('Discovery Service Administration')
 admin.site.site_title = admin.site.site_header
 admin.autodiscover()
 
-urlpatterns = auth_urlpatterns + [
+urlpatterns = oauth2_urlpatterns + [
     url(r'^admin/course_metadata/', include('course_discovery.apps.course_metadata.urls', namespace='admin_metadata')),
     url(r'^admin/core/', include('course_discovery.apps.core.urls', namespace='admin_core')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
     # Use the same auth views for all logins, including those originating from the browseable API.
-    url(r'^api-auth/', include(auth_urlpatterns, namespace='rest_framework')),
+    url(r'^api-auth/', include(oauth2_urlpatterns, namespace='rest_framework')),
     url(r'^api-docs/', SwaggerSchemaView.as_view(), name='api_docs'),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),

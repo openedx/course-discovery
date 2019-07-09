@@ -255,9 +255,10 @@ LOGOUT_URL = '/logout/'
 AUTH_USER_MODEL = 'core.User'
 
 AUTHENTICATION_BACKENDS = (
-    'auth_backends.backends.EdXOpenIdConnect',
+    'auth_backends.backends.EdXOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
+    'auth_backends.backends.EdXOpenIdConnect',
 )
 
 CORS_ALLOW_CREDENTIALS = True
@@ -275,7 +276,7 @@ AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
 
 SOCIAL_AUTH_STRATEGY = 'auth_backends.strategies.EdxDjangoStrategy'
 
-# Set these to the correct values for your OAuth2/OpenID Connect provider (e.g., devstack)
+# These OIDC variables are DEPRECATED.
 SOCIAL_AUTH_EDX_OIDC_KEY = 'discovery-key'
 SOCIAL_AUTH_EDX_OIDC_SECRET = 'discovery-secret'
 SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'replace-me'
@@ -284,6 +285,17 @@ SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 SOCIAL_AUTH_EDX_OIDC_PUBLIC_URL_ROOT = 'http://127.0.0.1:8000/oauth2'
 SOCIAL_AUTH_EDX_OIDC_ISSUER = 'http://127.0.0.1:8000/oauth2'
+
+# Set these to the correct values for your OAuth2 provider (e.g., devstack)
+SOCIAL_AUTH_EDX_OAUTH2_KEY = "discovery-sso-key"
+SOCIAL_AUTH_EDX_OAUTH2_SECRET = "discovery-sso-secret"
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/logout"
+
+BACKEND_SERVICE_EDX_OAUTH2_KEY = "discovery-backend-service-key"
+BACKEND_SERVICE_EDX_OAUTH2_SECRET = "discovery-backend-service-secret"
+BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://127.0.0.1:8000/oauth2"
 
 # Request the user's permissions in the ID token
 EXTRA_SCOPE = ['permissions']
@@ -618,15 +630,6 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
-SOCIAL_AUTH_EDX_OAUTH2_KEY = "discovery-sso-key"
-SOCIAL_AUTH_EDX_OAUTH2_SECRET = "discovery-sso-secret"
-SOCIAL_AUTH_EDX_OAUTH2_ISSUER = "http://127.0.0.1:8000"
-SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://127.0.0.1:8000"
-SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/logout"
-
-BACKEND_SERVICE_EDX_OAUTH2_KEY = "discovery-backend-service-key"
-BACKEND_SERVICE_EDX_OAUTH2_SECRET = "discovery-backend-service-secret"
-BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://127.0.0.1:8000/oauth2"
 EDX_DRF_EXTENSIONS = {
     "OAUTH2_USER_INFO_URL": "http://127.0.0.1:8000/oauth2/user_info"
 }
