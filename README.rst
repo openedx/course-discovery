@@ -36,6 +36,7 @@ Using elasticsearch locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To use elasticsearch locally, and to update your index after adding new data that you want elasticsearch to access
 run:
+
 .. code-block:: shell
 
     $ ./manage.py update_index --disable-change-limit
@@ -48,6 +49,7 @@ mechanisms such as the CompressedCacheResponseMixin. This caching may make it di
 reflected in various endpoints without first clearing the cache or updating the cache keys. To update the cache
 keys, make a change to any course_metadata model in the admin dashboard and save it. To flush your local memcached,
 make sure the edx.devstack.memcached container is up and run:
+
 .. code-block:: shell
 
     $ telnet localhost 11211
