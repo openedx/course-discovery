@@ -1463,6 +1463,7 @@ class PositionSerializerTests(TestCase):
             'organization_id': position.organization_id,
             'organization_override': position.organization_override,
             'organization_marketing_url': position.organization.marketing_url,
+            'organization_uuid': position.organization.uuid,
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -1476,6 +1477,7 @@ class PositionSerializerTests(TestCase):
             'organization_id': None,
             'organization_override': None,
             'organization_marketing_url': None,
+            'organization_uuid': None,
         }
 
         self.assertDictEqual(serializer.data, expected)
