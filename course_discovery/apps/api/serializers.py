@@ -28,7 +28,7 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEntitlement, CourseRun, Curriculum,
+    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun, Curriculum,
     CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline, Endorsement,
     IconTextPairing, Image, LevelType, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork,
     Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
@@ -964,6 +964,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
     marketing_course_runs = serializers.SerializerMethodField()
     course_runs = serializers.SerializerMethodField()
     programs = NestedProgramSerializer(read_only=True, many=True)
+    editable = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None, programs=None):  # pylint: disable=arguments-differ
@@ -1014,12 +1015,16 @@ class CourseWithProgramsSerializer(CourseSerializer):
             }
         ).data
 
+    def get_editable(self, course):
+        return CourseEditor.is_course_editable(self.context['request'].user, course)
+
     class Meta(CourseSerializer.Meta):
         model = Course
         fields = CourseSerializer.Meta.fields + (
             'programs',
             'marketing_course_runs',
             'course_run_keys',
+            'editable',
         )
 
 

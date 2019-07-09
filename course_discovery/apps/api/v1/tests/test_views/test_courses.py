@@ -215,7 +215,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(38):
+        with self.assertNumQueries(40, threshold=2):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(
@@ -388,6 +388,24 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(len(response.data['results'][0]['course_runs']), 1)
         self.assertEqual(response.data['results'][0]['course_runs'][0]['uuid'], str(draft_course_run.uuid))
 
+    def test_editable_list_shows_all_courses_in_org(self):
+        """ Even ones we're not an editor for. """
+        # Add the real editor for this course
+        org_ext = OrganizationExtensionFactory(organization=self.org)
+        user2 = UserFactory()
+        user2.groups.add(org_ext.group)
+        CourseEditorFactory(user=user2, course=self.course)
+
+        self.user.groups.add(org_ext.group)
+        self.user.is_staff = False
+        self.user.save()
+
+        self.assertFalse(CourseEditor.is_course_editable(self.user, self.course))  # sanity check
+
+        response = self.client.get(reverse('api:v1:course-list') + '?editable=1')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['results'], self.serialize_course([self.course], many=True))
+
     def test_editable_get_gives_drafts(self):
         draft = CourseFactory(partner=self.partner, uuid=self.course.uuid, key=self.course.key, draft=True)
         self.course.draft_version = draft
@@ -401,6 +419,28 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.client.get(reverse('api:v1:course-detail', kwargs={'key': extra.uuid}) + '?editable=1')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.serialize_course(extra, many=False))
+
+    def test_editable_get_shows_editable_status(self):
+        # Add the real editor for this course
+        org_ext = OrganizationExtensionFactory(organization=self.org)
+        user2 = UserFactory()
+        user2.groups.add(org_ext.group)
+        editor = CourseEditorFactory(user=user2, course=self.course)
+
+        self.user.groups.add(org_ext.group)
+        self.user.is_staff = False
+        self.user.save()
+
+        self.assertFalse(CourseEditor.is_course_editable(self.user, self.course))  # sanity check
+        response = self.client.get(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}) + '?editable=1')
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data['editable'])
+
+        editor.delete()
+        self.assertTrue(CourseEditor.is_course_editable(self.user, self.course))  # sanity check
+        response = self.client.get(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}) + '?editable=1')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.data['editable'])
 
     def test_list_query_with_editable_raises_exception(self):
         """ Verify the endpoint raises an exception if both a q param and editable=1 are passed in """
