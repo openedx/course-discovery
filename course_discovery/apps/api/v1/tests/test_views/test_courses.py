@@ -1017,11 +1017,19 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         if has_entitlement:
             CourseEntitlementFactory(course=self.course, price=40, mode=SeatType.objects.get(slug=Seat.VERIFIED))
 
-        response = self.client.get(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}))
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+
+        # First, without editable=1, to confirm we never do anything there
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.course.entitlements.exists(), has_entitlement)
+
+        # Now with editable=1 for real
+        response = self.client.get(url, {'editable': 1})
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('entitlements', response.data)
-        self.assertEqual(len(response.data['entitlements']), 1)
+        self.assertIn('entitlements', response.json())
+        self.assertEqual(len(response.json()['entitlements']), 1)
         self.assertTrue(self.course.entitlements.exists())
         self.assertEqual(self.course.entitlements.first().mode.slug, Seat.VERIFIED)
         self.assertEqual(self.course.entitlements.first().price, 40)
