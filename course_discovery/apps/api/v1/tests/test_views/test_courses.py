@@ -46,7 +46,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(31):
+        with self.assertNumQueries(45):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -55,7 +55,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(FuzzyInt(32, 2)):
+        with self.assertNumQueries(FuzzyInt(46, 2)):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -64,7 +64,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns no deleted associated programs """
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        with self.assertNumQueries(18):
+        with self.assertNumQueries(31):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data.get('programs'), [])
@@ -77,7 +77,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_deleted_programs=1'
-        with self.assertNumQueries(37):
+        with self.assertNumQueries(51):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -1003,3 +1003,33 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(data['subjects']['child']['choices'],
                          [{'display_name': 'Subject1', 'value': 'subject1'}])
         self.assertFalse('choices' in data['partner'])  # we don't whitelist partner to show its choices
+
+    @responses.activate
+    @ddt.data(True, False)
+    def test_retrieve_will_create_entitlement(self, has_entitlement):
+        """ When retrieving a course, test that an entitlement gets created if needed """
+        self.mock_access_token()
+
+        self.assertFalse(self.course.entitlements.exists())  # sanity check
+
+        run = CourseRunFactory(course=self.course)
+        SeatFactory(type=Seat.VERIFIED, course_run=run, price=40)
+        if has_entitlement:
+            CourseEntitlementFactory(course=self.course, price=40, mode=SeatType.objects.get(slug=Seat.VERIFIED))
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+
+        # First, without editable=1, to confirm we never do anything there
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.course.entitlements.exists(), has_entitlement)
+
+        # Now with editable=1 for real
+        response = self.client.get(url, {'editable': 1})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('entitlements', response.json())
+        self.assertEqual(len(response.json()['entitlements']), 1)
+        self.assertTrue(self.course.entitlements.exists())
+        self.assertEqual(self.course.entitlements.first().mode.slug, Seat.VERIFIED)
+        self.assertEqual(self.course.entitlements.first().price, 40)
