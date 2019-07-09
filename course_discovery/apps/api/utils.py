@@ -3,8 +3,10 @@ import logging
 import math
 import six
 
+from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import ugettext as _
 from opaque_keys.edx.keys import CourseKey
+from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
@@ -47,6 +49,37 @@ def get_query_param(request, name):
         return
 
     return cast2int(request.query_params.get(name), name)
+
+
+def data_has_changed(obj, new_key_vals):
+    """
+    Check whether serialized data for the object has changed.
+
+    Args:
+        obj (Object): Object representing the persisted state
+        new_key_vals (dict_items): List of (key,value) tuples representing the new state
+
+    Returns:
+        bool for whether data for any fields has changed
+    """
+    changed = False
+    for key, new_value in new_key_vals:
+        original_value = getattr(obj, key, None)
+        if isinstance(new_value, list):
+            field_class = obj.__class__._meta.get_field(key).__class__
+            original_value_elements = original_value.all()
+            if len(new_value) != original_value_elements.count():
+                changed = True
+            # Just use set compare since none of our fields require duplicates
+            elif field_class == ManyToManyField and set(new_value) != set(original_value_elements):
+                changed = True
+            elif field_class == SortedManyToManyField:
+                for new_value_element, original_value_element in zip(new_value, original_value_elements):
+                    if new_value_element != original_value_element:
+                        changed = True
+        elif new_value != original_value:
+            changed = True
+    return changed
 
 
 def get_cache_key(**kwargs):

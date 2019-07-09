@@ -1,7 +1,6 @@
 import logging
 
 from django.db import transaction
-from django.db.models.fields.related import ManyToManyField
 from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.utils.translation import ugettext as _
@@ -12,13 +11,12 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
-from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrReadOnly
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
-from course_discovery.apps.api.utils import StudioAPI, get_query_param
+from course_discovery.apps.api.utils import StudioAPI, data_has_changed, get_query_param
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
@@ -277,6 +275,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         # Sending draft=False triggers the review process for unpublished courses
         draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
+        request.data.pop('status', None)  # Status management is handled in the model
 
         # Disallow patch or put if the course run is in review.
         if course_run.in_review:
@@ -288,25 +287,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(course_run, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
+        changed = data_has_changed(course_run, serializer.validated_data.items())
         save_kwargs = {}
-        changed = False
-        for key, new_value in serializer.validated_data.items():
-            original_value = getattr(course_run, key, None)
-            if isinstance(new_value, list):
-                field_class = CourseRun._meta.get_field(key).__class__
-                original_value_elements = original_value.all()
-                if len(new_value) != original_value_elements.count():
-                    changed = True
-                # Just use set compare since none of our fields require duplicates
-                elif field_class == ManyToManyField and set(new_value) != set(original_value_elements):
-                    changed = True
-                elif field_class == SortedManyToManyField:
-                    for new_value_element, original_value_element in zip(new_value, original_value_elements):
-                        if new_value_element != original_value_element:
-                            changed = True
-            elif new_value != original_value:
-                changed = True
-
         response = self._update_course_run(course_run, draft, changed, serializer, request, save_kwargs)
 
         self.update_course_run_image_in_studio(course_run)
