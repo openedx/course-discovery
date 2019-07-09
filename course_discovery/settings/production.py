@@ -1,4 +1,5 @@
 import warnings
+from copy import deepcopy
 from os import environ
 
 import certifi
@@ -68,6 +69,19 @@ HAYSTACK_CONNECTIONS['default'].update({
 
 for override, value in DB_OVERRIDES.items():
     DATABASES['default'][override] = value
+
+if environ.get('DISCOVERY_MYSQL_REPLICA_HOST'):
+    DATABASES['read_replica'] = {
+        'PASSWORD': environ.get('DISCOVERY_MYSQL_REPLICA_PASSWORD', DATABASES['default']['PASSWORD']),
+        'ENGINE': environ.get('DISCOVERY_MYSQL_REPLICA_ENGINE', DATABASES['default']['ENGINE']),
+        'USER': environ.get('DISCOVERY_MYSQL_REPLICA_USER', DATABASES['default']['USER']),
+        'NAME': environ.get('DISCOVERY_MYSQL_REPLICA_NAME', DATABASES['default']['NAME']),
+        'HOST': environ.get('DISCOVERY_MYSQL_REPLICA_HOST', DATABASES['default']['HOST']),
+        'PORT': environ.get('DISCOVERY_MYSQL_REPLICA_PORT', DATABASES['default']['PORT']),
+        'ATOMIC_REQUESTS': DATABASES['default']['ATOMIC_REQUESTS'],
+    }
+else:
+    DATABASES['read_replica'] = deepcopy(DATABASES['default'])
 
 # NOTE (CCB): Treat all MySQL warnings as exceptions. This is especially
 # desired for truncation warnings, which hide potential data integrity issues.
