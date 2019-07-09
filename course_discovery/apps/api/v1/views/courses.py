@@ -392,7 +392,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # This was deemed simpler than faking that an entitlement exists in the response and making the object when
         # a client calls PATCH.
         course = self.get_object()
-        if not course.entitlements.exists():
+        if get_query_param(request, 'editable') and not course.entitlements.exists():
             create_missing_entitlement(course)
 
         return super(CourseViewSet, self).retrieve(request, *args, **kwargs)
