@@ -8,7 +8,6 @@ from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_us
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
 from course_discovery.apps.core.tests.factories import UserFactory
 
-
 JSON_CONTENT_TYPE = 'application/json'
 
 

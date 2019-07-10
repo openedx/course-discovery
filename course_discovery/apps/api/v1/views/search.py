@@ -22,6 +22,7 @@ from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 
 
+# pylint: disable=useless-super-delegation
 class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
     document_uid_field = 'key'
     facet_filter_backends = [filters.HaystackFacetFilterWithQueries, filters.HaystackFilter, OrderingFilter]

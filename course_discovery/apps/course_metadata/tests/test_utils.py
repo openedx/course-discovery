@@ -292,9 +292,6 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
 
 @ddt.ddt
 class TestEnsureDraftWorld(SiteMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-
     @ddt.data(
         None,
         {'weeks_to_complete': 7},
@@ -404,7 +401,7 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         course.canonical_course_run = course_runs[0]
         course.save()
         org = OrganizationFactory()
-        course.authoring_organizations.add(org)  # pylint: disable=no-member
+        course.authoring_organizations.add(org)
         editor = CourseEditorFactory(course=course)
 
         ensured_draft_course = utils.ensure_draft_world(course)

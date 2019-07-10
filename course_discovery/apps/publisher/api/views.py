@@ -80,7 +80,7 @@ class RevertCourseRevisionView(APIView):
     """ Revert view for Course against a history version """
     permission_classes = (IsAuthenticated, )
 
-    def put(self, request, history_id):  # pylint: disable=unused-argument
+    def put(self, _request, history_id):
         """ Update the course version against the given revision id. """
         history_object = get_object_or_404(historicalcourse, pk=history_id)
         course = get_object_or_404(Course, id=history_object.id)
@@ -91,7 +91,7 @@ class RevertCourseRevisionView(APIView):
 
             course.changed_by = self.request.user
             course.save()
-        except:  # pylint: disable=bare-except
+        except Exception:  # pylint: disable=broad-except
             logger.exception('Unable to revert the course [%s] for revision [%s].', course.id, history_id)
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -128,7 +128,7 @@ class AcceptAllRevisionView(APIView):
     """ Generate history version. """
     permission_classes = (IsAuthenticated, )
 
-    def post(self, request, history_id):  # pylint: disable=unused-argument
+    def post(self, _request, history_id):
         """ Update the course against the given revision id. """
 
         history_object = get_object_or_404(historicalcourse, pk=history_id)

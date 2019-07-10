@@ -865,12 +865,12 @@ class RevertCourseByRevisionTests(SiteMixin, TestCase):
 
     def test_update_with_error(self):
         """ Verify that in case of any error api returns proper error message and code."""
-        with LogCapture(views.logger.name) as l:
+        with LogCapture(views.logger.name) as output:
             with patch.object(Course, "save") as mock_method:
                 mock_method.side_effect = IntegrityError
                 revision = self.course.history.last()
                 response = self._revert_course(revision.history_id)
-                l.check(
+                output.check(
                     (
                         views.logger.name,
                         'ERROR',

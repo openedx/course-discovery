@@ -56,7 +56,7 @@ class ElasticsearchUtils(object):
     @classmethod
     def delete_index(cls, es_connection, index):
         logger.info('Deleting index [%s]...', index)
-        es_connection.indices.delete(index=index, ignore=404)  # pylint: disable=unexpected-keyword-arg
+        es_connection.indices.delete(index=index, ignore=404)
         logger.info('...index deleted.')
 
     @classmethod

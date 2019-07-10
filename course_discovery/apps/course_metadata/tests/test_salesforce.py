@@ -13,6 +13,7 @@ class TestSalesforce(TestCase):
         self.salesforce_config = SalesforceConfigurationFactory()
 
     def tearDown(self):
+        super().tearDown()
         # Zero out the instances that are created during testing
         SalesforceUtil.instances = {}
 

@@ -8,7 +8,7 @@ from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.publisher.models import OrganizationExtension
 
 
-# pylint: disable=no-member
+# pylint: disable=useless-super-delegation
 class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
     """ Organization resource. """
 

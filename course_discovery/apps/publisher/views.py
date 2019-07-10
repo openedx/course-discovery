@@ -280,7 +280,7 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
             success_url = reverse('publisher:publisher_course_runs_new', kwargs={'parent_course_id': course_id})
         return success_url
 
-    def get_context_data(self):
+    def get_context_data(self, **_kwargs):
         return {
             'course_form': self.course_form(user=self.request.user),
             'entitlement_form': self.entitlement_form(),
@@ -347,7 +347,6 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                             ).format(course_title=course.title)
                         )
                     else:
-                        # pylint: disable=no-member
                         messages.success(
                             request, _(
                                 "You have successfully created a course. You can edit the course information or enter "
@@ -729,16 +728,16 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
             # Find out history of a logged-in user from the history list and if there is any other latest history
             # from other users then show accept changes button.
             if history_list and history_list.filter(history_user=self.request.user).exists():
-                    logged_in_user_history = history_list.filter(history_user=self.request.user).latest()
-                    context['most_recent_revision_id'] = (
-                        logged_in_user_history.history_id if logged_in_user_history else None
-                    )
+                logged_in_user_history = history_list.filter(history_user=self.request.user).latest()
+                context['most_recent_revision_id'] = (
+                    logged_in_user_history.history_id if logged_in_user_history else None
+                )
 
-                    if history_list.latest().history_id > logged_in_user_history.history_id:
-                        context['accept_all_button'] = (
-                            current_owner_role.role == PublisherUserRole.CourseTeam and
-                            current_owner_role.user == self.request.user
-                        )
+                if history_list.latest().history_id > logged_in_user_history.history_id:
+                    context['accept_all_button'] = (
+                        current_owner_role.role == PublisherUserRole.CourseTeam and
+                        current_owner_role.user == self.request.user
+                    )
         return context
 
 
@@ -834,7 +833,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             json_response = exception.response.json()
             error_fields = ','.join(json_response.keys())
             return u'{default}. Error fields: {error_fields}'.format(default=default_message, error_fields=error_fields)
-        except:  # pylint: disable=bare-except
+        except Exception:  # pylint: disable=broad-except
             return default_message
 
     def _initialize_run_form(self, last_run=None):
@@ -947,7 +946,6 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
                 emails.send_email_for_course_creation(parent_course, course_run, request.site)
                 return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
         except Exception as ex:  # pylint: disable=broad-except
-            # pylint: disable=no-member
             error_msg = self._format_post_exception_message(ex)
             messages.error(request, error_msg)
             logger.exception('Unable to create course run and seat for course [%s].', parent_course.id)
@@ -1034,10 +1032,10 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                     return True
         return False
 
-    def get_success_url(self):  # pylint: disable=arguments-differ
+    def get_success_url(self):
         return reverse(self.success_url, kwargs={'pk': self.object.id})
 
-    def get_context_data(self):
+    def get_context_data(self, **_kwargs):
         user = self.request.user
         course_run = self.get_object()
 
@@ -1150,7 +1148,6 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
                     if course_run.lms_course_id and lms_course_id != course_run.lms_course_id:
                         emails.send_email_for_studio_instance_created(course_run, site=request.site)
 
-                    # pylint: disable=no-member
                     messages.success(request, _('Course run updated successfully.'))
 
                     # after editing course owner role will be changed to current user
@@ -1363,7 +1360,7 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
 
         return keywords, dates
 
-    def get(self, request, **kwargs):   # pylint: disable=unused-argument
+    def get(self, request, *args, **kwargs):
         self.object_list, publisher_total_courses_count = self.get_queryset()
         context = self.get_context_data()
         context['publisher_total_courses_count'] = publisher_total_courses_count

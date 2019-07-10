@@ -49,10 +49,10 @@ from course_discovery.apps.publisher.models import (
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.utils import create_non_staff_user_and_login
 from course_discovery.apps.publisher.utils import is_email_notification_enabled
-from course_discovery.apps.publisher.views import logger as publisher_views_logger
 from course_discovery.apps.publisher.views import (
     COURSE_ROLES, COURSES_ALLOWED_PAGE_SIZES, CourseRunDetailView, CreateCourseRunView, get_course_role_widgets_data
 )
+from course_discovery.apps.publisher.views import logger as publisher_views_logger
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 from course_discovery.apps.publisher_comments.models import CommentTypeChoices
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
@@ -454,7 +454,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         Verify that a course run create page shows the proper error when non-publisher user tries to
         access it.
         """
-        create_non_staff_user_and_login(self)  # pylint: disable=unused-variable
+        create_non_staff_user_and_login(self)
         response = self.client.get(self.create_course_run_url_new)
         self.assertContains(
             response, "Must be Publisher user to perform this action.", status_code=403
@@ -791,7 +791,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         num_courseruns_before = self.course.course_runs.count()
         response = self.client.post(self.create_course_run_url_new, post_data)
         num_courseruns_after = self.course.course_runs.count()
-        self.assertTrue(num_courseruns_after > num_courseruns_before)
+        self.assertGreater(num_courseruns_after, num_courseruns_before)
 
         new_courserun = self.course.course_runs.latest('created')
         self.assertEqual(new_courserun.start_date_temporary.strftime('%Y-%m-%d %H:%M:%S'), post_data['start'])
@@ -2038,7 +2038,7 @@ class CourseListViewTests(SiteMixin, PaginationMixin, TestCase):
         if course_count > 0:
             self.assertEqual(response.status_code, 200)
             courses = json.loads(response.context_data['courses'].decode('utf-8'))
-            self.assertTrue(self.course.title in [course['course_title']['title'] for course in courses])
+            self.assertIn(self.course.title, [course['course_title']['title'] for course in courses])
 
     def test_page_with_enable_waffle_switch(self):
         """
@@ -4243,7 +4243,7 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         num_courseruns_before = self.course.course_runs.count()
         response = self.client.post(self.create_course_run_url, post_data)
         num_courseruns_after = self.course.course_runs.count()
-        self.assertTrue(num_courseruns_after > num_courseruns_before)
+        self.assertGreater(num_courseruns_after, num_courseruns_before)
 
         new_courserun = self.course.course_runs.latest('created')
         self.assertEqual(new_courserun.start_date_temporary.strftime('%Y-%m-%d %H:%M:%S'), post_data['start'])

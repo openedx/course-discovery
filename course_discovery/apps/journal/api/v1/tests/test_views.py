@@ -56,7 +56,7 @@ class JournalViewSetTests(APITestCase):
         response = self.client.get(self.journal_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data['results']), 1)
-        self.assertTrue('partner' in response.data['results'][0])
+        self.assertIn('partner', response.data['results'][0])
 
     def test_list_with_organization_filter(self):
         """ Verify response on list view with organization filter"""
@@ -107,4 +107,4 @@ class JournalBundleViewSetTests(APITestCase):
         response = self.client.get(self.journal_bundle_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data['results']), 1)
-        self.assertTrue('journals' in response.data['results'][0])
+        self.assertIn('journals', response.data['results'][0])

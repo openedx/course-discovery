@@ -15,7 +15,7 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import CourseRun
 
 
-# pylint: disable=no-member
+# pylint: disable=useless-super-delegation
 class CatalogViewSet(viewsets.ModelViewSet):
     """ Catalog resource. """
 
@@ -149,7 +149,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @detail_route()
-    def csv(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
+    def csv(self, request, id=None):  # pylint: disable=redefined-builtin
         """
         Retrieve a CSV containing the course runs contained within this catalog.
 

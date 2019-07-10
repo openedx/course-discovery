@@ -1,6 +1,7 @@
 import logging
 
 from django.core.management import BaseCommand
+
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException, PersonToMarketingException
 from course_discovery.apps.course_metadata.models import CourseRun, DrupalPublishUuidConfig, Person
 from course_discovery.apps.course_metadata.people import MarketingSitePeople

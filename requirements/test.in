@@ -4,13 +4,13 @@
 
 coverage
 ddt
-edx-lint==0.5.5
+edx-lint
 factory-boy
 freezegun
-isort==4.2.5
+isort
 lxml
 mock
-pep8
+pycodestyle
 pytest
 pytest-cov
 pytest-django

@@ -144,4 +144,5 @@ class PublisherUserAdmin(UserAdmin):
         """
         return self.model.objects.filter(groups__in=Group.objects.all()).distinct()
 
+
 admin.site.register(DrupalLoaderConfig)

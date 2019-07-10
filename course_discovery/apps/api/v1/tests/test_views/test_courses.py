@@ -1042,7 +1042,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                           {'display_name': 'Verified', 'value': 'verified'}])
         self.assertEqual(data['subjects']['child']['choices'],
                          [{'display_name': 'Subject1', 'value': 'subject1'}])
-        self.assertFalse('choices' in data['partner'])  # we don't whitelist partner to show its choices
+        self.assertNotIn('choices', data['partner'])  # we don't whitelist partner to show its choices
 
     @responses.activate
     @ddt.data(True, False)

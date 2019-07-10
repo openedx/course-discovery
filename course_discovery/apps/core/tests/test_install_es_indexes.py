@@ -13,7 +13,7 @@ class InstallEsIndexesCommandTests(ElasticsearchTestMixin, TestCase):
         index = settings.HAYSTACK_CONNECTIONS['default']['INDEX_NAME']
 
         # Delete the index
-        self.es.indices.delete(index=index, ignore=404)  # pylint: disable=unexpected-keyword-arg
+        self.es.indices.delete(index=index, ignore=404)
         self.assertFalse(self.es.indices.exists(index=index))
 
         call_command('install_es_indexes')

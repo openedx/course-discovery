@@ -1,4 +1,3 @@
-# pylint: disable=redefined-builtin,no-member
 import csv
 import datetime
 import urllib
@@ -192,7 +191,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             assert response.data['results'] == self.serialize_catalog_course([course], many=True)
 
             # Any course appearing in the response must have at least one serialized run.
-            assert len(response.data['results'][0]['course_runs']) > 0
+            assert response.data['results'][0]['course_runs']
         else:
             response = self.client.get(url)
 

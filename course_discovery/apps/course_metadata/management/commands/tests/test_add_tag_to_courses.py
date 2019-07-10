@@ -1,5 +1,6 @@
 from django.core.management import CommandError, call_command
 from django.test import TestCase
+
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.models import Course, TagCourseUuidsConfig
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory

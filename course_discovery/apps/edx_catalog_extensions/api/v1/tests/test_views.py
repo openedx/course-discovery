@@ -274,6 +274,7 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
 class TestProgramFixtureView(APITestCase):
 
     def setUp(self):
+        super().setUp()
         self.user = UserFactory()
         self.staff = UserFactory(username='staff', is_staff=True)
         seat_type = SeatTypeFactory(name="TestSeatType")

@@ -1,12 +1,12 @@
 import mock
-
 from django.core.exceptions import ValidationError
 from django.core.management import CommandError, call_command
 from django.test import TestCase
 
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.models import (CourseRun, DeletePersonDupsConfig, Endorsement, Person,
-                                                          PersonSocialNetwork, Position, Program)
+from course_discovery.apps.course_metadata.models import (
+    CourseRun, DeletePersonDupsConfig, Endorsement, Person, PersonSocialNetwork, Position, Program
+)
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 from course_discovery.apps.publisher.tests import factories as publisher_factories

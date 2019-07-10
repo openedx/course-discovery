@@ -17,8 +17,9 @@ from course_discovery.apps.core.tests.factories import PartnerFactory, StaffUser
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
+from course_discovery.apps.course_metadata.models import CourseRun, ProgramType
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
-from course_discovery.apps.course_metadata.models import CourseRun, ProgramType, SeatType, Video
+from course_discovery.apps.course_metadata.models import SeatType, Video
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.course_metadata.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api

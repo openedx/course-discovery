@@ -75,7 +75,7 @@ class PartnerTests(TestCase):
     )
     def test_has_marketing_site(self, marketing_site_url_root, expected):
         partner = PartnerFactory(marketing_site_url_root=marketing_site_url_root)
-        self.assertEqual(partner.has_marketing_site, expected)  # pylint: disable=no-member
+        self.assertEqual(partner.has_marketing_site, expected)
 
     @responses.activate
     def test_access_token(self):

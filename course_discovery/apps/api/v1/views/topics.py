@@ -6,7 +6,7 @@ from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 
 
-# pylint: disable=no-member
+# pylint: disable=useless-super-delegation
 class TopicViewSet(viewsets.ReadOnlyModelViewSet):
     """ Topic resource. """
 

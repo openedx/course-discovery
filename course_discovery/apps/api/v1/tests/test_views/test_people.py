@@ -1,4 +1,3 @@
-# pylint: disable=redefined-builtin,no-member
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.db import IntegrityError

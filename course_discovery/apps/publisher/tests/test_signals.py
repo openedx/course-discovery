@@ -129,7 +129,7 @@ class TestCreateCourseRunInStudio:
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
     @override_switch('enable_publisher_create_course_run_in_studio', active=True)
-    def test_create_course_run_in_studio_with_image_failure(self, __):  # pylint: disable=unused-argument
+    def test_create_course_run_in_studio_with_image_failure(self, __):
         organization = OrganizationFactory()
         OrganizationExtensionFactory(organization=organization)
         partner = organization.partner

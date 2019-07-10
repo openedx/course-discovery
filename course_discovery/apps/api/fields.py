@@ -8,19 +8,19 @@ class StdImageSerializerField(serializers.ImageField):
     """
     Custom serializer field to render out proper JSON representation of the StdImage field on model
     """
-    def to_representation(self, obj):
+    def to_representation(self, value):
         serialized = {}
-        for size_key in obj.field.variations:
+        for size_key in value.field.variations:
             # Get different sizes specs from the model field
             # Then get the file path from the available files
-            sized_file = getattr(obj, size_key, None)
+            sized_file = getattr(value, size_key, None)
             if sized_file:
                 path = sized_file.url
                 serialized_image = serialized.setdefault(size_key, {})
                 # In case MEDIA_URL does not include scheme+host, ensure that the URLs are absolute and not relative
                 serialized_image['url'] = self.context['request'].build_absolute_uri(path)
-                serialized_image['width'] = obj.field.variations[size_key]['width']
-                serialized_image['height'] = obj.field.variations[size_key]['height']
+                serialized_image['width'] = value.field.variations[size_key]['width']
+                serialized_image['height'] = value.field.variations[size_key]['height']
 
         return serialized
 

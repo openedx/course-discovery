@@ -1,8 +1,8 @@
 import hashlib
 import logging
 import math
-import six
 
+import six
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import ugettext as _
 from opaque_keys.edx.keys import CourseKey

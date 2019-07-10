@@ -43,12 +43,11 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory,
-    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory,
-    DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
-    PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory,
-    VideoFactory
+    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory, DegreeCostFactory,
+    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory,
+    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory,
+    PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
+    RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -107,7 +106,7 @@ class CatalogSerializerTests(ElasticsearchTestMixin, TestCase):
         }
         serializer = CatalogSerializer(data=data)
         self.assertFalse(serializer.is_valid())
-        self.assertEqual(User.objects.filter(username=username).count(), 0)  # pylint: disable=no-member
+        self.assertEqual(User.objects.filter(username=username).count(), 0)
 
 
 class MinimalCourseSerializerTests(SiteMixin, TestCase):
@@ -154,7 +153,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'expected_learning_items': [],
             'video': VideoSerializer(course.video).data,
             'sponsors': OrganizationSerializer(course.sponsoring_organizations, many=True).data,
-            'modified': json_date_format(course.modified),  # pylint: disable=no-member
+            'modified': json_date_format(course.modified),
             'marketing_url': '{url}?{params}'.format(
                 url=course.marketing_url,
                 params=urlencode({
@@ -330,7 +329,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
     serializer_class = MinimalCourseRunSerializer
 
     @classmethod
-    def get_expected_data(cls, course_run, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, course_run, request):
         return {
             'key': course_run.key,
             'uuid': str(course_run.uuid),
@@ -386,8 +385,8 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         expected.update({
             'course': course_run.course.key,
             'key': course_run.key,
-            'title': course_run.title,  # pylint: disable=no-member
-            'full_description': course_run.full_description,  # pylint: disable=no-member
+            'title': course_run.title,
+            'full_description': course_run.full_description,
             'announcement': json_date_format(course_run.announcement),
             'video': VideoSerializer(course_run.video).data,
             'mobile_available': course_run.mobile_available,
@@ -401,7 +400,7 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'instructors': [],
             'staff': [],
             'seats': [],
-            'modified': json_date_format(course_run.modified),  # pylint: disable=no-member
+            'modified': json_date_format(course_run.modified),
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
             'reporting_type': course_run.reporting_type,
@@ -1260,7 +1259,7 @@ class NestedProgramSerializerTests(TestCase):
         expected = {
             'uuid': str(program.uuid),
             'marketing_slug': program.marketing_slug,
-            'marketing_url': program.marketing_url,  # pylint: disable=no-member
+            'marketing_url': program.marketing_url,
             'type': program.type.name,
             'title': program.title,
             'number_of_courses': program.courses.count(),
@@ -1340,8 +1339,8 @@ class SeatSerializerTests(TestCase):
             'price': str(seat.price),
             'currency': seat.currency.code,
             'upgrade_deadline': json_date_format(seat.upgrade_deadline),
-            'credit_provider': seat.credit_provider,  # pylint: disable=no-member
-            'credit_hours': seat.credit_hours,  # pylint: disable=no-member
+            'credit_provider': seat.credit_provider,
+            'credit_hours': seat.credit_hours,
             'sku': seat.sku,
             'bulk_sku': seat.bulk_sku
         }
@@ -1351,6 +1350,7 @@ class SeatSerializerTests(TestCase):
 
 class MinimalPersonSerializerTests(TestCase):
     def setUp(self):
+        super().setUp()
         request = make_request()
         self.context = {'request': request}
         image_field = StdImageSerializerField()
@@ -1503,7 +1503,6 @@ class AffiliateWindowSerializerTests(TestCase):
         serializer = AffiliateWindowSerializer(seat)
 
         # Verify none of the course run attributes are empty; otherwise, Affiliate Window will report errors.
-        # pylint: disable=no-member
         assert all((course_run.title, course_run.short_description, course_run.marketing_url))
 
         expected = {
