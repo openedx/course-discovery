@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-08 18:21+0000\n"
+"POT-Creation-Date: 2019-07-11 15:13+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -726,35 +726,36 @@ msgstr ""
 "Ýöü müst spéçïfý ät léäst öné pérsön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
 
-#: apps/course_metadata/management/commands/migrate_course_editors.py
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 msgid ""
-"Based on the configuration object, migrates all of the course editors for an"
-" organization from publisher tables to course metadata tables for use in "
-"Publisher Frontend."
+"Based on the configuration object, goes through all courses for an "
+"organization and migrates all of the course editors and course data from the"
+" publisher tables to the course metadata tables for use in Publisher "
+"Frontend."
 msgstr ""
-"Bäséd ön thé çönfïgürätïön ößjéçt, mïgrätés äll öf thé çöürsé édïtörs för än"
-" örgänïzätïön fröm püßlïshér täßlés tö çöürsé métädätä täßlés för üsé ïn "
-"Püßlïshér Frönténd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg "
-"єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт "
-"єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт "
-"αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη "
-"νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт "
-"σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒ#"
+"Bäséd ön thé çönfïgürätïön ößjéçt, göés thröügh äll çöürsés för än "
+"örgänïzätïön änd mïgrätés äll öf thé çöürsé édïtörs änd çöürsé dätä fröm thé"
+" püßlïshér täßlés tö thé çöürsé métädätä täßlés för üsé ïn Püßlïshér "
+"Frönténd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
+"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
+" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
+"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
+" єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα#"
 
-#: apps/course_metadata/management/commands/migrate_course_editors.py
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 msgid ""
 "No organization keys were defined. Please add organization keys to the "
-"MigrateCourseEditorsConfig model."
+"MigratePublisherToCourseMetadataConfig model."
 msgstr ""
 "Nö örgänïzätïön kéýs wéré défïnéd. Pléäsé ädd örgänïzätïön kéýs tö thé "
-"MïgrätéÇöürséÉdïtörsÇönfïg mödél. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+"MïgrätéPüßlïshérTöÇöürséMétädätäÇönfïg mödél. Ⱡ'σяєм ιρѕυм ∂σ#"
 
-#: apps/course_metadata/management/commands/migrate_course_editors.py
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 msgid "No organization keys were defined."
 msgstr ""
 "Nö örgänïzätïön kéýs wéré défïnéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
-#: apps/course_metadata/management/commands/migrate_course_editors.py
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 #, python-brace-format
 msgid ""
 "Organization key [{org_key}] is not a valid key for any existing "
@@ -763,7 +764,7 @@ msgstr ""
 "Örgänïzätïön kéý [{org_key}] ïs nöt ä välïd kéý för äný éxïstïng "
 "örgänïzätïön. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
-#: apps/course_metadata/management/commands/migrate_course_editors.py
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 #, python-brace-format
 msgid ""
 "Course with course number [{course_number}] is not a valid course number for"
@@ -779,7 +780,7 @@ msgstr ""
 "∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
 " ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ι#"
 
-#: apps/course_metadata/management/commands/migrate_course_editors.py
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 #, python-brace-format
 msgid ""
 "The following organization keys were not valid for any exisiting "

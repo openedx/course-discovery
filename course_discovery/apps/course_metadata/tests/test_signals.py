@@ -11,8 +11,8 @@ from waffle.testutils import override_switch
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
     Curriculum, CurriculumCourseMembership, DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
-    MigrateCourseEditorsConfig, ProfileImageDownloadConfig, ProgramType, Seat, SubjectTranslation, TagCourseUuidsConfig,
-    TopicTranslation
+    MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, ProgramType, Seat, SubjectTranslation,
+    TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.tests import factories
 
@@ -37,8 +37,9 @@ class TestCacheInvalidation:
         # connecting to. We want to test each of them.
         for model in apps.get_app_config('course_metadata').get_models():
             # Ignore models that aren't exposed by the API or are only used for testing.
-            if model in [DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCourseEditorsConfig,
-                         SubjectTranslation, TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig]:
+            if model in [DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
+                         MigratePublisherToCourseMetadataConfig, SubjectTranslation, TopicTranslation,
+                         ProfileImageDownloadConfig, TagCourseUuidsConfig]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue

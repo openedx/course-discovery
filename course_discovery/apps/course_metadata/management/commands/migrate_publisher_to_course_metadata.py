@@ -4,7 +4,10 @@ from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 
-from course_discovery.apps.course_metadata.models import Course, CourseEditor, MigrateCourseEditorsConfig, Organization
+from course_discovery.apps.course_metadata.models import (
+    Course, CourseEditor, MigratePublisherToCourseMetadataConfig, Organization
+)
+from course_discovery.apps.course_metadata.utils import publish_to_course_metadata
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import Course as PublisherCourse
 from course_discovery.apps.publisher.models import CourseUserRole
@@ -13,16 +16,17 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = _('Based on the configuration object, migrates all of the course editors for an organization '
-             'from publisher tables to course metadata tables for use in Publisher Frontend.')
+    help = _('Based on the configuration object, goes through all courses for an organization and '
+             'migrates all of the course editors and course data from the publisher tables to the '
+             'course metadata tables for use in Publisher Frontend.')
 
     def handle(self, *args, **options):
-        config = MigrateCourseEditorsConfig.get_solo()
+        config = MigratePublisherToCourseMetadataConfig.get_solo()
 
         if not config.org_keys:
             logger.error(_(
-                'No organization keys were defined. Please add organization keys to the MigrateCourseEditorsConfig '
-                'model.'
+                'No organization keys were defined. Please add organization keys to the '
+                'MigratePublisherToCourseMetadataConfig model.'
             ))
             raise CommandError(_('No organization keys were defined.'))
 
@@ -41,7 +45,13 @@ class Command(BaseCommand):
                 )
                 exception_org_keys.append(org_key)
                 continue
-            for discovery_course in Course.objects.filter(authoring_organizations__in=[org]):
+
+            for publisher_course in PublisherCourse.objects.filter(organizations__in=[org]):
+                for course_run in publisher_course.course_runs.all():
+                    partner = org.partner
+                    publish_to_course_metadata(partner, course_run, draft=True)
+
+            for discovery_course in Course.everything.filter(authoring_organizations__in=[org], draft=True):
                 course_number = discovery_course.key.split('+')[-1]
                 try:
                     publisher_course = PublisherCourse.objects.get(number=course_number)
@@ -55,16 +65,10 @@ class Command(BaseCommand):
                 for user_role in CourseUserRole.objects.filter(
                     course_id=publisher_course, role=PublisherUserRole.CourseTeam
                 ):
-                    user_id = user_role.user_id
-                    user = UserModel.objects.get(pk=user_id)
-                    # We prefer linking to draft courses because editors make sense in the context of drafts, but we
-                    # are choosing to default to the official version so we do not have to create the draft world
-                    # for a course as part of this command. When the draft world is eventually created, we will
-                    # move the editors from the official version to the draft version.
-                    editor_course = discovery_course.draft_version or discovery_course
+                    user = UserModel.objects.get(pk=user_role.user_id)
                     # Using update_or_create in case a course has multiple authoring organizations and the course
                     # shows up more than once.
-                    CourseEditor.objects.update_or_create(course=editor_course, user=user)
+                    CourseEditor.objects.update_or_create(course=discovery_course, user=user)
 
         # Fail the job to help increase visibility of orgs that were not valid.
         if exception_org_keys:

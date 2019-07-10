@@ -2,6 +2,7 @@ import datetime
 import random
 import string
 import uuid
+from collections import OrderedDict
 from urllib.parse import urljoin
 
 import requests
@@ -16,6 +17,7 @@ from stdimage.utils import UploadTo
 
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
+from course_discovery.apps.publisher.utils import get_course_key
 
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
 
@@ -120,8 +122,6 @@ def set_draft_state(obj, model, attrs=None):
         for key, value in attrs.items():
             setattr(obj, key, value)
 
-    # Will throw an integrity error if the draft row already exists, but this
-    # should be caught as part of a try catch in the API calling ensure_draft_world
     obj.save()
 
     original_obj.draft_version = obj
@@ -203,9 +203,6 @@ def ensure_draft_world(obj):
 
     Assumes that if the given object is already a draft, the draft world for that object already exists.
 
-    Will throw an integrity error if the draft row already exists, but this
-    should be caught as part of a try catch in the API calling ensure_draft_world
-
     Parameters:
         obj (Model object): The object to create a draft state for. *Must have draft as an attribute.*
 
@@ -215,6 +212,8 @@ def ensure_draft_world(obj):
     from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat, SeatType
     if obj.draft:
         return obj
+    elif obj.draft_version:
+        return obj.draft_version
 
     if isinstance(obj, CourseRun):
         ensure_draft_world(obj.course)
@@ -460,6 +459,117 @@ def push_to_ecommerce_for_course_run(course_run):
                     discovery_product.draft_version.save()
 
     return True
+
+
+def publish_to_course_metadata(partner, course_run, draft=False):
+    from course_discovery.apps.course_metadata.models import (
+        Course, CourseEntitlement, CourseRun, ProgramType, Seat, SeatType, Video
+    )
+
+    publisher_course = course_run.course
+    course_key = get_course_key(publisher_course)
+
+    video = None
+    if publisher_course.video_link:
+        video, __ = Video.objects.get_or_create(src=publisher_course.video_link)
+
+    defaults = {
+        'title': publisher_course.title,
+        'short_description': publisher_course.short_description,
+        'full_description': publisher_course.full_description,
+        'level_type': publisher_course.level_type,
+        'video': video,
+        'outcome': publisher_course.expected_learnings,
+        'prerequisites_raw': publisher_course.prerequisites,
+        'syllabus_raw': publisher_course.syllabus,
+        'additional_information': publisher_course.additional_information,
+        'faq': publisher_course.faq,
+        'learner_testimonials': publisher_course.learner_testimonial,
+    }
+
+    if draft:
+        # We want to only save to drafts when draft=True so let's ensure the draft version of everything exists.
+        # If it doesn't, we will just create it below.
+        discovery_course = Course.objects.filter_drafts(partner=partner, key=course_key).first()
+        if discovery_course:
+            ensure_draft_world(discovery_course)
+
+    discovery_course, created = Course.everything.update_or_create(
+        partner=partner, key=course_key, draft=draft, defaults=defaults
+    )
+    discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
+    discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
+
+    subjects = [subject for subject in [
+        publisher_course.primary_subject,
+        publisher_course.secondary_subject,
+        publisher_course.tertiary_subject
+    ] if subject]
+    subjects = list(OrderedDict.fromkeys(subjects))
+    discovery_course.subjects.clear()
+    discovery_course.subjects.add(*subjects)
+
+    expected_program_type, program_name = ProgramType.get_program_type_data(course_run, ProgramType)
+
+    defaults = {
+        'start': course_run.start_date_temporary,
+        'end': course_run.end_date_temporary,
+        'pacing_type': course_run.pacing_type_temporary,
+        'title_override': course_run.title_override,
+        'min_effort': course_run.min_effort,
+        'max_effort': course_run.max_effort,
+        'language': course_run.language,
+        'weeks_to_complete': course_run.length,
+        'has_ofac_restrictions': course_run.has_ofac_restrictions,
+        'external_key': course_run.external_key,
+        'expected_program_name': program_name or '',
+        'expected_program_type': expected_program_type,
+    }
+    discovery_course_run, __ = CourseRun.everything.update_or_create(
+        course=discovery_course, key=course_run.lms_course_id, draft=draft, defaults=defaults
+    )
+    discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
+    discovery_course_run.staff.clear()
+    discovery_course_run.staff.add(*course_run.staff.all())
+
+    for entitlement in publisher_course.entitlements.all():
+        CourseEntitlement.everything.update_or_create(  # pylint: disable=no-member
+            course=discovery_course,
+            mode=SeatType.objects.get(slug=entitlement.mode),
+            draft=draft,
+            defaults={
+                'partner': partner,
+                'price': entitlement.price,
+                'currency': entitlement.currency,
+            }
+        )
+
+    for seat in course_run.seats.exclude(type=Seat.CREDIT).order_by('created'):
+        Seat.everything.update_or_create(  # pylint: disable=no-member
+            course_run=discovery_course_run,
+            type=seat.type,
+            currency=seat.currency,
+            draft=draft,
+            defaults={
+                'price': seat.price,
+                'upgrade_deadline': seat.calculated_upgrade_deadline,
+            }
+        )
+        if seat.masters_track:
+            Seat.everything.update_or_create(  # pylint: disable=no-member
+                course_run=discovery_course_run,
+                type=Seat.MASTERS,
+                currency=seat.currency,
+                draft=draft,
+                defaults={
+                    'price': seat.price,
+                    'upgrade_deadline': seat.calculated_upgrade_deadline,
+                }
+            )
+
+    if created:
+        discovery_course.canonical_course_run = discovery_course_run
+        discovery_course.save()
 
 
 class MarketingSiteAPIClient(object):
