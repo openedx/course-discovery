@@ -535,6 +535,6 @@ class ProfileImageDownloadConfigFactory(factory.DjangoModelFactory):
         model = ProfileImageDownloadConfig
 
 
-class MigrateCourseEditorsConfigFactory(factory.DjangoModelFactory):
+class MigratePublisherToCourseMetadataConfigFactory(factory.DjangoModelFactory):
     class Meta:
-        model = MigrateCourseEditorsConfig
+        model = MigratePublisherToCourseMetadataConfig

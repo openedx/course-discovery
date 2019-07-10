@@ -1,5 +1,4 @@
 import logging
-from collections import OrderedDict
 from datetime import date
 
 from edx_rest_framework_extensions.auth.jwt.authentication import JwtAuthentication
@@ -10,16 +9,9 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from slumber.exceptions import SlumberBaseException
 
-from course_discovery.apps.course_metadata.models import Course
-from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
-from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
-from course_discovery.apps.course_metadata.models import ProgramType
-from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
-from course_discovery.apps.course_metadata.models import SeatType, Video
-from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run
-from course_discovery.apps.publisher.models import CourseRun, Seat
+from course_discovery.apps.course_metadata.utils import publish_to_course_metadata, push_to_ecommerce_for_course_run
+from course_discovery.apps.publisher.models import CourseRun
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
-from course_discovery.apps.publisher.utils import get_course_key
 
 logger = logging.getLogger(__name__)
 
@@ -91,98 +83,5 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             return 'FAILED: ' + str(ex)
 
     def publish_to_discovery(self, partner, course_run):
-        publisher_course = course_run.course
-        course_key = get_course_key(publisher_course)
-
-        video = None
-        if publisher_course.video_link:
-            video, __ = Video.objects.get_or_create(src=publisher_course.video_link)
-
-        defaults = {
-            'title': publisher_course.title,
-            'short_description': publisher_course.short_description,
-            'full_description': publisher_course.full_description,
-            'level_type': publisher_course.level_type,
-            'video': video,
-            'outcome': publisher_course.expected_learnings,
-            'prerequisites_raw': publisher_course.prerequisites,
-            'syllabus_raw': publisher_course.syllabus,
-            'additional_information': publisher_course.additional_information,
-            'faq': publisher_course.faq,
-            'learner_testimonials': publisher_course.learner_testimonial,
-        }
-        discovery_course, created = Course.objects.update_or_create(partner=partner, key=course_key, defaults=defaults)
-        discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
-        discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
-
-        subjects = [subject for subject in [
-            publisher_course.primary_subject,
-            publisher_course.secondary_subject,
-            publisher_course.tertiary_subject
-        ] if subject]
-        subjects = list(OrderedDict.fromkeys(subjects))
-        discovery_course.subjects.clear()
-        discovery_course.subjects.add(*subjects)
-
-        expected_program_type, program_name = ProgramType.get_program_type_data(course_run, ProgramType)
-
-        defaults = {
-            'start': course_run.start_date_temporary,
-            'end': course_run.end_date_temporary,
-            'pacing_type': course_run.pacing_type_temporary,
-            'title_override': course_run.title_override,
-            'min_effort': course_run.min_effort,
-            'max_effort': course_run.max_effort,
-            'language': course_run.language,
-            'weeks_to_complete': course_run.length,
-            'has_ofac_restrictions': course_run.has_ofac_restrictions,
-            'external_key': course_run.external_key,
-            'expected_program_name': program_name or '',
-            'expected_program_type': expected_program_type,
-        }
-        discovery_course_run, __ = DiscoveryCourseRun.objects.update_or_create(
-            course=discovery_course,
-            key=course_run.lms_course_id,
-            defaults=defaults
-        )
-        discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
-        discovery_course_run.staff.clear()
-        discovery_course_run.staff.add(*course_run.staff.all())
-
-        for entitlement in publisher_course.entitlements.all():
-            DiscoveryCourseEntitlement.objects.update_or_create(
-                course=discovery_course,
-                mode=SeatType.objects.get(slug=entitlement.mode),
-                defaults={
-                    'partner': partner,
-                    'price': entitlement.price,
-                    'currency': entitlement.currency,
-                }
-            )
-
-        for seat in course_run.seats.exclude(type=Seat.CREDIT).order_by('created'):
-            DiscoverySeat.objects.update_or_create(
-                course_run=discovery_course_run,
-                type=seat.type,
-                currency=seat.currency,
-                defaults={
-                    'price': seat.price,
-                    'upgrade_deadline': seat.calculated_upgrade_deadline,
-                }
-            )
-            if seat.masters_track:
-                DiscoverySeat.objects.update_or_create(
-                    course_run=discovery_course_run,
-                    type=DiscoverySeat.MASTERS,
-                    currency=seat.currency,
-                    defaults={
-                        'price': seat.price,
-                        'upgrade_deadline': seat.calculated_upgrade_deadline,
-                    }
-                )
-
-        if created:
-            discovery_course.canonical_course_run = discovery_course_run
-            discovery_course.save()
-
+        publish_to_course_metadata(partner, course_run)
         return self.PUBLICATION_SUCCESS_STATUS

@@ -2387,9 +2387,9 @@ class DrupalPublishUuidConfig(SingletonModel):
     push_people = models.BooleanField(default=False)
 
 
-class MigrateCourseEditorsConfig(SingletonModel):
+class MigratePublisherToCourseMetadataConfig(SingletonModel):
     """
-    Configuration for the migrate_course_editors command.
+    Configuration for the migrate_publisher_to_course_metadata command.
     """
     org_keys = models.TextField(
         blank=True,
