@@ -10,7 +10,7 @@ from .models import Course, CourseRun, Organization, Person, Program
 
 class CourseAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        if self.request.user.is_authenticated() and self.request.user.is_staff:
+        if self.request.user.is_authenticated and self.request.user.is_staff:
             qs = Course.objects.all()
             if self.q:
                 qs = qs.filter(Q(key__icontains=self.q) | Q(title__icontains=self.q))
@@ -22,7 +22,7 @@ class CourseAutocomplete(autocomplete.Select2QuerySetView):
 
 class CourseRunAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        if self.request.user.is_authenticated() and self.request.user.is_staff:
+        if self.request.user.is_authenticated and self.request.user.is_staff:
             qs = CourseRun.objects.all().select_related('course')
 
             filter_by_course = self.forwarded.get('course', None)
@@ -39,7 +39,7 @@ class CourseRunAutocomplete(autocomplete.Select2QuerySetView):
 
 class OrganizationAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        if self.request.user.is_authenticated() and self.request.user.is_staff:
+        if self.request.user.is_authenticated and self.request.user.is_staff:
             qs = Organization.objects.all()
 
             if self.q:
@@ -52,7 +52,7 @@ class OrganizationAutocomplete(autocomplete.Select2QuerySetView):
 
 class ProgramAutocomplete(autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        if self.request.user.is_authenticated() and self.request.user.is_staff:
+        if self.request.user.is_authenticated and self.request.user.is_staff:
             qs = Program.objects.all()
 
             if self.q:

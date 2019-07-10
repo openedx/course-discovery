@@ -29,7 +29,7 @@ class SwaggerSchemaView(APIView):
             # authenticated or doesn't have permission to access the API.
             # api_docs_permission_denied_handler() handles both of these cases.
             return api_docs_permission_denied_handler(request)
-        elif schema and request.user and request.user.is_anonymous():
+        elif schema and request.user and request.user.is_anonymous:
             return _redirect_to_login(request)
 
         return Response(schema)
@@ -54,6 +54,6 @@ def api_docs_permission_denied_handler(request):
         HttpResponseRedirect: Redirect to the login page if the user is not logged in. After a
             successful login, the user will be redirected back to the original path.
     """
-    if request.user and request.user.is_authenticated():
+    if request.user and request.user.is_authenticated:
         raise PermissionDenied(_('You are not permitted to access the API documentation.'))
     return _redirect_to_login(request)

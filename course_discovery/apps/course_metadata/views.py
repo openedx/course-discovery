@@ -24,7 +24,7 @@ class CourseRunSelectionAdmin(UpdateView):
     form_class = CourseRunSelectionForm
 
     def get_context_data(self, **kwargs):
-        if self.request.user.is_authenticated() and self.request.user.is_staff:
+        if self.request.user.is_authenticated and self.request.user.is_staff:
             context = super(CourseRunSelectionAdmin, self).get_context_data(**kwargs)
             context.update({
                 'program_id': self.object.id,
