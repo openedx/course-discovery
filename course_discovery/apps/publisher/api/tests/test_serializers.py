@@ -4,11 +4,11 @@ from django.core import mail
 from django.test import RequestFactory, TestCase
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.exceptions import ValidationError
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -162,12 +162,12 @@ class CourseRunSerializerTests(TestCase):
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.CourseTeam)
         self.assertEqual(self.course_run.preview_url.rsplit('/', 1)[-1], 'course')
 
+    @override_switch('publish_course_runs_to_marketing_site', True)
     def test_update_preview_url_no_op(self):
         """ Verify we don't push to marketing if no change required """
         self.discovery_course_run.slug = ''
         self.discovery_course_run.save(suppress_publication=True)
 
-        toggle_switch('publish_course_runs_to_marketing_site')
         serializer = self.serializer_class(self.course_run, context={'request': self.request})
 
         mock_path = 'course_discovery.apps.course_metadata.publishers.CourseRunMarketingSitePublisher.publish_obj'
@@ -206,11 +206,11 @@ class CourseRunSerializerTests(TestCase):
             serializer.update(self.course_run, {'preview_url': 'invalid_url'})
             self.assertFalse(self.course_run.preview_url)
 
+    @override_switch('enable_publisher_email_notifications', True)
     def test_transaction_roll_back_with_error_on_email(self):
         """
         Verify that transaction is roll backed if error occurred during email sending.
         """
-        toggle_switch('enable_publisher_email_notifications', True)
         serializer = self.serializer_class(self.course_run)
         self.assertEqual(self.course_run.course_run_state.owner_role, PublisherUserRole.Publisher)
 
@@ -325,6 +325,7 @@ class CourseStateSerializerTests(SiteMixin, TestCase):
             serializer.update(self.course_state, data)
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class CourseRunStateSerializerTests(SiteMixin, TestCase):
     serializer_class = CourseRunStateSerializer
 
@@ -346,7 +347,6 @@ class CourseRunStateSerializerTests(SiteMixin, TestCase):
         self.course_run.save()
         self.course_run.staff.add(PersonFactory())
 
-        toggle_switch('enable_publisher_email_notifications', True)
         CourseUserRoleFactory(
             course=self.course_run.course, role=PublisherUserRole.CourseTeam, user=self.user
         )

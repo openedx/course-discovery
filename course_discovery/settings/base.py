@@ -83,7 +83,7 @@ INSTALLED_APPS += PROJECT_APPS
 # NOTE: Haystack must be installed after core so that we can override Haystack's management commands with our own.
 INSTALLED_APPS += ['haystack']
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'corsheaders.middleware.CorsMiddleware',
     'edx_django_utils.cache.middleware.RequestCacheMiddleware',
     'edx_rest_framework_extensions.auth.jwt.middleware.JwtAuthCookieMiddleware',
@@ -591,7 +591,7 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'elastic_panel',
     ]
 
-    MIDDLEWARE_CLASSES += (
+    MIDDLEWARE += (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     )
 

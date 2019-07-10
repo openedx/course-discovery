@@ -9,7 +9,6 @@ from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import PersonFactory
 from course_discovery.apps.publisher.choices import PublisherUserRole
@@ -23,6 +22,7 @@ from course_discovery.apps.publisher_comments.tests.factories import CommentFact
 
 
 @ddt.ddt
+@override_switch('enable_publisher_email_notifications', True)
 class CommentsEmailTests(SiteMixin, TestCase):
     """ Tests for the e-mail functionality for course, course-run and seats. """
 
@@ -59,7 +59,6 @@ class CommentsEmailTests(SiteMixin, TestCase):
 
         UserAttributeFactory(user=self.user, enable_email_notification=True)
         UserAttributeFactory(user=self.user_3, enable_email_notification=False)
-        toggle_switch('enable_publisher_email_notifications', True)
 
     def test_course_comment_email(self):
         """ Verify that after adding a comment against a course emails send
@@ -97,9 +96,9 @@ class CommentsEmailTests(SiteMixin, TestCase):
         send_email_for_comment.assert_called_once_with(comment, True)
 
     @mock.patch('course_discovery.apps.publisher_comments.models.send_email_for_comment')
+    @override_switch('enable_publisher_email_notifications', False)
     def test_email_with_disable_waffle_switch(self, send_email_for_comment):
         """ Verify that send_email_for_comment not called with disable waffle switch.. """
-        toggle_switch('enable_publisher_email_notifications', False)
         self.create_comment(content_object=self.course)
         send_email_for_comment.assert_not_called()
 

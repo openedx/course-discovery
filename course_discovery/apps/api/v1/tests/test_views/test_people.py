@@ -4,13 +4,13 @@ from django.db import IntegrityError
 from mock import mock
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.people import logger as people_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.models import Person, Position
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory,
     PersonSocialNetworkFactory, PositionFactory
@@ -19,6 +19,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 User = get_user_model()
 
 
+@override_switch('publish_person_to_marketing_site', True)
 class PersonViewSetTests(SerializationMixin, APITestCase):
     """ Tests for the person resource. """
     people_list_url = reverse('api:v1:person-list')
@@ -34,11 +35,10 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.internal_test_group.permissions.add(*self.target_permissions)
         self.user.groups.add(self.internal_test_group)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+        with override_switch('publish_person_to_marketing_site', False):
             self.person = PersonFactory(partner=self.partner)
         self.organization = OrganizationFactory(partner=self.partner)
         PositionFactory(person=self.person, organization=self.organization)
-        toggle_switch('publish_person_to_marketing_site', True)
         self.expected_node = {
             'resource': 'node',
             'id': '28691',
@@ -245,9 +245,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             self.assertEqual(len(response.data['results']), 2)
             self.assertEqual(response.data['results'], self.serialize_person([person1, person2], many=True))
 
+    @override_switch('publish_person_to_marketing_site', False)
     def test_create_without_waffle_switch(self):
         """ Verify endpoint proceeds if waffle switch is disabled. """
-        toggle_switch('publish_person_to_marketing_site', False)
         data = self._person_data()
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             response = self.client.post(self.people_list_url, data, format='json')
@@ -401,10 +401,10 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                         )
                     )
 
+    @override_switch('publish_person_to_marketing_site', False)
     def test_update_without_waffle_switch(self):
         """ Verify update endpoint proceeds if waffle switch is disabled. """
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
-        toggle_switch('publish_person_to_marketing_site', False)
         data = self._update_person_data()
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             response = self.client.patch(url, data, format='json')

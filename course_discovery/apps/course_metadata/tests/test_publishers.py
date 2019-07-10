@@ -4,6 +4,7 @@ import ddt
 import mock
 import pytest
 import responses
+from waffle.testutils import override_switch
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -14,7 +15,6 @@ from course_discovery.apps.course_metadata.exceptions import (
 from course_discovery.apps.course_metadata.publishers import (
     BaseMarketingSitePublisher, CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 
@@ -213,13 +213,13 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value=None)
     @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node', return_value='node_id')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
+    @override_switch('auto_course_about_page_creation', True)
     def test_publish_obj_create_successful(
         self,
         mock_update_node_alias,
         mock_create_node,
         *args
     ):  # pylint: disable=unused-argument
-        toggle_switch('auto_course_about_page_creation', True)
         self.publisher.publish_obj(self.obj)
         mock_create_node.assert_called_with({'data': 'test', 'field_course_uuid': str(self.obj.uuid)})
         mock_update_node_alias.assert_called_with(self.obj, 'node_id', None)
@@ -228,6 +228,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value={'data': 'test'})
     @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node', return_value='node1')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
+    @override_switch('auto_course_about_page_creation', True)
     def test_publish_obj_create_if_exists_on_discovery(
         self,
         mock_update_node_alias,
@@ -236,7 +237,6 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         mock_node_id,
         *args
     ):  # pylint: disable=unused-argument
-        toggle_switch('auto_course_about_page_creation', True)
         self.publisher.publish_obj(self.obj)
         mock_node_id.assert_called_with(self.obj)
         mock_serialize_obj.assert_called_with(self.obj)

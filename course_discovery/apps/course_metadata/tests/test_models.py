@@ -19,6 +19,7 @@ from django.db import IntegrityError
 from django.test import TestCase
 from freezegun import freeze_time
 from taggit.models import Tag
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
@@ -35,7 +36,7 @@ from course_discovery.apps.course_metadata.models import (
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
-from course_discovery.apps.course_metadata.tests import factories, toggle_switch
+from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -605,10 +606,9 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run = CourseRunFactory(title='Test Title')
         self.assertEqual(course_run.slug, 'test-title')
 
+    @override_switch('publish_course_runs_to_marketing_site', active=True)
     def test_empty_slug_defined_on_save(self):
         """ Verify the slug is defined on publication if it wasn't set already. """
-        toggle_switch('publish_course_runs_to_marketing_site')
-
         with mock.patch.object(CourseRunMarketingSitePublisher, 'publish_obj', return_value=None):
             self.course_run.slug = ''
             self.course_run.title = 'Test Title'
@@ -771,36 +771,32 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         """
         Verify that the publisher is not initialized when publication is disabled.
         """
-        toggle_switch('publish_course_runs_to_marketing_site', active=False)
-
         with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
             self.course_run.save()
             self.course_run.delete()
 
             assert mock_init.call_count == 0
 
-        toggle_switch('publish_course_runs_to_marketing_site')
+        with override_switch('publish_course_runs_to_marketing_site', True):
+            with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
+                # Make sure if the save comes from refresh_course_metadata, we don't actually publish
+                self.course_run.save(suppress_publication=True)
+                assert mock_init.call_count == 0
 
-        with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
-            # Make sure if the save comes from refresh_course_metadata, we don't actually publish
-            self.course_run.save(suppress_publication=True)
-            assert mock_init.call_count == 0
+            self.partner.marketing_site_url_root = ''
+            self.partner.save()
 
-        self.partner.marketing_site_url_root = ''
-        self.partner.save()
+            with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
+                self.course_run.save()
+                self.course_run.delete()
 
-        with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
-            self.course_run.save()
-            self.course_run.delete()
+                assert mock_init.call_count == 0
 
-            assert mock_init.call_count == 0
-
+    @override_switch('publish_course_runs_to_marketing_site', True)
     def test_publication_enabled(self):
         """
         Verify that the publisher is called when publication is enabled.
         """
-        toggle_switch('publish_course_runs_to_marketing_site')
-
         with mock.patch.object(CourseRunMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
             self.course_run.save()
             assert mock_publish_obj.called
@@ -1801,30 +1797,27 @@ class ProgramTests(TestCase):
         """
         Verify that the publisher is not initialized when publication is disabled.
         """
-        toggle_switch('publish_program_to_marketing_site', active=False)
-
         with mock.patch.object(ProgramMarketingSitePublisher, '__init__') as mock_init:
             self.program.save()
             self.program.delete()
 
             assert mock_init.call_count == 0
 
-        toggle_switch('publish_program_to_marketing_site')
-        self.program.partner.marketing_site_url_root = ''
-        self.program.partner.save()
+        with override_switch('publish_program_to_marketing_site', True):
+            self.program.partner.marketing_site_url_root = ''
+            self.program.partner.save()
 
-        with mock.patch.object(ProgramMarketingSitePublisher, '__init__') as mock_init:
-            self.program.save()
-            self.program.delete()
+            with mock.patch.object(ProgramMarketingSitePublisher, '__init__') as mock_init:
+                self.program.save()
+                self.program.delete()
 
-            assert mock_init.call_count == 0
+                assert mock_init.call_count == 0
 
+    @override_switch('publish_program_to_marketing_site', True)
     def test_publication_enabled(self):
         """
         Verify that the publisher is called when publication is enabled.
         """
-        toggle_switch('publish_program_to_marketing_site')
-
         with mock.patch.object(ProgramMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
             self.program.save()
             assert mock_publish_obj.called
