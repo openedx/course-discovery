@@ -22,7 +22,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         cls.log_messages = cls.log_handler.messages
 
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def setUp(self, mock_access_token):  # pylint: disable=unused-argument
+    def setUp(self, _mock_access_token):  # pylint: disable=arguments-differ
         super(TestLMSAPIClient, self).setUp()
         # Reset mock logger for each test.
         self.log_handler.reset()

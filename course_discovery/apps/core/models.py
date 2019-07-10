@@ -24,14 +24,14 @@ class User(GuardianUserMixin, AbstractUser):
 
         Assumes user has authenticated at least once with edX Open ID Connect.
         """
-        social_auth = self.social_auth.first()  # pylint: disable=no-member
+        social_auth = self.social_auth.first()
 
         if social_auth:
             return social_auth.access_token
 
         return None
 
-    class Meta(object):  # pylint:disable=missing-docstring
+    class Meta(object):
         get_latest_by = 'date_joined'
 
     def get_full_name(self):

@@ -21,7 +21,7 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
 
-    def retrieve(self, request, pk=None):  # pylint: disable=redefined-builtin,unused-argument
+    def retrieve(self, request, pk=None):
         """
         Return verified and professional seats of courses against provided catalog id.
         ---

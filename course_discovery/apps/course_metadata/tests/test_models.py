@@ -41,8 +41,8 @@ from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePubl
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
-
 # pylint: disable=no-member
+
 
 @pytest.mark.django_db
 @pytest.mark.usefixtures('haystack_default_connection')
@@ -1954,6 +1954,7 @@ class RankingTests(TestCase):
 class CurriculumTests(TestCase):
     """ Tests of the Curriculum model. """
     def setUp(self):
+        super().setUp()
         self.course_run = factories.CourseRunFactory()
         self.courses = [self.course_run.course]
         self.degree = factories.DegreeFactory(courses=self.courses)
@@ -1981,6 +1982,7 @@ class CurriculumTests(TestCase):
 class CurriculumCourseMembershipTests(TestCase):
     """ Tests of the CurriculumCourseMembership model. """
     def setUp(self):
+        super().setUp()
         self.course_run = factories.CourseRunFactory()
         self.course = self.course_run.course
         self.degree = factories.DegreeFactory(courses=[self.course])
@@ -2010,6 +2012,7 @@ class CurriculumCourseMembershipTests(TestCase):
 class DegreeDeadlineTests(TestCase):
     """ Tests the DegreeDeadline model."""
     def setUp(self):
+        super().setUp()
         self.course_run = factories.CourseRunFactory()
         self.courses = [self.course_run.course]
         self.degree = factories.DegreeFactory(courses=self.courses)
@@ -2039,6 +2042,7 @@ class DegreeDeadlineTests(TestCase):
 class DegreeCostTests(TestCase):
     """ Tests the DegreeCost model."""
     def setUp(self):
+        super().setUp()
         self.course_run = factories.CourseRunFactory()
         self.courses = [self.course_run.course]
         self.degree = factories.DegreeFactory(courses=self.courses)

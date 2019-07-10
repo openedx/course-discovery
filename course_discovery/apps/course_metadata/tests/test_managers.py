@@ -7,6 +7,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseRunFacto
 
 class DraftManagerTests(TestCase):
     def setUp(self):
+        super().setUp()
         self.draft = CourseRunFactory(draft=True)
         self.nondraft = CourseRunFactory(draft=False, uuid=self.draft.uuid, key=self.draft.key,
                                          course=self.draft.course, draft_version=self.draft)

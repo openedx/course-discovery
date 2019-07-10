@@ -26,8 +26,8 @@ class TestDistinctCountsSearchQuery:
 
         clone = query._clone()
         assert query.facets == clone.facets
-        assert query.aggregation_key == clone.aggregation_key  # pylint: disable=no-member
-        assert query._distinct_hit_count == clone._distinct_hit_count  # pylint: disable=no-member
+        assert query.aggregation_key == clone.aggregation_key
+        assert query._distinct_hit_count == clone._distinct_hit_count
 
     def test_clone_with_different_class(self):
         """ Verify that clone does not copy aggregation_key and distinct_hit_count when using different class."""
@@ -196,7 +196,7 @@ class TestDistinctCountsSearchQuery:
     def test_more_like_this_raises(self):
         """ Verify that more_like_this raises an exception."""
         with pytest.raises(RuntimeError) as err:
-            DistinctCountsSearchQuery().more_like_this()
+            DistinctCountsSearchQuery().more_like_this(None)
         assert 'does not support more_like_this queries' in str(err.value)
 
     def test_run_mlt_raises(self):
@@ -208,7 +208,7 @@ class TestDistinctCountsSearchQuery:
     def test_raw_search_raises(self):
         """ Verify that raw_search raises an exception."""
         with pytest.raises(RuntimeError) as err:
-            DistinctCountsSearchQuery().raw_search()
+            DistinctCountsSearchQuery().raw_search(None)
         assert 'does not support raw queries' in str(err.value)
 
     def test_run_raw_raises(self):
@@ -220,7 +220,7 @@ class TestDistinctCountsSearchQuery:
     def test_add_date_facet_raises(self):
         """ Verify that add_date_facet raises an exception. """
         with pytest.raises(RuntimeError) as err:
-            DistinctCountsSearchQuery().add_date_facet()
+            DistinctCountsSearchQuery().add_date_facet(None, None, None, None)
         assert 'does not support date facets' in str(err.value)
 
     def test_add_field_facet_validates_options(self):

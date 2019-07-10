@@ -24,7 +24,7 @@ class Command(HaystackCommand):
     def get_record_count(self, conn, index_name):
         return conn.count(index_name).get('count')
 
-    def handle(self, *items, **options):
+    def handle(self, **options):
         from django.utils import translation
         translation.activate(settings.LANGUAGE_CODE)
 
@@ -42,7 +42,7 @@ class Command(HaystackCommand):
             alias, index_name = self.prepare_backend_index(backend)
             alias_mappings.append((backend, index_name, alias, record_count))
 
-        super(Command, self).handle(*items, **options)
+        super(Command, self).handle(**options)
 
         # Set the alias (from settings) to the timestamped catalog.
         for backend, index, alias, record_count in alias_mappings:

@@ -8,4 +8,5 @@ class CommentsAdmin(admin.ModelAdmin):
     form = CommentsAdminForm
     readonly_fields = ('modified',)
 
+
 admin.site.register(Comments, CommentsAdmin)

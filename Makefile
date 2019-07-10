@@ -56,9 +56,9 @@ test: clean ## Run tests and generate coverage report
 	coverage combine || true  # will fail if nothing to do, but don't abort if that happens
 	coverage report
 
-quality: ## Run pep8 and Pylint
+quality: ## Run pycodestyle and pylint
 	isort --check-only --diff --recursive acceptance_tests/ course_discovery/
-	pep8 --config=.pep8 acceptance_tests course_discovery *.py
+	pycodestyle --config=.pycodestyle acceptance_tests course_discovery *.py
 	pylint --rcfile=pylintrc acceptance_tests course_discovery *.py
 
 validate: quality test ## Run tests and quality checks

@@ -24,7 +24,6 @@ from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 
-
 log = logging.getLogger(__name__)
 
 
@@ -42,7 +41,7 @@ def writable_request_wrapper(method):
     return inner
 
 
-# pylint: disable=no-member
+# pylint: disable=useless-super-delegation
 class CourseRunViewSet(viewsets.ModelViewSet):
     """ CourseRun resource. """
     filter_backends = (DjangoFilterBackend, OrderingFilter)
@@ -95,8 +94,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         queryset = queryset.filter(course__partner=partner)
         return self.get_serializer_class().prefetch_queryset(queryset=queryset)
 
-    def get_serializer_context(self, *args, **kwargs):
-        context = super().get_serializer_context(*args, **kwargs)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
         context.update({
             'exclude_utm': get_query_param(self.request, 'exclude_utm'),
             'include_deleted_programs': get_query_param(self.request, 'include_deleted_programs'),

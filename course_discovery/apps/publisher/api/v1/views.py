@@ -10,10 +10,12 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from slumber.exceptions import SlumberBaseException
 
+from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
+from course_discovery.apps.course_metadata.models import ProgramType
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
-from course_discovery.apps.course_metadata.models import Course, ProgramType, SeatType, Video
+from course_discovery.apps.course_metadata.models import SeatType, Video
 from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run
 from course_discovery.apps.publisher.models import CourseRun, Seat
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI

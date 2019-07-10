@@ -5,8 +5,8 @@ import json
 import responses
 from django.conf import settings
 from haystack.query import SearchQuerySet
-from rest_framework.test import APITestCase as RestAPITestCase
 from rest_framework.test import APIRequestFactory
+from rest_framework.test import APITestCase as RestAPITestCase
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.tests.mixins import SiteMixin
@@ -183,7 +183,7 @@ class LoginMixin:
         super(LoginMixin, self).setUp()
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        if getattr(self, 'request'):
+        if hasattr(self, 'request'):
             self.request.user = self.user
 
 
@@ -210,11 +210,11 @@ class FuzzyInt(int):
 
 
 class APITestCase(SiteMixin, RestAPITestCase):
-    def assertNumQueries(self, expected, threshold=2):
+    def assertNumQueries(self, num, func=None, *args, **kwargs):
         """
         Overridden method to allow a number of queries within a constant range, rather than
         an exact amount of queries.  This allows us to make changes to views and models that
         may slightly modify the query count without having to update expected counts in tests,
         while still ensuring that we don't inflate the number of queries by an order of magnitude.
         """
-        return super(APITestCase, self).assertNumQueries(FuzzyInt(expected, threshold))
+        return super().assertNumQueries(FuzzyInt(num, kwargs.pop('threshold', 2)), func=func, *args, **kwargs)

@@ -68,8 +68,8 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
         expected_course_enrollment_counts = {}
         course_runs = CourseRun.objects.all()
         for course_run in course_runs:
-            self.assertTrue(course_run.enrollment_count > 0)
-            self.assertTrue(course_run.recent_enrollment_count > 0)
+            self.assertGreater(course_run.enrollment_count, 0)
+            self.assertGreater(course_run.recent_enrollment_count, 0)
             course = course_run.course
             if course.key in expected_course_enrollment_counts.keys():
                 expected_course_enrollment_counts[course.key]['count'] += course_run.enrollment_count

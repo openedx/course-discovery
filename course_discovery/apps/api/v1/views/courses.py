@@ -54,7 +54,7 @@ def writable_request_wrapper(method):
     return inner
 
 
-# pylint: disable=no-member
+# pylint: disable=no-member,useless-super-delegation
 class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ Course resource. """
 
@@ -147,8 +147,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         return queryset.order_by(Lower('key'))
 
-    def get_serializer_context(self, *args, **kwargs):
-        context = super().get_serializer_context(*args, **kwargs)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
         query_params = ['exclude_utm', 'include_deleted_programs']
 
         for query_param in query_params:

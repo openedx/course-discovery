@@ -14,7 +14,7 @@ from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPICli
 logger = logging.getLogger(__name__)
 
 
-# pylint: disable=no-member
+# pylint: disable=useless-super-delegation
 class PersonViewSet(viewsets.ModelViewSet):
     """ PersonSerializer resource. """
 
@@ -114,8 +114,8 @@ class PersonViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    def get_serializer_context(self, *args, **kwargs):
-        context = super().get_serializer_context(*args, **kwargs)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
         query_params = ['include_course_runs_staffed', 'include_publisher_course_runs_staffed']
         for query_param in query_params:
             context[query_param] = get_query_param(self.request, query_param)

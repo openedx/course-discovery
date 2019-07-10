@@ -12,9 +12,9 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory,
-    CurriculumFactory, CurriculumProgramMembershipFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory, VideoFactory
+    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
+    CurriculumProgramMembershipFactory, EndorsementFactory, ExpectedLearningItemFactory, JobOutlookItemFactory,
+    OrganizationFactory, PersonFactory, ProgramFactory, VideoFactory
 )
 
 

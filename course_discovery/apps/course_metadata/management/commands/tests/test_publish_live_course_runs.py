@@ -15,6 +15,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseRunFacto
 @mock.patch('course_discovery.apps.course_metadata.models.CourseRun.publish')
 class PublishLiveCourseRunsTests(TestCase):
     def setUp(self):
+        super().setUp()
         self.now = datetime.datetime.now(pytz.UTC)
         self.past = self.now - datetime.timedelta(days=1)
 

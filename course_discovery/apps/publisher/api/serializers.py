@@ -42,8 +42,8 @@ class CourseUserRoleSerializer(serializers.ModelSerializer):
         fields = ('course', 'user', 'role',)
         read_only_fields = ('course', 'role')
 
-    def validate(self, data):
-        validated_values = super(CourseUserRoleSerializer, self).validate(data)
+    def validate(self, attrs):
+        validated_values = super(CourseUserRoleSerializer, self).validate(attrs)
 
         request = self.context.get('request')
         if request:
@@ -123,10 +123,10 @@ class CourseRunSerializer(serializers.ModelSerializer):
 
         return value
 
-    def validate(self, data):
-        validated_values = super(CourseRunSerializer, self).validate(data)
-        if 'preview_url' in data:
-            self.validate_preview_url(data['preview_url'])
+    def validate(self, attrs):
+        validated_values = super(CourseRunSerializer, self).validate(attrs)
+        if 'preview_url' in attrs:
+            self.validate_preview_url(attrs['preview_url'])
 
         if validated_values.get('lms_course_id'):
             request = self.context.get('request')

@@ -1,4 +1,3 @@
-# pylint: disable=no-member
 import base64
 
 import pytest

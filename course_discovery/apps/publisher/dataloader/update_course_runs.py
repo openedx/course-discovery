@@ -35,5 +35,5 @@ def update_course_run(publisher_course_run):
                     publisher_course_run.id, publisher_course_run.lms_course_id
                 )
 
-    except:  # pylint: disable=bare-except
+    except Exception:  # pylint: disable=broad-except
         logger.error('Exception appear in updating course-run-id [%s].', publisher_course_run.pk)

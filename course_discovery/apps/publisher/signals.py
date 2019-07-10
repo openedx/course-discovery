@@ -51,7 +51,7 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
         except SlumberBaseException as ex:
             logger.exception('Failed to create course run [%s] on Studio: %s', course.key, ex.content)
             raise
-        except Exception:  # pylint: disable=broad-except
+        except Exception:
             logger.exception('Failed to create course run [%s] on Studio', course.key)
             raise
 

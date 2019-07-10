@@ -17,7 +17,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
     include_archived = models.BooleanField(default=False, help_text=_('Include archived courses'))
 
     def __str__(self):
-        return 'Catalog #{id}: {name}'.format(id=self.id, name=self.name)  # pylint: disable=no-member
+        return 'Catalog #{id}: {name}'.format(id=self.id, name=self.name)
 
     def _get_query_results(self):
         """
@@ -40,7 +40,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
     def courses_count(self):
         return self._get_query_results().count()
 
-    def contains(self, course_ids):  # pylint: disable=unused-argument
+    def contains(self, course_ids):
         """ Determines if the given courses are contained in this catalog.
 
         Arguments:
@@ -57,7 +57,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
 
         return contains
 
-    def contains_course_runs(self, course_run_ids):  # pylint: disable=unused-argument
+    def contains_course_runs(self, course_run_ids):
         """
         Determines if the given course runs are contained in this catalog.
 

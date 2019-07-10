@@ -11,7 +11,6 @@ from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.models import Program
 
 
-# pylint: disable=no-member
 class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     """ Program resource. """
     lookup_field = 'uuid'
@@ -41,8 +40,8 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet
 
         return self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
 
-    def get_serializer_context(self, *args, **kwargs):
-        context = super().get_serializer_context(*args, **kwargs)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
         query_params = ['exclude_utm', 'use_full_course_serializer', 'published_course_runs_only',
                         'marketable_enrollable_course_runs_with_archived']
         for query_param in query_params:

@@ -403,8 +403,8 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
 class PersonSerializer(MinimalPersonSerializer):
     """Full serializer for the ``Person`` model."""
 
-    def validate(self, data):
-        validated_data = super(PersonSerializer, self).validate(data)
+    def validate(self, attrs):
+        validated_data = super(PersonSerializer, self).validate(attrs)
         validated_data['urls_detailed'] = self.initial_data.get('urls_detailed', [])
         validated_data['areas_of_expertise'] = self.initial_data.get('areas_of_expertise', [])
         return validated_data
@@ -689,19 +689,19 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         key = CourseLocator(org=org, course=number, run=run)
         data['key'] = str(key)
 
-    def validate(self, data):
-        start = data.get('start', self.instance.start if self.instance else None)
-        end = data.get('end', self.instance.end if self.instance else None)
+    def validate(self, attrs):
+        start = attrs.get('start', self.instance.start if self.instance else None)
+        end = attrs.get('end', self.instance.end if self.instance else None)
 
         if start and end and start > end:
             raise serializers.ValidationError({'start': _('Start date cannot be after the End date')})
 
         if not self.instance:  # if we're creating an object, we need to make sure to generate a key
-            self.ensure_key(data)
-        elif 'key' in data and self.instance.key != data['key']:
+            self.ensure_key(attrs)
+        elif 'key' in attrs and self.instance.key != attrs['key']:
             raise serializers.ValidationError({'key': _('Key cannot be changed')})
 
-        return super().validate(data)
+        return super().validate(attrs)
 
 
 class CourseRunSerializer(MinimalCourseRunSerializer):
@@ -790,19 +790,19 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         instance.save()
         return instance
 
-    def validate(self, data):
-        course = data.get('course', None)
+    def validate(self, attrs):
+        course = attrs.get('course', None)
         if course and self.instance and self.instance.course != course:
             raise serializers.ValidationError({'course': _('Course cannot be changed for an existing course run')})
 
-        min_effort = data.get('min_effort', self.instance.min_effort if self.instance else None)
-        max_effort = data.get('max_effort', self.instance.max_effort if self.instance else None)
+        min_effort = attrs.get('min_effort', self.instance.min_effort if self.instance else None)
+        max_effort = attrs.get('max_effort', self.instance.max_effort if self.instance else None)
         if min_effort and max_effort and min_effort > max_effort:
             raise serializers.ValidationError({'min_effort': _('Minimum effort cannot be greater than Maximum effort')})
         if min_effort and max_effort and min_effort == max_effort:
             raise serializers.ValidationError({'min_effort': _('Minimum effort and Maximum effort cannot be the same')})
 
-        return super().validate(data)
+        return super().validate(attrs)
 
 
 class CourseRunWithProgramsSerializer(CourseRunSerializer):
@@ -888,7 +888,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     topics = TagListSerializerField(required=False)
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
@@ -961,7 +961,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
     programs = NestedProgramSerializer(read_only=True, many=True)
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, course_runs=None, programs=None):
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None, programs=None):  # pylint: disable=arguments-differ
         """
         Similar to the CourseSerializer's prefetch_queryset, but prefetches a
         filtered CourseRun queryset.

@@ -342,7 +342,7 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
     unique_field = 'key'
     node_lookup_field = 'field_course_id'
 
-    def publish_obj(self, obj, previous_obj=None, include_uuid=False):
+    def publish_obj(self, obj, previous_obj=None, include_uuid=False):  # pylint: disable=arguments-differ
         """
         Publish a CourseRun to the marketing site.
 
