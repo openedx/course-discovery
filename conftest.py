@@ -94,5 +94,6 @@ def client():
     return Client(SERVER_NAME=TEST_DOMAIN)
 
 
-def pytest_sessionstart(session):  # pylint: disable=unused-argument
+@pytest.fixture(autouse=True)
+def clear_cache(request):  # pylint: disable=unused-argument
     cache.clear()

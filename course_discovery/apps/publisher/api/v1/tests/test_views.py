@@ -4,7 +4,6 @@ from datetime import date
 
 import mock
 import responses
-from django.core.cache import cache
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework.test import APITestCase
@@ -48,7 +47,6 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         # so their cache of the access token is not shared yet.
         self.mock_access_token()
         self.mock_access_token()
-        cache.clear()  # clear our saved Partner.access_token so that we expect do the same mock requests
 
     def test_without_authentication(self):
         self.client.logout()

@@ -164,7 +164,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         (list_path, serializers.CourseRunSearchSerializer,
          ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 8),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 40),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 43),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
          ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 42),
     )
