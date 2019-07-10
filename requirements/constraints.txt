@@ -1,0 +1,25 @@
+# Stay on an LTS release
+django<1.12
+
+# FIXME: 4.x dropped UploadToAutoSlug, we need to port to django-dynamic-filenames
+django-stdimage<4
+
+# FIXME: 1.x is an ancient version that we should upgrade off of
+elasticsearch<2
+
+# FIXME: 1.8.5 breaks the way we use serialization methods
+# FIXME: 1.8.3 breaks something about OneToOne field validators
+drf-haystack<1.8.3
+
+# FIXME: 2.12+ breaks our tests
+requests<2.12
+docker-compose<1.24  # newer versions require a newer requests
+
+# FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
+transifex-client<0.13
+
+# FIXME: 2.x dropped support for the deprecated MIDDLEWARE_CLASSES variable that we still use
+django-debug-toolbar<2
+
+# FIXME: 5+ made using the deprecated funcargnames attribute an error, still used by pytest-django-ordering
+pytest<5

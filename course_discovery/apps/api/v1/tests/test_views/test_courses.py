@@ -20,9 +20,10 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory,
-    ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory,
+    SeatFactory, SeatTypeFactory, SubjectFactory
 )
+from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
 
@@ -55,7 +56,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(FuzzyInt(46, 2)):
+        with self.assertNumQueries(FuzzyInt(45, 3)):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -265,6 +266,46 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             response.data['results'],
             self.serialize_course([self.course], many=True, extra_context=context)
         )
+
+    def test_list_pubq_by_title(self):
+        """ Verify the endpoint returns a list of courses filtered by title when specified with pubq and editable """
+        url = reverse('api:v1:course-list') + '?editable=1&pubq=ThisIsASpecificTestString'
+
+        self.course.title = 'ThisIsASpecificTestStringTitle'
+        self.course.save()
+        ensure_draft_world(self.course)
+
+        # Create a random test course with a title without the phrase "Test" in it
+        CourseFactory(partner=self.partner, key=self.course.key + 'Z', title='RandomString')
+
+        # There should be 3 courses, the specific key course, the draft, and the FakeKey
+        courses = Course.everything.all()
+        self.assertEqual(len(courses), 3)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['uuid'], str(self.course.uuid))
+
+    def test_list_pubq_by_key(self):
+        """ Verify the endpoint returns a list of courses filtered by key when specified with pubq and editable """
+        url = reverse('api:v1:course-list') + '?editable=1&pubq=ThisIsASpecificTestString'
+
+        self.course.title = 'ThisIsASpecificTestStringKey'
+        self.course.save()
+        ensure_draft_world(self.course)
+
+        # Create a random test course with a key without the phrase "Test" in it
+        CourseFactory(partner=self.partner, key='FakeKey')
+
+        # There should be 3 courses, the specific key course, the draft, and the FakeKey
+        courses = Course.everything.all()
+        self.assertEqual(len(courses), 3)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['uuid'], str(self.course.uuid))
 
     @ddt.data(
         ('get', False, False, True),
@@ -681,7 +722,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
         self.assertEqual(course.title, 'Course title')
         self.assertEqual(course.entitlements.first().price, 1000)
-        self.assertEqual(course.image.name[-4:], '.png')
         self.assertDictEqual(response.data, self.serialize_course(course))
 
     @responses.activate

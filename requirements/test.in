@@ -1,0 +1,22 @@
+# Packages required for testing
+-c constraints.txt
+-r base.in
+
+coverage
+ddt
+edx-lint==0.5.5
+factory-boy
+freezegun
+isort==4.2.5
+lxml
+mock
+pep8
+pytest
+pytest-cov
+pytest-django
+pytest-django-ordering
+pytest-responses
+pytest-xdist
+responses
+selenium
+testfixtures
