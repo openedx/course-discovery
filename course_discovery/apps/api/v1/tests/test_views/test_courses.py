@@ -13,7 +13,7 @@ from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, FuzzyInt, OAuth2Mixin, SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -231,7 +231,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
-        with self.assertNumQueries(FuzzyInt(55, 2)):
+        with self.assertNumQueries(55, threshold=3):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
