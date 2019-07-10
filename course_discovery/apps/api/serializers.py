@@ -515,7 +515,8 @@ class SeatSerializer(serializers.ModelSerializer):
     )
     price = serializers.DecimalField(
         decimal_places=Seat.PRICE_FIELD_CONFIG['decimal_places'],
-        max_digits=Seat.PRICE_FIELD_CONFIG['max_digits']
+        max_digits=Seat.PRICE_FIELD_CONFIG['max_digits'],
+        min_value=0,
     )
     currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
     upgrade_deadline = serializers.DateTimeField()
@@ -537,7 +538,8 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
     """Serializer for the ``CourseEntitlement`` model."""
     price = serializers.DecimalField(
         decimal_places=CourseEntitlement.PRICE_FIELD_CONFIG['decimal_places'],
-        max_digits=CourseEntitlement.PRICE_FIELD_CONFIG['max_digits']
+        max_digits=CourseEntitlement.PRICE_FIELD_CONFIG['max_digits'],
+        min_value=0,
     )
     currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
     sku = serializers.CharField(allow_blank=True, allow_null=True)
