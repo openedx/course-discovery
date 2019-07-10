@@ -6,6 +6,7 @@ import mock
 import responses
 from django.core.management import CommandError, call_command
 from django.test import TransactionTestCase
+from waffle.testutils import override_switch
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
@@ -18,7 +19,6 @@ from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.management.commands.refresh_course_metadata import execute_parallel_loader
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 JSON = 'application/json'
@@ -153,10 +153,9 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
 
     @mock.patch('course_discovery.apps.api.cache.set_api_timestamp')
     @mock.patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.set_api_timestamp')
+    @override_switch('threaded_metadata_write', True)
+    @override_switch('parallel_refresh_pipeline', True)
     def test_refresh_course_metadata_parallel(self, mock_set_api_timestamp, mock_receiver):
-        for name in ['threaded_metadata_write', 'parallel_refresh_pipeline']:
-            toggle_switch(name)
-
         with responses.RequestsMock() as rsps:
             self.mock_access_token_api(rsps)
             self.mock_apis()

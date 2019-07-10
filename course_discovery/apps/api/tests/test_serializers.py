@@ -14,7 +14,6 @@ from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
 from rest_framework.test import APIRequestFactory
 from taggit.models import Tag
-from waffle.models import Switch
 from waffle.testutils import override_switch
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
@@ -1916,14 +1915,11 @@ class TestTypeaheadProgramSearchSerializer:
         return serializer
 
 
+@override_switch('use_company_name_as_utm_source_value', True)
 class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
 
     def setUp(self):
         super(TestGetUTMSourceForUser, self).setUp()
-
-        self.switch, __ = Switch.objects.update_or_create(
-            name='use_company_name_as_utm_source_value', defaults={'active': True}
-        )
         self.user = UserFactory.create()
         self.partner = PartnerFactory.create()
 

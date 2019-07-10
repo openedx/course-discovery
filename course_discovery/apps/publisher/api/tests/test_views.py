@@ -12,12 +12,12 @@ from guardian.shortcuts import assign_perm
 from mock import mock, patch
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import CourseRunStatus as DiscoveryCourseRunStatus
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -206,6 +206,7 @@ class OrganizationGroupUserViewTests(SiteMixin, TestCase):
         )
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class UpdateCourseRunViewTests(SiteMixin, TestCase):
 
     def setUp(self):
@@ -228,7 +229,6 @@ class UpdateCourseRunViewTests(SiteMixin, TestCase):
         )
 
         factories.UserAttributeFactory(user=self.user, enable_email_notification=True)
-        toggle_switch('enable_publisher_email_notifications', True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def test_update_course_key_with_errors(self):
@@ -455,6 +455,7 @@ class CourseRevisionDetailViewTests(SiteMixin, TestCase):
         return self.client.get(path=course_revision_path)
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class ChangeCourseStateViewTests(SiteMixin, TestCase):
 
     def setUp(self):
@@ -470,7 +471,6 @@ class ChangeCourseStateViewTests(SiteMixin, TestCase):
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
         factories.UserAttributeFactory(user=self.user, enable_email_notification=True)
-        toggle_switch('enable_publisher_email_notifications', True)
 
         self.change_state_url = reverse('publisher:api:change_course_state', kwargs={'pk': self.course_state.id})
 
@@ -611,6 +611,7 @@ class ChangeCourseStateViewTests(SiteMixin, TestCase):
         self._assert_email_sent(course_team_user, subject)
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
 
     def setUp(self):
@@ -638,8 +639,6 @@ class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
         self.course_run.save()
 
         self.course_run.staff.add(PersonFactory())
-
-        toggle_switch('enable_publisher_email_notifications', True)
 
     def test_change_course_run_state_with_error(self):
         """

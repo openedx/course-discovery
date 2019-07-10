@@ -3,16 +3,13 @@ import pytest
 from django.core.cache import cache
 from django.urls import reverse
 
-from course_discovery.apps.api.v1.views.currency import CurrencyView, exchange_rate_cache_key
+from course_discovery.apps.api.v1.views.currency import CurrencyView
 
 
 @pytest.mark.usefixtures('django_cache')
 @pytest.mark.django_db
 class TestCurrencyCurrencyView:
     list_path = reverse('api:v1:currency')
-
-    def setup_method(self, method):  # pylint: disable=unused-argument
-        cache.delete(exchange_rate_cache_key())
 
     def test_authentication_required(self, client):
         response = client.get(self.list_path)
@@ -47,7 +44,7 @@ class TestCurrencyCurrencyView:
         assert len(responses.calls) == 1
 
         # Clearing the cache should result in the external service being called again
-        cache.delete(exchange_rate_cache_key())
+        cache.clear()
         response = admin_client.get(self.list_path)
         assert all(item in response.data.items() for item in expected.items())
         assert len(responses.calls) == 2

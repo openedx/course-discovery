@@ -7,11 +7,11 @@ from django.test import TestCase
 from django.urls import reverse
 from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.publisher import emails
@@ -22,6 +22,7 @@ from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.tests.factories import UserAttributeFactory
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class StudioInstanceCreatedEmailTests(SiteMixin, TestCase):
     """
     Tests for the studio instance created email functionality.
@@ -43,8 +44,6 @@ class StudioInstanceCreatedEmailTests(SiteMixin, TestCase):
         )
 
         UserAttributeFactory(user=self.user, enable_email_notification=True)
-
-        toggle_switch('enable_publisher_email_notifications', True)
 
     @mock.patch('django.core.mail.message.EmailMessage.send', mock.Mock(side_effect=TypeError))
     def test_email_with_error(self):
@@ -90,6 +89,7 @@ class StudioInstanceCreatedEmailTests(SiteMixin, TestCase):
         )
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class CourseCreatedEmailTests(SiteMixin, TestCase):
     """ Tests for the new course created email functionality. """
 
@@ -109,8 +109,6 @@ class CourseCreatedEmailTests(SiteMixin, TestCase):
         )
 
         UserAttributeFactory(user=self.user, enable_email_notification=True)
-
-        toggle_switch('enable_publisher_email_notifications', True)
 
     @mock.patch('django.core.mail.message.EmailMessage.send', mock.Mock(side_effect=TypeError))
     def test_email_with_error(self):
@@ -201,6 +199,7 @@ class CourseMarkAsReviewedEmailTests(SiteMixin, TestCase):
             )
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class CourseRunSendForReviewEmailTests(SiteMixin, TestCase):
     """ Tests for the CourseRun send for review email functionality. """
 
@@ -227,8 +226,6 @@ class CourseRunSendForReviewEmailTests(SiteMixin, TestCase):
         self.course_run.save()
 
         self.course_key = CourseKey.from_string(self.course_run.lms_course_id)
-
-        toggle_switch('enable_publisher_email_notifications', True)
 
     def test_email_sent_by_marketing_reviewer(self):
         """ Verify that email works successfully for marketing user."""
@@ -274,6 +271,7 @@ class CourseRunSendForReviewEmailTests(SiteMixin, TestCase):
         self.assertIn('View this course run in Publisher to review the changes or suggest edits.', body)
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class CourseRunMarkAsReviewedEmailTests(SiteMixin, TestCase):
     """ Tests for the CourseRun mark as reviewed email functionality. """
 
@@ -299,8 +297,6 @@ class CourseRunMarkAsReviewedEmailTests(SiteMixin, TestCase):
 
         self.course_run.lms_course_id = 'course-v1:edX+DemoX+Demo_Course'
         self.course_run.save()
-
-        toggle_switch('enable_publisher_email_notifications', True)
 
     def test_email_not_sent_by_project_coordinator(self):
         """ Verify that no email is sent if approving person is project coordinator. """
@@ -374,6 +370,7 @@ class CourseRunMarkAsReviewedEmailTests(SiteMixin, TestCase):
         self.assertIn('The review for this course run is complete.', body)
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class CourseRunPreviewEmailTests(SiteMixin, TestCase):
     """
     Tests for the course preview email functionality.
@@ -398,8 +395,6 @@ class CourseRunPreviewEmailTests(SiteMixin, TestCase):
         factories.CourseUserRoleFactory(
             course=self.course, role=PublisherUserRole.ProjectCoordinator, user=UserFactory()
         )
-
-        toggle_switch('enable_publisher_email_notifications', True)
 
     def test_preview_accepted_email(self):
         """
@@ -492,6 +487,7 @@ class CourseRunPreviewEmailTests(SiteMixin, TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class CourseRunPublishedEmailTests(SiteMixin, TestCase):
     def setUp(self):
         super(CourseRunPublishedEmailTests, self).setUp()
@@ -503,8 +499,6 @@ class CourseRunPublishedEmailTests(SiteMixin, TestCase):
 
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.CourseTeam, user=self.user)
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher, user=UserFactory())
-
-        toggle_switch('enable_publisher_email_notifications', True)
 
     def test_course_published_email(self):
         """
@@ -588,6 +582,7 @@ class CourseRunPublishedEmailTests(SiteMixin, TestCase):
             )
 
 
+@override_switch('enable_publisher_email_notifications', True)
 class CourseChangeRoleAssignmentEmailTests(SiteMixin, TestCase):
     """
     Tests email functionality for course role assignment changed.
@@ -603,8 +598,6 @@ class CourseChangeRoleAssignmentEmailTests(SiteMixin, TestCase):
                                                                 user=self.user)
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.Publisher)
         factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator)
-
-        toggle_switch('enable_publisher_email_notifications', True)
 
     def update_user_email_notification_status(self, user, enable=True):
         """Update user attribute which indicate if the user should receive emails or not."""

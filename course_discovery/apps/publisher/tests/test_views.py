@@ -29,7 +29,6 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.models import ProgramType as DiscoveryProgramType
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory, OrganizationFactory,
     PersonFactory, ProgramFactory, SeatFactory, SubjectFactory
@@ -773,6 +772,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         (CourseEntitlement.VERIFIED, 1, [{'type': Seat.VERIFIED, 'price': 1}, {'type': Seat.AUDIT, 'price': 0}]),
     )
     @ddt.unpack
+    @override_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
     def test_create_run_for_entitlement_course(self, entitlement_mode, entitlement_price, expected_seats):
         """
         Verify that when creating a run for a Course that uses entitlements, Seats are created from the
@@ -783,7 +783,6 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
-        toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
 
         self.course.entitlements.create(mode=entitlement_mode, price=entitlement_price)
         post_data = {'start': '2018-02-01 00:00:00', 'end': '2018-02-28 00:00:00', 'pacing_type': 'instructor_paced'}
@@ -1269,11 +1268,11 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.assertNotIn(response_string, '<button data-tab="#tab-4">DRUPAL</button>')
         self.assertNotIn(response_string, '<button data-tab="#tab-5">Salesforce</button>')
 
+    @override_switch('publisher_comment_widget_feature', True)
     def test_comments_with_enable_switch(self):
         """ Verify that user will see the comments widget when
         'publisher_comment_widget_feature' is enabled.
         """
-        toggle_switch('publisher_comment_widget_feature', True)
         response = self.client.get(self.page_url)
 
         self.assertContains(response, '<div id="comments-widget" class="comment-container ">')
@@ -1282,16 +1281,15 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         """ Verify that user will not see the comments widget when
         'publisher_comment_widget_feature' is disable.
         """
-        toggle_switch('publisher_comment_widget_feature', False)
         response = self.client.get(self.page_url)
         self.assertContains(response, '<div id="comments-widget" class="comment-container hidden">')
 
+    @override_switch('publisher_approval_widget_feature', True)
     def test_approval_widget_with_enable_switch(self):
         """ Verify that user will see the history widget when
         'publisher_approval_widget_feature' is enabled.
         """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        toggle_switch('publisher_approval_widget_feature', True)
         response = self.client.get(self.page_url)
         self.assertContains(response, '<div id="approval-widget" class="approval-widget ">')
 
@@ -1300,15 +1298,14 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         'publisher_approval_widget_feature' is disabled.
         """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        toggle_switch('publisher_approval_widget_feature', False)
         response = self.client.get(self.page_url)
         self.assertContains(response, '<div id="approval-widget" class="approval-widget hidden">')
 
+    @override_switch('publisher_approval_widget_feature', True)
     def test_course_run_approval_widget_for_course_team(self):
         """
         Verify that user can see approval widget on course detail page with `Send for Review` button.
         """
-        toggle_switch('publisher_approval_widget_feature', True)
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
 
         factories.CourseUserRoleFactory(
@@ -1334,12 +1331,11 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         # Verify that Reviewed button is enabled
         self.assertContains(response, self.get_expected_data(CourseRunStateChoices.Review))
 
+    @override_switch('publisher_approval_widget_feature', True)
     def test_course_approval_widget_for_marketing_team(self):
         """
         Verify that project coordinator can't see the `Send for Review` button.
         """
-        toggle_switch('publisher_approval_widget_feature', True)
-
         factories.CourseUserRoleFactory(
             course=self.course, user=self.user, role=PublisherUserRole.ProjectCoordinator
         )
@@ -1398,11 +1394,11 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         response = self.client.get(self.page_url)
         self.assertContains(response, '<div class="parent-course-approval">')
 
+    @override_switch('publisher_approval_widget_feature', True)
     def test_course_run_mark_as_reviewed(self):
         """
         Verify that user can see mark as reviewed button on course detail page.
         """
-        toggle_switch('publisher_approval_widget_feature', True)
         self.course_run_state.name = CourseRunStateChoices.Review
         self.course_run_state.save()
         factories.CourseUserRoleFactory(
@@ -2055,11 +2051,10 @@ class CourseListViewTests(SiteMixin, PaginationMixin, TestCase):
         response = self.get_courses()
         self.assertEqual(response[0]['edit_url'], edit_url)
 
-        toggle_switch('publisher_hide_features_for_pilot', True)
-
-        response = self.get_courses()
-        edit_url['url'] = None
-        self.assertEqual(response[0]['edit_url'], edit_url)
+        with override_switch('publisher_hide_features_for_pilot', True):
+            response = self.get_courses()
+            edit_url['url'] = None
+            self.assertEqual(response[0]['edit_url'], edit_url)
 
     def test_page_with_disable_waffle_switch(self):
         """
@@ -2073,7 +2068,6 @@ class CourseListViewTests(SiteMixin, PaginationMixin, TestCase):
         assign_perm(OrganizationExtension.VIEW_COURSE, organization_extension.group, organization_extension)
         assign_perm(OrganizationExtension.EDIT_COURSE, organization_extension.group, organization_extension)
 
-        toggle_switch('publisher_hide_features_for_pilot', False)
         response = self.client.get(self.courses_url)
         self.assertContains(response, 'Edit')
 
@@ -2420,10 +2414,10 @@ class CourseDetailViewTests(SiteMixin, TestCase):
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, 'course/{}'.format(lms_course_id))
 
+    @override_switch('publisher_hide_features_for_pilot', True)
     def test_page_enable_waffle_switch_pilot(self):
         """ Verify that user will not see approval widget when 'publisher_hide_features_for_pilot' is activated. """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        toggle_switch('publisher_hide_features_for_pilot', True)
         response = self.client.get(self.detail_page_url)
 
         self.assertContains(response, '<div id="approval-widget" class="hidden">')
@@ -2431,17 +2425,16 @@ class CourseDetailViewTests(SiteMixin, TestCase):
     def test_page_disable_waffle_switch_pilot(self):
         """ Verify that user will see approval widget when 'publisher_hide_features_for_pilot' is deactivated. """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        toggle_switch('publisher_hide_features_for_pilot', False)
         response = self.client.get(self.detail_page_url)
 
         self.assertContains(response, '<div id="approval-widget" class="">')
 
+    @override_switch('publisher_comment_widget_feature', True)
     def test_comments_with_enable_switch(self):
         """ Verify that user will see the comments widget when
         'publisher_comment_widget_feature' is enabled.
         """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        toggle_switch('publisher_comment_widget_feature', True)
         response = self.client.get(self.detail_page_url)
 
         self.assertContains(response, '<div id="comments-widget" class="comment-container ">')
@@ -2451,10 +2444,10 @@ class CourseDetailViewTests(SiteMixin, TestCase):
         'publisher_comment_widget_feature' is disabled.
         """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        toggle_switch('publisher_comment_widget_feature', False)
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, '<div id="comments-widget" class="comment-container hidden">')
 
+    @override_switch('publisher_history_widget_feature', True)
     def test_history_with_enable_switch(self):
         """ Verify that user will see the history widget when
         'publisher_history_widget_feature' is enabled.
@@ -2463,7 +2456,6 @@ class CourseDetailViewTests(SiteMixin, TestCase):
         self.course.title = 'Updated Test Title'
         self.course.save()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        toggle_switch('publisher_history_widget_feature', True)
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, '<div class="history-widget ">')
 
@@ -2475,16 +2467,15 @@ class CourseDetailViewTests(SiteMixin, TestCase):
         self.course.title = 'Updated Test Title'
         self.course.save()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        toggle_switch('publisher_history_widget_feature', False)
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, '<div class="history-widget hidden">')
 
+    @override_switch('publisher_approval_widget_feature', True)
     def test_approval_widget_with_enable_switch(self):
         """ Verify that user will see the history widget when
         'publisher_approval_widget_feature' is enabled.
         """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        toggle_switch('publisher_approval_widget_feature', True)
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, '<div class="approval-widget ">')
 
@@ -2493,7 +2484,6 @@ class CourseDetailViewTests(SiteMixin, TestCase):
         'publisher_approval_widget_feature' is disabled.
         """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        toggle_switch('publisher_approval_widget_feature', False)
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, '<div class="approval-widget hidden">')
 
@@ -3151,11 +3141,11 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data['price'] = 1
         self.AssertEditCourseSuccess(post_data)
 
+    @override_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
     def test_entitlement_changes(self):
         """
         Verify that an entitlement course's type or price changes take effect correctly
         """
-        toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.Publisher)
         factories.CourseUserRoleFactory.create(course=self.course, role=PublisherUserRole.ProjectCoordinator)
@@ -3263,12 +3253,12 @@ class CourseEditViewTests(SiteMixin, TestCase):
         response = self.client.post(self.edit_page_url, data=post_data)
         self.assertEqual(response.status_code, 400)
 
+    @override_switch('enable_publisher_email_notifications', True)
     def test_course_with_published_course_run(self):
         """
         Verify that editing course with published course run does not changed state
         and an email is sent to Publisher.
         """
-        toggle_switch('enable_publisher_email_notifications', True)
         self.client.logout()
         self.client.login(username=self.course_team_role.user.username, password=USER_PASSWORD)
         self._assign_permissions(self.organization_extension)
@@ -3335,6 +3325,7 @@ class CourseEditViewTests(SiteMixin, TestCase):
 
 
 @ddt.ddt
+@override_switch('enable_publisher_email_notifications', True)
 class CourseRunEditViewTests(SiteMixin, TestCase):
     """ Tests for the course run edit view. """
 
@@ -3392,8 +3383,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         # Update the data for course-run
         self.updated_dict['is_xseries'] = True
         self.updated_dict['xseries_name'] = 'Test XSeries'
-
-        toggle_switch('enable_publisher_email_notifications', True)
 
     def test_courserun_edit_form_for_course_with_entitlements(self):
         """ Verify that the edit form does not include Seat fields for courses that use entitlements. """
@@ -3564,6 +3553,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assertEqual(self.new_course_run.seats.first().price, 10)
         self.assertEqual(self.new_course_run.seats.first().history.all().count(), 1)
 
+    @override_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
     def test_update_course_run_create_duplicate_seats(self):
         """
         Tests that course run seats are not duplicated when editing.
@@ -3571,7 +3561,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         """
         self.login_with_course_user_role(self.new_course_run)
         data = {'image': '', 'type': Seat.VERIFIED, 'price': 10.00}
-        toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
         post_data = self._post_data(data, self.new_course, self.new_course_run)
 
         self.client.post(self.edit_page_url, post_data)
@@ -3600,12 +3589,12 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assert_seats(self.new_course_run, 10, [seat_type] * 10)
 
         # Make course run save post request and verify the correct course seats.
-        toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
-        data = {'image': '', 'type': Seat.VERIFIED, 'price': 100.00}
-        post_data = self._post_data(data, self.new_course, self.new_course_run)
-        self.client.post(self.edit_page_url, post_data)
-        self.assert_seats(self.new_course_run, 2, [Seat.AUDIT, Seat.VERIFIED])
-        self.assertEqual(self.new_course_run.paid_seats.first().price, 100.00)
+        with override_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True):
+            data = {'image': '', 'type': Seat.VERIFIED, 'price': 100.00}
+            post_data = self._post_data(data, self.new_course, self.new_course_run)
+            self.client.post(self.edit_page_url, post_data)
+            self.assert_seats(self.new_course_run, 2, [Seat.AUDIT, Seat.VERIFIED])
+            self.assertEqual(self.new_course_run.paid_seats.first().price, 100.00)
 
     def test_update_course_run_for_course_that_uses_entitlements(self):
         """ Verify that a user cannot change Seat data when editing courseruns for courses that use entitlements. """
@@ -3866,12 +3855,12 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         response = self.client.get(self.edit_page_url)
         self.assertContains(response, '<div id="seatPriceBlock" class="col col-6')
 
+    @override_switch('publisher_hide_features_for_pilot', True)
     def test_page_with_enable_waffle_switch(self):
         """
         Verify that edit pages shows the about page information block but only visible
         if the switch `publisher_hide_features_for_pilot` is enable.
         """
-        toggle_switch('publisher_hide_features_for_pilot', True)
         response = self.client.get(self.edit_page_url)
         self.assertContains(response, '<div id="about-page" class="course-information hidden">')
 
@@ -3880,7 +3869,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         Verify that edit pages shows the about page information block but hidden
         if the switch `publisher_hide_features_for_pilot` is disable
         """
-        toggle_switch('publisher_hide_features_for_pilot', False)
         response = self.client.get(self.edit_page_url)
         self.assertContains(response, '<div id="about-page" class="course-information ">')
 
@@ -4220,6 +4208,7 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         (CourseEntitlement.VERIFIED, 1, [{'type': Seat.VERIFIED, 'price': 1}, {'type': Seat.AUDIT, 'price': 0}]),
     )
     @ddt.unpack
+    @override_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
     def test_create_run_for_entitlement_course(self, entitlement_mode, entitlement_price, expected_seats):
         """
         Verify that when creating a run for a Course that uses entitlements, Seats are created from the
@@ -4230,7 +4219,6 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         assign_perm(
             OrganizationExtension.VIEW_COURSE_RUN, self.organization_extension.group, self.organization_extension
         )
-        toggle_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
 
         self.course.entitlements.create(mode=entitlement_mode, price=entitlement_price)
         post_data = {
@@ -4352,6 +4340,7 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         self.assertContains(response, 'The page could not be updated.', status_code=400)
 
 
+@override_switch('publisher_enable_course_import', True)
 class CreateAdminImportCourseTest(SiteMixin, TestCase):
     """ Tests for the publisher `CreateAdminImportCourse`. """
 
@@ -4386,18 +4375,19 @@ class CreateAdminImportCourseTest(SiteMixin, TestCase):
 
     def test_page_with_superuser_and_waffle(self):
         """ Verify that user can't access page when not logged in. """
-        response = self._make_users_valid(True)
+        response = self._make_users_valid()
         self.assertEqual(response.status_code, 200)
 
+    @override_switch('publisher_enable_course_import', False)
     def test_page_with_superuser_without_waffle(self):
         """ Verify that user can't access page when not logged in. """
-        response = self._make_users_valid(False)
+        response = self._make_users_valid()
         self.assertRaises(Http404)
         self.assertEqual(response.status_code, 404)
 
     def test_page_with_waffle_without_superuser(self):
         """ Verify that user can't access page if not he is not superuser. """
-        response = self._make_users_valid(True, False)
+        response = self._make_users_valid(False)
         self.assertRaises(Http404)
         self.assertEqual(response.status_code, 404)
 
@@ -4407,7 +4397,7 @@ class CreateAdminImportCourseTest(SiteMixin, TestCase):
         # organization should be available for import
         self.course.authoring_organizations.add(OrganizationFactory())
 
-        self._make_users_valid(True)
+        self._make_users_valid()
         post_data = {'start_id': self.course.pk}
         response = self.client.post(self.page_url, post_data)
         self.assertEqual(response.status_code, 200)
@@ -4415,14 +4405,14 @@ class CreateAdminImportCourseTest(SiteMixin, TestCase):
 
     def test_page_with_invalid_course_id(self):
         """ Verify page shows error message if import fails. """
-        self._make_users_valid(True)
+        self._make_users_valid()
         post_data = {'start_id': 100}
         response = self.client.post(self.page_url, post_data)
         self.assertContains(response, 'Course matching query does not exist.')
 
     def test_import_with_failure(self):
         """ Verify page shows error in case of any error. """
-        self._make_users_valid(True)
+        self._make_users_valid()
         post_data = {'start_id': self.course.pk}
         response = self.client.post(self.page_url, post_data)
         self.assertContains(response, 'Some error occurred')
@@ -4433,7 +4423,7 @@ class CreateAdminImportCourseTest(SiteMixin, TestCase):
         organization = OrganizationFactory()
         self.course.authoring_organizations.add(organization)
         self._add_org_roles(organization)
-        self._make_users_valid(True)
+        self._make_users_valid()
 
         post_data = {'start_id': self.course.pk}
         response = self.client.post(self.page_url, post_data)
@@ -4454,7 +4444,7 @@ class CreateAdminImportCourseTest(SiteMixin, TestCase):
         # organization should be available for import
         organization = OrganizationFactory()
         self.course.authoring_organizations.add(organization)
-        self._make_users_valid(True)
+        self._make_users_valid()
 
         post_data = {'start_id': self.course.pk}
         response = self.client.post(self.page_url, post_data)
@@ -4462,13 +4452,11 @@ class CreateAdminImportCourseTest(SiteMixin, TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Course Imported')
 
-    def _make_users_valid(self, switch, is_superuser=True):
+    def _make_users_valid(self, is_superuser=True):
         """ make user eligible for the page."""
         self.client.logout()
         self.user.is_superuser = is_superuser
         self.user.save()
-
-        toggle_switch('publisher_enable_course_import', switch)
 
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         return self.client.get(self.page_url)
