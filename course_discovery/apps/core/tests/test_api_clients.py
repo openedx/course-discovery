@@ -2,7 +2,6 @@ import logging
 
 import mock
 import responses
-from django.core.cache import cache
 from django.test import TestCase
 
 from course_discovery.apps.core.api_client import lms
@@ -43,7 +42,6 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
             'site': 1,
             'contacted': True
         }
-        cache.clear()
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')

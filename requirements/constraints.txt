@@ -18,8 +18,11 @@ docker-compose<1.24  # newer versions require a newer requests
 # FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
 transifex-client<0.13
 
-# FIXME: 2.x dropped support for the deprecated MIDDLEWARE_CLASSES variable that we still use
+# FIXME: 2.x needs Django 2
 django-debug-toolbar<2
 
 # FIXME: 5+ made using the deprecated funcargnames attribute an error, still used by pytest-django-ordering
 pytest<5
+
+# FIXME: 3+ require schemes in CORS_ORIGIN_WHITELIST URLs - remember to update configuration when you remove this
+django-cors-headers<3

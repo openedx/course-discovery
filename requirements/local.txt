@@ -26,7 +26,7 @@ django-autocomplete-light==3.1.8
 django-choices==1.4.3
 django-compressor==2.1.1
 django-contrib-comments==1.9.1
-django-cors-headers==2.4.0
+django-cors-headers==2.5.3
 django-debug-toolbar==1.11
 django-elasticsearch-debug-toolbar==1.2.0
 django-extensions==1.7.8
@@ -37,7 +37,7 @@ django-haystack==2.8.1
 django-libsass==0.7
 django-parler==1.9.2
 django-rest-swagger==2.1.2
-django-simple-history==2.7.0
+django-simple-history==2.7.2
 django-solo==1.1.2
 django-sortedm2m==1.4.0
 django-stdimage==3.2.0
@@ -137,7 +137,7 @@ selenium==3.141.0
 semantic-version==2.6.0   # via edx-drf-extensions
 simple-salesforce==0.74.3
 simplejson==3.16.0        # via django-rest-swagger
-six==1.12.0               # via astroid, cryptography, django-appconf, django-choices, django-extensions, django-guardian, djangorestframework-csv, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, freezegun, libsass, mock, packaging, pyjwkest, pylint, pyopenssl, pytest-xdist, python-dateutil, responses, social-auth-app-django, social-auth-core, stevedore, unicode-slugify
+six==1.12.0               # via astroid, cryptography, django-appconf, django-choices, django-extensions, django-guardian, django-simple-history, djangorestframework-csv, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, freezegun, libsass, mock, packaging, pyjwkest, pylint, pyopenssl, pytest-xdist, python-dateutil, responses, social-auth-app-django, social-auth-core, stevedore, unicode-slugify
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==1.9.0    # via sphinx
 social-auth-app-django==1.2.0  # via edx-auth-backends
