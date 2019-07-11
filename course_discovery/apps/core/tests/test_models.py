@@ -82,7 +82,7 @@ class PartnerTests(TestCase):
         """ Verify the property retrieves, and caches, an access token from the OAuth 2.0 provider. """
         token = 'abc123'
         partner = PartnerFactory()
-        url = '{root}/access_token'.format(root=partner.oidc_url_root)
+        url = '{root}/access_token'.format(root=partner.oauth2_provider_url)
         body = {
             'access_token': token,
             'expires_in': 3600,

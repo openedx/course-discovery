@@ -90,9 +90,9 @@ class Command(BaseCommand):
 
             try:
                 access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                    '{root}/access_token'.format(root=partner.oidc_url_root.strip('/')),
-                    partner.oidc_key,
-                    partner.oidc_secret,
+                    '{root}/access_token'.format(root=partner.oauth2_provider_url.strip('/')),
+                    partner.oauth2_client_id,
+                    partner.oauth2_client_secret,
                     token_type=token_type
                 )
             except Exception:

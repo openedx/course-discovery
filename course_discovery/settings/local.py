@@ -39,11 +39,12 @@ INTERNAL_IPS = ('127.0.0.1',)
 # AUTHENTICATION
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
-# Set these to the correct values for your OAuth2/OpenID Connect provider (e.g., devstack)
-SOCIAL_AUTH_EDX_OIDC_KEY = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_SECRET = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
+# Set these to the correct values for your OAuth2 Connect provider (e.g., devstack)
+SOCIAL_AUTH_EDX_OAUTH2_KEY = 'replace-me'
+SOCIAL_AUTH_EDX_OAUTH2_SECRET = 'replace-me'
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/logout"
 
 ENABLE_AUTO_AUTH = True
 
