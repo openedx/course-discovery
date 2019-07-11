@@ -42,7 +42,7 @@ class User(GuardianUserMixin, AbstractUser):
 class UserThrottleRate(models.Model):
     """Model for configuring a rate limit per-user."""
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, models.CASCADE)
     rate = models.CharField(
         max_length=50,
         help_text=_(
@@ -95,7 +95,7 @@ class Partner(TimeStampedModel):
         max_length=255, null=True, blank=True, verbose_name=_('Publisher URL'),
         help_text=_('The base URL of your publisher service, if used. Example: https://publisher.example.com/')
     )
-    site = models.OneToOneField(Site, on_delete=models.PROTECT)
+    site = models.OneToOneField(Site, models.PROTECT)
     lms_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('LMS URL'))
     lms_admin_url = models.URLField(
         max_length=255, null=True, blank=True, verbose_name=_('LMS Admin URL'),
@@ -171,7 +171,7 @@ class Partner(TimeStampedModel):
 
 
 class SalesforceConfiguration(models.Model):
-    partner = models.OneToOneField(Partner, related_name='salesforce', on_delete=models.CASCADE)
+    partner = models.OneToOneField(Partner, models.CASCADE, related_name='salesforce')
     username = models.CharField(
         max_length=255,
         verbose_name=_('Salesforce Username'),

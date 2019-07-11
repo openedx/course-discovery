@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 from django.db import migrations, models
 
 
@@ -14,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='program',
             name='image',
-            field=models.ForeignKey(to='course_metadata.Image', blank=True, null=True, default=None),
+            field=models.ForeignKey(to='course_metadata.Image', blank=True, null=True, default=None, on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

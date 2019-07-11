@@ -22,8 +22,8 @@ class Journal(TimeStampedModel):
     uuid = models.UUIDField(
         verbose_name=_('UUID'),
     )
-    partner = models.ForeignKey(Partner)
-    organization = models.ForeignKey(Organization)
+    partner = models.ForeignKey(Partner, models.CASCADE)
+    organization = models.ForeignKey(Organization, models.CASCADE)
     title = models.CharField(
         max_length=CHARFIELD_MAX_LENGTH,
         default=None,
@@ -33,7 +33,7 @@ class Journal(TimeStampedModel):
 
     # ecommerce related
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
-    currency = models.ForeignKey(Currency)
+    currency = models.ForeignKey(Currency, models.CASCADE)
     sku = models.CharField(max_length=128, null=True, blank=True)
 
     # marketing related fields
@@ -71,7 +71,7 @@ class JournalBundle(TimeStampedModel):
         max_length=CHARFIELD_MAX_LENGTH,
         unique=True
     )
-    partner = models.ForeignKey(Partner)
+    partner = models.ForeignKey(Partner, models.CASCADE)
     journals = models.ManyToManyField(Journal, blank=True)
     courses = models.ManyToManyField(Course, blank=True)
     applicable_seat_types = models.ManyToManyField(SeatType, blank=True)
