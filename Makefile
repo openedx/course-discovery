@@ -44,8 +44,6 @@ production-requirements: ## Install Python and JS requirements for production
 
 upgrade:
 	pip install -q pip-tools
-	pip-compile --upgrade -o requirements/docs.txt requirements/docs.in
-	pip-compile --upgrade -o requirements/test.txt requirements/test.in
 	pip-compile --upgrade -o requirements/local.txt requirements/local.in
 	pip-compile --upgrade -o requirements/production.txt requirements/production.in
 	chmod a+rw requirements/*.txt
