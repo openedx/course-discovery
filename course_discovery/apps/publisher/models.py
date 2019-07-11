@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 
 class ChangedByMixin(models.Model):
-    changed_by = models.ForeignKey(User, null=True, blank=True)
+    changed_by = models.ForeignKey(User, models.CASCADE, null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -63,7 +63,8 @@ class Course(TimeStampedModel, ChangedByMixin):
         Organization, blank=True, related_name='publisher_courses', verbose_name=_('Partner Name')
     )
     level_type = models.ForeignKey(
-        LevelType, default=None, null=True, blank=True, related_name='publisher_courses', verbose_name=_('Level Type')
+        LevelType, models.CASCADE, default=None, null=True, blank=True, related_name='publisher_courses',
+        verbose_name=_('Level Type'),
     )
     expected_learnings = models.TextField(default=None, null=True, blank=True, verbose_name=_("Expected Learnings"))
     syllabus = models.TextField(default=None, null=True, blank=True)
@@ -73,13 +74,13 @@ class Course(TimeStampedModel, ChangedByMixin):
         default=None, null=True, blank=True, verbose_name=_('Additional Information')
     )
     primary_subject = models.ForeignKey(
-        Subject, default=None, null=True, blank=True, related_name='publisher_courses_primary'
+        Subject, models.CASCADE, default=None, null=True, blank=True, related_name='publisher_courses_primary',
     )
     secondary_subject = models.ForeignKey(
-        Subject, default=None, null=True, blank=True, related_name='publisher_courses_secondary'
+        Subject, models.CASCADE, default=None, null=True, blank=True, related_name='publisher_courses_secondary',
     )
     tertiary_subject = models.ForeignKey(
-        Subject, default=None, null=True, blank=True, related_name='publisher_courses_tertiary'
+        Subject, models.CASCADE, default=None, null=True, blank=True, related_name='publisher_courses_tertiary',
     )
 
     image = StdImageField(
@@ -284,7 +285,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
 
     DEFAULT_PACING_TYPE = CourseRunPacing.Instructor
 
-    course = models.ForeignKey(Course, related_name='publisher_course_runs')
+    course = models.ForeignKey(Course, models.CASCADE, related_name='publisher_course_runs')
     lms_course_id = models.CharField(max_length=255, unique=True, null=True, blank=True)
     external_key = models.CharField(max_length=225, blank=True, null=True)
 
@@ -303,7 +304,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         null=True, blank=True,
         help_text=_('Estimated maximum number of hours per week needed to complete a course run.'))
     language = models.ForeignKey(
-        LanguageTag, null=True, blank=True,
+        LanguageTag, models.CASCADE, null=True, blank=True,
         related_name='publisher_course_runs', verbose_name=_('Content Language')
     )
     transcript_languages = models.ManyToManyField(
@@ -340,7 +341,8 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
             "Comma separated list of edX usernames or emails of additional staff."
         )
     )
-    video_language = models.ForeignKey(LanguageTag, null=True, blank=True, related_name='video_language')
+    video_language = models.ForeignKey(LanguageTag, models.CASCADE, null=True, blank=True,
+                                       related_name='video_language')
 
     # temporary field to save the canonical course run image. In 2nd script this url field
     # will be used to download the image and save into course model --> course image.
@@ -627,10 +629,10 @@ class Seat(TimeStampedModel, ChangedByMixin):
         'null': False,
         'default': 0.00,
     }
-    course_run = models.ForeignKey(CourseRun, related_name='seats')
+    course_run = models.ForeignKey(CourseRun, models.CASCADE, related_name='seats')
     type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES, verbose_name='Seat type')
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
-    currency = models.ForeignKey(Currency, default='USD', related_name='publisher_seats')
+    currency = models.ForeignKey(Currency, models.CASCADE, default='USD', related_name='publisher_seats')
     upgrade_deadline = models.DateTimeField(null=True, blank=True)
     credit_provider = models.CharField(max_length=255, null=True, blank=True)
     credit_hours = models.IntegerField(null=True, blank=True)
@@ -680,10 +682,10 @@ class CourseEntitlement(TimeStampedModel):
         PROFESSIONAL: Seat.PROFESSIONAL
     }
 
-    course = models.ForeignKey(Course, related_name='entitlements')
+    course = models.ForeignKey(Course, models.CASCADE, related_name='entitlements')
     mode = models.CharField(max_length=63, choices=COURSE_MODE_CHOICES, verbose_name='Course mode')
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
-    currency = models.ForeignKey(Currency, default='USD', related_name='publisher_entitlements')
+    currency = models.ForeignKey(Currency, models.CASCADE, default='USD', related_name='publisher_entitlements')
 
     class Meta(object):
         unique_together = (
@@ -693,7 +695,7 @@ class CourseEntitlement(TimeStampedModel):
 
 class UserAttributes(TimeStampedModel):
     """ Record additional metadata about a user. """
-    user = models.OneToOneField(User, related_name='attributes')
+    user = models.OneToOneField(User, models.CASCADE, related_name='attributes')
     enable_email_notification = models.BooleanField(default=True)
 
     def __str__(self):
@@ -708,8 +710,8 @@ class UserAttributes(TimeStampedModel):
 class OrganizationUserRole(TimeStampedModel):
     """ User Roles model for Organization. """
 
-    organization = models.ForeignKey(Organization, related_name='organization_user_roles')
-    user = models.ForeignKey(User, related_name='organization_user_roles')
+    organization = models.ForeignKey(Organization, models.CASCADE, related_name='organization_user_roles')
+    user = models.ForeignKey(User, models.CASCADE, related_name='organization_user_roles')
     role = models.CharField(
         max_length=63, choices=InternalUserRole.choices, verbose_name=_('Organization Role')
     )
@@ -731,8 +733,8 @@ class OrganizationUserRole(TimeStampedModel):
 
 class CourseUserRole(TimeStampedModel, ChangedByMixin):
     """ User Course Roles model. """
-    course = models.ForeignKey(Course, related_name='course_user_roles')
-    user = models.ForeignKey(User, related_name='course_user_roles')
+    course = models.ForeignKey(Course, models.CASCADE, related_name='course_user_roles')
+    user = models.ForeignKey(User, models.CASCADE, related_name='course_user_roles')
     role = models.CharField(
         max_length=63, choices=PublisherUserRole.choices, verbose_name=_('Course Role')
     )
@@ -775,8 +777,8 @@ class OrganizationExtension(TimeStampedModel):
     VIEW_COURSE = 'publisher_view_course'
     VIEW_COURSE_RUN = 'publisher_view_course_run'
 
-    organization = models.OneToOneField(Organization, related_name='organization_extension')
-    group = models.OneToOneField(Group, related_name='organization_extension')
+    organization = models.OneToOneField(Organization, models.CASCADE, related_name='organization_extension')
+    group = models.OneToOneField(Group, models.CASCADE, related_name='organization_extension')
 
     auto_create_in_studio = models.BooleanField(
         default=True,
@@ -809,7 +811,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
     name = FSMField(default=CourseStateChoices.Draft, choices=CourseStateChoices.choices)
     approved_by_role = models.CharField(blank=True, null=True, max_length=63, choices=PublisherUserRole.choices)
     owner_role = models.CharField(max_length=63, choices=PublisherUserRole.choices)
-    course = models.OneToOneField(Course, related_name='course_state')
+    course = models.OneToOneField(Course, models.CASCADE, related_name='course_state')
     owner_role_modified = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     marketing_reviewed = models.BooleanField(default=False)
 
@@ -943,7 +945,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
     name = FSMField(default=CourseRunStateChoices.Draft, choices=CourseRunStateChoices.choices)
     approved_by_role = models.CharField(blank=True, null=True, max_length=63, choices=PublisherUserRole.choices)
     owner_role = models.CharField(max_length=63, choices=PublisherUserRole.choices)
-    course_run = models.OneToOneField(CourseRun, related_name='course_run_state')
+    course_run = models.OneToOneField(CourseRun, models.CASCADE, related_name='course_run_state')
     owner_role_modified = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     preview_accepted = models.BooleanField(default=False)
 

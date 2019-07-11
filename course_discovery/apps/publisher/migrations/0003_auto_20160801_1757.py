@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 import sortedm2m.fields
 from django.db import migrations, models
 
@@ -20,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='courserun',
             name='course',
-            field=models.ForeignKey(related_name='publisher_course_runs', to='publisher.Course'),
+            field=models.ForeignKey(related_name='publisher_course_runs', to='publisher.Course', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='courserun',

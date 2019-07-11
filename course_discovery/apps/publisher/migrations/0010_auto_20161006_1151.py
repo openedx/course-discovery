@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 from django.db import migrations, models
 
 
@@ -24,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='course',
             name='level_type',
-            field=models.ForeignKey(related_name='publisher_courses', default=None, to='course_metadata.LevelType', blank=True, verbose_name='Level Type', null=True),
+            field=models.ForeignKey(related_name='publisher_courses', default=None, to='course_metadata.LevelType', blank=True, verbose_name='Level Type', null=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='course',
@@ -39,7 +40,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='courserun',
             name='language',
-            field=models.ForeignKey(related_name='publisher_course_runs', to='ietf_language_tags.LanguageTag', verbose_name='Content Language', blank=True, null=True),
+            field=models.ForeignKey(related_name='publisher_course_runs', to='ietf_language_tags.LanguageTag', verbose_name='Content Language', blank=True, null=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='historicalcourse',
