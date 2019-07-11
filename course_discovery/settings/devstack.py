@@ -56,6 +56,11 @@ PARLER_LANGUAGES = {
      }
 }
 
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER = "http://localhost:18000"
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://edx.devstack.lms:18000"
+SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT = "http://localhost:18000"
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://localhost:18000/logout"
+
 BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://edx.devstack.lms:18000/oauth2"
 
 #####################################################################
