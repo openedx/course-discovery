@@ -278,6 +278,7 @@ class VideoSerializer(MediaSerializer):
 class PositionSerializer(serializers.ModelSerializer):
     """Serializer for the ``Position`` model."""
     organization_marketing_url = serializers.SerializerMethodField()
+    organization_uuid = serializers.SerializerMethodField()
     # Order organization by key so that frontends will display dropdowns of organization choices that way
     organization = serializers.PrimaryKeyRelatedField(allow_null=True, write_only=True, required=False,
                                                       queryset=Organization.objects.all().order_by('key'))
@@ -286,7 +287,7 @@ class PositionSerializer(serializers.ModelSerializer):
         model = Position
         fields = (
             'title', 'organization_name', 'organization', 'organization_id', 'organization_override',
-            'organization_marketing_url',
+            'organization_marketing_url', 'organization_uuid',
         )
         extra_kwargs = {
             'organization': {'write_only': True}
@@ -295,6 +296,10 @@ class PositionSerializer(serializers.ModelSerializer):
     def get_organization_marketing_url(self, obj):
         if obj.organization:
             return obj.organization.marketing_url
+
+    def get_organization_uuid(self, obj):
+        if obj.organization:
+            return obj.organization.uuid
 
 
 class MinimalOrganizationSerializer(serializers.ModelSerializer):
