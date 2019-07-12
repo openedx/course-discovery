@@ -4,12 +4,13 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.publisher.models import OrganizationExtension
 
 
 # pylint: disable=useless-super-delegation
-class OrganizationViewSet(viewsets.ReadOnlyModelViewSet):
+class OrganizationViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     """ Organization resource. """
 
     filter_backends = (DjangoFilterBackend,)
