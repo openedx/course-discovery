@@ -6,6 +6,7 @@ from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
 from course_discovery.apps.api.utils import get_query_param
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 # pylint: disable=useless-super-delegation
-class PersonViewSet(viewsets.ModelViewSet):
+class PersonViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ PersonSerializer resource. """
 
     filter_backends = (DjangoFilterBackend,)
