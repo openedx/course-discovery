@@ -1,6 +1,7 @@
 import ddt
 import mock
 from django.core.management import CommandError
+from django.db import IntegrityError
 from django.test import TestCase
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
@@ -31,7 +32,7 @@ class TestMigratePublisherToCourseMetadata(TestCase):
 
         self.publisher_course_1 = publisher_factories.CourseFactory(number='101x', title='New Title')
         self.publisher_course_1.organizations.add(self.org_1)  # pylint: disable=no-member
-        publisher_factories.CourseRunFactory(
+        self.publisher_course_run_1 = publisher_factories.CourseRunFactory(
             course=self.publisher_course_1,
             lms_course_id='course-v1:{org}+{number}+1T2019'.format(
                 org=self.org_1.key, number=self.publisher_course_1.number
@@ -223,12 +224,38 @@ class TestMigratePublisherToCourseMetadata(TestCase):
         except CommandError as e:
             self.assertEqual(
                 str(e), 'The following organization keys were not valid for any exisiting organizations: '
-                        '{org_keys}.'.format(org_keys=org_keys.split(','))
+                        '{org_keys}.\nThe following Publisher course run keys failed to publish to '
+                        'Course Metadata: [].'.format(org_keys=org_keys.split(','))
             )
         for key in org_keys.split(','):
             mock_logger.exception.assert_any_call(
                 'Organization key [{key}] is not a valid key for any existing organization.'.format(key=key)
             )
+
+    @mock.patch(LOGGER_PATH)
+    def test_handle_with_publish_to_course_metadata_error(self, mock_logger):
+        factories.MigratePublisherToCourseMetadataConfigFactory(org_keys=self.org_1.key)
+        error_keys = [self.publisher_course_run_1.lms_course_id]
+
+        with mock.patch(
+            'course_discovery.apps.course_metadata.management.commands.'
+            'migrate_publisher_to_course_metadata.publish_to_course_metadata', side_effect=IntegrityError
+        ):
+            try:
+                Command().handle()
+            except CommandError as e:
+                self.assertEqual(
+                    str(e), 'The following organization keys were not valid for any exisiting organizations: '
+                            '[].\nThe following Publisher course run keys failed to publish to '
+                            'Course Metadata: {error_keys}.'.format(error_keys=error_keys)
+                )
+
+        mock_logger.exception.assert_called_with(
+            'Error publishing course run [{course_run_key}] to Course Metadata: {error}. '
+            'This may have caused the corresponding course to not be published as well.'.format(
+                course_run_key=self.publisher_course_run_1.lms_course_id, error=''
+            )
+        )
 
     @mock.patch(LOGGER_PATH)
     def test_handle_with_no_matched_publisher_course(self, mock_logger):

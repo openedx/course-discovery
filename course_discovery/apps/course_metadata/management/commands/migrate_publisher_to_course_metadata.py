@@ -2,6 +2,7 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand, CommandError
+from django.db import IntegrityError
 from django.utils.translation import ugettext as _
 
 from course_discovery.apps.course_metadata.models import (
@@ -31,6 +32,7 @@ class Command(BaseCommand):
             raise CommandError(_('No organization keys were defined.'))
 
         exception_org_keys = []
+        exception_course_run_keys = []
         UserModel = get_user_model()
         org_keys = config.org_keys.split(',')
         for org_key in org_keys:
@@ -49,7 +51,17 @@ class Command(BaseCommand):
             for publisher_course in PublisherCourse.objects.filter(organizations__in=[org]):
                 for course_run in publisher_course.course_runs.all():
                     partner = org.partner
-                    publish_to_course_metadata(partner, course_run, draft=True)
+                    try:
+                        publish_to_course_metadata(partner, course_run, draft=True)
+                    except IntegrityError as e:
+                        logger.exception(
+                            _('Error publishing course run [{course_run_key}] to Course Metadata: {error}. '
+                              'This may have caused the corresponding course to not be published as well.').format(
+                                course_run_key=course_run.lms_course_id, error=str(e)
+                            )
+                        )
+                        exception_course_run_keys.append(course_run.lms_course_id)
+                        continue
 
             for discovery_course in Course.everything.filter(authoring_organizations__in=[org], draft=True):
                 course_number = discovery_course.key.split('+')[-1]
@@ -71,8 +83,11 @@ class Command(BaseCommand):
                     CourseEditor.objects.update_or_create(course=discovery_course, user=user)
 
         # Fail the job to help increase visibility of orgs that were not valid.
-        if exception_org_keys:
+        if exception_org_keys or exception_course_run_keys:
             raise CommandError(
                 _('The following organization keys were not valid for any exisiting organizations: '
-                  '{exception_org_keys}.').format(exception_org_keys=exception_org_keys)
+                  '{exception_org_keys}.\nThe following Publisher course run keys failed to publish to '
+                  'Course Metadata: {exception_course_run_keys}.').format(
+                    exception_org_keys=exception_org_keys, exception_course_run_keys=exception_course_run_keys
+                )
             )

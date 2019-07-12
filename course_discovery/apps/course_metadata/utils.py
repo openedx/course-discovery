@@ -461,6 +461,7 @@ def push_to_ecommerce_for_course_run(course_run):
     return True
 
 
+@transaction.atomic
 def publish_to_course_metadata(partner, course_run, draft=False):
     from course_discovery.apps.course_metadata.models import (
         Course, CourseEntitlement, CourseRun, ProgramType, Seat, SeatType, Video
@@ -497,7 +498,11 @@ def publish_to_course_metadata(partner, course_run, draft=False):
     discovery_course, created = Course.everything.update_or_create(
         partner=partner, key=course_key, draft=draft, defaults=defaults
     )
-    discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
+    # If draft=True, we do not require any fields to be set since we are writing to
+    # a course_metadata draft row. If draft=False, we are publishing from the Publisher
+    # app and image is required and should fail if not provided.
+    if not draft or publisher_course.image:
+        discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
     discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
 
     subjects = [subject for subject in [
