@@ -8,7 +8,6 @@ import pytest
 import pytz
 import responses
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
@@ -47,7 +46,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         )
         self.course = self.course_run.course
         self.refresh_index()
-        cache.clear()
 
     def assert_catalog_created(self, **headers):
         name = 'The Kitchen Sink'
