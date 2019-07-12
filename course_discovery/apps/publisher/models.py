@@ -1114,7 +1114,7 @@ class PublisherUser(User):
 
 class DrupalLoaderConfig(SingletonModel):
     """
-    Configuration for data loaders used in the load_drupal_data command.
+    DEPRECATED - DELETE ME
     """
     course_run_ids = models.TextField(default=None, null=False, blank=False, verbose_name=_('Course Run IDs'))
     partner_code = models.TextField(default=None, null=False, blank=False, verbose_name=_('Partner Code'))
