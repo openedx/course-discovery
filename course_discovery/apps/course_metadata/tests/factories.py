@@ -1,4 +1,3 @@
-
 from datetime import datetime
 
 import factory
@@ -10,7 +9,6 @@ from course_discovery.apps.core.tests.utils import FuzzyURL
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-
 
 # pylint: disable=unused-argument
 
@@ -537,6 +535,6 @@ class ProfileImageDownloadConfigFactory(factory.DjangoModelFactory):
         model = ProfileImageDownloadConfig
 
 
-class MigrateCourseEditorsConfigFactory(factory.DjangoModelFactory):
+class MigratePublisherToCourseMetadataConfigFactory(factory.DjangoModelFactory):
     class Meta:
-        model = MigrateCourseEditorsConfig
+        model = MigratePublisherToCourseMetadataConfig

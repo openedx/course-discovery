@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(verbose_name='modified', auto_now=True)),
                 ('corporation_name', models.CharField(max_length=128)),
                 ('statement', models.TextField()),
-                ('image', models.ForeignKey(blank=True, to='course_metadata.Image', null=True)),
+                ('image', models.ForeignKey(blank=True, to='course_metadata.Image', null=True, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'ordering': ('-modified', '-created'),
@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 ('created', django_extensions.db.fields.CreationDateTimeField(verbose_name='created', auto_now_add=True)),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(verbose_name='modified', auto_now=True)),
                 ('quote', models.TextField()),
-                ('endorser', models.ForeignKey(to='course_metadata.Person')),
+                ('endorser', models.ForeignKey(to='course_metadata.Person', on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
                 'ordering': ('-modified', '-created'),
@@ -117,7 +117,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='organization',
             name='banner_image',
-            field=models.ForeignKey(blank=True, related_name='bannered_organizations', to='course_metadata.Image', null=True),
+            field=models.ForeignKey(blank=True, related_name='bannered_organizations', to='course_metadata.Image', null=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='program',
@@ -172,7 +172,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='program',
             name='video',
-            field=models.ForeignKey(default=None, blank=True, to='course_metadata.Video', null=True),
+            field=models.ForeignKey(default=None, blank=True, to='course_metadata.Video', null=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='program',
@@ -182,7 +182,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='organization',
             name='logo_image',
-            field=models.ForeignKey(blank=True, related_name='logoed_organizations', to='course_metadata.Image', null=True),
+            field=models.ForeignKey(blank=True, related_name='logoed_organizations', to='course_metadata.Image', null=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='program',
@@ -222,6 +222,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='program',
             name='type',
-            field=models.ForeignKey(blank=True, to='course_metadata.ProgramType', null=True),
+            field=models.ForeignKey(blank=True, to='course_metadata.ProgramType', null=True, on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

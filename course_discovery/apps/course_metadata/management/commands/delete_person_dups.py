@@ -138,7 +138,7 @@ class Command(BaseCommand):
         if options['partner_code'] is None:
             self.print_help('manage.py', 'delete_person_dups')
             raise CommandError(_('You must specify --partner-code'))
-        if len(options['people']) == 0:
+        if not options['people']:
             self.print_help('manage.py', 'delete_person_dups')
             raise CommandError(_('You must specify at least one person'))
 

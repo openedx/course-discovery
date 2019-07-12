@@ -41,12 +41,6 @@ class CreateSitesAndPartnersTests(TestCase):
 
                 self.assertEqual(partner.short_code, site_name)
                 self.assertEqual(partner.name, "dummy")
-                self.assertEqual(partner.oidc_key, "key-dummy")
-                self.assertEqual(partner.oidc_secret, "secret-{dns_name}".format(dns_name=self.dns_name))
-                self.assertEqual(
-                    partner.oidc_url_root,
-                    "https://dummy-{dns_name}.example.com/oauth2".format(dns_name=self.dns_name)
-                )
                 self.assertEqual(
                     partner.courses_api_url,
                     "https://dummy-{dns_name}.example.com/api/courses/v1/".format(dns_name=self.dns_name)

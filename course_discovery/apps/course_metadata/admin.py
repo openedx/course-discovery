@@ -450,8 +450,9 @@ class DegreeAdmin(admin.ModelAdmin):
         'deadlines_fine_print',
     )
 
+
 # Register remaining models using basic ModelAdmin classes
 for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
-              DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCourseEditorsConfig, ProfileImageDownloadConfig,
-              PersonAreaOfExpertise, TagCourseUuidsConfig):
+              DeletePersonDupsConfig, DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig,
+              ProfileImageDownloadConfig, PersonAreaOfExpertise, TagCourseUuidsConfig):
     admin.site.register(model)

@@ -1,4 +1,3 @@
-# pylint: disable=no-member
 from datetime import datetime, timedelta
 from unittest import mock
 

@@ -42,6 +42,7 @@ class PartnerAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('name', 'short_code', 'lms_url', 'lms_admin_url', 'studio_url', 'publisher_url', 'site')
         }),
+        # DEPRECATED, remove when oidc_* fields are removed.
         (_('OpenID Connect'), {
             'description': _(
                 'OpenID Connect is used for front-end authentication as well as getting access to the APIs.'),

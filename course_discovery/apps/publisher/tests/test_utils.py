@@ -54,7 +54,7 @@ class PublisherUtilsTests(TestCase):
 
         # Disabled email notification
         user_attribute.enable_email_notification = False
-        user_attribute.save()  # pylint: disable=no-member
+        user_attribute.save()
 
         # Verify that email notifications are disabled for the user
         self.assertEqual(is_email_notification_enabled(self.user), False)

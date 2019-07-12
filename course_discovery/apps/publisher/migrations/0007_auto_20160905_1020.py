@@ -17,12 +17,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='course',
             name='changed_by',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, blank=True),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='courserun',
             name='changed_by',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, blank=True),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='historicalcourse',
@@ -47,11 +47,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='seat',
             name='changed_by',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, blank=True),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='state',
             name='changed_by',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, blank=True),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

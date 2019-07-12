@@ -45,8 +45,6 @@ class FuzzyURL(BaseFuzzyAttribute):
 
 def mock_api_callback(url, data, results_key=True, pagination=False):
     def request_callback(request):
-        # pylint: disable=redefined-builtin
-
         count = len(data)
         next_url = None
         previous_url = None

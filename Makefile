@@ -42,15 +42,21 @@ production-requirements: ## Install Python and JS requirements for production
 	npm install --production
 	$(NODE_BIN)/bower install --allow-root --production
 
+upgrade:
+	pip install -q pip-tools
+	pip-compile --upgrade -o requirements/local.txt requirements/local.in
+	pip-compile --upgrade -o requirements/production.txt requirements/production.in
+	chmod a+rw requirements/*.txt
+
 test: clean ## Run tests and generate coverage report
 	## The node_modules .bin directory is added to ensure we have access to Geckodriver.
 	PATH="$(NODE_BIN):$(PATH)" pytest --ds=course_discovery.settings.test --durations=25
-	coverage combine
+	coverage combine || true  # will fail if nothing to do, but don't abort if that happens
 	coverage report
 
-quality: ## Run pep8 and Pylint
+quality: ## Run pycodestyle and pylint
 	isort --check-only --diff --recursive acceptance_tests/ course_discovery/
-	pep8 --config=.pep8 acceptance_tests course_discovery *.py
+	pycodestyle --config=.pycodestyle acceptance_tests course_discovery *.py
 	pylint --rcfile=pylintrc acceptance_tests course_discovery *.py
 
 validate: quality test ## Run tests and quality checks

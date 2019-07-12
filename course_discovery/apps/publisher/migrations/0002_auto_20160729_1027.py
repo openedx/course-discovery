@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import django.db.models.deletion
 import sortedm2m.fields
 from django.db import migrations, models
 
@@ -25,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='course',
             name='level_type',
-            field=models.ForeignKey(blank=True, to='course_metadata.LevelType', verbose_name='Course level', default=None, null=True, related_name='publisher_courses'),
+            field=models.ForeignKey(blank=True, to='course_metadata.LevelType', verbose_name='Course level', default=None, null=True, related_name='publisher_courses', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='course',
@@ -40,12 +41,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='course',
             name='primary_subject',
-            field=models.ForeignKey(blank=True, to='course_metadata.Subject', null=True, default=None, related_name='publisher_courses_primary'),
+            field=models.ForeignKey(blank=True, to='course_metadata.Subject', null=True, default=None, related_name='publisher_courses_primary', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='course',
             name='secondary_subject',
-            field=models.ForeignKey(blank=True, to='course_metadata.Subject', null=True, default=None, related_name='publisher_courses_secondary'),
+            field=models.ForeignKey(blank=True, to='course_metadata.Subject', null=True, default=None, related_name='publisher_courses_secondary', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='course',
@@ -55,7 +56,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='course',
             name='tertiary_subject',
-            field=models.ForeignKey(blank=True, to='course_metadata.Subject', null=True, default=None, related_name='publisher_courses_tertiary'),
+            field=models.ForeignKey(blank=True, to='course_metadata.Subject', null=True, default=None, related_name='publisher_courses_tertiary', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='course',
@@ -120,7 +121,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='seat',
             name='currency',
-            field=models.ForeignKey(to='core.Currency', related_name='publisher_seats', default='USD'),
+            field=models.ForeignKey(to='core.Currency', related_name='publisher_seats', default='USD', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='seat',

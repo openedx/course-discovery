@@ -75,7 +75,7 @@ class TestAutocomplete:
         response = admin_client.get(path)
         data = json.loads(response.content.decode('utf-8'))
         assert response.status_code == 200
-        assert len(data['results']) == 0
+        assert not data['results']
 
     def test_organization_autocomplete(self, admin_client):
         """ Verify Organization autocomplete returns the data. """

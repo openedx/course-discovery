@@ -1,4 +1,5 @@
 import logging
+
 from django.conf import settings
 from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
@@ -58,7 +59,7 @@ def send_email_for_studio_instance_created(course_run, site):
         email_msg = EmailMultiAlternatives(subject, plain_content, from_address, to=to_addresses)
         email_msg.attach_alternative(html_content, 'text/html')
         email_msg.send()
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         error_message = 'Failed to send email notifications for course_run [{run_id}]'.format(run_id=course_run.id)
         logger.exception(error_message)
         raise Exception(error_message)
@@ -407,7 +408,7 @@ def send_email_preview_accepted(course_run, site):
             )
             email_msg.attach_alternative(html_content, 'text/html')
             email_msg.send()
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         message = 'Failed to send email notifications for preview approved of course-run [{id}].'.format(
             id=course_run.id
         )
@@ -457,7 +458,7 @@ def send_email_preview_page_is_available(course_run, site):
             email_msg.attach_alternative(html_content, 'text/html')
             email_msg.send()
 
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         error_message = 'Failed to send email notifications for preview available of course-run {run_id}'.format(
             run_id=course_run.id
         )
@@ -515,7 +516,7 @@ def send_course_run_published_email(course_run, site):
             email_msg.attach_alternative(html_content, 'text/html')
             email_msg.send()
 
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         error_message = 'Failed to send email notifications for course published of course-run [{run_id}]'.format(
             run_id=course_run.id
         )
@@ -572,7 +573,7 @@ def send_change_role_assignment_email(course_role, former_user, site):
         email_msg.attach_alternative(html_content, 'text/html')
         email_msg.send()
 
-    except Exception:  # pylint: disable=broad-except
+    except Exception:
         error_message = 'Failed to send email notifications for change role assignment of role: [{role_id}]'.format(
             role_id=course_role.id
         )
@@ -594,7 +595,7 @@ def send_email_for_seo_review(course, site):
     try:
         legal_team_users = User.objects.filter(groups__name=LEGAL_TEAM_GROUP_NAME)
         project_coordinator = course.project_coordinator
-        to_addresses = [user.email for user in legal_team_users]  # pylint: disable=not-an-iterable
+        to_addresses = [user.email for user in legal_team_users]
         from_address = settings.PUBLISHER_FROM_EMAIL
 
         course_page_path = reverse('publisher:publisher_course_detail', kwargs={'pk': course.id})

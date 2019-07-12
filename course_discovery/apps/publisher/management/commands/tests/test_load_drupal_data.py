@@ -35,7 +35,7 @@ class TestLoadDrupalData(TestCase):
         }
         requests_mock = requests_mock or responses
 
-        url = self.partner.oidc_url_root.strip('/') + '/access_token'
+        url = self.partner.oauth2_provider_url.strip('/') + '/access_token'
         requests_mock.add_callback(
             responses.POST,
             url,

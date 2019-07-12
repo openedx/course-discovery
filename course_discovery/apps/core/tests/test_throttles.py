@@ -1,5 +1,4 @@
 import mock
-
 from django.conf import settings
 from django.urls import reverse
 from rest_framework.test import APITestCase

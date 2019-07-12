@@ -4,8 +4,8 @@ from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
 from django.utils.translation import ugettext as _
 from django_filters import rest_framework as filters
-from drf_haystack.filters import HaystackFilter as DefaultHaystackFilter
 from drf_haystack.filters import HaystackFacetFilter
+from drf_haystack.filters import HaystackFilter as DefaultHaystackFilter
 from drf_haystack.query import FacetQueryBuilder
 from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
@@ -65,7 +65,7 @@ class FacetQueryBuilderWithQueries(FacetQueryBuilder):
 class HaystackRequestFilterMixin:
     @staticmethod
     def get_request_filters(request):
-        filters = HaystackFacetFilter.get_request_filters(request)
+        request_filters = HaystackFacetFilter.get_request_filters(request)
 
         # Remove items with empty values.
         #
@@ -75,11 +75,11 @@ class HaystackRequestFilterMixin:
         # is a `QueryDict` object, not a `dict`. Dictionary comprehension will not preserve the values of
         # `QueryDict.getlist()`. Since we support multiple values for a single parameter, dictionary comprehension is a
         # dealbreaker (and production breaker).
-        for key in list(filters.keys()):
-            if not filters[key]:
-                del filters[key]
+        for key in list(request_filters.keys()):
+            if not request_filters[key]:
+                del request_filters[key]
 
-        return filters
+        return request_filters
 
 
 class HaystackFacetFilterWithQueries(HaystackRequestFilterMixin, HaystackFacetFilter):
@@ -89,19 +89,19 @@ class HaystackFacetFilterWithQueries(HaystackRequestFilterMixin, HaystackFacetFi
 class HaystackFilter(HaystackRequestFilterMixin, DefaultHaystackFilter):
     @staticmethod
     def get_request_filters(request):
-        filters = HaystackRequestFilterMixin.get_request_filters(request)
+        request_filters = HaystackRequestFilterMixin.get_request_filters(request)
 
         # Return data for the default partner, if no partner is requested
-        if not any(field in filters for field in ('partner', 'partner_exact')):
-            filters['partner'] = request.site.partner.short_code
+        if not any(field in request_filters for field in ('partner', 'partner_exact')):
+            request_filters['partner'] = request.site.partner.short_code
 
-        return filters
+        return request_filters
 
 
 class CharListFilter(filters.CharFilter):
     """ Filters a field via a comma-delimited list of values. """
 
-    def filter(self, qs, value):  # pylint: disable=method-hidden
+    def filter(self, qs, value):
         if value not in (None, ''):
             value = value.split(',')
 

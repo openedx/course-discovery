@@ -123,7 +123,7 @@ def publisher_user_required(func):
     permissions.
     """
     @wraps(func)
-    def wrapped(request, *args, **kwargs):  # pylint: disable=missing-docstring
+    def wrapped(request, *args, **kwargs):
         if is_publisher_user(request.user):
             return func(request, *args, **kwargs)
         else:
@@ -151,7 +151,6 @@ class LanguageModelSelect2Multiple(autocomplete.ModelSelect2Multiple):
     """
 
     def filter_choices_to_render(self, selected_choices):
-        # pylint: disable=no-member
         self.choices.queryset = self.choices.queryset.filter(
             code__in=[c for c in selected_choices if c]
         )

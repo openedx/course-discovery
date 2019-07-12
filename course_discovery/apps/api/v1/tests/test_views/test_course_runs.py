@@ -848,7 +848,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
                            'value': self.draft_course_run.level_type.name}])
         self.assertEqual(data['content_language']['choices'],
                          [{'display_name': x.name, 'value': x.code} for x in LanguageTag.objects.all()])
-        self.assertTrue(LanguageTag.objects.count() > 0)
+        self.assertGreater(LanguageTag.objects.count(), 0)
 
     def test_editable_list_gives_drafts(self):
         # We delete self.course_run_2 and self.draft_course_run here so we can test that specifically

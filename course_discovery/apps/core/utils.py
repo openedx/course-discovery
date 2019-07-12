@@ -56,7 +56,7 @@ class ElasticsearchUtils(object):
     @classmethod
     def delete_index(cls, es_connection, index):
         logger.info('Deleting index [%s]...', index)
-        es_connection.indices.delete(index=index, ignore=404)  # pylint: disable=unexpected-keyword-arg
+        es_connection.indices.delete(index=index, ignore=404)
         logger.info('...index deleted.')
 
     @classmethod
@@ -128,3 +128,10 @@ class SearchQuerySetWrapper(object):
             return self.qs[key].object
         # Pass the slice/range on to the delegate
         return SearchQuerySetWrapper(self.qs[key])
+
+
+def use_read_replica_if_available(queryset):
+    """
+    If there is a database called 'read_replica', use that database for the queryset.
+    """
+    return queryset.using("read_replica") if "read_replica" in settings.DATABASES else queryset

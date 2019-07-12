@@ -1,4 +1,3 @@
-# pylint: disable=redefined-builtin,no-member
 import datetime
 import xml.etree.ElementTree as ET
 from os.path import abspath, dirname, join

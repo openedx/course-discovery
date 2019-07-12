@@ -15,11 +15,11 @@ from testfixtures import LogCapture
 from waffle.testutils import override_switch
 
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
-from course_discovery.apps.course_metadata.data_loaders.marketing_site import logger as marketing_site_logger
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     CourseMarketingSiteDataLoader, SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader,
     SubjectMarketingSiteDataLoader
 )
+from course_discovery.apps.course_metadata.data_loaders.marketing_site import logger as marketing_site_logger
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import Course, Organization, Subject

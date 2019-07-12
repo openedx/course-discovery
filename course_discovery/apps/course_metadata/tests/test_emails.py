@@ -23,6 +23,7 @@ from course_discovery.apps.publisher.tests.factories import (
 
 class EmailTests(TestCase):
     def setUp(self):
+        super().setUp()
         self.org = OrganizationFactory(name='MyOrg', key='myorg')
         self.course_run = CourseRunFactory(draft=True, title_override='MyCourse')
         self.course = self.course_run.course

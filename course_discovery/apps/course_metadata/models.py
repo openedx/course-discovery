@@ -38,8 +38,8 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run,
-    set_official_state, uslugify
+    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run, set_official_state,
+    uslugify
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -140,7 +140,7 @@ class Image(AbstractMediaModel):
 
 class Video(AbstractMediaModel):
     """ Video model. """
-    image = models.ForeignKey(Image, null=True, blank=True)
+    image = models.ForeignKey(Image, models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return '{src}: {description}'.format(src=self.src, description=self.description)
@@ -225,7 +225,7 @@ class Subject(TranslatableModel, TimeStampedModel):
     slug = AutoSlugField(populate_from='name', editable=True, blank=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
 
-    partner = models.ForeignKey(Partner)
+    partner = models.ForeignKey(Partner, models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -245,7 +245,7 @@ class Subject(TranslatableModel, TimeStampedModel):
 
 
 class SubjectTranslation(TranslatedFieldsModel):
-    master = models.ForeignKey(Subject, related_name='translations', null=True)
+    master = models.ForeignKey(Subject, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
@@ -263,7 +263,7 @@ class Topic(TranslatableModel, TimeStampedModel):
     slug = AutoSlugField(populate_from='name', editable=True, blank=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
 
-    partner = models.ForeignKey(Partner)
+    partner = models.ForeignKey(Partner, models.CASCADE)
 
     def __str__(self):
         return self.name
@@ -283,7 +283,7 @@ class Topic(TranslatableModel, TimeStampedModel):
 
 
 class TopicTranslation(TranslatedFieldsModel):
-    master = models.ForeignKey(Topic, related_name='translations', null=True)
+    master = models.ForeignKey(Topic, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
     subtitle = models.CharField(max_length=255, blank=True, null=True)
@@ -312,7 +312,7 @@ class JobOutlookItem(AbstractValueModel):
 
 class SyllabusItem(AbstractValueModel):
     """ SyllabusItem model. """
-    parent = models.ForeignKey('self', blank=True, null=True, related_name='children')
+    parent = models.ForeignKey('self', models.CASCADE, blank=True, null=True, related_name='children')
 
 
 class AdditionalPromoArea(AbstractTitleDescriptionModel):
@@ -322,7 +322,7 @@ class AdditionalPromoArea(AbstractTitleDescriptionModel):
 
 class Organization(TimeStampedModel):
     """ Organization model. """
-    partner = models.ForeignKey(Partner, null=True, blank=False)
+    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
     key = models.CharField(max_length=255, help_text=_('Please do not use any spaces or special characters other '
                                                        'than period, underscore or hyphen. This key will be used '
@@ -372,12 +372,12 @@ class Organization(TimeStampedModel):
 class Person(TimeStampedModel):
     """ Person model. """
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
-    partner = models.ForeignKey(Partner, null=True, blank=False)
+    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     salutation = models.CharField(max_length=10, null=True, blank=True)
     given_name = models.CharField(max_length=255)
     family_name = models.CharField(max_length=255, null=True, blank=True)
     bio = NullHtmlField()
-    bio_language = models.ForeignKey(LanguageTag, null=True, blank=True)
+    bio_language = models.ForeignKey(LanguageTag, models.CASCADE, null=True, blank=True)
     profile_image = StdImageField(
         upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/people/profile_images'),
         blank=True,
@@ -439,9 +439,9 @@ class Position(TimeStampedModel):
 
     This model represent's a `Person`'s role at an organization.
     """
-    person = models.OneToOneField(Person)
+    person = models.OneToOneField(Person, models.CASCADE)
     title = models.CharField(max_length=255)
-    organization = models.ForeignKey(Organization, null=True, blank=True)
+    organization = models.ForeignKey(Organization, models.CASCADE, null=True, blank=True)
     organization_override = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
@@ -491,23 +491,24 @@ class PkSearchableMixin:
 
 class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
     """ Course model. """
-    partner = models.ForeignKey(Partner)
+    partner = models.ForeignKey(Partner, models.CASCADE)
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     canonical_course_run = models.OneToOneField(
-        'course_metadata.CourseRun', related_name='canonical_for_course', default=None, null=True, blank=True
+        'course_metadata.CourseRun', models.CASCADE, related_name='canonical_for_course',
+        default=None, null=True, blank=True,
     )
     key = models.CharField(max_length=255, db_index=True)
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
     short_description = NullHtmlField()
     full_description = NullHtmlField()
     extra_description = models.ForeignKey(
-        AdditionalPromoArea, default=None, null=True, blank=True, related_name='extra_description'
+        AdditionalPromoArea, models.CASCADE, default=None, null=True, blank=True, related_name='extra_description',
     )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     subjects = SortedManyToManyField(Subject, blank=True)
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
-    level_type = models.ForeignKey(LevelType, default=None, null=True, blank=True)
+    level_type = models.ForeignKey(LevelType, models.CASCADE, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     outcome = NullHtmlField()
     prerequisites_raw = NullHtmlField()
@@ -524,7 +525,7 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         help_text=_('Add the course image')
     )
     slug = AutoSlugField(populate_from='key', editable=True, slugify_function=uslugify)
-    video = models.ForeignKey(Video, default=None, null=True, blank=True)
+    video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     faq = NullHtmlField(verbose_name=_('FAQ'))
     learner_testimonials = NullHtmlField()
     has_ofac_restrictions = models.BooleanField(default=False, verbose_name=_('Course Has OFAC Restrictions'))
@@ -750,8 +751,8 @@ class CourseEditor(TimeStampedModel):
 
     .. no_pii:
     """
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='courses_edited')
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='editors')
+    user = models.ForeignKey(get_user_model(), models.CASCADE, related_name='courses_edited')
+    course = models.ForeignKey(Course, models.CASCADE, related_name='editors')
 
     class Meta(object):
         unique_together = ('user', 'course',)
@@ -830,7 +831,7 @@ class CourseEditor(TimeStampedModel):
 class CourseRun(DraftModelMixin, TimeStampedModel):
     """ CourseRun model. """
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
-    course = models.ForeignKey(Course, related_name='course_runs')
+    course = models.ForeignKey(Course, models.CASCADE, related_name='course_runs')
     key = models.CharField(max_length=255)
     external_key = models.CharField(max_length=225, blank=True, null=True)
     status = models.CharField(default=CourseRunStatus.Unpublished, max_length=255, null=False, blank=False,
@@ -863,11 +864,11 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
     weeks_to_complete = models.PositiveSmallIntegerField(
         null=True, blank=True,
         help_text=_('Estimated number of weeks needed to complete this course run.'))
-    language = models.ForeignKey(LanguageTag, null=True, blank=True)
+    language = models.ForeignKey(LanguageTag, models.CASCADE, null=True, blank=True)
     transcript_languages = models.ManyToManyField(LanguageTag, blank=True, related_name='transcript_courses')
     pacing_type = models.CharField(max_length=255, db_index=True, null=True, blank=True,
                                    choices=CourseRunPacing.choices, validators=[CourseRunPacing.validator])
-    syllabus = models.ForeignKey(SyllabusItem, default=None, null=True, blank=True)
+    syllabus = models.ForeignKey(SyllabusItem, models.CASCADE, default=None, null=True, blank=True)
     enrollment_count = models.IntegerField(
         null=True, blank=True, default=0, help_text=_('Total number of learners who have enrolled in this course run')
     )
@@ -879,7 +880,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
 
     # TODO Ditch this, and fallback to the course
     card_image_url = models.URLField(null=True, blank=True)
-    video = models.ForeignKey(Video, default=None, null=True, blank=True)
+    video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     video_translation_languages = models.ManyToManyField(
         LanguageTag, blank=True, related_name='+')
     slug = AutoSlugField(max_length=255, populate_from='title', slugify_function=uslugify, db_index=True,
@@ -910,7 +911,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
 
     # The expected_program_type and expected_program_name are here in support of Publisher and may not reflect the
     # final program information.
-    expected_program_type = models.ForeignKey(ProgramType, default=None, null=True, blank=True)
+    expected_program_type = models.ForeignKey(ProgramType, models.CASCADE, default=None, null=True, blank=True)
     expected_program_name = models.CharField(max_length=255, default='', blank=True)
 
     everything = CourseRunQuerySet.as_manager()
@@ -1328,7 +1329,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         elif self.status == CourseRunStatus.Published:
             emails.send_email_for_go_live(self)
 
-    def save(self, suppress_publication=False, **kwargs):
+    def save(self, suppress_publication=False, **kwargs):  # pylint: disable=arguments-differ
         """
         Arguments:
             suppress_publication (bool): if True, we won't push the run data to the marketing site
@@ -1478,11 +1479,11 @@ class Seat(DraftModelMixin, TimeStampedModel):
         'null': False,
         'default': 0.00,
     }
-    course_run = models.ForeignKey(CourseRun, related_name='seats')
+    course_run = models.ForeignKey(CourseRun, models.CASCADE, related_name='seats')
     # TODO Replace with FK to SeatType model
     type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES)
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
-    currency = models.ForeignKey(Currency, default='USD')
+    currency = models.ForeignKey(Currency, models.CASCADE, default='USD')
     upgrade_deadline = models.DateTimeField(null=True, blank=True)
     credit_provider = models.CharField(max_length=255, null=True, blank=True)
     credit_hours = models.IntegerField(null=True, blank=True)
@@ -1506,11 +1507,11 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
         'null': False,
         'default': 0.00,
     }
-    course = models.ForeignKey(Course, related_name='entitlements')
-    mode = models.ForeignKey(SeatType)
-    partner = models.ForeignKey(Partner, null=True, blank=False)
+    course = models.ForeignKey(Course, models.CASCADE, related_name='entitlements')
+    mode = models.ForeignKey(SeatType, models.CASCADE)
+    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
-    currency = models.ForeignKey(Currency, default='USD')
+    currency = models.ForeignKey(Currency, models.CASCADE, default='USD')
     sku = models.CharField(max_length=128, null=True, blank=True)
     expires = models.DateTimeField(null=True, blank=True)
 
@@ -1524,7 +1525,7 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
 
 
 class Endorsement(TimeStampedModel):
-    endorser = models.ForeignKey(Person, blank=False, null=False)
+    endorser = models.ForeignKey(Person, models.CASCADE, blank=False, null=False)
     quote = models.TextField(blank=False, null=False)
 
     def __str__(self):
@@ -1534,7 +1535,7 @@ class Endorsement(TimeStampedModel):
 class CorporateEndorsement(TimeStampedModel):
     corporation_name = models.CharField(max_length=128, blank=False, null=False)
     statement = models.TextField(null=True, blank=True)
-    image = models.ForeignKey(Image, blank=True, null=True)
+    image = models.ForeignKey(Image, models.CASCADE, blank=True, null=True)
     individual_endorsements = SortedManyToManyField(Endorsement)
 
     def __str__(self):
@@ -1560,7 +1561,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
         help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
     subtitle = models.CharField(
         help_text=_('A brief, descriptive subtitle for the Program.'), max_length=255, blank=True)
-    type = models.ForeignKey(ProgramType, null=True, blank=True)
+    type = models.ForeignKey(ProgramType, models.CASCADE, null=True, blank=True)
     status = models.CharField(
         help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False, db_index=True,
         choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
@@ -1575,7 +1576,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     # NOTE (CCB): Editors of this field should validate the values to ensure only CourseRuns associated
     # with related Courses are stored.
     excluded_course_runs = models.ManyToManyField(CourseRun, blank=True)
-    partner = models.ForeignKey(Partner, null=True, blank=False)
+    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     overview = models.TextField(null=True, blank=True)
     total_hours_of_effort = models.PositiveSmallIntegerField(
         null=True, blank=True,
@@ -1603,7 +1604,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     )
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
     card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
-    video = models.ForeignKey(Video, default=None, null=True, blank=True)
+    video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)
     instructor_ordering = SortedManyToManyField(
@@ -2121,7 +2122,7 @@ class IconTextPairing(TimeStampedModel):
         (TROPHY, _('Trophy')),
     )
 
-    degree = models.ForeignKey(Degree, related_name='quick_facts', on_delete=models.CASCADE)
+    degree = models.ForeignKey(Degree, models.CASCADE, related_name='quick_facts')
     icon = models.CharField(max_length=100, verbose_name=_('Icon FA class'), choices=ICON_CHOICES)
     text = models.CharField(max_length=255, verbose_name=_('Paired text'))
 
@@ -2140,7 +2141,7 @@ class DegreeDeadline(TimeStampedModel):
     class Meta:
         ordering = ['created']
 
-    degree = models.ForeignKey(Degree, on_delete=models.CASCADE, related_name='deadlines', null=True)
+    degree = models.ForeignKey(Degree, models.CASCADE, related_name='deadlines', null=True)
     semester = models.CharField(
         help_text=_('Deadline applies for this semester (e.g. Spring 2019'),
         max_length=255,
@@ -2173,7 +2174,7 @@ class DegreeCost(TimeStampedModel):
     class Meta:
         ordering = ['created']
 
-    degree = models.ForeignKey(Degree, on_delete=models.CASCADE, related_name='costs', null=True)
+    degree = models.ForeignKey(Degree, models.CASCADE, related_name='costs', null=True)
     description = models.CharField(
         help_text=_('Describes what the cost is for (e.g. Tuition)'),
         max_length=255,
@@ -2197,7 +2198,7 @@ class Curriculum(TimeStampedModel):
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     program = models.ForeignKey(
         Program,
-        on_delete=models.CASCADE,
+        models.CASCADE,
         related_name='curricula',
         null=True,
         default=None,
@@ -2234,8 +2235,8 @@ class CurriculumProgramMembership(TimeStampedModel):
     """
     Represents the Programs that compose the curriculum of a degree.
     """
-    program = models.ForeignKey(Program, on_delete=models.CASCADE)
-    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
+    program = models.ForeignKey(Program, models.CASCADE)
+    curriculum = models.ForeignKey(Curriculum, models.CASCADE)
     is_active = models.BooleanField(default=True)
 
     history = HistoricalRecords()
@@ -2245,8 +2246,8 @@ class CurriculumCourseMembership(TimeStampedModel):
     """
     Represents the Courses that compose the curriculum of a degree.
     """
-    curriculum = models.ForeignKey(Curriculum, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='curriculum_course_membership')
+    curriculum = models.ForeignKey(Curriculum, models.CASCADE)
+    course = models.ForeignKey(Course, models.CASCADE, related_name='curriculum_course_membership')
     course_run_exclusions = models.ManyToManyField(
         CourseRun, through='course_metadata.CurriculumCourseRunExclusion', related_name='curriculum_course_membership'
     )
@@ -2266,8 +2267,8 @@ class CurriculumCourseRunExclusion(TimeStampedModel):
     """
     Represents the CourseRuns that are excluded from a course curriculum.
     """
-    course_membership = models.ForeignKey(CurriculumCourseMembership, on_delete=models.CASCADE)
-    course_run = models.ForeignKey(CourseRun, on_delete=models.CASCADE)
+    course_membership = models.ForeignKey(CurriculumCourseMembership, models.CASCADE)
+    course_run = models.ForeignKey(CourseRun, models.CASCADE)
 
     history = HistoricalRecords()
 
@@ -2277,7 +2278,7 @@ class Pathway(TimeStampedModel):
     Pathway model
     """
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
-    partner = models.ForeignKey(Partner, null=True, blank=False)
+    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     name = models.CharField(max_length=255)
     # this field doesn't necessarily map to our normal org models, it's just a convenience field for pathways
     # while we figure them out
@@ -2324,7 +2325,7 @@ class PersonSocialNetwork(TimeStampedModel):
     type = models.CharField(max_length=15, choices=sorted(list(SOCIAL_NETWORK_CHOICES.items())), db_index=True)
     url = models.CharField(max_length=500)
     title = models.CharField(max_length=255, blank=True)
-    person = models.ForeignKey(Person, related_name='person_networks')
+    person = models.ForeignKey(Person, models.CASCADE, related_name='person_networks')
 
     class Meta(object):
         verbose_name_plural = 'Person SocialNetwork'
@@ -2349,7 +2350,7 @@ class PersonSocialNetwork(TimeStampedModel):
 
 class PersonAreaOfExpertise(AbstractValueModel):
     """ Person Area of Expertise model. """
-    person = models.ForeignKey(Person, related_name='areas_of_expertise')
+    person = models.ForeignKey(Person, models.CASCADE, related_name='areas_of_expertise')
 
     class Meta(object):
         verbose_name_plural = 'Person Areas of Expertise'
@@ -2387,9 +2388,9 @@ class DrupalPublishUuidConfig(SingletonModel):
     push_people = models.BooleanField(default=False)
 
 
-class MigrateCourseEditorsConfig(SingletonModel):
+class MigratePublisherToCourseMetadataConfig(SingletonModel):
     """
-    Configuration for the migrate_course_editors command.
+    Configuration for the migrate_publisher_to_course_metadata command.
     """
     org_keys = models.TextField(
         blank=True,

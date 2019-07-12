@@ -5,6 +5,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
+from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
@@ -53,7 +54,7 @@ def writable_request_wrapper(method):
     return inner
 
 
-# pylint: disable=no-member
+# pylint: disable=no-member,useless-super-delegation
 class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ Course resource. """
 
@@ -94,6 +95,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         partner = self.request.site.partner
         q = self.request.query_params.get('q')
+        # We don't want to create an additional elasticsearch index right now for draft courses, so we
+        # try to implement a basic search behavior with this pubq parameter here against key and name.
+        pub_q = self.request.query_params.get('pubq')
         edit_mode = get_query_param(self.request, 'editable') or self.request.method not in SAFE_METHODS
 
         if edit_mode and q:
@@ -138,11 +142,13 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 partner=partner,
                 programs=programs,
             )
+        if pub_q and edit_mode:
+            return queryset.filter(Q(key__icontains=pub_q) | Q(title__icontains=pub_q)).order_by(Lower('key'))
 
         return queryset.order_by(Lower('key'))
 
-    def get_serializer_context(self, *args, **kwargs):
-        context = super().get_serializer_context(*args, **kwargs)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
         query_params = ['exclude_utm', 'include_deleted_programs']
 
         for query_param in query_params:

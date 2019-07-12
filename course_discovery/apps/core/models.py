@@ -1,6 +1,7 @@
 """ Core models. """
 import datetime
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.sites.models import Site
 from django.core.cache import cache
@@ -24,14 +25,14 @@ class User(GuardianUserMixin, AbstractUser):
 
         Assumes user has authenticated at least once with edX Open ID Connect.
         """
-        social_auth = self.social_auth.first()  # pylint: disable=no-member
+        social_auth = self.social_auth.first()
 
         if social_auth:
             return social_auth.access_token
 
         return None
 
-    class Meta(object):  # pylint:disable=missing-docstring
+    class Meta(object):
         get_latest_by = 'date_joined'
 
     def get_full_name(self):
@@ -41,7 +42,7 @@ class User(GuardianUserMixin, AbstractUser):
 class UserThrottleRate(models.Model):
     """Model for configuring a rate limit per-user."""
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, models.CASCADE)
     rate = models.CharField(
         max_length=50,
         help_text=_(
@@ -83,15 +84,18 @@ class Partner(TimeStampedModel):
                                                    verbose_name=_('Marketing Site API Username'))
     marketing_site_api_password = models.CharField(max_length=255, null=True, blank=True,
                                                    verbose_name=_('Marketing Site API Password'))
+
+    # DEPRECATED---we now use the BACKEND_SERVICE_EDX_OAUTH2_* system-wide variables found in base.py.
     oidc_url_root = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect URL'))
     oidc_key = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Key'))
     oidc_secret = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Secret'))
+
     studio_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Studio URL'))
     publisher_url = models.URLField(
         max_length=255, null=True, blank=True, verbose_name=_('Publisher URL'),
         help_text=_('The base URL of your publisher service, if used. Example: https://publisher.example.com/')
     )
-    site = models.OneToOneField(Site, on_delete=models.PROTECT)
+    site = models.OneToOneField(Site, models.PROTECT)
     lms_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('LMS URL'))
     lms_admin_url = models.URLField(
         max_length=255, null=True, blank=True, verbose_name=_('LMS Admin URL'),
@@ -110,25 +114,41 @@ class Partner(TimeStampedModel):
         verbose_name_plural = _('Partners')
 
     @property
+    def oauth2_provider_url(self):
+        return settings.BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL
+
+    @property
+    def oauth2_client_id(self):
+        return settings.BACKEND_SERVICE_EDX_OAUTH2_KEY
+
+    @property
+    def oauth2_client_secret(self):
+        return settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET
+
+    @property
     def has_marketing_site(self):
         return bool(self.marketing_site_url_root)
 
     @property
     def access_token(self):
-        """ Returns an access token for this site's service user.
+        """
+        Returns the access token for this service.
+
+        We don't use a cached_property decorator because we aren't sure how to
+        set custom expiration dates for those.
 
         Returns:
             str: JWT access token
         """
-        key = 'partner_access_token_{}'.format(self.id)
+        key = 'oauth2_access_token'
         access_token = cache.get(key)
 
         if not access_token:
-            url = '{root}/access_token'.format(root=self.oidc_url_root)
+            url = '{root}/access_token'.format(root=self.oauth2_provider_url)
             access_token, expiration_datetime = EdxRestApiClient.get_oauth_access_token(
                 url,
-                self.oidc_key,
-                self.oidc_secret,
+                self.oauth2_client_id,
+                self.oauth2_client_secret,
                 token_type='jwt'
             )
 
@@ -147,11 +167,11 @@ class Partner(TimeStampedModel):
         if not self.lms_url:
             return None
 
-        return OAuthAPIClient(self.lms_url.strip('/'), self.oidc_key, self.oidc_secret)
+        return OAuthAPIClient(self.lms_url.strip('/'), self.oauth2_client_id, self.oauth2_client_secret)
 
 
 class SalesforceConfiguration(models.Model):
-    partner = models.OneToOneField(Partner, related_name='salesforce', on_delete=models.CASCADE)
+    partner = models.OneToOneField(Partner, models.CASCADE, related_name='salesforce')
     username = models.CharField(
         max_length=255,
         verbose_name=_('Salesforce Username'),

@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 from django.db.models.functions import Lower
 from django.template.loader import render_to_string
+from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
@@ -681,7 +682,7 @@ class CourseStateAdminForm(forms.ModelForm):
         course = cleaned_data.get('course')
         if not CourseUserRole.objects.filter(course=course, role=owner_role):
             raise forms.ValidationError(
-                _('Please create {} course user role before assigning it owner role'.format(owner_role))
+                format_lazy(_('Please create {} course user role before assigning it owner role'), owner_role)
             )
         return cleaned_data
 

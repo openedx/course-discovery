@@ -1,0 +1,20 @@
+# Packages required for testing
+
+coverage
+ddt
+edx-lint
+factory-boy
+freezegun
+isort
+lxml
+mock
+pycodestyle
+pytest
+pytest-cov
+pytest-django
+pytest-django-ordering
+pytest-responses
+pytest-xdist
+responses
+selenium
+testfixtures

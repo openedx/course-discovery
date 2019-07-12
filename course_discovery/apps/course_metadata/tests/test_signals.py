@@ -11,7 +11,7 @@ from waffle.testutils import override_switch
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
     Curriculum, CurriculumCourseMembership, DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
-    MigrateCourseEditorsConfig, ProfileImageDownloadConfig, ProgramType, Seat, SubjectTranslation,
+    MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, ProgramType, Seat, SubjectTranslation,
     TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.tests import factories
@@ -37,8 +37,9 @@ class TestCacheInvalidation:
         # connecting to. We want to test each of them.
         for model in apps.get_app_config('course_metadata').get_models():
             # Ignore models that aren't exposed by the API or are only used for testing.
-            if model in [DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCourseEditorsConfig,
-                         SubjectTranslation, TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig]:
+            if model in [DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
+                         MigratePublisherToCourseMetadataConfig, SubjectTranslation, TopicTranslation,
+                         ProfileImageDownloadConfig, TagCourseUuidsConfig]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue
@@ -62,6 +63,7 @@ class TestCacheInvalidation:
 class SeatSignalsTests(TestCase):
     """ Tests for the signal to save seats model into database """
     def setUp(self):
+        super().setUp()
         self.course_runs = factories.CourseRunFactory.create_batch(3)
         self.partner = factories.PartnerFactory()
         self.course = self.course_runs[0].course
@@ -224,6 +226,7 @@ class SeatSignalsTests(TestCase):
 class CurriculumCourseMembershipTests(TestCase):
     """ Tests of the CurriculumCourseMembership model """
     def setUp(self):
+        super().setUp()
         self.course_runs = factories.CourseRunFactory.create_batch(3)
         self.course = self.course_runs[0].course
         self.program_type = ProgramType.objects.get(slug='masters')
@@ -241,7 +244,7 @@ class CurriculumCourseMembershipTests(TestCase):
 
         for course_run in self.course_runs:
             for seat in course_run.seats.all():
-                self.assertFalse(seat.type == Seat.MASTERS)
+                self.assertNotEqual(seat.type, Seat.MASTERS)
 
     @override_switch('masters_course_mode_enabled', active=True)
     def test_course_curriculum_membership_side_effect_flag_active(self):
@@ -253,7 +256,7 @@ class CurriculumCourseMembershipTests(TestCase):
 
             for course_run in self.course_runs:
                 for seat in course_run.seats.all():
-                    self.assertTrue(seat.type == Seat.MASTERS)
+                    self.assertEqual(seat.type, Seat.MASTERS)
 
     @override_switch('masters_course_mode_enabled', active=True)
     def test_course_curriculum_membership_side_effect_not_masters(self):
@@ -267,4 +270,4 @@ class CurriculumCourseMembershipTests(TestCase):
 
         for course_run in self.course_runs:
             for seat in course_run.seats.all():
-                self.assertFalse(seat.type == Seat.MASTERS)
+                self.assertNotEqual(seat.type, Seat.MASTERS)

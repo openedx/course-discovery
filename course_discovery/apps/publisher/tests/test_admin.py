@@ -21,7 +21,6 @@ from course_discovery.apps.publisher.tests.factories import CourseFactory
 USER_PASSWORD = 'password'
 
 
-# pylint: disable=no-member
 class AdminTests(SiteMixin, TestCase):
     """ Tests Admin page."""
 
