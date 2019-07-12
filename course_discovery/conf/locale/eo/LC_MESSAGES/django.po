@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-11 15:13+0000\n"
+"POT-Creation-Date: 2019-07-12 20:38+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -767,6 +767,15 @@ msgstr ""
 #: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 #, python-brace-format
 msgid ""
+"Error publishing course run [{course_run_key}] to Course Metadata: {error}. "
+"This may have caused the corresponding course to not be published as well."
+msgstr ""
+"Érrör püßlïshïng çöürsé rün [{course_run_key}] tö Çöürsé Métädätä: {error}. "
+"Thïs mäý hävé çäüséd thé çörréspöndïng çöürsé tö nöt ßé püßlïshéd äs wéll.#"
+
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
+#, python-brace-format
+msgid ""
 "Course with course number [{course_number}] is not a valid course number for"
 " any existing course in the Publisher tables. As such, there can be no "
 "Course User Roles to move to Course Editors."
@@ -783,11 +792,11 @@ msgstr ""
 #: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 #, python-brace-format
 msgid ""
-"The following organization keys were not valid for any exisiting "
-"organizations: {exception_org_keys}."
+"The following organization keys were not valid for any exisiting organizations: {exception_org_keys}.\n"
+"The following Publisher course run keys failed to publish to Course Metadata: {exception_course_run_keys}."
 msgstr ""
-"Thé föllöwïng örgänïzätïön kéýs wéré nöt välïd för äný éxïsïtïng "
-"örgänïzätïöns: {exception_org_keys}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+"Thé föllöwïng örgänïzätïön kéýs wéré nöt välïd för äný éxïsïtïng örgänïzätïöns: {exception_org_keys}.\n"
+"Thé föllöwïng Püßlïshér çöürsé rün kéýs fäïléd tö püßlïsh tö Çöürsé Métädätä: {exception_course_run_keys}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢#"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py
 #, python-brace-format
