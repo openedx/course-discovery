@@ -2397,12 +2397,8 @@ class MigratePublisherToCourseMetadataConfig(SingletonModel):
     """
     Configuration for the migrate_publisher_to_course_metadata command.
     """
-    org_keys = models.TextField(
-        blank=True,
-        verbose_name=_('Organization Keys'),
-        default='',
-        help_text='Comma separated organization keys e.g. edX, org2x,org3x,  org4x',
-    )
+    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
+    orgs = SortedManyToManyField(Organization, blank=True)
 
 
 class ProfileImageDownloadConfig(SingletonModel):

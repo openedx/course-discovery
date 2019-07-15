@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-12 20:38+0000\n"
+"POT-Creation-Date: 2019-07-15 19:15+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -744,25 +744,15 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 msgid ""
-"No organization keys were defined. Please add organization keys to the "
+"No organizations were defined. Please add organizations to the "
 "MigratePublisherToCourseMetadataConfig model."
 msgstr ""
-"Nö örgänïzätïön kéýs wéré défïnéd. Pléäsé ädd örgänïzätïön kéýs tö thé "
-"MïgrätéPüßlïshérTöÇöürséMétädätäÇönfïg mödél. Ⱡ'σяєм ιρѕυм ∂σ#"
+"Nö örgänïzätïöns wéré défïnéd. Pléäsé ädd örgänïzätïöns tö thé "
+"MïgrätéPüßlïshérTöÇöürséMétädätäÇönfïg mödél. Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
-msgid "No organization keys were defined."
-msgstr ""
-"Nö örgänïzätïön kéýs wéré défïnéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
-
-#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
-#, python-brace-format
-msgid ""
-"Organization key [{org_key}] is not a valid key for any existing "
-"organization."
-msgstr ""
-"Örgänïzätïön kéý [{org_key}] ïs nöt ä välïd kéý för äný éxïstïng "
-"örgänïzätïön. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+msgid "No organizations were defined."
+msgstr "Nö örgänïzätïöns wéré défïnéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 #, python-brace-format
@@ -792,11 +782,12 @@ msgstr ""
 #: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py
 #, python-brace-format
 msgid ""
-"The following organization keys were not valid for any exisiting organizations: {exception_org_keys}.\n"
-"The following Publisher course run keys failed to publish to Course Metadata: {exception_course_run_keys}."
+"The following Publisher course run keys failed to publish to Course "
+"Metadata: {exception_course_run_keys}."
 msgstr ""
-"Thé föllöwïng örgänïzätïön kéýs wéré nöt välïd för äný éxïsïtïng örgänïzätïöns: {exception_org_keys}.\n"
-"Thé föllöwïng Püßlïshér çöürsé rün kéýs fäïléd tö püßlïsh tö Çöürsé Métädätä: {exception_course_run_keys}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢#"
+"Thé föllöwïng Püßlïshér çöürsé rün kéýs fäïléd tö püßlïsh tö Çöürsé "
+"Métädätä: {exception_course_run_keys}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тє#"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py
 #, python-brace-format
@@ -1486,10 +1477,6 @@ msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Course Run IDs"
 msgstr "Çöürsé Rün ÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
-
-#: apps/course_metadata/models.py
-msgid "Organization Keys"
-msgstr "Örgänïzätïön Kéýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/course_metadata/models.py
 msgid "Profile Image UUIDs"

@@ -50,7 +50,8 @@ class TestMigratePublisherToCourseMetadata(TestCase):
         )
 
     def test_handle_with_one_org(self):
-        factories.MigratePublisherToCourseMetadataConfigFactory(org_keys=self.org_1.key)
+        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
+        config.orgs.add(self.org_1)
         self.assertEqual(CourseEditor.objects.count(), 0)
 
         Command().handle()
@@ -92,7 +93,8 @@ class TestMigratePublisherToCourseMetadata(TestCase):
             course=publisher_course_2,
             role=PublisherUserRole.ProjectCoordinator
         )
-        factories.MigratePublisherToCourseMetadataConfigFactory(org_keys=','.join([self.org_1.key, org_2.key]))
+        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
+        config.orgs.add(self.org_1, org_2)
         self.assertEqual(CourseEditor.objects.count(), 0)
 
         Command().handle()
@@ -113,7 +115,6 @@ class TestMigratePublisherToCourseMetadata(TestCase):
         self.assertEqual(draft_course_2.title, publisher_course_2.title)
 
     def test_handle_with_multiple_course_team_members(self):
-        factories.MigratePublisherToCourseMetadataConfigFactory(org_keys=self.org_1.key)
         extra_user_1 = UserFactory()
         extra_user_1_course_team_user_role = publisher_factories.CourseUserRoleFactory(
             course=self.publisher_course_1,
@@ -126,6 +127,8 @@ class TestMigratePublisherToCourseMetadata(TestCase):
             user=extra_user_2,
             role=PublisherUserRole.CourseTeam
         )
+        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
+        config.orgs.add(self.org_1)
         self.assertEqual(CourseEditor.objects.count(), 0)
 
         Command().handle()
@@ -170,7 +173,8 @@ class TestMigratePublisherToCourseMetadata(TestCase):
             course=publisher_course,
             role=PublisherUserRole.ProjectCoordinator
         )
-        factories.MigratePublisherToCourseMetadataConfigFactory(org_keys=','.join([org.key]))
+        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
+        config.orgs.add(org)
 
         self.assertEqual(CourseEditor.objects.count(), 0)
         self.assertEqual(Course.objects.count(), 0)
@@ -202,39 +206,21 @@ class TestMigratePublisherToCourseMetadata(TestCase):
 
     @mock.patch(LOGGER_PATH)
     def test_handle_with_no_config(self, mock_logger):
-        configs = MigratePublisherToCourseMetadataConfig.objects.all()
-        self.assertEqual(configs.count(), 0)
+        self.assertEqual(MigratePublisherToCourseMetadataConfig.objects.count(), 0)
 
         try:
             Command().handle()
         except CommandError as e:
-            self.assertEqual(str(e), 'No organization keys were defined.')
+            self.assertEqual(str(e), 'No organizations were defined.')
         mock_logger.error.assert_called_with(
-            'No organization keys were defined. Please add organization keys to the '
+            'No organizations were defined. Please add organizations to the '
             'MigratePublisherToCourseMetadataConfig model.'
         )
 
-    @ddt.data('NotARealOrgKey', 'FakeOrg1,FakeOrg2,FakeOrg3')
-    @mock.patch(LOGGER_PATH)
-    def test_handle_with_no_matched_org_keys(self, org_keys, mock_logger):
-        factories.MigratePublisherToCourseMetadataConfigFactory(org_keys=org_keys)
-
-        try:
-            Command().handle()
-        except CommandError as e:
-            self.assertEqual(
-                str(e), 'The following organization keys were not valid for any exisiting organizations: '
-                        '{org_keys}.\nThe following Publisher course run keys failed to publish to '
-                        'Course Metadata: [].'.format(org_keys=org_keys.split(','))
-            )
-        for key in org_keys.split(','):
-            mock_logger.exception.assert_any_call(
-                'Organization key [{key}] is not a valid key for any existing organization.'.format(key=key)
-            )
-
     @mock.patch(LOGGER_PATH)
     def test_handle_with_publish_to_course_metadata_error(self, mock_logger):
-        factories.MigratePublisherToCourseMetadataConfigFactory(org_keys=self.org_1.key)
+        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
+        config.orgs.add(self.org_1)
         error_keys = [self.publisher_course_run_1.lms_course_id]
 
         with mock.patch(
@@ -245,8 +231,7 @@ class TestMigratePublisherToCourseMetadata(TestCase):
                 Command().handle()
             except CommandError as e:
                 self.assertEqual(
-                    str(e), 'The following organization keys were not valid for any exisiting organizations: '
-                            '[].\nThe following Publisher course run keys failed to publish to '
+                    str(e), 'The following Publisher course run keys failed to publish to '
                             'Course Metadata: {error_keys}.'.format(error_keys=error_keys)
                 )
 
@@ -259,7 +244,8 @@ class TestMigratePublisherToCourseMetadata(TestCase):
 
     @mock.patch(LOGGER_PATH)
     def test_handle_with_no_matched_publisher_course(self, mock_logger):
-        factories.MigratePublisherToCourseMetadataConfigFactory(org_keys=self.org_1.key)
+        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
+        config.orgs.add(self.org_1)
         course_number = '777x'
         factories.CourseFactory(
             partner=self.partner,
@@ -271,7 +257,7 @@ class TestMigratePublisherToCourseMetadata(TestCase):
 
         Command().handle()
 
-        mock_logger.exception.assert_any_call(
+        mock_logger.info.assert_any_call(
             'Course with course number [{course_number}] is not a valid course number for any '
             'existing course in the Publisher tables. As such, there can be no Course User Roles to '
             'move to Course Editors.'.format(course_number=course_number)
