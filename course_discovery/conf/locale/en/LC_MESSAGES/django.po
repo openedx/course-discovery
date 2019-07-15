@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-12 20:38+0000\n"
+"POT-Creation-Date: 2019-07-15 19:15+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -606,38 +606,31 @@ msgstr ""
 msgid "You must specify at least one person"
 msgstr ""
 
-#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:20
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:16
 msgid ""
 "Based on the configuration object, goes through all courses for an "
 "organization and migrates all of the course editors and course data from the "
 "publisher tables to the course metadata tables for use in Publisher Frontend."
 msgstr ""
 
-#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:29
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:25
 msgid ""
-"No organization keys were defined. Please add organization keys to the "
+"No organizations were defined. Please add organizations to the "
 "MigratePublisherToCourseMetadataConfig model."
 msgstr ""
 
-#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:32
-msgid "No organization keys were defined."
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:28
+msgid "No organizations were defined."
 msgstr ""
 
-#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:44
-#, python-brace-format
-msgid ""
-"Organization key [{org_key}] is not a valid key for any existing "
-"organization."
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:58
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:39
 #, python-brace-format
 msgid ""
 "Error publishing course run [{course_run_key}] to Course Metadata: {error}. "
 "This may have caused the corresponding course to not be published as well."
 msgstr ""
 
-#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:72
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:52
 #, python-brace-format
 msgid ""
 "Course with course number [{course_number}] is not a valid course number for "
@@ -645,11 +638,9 @@ msgid ""
 "User Roles to move to Course Editors."
 msgstr ""
 
-#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:88
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:66
 #, python-brace-format
 msgid ""
-"The following organization keys were not valid for any exisiting "
-"organizations: {exception_org_keys}.\n"
 "The following Publisher course run keys failed to publish to Course "
 "Metadata: {exception_course_run_keys}."
 msgstr ""
@@ -1174,19 +1165,15 @@ msgstr ""
 msgid "Course Run IDs"
 msgstr ""
 
-#: apps/course_metadata/models.py:2402
-msgid "Organization Keys"
-msgstr ""
-
-#: apps/course_metadata/models.py:2412
+#: apps/course_metadata/models.py:2408
 msgid "Profile Image UUIDs"
 msgstr ""
 
-#: apps/course_metadata/models.py:2419
+#: apps/course_metadata/models.py:2415
 msgid "Tag"
 msgstr ""
 
-#: apps/course_metadata/models.py:2420
+#: apps/course_metadata/models.py:2416
 msgid "Course UUIDs"
 msgstr ""
 
