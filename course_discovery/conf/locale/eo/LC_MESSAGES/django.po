@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-15 19:15+0000\n"
+"POT-Creation-Date: 2019-07-16 12:48+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1474,7 +1474,7 @@ msgstr "Blög Ⱡ'σяєм ι#"
 msgid "Others"
 msgstr "Öthérs Ⱡ'σяєм ιρѕυ#"
 
-#: apps/course_metadata/models.py apps/publisher/models.py
+#: apps/course_metadata/models.py
 msgid "Course Run IDs"
 msgstr "Çöürsé Rün ÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
@@ -2377,10 +2377,6 @@ msgstr "Prévïéw Àççéptéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм
 #: apps/publisher/models.py
 msgid "Preview Declined"
 msgstr "Prévïéw Déçlïnéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
-
-#: apps/publisher/models.py
-msgid "Partner Code"
-msgstr "Pärtnér Çödé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/serializers.py
 #: apps/publisher/templates/publisher/_approval_widget.html
