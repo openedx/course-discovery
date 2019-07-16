@@ -107,6 +107,9 @@ def get_cache_key(**kwargs):
 
 
 def conditional_decorator(condition, decorator):
+    """
+    Util decorator that allows for only using the given decorator arg if the condition passes
+    """
     return decorator if condition else lambda x: x
 
 
