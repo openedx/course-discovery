@@ -32,6 +32,9 @@ CACHES = {
     },
 }
 
+# Disable the caching mixin for tests
+USE_API_CACHING = False
+
 DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3'),

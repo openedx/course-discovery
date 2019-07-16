@@ -1,7 +1,7 @@
 import zlib
 
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from rest_framework import permissions, views
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
@@ -12,6 +12,7 @@ from course_discovery.apps.api.cache import compressed_cache_response
 factory = APIRequestFactory()
 
 
+@override_settings(USE_API_CACHING=True)
 class CompressedCacheResponseTest(TestCase):
     def setUp(self):
         super(CompressedCacheResponseTest, self).setUp()

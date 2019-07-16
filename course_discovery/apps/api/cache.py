@@ -12,6 +12,8 @@ from rest_framework_extensions.key_constructor.constructors import (
     DefaultListKeyConstructor, DefaultObjectKeyConstructor
 )
 
+from course_discovery.apps.api.utils import conditional_decorator
+
 logger = logging.getLogger(__name__)
 API_TIMESTAMP_KEY = 'api_timestamp'
 
@@ -134,10 +136,16 @@ class CompressedCacheResponseMixin():
     object_cache_timeout = settings.REST_FRAMEWORK_EXTENSIONS['DEFAULT_CACHE_RESPONSE_TIMEOUT']
     list_cache_timeout = settings.REST_FRAMEWORK_EXTENSIONS['DEFAULT_CACHE_RESPONSE_TIMEOUT']
 
-    @compressed_cache_response(key_func=list_cache_key_func, timeout=list_cache_timeout)
+    @conditional_decorator(
+        settings.USE_API_CACHING,
+        compressed_cache_response(key_func=list_cache_key_func, timeout=list_cache_timeout),
+    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
-    @compressed_cache_response(key_func=object_cache_key_func, timeout=object_cache_timeout)
+    @conditional_decorator(
+        settings.USE_API_CACHING,
+        compressed_cache_response(key_func=object_cache_key_func, timeout=object_cache_timeout),
+    )
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)

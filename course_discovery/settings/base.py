@@ -154,6 +154,9 @@ PARLER_LANGUAGES = {
 # and so we get a large number of sets, but rarely any gets
 PARLER_ENABLE_CACHING = False
 
+# Determines whether the caching mixin in course_discovery/apps/api/cache.py is used
+USE_API_CACHING = True
+
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
