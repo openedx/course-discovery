@@ -33,7 +33,7 @@ CACHES = {
 }
 
 # Disable the caching mixin for tests
-USE_CACHING_MIXIN = False
+USE_API_CACHING = False
 
 DATABASES = {
     'default': {

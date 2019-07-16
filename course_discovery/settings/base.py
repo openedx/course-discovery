@@ -155,7 +155,7 @@ PARLER_LANGUAGES = {
 PARLER_ENABLE_CACHING = False
 
 # Determines whether the caching mixin in course_discovery/apps/api/cache.py is used
-USE_CACHING_MIXIN = True
+USE_API_CACHING = True
 
 TIME_ZONE = 'UTC'
 

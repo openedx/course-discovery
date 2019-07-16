@@ -106,6 +106,10 @@ def get_cache_key(**kwargs):
     return hashlib.md5(key.encode('utf-8')).hexdigest()
 
 
+def conditional_decorator(condition, decorator):
+    return decorator if condition else lambda x: x
+
+
 class StudioAPI:
     """
     A convenience class for talking to the Studio API - designed to allow subclassing by the publisher django app,

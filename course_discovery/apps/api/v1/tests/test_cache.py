@@ -12,7 +12,7 @@ from course_discovery.apps.api.cache import compressed_cache_response
 factory = APIRequestFactory()
 
 
-@override_settings(USE_CACHING_MIXIN=True)
+@override_settings(USE_API_CACHING=True)
 class CompressedCacheResponseTest(TestCase):
     def setUp(self):
         super(CompressedCacheResponseTest, self).setUp()
