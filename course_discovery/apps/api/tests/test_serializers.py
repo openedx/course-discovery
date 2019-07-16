@@ -19,17 +19,18 @@ from waffle.testutils import override_switch
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
     AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer,
-    ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer, CourseEntitlementSerializer,
-    CourseRunSearchModelSerializer, CourseRunSearchSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer,
-    CourseSearchModelSerializer, CourseSearchSerializer, CourseSerializer, CourseWithProgramsSerializer,
-    CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer,
-    FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer,
-    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer, MinimalProgramCourseSerializer,
-    MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PathwaySerializer,
-    PersonSearchModelSerializer, PersonSearchSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
-    ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer, ProgramTypeSerializer, RankingSerializer,
-    SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
-    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
+    ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer,
+    CourseEntitlementSerializer, CourseRunSearchModelSerializer, CourseRunSearchSerializer, CourseRunSerializer,
+    CourseRunWithProgramsSerializer, CourseSearchModelSerializer, CourseSearchSerializer, CourseSerializer,
+    CourseWithProgramsSerializer, CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer,
+    EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer,
+    ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
+    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
+    OrganizationSerializer, PathwaySerializer, PersonSearchModelSerializer, PersonSearchSerializer, PersonSerializer,
+    PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer, ProgramSearchSerializer,
+    ProgramSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer,
+    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
+    get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -41,12 +42,13 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory,
-    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory, DegreeCostFactory,
-    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory,
-    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory,
-    PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
-    RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory,
+    CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
+    CurriculumProgramMembershipFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory,
+    ExpectedLearningItemFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory,
+    PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory,
+    PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
+    SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -223,6 +225,25 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1, 'editable': 1})
         self.assertIsNotNone(serializer.data['marketing_url'])
         self.assertEqual(serializer.data['marketing_url'], course.marketing_url)
+
+
+class CourseEditorSerializerTests(TestCase):
+
+    def test_data(self):
+        course_editor = CourseEditorFactory()
+        serializer = CourseEditorSerializer(course_editor)
+
+        expected = {
+            'id': course_editor.id,
+            'course': course_editor.course.uuid,
+            'user': {
+                'id': course_editor.user.id,
+                'full_name': course_editor.user.full_name,
+                'email': course_editor.user.email
+            }
+        }
+
+        self.assertEqual(expected, serializer.data)
 
 
 @ddt.ddt

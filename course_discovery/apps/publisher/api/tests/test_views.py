@@ -170,11 +170,13 @@ class OrganizationGroupUserViewTests(SiteMixin, TestCase):
         expected_results = [
             {
                 "id": self.org_user1.id,
-                "full_name": self.org_user1.full_name
+                "full_name": self.org_user1.full_name,
+                "email": self.org_user1.email,
             },
             {
                 "id": self.org_user2.id,
-                "full_name": self.org_user2.username
+                "full_name": self.org_user2.username,
+                "email": self.org_user2.email,
             }
         ]
 

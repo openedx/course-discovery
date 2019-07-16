@@ -75,3 +75,20 @@ class CanReplaceUsername(BasePermission):
     """
     def has_permission(self, request, view):
         return request.user.username == settings.USERNAME_REPLACEMENT_WORKER
+
+
+class CanAppointCourseEditor(BasePermission):
+
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        else:
+            course = request.data.get('course')
+            if not course:
+                # Fail happily because OPTIONS goes down this path too with a fake POST.
+                # If this is a real POST, we'll complain about the missing course in the view.
+                return True
+
+            # We could do a lookup on the course from the request above, but the logic already exists in the view so we
+            # use that to avoid writing it twice
+            return CourseEditor.is_course_editable(request.user, view.course)

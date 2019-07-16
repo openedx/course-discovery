@@ -81,7 +81,7 @@ class GroupUserSerializerTests(TestCase):
         user = UserFactory(full_name='Test User')
         serializer = GroupUserSerializer(user)
 
-        expected = {'id': user.id, 'full_name': user.full_name}
+        expected = {'id': user.id, 'full_name': user.full_name, 'email': user.email}
         self.assertDictEqual(serializer.data, expected)
 
     def test_data_without_full_name(self):
@@ -92,7 +92,7 @@ class GroupUserSerializerTests(TestCase):
         user = UserFactory(full_name='', first_name='', last_name='')
         serializer = GroupUserSerializer(user)
 
-        expected = {'id': user.id, 'full_name': user.username}
+        expected = {'id': user.id, 'full_name': user.username, 'email': user.email}
         self.assertDictEqual(serializer.data, expected)
 
 
