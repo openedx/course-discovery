@@ -517,6 +517,7 @@ def publish_to_course_metadata(partner, course_run, draft=False):
     expected_program_type, program_name = ProgramType.get_program_type_data(course_run, ProgramType)
 
     defaults = {
+        'course': discovery_course,
         'start': course_run.start_date_temporary,
         'end': course_run.end_date_temporary,
         'pacing_type': course_run.pacing_type_temporary,
@@ -531,7 +532,7 @@ def publish_to_course_metadata(partner, course_run, draft=False):
         'expected_program_type': expected_program_type,
     }
     discovery_course_run, __ = CourseRun.everything.update_or_create(
-        course=discovery_course, key=course_run.lms_course_id, draft=draft, defaults=defaults
+        key=course_run.lms_course_id, draft=draft, defaults=defaults
     )
     discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
     discovery_course_run.staff.clear()
@@ -540,9 +541,9 @@ def publish_to_course_metadata(partner, course_run, draft=False):
     for entitlement in publisher_course.entitlements.all():
         CourseEntitlement.everything.update_or_create(  # pylint: disable=no-member
             course=discovery_course,
-            mode=SeatType.objects.get(slug=entitlement.mode),
             draft=draft,
             defaults={
+                'mode': SeatType.objects.get(slug=entitlement.mode),
                 'partner': partner,
                 'price': entitlement.price,
                 'currency': entitlement.currency,
