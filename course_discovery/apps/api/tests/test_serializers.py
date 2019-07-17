@@ -41,7 +41,7 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseFactory, CourseRunFactory,
+    AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory,
     CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory, DegreeCostFactory,
     DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory,
     ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory,
@@ -1328,24 +1328,66 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
         return expected
 
 
-class SeatSerializerTests(TestCase):
+@ddt.ddt
+class CourseEntitlementSerializerTests(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.entitlement = CourseEntitlementFactory()
+
     def test_data(self):
-        course_run = CourseRunFactory()
-        seat = SeatFactory(course_run=course_run)
-        serializer = SeatSerializer(seat)
+        serializer = CourseEntitlementSerializer(self.entitlement)
 
         expected = {
-            'type': seat.type,
-            'price': str(seat.price),
-            'currency': seat.currency.code,
-            'upgrade_deadline': json_date_format(seat.upgrade_deadline),
-            'credit_provider': seat.credit_provider,
-            'credit_hours': seat.credit_hours,
-            'sku': seat.sku,
-            'bulk_sku': seat.bulk_sku
+            'price': str(self.entitlement.price),
+            'currency': self.entitlement.currency.code,
+            'sku': self.entitlement.sku,
+            'mode': str(self.entitlement.mode).lower(),
+            'expires': json_date_format(self.entitlement.expires)
         }
 
         self.assertDictEqual(serializer.data, expected)
+
+    @ddt.data('0.000', '100000000.00', '-1')
+    def test_price_validation_errors(self, price):
+        """Test Cases: More than two decimals, More than 8 digits, Less than 0"""
+        self.entitlement.price = price
+        serializer = CourseEntitlementSerializer(data=self.entitlement.__dict__)
+        serializer.is_valid()
+
+        self.assertTrue(serializer.errors['price'])
+
+
+@ddt.ddt
+class SeatSerializerTests(TestCase):
+    def setUp(self):
+        super().setUp()
+        course_run = CourseRunFactory()
+        self.seat = SeatFactory(course_run=course_run)
+
+    def test_data(self):
+        serializer = SeatSerializer(self.seat)
+
+        expected = {
+            'type': self.seat.type,
+            'price': str(self.seat.price),
+            'currency': self.seat.currency.code,
+            'upgrade_deadline': json_date_format(self.seat.upgrade_deadline),
+            'credit_provider': self.seat.credit_provider,
+            'credit_hours': self.seat.credit_hours,
+            'sku': self.seat.sku,
+            'bulk_sku': self.seat.bulk_sku
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+    @ddt.data('0.000', '100000000.00', '-1')
+    def test_price_validation_errors(self, price):
+        """Test Cases: More than two decimals, More than 8 digits, Less than 0"""
+        self.seat.price = price
+        serializer = SeatSerializer(data=self.seat.__dict__)
+        serializer.is_valid()
+
+        self.assertTrue(serializer.errors['price'])
 
 
 class MinimalPersonSerializerTests(TestCase):
