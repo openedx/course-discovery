@@ -30,7 +30,7 @@ except KeyError:
     CONFIG_FILE = environ['COURSE_DISCOVERY_CFG']
 
 with open(CONFIG_FILE, encoding='utf-8') as f:
-    config_from_yaml = yaml.load(f)
+    config_from_yaml = yaml.safe_load(f)
 
     # Remove the items that should be used to update dicts, and apply them separately rather
     # than pumping them into the local vars.
