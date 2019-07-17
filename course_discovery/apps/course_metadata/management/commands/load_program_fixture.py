@@ -4,10 +4,10 @@ Populate catalog programs for masters sandbox environment
 import logging
 from posixpath import join as urljoin
 
+from django import db
 from django.core import serializers
 from django.core.exceptions import FieldDoesNotExist
 from django.core.management import BaseCommand, CommandError
-from django.db import DEFAULT_DB_ALIAS, DatabaseError, IntegrityError, connections, transaction
 from edx_rest_api_client import client as rest_client
 
 from course_discovery.apps.core.models import Partner
@@ -68,7 +68,7 @@ class Command(BaseCommand):
                 object_label=obj.object._meta.label,
                 pk=obj.object.pk,
             ))
-        except (DatabaseError, IntegrityError) as e:
+        except (db.DatabaseError, db.IntegrityError) as e:
             e.args = ('Failed to save {object_label}(pk={pk}): {error_msg}'.format(
                 object_label=obj.object._meta.label,
                 pk=obj.object.pk,
@@ -88,17 +88,19 @@ class Command(BaseCommand):
 
         partner = Partner.objects.get(short_code=options['partner_code'])
 
-        connection = connections[DEFAULT_DB_ALIAS]
+        connection = db.connections[db.DEFAULT_DB_ALIAS]
 
         with connection.constraint_checks_disabled():
             self.load_fixture(fixture, partner)
         try:
             connection.check_constraints()
         except Exception as e:
-            e.args = ("Problem checking constraints. Unable to save program(s): %s" % e,)
+            e.args = (
+                "Checking database constraints failed trying to load fixtures. Unable to save program(s): %s" % e,
+            )
             raise
 
-    @transaction.atomic
+    @db.transaction.atomic
     def load_fixture(self, fixture_text, partner):
 
         deserialized_items = serializers.deserialize('json', fixture_text)
