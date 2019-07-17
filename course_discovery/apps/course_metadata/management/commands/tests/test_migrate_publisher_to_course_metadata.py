@@ -1,3 +1,5 @@
+import datetime
+
 import ddt
 import mock
 from django.core.management import CommandError
@@ -147,6 +149,54 @@ class TestMigratePublisherToCourseMetadata(TestCase):
         editor_3 = CourseEditor.objects.get(user=extra_user_2)
         self.assertEqual(editor_3.user, extra_user_2_course_team_user_role.user)
         self.assertEqual(editor_3.course, draft_course)
+
+    def test_handle_orders_by_modified(self):
+        """
+        If there are two Publisher Courses with the same Course Number and Org, we want to
+        prefer the Course that has been modified last when pushing to course metadata.
+
+        This scenario can happen when we remap a course run because of an incorrect course number
+        to the course with the correct course number so the course run's number does
+        not match with the course number.
+        """
+        publisher_course_2 = publisher_factories.CourseFactory(
+            number=self.publisher_course_1.number,
+            title='Newer Title',
+            modified=self.publisher_course_1.modified + datetime.timedelta(days=1),
+        )
+        publisher_course_2.organizations.add(self.org_1)  # pylint: disable=no-member
+        publisher_factories.CourseRunFactory(
+            course=publisher_course_2,
+            lms_course_id='course-v1:{org}+{number}+1T2019'.format(
+                org=self.org_1.key, number='102x'
+            ),
+        )
+        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
+        config.orgs.add(self.org_1)
+        self.assertEqual(self.course_1.title, 'Old Title')
+
+        Command().handle()
+
+        draft_course = Course.everything.get(key=self.course_1.key, draft=True)
+        self.assertEqual(draft_course.title, publisher_course_2.title)
+
+        publisher_course_3 = publisher_factories.CourseFactory(
+            number=self.publisher_course_1.number,
+            title='Newest Title',
+            modified=self.publisher_course_1.modified + datetime.timedelta(days=10),
+        )
+        publisher_course_3.organizations.add(self.org_1)  # pylint: disable=no-member
+        publisher_factories.CourseRunFactory(
+            course=publisher_course_3,
+            lms_course_id='course-v1:{org}+{number}+1T2019'.format(
+                org=self.org_1.key, number='103x'
+            ),
+        )
+
+        Command().handle()
+
+        draft_course.refresh_from_db()
+        self.assertEqual(draft_course.title, publisher_course_3.title)
 
     def test_handle_with_no_course_metadata_course(self):
         """
