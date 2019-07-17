@@ -251,7 +251,9 @@ class TestLoadProgramFixture(TestCase):
 
         with pytest.raises(IntegrityError) as err:
             self._call_load_program_fixture([str(self.program.uuid)])
-        expected_msg = r'Problem checking constraints. Unable to save program\(s\):'.format(pk=self.organization.id)
+        expected_msg = (
+            r'Checking database constraints failed trying to load fixtures. Unable to save program\(s\):'
+        ).format(pk=self.organization.id)
         assert re.match(expected_msg, str(err.value))
 
     @responses.activate
