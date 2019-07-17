@@ -9,7 +9,7 @@ from haystack.backends import SQ
 from haystack.inputs import AutoQuery
 from haystack.query import SearchQuerySet
 from rest_framework import status, viewsets
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError, ValidationError
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
@@ -46,7 +46,7 @@ class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
         """
         return super(BaseHaystackViewSet, self).list(request, *args, **kwargs)
 
-    @list_route(methods=['get'], url_path='facets')
+    @action(detail=False, methods=['get'], url_path='facets')
     def facets(self, request):
         """
         Returns faceted search results

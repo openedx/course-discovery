@@ -35,18 +35,18 @@ class TestCurrencyCurrencyView:
 
         response = admin_client.get(self.list_path)
 
-        assert all(item in response.data.items() for item in expected.items())
+        assert all(item in response.json().items() for item in expected.items())
         assert len(responses.calls) == 1
 
         # Subsequent requests should hit the cache
         response = admin_client.get(self.list_path)
-        assert all(item in response.data.items() for item in expected.items())
+        assert all(item in response.json().items() for item in expected.items())
         assert len(responses.calls) == 1
 
         # Clearing the cache should result in the external service being called again
         cache.clear()
         response = admin_client.get(self.list_path)
-        assert all(item in response.data.items() for item in expected.items())
+        assert all(item in response.json().items() for item in expected.items())
         assert len(responses.calls) == 2
 
     def test_get_without_api_key(self, admin_client, settings):
@@ -56,7 +56,7 @@ class TestCurrencyCurrencyView:
             response = admin_client.get(self.list_path)
             mock_logger.assert_called_with('Unable to retrieve exchange rate data. No API key is set.')
             assert response.status_code == 200
-            assert response.data == {}
+            assert response.json() == {}
 
     def test_get_with_external_error(self, admin_client, responses, settings):
         settings.OPENEXCHANGERATES_API_KEY = 'test'
@@ -71,4 +71,4 @@ class TestCurrencyCurrencyView:
                 CurrencyView.EXTERNAL_API_URL, status, b'{}'
             )
             assert response.status_code == 200
-            assert response.data == {}
+            assert response.json() == {}
