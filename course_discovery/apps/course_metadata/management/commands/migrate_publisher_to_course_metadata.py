@@ -30,7 +30,7 @@ class Command(BaseCommand):
         exception_course_run_keys = []
         partner = config.partner
         for org in orgs:
-            for publisher_course in PublisherCourse.objects.filter(organizations__in=[org]):
+            for publisher_course in PublisherCourse.objects.filter(organizations__in=[org]).order_by('modified'):
                 for course_run in publisher_course.course_runs.all():
                     try:
                         publish_to_course_metadata(partner, course_run, draft=True)
