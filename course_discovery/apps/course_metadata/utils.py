@@ -517,7 +517,6 @@ def publish_to_course_metadata(partner, course_run, draft=False):
     expected_program_type, program_name = ProgramType.get_program_type_data(course_run, ProgramType)
 
     defaults = {
-        'course': discovery_course,
         'start': course_run.start_date_temporary,
         'end': course_run.end_date_temporary,
         'pacing_type': course_run.pacing_type_temporary,
@@ -532,7 +531,11 @@ def publish_to_course_metadata(partner, course_run, draft=False):
         'expected_program_type': expected_program_type,
     }
     discovery_course_run, __ = CourseRun.everything.update_or_create(
-        key=course_run.lms_course_id, draft=draft, defaults=defaults
+        # Despite the course not being a part of the uniqueness constraint for the CourseRun model,
+        # we are passing it in for the scenario where we have moved the course run in the
+        # Course Metadata table to point to a different course. By including it in the parameters,
+        # this create will error instead of switching the Course Run to point to its Publisher Course.
+        key=course_run.lms_course_id, course=discovery_course, draft=draft, defaults=defaults
     )
     discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
     discovery_course_run.staff.clear()
