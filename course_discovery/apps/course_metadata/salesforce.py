@@ -73,8 +73,8 @@ class SalesforceUtil:
     def enabled(self):
         return self.salesforce_is_enabled()
 
-    def _query(self, soql):
-        return self.client.query(self.soql_escape(soql))
+    def _query(self, soql, *soql_args):
+        return self.client.query(soql.format(*[self.soql_escape(arg) for arg in soql_args]))
 
     def soql_escape(self, soql):
         """
@@ -101,7 +101,7 @@ class SalesforceUtil:
             'Id',
             'Name',
         ]
-        accounts = self._query('SELECT {} FROM Account WHERE Name={}'.format(','.join(fields), name))
+        accounts = self._query("SELECT {} FROM Account WHERE Name='{}'", ','.join(fields), name)
         account_records = accounts.get('records', [])
         if len(account_records) == 1:
             return account_records[0]
@@ -130,7 +130,7 @@ class SalesforceUtil:
             'Course_Number__c',
             'Account__c',
         ]
-        courses = self._query('SELECT {} FROM Course__c WHERE Course_Number__c={}'.format(','.join(fields), course_key))
+        courses = self._query("SELECT {} FROM Course__c WHERE Course_Number__c='{}'", ','.join(fields), course_key)
         course_records = courses.get('records', [])
         if len(course_records) == 1:
             return course_records[0]
@@ -158,7 +158,7 @@ class SalesforceUtil:
             'Parent_Course_Name__c',
         ]
         course_runs = self._query(
-            'SELECT {} FROM Course_Runs__c WHERE Course_Run_Number__c={}'.format(','.join(fields), key)
+            "SELECT {} FROM Course_Runs__c WHERE Course_Run_Number__c='{}'", ','.join(fields), key
         )
         course_run_records = course_runs.get('records', [])
         if len(course_run_records) == 1:
@@ -183,9 +183,7 @@ class SalesforceUtil:
             'Course__c',
             'Subject',
         ]
-        case = self._query(
-            'SELECT {} FROM Case WHERE Course__c={}'.format(','.join(fields), salesforce_course_id)
-        )
+        case = self._query("SELECT {} FROM Case WHERE Course__c='{}'", ','.join(fields), salesforce_course_id)
         case_records = case.get('records', [])
         if len(case_records) == 1:
             return case_records[0]

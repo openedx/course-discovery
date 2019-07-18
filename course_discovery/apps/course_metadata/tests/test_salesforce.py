@@ -78,7 +78,7 @@ class TestSalesforce(TestCase):
             ) as mock_query:
                 util = SalesforceUtil(self.salesforce_config.partner)
                 accounts = util.get_account_by_key('Test')
-                mock_query.assert_called_with('SELECT Id,Name FROM Account WHERE Name=Test')
+                mock_query.assert_called_with("SELECT {} FROM Account WHERE Name='{}'", 'Id,Name', 'Test')
                 self.assertEqual(accounts, return_value)
 
     def test_get_account_by_key_exception(self):
@@ -100,8 +100,12 @@ class TestSalesforce(TestCase):
             ) as mock_query:
                 util = SalesforceUtil(self.salesforce_config.partner)
                 accounts = util.get_course_by_course_key('Test')
-                query_string = 'SELECT Id,Name,Course_Number__c,Account__c FROM Course__c WHERE Course_Number__c=Test'
-                mock_query.assert_called_with(query_string)
+                query_string = "SELECT {} FROM Course__c WHERE Course_Number__c='{}'"
+                mock_query.assert_called_with(
+                    query_string,
+                    'Id,Name,Course_Number__c,Account__c',
+                    'Test'
+                )
                 self.assertEqual(accounts, return_value)
 
     def test_get_course_by_course_key_exception(self):
@@ -123,11 +127,12 @@ class TestSalesforce(TestCase):
             ) as mock_query:
                 util = SalesforceUtil(self.salesforce_config.partner)
                 accounts = util.get_course_run_by_name('Test')
-                query_string = (
-                    'SELECT Id,Course_Run_Name__c,Course_Run_Number__c,Parent_Course_Name__c ' +
-                    'FROM Course_Runs__c WHERE Course_Run_Number__c=Test'
+                query_string = "SELECT {} FROM Course_Runs__c WHERE Course_Run_Number__c='{}'"
+                mock_query.assert_called_with(
+                    query_string,
+                    'Id,Course_Run_Name__c,Course_Run_Number__c,Parent_Course_Name__c',
+                    'Test'
                 )
-                mock_query.assert_called_with(query_string)
                 self.assertEqual(accounts, return_value)
 
     def test_get_course_run_by_name_exception(self):
@@ -149,9 +154,13 @@ class TestSalesforce(TestCase):
             ) as mock_query:
                 util = SalesforceUtil(self.salesforce_config.partner)
                 accounts = util.get_case_by_salesforce_course_id('Test')
-                query_string = 'SELECT Id,Course__c,Subject FROM Case WHERE Course__c=Test'
+                query_string = "SELECT {} FROM Case WHERE Course__c='{}'"
 
-                mock_query.assert_called_with(query_string)
+                mock_query.assert_called_with(
+                    query_string,
+                    'Id,Course__c,Subject',
+                    'Test'
+                )
                 self.assertEqual(accounts, return_value)
 
     def test_get_case_by_salesforce_course_id_exception(self):
