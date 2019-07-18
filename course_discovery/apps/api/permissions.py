@@ -9,11 +9,11 @@ USERNAME_REPLACEMENT_GROUP = "username_replacement_admin"
 
 class ReadOnlyByPublisherUser(BasePermission):
     """
-    Custom Permission class to check user is a publisher user.
+    Custom Permission class to check user is a publisher user or a staff user.
     """
     def has_permission(self, request, view):
         if request.method == 'GET':
-            return request.user.groups.exists()
+            return request.user.is_staff or request.user.groups.exists()
         return True
 
 
