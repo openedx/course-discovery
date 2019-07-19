@@ -15,8 +15,8 @@ class FuzzyDomain(BaseFuzzyAttribute):
         tld = FuzzyChoice(('com', 'net', 'org', 'biz', 'pizza', 'coffee', 'diamonds', 'fail', 'win', 'wtf',))
 
         return "{subdomain}.{domain}.{tld}".format(
-            subdomain=subdomain.fuzz(),
-            domain=domain.fuzz(),
+            subdomain=subdomain.fuzz().lower(),
+            domain=domain.fuzz().lower(),
             tld=tld.fuzz()
         )
 
