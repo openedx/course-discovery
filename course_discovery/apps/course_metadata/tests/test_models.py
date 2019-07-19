@@ -155,6 +155,7 @@ class TestCourse(TestCase):
         ]
         self.assertEqual(sorted(out_of_order_runs, key=course.course_run_sort), expected_order)
 
+
 class TestCourseUpdateMarketingRedirects(MarketingSitePublisherTestMixin, TestCase):
     def setUp(self):
         super().setUp()
