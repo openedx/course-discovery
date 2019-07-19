@@ -611,39 +611,6 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         return datetime.datetime.max.replace(tzinfo=pytz.UTC)
 
     @property
-    def marketing_course_runs(self):
-        """
-        Returns the course_runs relevant to the prospectus marketing site
-
-        Checks to make sure that every course run is marketable, and not
-        archived. Prospectus prefers that all the marketing runs are
-        enrollable, but if there are no marketable runs that are also
-        enrollable, we return the run closest to now from the other marketable
-        runs
-
-        Filtered and sorted in python to avoid additional calls to the database
-        """
-        marketable_runs = []
-        other_marketable_runs = []
-        now = datetime.datetime.now(pytz.UTC)
-
-        for course_run in self.course_runs.all():
-            if course_run.is_marketable and not course_run.has_ended(now):
-                if course_run.is_enrollable:
-                    marketable_runs.append(course_run)
-                else:
-                    other_marketable_runs.append(course_run)
-
-        sorted_marketable_runs = sorted(marketable_runs, key=self.course_run_sort)
-        sorted_other_marketable_runs = sorted(other_marketable_runs, key=self.course_run_sort)
-
-        if not sorted_marketable_runs and sorted_other_marketable_runs:
-            # Use the closest run to now as a fallback
-            sorted_marketable_runs.append(sorted_other_marketable_runs[0])
-
-        return sorted_marketable_runs
-
-    @property
     def active_course_runs(self):
         """ Returns course runs that have not yet ended and meet the following enrollment criteria:
             - Open for enrollment
