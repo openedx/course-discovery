@@ -100,5 +100,6 @@ def client():
 
 
 @pytest.fixture(autouse=True)
-def clear_cache(request):
-    cache.clear()
+def clear_caches(request):
+    for existing_cache in caches.all():
+        existing_cache.clear()
