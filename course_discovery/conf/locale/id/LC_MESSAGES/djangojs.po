@@ -4,15 +4,15 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
-# Aprisa Chrysantina <aprisa.chrysantina@gmail.com>, 2018
+# Aprisa Chrysantina <aprisa.chrysantina@gmail.com>, 2018-2019
 # Rizky Ariestiyansyah <ariestiyansyah.rizky@gmail.com>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-19 19:20+0000\n"
-"PO-Revision-Date: 2018-12-12 19:01+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2019-07-16 16:20+0000\n"
+"PO-Revision-Date: 2019-07-19 07:43+0000\n"
+"Last-Translator: Aprisa Chrysantina <aprisa.chrysantina@gmail.com>\n"
 "Language-Team: Indonesian (http://www.transifex.com/open-edx/edx-platform/language/id/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -59,51 +59,51 @@ msgstr "Terjadi kesalahan!"
 
 #: static/js/publisher/instructors.js:138
 msgid "Type"
-msgstr ""
+msgstr "Ketik"
 
 #: static/js/publisher/instructors.js:142
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: static/js/publisher/instructors.js:143
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: static/js/publisher/instructors.js:144
 msgid "Blog"
-msgstr ""
+msgstr "Blog"
 
 #: static/js/publisher/instructors.js:145
 msgid "Other"
-msgstr ""
+msgstr "Lainnya"
 
 #: static/js/publisher/instructors.js:148
 msgid "Title"
-msgstr ""
+msgstr "Judul"
 
 #: static/js/publisher/instructors.js:149
 msgid "optional"
-msgstr ""
+msgstr "pilihan"
 
 #: static/js/publisher/instructors.js:152
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: static/js/publisher/instructors.js:180
 msgid "Please specify a type and url for each social link."
-msgstr ""
+msgstr "Tentukan jenis dan URL untuk setiap tautan sosial."
 
 #: static/js/publisher/instructors.js:191
 msgid "Social links with the same type must have different titles."
-msgstr ""
+msgstr "Tautan sosial dengan jenis yang sama harus memiliki titel yang berbeda"
 
 #: static/js/publisher/instructors.js:222
 msgid "Area of Expertise"
-msgstr ""
+msgstr "Bidang Keahlian"
 
 #: static/js/publisher/instructors.js:243
 msgid "Please specify a value for each area of expertise."
-msgstr ""
+msgstr "Tentukan nilai untuk setiap bidang keahlian."
 
 #: static/js/publisher/instructors.js:290
 msgid "The image size must be smaller than 256kb"
@@ -111,7 +111,7 @@ msgstr "Ukuran gambar harus lebih kecil daripada 256kb"
 
 #: static/js/publisher/instructors.js:301
 msgid "The image dimensions must be "
-msgstr ""
+msgstr "Dimensi gambar harus"
 
 #: static/js/publisher/instructors.js:314
 msgid " Unsupported Image extension"
@@ -137,7 +137,7 @@ msgstr "Masukkan URL yang valid."
 msgid ""
 "You have successfully created a Studio URL ({studioLinkTag}) for "
 "{courseRunDetail}"
-msgstr ""
+msgstr "Anda telah berhasil membuat URL Studio ({studioLinkTag}) untuk {courseRunDetail}"
 
 #: static/js/publisher/views/courserun_list.js:50
 msgid "There was an error in saving your data."
