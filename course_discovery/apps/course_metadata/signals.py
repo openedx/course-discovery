@@ -2,13 +2,16 @@ import logging
 
 import waffle
 from django.apps import apps
-from django.db.models.signals import post_delete, post_save, pre_delete
+from django.core.exceptions import ValidationError
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
 from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
-from course_discovery.apps.course_metadata.models import CurriculumCourseMembership, Program, Seat
+from course_discovery.apps.course_metadata.models import (
+    CourseRun, Curriculum, CurriculumCourseMembership, Program, Seat
+)
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.waffle import masters_course_mode_enabled
 
@@ -144,3 +147,147 @@ def _seat_type_exists(course_modes, seat_type):
 for model in apps.get_app_config('course_metadata').get_models():
     for signal in (post_save, post_delete):
         signal.connect(api_change_receiver, sender=model)
+
+
+@receiver(pre_save, sender=CourseRun)
+def save_course_run(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    """
+    Pre-save hook to validate that when a course run is saved, that its external_key is
+    unique.
+
+    If the course is associated with a program through a Curriculum, we will verify that
+    the external course key is unique across all programs it is assocaited with.
+
+    If the course is not associated with a program, we will still verify that the external_key
+    is unique within course runs in the course
+    """
+    if not instance.external_key:
+        return
+    if instance.id:
+        old_course_run = CourseRun.objects.get(pk=instance.id)
+        if instance.external_key == old_course_run.external_key:
+            return
+
+    course_run_map = {instance.external_key: instance}
+    course = instance.course
+    curricula = course.degree_course_curricula
+    if not curricula.all().exists():
+        duplicate_course_run = check_course_for_duplicate_external_key(course, course_run_map)
+        if duplicate_course_run:
+            message = _duplicate_external_key_message(duplicate_course_run)
+            raise ValidationError(message)
+    else:
+        seen_courses = set()
+        for curriculum in curricula.all():
+            check_curriculum(curriculum, course_run_map, seen_courses)
+
+
+@receiver(pre_save, sender=CurriculumCourseMembership)
+def save_curriculum_course_membership(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    """
+    Pre-save hook to validate that if a curriculum_course_membership is created or modified, the
+    external_keys for the course
+    """
+    course_runs = instance.course.course_runs.filter(external_key__isnull=False)
+    course_run_map = {
+        course_run.external_key: course_run for course_run in course_runs
+    }
+    check_curriculum(instance.curriculum, course_run_map, set())
+
+
+@receiver(pre_save, sender=Curriculum)
+def save_curriculum(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    """
+    Pre-save hook to validate that if a curriculum is created or becomes associated with a different
+    program, the curriculum's external_keys are/remain unique
+    """
+    if instance.id and instance.program:
+        old_curriculum = Curriculum.objects.get(pk=instance.id)
+        if old_curriculum.program and instance.program.id == old_curriculum.program.id:
+            return
+    else:
+        return  # If not instance.id, we can't access course_curriculum, so we can't do anything
+
+    course_run_map = {}
+    for course in instance.course_curriculum.all():
+        for course_run in course.course_runs.filter(external_key__isnull=False):
+            course_run_map[course_run.external_key] = course_run
+    check_curriculum(instance, course_run_map, set())
+
+
+def check_curriculum(curriculum, course_run_map, checked_courses):
+    if curriculum.program:
+        duplicate_course_key_info = check_program_for_duplicate_external_key(
+            curriculum.program,
+            course_run_map,
+            checked_courses
+        )
+    else:
+        duplicate_course_run = check_curriculum_for_duplicate_external_key(curriculum, course_run_map, checked_courses)
+        duplicate_course_key_info = (duplicate_course_run, curriculum) if duplicate_course_run else None
+    if duplicate_course_key_info:
+        message = _duplicate_external_key_message(*duplicate_course_key_info)
+        raise ValidationError(message)
+
+
+def _duplicate_external_key_message(course_run, curriculum=None):
+    message = "Duplicate external_key found: external_key={} course_run={} course={}".format(
+        course_run.external_key,
+        course_run,
+        course_run.course
+    )
+    if curriculum:
+        message = message + " curriculum={}".format(curriculum)
+        if curriculum.program:
+            message = message + " program={}".format(curriculum.program)
+    return message
+
+
+def check_program_for_duplicate_external_key(program, course_run_map, checked_courses):
+    """
+    Helper function for verifying the uniqueness of external course keys within a program
+
+    Parameters:
+        - program: program in which we are searching for potential duplicate course keys
+        - external_key_map: dict mapping external course keys to their course runs.
+                            These are the external course keys that we looking for potential duplicates of
+
+    Returns:
+        If a course run is found in the `course_curriculum` of a Curriculum of `program` that has the same external
+        course key as a course run in `external_course_map` (but isn't the course run in `external_course_map`),
+        we will return a tuple of:  (course_run, curriculum) of the 'offending' duplicate course key that we found
+    """
+    for curriculum in program.curricula.all():
+        offending_course_run = check_curriculum_for_duplicate_external_key(curriculum, course_run_map, checked_courses)
+        if offending_course_run:
+            return (offending_course_run, curriculum)
+
+
+def check_curriculum_for_duplicate_external_key(curriculum, course_run_map, checked_courses):
+    for course in curriculum.course_curriculum.all():
+        if course in checked_courses:
+            continue
+        offending_course_run = check_course_for_duplicate_external_key(course, course_run_map)
+        if offending_course_run:
+            return offending_course_run
+        checked_courses.add(course)
+
+
+def check_course_for_duplicate_external_key(course, course_run_map):
+    """
+    Helper function for verifying the uniqueness of external course keys within a course
+
+    Parameters:
+        - course: course in which we are searching for potential duplicate course keys
+        - external_key_map: dict mapping external course keys to their course runs.
+                            These are the external course keys that we looking for potential duplicates of
+
+    Returns:
+        If a course run is found under `course` that has the same external
+        course key as a course run in `external_course_map` (but isn't the course run in `external_course_map`),
+        this function will return the 'offending' course_run
+    """
+    for course_run in course.course_runs.all():
+        external_key = course_run.external_key
+        if external_key in course_run_map and course_run_map[external_key] != course_run:
+            return course_run

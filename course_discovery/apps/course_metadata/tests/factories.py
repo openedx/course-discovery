@@ -366,6 +366,11 @@ class ProgramFactory(factory.django.DjangoModelFactory):
         if create:  # pragma: no cover
             add_m2m_data(self.instructor_ordering, extracted)
 
+    @factory.post_generation
+    def curricula(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.curricula, extracted)
+
 
 class DegreeFactory(ProgramFactory):
     class Meta(object):
@@ -404,6 +409,7 @@ class CurriculumFactory(factory.DjangoModelFactory):
     class Meta(object):
         model = Curriculum
 
+    name = FuzzyText()
     uuid = factory.LazyFunction(uuid4)
     marketing_text_brief = FuzzyText()
     marketing_text = FuzzyText()
