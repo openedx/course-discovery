@@ -51,6 +51,7 @@ THIRD_PARTY_APPS = [
     'django_fsm',
     'storages',
     'django_comments',
+    'django_extensions',
     'django_sites_extensions',
     'taggit',
     'taggit_autosuggest',
