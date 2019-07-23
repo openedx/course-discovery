@@ -368,6 +368,10 @@ class Organization(TimeStampedModel):
 
         return None
 
+    @classmethod
+    def user_organizations(cls, user):
+        return cls.objects.filter(organization_extension__group__in=user.groups.all())
+
 
 class Person(TimeStampedModel):
     """ Person model. """
@@ -756,6 +760,14 @@ class CourseEditor(TimeStampedModel):
         return user_model.objects.filter(groups__organization_extension__organization__in=authoring_orgs).distinct()
 
     @classmethod
+    def editors_for_user(cls, user):
+        if user.is_staff:
+            return CourseEditor.objects.all()
+
+        user_orgs = Organization.user_organizations(user)
+        return CourseEditor.objects.filter(user__groups__organization_extension__organization__in=user_orgs)
+
+    @classmethod
     def is_course_editable(cls, user, course):
         if user.is_staff:
             return True
@@ -776,7 +788,7 @@ class CourseEditor(TimeStampedModel):
             queryset = queryset.filter(has_user_editor | ~has_valid_editors)
 
         # And the course has to be authored by an org we belong to
-        user_orgs = Organization.objects.filter(organization_extension__group__in=user.groups.all())
+        user_orgs = Organization.user_organizations(user)
         queryset = queryset.filter(authoring_organizations__in=user_orgs)
 
         # We use distinct() here because the query is complicated enough, spanning tables and following lists of
@@ -788,7 +800,7 @@ class CourseEditor(TimeStampedModel):
         if user.is_staff:
             return queryset
 
-        user_orgs = Organization.objects.filter(organization_extension__group__in=user.groups.all())
+        user_orgs = Organization.user_organizations(user)
         has_valid_editors = Q(
             course__editors__user__groups__organization_extension__organization__in=F('course__authoring_organizations')
         )

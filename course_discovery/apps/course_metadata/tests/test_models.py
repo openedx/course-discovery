@@ -30,8 +30,8 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel, AbstractValueModel,
     CorporateEndorsement, Course, CourseEditor, CourseRun, Curriculum, CurriculumCourseMembership,
-    CurriculumCourseRunExclusion, DegreeCost, DegreeDeadline, Endorsement, Program, Ranking, Seat, SeatType, Subject,
-    Topic
+    CurriculumCourseRunExclusion, DegreeCost, DegreeDeadline, Endorsement, Organization, Program, Ranking, Seat,
+    SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -379,6 +379,12 @@ class TestCourseEditor(TestCase):
         # two queries: one to check for valid editors, one for everybody in group
         self.assertResultsEqual(partial(CourseEditor.course_editors, self.course_bad_editor_in_group),
                                 {self.user, self.good_editor}, queries=2)
+
+    def test_editors_for_user(self):
+        """Verify that the editors_for_user method returns editors for a give user"""
+        # tests number of editors against the editors established in the setUp method above
+        editors = CourseEditor.editors_for_user(self.user)
+        assert len(editors) == 5
 
 
 @ddt.ddt
@@ -976,6 +982,17 @@ class OrganizationTests(TestCase):
         """ Verify the property returns None if the Organization has no marketing_url_path set. """
         self.organization.marketing_url_path = ''
         self.assertIsNone(self.organization.marketing_url)
+
+    def test_user_organizations(self):
+        """Verify that the user_organizations method returns organizations for a given user"""
+        user = factories.UserFactory()
+
+        self.assertFalse(Organization.user_organizations(user))
+
+        org_ext = OrganizationExtensionFactory()
+        user.groups.add(org_ext.group)
+
+        assert len(Organization.user_organizations(user)) == 1
 
 
 @ddt.ddt

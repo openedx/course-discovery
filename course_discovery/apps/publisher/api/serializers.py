@@ -68,7 +68,7 @@ class GroupUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'full_name',)
+        fields = ('id', 'full_name', 'email')
 
     def get_user_full_name(self, obj):
         """

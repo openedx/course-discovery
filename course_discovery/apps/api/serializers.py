@@ -35,6 +35,7 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.publisher.api.serializers import GroupUserSerializer
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 
@@ -958,6 +959,29 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
     def create(self, validated_data):
         return Course.objects.create(**validated_data)
+
+
+class CourseEditorSerializer(serializers.ModelSerializer):
+    """Serializer for the ``CourseEditor`` model."""
+    user = GroupUserSerializer(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
+    course = serializers.SlugRelatedField(queryset=Course.everything.filter(draft=True), slug_field='uuid')
+
+    class Meta:
+        model = CourseEditor
+        fields = (
+            'id',
+            'user',
+            'user_id',
+            'course',
+        )
+
+    def create(self, validated_data):
+        course_editor = CourseEditor.objects.create(
+            user=validated_data['user_id'],
+            course=validated_data['course']
+        )
+        return course_editor
 
 
 class CourseWithProgramsSerializer(CourseSerializer):
