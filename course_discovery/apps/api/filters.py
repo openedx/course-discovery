@@ -111,9 +111,9 @@ class CharListFilter(filters.CharFilter):
 class UUIDListFilter(CharListFilter):
     """ Filters a field via a comma-delimited list of UUIDs. """
 
-    def __init__(self, name='uuid', label=None, widget=None, method=None, lookup_expr='in', required=False,
+    def __init__(self, field_name='uuid', label=None, widget=None, method=None, lookup_expr='in', required=False,
                  distinct=False, exclude=False, **kwargs):
-        super().__init__(name=name, label=label, widget=widget, method=method, lookup_expr=lookup_expr,
+        super().__init__(field_name=field_name, label=label, widget=widget, method=method, lookup_expr=lookup_expr,
                          required=required, distinct=distinct, exclude=exclude, **kwargs)
 
 
@@ -129,7 +129,7 @@ class FilterSetMixin:
 
 
 class CourseFilter(filters.FilterSet):
-    keys = CharListFilter(name='key', lookup_expr='in')
+    keys = CharListFilter(field_name='key', lookup_expr='in')
     uuids = UUIDListFilter()
 
     class Meta:
@@ -140,8 +140,8 @@ class CourseFilter(filters.FilterSet):
 class CourseRunFilter(FilterSetMixin, filters.FilterSet):
     active = filters.BooleanFilter(method='filter_active')
     marketable = filters.BooleanFilter(method='filter_marketable')
-    keys = CharListFilter(name='key', lookup_expr='in')
-    license = filters.CharFilter(name='license', lookup_expr='iexact')
+    keys = CharListFilter(field_name='key', lookup_expr='in')
+    license = filters.CharFilter(field_name='license', lookup_expr='iexact')
 
     @property
     def qs(self):
@@ -160,8 +160,8 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
 class ProgramFilter(FilterSetMixin, filters.FilterSet):
     marketable = filters.BooleanFilter(method='filter_marketable')
     status = filters.MultipleChoiceFilter(choices=ProgramStatus.choices)
-    type = filters.CharFilter(name='type__name', lookup_expr='iexact')
-    types = CharListFilter(name='type__slug', lookup_expr='in')
+    type = filters.CharFilter(field_name='type__name', lookup_expr='iexact')
+    types = CharListFilter(field_name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
 
     class Meta:
@@ -170,7 +170,7 @@ class ProgramFilter(FilterSetMixin, filters.FilterSet):
 
 
 class OrganizationFilter(filters.FilterSet):
-    tags = CharListFilter(name='tags__name', lookup_expr='in')
+    tags = CharListFilter(field_name='tags__name', lookup_expr='in')
     uuids = UUIDListFilter()
 
     class Meta:
@@ -207,7 +207,7 @@ class TopicFilter(filters.FilterSet):
 
 
 class CourseEditorFilter(filters.FilterSet):
-    course = filters.CharFilter(name='course__uuid')
+    course = filters.CharFilter(field_name='course__uuid')
 
     class Meta:
         model = CourseEditor

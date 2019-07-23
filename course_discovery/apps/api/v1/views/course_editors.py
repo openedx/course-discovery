@@ -20,7 +20,7 @@ class CourseEditorViewSet(mixins.CreateModelMixin,
     permission_classes = [CanAppointCourseEditor]
     serializer_class = CourseEditorSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_class = CourseEditorFilter
+    filterset_class = CourseEditorFilter
     pagination_class = CursorPagination
 
     @property

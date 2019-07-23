@@ -20,7 +20,7 @@ class JournalViewSet(viewsets.ModelViewSet):
     queryset = JournalSerializer.prefetch_queryset(Journal.objects.all())
     serializer_class = JournalSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_class = JournalFilter
+    filterset_class = JournalFilter
     permission_classes = (IsAdminUser,)
     pagination_class = LargeResultsSetPagination
 

@@ -20,7 +20,7 @@ class PersonViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ PersonSerializer resource. """
 
     filter_backends = (DjangoFilterBackend,)
-    filter_class = filters.PersonFilter
+    filterset_class = filters.PersonFilter
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (DjangoModelPermissions,)

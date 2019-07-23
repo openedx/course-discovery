@@ -17,7 +17,7 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (IsAuthenticated,)
     filter_backends = (DjangoFilterBackend, rest_framework_filters.OrderingFilter)
-    filter_class = filters.ProgramFilter
+    filterset_class = filters.ProgramFilter
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.

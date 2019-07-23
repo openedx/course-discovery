@@ -45,7 +45,7 @@ def writable_request_wrapper(method):
 class CourseRunViewSet(viewsets.ModelViewSet):
     """ CourseRun resource. """
     filter_backends = (DjangoFilterBackend, OrderingFilter)
-    filter_class = filters.CourseRunFilter
+    filterset_class = filters.CourseRunFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_RUN_ID_REGEX
     ordering_fields = ('start',)
