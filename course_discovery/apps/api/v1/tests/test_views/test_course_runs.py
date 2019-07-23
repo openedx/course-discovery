@@ -172,13 +172,16 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             self.mock_post_to_studio(new_key, rerun_key=self.draft_course_run.key)
             course.canonical_course_run = self.draft_course_run
             course.save()
+            rerun = self.draft_course_run.key
         else:
             self.mock_post_to_studio(new_key)
+            rerun = None
 
         response = self.client.post(url, {
             'course': course.key,
             'start': '2000-01-01T00:00:00Z',
             'end': '2001-01-01T00:00:00Z',
+            'rerun': rerun,
         }, format='json')
 
         self.assertEqual(response.status_code, 201)
@@ -315,6 +318,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
                 'course': course.key,
                 'start': '2000-01-01T00:00:00Z',
                 'end': '2001-01-01T00:00:00Z',
+                'rerun': self.draft_course_run.key,
             }, format='json')
         self.assertEqual(response.status_code, 201)
 

@@ -184,9 +184,9 @@ class StudioAPI:
             'pacing_type': cls._run_pacing(course_run),
         }
 
-    def create_course_rerun_in_studio(self, course_run, old_course_run, user=None):
+    def create_course_rerun_in_studio(self, course_run, old_course_run_key, user=None):
         data = self.generate_data_for_studio_api(course_run, user=user)
-        return self._api.course_runs(old_course_run.key).rerun.post(data)
+        return self._api.course_runs(old_course_run_key).rerun.post(data)
 
     def create_course_run_in_studio(self, publisher_course_run, user=None):
         data = self.generate_data_for_studio_api(publisher_course_run, user=user)
@@ -217,9 +217,9 @@ class StudioAPI:
         # NOTE: We use PATCH to avoid overwriting existing team data that may have been manually input in Studio.
         return self._api.course_runs(self._run_key(course_run)).patch(data)
 
-    def push_to_studio(self, course_run, create=False, old_course_run=None, user=None):
-        if create and old_course_run:
-            response = self.create_course_rerun_in_studio(course_run, old_course_run, user=user)
+    def push_to_studio(self, course_run, create=False, old_course_run_key=None, user=None):
+        if create and old_course_run_key:
+            response = self.create_course_rerun_in_studio(course_run, old_course_run_key, user=user)
         elif create:
             response = self.create_course_run_in_studio(course_run, user=user)
         else:

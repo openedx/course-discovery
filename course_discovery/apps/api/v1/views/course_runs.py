@@ -169,10 +169,10 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         return super(CourseRunViewSet, self).list(request, *args, **kwargs)
 
     @classmethod
-    def push_to_studio(cls, request, course_run, create=False, old_course_run=None):
+    def push_to_studio(cls, request, course_run, create=False, old_course_run_key=None):
         if course_run.course.partner.studio_url:
             api = StudioAPI(course_run.course.partner.studio_api_client)
-            api.push_to_studio(course_run, create, old_course_run, user=request.user)
+            api.push_to_studio(course_run, create, old_course_run_key, user=request.user)
         else:
             log.info('Not pushing course run info for %s to Studio as partner %s has no studio_url set.',
                      course_run.key, course_run.course.partner.short_code)
@@ -212,7 +212,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # The serializer will attempt to retrieve the draft version of the Course
         course = Course.objects.filter_drafts().get(key=course_key)
         course = ensure_draft_world(course)
-        old_course_run = course.canonical_course_run
+        old_course_run_key = run_data.pop('rerun', None)
 
         serializer = self.get_serializer(data=run_data)
         serializer.is_valid(raise_exception=True)
@@ -224,12 +224,16 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         # Set canonical course run if needed (done this way to match historical behavior - but shouldn't this be
         # updated *each* time we make a new run?)
-        if not old_course_run:
+        if not course.canonical_course_run:
             course.canonical_course_run = course_run
             course.save()
+        elif not old_course_run_key:
+            # On a rerun, only set the old course run key to the canonical key if a rerun hasn't been provided
+            # This will prevent a breaking change if users of this endpoint don't choose to provide a key on rerun
+            old_course_run_key = course.canonical_course_run.key
 
         # And finally, push run to studio
-        self.push_to_studio(self.request, course_run, create=True, old_course_run=old_course_run)
+        self.push_to_studio(self.request, course_run, create=True, old_course_run_key=old_course_run_key)
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
