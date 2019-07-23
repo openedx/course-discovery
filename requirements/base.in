@@ -1,6 +1,4 @@
-beautifulsoup4==4.5.1
-boto==2.42.0
-cryptography
+beautifulsoup4
 django
 django-admin-sortable2==0.7
 django-autocomplete-light==3.1.8
@@ -44,12 +42,12 @@ edx-drf-extensions
 edx-opaque-keys
 edx-rest-api-client
 elasticsearch
-html2text==2016.9.19
+html2text
 jsonfield==1.0.3
-markdown==2.6.6
-pillow==3.4.2
-pycountry==1.20
-python-dateutil==2.5.3
+markdown
+pillow
+pycountry
+python-dateutil
 pytz
 requests
 simple-salesforce

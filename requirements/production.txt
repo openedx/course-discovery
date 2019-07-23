@@ -5,13 +5,13 @@
 #    pip-compile --output-file=requirements/production.txt requirements/production.in
 #
 asn1crypto==0.24.0        # via cryptography
-beautifulsoup4==4.5.1
-boto==2.42.0
+beautifulsoup4==4.8.0
+boto==2.49.0              # via django-ses
 certifi==2019.6.16
 cffi==1.12.3              # via cryptography
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
-cryptography==2.7
+cryptography==2.7         # via pyopenssl
 defusedxml==0.6.0         # via djangorestframework-xml, python3-openid, social-auth-core
 django-admin-sortable2==0.7
 django-appconf==1.0.3     # via django-compressor
@@ -59,39 +59,39 @@ edx-opaque-keys==1.0.1
 edx-rest-api-client==1.9.2
 elasticsearch==1.9.0
 future==0.17.1            # via pyjwkest
-gevent==1.1.2
+gevent==1.4.0
 greenlet==0.4.15          # via gevent
-gunicorn==19.6.0
-html2text==2016.9.19
+gunicorn==19.9.0
+html2text==2018.1.9
 itypes==1.1.0             # via coreapi
 jinja2==2.10.1            # via coreschema
 jsonfield==1.0.3
 libsass==0.19.2           # via django-libsass
-markdown==2.6.6
+markdown==3.1.1
 markupsafe==1.1.1         # via jinja2
-mysqlclient==1.3.9
+mysqlclient==1.4.2.post1
 ndg-httpsclient==0.5.1    # via requests
-newrelic==4.8.0.110
+newrelic==4.20.1.121
 oauthlib==3.0.2           # via requests-oauthlib, social-auth-core
 openapi-codec==1.3.2      # via django-rest-swagger
 pbr==5.4.1                # via stevedore
-pillow==3.4.2
+pillow==6.1.0
 progressbar2==3.42.0      # via django-stdimage
 psutil==1.2.1             # via edx-django-utils, edx-drf-extensions
 pyasn1==0.4.5             # via ndg-httpsclient, requests
-pycountry==1.20
+pycountry==19.7.15
 pycparser==2.19           # via cffi
 pycryptodomex==3.8.2      # via pyjwkest
 pyjwkest==1.3.2           # via edx-drf-extensions, social-auth-core
 pyjwt==1.7.1              # via djangorestframework-jwt, edx-auth-backends, edx-rest-api-client, social-auth-core
 pymongo==3.8.0            # via edx-opaque-keys
 pyopenssl==19.0.0         # via ndg-httpsclient, requests
-python-dateutil==2.5.3
-python-memcached==1.58
+python-dateutil==2.8.0
+python-memcached==1.59
 python-utils==2.3.0       # via progressbar2
 python3-openid==3.1.0     # via social-auth-core
 pytz==2019.1
-pyyaml==3.12
+pyyaml==3.13
 rcssmin==1.0.6            # via django-compressor
 requests-oauthlib==1.2.0  # via social-auth-core
 requests[security]==2.11.1
@@ -104,9 +104,13 @@ six==1.12.0               # via cryptography, django-appconf, django-choices, dj
 slumber==0.7.1            # via edx-rest-api-client
 social-auth-app-django==1.2.0  # via edx-auth-backends
 social-auth-core[openidconnect]==1.7.0  # via edx-auth-backends, social-auth-app-django
+soupsieve==1.9.2          # via beautifulsoup4
 stevedore==1.30.1         # via edx-opaque-keys
 unicode-slugify==0.1.3
 unicodecsv==0.14.1        # via djangorestframework-csv
 unidecode==1.1.1          # via unicode-slugify
 uritemplate==3.0.0        # via coreapi
 urllib3==1.25.3           # via elasticsearch
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools==41.0.1        # via markdown
