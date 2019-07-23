@@ -47,7 +47,11 @@ def create_course_run_in_studio_receiver(sender, instance, created, **kwargs):  
         discovery_course_run = instance.discovery_counterpart_latest_by_start_date
 
         try:
-            response = api.push_to_studio(instance, create=True, old_course_run=discovery_course_run)
+            if discovery_course_run:
+                response = api.push_to_studio(instance, create=True, old_course_run_key=discovery_course_run.key)
+            else:
+                response = api.push_to_studio(instance, create=True)
+
         except SlumberBaseException as ex:
             logger.exception('Failed to create course run [%s] on Studio: %s', course.key, ex.content)
             raise
