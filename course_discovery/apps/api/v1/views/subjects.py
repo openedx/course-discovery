@@ -11,7 +11,7 @@ class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
     """ Subject resource. """
 
     filter_backends = (DjangoFilterBackend,)
-    filter_class = filters.SubjectFilter
+    filterset_class = filters.SubjectFilter
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (IsAuthenticated,)

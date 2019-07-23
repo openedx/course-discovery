@@ -16,7 +16,7 @@ class CharListFilter(filters.CharFilter):
 
 class JournalFilter(filters.FilterSet):
     status = filters.MultipleChoiceFilter(choices=JournalStatus.choices)
-    orgs = CharListFilter(name='organization__key', lookup_expr='in')
+    orgs = CharListFilter(field_name='organization__key', lookup_expr='in')
 
     class Meta:
         model = Journal

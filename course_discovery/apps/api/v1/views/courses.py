@@ -59,7 +59,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ Course resource. """
 
     filter_backends = (DjangoFilterBackend, rest_framework_filters.OrderingFilter)
-    filter_class = filters.CourseFilter
+    filterset_class = filters.CourseFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_ID_REGEX + '|' + COURSE_UUID_REGEX
     permission_classes = (IsAuthenticated, IsCourseEditorOrReadOnly,)

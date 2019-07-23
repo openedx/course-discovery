@@ -14,7 +14,7 @@ class OrganizationViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelVi
     """ Organization resource. """
 
     filter_backends = (DjangoFilterBackend,)
-    filter_class = filters.OrganizationFilter
+    filterset_class = filters.OrganizationFilter
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (IsAuthenticated,)

@@ -11,7 +11,7 @@ class TopicViewSet(viewsets.ReadOnlyModelViewSet):
     """ Topic resource. """
 
     filter_backends = (DjangoFilterBackend,)
-    filter_class = filters.TopicFilter
+    filterset_class = filters.TopicFilter
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (IsAuthenticated,)
