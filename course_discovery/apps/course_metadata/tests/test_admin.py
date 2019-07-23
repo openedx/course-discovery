@@ -362,7 +362,7 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
 
     def test_queryset_method_returns_all_programs(self):
         """ Verify that all programs pass the filter. """
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         program_filter = ProgramEligibilityFilter(None, {}, None, None)
         course_run = factories.CourseRunFactory()
@@ -381,7 +381,7 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
 
     def test_queryset_method_returns_eligible_programs(self):
         """ Verify that one click purchase eligible programs pass the filter. """
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         program_filter = ProgramEligibilityFilter(None, {self.parameter_name: 1}, None, None)
         course_run = factories.CourseRunFactory(end=None, enrollment_end=None,)

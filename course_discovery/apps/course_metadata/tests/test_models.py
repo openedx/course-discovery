@@ -544,14 +544,12 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run = CourseRunFactory(title='Test Title')
         self.assertEqual(course_run.slug, 'test-title')
 
-    @override_switch('publish_course_runs_to_marketing_site', active=True)
     def test_empty_slug_defined_on_save(self):
-        """ Verify the slug is defined on publication if it wasn't set already. """
-        with mock.patch.object(CourseRunMarketingSitePublisher, 'publish_obj', return_value=None):
-            self.course_run.slug = ''
-            self.course_run.title = 'Test Title'
-            self.course_run.save()
-            self.assertEqual(self.course_run.slug, 'test-title')
+        """ Verify the slug is defined on save if it wasn't set already. """
+        self.course_run.slug = ''
+        self.course_run.title = 'Test Title'
+        self.course_run.save()
+        self.assertEqual(self.course_run.slug, 'test-title')
 
     def test_program_types(self):
         """ Verify the property retrieves program types correctly based on programs. """

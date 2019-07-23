@@ -1365,13 +1365,6 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         return True
 
     def push_to_marketing_site(self, previous_obj):
-        if not self.slug:
-            # If we are pushing this object to marketing site, let's make sure slug is defined.
-            # Nowadays slugs will be defined at creation time by AutoSlugField for us, so we only need this code
-            # path for database rows that were empty before we started using AutoSlugField.
-            self.slug = CourseRun._meta.get_field('slug').create_slug(self, True)
-            self.save()
-
         publisher = CourseRunMarketingSitePublisher(self.course.partner)
         publisher.publish_obj(self, previous_obj=previous_obj)
 
