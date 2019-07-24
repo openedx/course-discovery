@@ -193,10 +193,24 @@ def load_related(pks_to_load, excluded_models):
             ]
 
         # Load new instances and add them to `results_by_model`.
+        # Use the *base* Django object manager.
+        # Otherwise, models that redefine `objects` may leave out objects
+        # that we want.
+        # For example, subclasses of DraftModelMixin redefine `objects`
+        # to exclude drafts, which would break this function.
+        all_objects = model._base_manager  # pylint: disable=protected-access
         objects = use_read_replica_if_available(
-            model.objects.filter(pk__in=pks_to_load)
+            all_objects.filter(pk__in=pks_to_load)
         )
-        results_by_model[model].update({obj.pk: obj for obj in objects})
+        objects_by_pk = {obj.pk: obj for obj in objects}
+        pks_failed_to_load = pks_to_load - set(objects_by_pk.keys())
+        if pks_failed_to_load:
+            raise Exception(
+                "Failed to load some objects required for fixture: " +
+                "Model = " + model._meta.label + ", "
+                "PKs of failed objects = " + str(pks_failed_to_load)
+            )
+        results_by_model[model].update(objects_by_pk)
 
         # For all relational fields on the model, update
         # `results_by_model` with holes for referenced instances that we
