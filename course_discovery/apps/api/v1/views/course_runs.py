@@ -16,7 +16,7 @@ from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrReadOnly
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
-from course_discovery.apps.api.utils import StudioAPI, data_has_changed, get_query_param
+from course_discovery.apps.api.utils import StudioAPI, get_query_param, reviewable_data_has_changed
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
@@ -286,7 +286,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(course_run, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
-        changed = data_has_changed(course_run, serializer.validated_data.items())
+        changed = reviewable_data_has_changed(
+            course_run, serializer.validated_data.items(), CourseRun.STATUS_CHANGE_EXEMPT_FIELDS)
         save_kwargs = {}
         response = self._update_course_run(course_run, draft, changed, serializer, request, save_kwargs)
 

@@ -51,19 +51,21 @@ def get_query_param(request, name):
     return cast2int(request.query_params.get(name), name)
 
 
-def data_has_changed(obj, new_key_vals):
+def reviewable_data_has_changed(obj, new_key_vals, exempt_fields=None):
     """
     Check whether serialized data for the object has changed.
 
     Args:
         obj (Object): Object representing the persisted state
         new_key_vals (dict_items): List of (key,value) tuples representing the new state
+        exempt_fields (list): List of field names where a change does not affect review status
 
     Returns:
-        bool for whether data for any fields has changed
+        bool for whether data for any reviewable fields has changed
     """
     changed = False
-    for key, new_value in new_key_vals:
+    exempt_fields = exempt_fields or []
+    for key, new_value in [x for x in new_key_vals if x[0] not in exempt_fields]:
         original_value = getattr(obj, key, None)
         if isinstance(new_value, list):
             field_class = obj.__class__._meta.get_field(key).__class__
