@@ -3,6 +3,7 @@ from copy import deepcopy
 from os import environ
 
 import certifi
+import memcache
 import MySQLdb
 import yaml
 
@@ -45,6 +46,9 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
     # Unpack media storage settings.
     # It's important we unpack here because of https://github.com/edx/configuration/pull/3307
     vars().update(MEDIA_STORAGE_BACKEND)
+
+# Reset our cache when memcache versions change
+CACHES['default']['KEY_PREFIX'] = CACHES['default'].get('KEY_PREFIX', '') + '_' + memcache.__version__
 
 if 'EXTRA_APPS' in locals():
     INSTALLED_APPS += EXTRA_APPS
