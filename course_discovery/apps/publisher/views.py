@@ -40,8 +40,8 @@ from course_discovery.apps.publisher.models import (
     PublisherUser, Seat, UserAttributes
 )
 from course_discovery.apps.publisher.utils import (
-    get_course_key, get_internal_users, has_role_for_course, is_internal_user, is_project_coordinator_user,
-    is_publisher_admin, make_bread_crumbs
+    get_internal_users, has_role_for_course, is_internal_user, is_project_coordinator_user, is_publisher_admin,
+    make_bread_crumbs
 )
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -76,11 +76,10 @@ COURSE_RUNS_COUNT_INDEX = 3
 
 def _get_discovery_course(publisher_course):
     """
-    Given a pubisher course, lookup the course_metadata course
+    Given a publisher course, look up the course_metadata course
     """
-    course_key = get_course_key(publisher_course)
     try:
-        return DiscoveryCourse.objects.get(key=course_key)
+        return publisher_course.discovery_counterpart
     except DiscoveryCourse.DoesNotExist:
         return None
 

@@ -383,7 +383,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         factories.CourseUserRoleFactory.create(
             course=self.course, role=PublisherUserRole.MarketingReviewer, user=UserFactory()
         )
-        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.organization_extension = factories.OrganizationExtensionFactory(organization__partner=self.partner)
         self.course.organizations.add(self.organization_extension.organization)
         self.user.groups.add(self.organization_extension.group)
 
@@ -659,11 +659,13 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         latest_run = self.course.course_runs.latest('created')
         factories.SeatFactory(course_run=latest_run, type=Seat.VERIFIED, price=verified_seat_price)
         factories.SeatFactory(course_run=latest_run, type=Seat.AUDIT)
+        self.course.number = 'Masters101'
+        self.course.save()
 
         masters_program_type = DiscoveryProgramType.objects.get(slug='masters')
         discovery_program = ProgramFactory(type=masters_program_type)
         discovery_curriculum = CurriculumFactory(program=discovery_program)
-        discovery_course = CourseFactory()
+        discovery_course = CourseFactory(partner=self.partner, key=self.course.key)
         CurriculumCourseMembershipFactory(
             course=discovery_course,
             curriculum=discovery_curriculum
@@ -674,8 +676,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
             discovery_course.canonical_course_run.seats.add(SeatFactory(type=DiscoverySeat.MASTERS))
             discovery_course.canonical_course_run.save()
 
-        with mock.patch('course_discovery.apps.publisher.views.get_course_key', return_value=discovery_course.key):
-            response = self.client.get(self.create_course_run_url_new)
+        response = self.client.get(self.create_course_run_url_new)
 
         response_content = BeautifulSoup(response.content)
         masters_block_attribute = response_content.find("div", {'id': "mastersTrackBlock"})
@@ -688,8 +689,7 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         # Verify that the box is checked if the canonical course run has a masters seat
         view = CreateCourseRunView()
         view.kwargs = {'parent_course_id': self.course.id}
-        with mock.patch('course_discovery.apps.publisher.views.get_course_key', return_value=discovery_course.key):
-            context_data = view.get_context_data()
+        context_data = view.get_context_data()
         self.assertEqual(last_run_masters_seat, context_data['seat_form'].initial['masters_track'])
 
     def test_credit_type_without_price(self):
@@ -3333,7 +3333,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         super(CourseRunEditViewTests, self).setUp()
 
         self.user = UserFactory()
-        self.organization_extension = factories.OrganizationExtensionFactory()
+        self.organization_extension = factories.OrganizationExtensionFactory(organization__partner=self.partner)
         self.group = self.organization_extension.group
         self.user.groups.add(self.group)
 
@@ -3997,7 +3997,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         discovery_program = ProgramFactory(type=masters_program_type)
         discovery_curriculum = CurriculumFactory(program=discovery_program)
         course_key = self.new_course.organizations.first().key + '+' + self.new_course.number
-        discovery_course = CourseFactory(key=course_key)
+        discovery_course = CourseFactory(partner=self.partner, key=course_key)
         CurriculumCourseMembershipFactory(
             course=discovery_course,
             curriculum=discovery_curriculum
@@ -4024,7 +4024,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         discovery_program = ProgramFactory(type=masters_program_type)
         discovery_curriculum = CurriculumFactory(program=discovery_program)
         course_key = self.new_course.organizations.first().key + '+' + self.new_course.number
-        discovery_course = CourseFactory(key=course_key)
+        discovery_course = CourseFactory(partner=self.partner, key=course_key)
         CurriculumCourseMembershipFactory(
             course=discovery_course,
             curriculum=discovery_curriculum

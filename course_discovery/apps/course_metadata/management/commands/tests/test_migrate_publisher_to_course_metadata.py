@@ -254,6 +254,66 @@ class TestMigratePublisherToCourseMetadata(TestCase):
         self.assertEqual(draft_course_run.end, publisher_course_run.end)
         self.assertEqual(draft_course_run.weeks_to_complete, publisher_course_run.length)
 
+    def test_pub_course_pointing_at_two_metadata_courses(self):
+        """
+        If a publisher course has two runs that each have their own CM courses, stitch them up right.
+
+        [Publisher] Course 101x has two course runs, 101x+1T2019 and 102x+1T2019. Course 102x does not exist.
+        [Course Metadata] Course 101x has one course run 101x+1T2019 and Course 102x has one course run
+            102x+1T2019.
+        """
+        key_2 = 'course-v1:{org}+{number}+1T2019'.format(org=self.org_1.key, number='102x')
+        publisher_run_2 = publisher_factories.CourseRunFactory(course=self.publisher_course_1, lms_course_id=key_2)
+        run_1 = factories.CourseRunFactory(course=self.course_1, key=self.publisher_course_run_1.lms_course_id,
+                                           max_effort=1234)
+        course_2 = factories.CourseFactory(partner=self.partner, key=self.org_1.key + '+102x', title="CM Course 2")
+        run_2 = factories.CourseRunFactory(course=course_2, key=key_2, max_effort=12345)
+
+        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
+        config.orgs.add(self.org_1)
+        Command().handle()
+
+        draft_1 = CourseRun.everything.get(key=run_1.key, draft=True)
+        draft_2 = CourseRun.everything.get(key=run_2.key, draft=True)
+        self.course_1.refresh_from_db()
+        course_2.refresh_from_db()
+
+        # Confirm that we found the right ones, we copied the data over, and their courses are correct
+        assert draft_1.course == self.course_1.draft_version
+        assert draft_2.course == course_2.draft_version
+        assert draft_1.max_effort == self.publisher_course_run_1.max_effort
+        assert draft_2.max_effort == publisher_run_2.max_effort
+
+    def test_pub_course_pointing_at_wrong_course_number(self):
+        """
+        If a publisher course wants to point to a CM course with a different number, stitch them up right.
+
+        This is a real situation from PCs trying to help course teams rename course numbers.
+
+        [Publisher] Course 101x has two course runs, 101x+1T2019 and 102x+1T2019. Course 102x does not exist.
+        [Course Metadata] Course 101x has no runs, while 102x has both course runs 101x+1T2019 and 102x+1T2019.
+        """
+        key_2 = 'course-v1:{org}+{number}+1T2019'.format(org=self.org_1.key, number='102x')
+        publisher_run_2 = publisher_factories.CourseRunFactory(course=self.publisher_course_1, lms_course_id=key_2)
+        course_2 = factories.CourseFactory(partner=self.partner, key=self.org_1.key + '+102x', title="CM Course 2")
+        run_1 = factories.CourseRunFactory(course=course_2, key=self.publisher_course_run_1.lms_course_id,
+                                           max_effort=1234)
+        run_2 = factories.CourseRunFactory(course=course_2, key=key_2, max_effort=12345)
+
+        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
+        config.orgs.add(self.org_1)
+        Command().handle()
+
+        draft_1 = CourseRun.everything.get(key=run_1.key, draft=True)
+        draft_2 = CourseRun.everything.get(key=run_2.key, draft=True)
+        course_2.refresh_from_db()
+
+        # Confirm that we found the right ones, we copied the data over, and their courses are correct
+        assert draft_1.course == course_2.draft_version
+        assert draft_2.course == course_2.draft_version
+        assert draft_1.max_effort == self.publisher_course_run_1.max_effort
+        assert draft_2.max_effort == publisher_run_2.max_effort
+
     @mock.patch(LOGGER_PATH)
     def test_handle_with_no_config(self, mock_logger):
         self.assertEqual(MigratePublisherToCourseMetadataConfig.objects.count(), 0)

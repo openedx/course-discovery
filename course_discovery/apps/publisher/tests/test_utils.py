@@ -9,6 +9,7 @@ from guardian.shortcuts import assign_perm
 from mock import Mock
 
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.course_metadata.tests import factories as cm_factories
 from course_discovery.apps.publisher.constants import (
     ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
 )
@@ -18,7 +19,7 @@ from course_discovery.apps.publisher.mixins import (
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
-    get_internal_users, has_role_for_course, is_email_notification_enabled, is_internal_user,
+    find_discovery_course, get_internal_users, has_role_for_course, is_email_notification_enabled, is_internal_user,
     is_project_coordinator_user, is_publisher_admin, is_publisher_user, make_bread_crumbs, parse_datetime_field
 )
 
@@ -230,3 +231,16 @@ class PublisherUtilsTests(TestCase):
         """ Verify that function return None if date string does not match any possible date format. """
         parsed_date = parse_datetime_field(invalid_date)
         self.assertIsNone(parsed_date)
+
+    def test_find_discovery_course(self):
+        cm_run1 = cm_factories.CourseRunFactory(course__partner=self.course.partner)
+        cm_run2 = cm_factories.CourseRunFactory(course__partner=self.course.partner)
+        pub_run1 = factories.CourseRunFactory(course=self.course, lms_course_id=cm_run1.key)
+        pub_run2 = factories.CourseRunFactory(course=self.course, lms_course_id=cm_run2.key)
+        pub_run_no_id = factories.CourseRunFactory(course=self.course)
+        pub_run_no_siblings = factories.CourseRunFactory()
+
+        assert find_discovery_course(pub_run1) == cm_run1.course
+        assert find_discovery_course(pub_run2) == cm_run2.course
+        assert find_discovery_course(pub_run_no_id) == cm_run2.course  # Most recent sibling run's course
+        assert find_discovery_course(pub_run_no_siblings) is None

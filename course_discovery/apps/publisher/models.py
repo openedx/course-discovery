@@ -488,14 +488,9 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     @cached_property
     def discovery_counterpart(self):
         try:
-            discovery_course = self.course.discovery_counterpart
-            return discovery_course.course_runs.get(key=self.lms_course_id)
+            return DiscoveryCourseRun.objects.get(key=self.lms_course_id)
         except ObjectDoesNotExist:
-            logger.info(
-                'Related discovery course run not found for [%s] with partner [%s] ',
-                self.course.key,
-                self.course.partner
-            )
+            logger.info('Related discovery course run not found for [%s]', self.lms_course_id)
             return None
 
     @property
