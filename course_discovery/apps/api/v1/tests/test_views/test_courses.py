@@ -812,6 +812,35 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(official_course_run.status, CourseRunStatus.Unpublished)
 
     @responses.activate
+    def test_patch_non_review_fields_does_not_reset_run_status(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed  # Triggers creation of official versions
+        draft_course_run.save()
+        official_course_run = draft_course_run.official_version
+        self.assertEqual(official_course_run.status, CourseRunStatus.Reviewed)
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+        patch_data = {
+            # The API is expecting the image to be base64 encoded. We are simulating that here.
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+            'video': {'src': 'https://new-videos-r-us/watch?t_s=5'},
+        }
+        response = self.client.patch(url, patch_data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        draft_course.refresh_from_db()
+        draft_course_run.refresh_from_db()
+        official_course_run.refresh_from_db()
+        self.assertEqual(draft_course_run.status, CourseRunStatus.Reviewed)
+        self.assertEqual(official_course_run.status, CourseRunStatus.Reviewed)
+
+    @responses.activate
     def test_update_creates_draft_audit_entitlement_if_none_exists(self):
         """
         When an official version has no entitlements, it could be an audit course so we can create

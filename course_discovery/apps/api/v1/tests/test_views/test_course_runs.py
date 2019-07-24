@@ -568,26 +568,31 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert draft_course_run.official_version.status == CourseRunStatus.Unpublished
 
     @responses.activate
-    def test_patch_put_reset_status_transcript_languages(self):
+    def test_patch_put_non_review_fields_does_not_reset_status(self):
         self.mock_patch_to_studio(self.draft_course_run.key)
         self.mock_ecommerce_publication()
         self.draft_course_run.status = CourseRunStatus.Reviewed
+        self.draft_course_run.go_live_date = datetime.datetime(2031, 1, 1, tzinfo=pytz.UTC)
         self.draft_course_run.save()
         official_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=False)
         assert official_course_run.status == CourseRunStatus.Reviewed
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
+        # alter fields that do not require re-approval
         response = self.client.put(url, {
             'course': self.draft_course_run.course.key,  # required, so we need for a put
-            'start': self.draft_course_run.start,  # required, so we need for a put
-            'end': self.draft_course_run.end,  # required, so we need for a put
-            # Have the same number of elements, as the original array
-            'transcript_languages': ['en-us'],  # just any language tag to force a difference
+            'start': self.draft_course_run.start + datetime.timedelta(days=1),  # required, so we need for a put
+            'end': self.draft_course_run.end + datetime.timedelta(days=1),  # required, so we need for a put
+            'go_live_date': self.draft_course_run.go_live_date + datetime.timedelta(days=1),
+            'min_effort': self.draft_course_run.min_effort + 1,
+            'max_effort': self.draft_course_run.max_effort + 1,
+            'weeks_to_complete': self.draft_course_run.weeks_to_complete + 1,
         }, format='json')
         assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
+        self.draft_course_run.refresh_from_db()
         draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
-        assert draft_course_run.status == CourseRunStatus.Unpublished
-        assert draft_course_run.official_version.status == CourseRunStatus.Unpublished
+        assert draft_course_run.status == CourseRunStatus.Reviewed
+        assert draft_course_run.official_version.status == CourseRunStatus.Reviewed
 
     @ddt.data(
         CourseRunStatus.Unpublished,

@@ -22,7 +22,7 @@ from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithRelatedChoices
-from course_discovery.apps.api.utils import data_has_changed, get_query_param
+from course_discovery.apps.api.utils import get_query_param, reviewable_data_has_changed
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -300,7 +300,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             image_data = ContentFile(base64.b64decode(imgstr), name='tmp.{extension}'.format(extension=ext))
             course.image.save(image_data.name, image_data)
 
-        changed = data_has_changed(course, serializer.validated_data.items())
+        changed = reviewable_data_has_changed(course, serializer.validated_data.items())
 
         # Then the course itself
         course = serializer.save()

@@ -905,6 +905,19 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
 
+    STATUS_CHANGE_EXEMPT_FIELDS = [
+        'start',
+        'end',
+        'go_live_date',
+        'staff',
+        'min_effort',
+        'max_effort',
+        'weeks_to_complete',
+        'language',
+        'transcript_languages',
+        'pacing_type',
+    ]
+
     class Meta:
         unique_together = (
             ('key', 'draft'),
