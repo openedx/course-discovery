@@ -58,7 +58,7 @@ docker-compose==1.23.2
 docker==3.6.0             # via docker-compose
 dockerpty==0.4.1          # via docker-compose
 docopt==0.6.2             # via docker-compose
-docutils==0.15            # via sphinx
+docutils==0.15.1          # via sphinx
 drf-dynamic-fields==0.3.1
 drf-extensions==0.5.0
 drf-haystack==1.8.2
@@ -126,7 +126,7 @@ pylint-plugin-utils==0.5  # via pylint-celery, pylint-django
 pylint==1.7.6             # via edx-lint, pylint-celery, pylint-django, pylint-plugin-utils
 pymongo==3.8.0            # via edx-opaque-keys
 pyopenssl==19.0.0         # via ndg-httpsclient, requests
-pyparsing==2.4.1          # via packaging
+pyparsing==2.4.0          # via packaging
 pytest-cov==2.7.1
 pytest-django-ordering==1.1.0
 pytest-django==3.5.1
