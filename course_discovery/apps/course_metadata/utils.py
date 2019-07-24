@@ -17,7 +17,7 @@ from stdimage.utils import UploadTo
 
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
-from course_discovery.apps.publisher.utils import get_course_key
+from course_discovery.apps.publisher.utils import find_discovery_course
 
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
 
@@ -468,7 +468,6 @@ def publish_to_course_metadata(partner, course_run, draft=False):
     )
 
     publisher_course = course_run.course
-    course_key = get_course_key(publisher_course)
 
     video = None
     if publisher_course.video_link:
@@ -488,12 +487,13 @@ def publish_to_course_metadata(partner, course_run, draft=False):
         'learner_testimonials': publisher_course.learner_testimonial,
     }
 
-    if draft:
+    discovery_course = find_discovery_course(course_run)
+    course_key = discovery_course.key if discovery_course else publisher_course.key
+
+    if draft and discovery_course:
         # We want to only save to drafts when draft=True so let's ensure the draft version of everything exists.
         # If it doesn't, we will just create it below.
-        discovery_course = Course.objects.filter_drafts(partner=partner, key=course_key).first()
-        if discovery_course:
-            ensure_draft_world(discovery_course)
+        ensure_draft_world(discovery_course)
 
     discovery_course, created = Course.everything.update_or_create(
         partner=partner, key=course_key, draft=draft, defaults=defaults
@@ -529,13 +529,10 @@ def publish_to_course_metadata(partner, course_run, draft=False):
         'external_key': course_run.external_key,
         'expected_program_name': program_name or '',
         'expected_program_type': expected_program_type,
+        'course': discovery_course,
     }
     discovery_course_run, __ = CourseRun.everything.update_or_create(
-        # Despite the course not being a part of the uniqueness constraint for the CourseRun model,
-        # we are passing it in for the scenario where we have moved the course run in the
-        # Course Metadata table to point to a different course. By including it in the parameters,
-        # this create will error instead of switching the Course Run to point to its Publisher Course.
-        key=course_run.lms_course_id, course=discovery_course, draft=draft, defaults=defaults
+        key=course_run.lms_course_id, draft=draft, defaults=defaults
     )
     discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
     discovery_course_run.staff.clear()

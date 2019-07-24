@@ -136,9 +136,19 @@ def parse_datetime_field(date):
         return
 
 
-def get_course_key(publisher_course):
-    """ Construct the course key to look up a course_metadata course from a publisher course """
-    return '{org}+{number}'.format(
-        org=publisher_course.organizations.first().key,
-        number=publisher_course.number
-    )
+def find_discovery_course(publisher_course_run):
+    """ Returns the discovery course where this publisher run already lives or should live. """
+    # Ideal situation is that it already exists
+    if publisher_course_run.discovery_counterpart:
+        return publisher_course_run.discovery_counterpart.course
+
+    # OK, it hasn't been pushed to the course metadata tables yet. Let's find where it will live.
+    # We are intentionally not calling course.discovery_counterpart, because that simply looks at the
+    # course key, and we want to be a little bit smarter than that if possible - sometimes course
+    # runs get manually moved around.
+    publisher_course = publisher_course_run.course
+    for run in publisher_course.course_runs:  # returns newest first
+        if run.discovery_counterpart:
+            return run.discovery_counterpart.course
+
+    return None
