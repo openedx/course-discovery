@@ -1,4 +1,5 @@
 import logging
+import re
 
 from dal import autocomplete
 from django.apps import apps
@@ -41,10 +42,16 @@ class OrganizationGroupUserView(ListAPIView):
     permission_classes = (IsAuthenticated, PublisherUserPermission)
     pagination_class = LargeResultsSetPagination
 
+    id_regex = re.compile(r'\d+')
+
     def get_queryset(self):
-        org_extension = get_object_or_404(OrganizationExtension, organization=self.kwargs.get('pk'))
-        queryset = User.objects.filter(groups__name=org_extension.group).order_by('full_name', 'username')
-        return queryset
+        pk = self.kwargs.get('pk')
+        if self.id_regex.fullmatch(pk):
+            lookup = {'organization': pk}
+        else:
+            lookup = {'organization__uuid': pk}
+        org_extension = get_object_or_404(OrganizationExtension, **lookup)
+        return User.objects.filter(groups__organization_extension=org_extension).order_by('full_name', 'username')
 
 
 class UpdateCourseRunView(UpdateAPIView):
