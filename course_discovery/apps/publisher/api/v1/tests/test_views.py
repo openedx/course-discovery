@@ -6,13 +6,12 @@ import mock
 import responses
 from django.test import override_settings
 from django.urls import reverse
-from rest_framework.test import APITestCase
 from testfixtures import LogCapture
 from waffle.testutils import override_switch
 
-from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.models import Currency
-from course_discovery.apps.core.tests.factories import PartnerFactory, StaffUserFactory, UserFactory
+from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
@@ -38,8 +37,6 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
 
     def setUp(self):
         super().setUp()
-        self.partner = PartnerFactory()
-        self.client = self.client_class(SERVER_NAME=self.partner.site.domain)
         self.user = StaffUserFactory()
         self.client.force_login(self.user)
 

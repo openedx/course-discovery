@@ -6,7 +6,6 @@ import ddt
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.db import IntegrityError
-from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
 from mock import mock, patch
@@ -14,7 +13,7 @@ from opaque_keys.edx.keys import CourseKey
 from testfixtures import LogCapture
 from waffle.testutils import override_switch
 
-from course_discovery.apps.api.tests.mixins import SiteMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import CourseRunStatus as DiscoveryCourseRunStatus
@@ -31,10 +30,10 @@ from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE, factories
 
 
 @ddt.ddt
-class CourseRoleAssignmentViewTests(SiteMixin, TestCase):
+class CourseRoleAssignmentViewTests(APITestCase):
 
     def setUp(self):
-        super(CourseRoleAssignmentViewTests, self).setUp()
+        super().setUp()
         self.course = factories.CourseFactory()
 
         # Create an internal user group and assign four users because we have
@@ -142,10 +141,10 @@ class CourseRoleAssignmentViewTests(SiteMixin, TestCase):
         self.assertEqual(len(mail.outbox), 1)
 
 
-class OrganizationGroupUserViewTests(SiteMixin, TestCase):
+class OrganizationGroupUserViewTests(APITestCase):
 
     def setUp(self):
-        super(OrganizationGroupUserViewTests, self).setUp()
+        super().setUp()
 
         self.user = UserFactory.create(username="test_user", password=USER_PASSWORD)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
@@ -158,14 +157,13 @@ class OrganizationGroupUserViewTests(SiteMixin, TestCase):
         organization_extension.group.user_set.add(*[self.org_user1, self.org_user2])
         self.organization = organization_extension.organization
 
-    def test_get_organization_user_group_with_publisher_user_permissions(self):
-        """
-        Verify that view returns list of users associated with the group related to given organization id with
-        login users is associated with any publisher group.
-        """
-        response = self.client.get(
-            path=self._get_organization_group_user_url(self.organization.id), content_type=JSON_CONTENT_TYPE
-        )
+    def query(self, org_id=None):
+        if org_id is None:
+            org_id = self.organization.id
+        url = reverse('publisher:api:organization_group_users', kwargs={'pk': org_id})
+        return self.client.get(path=url, content_type=JSON_CONTENT_TYPE)
+
+    def assertExpectedUsers(self, response):
         self.assertEqual(response.status_code, 200)
         expected_results = [
             {
@@ -179,16 +177,26 @@ class OrganizationGroupUserViewTests(SiteMixin, TestCase):
                 "email": self.org_user2.email,
             }
         ]
+        self.assertCountEqual(expected_results, response.json()['results'])
 
-        self.assertIn(expected_results[0], json.loads(response.content.decode("utf-8"))["results"])
-        self.assertIn(expected_results[1], json.loads(response.content.decode("utf-8"))["results"])
+    def test_happy_path(self):
+        """
+        Verify that view returns list of users associated with the group related to given organization id with
+        login users is associated with any publisher group.
+        """
+        response = self.query()
+        self.assertExpectedUsers(response)
+
+    def test_num_queries(self):
+        view = views.OrganizationGroupUserView(kwargs={'pk': str(self.organization.id)})
+        with self.assertNumQueries(2, threshold=0):  # one for Org Ext, one for users
+            list(view.get_queryset())
 
     def test_get_organization_not_found(self):
         """
         Verify that view returns status=404 if organization is not found in OrganizationExtension.
         """
-        response = self.client.get(path=self._get_organization_group_user_url(org_id=0000),
-                                   content_type=JSON_CONTENT_TYPE)
+        response = self.query(org_id=0)
         self.assertEqual(response.status_code, 404)
 
     def test_get_organization_user_group_without_publisher_user_permissions(self):
@@ -197,22 +205,20 @@ class OrganizationGroupUserViewTests(SiteMixin, TestCase):
         with any publisher group.
         """
         self.user.groups.remove(self.internal_user_group)
-        response = self.client.get(
-            path=self._get_organization_group_user_url(self.organization.id), content_type=JSON_CONTENT_TYPE
-        )
+        response = self.query()
         self.assertEqual(response.status_code, 403)
 
-    def _get_organization_group_user_url(self, org_id):
-        return reverse(
-            'publisher:api:organization_group_users', kwargs={'pk': org_id}
-        )
+    def test_get_organization_by_uuid(self):
+        """ Verify that endpoint accepts a UUID. """
+        response = self.query(org_id=self.organization.uuid)
+        self.assertExpectedUsers(response)
 
 
 @override_switch('enable_publisher_email_notifications', True)
-class UpdateCourseRunViewTests(SiteMixin, TestCase):
+class UpdateCourseRunViewTests(APITestCase):
 
     def setUp(self):
-        super(UpdateCourseRunViewTests, self).setUp()
+        super().setUp()
         self.course_run = factories.CourseRunFactory()
         self.user = UserFactory()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
@@ -403,10 +409,10 @@ class UpdateCourseRunViewTests(SiteMixin, TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
 
-class CourseRevisionDetailViewTests(SiteMixin, TestCase):
+class CourseRevisionDetailViewTests(APITestCase):
 
     def setUp(self):
-        super(CourseRevisionDetailViewTests, self).setUp()
+        super().setUp()
         self.course = factories.CourseFactory()
         self.course.title = "updated title"
         self.course.save()
@@ -458,10 +464,10 @@ class CourseRevisionDetailViewTests(SiteMixin, TestCase):
 
 
 @override_switch('enable_publisher_email_notifications', True)
-class ChangeCourseStateViewTests(SiteMixin, TestCase):
+class ChangeCourseStateViewTests(APITestCase):
 
     def setUp(self):
-        super(ChangeCourseStateViewTests, self).setUp()
+        super().setUp()
         self.course_state = factories.CourseStateFactory(name=CourseStateChoices.Draft)
         self.user = UserFactory()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
@@ -614,10 +620,10 @@ class ChangeCourseStateViewTests(SiteMixin, TestCase):
 
 
 @override_switch('enable_publisher_email_notifications', True)
-class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
+class ChangeCourseRunStateViewTests(APITestCase):
 
     def setUp(self):
-        super(ChangeCourseRunStateViewTests, self).setUp()
+        super().setUp()
         self.seat = factories.SeatFactory(type=Seat.VERIFIED, price=2)
         self.course_run = self.seat.course_run
 
@@ -828,10 +834,10 @@ class ChangeCourseRunStateViewTests(SiteMixin, TestCase):
         self.assertIn('has been published', mail.outbox[0].body.strip())
 
 
-class RevertCourseByRevisionTests(SiteMixin, TestCase):
+class RevertCourseByRevisionTests(APITestCase):
 
     def setUp(self):
-        super(RevertCourseByRevisionTests, self).setUp()
+        super().setUp()
         self.course = factories.CourseFactory(title='first title')
 
         # update title so that another revision created
@@ -892,11 +898,11 @@ class RevertCourseByRevisionTests(SiteMixin, TestCase):
         return self.client.put(path=course_revision_path)
 
 
-class CoursesAutoCompleteTests(SiteMixin, TestCase):
+class CoursesAutoCompleteTests(APITestCase):
     """ Tests for course autocomplete."""
 
     def setUp(self):
-        super(CoursesAutoCompleteTests, self).setUp()
+        super().setUp()
         self.user = UserFactory()
         self.course = factories.CourseFactory(title='Test course 1')
         self.course2 = factories.CourseFactory(title='Test course 2')
@@ -979,10 +985,10 @@ class CoursesAutoCompleteTests(SiteMixin, TestCase):
         self.assertEqual(len(data['results']), expected_length)
 
 
-class AcceptAllByRevisionTests(SiteMixin, TestCase):
+class AcceptAllByRevisionTests(APITestCase):
 
     def setUp(self):
-        super(AcceptAllByRevisionTests, self).setUp()
+        super().setUp()
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
