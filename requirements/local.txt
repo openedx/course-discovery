@@ -58,7 +58,7 @@ docker-compose==1.23.2
 docker==3.6.0             # via docker-compose
 dockerpty==0.4.1          # via docker-compose
 docopt==0.6.2             # via docker-compose
-docutils==0.15.1          # via sphinx
+docutils==0.15.1.post1    # via sphinx
 drf-dynamic-fields==0.3.1
 drf-extensions==0.5.0
 drf-haystack==1.8.2
@@ -126,14 +126,14 @@ pylint-plugin-utils==0.5  # via pylint-celery, pylint-django
 pylint==1.7.6             # via edx-lint, pylint-celery, pylint-django, pylint-plugin-utils
 pymongo==3.8.0            # via edx-opaque-keys
 pyopenssl==19.0.0         # via ndg-httpsclient, requests
-pyparsing==2.4.0          # via packaging
+pyparsing==2.4.1.1        # via packaging
 pytest-cov==2.7.1
-pytest-django-ordering==1.1.0
+pytest-django-ordering==1.2.0
 pytest-django==3.5.1
 pytest-forked==1.0.2      # via pytest-xdist
 pytest-responses==0.4.0
 pytest-xdist==1.29.0
-pytest==4.6.4
+pytest==5.0.1
 python-dateutil==2.8.0
 python-utils==2.3.0       # via progressbar2
 python3-openid==3.1.0     # via social-auth-core
@@ -149,7 +149,7 @@ selenium==3.141.0
 semantic-version==2.6.0   # via edx-drf-extensions
 simple-salesforce==0.74.3
 simplejson==3.16.0        # via django-rest-swagger
-six==1.12.0               # via astroid, cryptography, django-appconf, django-extensions, django-simple-history, django-taggit-serializer, djangorestframework-csv, docker-compose, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, freezegun, libsass, mock, packaging, pathlib2, progressbar2, pyjwkest, pylint, pyopenssl, pytest, pytest-xdist, python-dateutil, python-utils, responses, social-auth-app-django, social-auth-core, stevedore, transifex-client, unicode-slugify, websocket-client
+six==1.12.0               # via astroid, cryptography, django-appconf, django-extensions, django-simple-history, django-taggit-serializer, djangorestframework-csv, docker-compose, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, faker, freezegun, libsass, mock, packaging, pathlib2, progressbar2, pyjwkest, pylint, pyopenssl, pytest-xdist, python-dateutil, python-utils, responses, social-auth-app-django, social-auth-core, stevedore, transifex-client, unicode-slugify, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==1.9.0    # via sphinx
 social-auth-app-django==1.2.0  # via edx-auth-backends
