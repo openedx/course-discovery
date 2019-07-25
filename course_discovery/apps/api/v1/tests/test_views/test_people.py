@@ -178,7 +178,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all people with the publisher user """
         response = self.client.get(self.people_list_url)
         self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['results'], self.serialize_person(Person.objects.all(), many=True))
+        self.assertCountEqual(response.data['results'], self.serialize_person(Person.objects.all(), many=True))
 
     def test_list_different_partner(self):
         """ Verify the endpoint only shows people for the current partner. """
@@ -187,7 +187,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(self.people_list_url)
         self.assertEqual(response.status_code, 200)
         # Make sure the list does not include the new person above
-        self.assertListEqual(response.data['results'], self.serialize_person([self.person], many=True))
+        self.assertCountEqual(response.data['results'], self.serialize_person([self.person], many=True))
 
     def test_list_filter_by_slug(self):
         """ Verify the endpoint allows people to be filtered by slug. """
@@ -196,7 +196,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         url = '{root}?slug={slug}'.format(root=self.people_list_url, slug=person.slug)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['results'], self.serialize_person([person], many=True))
+        self.assertCountEqual(response.data['results'], self.serialize_person([person], many=True))
 
     def test_with_no_org(self):
         org1 = OrganizationFactory()
@@ -243,7 +243,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.data['results']), 2)
-            self.assertEqual(response.data['results'], self.serialize_person([person1, person2], many=True))
+            self.assertCountEqual(response.data['results'], self.serialize_person([person1, person2], many=True))
 
     @override_switch('publish_person_to_marketing_site', False)
     def test_create_without_waffle_switch(self):
