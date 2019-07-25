@@ -271,7 +271,7 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
 
 
 @ddt.ddt
-class TestProgramFixtureView(APITestCase):
+class ProgramFixtureViewTests(APITestCase):
 
     def setUp(self):
         super().setUp()
@@ -309,7 +309,8 @@ class TestProgramFixtureView(APITestCase):
             authoring_organizations=orgs, type=self.program_type
         )
         curr = CurriculumFactory(program=program)
-        course1 = CourseFactory()
+        course1_draft = CourseFactory(draft=True)
+        course1 = CourseFactory(draft_version=course1_draft)
         _run1a = CourseRunFactory(course=course1)
         _run1b = CourseRunFactory(course=course1)
         course2 = CourseFactory()
@@ -334,43 +335,43 @@ class TestProgramFixtureView(APITestCase):
         self.assertEqual(response.status_code, 200)
         fixture = json.loads(response.content.decode('utf-8'))
 
-        expected_counts_by_model = {
-            Organization: 2,
-            Program: 3,
-            Curriculum: 3,
-            Course: 6,
-            CourseRun: 12,
-            CurriculumCourseMembership: 6,
-            CurriculumCourseRunExclusion: 3,
-            ProgramType: 1,
-            SeatType: 1,
-            AdditionalPromoArea: 6,
-            Image: 21,
-            LevelType: 6,
-            Video: 21,
-            LanguageTag: 12,
-        }
-        expected_counts_by_model_label = {
-            model._meta.label.lower(): n
-            for model, n in expected_counts_by_model.items()
+        # To make this tests less brittle, allow (inclusive) ranges for each model count.
+        # For some models (e.g. Course) we DO care about the exact count.
+        # For others (e.g. Video) we just want to make sure that they are there,
+        # but that we're not loading a crazy amount of them.
+        expected_count_ranges_by_model = {
+            Organization: (2, 2),
+            Program: (3, 3),
+            Curriculum: (3, 3),
+            Course: (9, 9),
+            CourseRun: (12, 12),
+            CurriculumCourseMembership: (6, 6),
+            CurriculumCourseRunExclusion: (3, 3),
+            ProgramType: (1, 1),
+            SeatType: (1, 1),
+            AdditionalPromoArea: (5, 15),
+            Image: (20, 60),
+            LevelType: (5, 15),
+            Video: (20, 60),
+            LanguageTag: (10, 30),
         }
 
         actual_appearances_by_model_label = defaultdict(set)
         for record in fixture:
             pk = record['pk']
             model_label = record['model']
+            # Assert no duplicate objects
             self.assertNotIn(pk, actual_appearances_by_model_label[model_label])
             actual_appearances_by_model_label[model_label].add(pk)
-        actual_counts_by_model_label = {
-            model_label: len(appearances)
-            for model_label, appearances
-            in actual_appearances_by_model_label.items()
-        }
 
-        self.maxDiff = None
-        self.assertDictEqual(
-            actual_counts_by_model_label, expected_counts_by_model_label
-        )
+        for model, (min_expected, max_expected) in expected_count_ranges_by_model.items():
+            model_label = model._meta.label_lower
+            actual_count = len(actual_appearances_by_model_label[model_label])
+            err_string = "object count of {} for {} outside expected range [{}, {}]".format(
+                actual_count, model_label, min_expected, max_expected
+            )
+            self.assertGreaterEqual(actual_count, min_expected, err_string)
+            self.assertLessEqual(actual_count, max_expected, err_string)
 
     def test_401(self):
         response = self.get(None)
@@ -410,3 +411,18 @@ class TestProgramFixtureView(APITestCase):
         with self.assertNumQueries(self.queries(1)):
             response = self.get([program.uuid, bad_uuid])
         self.assertEqual(response.status_code, 404)
+
+    def test_exception_failed_load_objects(self):
+        self.login_staff()
+        org = OrganizationFactory()
+        program = self.create_program([org])
+        course_base_manager = Course._base_manager  # pylint: disable=protected-access
+        with mock.patch.object(
+                course_base_manager,
+                'filter',
+                autospec=True,
+                return_value=course_base_manager.none(),
+        ):
+            with self.assertRaises(Exception) as ex:
+                self.get([program.uuid])
+        self.assertIn('Failed to load', str(ex.exception))
