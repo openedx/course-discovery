@@ -63,6 +63,21 @@ class Command(BaseCommand):
             help='The short code for a specific partner to refresh.'
         )
 
+    def get_access_token(self, url, client_id, client_secret, token_type):
+        """
+        Obtain an access token from the LMS for general API access.
+        """
+        try:
+            access_token, __ = EdxRestApiClient.get_oauth_access_token(
+                url, client_id, client_secret, token_type
+            )
+        except Exception:
+            logger.exception('No access token acquired through client_credential flow.')
+            raise
+        username = jwt.decode(access_token, verify=False)['preferred_username']
+        kwargs = {'username': username} if username else {}
+        return access_token, kwargs
+
     def handle(self, *args, **options):
         # We only want to invalidate the API response cache once data loading
         # completes. Disconnecting the api_change_receiver function from post_save
@@ -85,20 +100,6 @@ class Command(BaseCommand):
 
         token_type = 'JWT'
         for partner in partners:
-            logger.info('Retrieving access token for partner [{}]'.format(partner.short_code))
-
-            try:
-                access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                    '{root}/access_token'.format(root=partner.oauth2_provider_url.strip('/')),
-                    partner.oauth2_client_id,
-                    partner.oauth2_client_secret,
-                    token_type=token_type
-                )
-            except Exception:
-                logger.exception('No access token acquired through client_credential flow.')
-                raise
-            username = jwt.decode(access_token, verify=False)['preferred_username']
-            kwargs = {'username': username} if username else {}
 
             # The Linux kernel implements copy-on-write when fork() is called to create a new
             # process. Pages that the parent and child processes share, such as the database
@@ -131,6 +132,7 @@ class Command(BaseCommand):
             courses_exist = Course.objects.filter(partner=partner).exists()
             is_threadsafe = courses_exist and waffle.switch_is_active('threaded_metadata_write')
             max_workers = DataLoaderConfig.get_solo().max_workers
+            access_token_url = '{root}/access_token'.format(root=partner.oauth2_provider_url.strip('/'))
 
             logger.info(
                 'Command is{negation} using threads to write data.'.format(negation='' if is_threadsafe else ' not')
@@ -158,7 +160,21 @@ class Command(BaseCommand):
             )
 
             if waffle.switch_is_active('parallel_refresh_pipeline'):
-                for stage in pipeline:
+                for stage_num, stage in enumerate(pipeline):
+
+                    # Retrieve a new access token for each stage of the pipeline, so that the access token
+                    # won't timeout between long data loads via the APIs used.
+                    logger.info(
+                        'Retrieving access token for partner [%s] - stage %s',
+                        partner.short_code, stage_num
+                    )
+                    access_token, kwargs = self.get_access_token(
+                        access_token_url,
+                        partner.oauth2_client_id,
+                        partner.oauth2_client_secret,
+                        token_type
+                    )
+
                     with concurrent.futures.ProcessPoolExecutor() as executor:
                         for loader_class, api_url, max_workers in stage:
                             if api_url:
@@ -177,6 +193,20 @@ class Command(BaseCommand):
             else:
                 # Flatten pipeline and run serially.
                 for loader_class, api_url, max_workers in itertools.chain(*(stage for stage in pipeline)):
+
+                    # Retrieve a new access token for each flattened stage of the pipeline, so that the access token
+                    # won't timeout between long data loads via the APIs used.
+                    logger.info(
+                        'Retrieving access token for partner [%s] - api_url: %s',
+                        partner.short_code, api_url
+                    )
+                    access_token, kwargs = self.get_access_token(
+                        access_token_url,
+                        partner.oauth2_client_id,
+                        partner.oauth2_client_secret,
+                        token_type
+                    )
+
                     if api_url:
                         logger.info('Executing Loader [{}]'.format(api_url))
                         execute_loader(
