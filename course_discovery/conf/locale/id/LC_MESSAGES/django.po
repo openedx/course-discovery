@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2019-07-19 07:41+0000\n"
+"PO-Revision-Date: 2019-07-28 17:42+0000\n"
 "Last-Translator: Aprisa Chrysantina <aprisa.chrysantina@gmail.com>\n"
 "Language-Team: Indonesian (http://www.transifex.com/open-edx/edx-platform/language/id/)\n"
 "MIME-Version: 1.0\n"
@@ -30,7 +30,7 @@ msgstr "Tidak ditemui nama pengguna [{username}]."
 msgid ""
 "Only staff users are permitted to filter by username. Remove the username "
 "parameter."
-msgstr ""
+msgstr "Hanya staf yang dapat menyaring berdasar nama pengguna. Hilangkan parameter nama pengguna."
 
 #: apps/api/serializers.py
 msgid "Number of courses contained in this catalog"
@@ -38,32 +38,32 @@ msgstr "Jumlah kursus yang terdapat dalam katalog ini"
 
 #: apps/api/serializers.py
 msgid "Usernames of users with explicit access to view this catalog"
-msgstr ""
+msgstr "Nama pengguna dengan akses untuk melihat katalog ini"
 
 #: apps/api/serializers.py
 msgid "Language in which the course is administered"
-msgstr ""
+msgstr "Bahasa yang terdaftar untuk kursus ini"
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course run IDs to boolean values"
-msgstr ""
+msgstr "Kamus pemetaan kursus mengubah ID menjadi nilai boolean"
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course IDs to boolean values"
-msgstr ""
+msgstr "Kamus pemetaan kursus ID menjadi nilai boolean"
 
 #: apps/api/serializers.py
 msgid "Languages that course runs in this program are offered in."
-msgstr ""
+msgstr "Bahasa yang terdaftar untuk kursus ini."
 
 #: apps/api/serializers.py
 msgid ""
 "Languages that course runs in this program have available transcripts in."
-msgstr ""
+msgstr "Bahasa yang terdaftar dan memiliki transkrip untuk kursus ini."
 
 #: apps/api/views.py
 msgid "You are not permitted to access the API documentation."
-msgstr ""
+msgstr "Anda tidak diperkenankan mengakses dokumentasi API."
 
 #: apps/catalogs/models.py
 msgid "Catalog name"
@@ -101,28 +101,28 @@ msgstr "Pengaturan API"
 
 #: apps/core/admin.py
 msgid "Configure the APIs that will be used to retrieve data."
-msgstr ""
+msgstr "Konfigurasikan API yang akan digunakan untuk memanggil data."
 
 #: apps/core/admin.py
 msgid "Marketing Site Configuration"
-msgstr ""
+msgstr "Konfigurasi Situs Marketing"
 
 #: apps/core/admin.py
 msgid ""
 "Configure the marketing site URLs that will be used to retrieve data and "
 "create URLs."
-msgstr ""
+msgstr "Konfigurasikan URL situs marketing yang akan digunakan untuk memanggil data dan membuat URL."
 
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
 #: apps/core/forms.py
 #, python-brace-format
 msgid "period must be one of {period_choices}."
-msgstr ""
+msgstr "periode harus dipilih dari {period_choices}."
 
 #: apps/core/forms.py
 msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
-msgstr ""
+msgstr "'tingkat' harus dalam bentuk yang dianjurkan DRF, misal '100/jam'."
 
 #: apps/core/models.py
 msgid "Full Name"
@@ -130,24 +130,24 @@ msgstr "Nama Lengkap"
 
 #: apps/core/models.py
 msgid "Referral Tracking ID"
-msgstr ""
+msgstr "ID Pelacakan Rujukan"
 
 #: apps/core/models.py
 msgid ""
 "The rate of requests to limit this user to. The format is specified by "
 "Django Rest Framework (see http://www.django-rest-framework.org/api-"
 "guide/throttling/)."
-msgstr ""
+msgstr "Tingkat permintaan yang dibatasi untuk pengguna ini. Format ditentukan oleh Django Rest Framework (lihat http://www.django-rest-framework.org/api-guide/throttling/)."
 
 #: apps/core/models.py
 msgid "Short Code"
-msgstr ""
+msgstr "Kode Singkat"
 
 #: apps/core/models.py
 msgid ""
 "Convenient code/slug used to identify this Partner (e.g. for management "
 "commands.)"
-msgstr ""
+msgstr "Kode singkat/slug untuk mengidentifikasi Mitra (contoh, untuk perintah manajemen.)"
 
 #: apps/core/models.py
 msgid "Courses API URL"
@@ -159,124 +159,124 @@ msgstr "URL API E-Commerce"
 
 #: apps/core/models.py
 msgid "Organizations API URL"
-msgstr ""
+msgstr "URL API Organisasi"
 
 #: apps/core/models.py
 msgid "Programs API URL"
-msgstr ""
+msgstr "URL API Program"
 
 #: apps/core/models.py
 msgid "Marketing Site API URL"
-msgstr ""
+msgstr "URL API Situs Marketing"
 
 #: apps/core/models.py
 msgid "Marketing Site URL"
-msgstr ""
+msgstr "URL Situs Marketing"
 
 #: apps/core/models.py
 msgid "Marketing Site API Username"
-msgstr ""
+msgstr "Nama Pengguna API Situs Marketing"
 
 #: apps/core/models.py
 msgid "Marketing Site API Password"
-msgstr ""
+msgstr "Sandi API Situs Marketing"
 
 #: apps/core/models.py
 msgid "OpenID Connect URL"
-msgstr ""
+msgstr "URL OpenID Connect"
 
 #: apps/core/models.py
 msgid "OpenID Connect Key"
-msgstr ""
+msgstr "Kunci OpenID Connect"
 
 #: apps/core/models.py
 msgid "OpenID Connect Secret"
-msgstr ""
+msgstr "Rahasia OpenID Connect"
 
 #: apps/core/models.py apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Studio URL"
-msgstr ""
+msgstr "URL Studio"
 
 #: apps/core/models.py
 msgid "LMS URL"
-msgstr ""
+msgstr "URL LMS"
 
 #: apps/core/models.py
 msgid "Partner"
-msgstr ""
+msgstr "Mitra"
 
 #: apps/core/models.py
 msgid "Partners"
-msgstr ""
+msgstr "Mitra"
 
 #: apps/course_metadata/admin.py
 #, python-brace-format
 msgid ""
 "An error occurred while publishing the {model} to the marketing site. Please"
 " try again. If the error persists, please contact the Engineering Team."
-msgstr ""
+msgstr "Terjadi kesalahan saat menerbitkan {model} ke situs marketing. Silakan coba kembali. Jika kesalahan masih terjadi, silakan hubungi Tim Teknis."
 
 #: apps/course_metadata/admin.py
 msgid "eligible for one-click purchase"
-msgstr ""
+msgstr "dapat dibeli dengan satu-klik"
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "Yes"
-msgstr ""
+msgstr "Ya"
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "No"
-msgstr ""
+msgstr "Tidak"
 
 #: apps/course_metadata/admin.py
 msgid "Included course runs"
-msgstr ""
+msgstr "Termasuk kursus berjalan"
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
 msgid "Published"
-msgstr ""
+msgstr "Telah diterbitkan"
 
 #: apps/course_metadata/choices.py
 msgid "Unpublished"
-msgstr ""
+msgstr "Belum diterbitkan"
 
 #. Translators: Instructor-paced refers to course runs that operate on a
 #. schedule set by the instructor,
 #. similar to a normal university course.
 #: apps/course_metadata/choices.py
 msgid "Instructor-paced"
-msgstr ""
+msgstr "Terjadwal"
 
 #. Translators: Self-paced refers to course runs that operate on the student's
 #. schedule.
 #: apps/course_metadata/choices.py
 msgid "Self-paced"
-msgstr ""
+msgstr "Jadwal bebasa"
 
 #: apps/course_metadata/choices.py
 msgid "Active"
-msgstr ""
+msgstr "Aktif"
 
 #: apps/course_metadata/choices.py
 msgid "Retired"
-msgstr ""
+msgstr "Sudah berhenti"
 
 #: apps/course_metadata/choices.py
 msgid "Deleted"
-msgstr ""
+msgstr "Sudah dihapus"
 
 #: apps/course_metadata/forms.py
 msgid "Programs can only be activated if they have a banner image."
-msgstr ""
+msgstr "Program hanya dapat diaktifkan jika memiliki gambar banner."
 
 #: apps/course_metadata/models.py
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: apps/course_metadata/models.py
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: apps/course_metadata/models.py
 msgid "Blog"
@@ -284,41 +284,41 @@ msgstr "Blog"
 
 #: apps/course_metadata/models.py
 msgid "Others"
-msgstr ""
+msgstr "Lainnya"
 
 #: apps/course_metadata/models.py
 msgid "UUID"
-msgstr ""
+msgstr "UUID"
 
 #: apps/course_metadata/models.py
 msgid "Leave this field blank to have the value generated automatically."
-msgstr ""
+msgstr "Kosongkan kolom ini untuk mendapatkan nilai secara otomatis."
 
 #: apps/course_metadata/models.py
 msgid "Subject model translations"
-msgstr ""
+msgstr "Terjemahan model subjek"
 
 #: apps/course_metadata/models.py
 msgid "Topic model translations"
-msgstr ""
+msgstr "Terjemahan model topik"
 
 #: apps/course_metadata/models.py
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen. This key will be used in the course's course key."
-msgstr ""
+msgstr "Mohon tidak menggunakan spasi atau karakter khusus selain titik, garis bawah atau tanda hubung. Kunci ini akan digunakan dalam kunci kursus."
 
 #: apps/course_metadata/models.py
 msgid ""
 "Logo to be displayed on certificates. If this logo is the same as "
 "logo_image_url, copy and paste the same value to both fields."
-msgstr ""
+msgstr "Logo akan ditampilkan dalam sertifikat. Jika logo ini sama dengan logo_image_url, salin dan tempel nilai yang sama ke keduanya."
 
 #: apps/course_metadata/models.py
 msgid ""
 "Pick a tag from the suggestions. To make a new tag, add a comma after the "
 "tag name."
-msgstr ""
+msgstr "Pilih label dari saran. Untuk membuat label baru, tambahkan koma setelah nama label."
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -328,11 +328,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "People"
-msgstr ""
+msgstr "Orang"
 
 #: apps/course_metadata/models.py
 msgid "Add the course image"
-msgstr ""
+msgstr "Tambahkan gambar kursus"
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
@@ -382,19 +382,19 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Archived"
-msgstr ""
+msgstr "Diarsipkan"
 
 #: apps/course_metadata/models.py
 msgid "Current"
-msgstr ""
+msgstr "Saat Ini"
 
 #: apps/course_metadata/models.py
 msgid "Starting Soon"
-msgstr ""
+msgstr "Segera Dimulai"
 
 #: apps/course_metadata/models.py
 msgid "Upcoming"
-msgstr ""
+msgstr "Akan Datang"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"
@@ -424,11 +424,11 @@ msgstr "Kredit"
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
-msgstr ""
+msgstr "FAQ"
 
 #: apps/course_metadata/models.py
 msgid "FAQs"
-msgstr ""
+msgstr "FAQ"
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -559,16 +559,16 @@ msgstr ""
 #: apps/publisher/choices.py
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
-msgstr ""
+msgstr "Tim Kursus"
 
 #: apps/publisher/choices.py apps/publisher/models.py
 #: apps/publisher/wrappers.py
 msgid "Draft"
-msgstr ""
+msgstr "Draft"
 
 #: apps/publisher/choices.py
 msgid "Review"
-msgstr ""
+msgstr "Tinjauan"
 
 #: apps/publisher/choices.py
 msgid "Approved"
@@ -631,11 +631,11 @@ msgstr ""
 
 #: apps/publisher/emails.py
 msgid "Course team"
-msgstr ""
+msgstr "Tim Kursus"
 
 #: apps/publisher/emails.py
 msgid "Legal Team"
-msgstr ""
+msgstr "Tim Legal"
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -649,13 +649,13 @@ msgstr ""
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Organization Name"
-msgstr ""
+msgstr "Nama Organisasi"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Course Title"
-msgstr ""
+msgstr "Judul Kursus"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -665,87 +665,87 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
-msgstr ""
+msgstr "Nomer Kursus"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Short Description"
-msgstr ""
+msgstr "Deskripsi Pendek"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Long Description"
-msgstr ""
+msgstr "Deskripsi Panjang"
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Prerequisites"
-msgstr ""
+msgstr "Prasyarat"
 
 #: apps/publisher/forms.py
 msgid "Organization Course Admin"
-msgstr ""
+msgstr "Admin Kursus Organisasi"
 
 #: apps/publisher/forms.py
 msgid "Primary"
-msgstr ""
+msgstr "Utama"
 
 #: apps/publisher/forms.py
 msgid "Additional Subject (optional)"
-msgstr ""
+msgstr "Subjek Tambahan (opsional)"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Level"
-msgstr ""
+msgstr "Tingkat"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "What You Will Learn"
-msgstr ""
+msgstr "Yang Akan Anda Pelajari"
 
 #: apps/publisher/forms.py
 msgid "Learner Testimonial"
-msgstr ""
+msgstr "Testimoni Peserta"
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Syllabus"
-msgstr ""
+msgstr "Silabus"
 
 #: apps/publisher/forms.py
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen."
-msgstr ""
+msgstr "Mohon tidak menggunakan spasi atau karakter khusus selain titik, garis bawah atau tanda hubung."
 
 #: apps/publisher/forms.py
 msgid "This course title already exists"
-msgstr ""
+msgstr "Judul kursus ini sudah ada"
 
 #: apps/publisher/forms.py
 msgid "This course number already exists"
-msgstr ""
+msgstr "Nomer kursus ini sudah ada"
 
 #: apps/publisher/forms.py
 msgid "Find Course"
-msgstr ""
+msgstr "Cari Kursus"
 
 #: apps/publisher/forms.py
 msgid "Course Start Date"
-msgstr ""
+msgstr "Tanggal Mulai Kursus"
 
 #: apps/publisher/forms.py
 msgid "Course End Date"
-msgstr ""
+msgstr "Tanggal Selesai Kursus"
 
 #: apps/publisher/forms.py
 msgid "Instructor"
-msgstr ""
+msgstr "Instruktur"
 
 #: apps/publisher/forms.py
 msgid "Pacing"
@@ -784,7 +784,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Video Language"
-msgstr ""
+msgstr "Bahasa Video"
 
 #: apps/publisher/forms.py
 msgid "Start date cannot be after the End date"
@@ -850,7 +850,7 @@ msgstr "Kolom ini wajib diisi."
 
 #: apps/publisher/forms.py
 msgid "Invalid course key."
-msgstr ""
+msgstr "Kunci kursus tidak valid."
 
 #: apps/publisher/forms.py
 msgid "Owner role can not be publisher if the state is draft or review"
@@ -866,43 +866,43 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course title"
-msgstr ""
+msgstr "Judul kursus"
 
 #: apps/publisher/models.py
 msgid "Course number"
-msgstr ""
+msgstr "Nomer kursus"
 
 #: apps/publisher/models.py
 msgid "Brief Description"
-msgstr ""
+msgstr "Deskripsi Singkat"
 
 #: apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Full Description"
-msgstr ""
+msgstr "Deskripsi Lengkap"
 
 #: apps/publisher/models.py
 msgid "Partner Name"
-msgstr ""
+msgstr "Nama Mitra"
 
 #: apps/publisher/models.py
 msgid "Level Type"
-msgstr ""
+msgstr "Jenis Tingkat"
 
 #: apps/publisher/models.py
 msgid "Expected Learnings"
-msgstr ""
+msgstr "Pembelajaran yang Diharapkan"
 
 #: apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Learner Testimonials"
-msgstr ""
+msgstr "Testimoni Peserta"
 
 #: apps/publisher/models.py
 msgid "Video Link"
-msgstr ""
+msgstr "Tautan Video"
 
 #: apps/publisher/models.py
 msgid "Course Metadata Course PK"
@@ -930,11 +930,11 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Content Language"
-msgstr ""
+msgstr "Bahasa Konten"
 
 #: apps/publisher/models.py
 msgid "Length of course, in number of weeks"
-msgstr ""
+msgstr "Panjang kursus, dalam jumlah minggu"
 
 #: apps/publisher/models.py
 msgid ""
@@ -1025,22 +1025,22 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "First Name"
-msgstr ""
+msgstr "Nama Depan"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "required"
-msgstr ""
+msgstr "wajib diisi"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Last Name"
-msgstr ""
+msgstr "Nama Belakang"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
-msgstr ""
+msgstr "Titel"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
@@ -1049,7 +1049,7 @@ msgstr "Email"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Institution email is preferred"
-msgstr ""
+msgstr "Email institusi lebih disukai"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_list.html
@@ -1061,36 +1061,36 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
-msgstr ""
+msgstr "Organisasi"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Enter a different organization"
-msgstr ""
+msgstr "Masukkan organisasi lain"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Bio"
-msgstr ""
+msgstr "Bio"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "required (1-2 paragraphs)"
-msgstr ""
+msgstr "wajib diisi (1-2 paragraf)"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Facebook URL"
-msgstr ""
+msgstr "URL Facebook"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "optional"
-msgstr ""
+msgstr "opsional"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Twitter URL"
-msgstr ""
+msgstr "URL Twitter"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Blog URL"
-msgstr ""
+msgstr "URL Blog"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Major Works"
@@ -1127,20 +1127,20 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Accepted"
-msgstr ""
+msgstr "Diterima"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Publish"
-msgstr ""
+msgstr "Publikasi"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Submitted for review"
-msgstr ""
+msgstr "Kirimkan untuk tinjauan"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Preview Declined"
-msgstr ""
+msgstr "Pratinjau Ditolak"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html
@@ -1149,11 +1149,11 @@ msgstr "Simpan"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "ABOUT PAGE PREVIEW"
-msgstr ""
+msgstr "PRATINJAU HALAMAN TENTANG"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Preview URL"
-msgstr ""
+msgstr "URL Pratinjau"
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "View About page preview"
@@ -1193,7 +1193,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Kebijakan Privasi"
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Legal"
@@ -1204,36 +1204,36 @@ msgstr ""
 msgid ""
 "EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
 "trademarks or trademarks of %(link_start)sedX Inc.%(link_end)s"
-msgstr ""
+msgstr "Logo EdX, Open edX, dan edX dan Open edX adalah merek dagang terdaftar atau merek dagang dari %(link_start)s edX Inc. %(link_end)s"
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Powered by Open edX"
-msgstr ""
+msgstr "Powered by Open edX"
 
 #: apps/publisher/templates/publisher/_header.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Account"
-msgstr ""
+msgstr "Akun"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Account Navigation"
-msgstr ""
+msgstr "Navigasi Akun"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Contextual Online Help"
-msgstr ""
+msgstr "Bantuan Online Kontekstual"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Help"
-msgstr ""
+msgstr "Bantuan"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Email notifications"
-msgstr ""
+msgstr "Notifikasi email"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "ON"
-msgstr ""
+msgstr "ON"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "OFF"
@@ -1241,41 +1241,41 @@ msgstr "OFF"
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Sign Out"
-msgstr ""
+msgstr "Keluar"
 
 #: apps/publisher/templates/publisher/_history_widget.html
 msgid "REVISION HISTORY"
-msgstr ""
+msgstr "RIWAYAT REVISI"
 
 #: apps/publisher/templates/publisher/_history_widget.html
 #, python-format
 msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Latest)"
-msgstr ""
+msgstr "%(history_date)s&nbsp;by&nbsp;%(changed_by)s (Terakhir)"
 
 #: apps/publisher/templates/publisher/_history_widget.html
 #, python-format
 msgid "%(history_date)s&nbsp;by&nbsp;%(changed_by)s"
-msgstr ""
+msgstr "%(history_date)s&nbsp;by&nbsp;%(changed_by)s"
 
 #: apps/publisher/templates/publisher/_history_widget.html
 #: apps/publisher/templates/publisher/_revert_confirmation.html
 msgid "Restore to this version"
-msgstr ""
+msgstr "Kembalikan ke versi ini"
 
 #: apps/publisher/templates/publisher/_history_widget.html
 msgid "Unable to revert the revision, Please try again later."
-msgstr ""
+msgstr "Tidak berhasil mengembalikan revisi, coba kembali beberapa saat lagi."
 
 #: apps/publisher/templates/publisher/_history_widget.html
 msgid "Accept All"
-msgstr ""
+msgstr "Terima Semua"
 
 #: apps/publisher/templates/publisher/_render_optional_field.html
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_credit_seat.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "(Optional) Not yet added"
-msgstr ""
+msgstr "(Opsional) Belum ditambahkan"
 
 #: apps/publisher/templates/publisher/_render_required_field.html
 #: apps/publisher/templates/publisher/course_detail.html
@@ -1284,13 +1284,13 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 #: apps/publisher/templates/publisher/course_run_detail/_seats.html
 msgid "(Required) Not yet added"
-msgstr ""
+msgstr "(Wajib diisi) Belum ditambahkan"
 
 #: apps/publisher/templates/publisher/_revert_confirmation.html
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 msgid "CAUTION"
-msgstr ""
+msgstr "PERHATIAN"
 
 #: apps/publisher/templates/publisher/_revert_confirmation.html
 msgid "Are you sure you want to revert all changes to this version ?"
@@ -1304,7 +1304,7 @@ msgstr "Buat Kursus Baru"
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "COURSE TITLE"
-msgstr ""
+msgstr "JUDUL KURSUS"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -1375,37 +1375,37 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "COURSE NUMBER"
-msgstr ""
+msgstr "NOMER KURSUS"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
 "Maximum 50 characters. Characters can be letters, numbers, periods, "
 "underscores or hyphens."
-msgstr ""
+msgstr "Maksimum 50 karakter. Karakter dapat berupa huruf, angka, titik, garis bawah atau garis hubung."
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
 "If a course consists of several modules, the course number can have an "
 "ending such as .1x or .2x."
-msgstr ""
+msgstr "Jika kursus terdiri dari beberapa modul, nomer kursus dapat diakhiri .1x atau .2x."
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "CS002x"
-msgstr ""
+msgstr "CS002x"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 msgid "BIO1.1x; BIO1.2x etc."
-msgstr ""
+msgstr "BIO1.1x; BIO1.2x dsb."
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "CERTIFICATE TYPE AND PRICE"
-msgstr ""
+msgstr "JENIS SERTIFIKAT DAN HARGA"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/add_courserun_form.html
@@ -1433,7 +1433,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "FIND COURSE"
-msgstr ""
+msgstr "CARI KURSUS"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
@@ -1451,7 +1451,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE START DATE"
-msgstr ""
+msgstr "TANGGAL MULAI KURSUS"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
@@ -1493,7 +1493,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_courserun_form.html
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE END DATE"
-msgstr ""
+msgstr "TANGGAL SELESAI KURSUS"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
@@ -1559,7 +1559,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Certificate Price"
-msgstr ""
+msgstr "Harga Sertifikat"
 
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
@@ -1660,7 +1660,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "SHORT DESCRIPTION"
-msgstr ""
+msgstr "DESKRIPSI SINGKAT"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "An effective short description:"
@@ -1760,7 +1760,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "WHAT YOU WILL LEARN"
-msgstr ""
+msgstr "YANG AKAN ANDA PELAJARI"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "The skills and knowledge learners will acquire in this course."
@@ -1788,7 +1788,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "SUBJECT FIELD"
-msgstr ""
+msgstr "KOLOM SUBJEK"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "The subject of the course."
@@ -1819,7 +1819,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Learn more."
-msgstr ""
+msgstr "Pelajari lebih lanjut."
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Each course in a sequence must have a unique image."
@@ -1837,7 +1837,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "PREREQUISITES"
-msgstr ""
+msgstr "PRASYARAT"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Maximum 200 characters."
@@ -1867,7 +1867,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "SYLLABUS"
-msgstr ""
+msgstr "SILABUS"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1911,7 +1911,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "LEVEL"
-msgstr ""
+msgstr "TINGKAT"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -2154,11 +2154,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "COURSE STAFF"
-msgstr ""
+msgstr "STAF KURSUS"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "The primary instructor or instructors for the course."
-msgstr ""
+msgstr "Instruktur utama dan instruktur lainnya untuk kursus ini."
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
@@ -2180,25 +2180,25 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "ESTIMATED EFFORT"
-msgstr ""
+msgstr "PERKIRAAN WAKTU YANG DIPERLUKAN"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
 "The number of hours per week the learner should expect to spend on the "
 "course. This may be a range."
-msgstr ""
+msgstr "Jumlah jam per minggu yang diperlukan peserta untuk menyelesaikan kursus. Dapat berupa range."
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Min Effort"
-msgstr ""
+msgstr "Waktu Min"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "Max Effort"
-msgstr ""
+msgstr "Waktu Maks"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "LANGUAGE(S)"
-msgstr ""
+msgstr "BAHASA(-BAHASA)"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
@@ -2208,7 +2208,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "LENGTH"
-msgstr ""
+msgstr "DURASI"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
@@ -2227,13 +2227,13 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "Start Date (time in UTC)"
-msgstr ""
+msgstr "Tanggal Mulai (waktu GMT)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_studio.html
 msgid "End Date (time in UTC)"
-msgstr ""
+msgstr "Tanggal Selesai (waktu GMT)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Credit Price"
@@ -2246,17 +2246,17 @@ msgstr "Staf Pelatihan"
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "New"
-msgstr ""
+msgstr "Baru"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Estimated Effort"
-msgstr ""
+msgstr "Perkiraan Jam Per Minggu"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "hours per week"
-msgstr ""
+msgstr "jam per minggu"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Course Content Language"
@@ -2273,7 +2273,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course Length (Weeks)"
-msgstr ""
+msgstr "Lama Kursus (Minggu)"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "MicroMasters Program Name"
@@ -2348,11 +2348,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Languages"
-msgstr ""
+msgstr "Bahasa"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Video Transcript Languages"
-msgstr ""
+msgstr "Bahasa Transkrip Video"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "What You'll Learn"
@@ -2361,7 +2361,7 @@ msgstr "Apa yang akan Anda pelajari"
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Download"
-msgstr ""
+msgstr "Unduh"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Keywords"
@@ -2369,15 +2369,15 @@ msgstr "Kata kunci"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Sponsors"
-msgstr ""
+msgstr "Sponsor"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course Syllabus"
-msgstr ""
+msgstr "Silabus Kursus"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Course About Video"
-msgstr ""
+msgstr "Video Tentang Kursus"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Seats"
@@ -2393,27 +2393,27 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Name"
-msgstr ""
+msgstr "Nama"
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Profile URL "
-msgstr ""
+msgstr "URL Profil"
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Facebook URL "
-msgstr ""
+msgstr "URL Facebook"
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Twitter URL "
-msgstr ""
+msgstr "URL Twitter"
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Blog URL "
-msgstr ""
+msgstr "URL Blog"
 
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 msgid "Close"
-msgstr ""
+msgstr "Tutup"
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Accept About Page Preview"
@@ -2445,11 +2445,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course"
-msgstr ""
+msgstr "Kursus"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Authored in Studio?"
@@ -2461,19 +2461,19 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Subject Area"
-msgstr ""
+msgstr "Bidang Area"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Course Text"
-msgstr ""
+msgstr "Bahasa: Teks Kursus"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Transcripts"
-msgstr ""
+msgstr "Bahasa: Transkrip"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Video"
-msgstr ""
+msgstr "Bahasa: Video"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run"
@@ -2485,7 +2485,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Platform"
-msgstr ""
+msgstr "Platform"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Faculty"
@@ -2556,11 +2556,11 @@ msgstr ""
 #, python-format
 msgid ""
 "The About page for this course run was published on %(course_publish_date)s."
-msgstr ""
+msgstr "Halaman Tentang kursus ini diterbitkan tanggal %(course_publish_date)s."
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "View it on edx.org at"
-msgstr ""
+msgstr "Lihat di edx.org pada"
 
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
@@ -2570,7 +2570,7 @@ msgstr "Semua"
 #. Translators: Studio is an edX tool for course creation.
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "STUDIO"
-msgstr ""
+msgstr "STUDIO"
 
 #. Translators: CAT is an acronym for Course Administration Tool.
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
@@ -2681,25 +2681,25 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Filter by"
-msgstr ""
+msgstr "Saring berdasarkan"
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "With Course Team"
-msgstr ""
+msgstr "Dengan Tim Kursus"
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "With"
-msgstr ""
+msgstr "Dengan"
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "Start"
-msgstr ""
+msgstr "Mulai"
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "End"
-msgstr ""
+msgstr "Selesai"
 
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "No About pages have been published yet."
