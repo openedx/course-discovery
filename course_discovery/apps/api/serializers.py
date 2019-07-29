@@ -716,11 +716,12 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
     course = serializers.SlugRelatedField(required=True, slug_field='key', queryset=Course.objects.filter_drafts())
     content_language = serializers.SlugRelatedField(
-        required=False, allow_null=True, slug_field='code', source='language', queryset=LanguageTag.objects.all(),
+        required=False, allow_null=True, slug_field='code', source='language',
+        queryset=LanguageTag.objects.all().order_by('name'),
         help_text=_('Language in which the course is administered')
     )
     transcript_languages = serializers.SlugRelatedField(
-        required=False, many=True, slug_field='code', queryset=LanguageTag.objects.all()
+        required=False, many=True, slug_field='code', queryset=LanguageTag.objects.all().order_by('name')
     )
     video = VideoSerializer(required=False, allow_null=True, source='get_video')
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
