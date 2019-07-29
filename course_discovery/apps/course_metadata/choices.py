@@ -9,6 +9,11 @@ class CourseRunStatus(DjangoChoices):
     Reviewed = ChoiceItem('reviewed', _('Reviewed'))
     Published = ChoiceItem('published', _('Published'))
 
+    INTERNAL_STATUS_TRANSITIONS = (
+        InternalReview.value,
+        Reviewed.value,
+    )
+
     @classmethod
     def REVIEW_STATES(cls):
         return [cls.LegalReview, cls.InternalReview]

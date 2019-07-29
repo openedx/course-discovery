@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-07-16 16:20+0000\n"
+"POT-Creation-Date: 2019-08-06 01:15+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -130,11 +130,21 @@ msgid "Failed to set course run data: {}"
 msgstr ""
 "Fäïléd tö sét çöürsé rün dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
+#: apps/api/v1/views/course_runs.py apps/api/v1/views/course_runs.py
+msgid "Can only update status, ofac restrictions, and ofac comment"
+msgstr ""
+"Çän önlý üpdäté stätüs, öfäç réstrïçtïöns, änd öfäç çömmént Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
 #: apps/api/v1/views/course_runs.py
 msgid "Course run is in review. Editing disabled."
 msgstr ""
 "Çöürsé rün ïs ïn révïéw. Édïtïng dïsäßléd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
+
+#: apps/api/v1/views/course_runs.py
+msgid "Invalid param"
+msgstr "Ìnvälïd päräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/api/v1/views/courses.py
 msgid "An error occurred while setting Course or Course Run data."
@@ -966,6 +976,14 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Additional Information"
 msgstr "Àddïtïönäl Ìnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/course_metadata/models.py
+msgid "Restricted"
+msgstr "Réstrïçtéd Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/course_metadata/models.py
+msgid "Not restricted"
+msgstr "Nöt réstrïçtéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid ""

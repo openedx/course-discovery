@@ -814,6 +814,12 @@ class CourseEditor(TimeStampedModel):
 
 class CourseRun(DraftModelMixin, TimeStampedModel):
     """ CourseRun model. """
+    OFAC_RESTRICTION_CHOICES = (
+        ('', '--'),
+        (True, _('Restricted')),
+        (False, _('Not restricted')),
+    )
+
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, models.CASCADE, related_name='course_runs')
     key = models.CharField(max_length=255)
@@ -888,10 +894,13 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
     )
 
-    has_ofac_restrictions = models.BooleanField(
-        default=False,
-        verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site')
+    has_ofac_restrictions = models.NullBooleanField(
+        blank=True,
+        choices=OFAC_RESTRICTION_CHOICES,
+        default=None,
+        verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site'),
     )
+    ofac_comment = models.TextField(blank=True, help_text='Comment related to OFAC restriction')
 
     # The expected_program_type and expected_program_name are here in support of Publisher and may not reflect the
     # final program information.
@@ -917,6 +926,12 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         'transcript_languages',
         'pacing_type',
     ]
+
+    INTERNAL_REVIEW_FIELDS = (
+        'status',
+        'has_ofac_restrictions',
+        'ofac_comment',
+    )
 
     class Meta:
         unique_together = (

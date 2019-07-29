@@ -757,7 +757,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'course', 'full_description', 'announcement', 'video', 'seats', 'content_language', 'license', 'outcome',
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
-            'first_enrollable_paid_seat_price', 'has_ofac_restrictions',
+            'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name'
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count',)

@@ -271,24 +271,48 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+    def handle_internal_review(self, request, serializer):
+        # Disallow updates on non internal review fields while course is in review
+        for key in request.data.keys():
+            if key not in CourseRun.INTERNAL_REVIEW_FIELDS:
+                return Response(
+                    _('Can only update status, ofac restrictions, and ofac comment'),
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        serializer.save()
+        return Response(serializer.data)
+
     def update(self, request, **kwargs):
         """ Update one, or more, fields for a course run. """
         course_run = self.get_object()
         course_run = ensure_draft_world(course_run)  # always work on drafts
-
+        partial = kwargs.pop('partial', False)
         # Sending draft=False triggers the review process for unpublished courses
         draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
-        request.data.pop('status', None)  # Status management is handled in the model
+        serializer = self.get_serializer(course_run, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
 
+        # Handle staff update on course run in review with valid status transition
+        if (request.user.is_staff and course_run.in_review and 'status' in request.data and
+                request.data['status'] in CourseRunStatus.INTERNAL_STATUS_TRANSITIONS):
+            return self.handle_internal_review(request, serializer)
+
+        # Handle regular non-internal update
+        request.data.pop('status', None)  # Status management is handled in the model
         # Disallow patch or put if the course run is in review.
         if course_run.in_review:
             return Response(
                 _('Course run is in review. Editing disabled.'),
                 status=status.HTTP_403_FORBIDDEN
             )
-        partial = kwargs.pop('partial', False)
-        serializer = self.get_serializer(course_run, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
+        # Disallow internal review fields when course run is not in review
+        for key in request.data.keys():
+            if key in CourseRun.INTERNAL_REVIEW_FIELDS:
+                return Response(
+                    _('Invalid param'),
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
         changed = reviewable_data_has_changed(
             course_run, serializer.validated_data.items(), CourseRun.STATUS_CHANGE_EXEMPT_FIELDS)
