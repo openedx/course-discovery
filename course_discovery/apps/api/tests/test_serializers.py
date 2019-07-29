@@ -369,6 +369,8 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'seats': SeatSerializer(course_run.seats, many=True).data,
             'status': course_run.status,
             'external_key': course_run.external_key,
+            'is_enrollable': course_run.is_enrollable,
+            'is_marketable': course_run.is_marketable,
         }
 
 
