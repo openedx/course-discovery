@@ -852,7 +852,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
                           {'display_name': self.draft_course_run.level_type.name,
                            'value': self.draft_course_run.level_type.name}])
         self.assertEqual(data['content_language']['choices'],
-                         [{'display_name': x.name, 'value': x.code} for x in LanguageTag.objects.all()])
+                         [{'display_name': x.name, 'value': x.code} for x in
+                             LanguageTag.objects.all().order_by('name')])
         self.assertGreater(LanguageTag.objects.count(), 0)
 
     def test_editable_list_gives_drafts(self):
