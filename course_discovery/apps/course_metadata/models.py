@@ -1420,8 +1420,8 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         null enrollment_start and enrollment_end.
         """
         now = datetime.datetime.now(pytz.UTC)
-        return (not self.enrollment_end or self.enrollment_end >= now) and
-                (not self.enrollment_start or self.enrollment_start <= now)
+        return ((not self.enrollment_end or self.enrollment_end >= now) and
+                (not self.enrollment_start or self.enrollment_start <= now))
 
     @property
     def is_marketable(self):
