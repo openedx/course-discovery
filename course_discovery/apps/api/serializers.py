@@ -188,6 +188,14 @@ class TimestampModelSerializer(serializers.ModelSerializer):
     modified = serializers.DateTimeField(required=False)
 
 
+class CommentSerializer(serializers.Serializer):
+    """
+    Serializer for retrieving comments from Salesforce.
+    This is required by DRF despite being empty.
+    """
+    pass
+
+
 class ContentTypeSerializer(serializers.Serializer):
     """Serializer for retrieving the type of content. Useful in views returning multiple serialized models."""
     content_type = serializers.SerializerMethodField()

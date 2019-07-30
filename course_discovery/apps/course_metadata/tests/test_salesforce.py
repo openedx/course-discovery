@@ -2,7 +2,7 @@ import mock
 from django.test import TestCase
 from simple_salesforce import SalesforceExpiredSession
 
-from course_discovery.apps.core.tests.factories import SalesforceConfigurationFactory
+from course_discovery.apps.core.tests.factories import SalesforceConfigurationFactory, UserFactory
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, OrganizationFactory
 
@@ -38,6 +38,12 @@ class TestSalesforce(TestCase):
         The first exception thrown will trigger a re-login, the second will
         throw an exception as we don't want infinite retries.
         """
+        course = CourseFactory(
+            partner=self.salesforce_config.partner,
+            salesforce_id='TestSalesforceId',
+            salesforce_case_id='TestSalesforceCaseId',
+        )
+
         with mock.patch(
             'course_discovery.apps.course_metadata.salesforce.SalesforceUtil._query',
             side_effect=SalesforceExpiredSession(url='Test', status=401, resource_name='Test', content='Test')
@@ -46,7 +52,7 @@ class TestSalesforce(TestCase):
                 util = SalesforceUtil(self.salesforce_config.partner)
                 # Any method that has the decorator
                 with self.assertRaises(SalesforceExpiredSession):
-                    util.get_account_by_key('Test')
+                    util.get_comments_for_course(course)
                     # 2 calls, one for initialization, one for login before exception
                     mock_salesforce.assert_num_calls(2)
 
@@ -69,236 +75,379 @@ class TestSalesforce(TestCase):
                 r"Some \'test\' \\string",
             )
 
-    def test_get_account_by_key(self):
-        return_value = 'A record'
-        with mock.patch('course_discovery.apps.course_metadata.salesforce.Salesforce'):
-            with mock.patch(
-                'course_discovery.apps.course_metadata.salesforce.SalesforceUtil._query',
-                return_value={'records': [return_value]}
-            ) as mock_query:
-                util = SalesforceUtil(self.salesforce_config.partner)
-                accounts = util.get_account_by_key('Test')
-                mock_query.assert_called_with("SELECT {} FROM Account WHERE Name='{}'", 'Id,Name', 'Test')
-                self.assertEqual(accounts, return_value)
-
-    def test_get_account_by_key_exception(self):
-        with mock.patch('course_discovery.apps.course_metadata.salesforce.Salesforce'):
-            with mock.patch(
-                'course_discovery.apps.course_metadata.salesforce.SalesforceUtil._query',
-                return_value={}
-            ):
-                util = SalesforceUtil(self.salesforce_config.partner)
-                with self.assertRaises(Exception):
-                    util.get_account_by_key('Test')
-
-    def test_get_course_by_course_key(self):
-        return_value = 'A record'
-        with mock.patch('course_discovery.apps.course_metadata.salesforce.Salesforce'):
-            with mock.patch(
-                'course_discovery.apps.course_metadata.salesforce.SalesforceUtil._query',
-                return_value={'records': [return_value]}
-            ) as mock_query:
-                util = SalesforceUtil(self.salesforce_config.partner)
-                accounts = util.get_course_by_course_key('Test')
-                query_string = "SELECT {} FROM Course__c WHERE Course_Number__c='{}'"
-                mock_query.assert_called_with(
-                    query_string,
-                    'Id,Name,Course_Number__c,Account__c',
-                    'Test'
-                )
-                self.assertEqual(accounts, return_value)
-
-    def test_get_course_by_course_key_exception(self):
-        with mock.patch('course_discovery.apps.course_metadata.salesforce.Salesforce'):
-            with mock.patch(
-                'course_discovery.apps.course_metadata.salesforce.SalesforceUtil._query',
-                return_value={}
-            ):
-                util = SalesforceUtil(self.salesforce_config.partner)
-                with self.assertRaises(Exception):
-                    util.get_course_by_course_key('Test')
-
-    def test_get_course_run_by_name(self):
-        return_value = 'A record'
-        with mock.patch('course_discovery.apps.course_metadata.salesforce.Salesforce'):
-            with mock.patch(
-                'course_discovery.apps.course_metadata.salesforce.SalesforceUtil._query',
-                return_value={'records': [return_value]}
-            ) as mock_query:
-                util = SalesforceUtil(self.salesforce_config.partner)
-                accounts = util.get_course_run_by_name('Test')
-                query_string = "SELECT {} FROM Course_Runs__c WHERE Course_Run_Number__c='{}'"
-                mock_query.assert_called_with(
-                    query_string,
-                    'Id,Course_Run_Name__c,Course_Run_Number__c,Parent_Course_Name__c',
-                    'Test'
-                )
-                self.assertEqual(accounts, return_value)
-
-    def test_get_course_run_by_name_exception(self):
-        with mock.patch('course_discovery.apps.course_metadata.salesforce.Salesforce'):
-            with mock.patch(
-                'course_discovery.apps.course_metadata.salesforce.SalesforceUtil._query',
-                return_value={}
-            ):
-                util = SalesforceUtil(self.salesforce_config.partner)
-                with self.assertRaises(Exception):
-                    util.get_course_run_by_name('Test')
-
-    def test_get_case_by_salesforce_course_id(self):
-        return_value = 'A record'
-        with mock.patch('course_discovery.apps.course_metadata.salesforce.Salesforce'):
-            with mock.patch(
-                'course_discovery.apps.course_metadata.salesforce.SalesforceUtil._query',
-                return_value={'records': [return_value]}
-            ) as mock_query:
-                util = SalesforceUtil(self.salesforce_config.partner)
-                accounts = util.get_case_by_salesforce_course_id('Test')
-                query_string = "SELECT {} FROM Case WHERE Course__c='{}'"
-
-                mock_query.assert_called_with(
-                    query_string,
-                    'Id,Course__c,Subject',
-                    'Test'
-                )
-                self.assertEqual(accounts, return_value)
-
-    def test_get_case_by_salesforce_course_id_exception(self):
-        with mock.patch('course_discovery.apps.course_metadata.salesforce.Salesforce'):
-            with mock.patch(
-                'course_discovery.apps.course_metadata.salesforce.SalesforceUtil._query',
-                return_value={}
-            ):
-                util = SalesforceUtil(self.salesforce_config.partner)
-                with self.assertRaises(Exception):
-                    util.get_case_by_salesforce_course_id('Test')
-
-    def test_get_or_create_course_run_new(self):
+    def test_create_account_salesforce_id_set(self):
         salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
-        create_course_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_or_create_course'
-        get_course_run_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_course_run_by_name'
 
-        course_run = CourseRunFactory(course__partner=self.salesforce_config.partner)
-        return_value = {'Id': 'Test'}
+        organization = OrganizationFactory(key='edX', partner=self.salesforce_config.partner, salesforce_id='Test')
 
         with mock.patch(salesforce_path) as mock_salesforce:
-            with mock.patch(create_course_path, return_value=return_value):
-                with mock.patch(get_course_run_path, return_value=None):
-                    util = SalesforceUtil(self.salesforce_config.partner)
-                    util.get_or_create_course_run(course_run)
-                    mock_salesforce().Course_Runs__c.create.assert_called_with({
-                        'Course_Run_Name__c': course_run.title,
-                        'Course_Run_Number__c': course_run.key,
-                        'Parent_course_name__c': return_value.get('Id'),
-                    })
+            util = SalesforceUtil(self.salesforce_config.partner)
+            util.create_publisher_organization(organization)
 
-    def test_get_or_create_course_run_found(self):
+            mock_salesforce().Publisher_Organization__c.create.assert_not_called()
+
+    def test_create_account_salesforce_id_not_set(self):
         salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
-        get_course_run_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_course_run_by_name'
 
-        course_run = CourseRunFactory(course__partner=self.salesforce_config.partner)
-        return_value = {'Id': 'Test'}
+        organization = OrganizationFactory(key='edX', partner=self.salesforce_config.partner)
+
+        return_value = {
+            'id': 'SomeSalesforceId'
+        }
 
         with mock.patch(salesforce_path) as mock_salesforce:
-            with mock.patch(get_course_run_path, return_value=return_value):
-                util = SalesforceUtil(self.salesforce_config.partner)
-                self.assertEqual(util.get_or_create_course_run(course_run), return_value)
-                mock_salesforce().Course_Runs__c.create.assert_not_called()
+            mock_salesforce().Publisher_Organization__c.create.return_value = return_value
+            util = SalesforceUtil(self.salesforce_config.partner)
+            util.create_publisher_organization(organization)
+            mock_salesforce().Publisher_Organization__c.create.assert_called_with({
+                'Organization_Name__c': organization.name,
+                'Organization_Key__c': organization.key,
+            })
+            self.assertEqual(organization.salesforce_id, return_value.get('id'))
 
-    def test_get_or_create_course_new(self):
+    def test_create_course_salesforce_id_set(self):
         salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
-        create_account_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_or_create_account'
-        get_course_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_course_by_course_key'
+
+        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='Test')
+
+        with mock.patch(salesforce_path) as mock_salesforce:
+            util = SalesforceUtil(self.salesforce_config.partner)
+            util.create_course(course)
+            mock_salesforce().Course__c.create.assert_not_called()
+
+    def test_create_course_salesforce_id_not_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
 
         course = CourseFactory(partner=self.salesforce_config.partner)
-        org = OrganizationFactory(key='edX', partner=self.salesforce_config.partner)
-        course.authoring_organizations.add(org)
-        return_value = {'Id': 'Test'}
+        partner = self.salesforce_config.partner
+
+        return_value = {
+            'id': 'SomeSalesforceId'
+        }
 
         with mock.patch(salesforce_path) as mock_salesforce:
-            with mock.patch(create_account_path, return_value=return_value) as mock_create_account:
-                with mock.patch(get_course_path, return_value=None):
-                    util = SalesforceUtil(self.salesforce_config.partner)
-                    util.get_or_create_course(course)
-                    mock_create_account.assert_called_with(account_key=org.key)
-                    mock_salesforce().Course__c.create.assert_called_with({
-                        'Name': course.title,
-                        'Course_Number__c': course.key,
-                        'Account__c': return_value.get('Id'),
-                    })
+            mock_salesforce().Course__c.create.return_value = return_value
+            util = SalesforceUtil(self.salesforce_config.partner)
+            util.create_course(course)
+            mock_salesforce().Course__c.create.assert_called_with({
+                'Course_Name__c': course.title,
+                'Link_to_Publisher__c': '{url}/courses/{uuid}'.format(
+                    url=partner.publisher_url, uuid=course.uuid
+                ) if partner.publisher_url else None,
+                'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
+                    url=partner.site.domain, id=course.id
+                ) if partner.site.domain else None,
+                'Publisher_Status__c': None,
+                'OFAC_Review_Decision__c': course.has_ofac_restrictions,
+                'Course_Key__c': course.key,
+            })
+            self.assertEqual(course.salesforce_id, return_value.get('id'))
 
-    def test_get_or_create_course_found(self):
+    def test_create_course_organization_salesforce_id_not_set(self):
         salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
-        get_course_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_course_by_course_key'
+        create_pub_org_path = ('course_discovery.apps.course_metadata.salesforce'
+                               '.SalesforceUtil.create_publisher_organization')
 
         course = CourseFactory(partner=self.salesforce_config.partner)
-        org = OrganizationFactory(key='edX', partner=self.salesforce_config.partner)
-        course.authoring_organizations.add(org)
-        return_value = {'Id': 'Test'}
+        organization = OrganizationFactory(key='edX', partner=self.salesforce_config.partner)
+        course.authoring_organizations.add(organization)
+        partner = self.salesforce_config.partner
+
+        return_value = {
+            'id': 'SomeSalesforceId'
+        }
 
         with mock.patch(salesforce_path) as mock_salesforce:
-            with mock.patch(get_course_path, return_value=return_value):
+            with mock.patch(create_pub_org_path) as mock_create_account:
+                mock_salesforce().Course__c.create.return_value = return_value
                 util = SalesforceUtil(self.salesforce_config.partner)
-                self.assertEqual(util.get_or_create_course(course), return_value)
-                mock_salesforce().Course__c.create.assert_not_called()
-
-    def test_get_or_create_case_new(self):
-        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
-        create_course_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_or_create_course'
-        get_case_path = (
-            'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_case_by_salesforce_course_id'
-        )
-
-        course = CourseFactory(partner=self.salesforce_config.partner)
-        return_value = {'Id': 'Test'}
-
-        with mock.patch(salesforce_path) as mock_salesforce:
-            with mock.patch(create_course_path, return_value=return_value):
-                with mock.patch(get_case_path, return_value=None):
-                    util = SalesforceUtil(self.salesforce_config.partner)
-                    util.get_or_create_case(course)
-                    mock_salesforce().Case.create.assert_called_with({
-                        'Course__c': return_value.get('Id'),
-                        'Subject': '{} comments'.format(course.title),
-                    })
-
-    def test_get_or_create_case_found(self):
-        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
-        create_course_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_or_create_course'
-        get_case_path = (
-            'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_case_by_salesforce_course_id'
-        )
-
-        course = CourseFactory(partner=self.salesforce_config.partner)
-        return_value = {'Id': 'Test'}
-
-        with mock.patch(salesforce_path) as mock_salesforce:
-            with mock.patch(get_case_path, return_value=return_value):
-                with mock.patch(create_course_path, return_value=return_value):
-                    util = SalesforceUtil(self.salesforce_config.partner)
-                    self.assertEqual(util.get_or_create_course(course), return_value)
-                    mock_salesforce().Course__c.create.assert_not_called()
-
-    def test_get_or_create_account_new(self):
-        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
-        get_account_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_account_by_key'
-
-        with mock.patch(salesforce_path) as mock_salesforce:
-            with mock.patch(get_account_path, return_value=None):
-                util = SalesforceUtil(self.salesforce_config.partner)
-                util.get_or_create_account('Test')
-                mock_salesforce().Account.create.assert_called_with({
-                    'Name': 'Test',
+                util.create_course(course)
+                mock_salesforce().Course__c.create.assert_called_with({
+                    'Course_Name__c': course.title,
+                    'Link_to_Publisher__c': '{url}/courses/{uuid}'.format(
+                        url=partner.publisher_url, uuid=course.uuid
+                    ) if partner.publisher_url else None,
+                    'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
+                        url=partner.site.domain, id=course.id
+                    ) if partner.site.domain else None,
+                    'Publisher_Status__c': None,
+                    'OFAC_Review_Decision__c': course.has_ofac_restrictions,
+                    'Course_Key__c': course.key,
                 })
 
-    def test_get_or_create_account_found(self):
-        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
-        get_account_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.get_account_by_key'
+                mock_create_account.assert_called_with(organization)
+                self.assertEqual(course.salesforce_id, return_value.get('id'))
 
-        return_value = {'Id': 'Test'}
+    def test_create_course_run_salesforce_id_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+
+        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='Test')
+        course_run = CourseRunFactory(course=course, salesforce_id='Test')
 
         with mock.patch(salesforce_path) as mock_salesforce:
-            with mock.patch(get_account_path, return_value=return_value):
+            util = SalesforceUtil(self.salesforce_config.partner)
+            util.create_course_run(course_run)
+            mock_salesforce().Course_Run__c.create.assert_not_called()
+
+    def test_create_course_run_salesforce_id_not_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+
+        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
+        course_run = CourseRunFactory(course=course)
+        partner = self.salesforce_config.partner
+
+        return_value = {
+            'id': 'SomeSalesforceId'
+        }
+
+        with mock.patch(salesforce_path) as mock_salesforce:
+            mock_salesforce().Course_Run__c.create.return_value = return_value
+            util = SalesforceUtil(self.salesforce_config.partner)
+            util.create_course_run(course_run)
+            mock_salesforce().Course_Run__c.create.assert_called_with({
+                'Course__c': course_run.course.salesforce_id,
+                'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/courserun/{id}/change/'.format(
+                    url=partner.site, id=course_run.id
+                ),
+                'Course_Start_Date__c': course_run.start.isoformat(),
+                'Course_End_Date__c': course_run.end.isoformat(),
+                'Publisher_Status__c': course_run.status,
+                'Course_Run_Name__c': course_run.title,
+                'Expected_Go_Live_Date__c': None,
+            })
+            self.assertEqual(course_run.salesforce_id, return_value.get('id'))
+
+    def test_create_course_run_course_salesforce_id_not_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+        create_course_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.create_course'
+
+        course = CourseFactory(partner=self.salesforce_config.partner)
+        course_run = CourseRunFactory(course=course)
+        partner = self.salesforce_config.partner
+
+        return_value = {
+            'id': 'SomeSalesforceId'
+        }
+
+        with mock.patch(salesforce_path) as mock_salesforce:
+            with mock.patch(create_course_path) as mock_create_course:
+                mock_salesforce().Course_Run__c.create.return_value = return_value
                 util = SalesforceUtil(self.salesforce_config.partner)
-                self.assertEqual(util.get_or_create_account('Test'), return_value)
-                mock_salesforce().Account.create.assert_not_called()
+                util.create_course_run(course_run)
+                mock_salesforce().Course_Run__c.create.assert_called_with({
+                    'Course__c': course_run.course.salesforce_id,
+                    'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/courserun/{id}/change/'.format(
+                        url=partner.site, id=course_run.id
+                    ),
+                    'Course_Start_Date__c': course_run.start.isoformat(),
+                    'Course_End_Date__c': course_run.end.isoformat(),
+                    'Publisher_Status__c': course_run.status,
+                    'Course_Run_Name__c': course_run.title,
+                    'Expected_Go_Live_Date__c': None,
+                })
+
+            mock_create_course.assert_called_with(course)
+            self.assertEqual(course_run.salesforce_id, return_value.get('id'))
+
+    def test_create_case_for_course_salesforce_case_id_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+
+        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_case_id='Test')
+
+        with mock.patch(salesforce_path) as mock_salesforce:
+            util = SalesforceUtil(self.salesforce_config.partner)
+            util.create_case_for_course(course)
+            mock_salesforce().Case.create.assert_not_called()
+
+    def test_create_case_for_course_salesforce_case_id_not_set_salesforce_id_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+
+        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
+
+        return_value = {
+            'id': 'SomeSalesforceId'
+        }
+
+        with mock.patch(salesforce_path) as mock_salesforce:
+            mock_salesforce().Case.create.return_value = return_value
+            util = SalesforceUtil(self.salesforce_config.partner)
+            util.create_case_for_course(course)
+            mock_salesforce().Case.create.assert_called_with({
+                'Course__c': course.salesforce_id,
+                'Status': 'Open',
+                'Origin': 'Publisher',
+                'Subject': '{} Comments'.format(course.title),
+                'Description': 'This case is required to be Open for the Publisher comment service.',
+                'RecordTypeId': self.salesforce_config.case_record_type_id,
+            })
+            self.assertEqual(course.salesforce_case_id, return_value.get('id'))
+
+    def test_create_case_for_course_salesforce_case_id_not_set_salesforce_id__not_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+        create_course_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.create_course'
+
+        self.salesforce_config.case_record_type_id = 'TestId'
+
+        course = CourseFactory(partner=self.salesforce_config.partner)
+
+        return_value = {
+            'id': 'SomeSalesforceId'
+        }
+
+        with mock.patch(salesforce_path) as mock_salesforce:
+            with mock.patch(create_course_path) as mock_create_course:
+                mock_salesforce().Case.create.return_value = return_value
+                util = SalesforceUtil(self.salesforce_config.partner)
+                util.create_case_for_course(course)
+                mock_salesforce().Case.create.assert_called_with({
+                    'Course__c': course.salesforce_id,
+                    'Status': 'Open',
+                    'Origin': 'Publisher',
+                    'Subject': '{} Comments'.format(course.title),
+                    'Description': 'This case is required to be Open for the Publisher comment service.',
+                    'RecordTypeId': self.salesforce_config.case_record_type_id,
+                })
+                mock_create_course.assert_called_with(course)
+                self.assertEqual(course.salesforce_case_id, return_value.get('id'))
+
+    def test_create_comment_for_course_case_salesforce_case_id_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+        create_case_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.create_case_for_course'
+
+        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_case_id='TestSalesforceId')
+        user = UserFactory()
+
+        body = 'Test body'
+
+        with mock.patch(salesforce_path) as mock_salesforce:
+            with mock.patch(create_case_path) as mock_create_case_for_course:
+                util = SalesforceUtil(self.salesforce_config.partner)
+                util.create_comment_for_course_case(course, user, body)
+                mock_salesforce().FeedItem.create.assert_called_with({
+                    'ParentId': course.salesforce_case_id,
+                    'Body': util._format_user_comment_body(user, body, None)  # pylint: disable=protected-access
+                })
+                mock_create_case_for_course.assert_not_called()
+
+    def test_create_comment_for_course_case_salesforce_case_id_not_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+        create_case_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil.create_case_for_course'
+
+        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
+        user = UserFactory()
+
+        body = 'Test body'
+
+        with mock.patch(salesforce_path) as mock_salesforce:
+            with mock.patch(create_case_path) as mock_create_case_for_course:
+                util = SalesforceUtil(self.salesforce_config.partner)
+                util.create_comment_for_course_case(course, user, body)
+                mock_salesforce().FeedItem.create.assert_called_with({
+                    'ParentId': course.salesforce_case_id,
+                    'Body': util._format_user_comment_body(user, body, None)  # pylint: disable=protected-access
+                })
+                mock_create_case_for_course.assert_called_with(course)
+
+    def test_get_comments_for_course_case_id_not_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+
+        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
+
+        with mock.patch(salesforce_path):
+            util = SalesforceUtil(self.salesforce_config.partner)
+            comments = util.get_comments_for_course(course)
+            self.assertEqual(comments, [])
+
+    def test_get_comments_for_course_case_id_set(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+        query_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil._query'
+
+        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_case_id='TestSalesforceId')
+
+        return_value = {
+            'records': [
+                {
+                    'CreatedBy': {
+                        'Username': 'test'
+                    },
+                    'CreatedDate': '2000-01-01',
+                    'Body': '[User]\ntest\n\n' +
+                                   '[Course Run]\ncourse-v1:testX+TestX+Test\n\n' +
+                                   '[Body]\nThis is a formatted test message.',
+                },
+                {
+                    'CreatedBy': {
+                        'Username': 'internal'
+                    },
+                    'CreatedDate': '2000-01-01',
+                    'Body': 'This is an internal user comment without formatting.'
+                },
+            ]
+        }
+
+        with mock.patch(salesforce_path):
+            with mock.patch(query_path, return_value=return_value) as mock_query:
+                util = SalesforceUtil(self.salesforce_config.partner)
+                comments = util.get_comments_for_course(course)
+                mock_query.assert_called_with(
+                    "SELECT CreatedDate,Body,CreatedBy.Username,CreatedBy.Email,CreatedBy.FirstName,CreatedBy.LastName "
+                    "FROM FeedItem WHERE ParentId='{}' AND IsDeleted=FALSE ORDER BY CreatedDate ASC".format(
+                        course.salesforce_case_id
+                    )
+                )
+                self.assertEqual(comments, [
+                    {
+                        'user': {
+                            'username': 'test',
+                            'email': None,
+                            'first_name': None,
+                            'last_name': None,
+                        },
+                        'course_run_key': 'course-v1:testX+TestX+Test',
+                        'comment': 'This is a formatted test message.',
+                        'created': '2000-01-01',
+                    },
+                    {
+                        'user': {
+                            'username': 'internal',
+                            'email': None,
+                            'first_name': None,
+                            'last_name': None,
+                        },
+                        'course_run_key': None,
+                        'comment': 'This is an internal user comment without formatting.',
+                        'created': '2000-01-01',
+                    },
+                ])
+
+    def test_format_and_parse(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+
+        user = UserFactory()
+        body = 'This is a test body.'
+        course_run_key = 'course-v1:testX+TestX+Test'
+
+        with mock.patch(salesforce_path):
+            util = SalesforceUtil(self.salesforce_config.partner)
+            formatted_message = util._format_user_comment_body(user, body, course_run_key)  # pylint: disable=protected-access
+            expected_formatted_message = '[User]\n{}\n\n[Course Run]\n{}\n\n[Body]\n{}'.format(
+                '{} {} ({})'.format(user.first_name, user.last_name, user.username), course_run_key, body
+            )
+            self.assertEqual(
+                formatted_message,
+                expected_formatted_message
+            )
+            parsed_message = util._parse_user_comment_body(  # pylint: disable=protected-access
+                {
+                    'Body': formatted_message
+                }
+            )
+            parsed_user = parsed_message.get('user')
+            self.assertEqual(parsed_user.get('username'), user.username)
+            # Below 3 will always be None for a matched comment
+            self.assertEqual(parsed_user.get('email'), None)
+            self.assertEqual(parsed_user.get('first_name'), None)
+            self.assertEqual(parsed_user.get('last_name'), None)
+
+            self.assertEqual(parsed_message.get('course_run_key'), course_run_key)
+            self.assertEqual(parsed_message.get('comment'), body)
