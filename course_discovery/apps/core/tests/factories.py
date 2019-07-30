@@ -79,6 +79,7 @@ class SalesforceConfigurationFactory(factory.DjangoModelFactory):
     security_token = factory.fuzzy.FuzzyText()
     is_sandbox = True
     partner = factory.SubFactory(PartnerFactory)
+    case_record_type_id = factory.fuzzy.FuzzyText()
 
     class Meta(object):
         model = SalesforceConfiguration

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-06 01:15+0000\n"
+"POT-Creation-Date: 2019-08-08 20:10+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -88,23 +88,23 @@ msgstr ""
 msgid "Specifying both editable=1 and a q parameter is not supported."
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:39
+#: apps/api/v1/views/course_runs.py:38
 msgid "An error occurred while setting course run data."
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:40
+#: apps/api/v1/views/course_runs.py:39
 msgid "Failed to set course run data: {}"
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:289 apps/api/v1/views/course_runs.py:333
+#: apps/api/v1/views/course_runs.py:279
 msgid "Can only update status, ofac restrictions, and ofac comment"
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:304
+#: apps/api/v1/views/course_runs.py:306
 msgid "Course run is in review. Editing disabled."
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:311
+#: apps/api/v1/views/course_runs.py:313
 msgid "Invalid param"
 msgstr ""
 
@@ -370,6 +370,10 @@ msgstr ""
 msgid "Is a Salesforce Sandbox?"
 msgstr ""
 
+#: apps/core/models.py:202
+msgid "Case Record Type Id"
+msgstr ""
+
 #: apps/course_metadata/admin.py:19
 #, python-brace-format
 msgid ""
@@ -407,7 +411,7 @@ msgstr ""
 msgid "Edit link"
 msgstr ""
 
-#: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:26
+#: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:31
 msgid "Unpublished"
 msgstr ""
 
@@ -430,24 +434,24 @@ msgstr ""
 
 #. Translators: Instructor-paced refers to course runs that operate on a schedule set by the instructor,
 #. similar to a normal university course.
-#: apps/course_metadata/choices.py:20 apps/publisher/models.py:535
+#: apps/course_metadata/choices.py:25 apps/publisher/models.py:535
 msgid "Instructor-paced"
 msgstr ""
 
 #. Translators: Self-paced refers to course runs that operate on the student's schedule.
-#: apps/course_metadata/choices.py:22
+#: apps/course_metadata/choices.py:27
 msgid "Self-paced"
 msgstr ""
 
-#: apps/course_metadata/choices.py:27 apps/journal/choices.py:6
+#: apps/course_metadata/choices.py:32 apps/journal/choices.py:6
 msgid "Active"
 msgstr ""
 
-#: apps/course_metadata/choices.py:28 apps/journal/choices.py:8
+#: apps/course_metadata/choices.py:33 apps/journal/choices.py:8
 msgid "Retired"
 msgstr ""
 
-#: apps/course_metadata/choices.py:29
+#: apps/course_metadata/choices.py:34
 msgid "Deleted"
 msgstr ""
 
@@ -704,8 +708,8 @@ msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
 
 #: apps/course_metadata/models.py:222 apps/course_metadata/models.py:261
-#: apps/course_metadata/models.py:326 apps/course_metadata/models.py:378
-#: apps/course_metadata/models.py:499 apps/course_metadata/models.py:823
+#: apps/course_metadata/models.py:326 apps/course_metadata/models.py:379
+#: apps/course_metadata/models.py:500 apps/course_metadata/models.py:826
 #: apps/course_metadata/models.py:1572 apps/course_metadata/models.py:2211
 #: apps/course_metadata/models.py:2293 apps/journal/models.py:23
 #: apps/journal/models.py:67
@@ -732,32 +736,32 @@ msgid ""
 "logo_image_url, copy and paste the same value to both fields."
 msgstr ""
 
-#: apps/course_metadata/models.py:343 apps/course_metadata/models.py:558
-#: apps/course_metadata/models.py:894
+#: apps/course_metadata/models.py:344 apps/course_metadata/models.py:561
+#: apps/course_metadata/models.py:897
 msgid ""
 "Pick a tag from the suggestions. To make a new tag, add a comma after the "
 "tag name."
 msgstr ""
 
-#: apps/course_metadata/models.py:348
+#: apps/course_metadata/models.py:349
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen in the key field."
 msgstr ""
 
-#: apps/course_metadata/models.py:397
+#: apps/course_metadata/models.py:398
 msgid "A list of major works by this person. Must be valid HTML."
 msgstr ""
 
-#: apps/course_metadata/models.py:405
+#: apps/course_metadata/models.py:406
 msgid "People"
 msgstr ""
 
-#: apps/course_metadata/models.py:529
+#: apps/course_metadata/models.py:530
 msgid "Add the course image"
 msgstr ""
 
-#: apps/course_metadata/models.py:533 apps/course_metadata/models.py:1563
+#: apps/course_metadata/models.py:534 apps/course_metadata/models.py:1563
 #: apps/publisher/forms.py:139 apps/publisher/models.py:97
 #: apps/publisher/templates/publisher/course_detail.html:211
 #: apps/publisher/templates/publisher/course_revision_history.html:147
@@ -765,91 +769,91 @@ msgstr ""
 msgid "FAQ"
 msgstr ""
 
-#: apps/course_metadata/models.py:535 apps/publisher/models.py:101
+#: apps/course_metadata/models.py:536 apps/publisher/models.py:101
 msgid "Course Has OFAC Restrictions"
 msgstr ""
 
-#: apps/course_metadata/models.py:537
+#: apps/course_metadata/models.py:538
 msgid "Total number of learners who have enrolled in this course"
 msgstr ""
 
-#: apps/course_metadata/models.py:541
+#: apps/course_metadata/models.py:542
 msgid ""
 "Total number of learners who have enrolled in this course in the last 6 "
 "months"
 msgstr ""
 
-#: apps/course_metadata/models.py:552
+#: apps/course_metadata/models.py:555
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
 msgstr ""
 
-#: apps/course_metadata/models.py:562 apps/publisher/forms.py:143
+#: apps/course_metadata/models.py:565 apps/publisher/forms.py:143
 #: apps/publisher/models.py:73
 #: apps/publisher/templates/publisher/course_detail.html:222
 msgid "Additional Information"
 msgstr ""
 
-#: apps/course_metadata/models.py:819
+#: apps/course_metadata/models.py:822
 msgid "Restricted"
 msgstr ""
 
-#: apps/course_metadata/models.py:820
+#: apps/course_metadata/models.py:823
 msgid "Not restricted"
 msgstr ""
 
-#: apps/course_metadata/models.py:832 apps/publisher/models.py:359
+#: apps/course_metadata/models.py:835 apps/publisher/models.py:359
 msgid ""
 "Title specific for this run of a course. Leave this value blank to default "
 "to the parent course's title."
 msgstr ""
 
-#: apps/course_metadata/models.py:841 apps/publisher/models.py:353
+#: apps/course_metadata/models.py:844 apps/publisher/models.py:353
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
 msgstr ""
 
-#: apps/course_metadata/models.py:845 apps/publisher/models.py:364
+#: apps/course_metadata/models.py:848 apps/publisher/models.py:364
 msgid ""
 "Full description specific for this run of a course. Leave this value blank "
 "to default to the parent course's full_description attribute."
 msgstr ""
 
-#: apps/course_metadata/models.py:850 apps/publisher/models.py:301
+#: apps/course_metadata/models.py:853 apps/publisher/models.py:301
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
 msgstr ""
 
-#: apps/course_metadata/models.py:853 apps/publisher/models.py:304
+#: apps/course_metadata/models.py:856 apps/publisher/models.py:304
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
 msgstr ""
 
-#: apps/course_metadata/models.py:856
+#: apps/course_metadata/models.py:859
 msgid "Estimated number of weeks needed to complete this course run."
 msgstr ""
 
-#: apps/course_metadata/models.py:863
+#: apps/course_metadata/models.py:866
 msgid "Total number of learners who have enrolled in this course run"
 msgstr ""
 
-#: apps/course_metadata/models.py:867
+#: apps/course_metadata/models.py:870
 msgid ""
 "Total number of learners who have enrolled in this course run in the last 6 "
 "months"
 msgstr ""
 
-#: apps/course_metadata/models.py:882
+#: apps/course_metadata/models.py:885
 msgid "Indicates whether the course relation has been manually overridden."
 msgstr ""
 
-#: apps/course_metadata/models.py:889
+#: apps/course_metadata/models.py:892
 msgid ""
 "'What You Will Learn' description for this particular course run. Leave this "
 "value blank to default to the parent course's Outcome attribute."
 msgstr ""
 
-#: apps/course_metadata/models.py:901 apps/publisher/forms.py:298
+#: apps/course_metadata/models.py:904 apps/publisher/forms.py:298
 msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
 msgstr ""
 
@@ -1421,7 +1425,7 @@ msgstr ""
 msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr ""
 
-#: apps/course_metadata/utils.py:339
+#: apps/course_metadata/utils.py:348
 msgid "Special characters not allowed in Course Number."
 msgstr ""
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-06 01:15+0000\n"
+"POT-Creation-Date: 2019-08-08 20:10+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -130,7 +130,7 @@ msgid "Failed to set course run data: {}"
 msgstr ""
 "Fäïléd tö sét çöürsé rün dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
-#: apps/api/v1/views/course_runs.py apps/api/v1/views/course_runs.py
+#: apps/api/v1/views/course_runs.py
 msgid "Can only update status, ofac restrictions, and ofac comment"
 msgstr ""
 "Çän önlý üpdäté stätüs, öfäç réstrïçtïöns, änd öfäç çömmént Ⱡ'σяєм ιρѕυм "
@@ -453,6 +453,10 @@ msgstr "Sälésförçé Séçürïtý Tökén Ⱡ'σяєм ιρѕυм ∂σłσ�
 #: apps/core/models.py
 msgid "Is a Salesforce Sandbox?"
 msgstr "Ìs ä Sälésförçé Sändßöx? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/core/models.py
+msgid "Case Record Type Id"
+msgstr "Çäsé Réçörd Týpé Ìd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/course_metadata/admin.py
 #, python-brace-format

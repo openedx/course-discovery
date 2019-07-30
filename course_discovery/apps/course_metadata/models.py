@@ -337,6 +337,7 @@ class Organization(TimeStampedModel):
         null=True, blank=True, help_text=_('Logo to be displayed on certificates. If this logo is the same as '
                                            'logo_image_url, copy and paste the same value to both fields.')
     )
+    salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Publisher_Organization__c in Salesforce
 
     tags = TaggableManager(
         blank=True,
@@ -541,6 +542,8 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
             'Total number of learners who have enrolled in this course in the last 6 months'
         )
     )
+    salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Course__c in Salesforce
+    salesforce_case_id = models.CharField(max_length=255, null=True, blank=True)  # Case in Salesforce
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
@@ -913,6 +916,8 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
+
+    salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Course_Run__c in Salesforce
 
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',

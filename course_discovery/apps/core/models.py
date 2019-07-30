@@ -196,5 +196,11 @@ class SalesforceConfiguration(models.Model):
         verbose_name=_('Is a Salesforce Sandbox?'),
         default=True
     )
+    case_record_type_id = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name=_('Case Record Type Id'),
+        null=True,
+    )
 
     history = HistoricalRecords()
