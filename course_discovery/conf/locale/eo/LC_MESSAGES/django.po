@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-06 01:15+0000\n"
+"POT-Creation-Date: 2019-08-16 14:02+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -119,6 +119,21 @@ msgstr ""
 "Spéçïfýïng ßöth édïtäßlé=1 änd ä q pärämétér ïs nöt süppörtéd. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
+#: apps/api/v1/views/comments.py
+msgid "You must include a course_uuid in your query parameters."
+msgstr ""
+"Ýöü müst ïnçlüdé ä çöürsé_üüïd ïn ýöür qüérý pärämétérs. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/v1/views/comments.py apps/api/v1/views/courses.py
+#, python-brace-format
+msgid "Missing value for: [{name}]. "
+msgstr "Mïssïng välüé för: [{name}].  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/api/v1/views/comments.py apps/api/v1/views/courses.py
+msgid "Incorrect data sent. "
+msgstr "Ìnçörréçt dätä sént.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
 #: apps/api/v1/views/course_runs.py
 msgid "An error occurred while setting course run data."
 msgstr ""
@@ -130,7 +145,7 @@ msgid "Failed to set course run data: {}"
 msgstr ""
 "Fäïléd tö sét çöürsé rün dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
-#: apps/api/v1/views/course_runs.py apps/api/v1/views/course_runs.py
+#: apps/api/v1/views/course_runs.py
 msgid "Can only update status, ofac restrictions, and ofac comment"
 msgstr ""
 "Çän önlý üpdäté stätüs, öfäç réstrïçtïöns, änd öfäç çömmént Ⱡ'σяєм ιρѕυм "
@@ -157,11 +172,6 @@ msgid "Failed to set data: {}"
 msgstr "Fäïléd tö sét dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: apps/api/v1/views/courses.py
-#, python-brace-format
-msgid "Missing value for: [{name}]. "
-msgstr "Mïssïng välüé för: [{name}].  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: apps/api/v1/views/courses.py
 msgid "Organization does not exist. "
 msgstr "Örgänïzätïön döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
@@ -169,10 +179,6 @@ msgstr "Örgänïzätïön döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σł
 msgid "Entitlement Track does not exist. "
 msgstr ""
 "Éntïtlémént Träçk döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
-
-#: apps/api/v1/views/courses.py
-msgid "Incorrect data sent. "
-msgstr "Ìnçörréçt dätä sént.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/api/v1/views/courses.py
 #, python-brace-format
@@ -453,6 +459,10 @@ msgstr "Sälésförçé Séçürïtý Tökén Ⱡ'σяєм ιρѕυм ∂σłσ�
 #: apps/core/models.py
 msgid "Is a Salesforce Sandbox?"
 msgstr "Ìs ä Sälésförçé Sändßöx? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/core/models.py
+msgid "Case Record Type Id"
+msgstr "Çäsé Réçörd Týpé Ìd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
 
 #: apps/course_metadata/admin.py
 #, python-brace-format
@@ -863,7 +873,7 @@ msgstr ""
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
 "Léävé thïs fïéld ßlänk tö hävé thé välüé générätéd äütömätïçällý. Ⱡ'σяєм "

@@ -6,6 +6,7 @@ from course_discovery.apps.api.v1.views import search as search_views
 from course_discovery.apps.api.v1.views.affiliates import AffiliateWindowViewSet
 from course_discovery.apps.api.v1.views.catalog_queries import CatalogQueryContainsViewSet
 from course_discovery.apps.api.v1.views.catalogs import CatalogViewSet
+from course_discovery.apps.api.v1.views.comments import CommentViewSet
 from course_discovery.apps.api.v1.views.course_editors import CourseEditorViewSet
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.api.v1.views.courses import CourseViewSet
@@ -33,6 +34,7 @@ urlpatterns = [
 
 router = routers.SimpleRouter()
 router.register(r'catalogs', CatalogViewSet)
+router.register(r'comments', CommentViewSet, basename='comment')
 router.register(r'courses', CourseViewSet, basename='course')
 router.register(r'course_editors', CourseEditorViewSet, basename='course_editor')
 router.register(r'course_runs', CourseRunViewSet, basename='course_run')
