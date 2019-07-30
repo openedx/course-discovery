@@ -1415,9 +1415,12 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         Note that missing enrollment_end or enrollment_start are considered to
         mean that the course run does not have a restriction on the respective
         fields.
+        Additionally, we don't consider the end date because archived course
+        runs may have ended, but they are always enrollable since they have
+        null enrollment_start and enrollment_end.
         """
         now = datetime.datetime.now(pytz.UTC)
-        return (not self.has_enrollment_ended(now) and
+        return ((not self.enrollment_end or self.enrollment_end >= now) and
                 (not self.enrollment_start or self.enrollment_start <= now))
 
     @property
