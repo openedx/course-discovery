@@ -92,6 +92,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         return obj
 
+
+
     def get_queryset(self):
         partner = self.request.site.partner
         q = self.request.query_params.get('q')
