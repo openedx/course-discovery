@@ -271,6 +271,13 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # Get and validate object serializer
         course = self.get_object()
         course = ensure_draft_world(course)  # always work on drafts
+
+        number = data.pop('number', None)
+        if number:
+            validate_course_number(number)
+            data['key'] = self.get_course_key({'org': course.authoring_organizations.first().key, 'number': number})
+        else:
+            data['key'] = course.key
         serializer = self.get_serializer(course, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
 

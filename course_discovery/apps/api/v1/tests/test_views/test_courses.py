@@ -739,10 +739,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.mock_access_token()
         entitlement = CourseEntitlementFactory(course=self.course)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        number = 'NewNumber1x'
         course_data = {
             'title': 'Course title',
             'partner': self.partner.id,
-            'key': self.course.key,
+            'number': number,
             'entitlements': [
                 {
                     'mode': entitlement.mode.slug,
@@ -762,6 +763,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
         self.assertEqual(course.title, 'Course title')
+        expected_key = self.course.authoring_organizations.first().key + '+' + number  # pylint: disable=no-member
+        self.assertEqual(course.key, expected_key)
         self.assertEqual(course.entitlements.first().price, 1000)
         self.assertDictEqual(response.data, self.serialize_course(course))
 
@@ -1121,6 +1124,14 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                         'An error occurred while setting Course or Course Run data.',
                     )
                 )
+
+    def test_update_fails_invalid_course_number(self):
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        course_data = {'number': 'a b c'}
+        response = self.client.patch(url, course_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        expected_error_message = 'Failed to set data: Special characters not allowed in Course Number.'
+        self.assertEqual(response.data, expected_error_message)
 
     @responses.activate
     def test_options(self):
