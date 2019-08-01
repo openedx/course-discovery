@@ -166,6 +166,8 @@ def ensure_external_key_uniquness__course_run(sender, instance, **kwargs):  # py
         old_course_run = CourseRun.objects.get(pk=instance.id)
         if instance.external_key == old_course_run.external_key and instance.course == old_course_run.course:
             return
+    if not instance.external_key:
+        return
 
     course = instance.course
     curricula = course.degree_course_curricula.select_related('program').all()
@@ -225,17 +227,14 @@ def _build_external_key_sets(course_runs):
     return external_key_set, course_run_ids
 
 
-def _duplicate_external_key_message(course_run, curriculum=None):
-    message = "Duplicate external_key found: external_key={} course_run={} course={}".format(
-        course_run.external_key,
-        course_run,
-        course_run.course
-    )
-    # Currently curriculum and program are never being provided
-    if curriculum:
-        message = message + " curriculum={}".format(curriculum)
-        if curriculum.program:
-            message = message + " program={}".format(curriculum.program)
+def _duplicate_external_key_message(course_runs):
+    message = 'Duplicate external_key{} found: '.format('s' if len(course_runs) > 1 else '')
+    for course_run in course_runs:
+        message += ' [ external_key={} course_run={} course={} ]'.format(
+            course_run.external_key,
+            course_run,
+            course_run.course
+        )
     return message
 
 
@@ -263,16 +262,16 @@ def check_curricula_and_related_programs_for_duplicate_external_key(curricula, c
 
     # Get the first course run in the curricula or programs that have a duplicate external key
     # but aren't the course runs we're given
-    course_run = CourseRun.objects.filter(
+    course_runs = CourseRun.objects.filter(
         ~Q(id__in=course_run_ids),
         Q(external_key__in=external_key_set),
         (
             Q(course__degree_course_curricula__program__in=programs) |
             Q(course__degree_course_curricula__in=programless_curricula)
         ),
-    ).select_related('course').distinct().first()
-    if course_run:
-        message = _duplicate_external_key_message(course_run)
+    ).select_related('course').distinct().all()
+    if course_runs:
+        message = _duplicate_external_key_message(course_runs)
         raise ValidationError(message)
 
 
@@ -292,5 +291,5 @@ def check_course_runs_within_course_for_duplicate_external_key(course, specific_
     for course_run in course.course_runs.all():
         external_key = course_run.external_key
         if external_key == specific_course_run.external_key and course_run != specific_course_run:
-            message = _duplicate_external_key_message(course_run)
+            message = _duplicate_external_key_message([course_run])
             raise ValidationError(message)
