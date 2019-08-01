@@ -2,6 +2,7 @@
 Populate catalog programs for masters sandbox environment
 """
 import logging
+from contextlib import contextmanager
 from posixpath import join as urljoin
 
 from django import db
@@ -11,9 +12,68 @@ from django.core.management import BaseCommand, CommandError
 from edx_rest_api_client import client as rest_client
 
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.models import Program, ProgramType, SeatType
+from course_discovery.apps.course_metadata.models import (
+    CourseRun, Curriculum, CurriculumCourseMembership, Program, ProgramType, Seat, SeatType
+)
+from course_discovery.apps.course_metadata.signals import (
+    add_masters_track_on_course, ensure_external_key_uniquness__course_run, ensure_external_key_uniquness__curriculum,
+    ensure_external_key_uniquness__curriculum_course_membership, publish_masters_track
+)
 
 logger = logging.getLogger(__name__)
+
+
+@contextmanager
+def disconnect_program_signals():
+    """
+    Context manager to be used for temporarily disconnecting the following post_save
+    signals for the creation of masters tracks
+    - add_masters_track_on_course
+    - publish_masters_track
+
+    and the following pre_save signals for verifying external course keys
+    - ensure_external_key_uniquness__course_run
+    - ensure_external_key_uniquness__curriculum
+    - ensure_external_key_uniquness__curriculum_course_membership
+    """
+    post_save = db.models.signals.post_save
+    pre_save = db.models.signals.pre_save
+
+    post_save.disconnect(
+        add_masters_track_on_course, sender=CurriculumCourseMembership,
+    )
+    post_save.disconnect(
+        publish_masters_track, sender=Seat,
+    )
+
+    pre_save.disconnect(
+        ensure_external_key_uniquness__course_run, sender=CourseRun,
+    )
+    pre_save.disconnect(
+        ensure_external_key_uniquness__curriculum, sender=Curriculum,
+    )
+    pre_save.disconnect(
+        ensure_external_key_uniquness__curriculum_course_membership, sender=CurriculumCourseMembership,
+    )
+    try:
+        yield
+    finally:
+        post_save.connect(
+            add_masters_track_on_course, sender=CurriculumCourseMembership,
+        )
+        post_save.connect(
+            publish_masters_track, sender=Seat,
+        )
+
+        pre_save.connect(
+            ensure_external_key_uniquness__course_run, sender=CourseRun,
+        )
+        pre_save.connect(
+            ensure_external_key_uniquness__curriculum, sender=Curriculum,
+        )
+        pre_save.connect(
+            ensure_external_key_uniquness__curriculum_course_membership, sender=CurriculumCourseMembership,
+        )
 
 
 class Command(BaseCommand):
@@ -91,7 +151,8 @@ class Command(BaseCommand):
         connection = db.connections[db.DEFAULT_DB_ALIAS]
 
         with connection.constraint_checks_disabled():
-            self.load_fixture(fixture, partner)
+            with disconnect_program_signals():
+                self.load_fixture(fixture, partner)
         try:
             connection.check_constraints()
         except Exception as e:

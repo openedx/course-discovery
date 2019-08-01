@@ -10,13 +10,13 @@ from factory import DjangoModelFactory
 from testfixtures import LogCapture
 from waffle.testutils import override_switch
 
+from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
     CourseRun, Curriculum, CurriculumCourseMembership, DataLoaderConfig, DeletePersonDupsConfig,
     DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, ProgramType, Seat,
     SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
-from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
 
 LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
@@ -278,16 +278,16 @@ class CurriculumCourseMembershipTests(TestCase):
 
 class ExternalCourseKeyTestMixin(object):
 
-    @classmethod
-    def _add_courses_to_curriculum(cls, curriculum, *courses):
+    @staticmethod
+    def _add_courses_to_curriculum(curriculum, *courses):
         for course in courses:
             factories.CurriculumCourseMembershipFactory(
                 course=course,
                 curriculum=curriculum
             )
 
-    @classmethod
-    def _create_course_and_runs(cls, course_identifier=1):
+    @staticmethod
+    def _create_course_and_runs(course_identifier=1):
         course_name = 'course-{}'.format(course_identifier)
         course = factories.CourseFactory(
             key='course-id/' + course_name + '/test',
@@ -301,8 +301,9 @@ class ExternalCourseKeyTestMixin(object):
                 external_key='ext-key-' + course_run_name,
             )
         return course
-    
-    def _create_single_course_curriculum(self, external_key, curriculum_name,):
+
+    @staticmethod
+    def _create_single_course_curriculum(external_key, curriculum_name,):
         course_run = factories.CourseRunFactory(
             external_key=external_key
         )
@@ -316,17 +317,13 @@ class ExternalCourseKeyTestMixin(object):
         )
         return course_run, curriculum
 
-    @classmethod
-    def _create_error_message(self, course_run, curriculum=None, program=None):
+    @staticmethod
+    def _create_error_message(course_run, curriculum=None, program=None):  # pylint: disable=unused-argument
         message = "Duplicate external_key found: external_key={} course_run={} course={}".format(
             course_run.external_key,
             course_run,
             course_run.course
         )
-        if curriculum:
-            message = message + " curriculum={}".format(curriculum)
-            if program:
-                message = message + " program={}".format(curriculum.program)
         return message
 
 
@@ -376,16 +373,17 @@ class ExternalCourseKeyTests(TestCase, ExternalCourseKeyTestMixin):
 
     @ddt.unpack
     @ddt.data(
-        ('course-run-id/course-2a/test', 3, 2, 12),  # Scenario 1, within the same Course
-        ('course-run-id/course-3a/test', 3, 2, 13),  # Scenario 2, within the same Curriculum
-        ('course-run-id/course-1a/test', 1, 1, 18),  # Scenario 3, within the same Program
+        ('course-run-id/course-2a/test', 3, 2),  # Scenario 1, within the same Course
+        ('course-run-id/course-3a/test', 3, 2),  # Scenario 2, within the same Curriculum
+        ('course-run-id/course-1a/test', 1, 1),  # Scenario 3, within the same Program
     )
-    def test_create_course_run(self, copy_key, curriculum_id, program_id, num_queries):
+    def test_create_course_run(self, copy_key, curriculum_id, program_id):
         program = self.programs[program_id]
         curriculum = self.curriculums[curriculum_id]
         copied_course_run = CourseRun.objects.get(key=copy_key)
         message = self._create_error_message(copied_course_run, curriculum, program)
-        with self.assertNumQueries(num_queries):
+        # This number may seem high but only 2 are select statements caused by the external key signal
+        with self.assertNumQueries(8):
             with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
                 factories.CourseRunFactory(
                     course=self.course_2,
@@ -394,17 +392,18 @@ class ExternalCourseKeyTests(TestCase, ExternalCourseKeyTestMixin):
 
     @ddt.unpack
     @ddt.data(
-        ('course-run-id/course-2b/test', 3, 2, 13),  # Scenario 1, within the same Course
-        ('course-run-id/course-3a/test', 3, 2, 14),  # Scenario 2, within the same Curriculum
-        ('course-run-id/course-1a/test', 1, 1, 19),  # Scenario 3, within the same Program
+        ('course-run-id/course-2b/test', 3, 2),  # Scenario 1, within the same Course
+        ('course-run-id/course-3a/test', 3, 2),  # Scenario 2, within the same Curriculum
+        ('course-run-id/course-1a/test', 1, 1),  # Scenario 3, within the same Program
     )
-    def test_modify_course_run(self, copy_key, curriculum_id, program_id, num_queries):
+    def test_modify_course_run(self, copy_key, curriculum_id, program_id):
         program = self.programs[program_id]
         curriculum = self.curriculums[curriculum_id]
         copied_course_run = CourseRun.objects.get(key=copy_key)
         message = self._create_error_message(copied_course_run, curriculum, program)
         course_run = CourseRun.objects.get(key='course-run-id/course-2a/test')
-        with self.assertNumQueries(num_queries):
+        # This number may seem high but only 3 are select statements caused by the external key signal
+        with self.assertNumQueries(9):
             with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
                 course_run.external_key = copied_course_run.external_key
                 course_run.save()
@@ -420,7 +419,7 @@ class ExternalCourseKeyTests(TestCase, ExternalCourseKeyTestMixin):
         new_course = new_course_run.course
         course_run_1a = CourseRun.objects.get(key='course-run-id/course-1a/test')
         message = self._create_error_message(course_run_1a, self.curriculum_1, self.program_1)
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(2):
             with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
                 factories.CurriculumCourseMembershipFactory(
                     course=new_course,
@@ -442,12 +441,11 @@ class ExternalCourseKeyTests(TestCase, ExternalCourseKeyTestMixin):
         )
         course_run_1a = CourseRun.objects.get(key='course-run-id/course-1a/test')
         message = self._create_error_message(course_run_1a, self.curriculum_1, self.program_1)
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(2):
             with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
                 curriculum_course_membership.curriculum = self.curriculums[curriculum_id]
                 curriculum_course_membership.save()
 
-    # pylint: disable=pointless-string-statement
     def test_create_curriculum(self):
         """
         I can't think of any case that would cause the exception on creating a curriculum
@@ -462,7 +460,7 @@ class ExternalCourseKeyTests(TestCase, ExternalCourseKeyTestMixin):
             curricula=[curriculum_4]
         )
         message = self._create_error_message(course_run_1a, self.curriculum_1, self.program_1)
-        with self.assertNumQueries(9):
+        with self.assertNumQueries(4):
             with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
                 curriculum_4.program = self.program_1
                 curriculum_4.save()
@@ -475,7 +473,7 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
     Tests that the external_key validation still works within an incomplete hierarchy
     (Course alone or curriculum without a program)
     """
-    
+
     def test_create_course_run__course_run_only(self):
         course = self._create_course_and_runs()
         course_run = course.course_runs.first()
@@ -499,8 +497,8 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
 
     def test_create_course_run__curriculum_only(self):
         course_run, curriculum_1 = self._create_single_course_curriculum('colliding-key', 'curriculum_1')
-        message = _duplicate_external_key_message(course_run, curriculum_1)
-        with self.assertNumQueries(9):
+        message = self._create_error_message(course_run, curriculum_1)
+        with self.assertNumQueries(7):
             with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
                 factories.CourseRunFactory(
                     course=course_run.course,
@@ -513,8 +511,8 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
             course=course_run_1a.course,
             external_key='this-is-a-different-external-key'
         )
-        message = _duplicate_external_key_message(course_run_1a, curriculum_1)
-        with self.assertNumQueries(8):
+        message = self._create_error_message(course_run_1a, curriculum_1)
+        with self.assertNumQueries(6):
             with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
                 course_run_1b.external_key = 'colliding-key'
                 course_run_1b.save()
@@ -524,8 +522,8 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
         course_run_2 = factories.CourseRunFactory(
             external_key='colliding-key'
         )
-        message = _duplicate_external_key_message(course_run_1, curriculum_1)
-        with self.assertNumQueries(3):
+        message = self._create_error_message(course_run_1, curriculum_1)
+        with self.assertNumQueries(2):
             with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
                 factories.CurriculumCourseMembershipFactory(
                     course=course_run_2.course,
@@ -536,49 +534,61 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
         course_run_1, curriculum_1 = self._create_single_course_curriculum('colliding-key', 'curriculum_1')
         course_run_2, _ = self._create_single_course_curriculum('colliding-key', 'curriculum_2')
         curriculum_course_membership_2 = course_run_2.course.curriculum_course_membership.first()
-        message = _duplicate_external_key_message(course_run_1, curriculum_1)
-        with self.assertNumQueries(3):
+        message = self._create_error_message(course_run_1, curriculum_1)
+        with self.assertNumQueries(2):
             with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
                 curriculum_course_membership_2.curriculum = curriculum_1
                 curriculum_course_membership_2.save()
 
-class ExternalCourseKeyDBTest(TestCase, ExternalCourseKeyTestMixin):
+
+class ExternalCourseKeyDBTests(TestCase, ExternalCourseKeyTestMixin):
+
+    def test_mix_of_curriculums_with_and_without_programs(self):
+        course_a = self._create_course_and_runs('a')
+        course_b = self._create_course_and_runs('b')
+        course_c = self._create_course_and_runs('c')
+        program_1 = factories.ProgramFactory(title='program_1')
+        program_2 = factories.ProgramFactory(title='program_2')
+        curriculum_1 = factories.CurriculumFactory(program=program_1)
+        curriculum_2 = factories.CurriculumFactory(program=program_2)
+        curriculum_3 = factories.CurriculumFactory(program=None)
+        curriculum_4 = factories.CurriculumFactory(program=None)
+        self._add_courses_to_curriculum(curriculum_1, course_a, course_b)
+        self._add_courses_to_curriculum(curriculum_2, course_a, course_b)
+        self._add_courses_to_curriculum(curriculum_3, course_a, course_b, course_c)
+        self._add_courses_to_curriculum(curriculum_4, course_a, course_b, course_c)
+
+        course_run = course_a.course_runs.first()
+        course_run_ca = CourseRun.objects.get(external_key='ext-key-course-ca')
+        message = self._create_error_message(course_run_ca)
+        with self.assertNumQueries(FuzzyInt(6, 1)):  # 3 Selects
+            with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
+                course_run.external_key = course_run_ca.external_key
+                course_run.save()
+
+        with self.assertNumQueries(FuzzyInt(36, 1)):
+            course_run.external_key = 'some-safe-key'
+            course_run.save()
 
     def test_curriculum_repeats(self):
         course_a = self._create_course_and_runs('a')
         course_b = self._create_course_and_runs('b')
+        course_c = self._create_course_and_runs('c')
         program = factories.ProgramFactory(title='program_1')
-
-        curriculum_1 = factories.CurriculumFactory(
-            program=program,
-        )
-        factories.CurriculumCourseMembershipFactory(
-            course=course_a,
-            curriculum=curriculum_1,
-        )
-        factories.CurriculumCourseMembershipFactory(
-            course=course_b,
-            curriculum=curriculum_1,
-        )
-
-        curriculum_2 = factories.CurriculumFactory(
-            program=program,
-        )
-        factories.CurriculumCourseMembershipFactory(
-            course=course_a,
-            curriculum=curriculum_2,
-        )
-        factories.CurriculumCourseMembershipFactory(
-            course=course_b,
-            curriculum=curriculum_2,
-        )
-
+        curriculum_1 = factories.CurriculumFactory(program=program)
+        curriculum_2 = factories.CurriculumFactory(program=program)
+        curriculum_3 = factories.CurriculumFactory(program=program)
+        self._add_courses_to_curriculum(curriculum_1, course_a, course_b, course_c)
+        self._add_courses_to_curriculum(curriculum_2, course_a, course_b, course_c)
+        self._add_courses_to_curriculum(curriculum_3, course_a, course_b, course_c)
         course_run = course_a.course_runs.first()
-        with self.assertNumQueries(46):
-            course_run.external_key = 'something-else'
+        course_run_ba = CourseRun.objects.get(external_key='ext-key-course-ba')
+        message = self._create_error_message(course_run_ba)
+        with self.assertNumQueries(FuzzyInt(6, 1)):  # 3 Selects
+            with self.assertRaisesRegex(ValidationError, message):  # pylint: disable=deprecated-method
+                course_run.external_key = course_run_ba.external_key
+                course_run.save()
+
+        with self.assertNumQueries(FuzzyInt(36, 1)):
+            course_run.external_key = 'some-safe-key'
             course_run.save()
-            
-
-
-
-
