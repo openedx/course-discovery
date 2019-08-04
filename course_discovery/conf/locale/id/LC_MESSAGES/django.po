@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2019-07-28 17:42+0000\n"
+"PO-Revision-Date: 2019-07-29 01:49+0000\n"
 "Last-Translator: Aprisa Chrysantina <aprisa.chrysantina@gmail.com>\n"
 "Language-Team: Indonesian (http://www.transifex.com/open-edx/edx-platform/language/id/)\n"
 "MIME-Version: 1.0\n"
@@ -2477,7 +2477,7 @@ msgstr "Bahasa: Video"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run"
-msgstr ""
+msgstr "Kursus Berjalan"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "New or Rerun?"
