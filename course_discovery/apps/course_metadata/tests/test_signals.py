@@ -614,3 +614,62 @@ class ExternalCourseKeyDBTests(TestCase, ExternalCourseKeyTestMixin):
         with self.assertNumQueries(FuzzyInt(36, 1)):
             course_run.external_key = 'some-safe-key'
             course_run.save()
+
+
+class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
+    """
+    Tests for the behavior of draft Course Runs.
+    Draft or not, a course run will only be checked for collisions against _published_ courseruns.
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.draft_course_run_1 = factories.CourseRunFactory(
+            course=cls.course_1,
+            draft=True,
+            external_key='external-key-drafttest'
+        )
+
+    def test_draft_does_not_collide_with_draft(self):
+        with self.assertNumQueries(77):
+            factories.CourseRunFactory(
+                course=self.course_1,
+                draft=True,
+                external_key='external-key-drafttest'
+            )
+
+    def test_draft_collides_with_nondraft(self):
+        course_run_1a = self.course_1.course_runs.get(external_key='ext-key-course-1a')
+        message = _duplicate_external_key_message([course_run_1a])
+        with self.assertNumQueries(8):
+            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+                factories.CourseRunFactory(
+                    course=self.course_1,
+                    draft=True,
+                    external_key='ext-key-course-1a',
+                )
+
+    def test_nondraft_does_not_collide_with_draft(self):
+        with self.assertNumQueries(77):
+            factories.CourseRunFactory(
+                course=self.course_1,
+                draft=False,
+                external_key='external-key-drafttest'
+            )
+
+    def test_collision_does_not_include_drafts(self):
+        with self.assertNumQueries(77):
+            course_run = factories.CourseRunFactory(
+                course=self.course_1,
+                draft=False,
+                external_key='external-key-drafttest'
+            )
+        message = _duplicate_external_key_message([course_run])  # Not draft_course_run_1
+        with self.assertNumQueries(7):
+            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+                factories.CourseRunFactory(
+                    course=self.course_1,
+                    draft=False,
+                    external_key='external-key-drafttest'
+                )

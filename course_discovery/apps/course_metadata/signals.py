@@ -163,7 +163,7 @@ def ensure_external_key_uniquness__course_run(sender, instance, **kwargs):  # py
     is unique within course runs in the course
     """
     if instance.id:
-        old_course_run = CourseRun.objects.get(pk=instance.id)
+        old_course_run = CourseRun.everything.get(pk=instance.id)
         if instance.external_key == old_course_run.external_key and instance.course == old_course_run.course:
             return
     if not instance.external_key:
