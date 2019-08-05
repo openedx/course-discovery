@@ -25,11 +25,7 @@ class CourseEditorViewSet(mixins.CreateModelMixin,
 
     @property
     def course(self):
-        return Course.everything.get(
-            uuid=self.request.data['course'],
-            partner=self.request.site.partner,
-            draft=True
-        )
+        return Course.objects.filter_drafts(uuid=self.request.data['course'], partner=self.request.site.partner).first()
 
     def get_queryset(self):
         return CourseEditor.editors_for_user(self.request.user)
