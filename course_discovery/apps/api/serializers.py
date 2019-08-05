@@ -966,7 +966,7 @@ class CourseEditorSerializer(serializers.ModelSerializer):
     """Serializer for the ``CourseEditor`` model."""
     user = GroupUserSerializer(read_only=True)
     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
-    course = serializers.SlugRelatedField(queryset=Course.everything.filter(draft=True), slug_field='uuid')
+    course = serializers.SlugRelatedField(queryset=Course.objects.filter_drafts(), slug_field='uuid')
 
     class Meta:
         model = CourseEditor

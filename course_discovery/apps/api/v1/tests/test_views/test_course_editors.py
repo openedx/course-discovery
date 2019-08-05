@@ -50,14 +50,20 @@ class CourseEditorsViewSetTests(SerializationMixin, APITestCase):
         assert len(response.data['results']) == 1
         assert response.data['results'][0]['course'] == self.course.uuid
 
-    @ddt.data(True, False)
-    def test_create_for_self(self, is_staff):
-        """Verify can make self an editor. Test cases: as staff user, as non staff user"""
+    @ddt.data(
+        (True, True),  # Staff User on Draft Course
+        (True, False),  # Staff User on Official Course
+        (False, True),  # Non-staff User on Draft Course
+        (False, False),  # Non-staff User on Official Course
+    )
+    @ddt.unpack
+    def test_create_for_self_and_draft_course(self, is_staff, is_draft):
+        """Verify can make self an editor. Test cases: as staff and non-staff, on official and draft course"""
 
         self.user.is_staff = is_staff
         self.user.save()
         partner = Partner.objects.first()
-        course = CourseFactory(draft=True, partner=partner)
+        course = CourseFactory(draft=is_draft, partner=partner)
         self.user.groups.add(self.org_ext.group)
         course.authoring_organizations.add(self.org_ext.organization)
 
