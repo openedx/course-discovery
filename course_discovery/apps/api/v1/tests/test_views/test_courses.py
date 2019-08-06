@@ -1040,6 +1040,36 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(seat.price, price)
         self.assertTrue(seat.draft)
 
+    @responses.activate
+    def test_patch_creates_draft_entitlement_if_possible(self):
+        """
+        If an official course exists and does not have an entitlement, during the ensure_draft_world call,
+        we attempt to create an entitlement based on the seat data from the course runs. As long as all seat
+        data from active course runs (see Course.active_course_runs) match, we will create an entitlement.
+        """
+        self.mock_access_token()
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
+        run = CourseRunFactory(course=self.course, end=future, enrollment_end=None)
+        seat = SeatFactory(course_run=run, type=Seat.VERIFIED)
+        self.assertFalse(Course.everything.filter(uuid=self.course.uuid, draft=True).exists())  # sanity check
+        self.assertIsNone(self.course.entitlements.first())
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.patch(url, {'title': 'Title'}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+
+        self.assertEqual(course.entitlements.count(), 1)
+        entitlement = course.entitlements.first()
+        self.assertEqual(entitlement.mode.slug, Seat.VERIFIED)
+        self.assertEqual(entitlement.price, seat.price)
+        self.assertEqual(entitlement.currency, seat.currency)
+        self.assertTrue(entitlement.draft)
+
+        # The official version of the course should still not have any entitlements
+        self.assertIsNone(self.course.entitlements.first())
+
     @ddt.data(
         (
             {'entitlements': [{'price': 5}]},

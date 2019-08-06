@@ -148,6 +148,15 @@ def _calculate_entitlement_for_run(run):
 
 
 def _calculate_entitlement_for_course(course):
+    from course_discovery.apps.course_metadata.models import Course
+
+    # When we are creating the draft course for the first time, the prefetch_related of course runs
+    # on the serializer causes any related key lookups on course.course_runs return an empty
+    # QuerySet despite knowing it exists. So we use the below check to see if we are in this case,
+    # and if so, to get the course to re-establish the course.course_runs relationship.
+    if course.course_runs.exists() and not course.course_runs.last():
+        course = Course.everything.get(pk=course.pk)
+
     # Get all active runs or latest inactive run
     runs = course.active_course_runs
     if not runs and course.course_runs.exists():
