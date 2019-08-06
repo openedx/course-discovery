@@ -7,6 +7,7 @@ import mock
 import pytest
 import pytz
 import responses
+from django.contrib.auth.models import Group
 from django.db.models.functions import Lower
 from rest_framework.reverse import reverse
 from rest_framework.test import APIRequestFactory
@@ -907,3 +908,49 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             self.client.get(url)
 
         self.assertEqual(str(exc.value), 'Specifying both editable=1 and a q parameter is not supported.')
+
+    @ddt.data(
+        ({
+            'staff': True,
+            'body': {
+                'status': 'review_by_internal',
+                'has_ofac_restrictions': True,
+                'ofac_comment': 'United States'
+            },
+            'original_status': 'review_by_legal',
+            'status_code': 200
+        }),
+        ({
+            'staff': True,
+            'body': {
+                'status': 'review_by_internal',
+                'has_ofac_restrictions': True,
+                'ofac_comment': 'United States',
+                'invalid_field': 'invalid value'
+            },
+            'original_status': 'review_by_legal',
+            'status_code': 400
+        }),
+        ({
+            'staff': True,
+            'body': {
+                'status': 'review_by_internal',
+                'has_ofac_restrictions': True,
+                'ofac_comment': 'United States'
+            },
+            'original_status': 'unpublished',
+            'status_code': 400,
+        }),
+    )
+    def test_change_status_and_ofac_info(self, patch_transaction):
+        """Verify status, ofac restrictions, and ofac comment can be updated.  Test cases: valid body, invalid body"""
+        self.user.is_staff = patch_transaction['staff']
+        self.user.save()
+        self.draft_course_run.status = patch_transaction['original_status']
+        self.draft_course_run.save()
+        group = Group.objects.get(name='Internal Users')
+        self.user.groups.add(group)
+        url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
+        response = self.client.patch(url, patch_transaction['body'], format='json')
+
+        self.assertEqual(response.status_code, patch_transaction['status_code'])
