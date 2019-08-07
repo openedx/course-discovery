@@ -157,9 +157,52 @@ class LevelType(AbstractNamedModel):
 class SeatType(TimeStampedModel):
     name = models.CharField(max_length=64, unique=True)
     slug = AutoSlugField(populate_from='name', slugify_function=uslugify)
+    is_paid_to_platform = models.BooleanField(
+        default=False,
+        help_text=_('This mode is one that is paid to the current platform operator.'),
+    )
+    is_paid_to_partner = models.BooleanField(
+        default=False,
+        help_text=_('This mode is one that is paid to a partner, e.g. a masters course paid to the school.'),
+    )
+    is_id_verified = models.BooleanField(
+        default=False,
+        help_text=_('This mode requires ID verification.'),
+    )
+    certificate_type = models.CharField(
+        max_length=64,
+        choices=[
+            # In the Django Admin, the first choice will appear as "---------",
+            # representing a database value of an empty string (this model's
+            # default value) since we do not specify blank=False.
+            ('honor', 'honor'),
+            ('credit', 'credit'),
+            ('verified', 'verified'),
+            ('professional', 'professional'),
+        ],
+        default='',
+        blank=True,
+        null=False,
+        help_text=_('Certificate type granted if this mode is eligible for a certificate, or blank if not.'),
+    )
+    is_credit_eligible = models.BooleanField(
+        default=False,
+        help_text=_('Completion can impart credit toward a partner institution\'s degree.'),
+    )
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if self.is_paid_to_platform and self.is_paid_to_partner:
+            raise ValidationError('is_paid_to_platform and is_paid_to_partner cannot both be True.')
+
+    @property
+    def is_certificate_eligible(self):
+        """
+        Returns True if completion can impart any kind of certificate to the learner.
+        """
+        return bool(self.certificate_type)
 
 
 class ProgramType(TimeStampedModel):

@@ -1816,12 +1816,43 @@ class PersonAreaOfExpertiseTests(TestCase):
         self.assertEqual(str(self.area_of_expertise), self.area_of_expertise.value)
 
 
+@ddt.ddt
 class SeatTypeTests(TestCase):
-    """ Tests of the SeatType model. """
+    """
+    Tests of the SeatType model.
+    """
+
+    def setUp(self):
+        super(SeatTypeTests, self).setUp()
+        self.seat_type = factories.SeatTypeFactory()
 
     def test_str(self):
-        seat_type = factories.SeatTypeFactory()
-        self.assertEqual(str(seat_type), seat_type.name)
+        self.assertEqual(str(self.seat_type), self.seat_type.name)
+
+    @ddt.data(
+        ('', False),
+        ('verified', True),
+    )
+    @ddt.unpack
+    def test_is_certificate_eligible_property(self, certificate_type, expected_is_certificate_eligible):
+        self.seat_type.certificate_type = certificate_type
+        self.seat_type.save()
+        self.assertEqual(self.seat_type.is_certificate_eligible, expected_is_certificate_eligible)
+
+    @ddt.data(
+        (False, False, False),
+        (False, True, False),
+        (True, False, False),
+        (True, True, True),
+    )
+    @ddt.unpack
+    def test_clean(self, is_paid_to_platform, is_paid_to_partner, raises_validation_error):
+        self.seat_type.is_paid_to_platform = is_paid_to_platform
+        self.seat_type.is_paid_to_partner = is_paid_to_partner
+        if raises_validation_error:
+            self.assertRaises(ValidationError, self.seat_type.clean)
+        else:
+            self.seat_type.clean()
 
 
 class ProgramTypeTests(TestCase):
