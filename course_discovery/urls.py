@@ -25,13 +25,17 @@ from django.views.i18n import javascript_catalog
 
 from course_discovery.apps.api.views import SwaggerSchemaView
 from course_discovery.apps.core import views as core_views
+from course_discovery.apps.core.views import LogoutView
 from course_discovery.apps.course_metadata.views import QueryPreviewView
 
 admin.site.site_header = _('Discovery Service Administration')
 admin.site.site_title = admin.site.site_header
 admin.autodiscover()
 
-urlpatterns = oauth2_urlpatterns + [
+# NOTE 1: Add our logout override first to ensure it is registered by Django as the actual logout view.
+AUTH_URLS = [url(r'^logout/$', LogoutView.as_view(), name='logout'), ] + oauth2_urlpatterns
+
+urlpatterns = AUTH_URLS + [
     url(r'^admin/course_metadata/', include('course_discovery.apps.course_metadata.urls', namespace='admin_metadata')),
     url(r'^admin/core/', include('course_discovery.apps.core.urls', namespace='admin_core')),
     url(r'^admin/', include(admin.site.urls)),

@@ -294,7 +294,7 @@ SOCIAL_AUTH_EDX_OAUTH2_KEY = "discovery-sso-key"
 SOCIAL_AUTH_EDX_OAUTH2_SECRET = "discovery-sso-secret"
 SOCIAL_AUTH_EDX_OAUTH2_ISSUER = "http://127.0.0.1:8000"
 SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://127.0.0.1:8000"
-SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/logout"
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/confirm_logout"
 
 BACKEND_SERVICE_EDX_OAUTH2_KEY = "discovery-backend-service-key"
 BACKEND_SERVICE_EDX_OAUTH2_SECRET = "discovery-backend-service-secret"
