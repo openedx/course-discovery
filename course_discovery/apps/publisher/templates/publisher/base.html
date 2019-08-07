@@ -17,6 +17,7 @@
     <div class="container">
         {% include 'publisher/_header.html' %}
         <div class="layout-1q3q layout-flush border-top">
+        {% if not is_on_new_pub_fe %}
             <nav class="layout-col layout-col-a layout-col-menu">
                 <ul class="list-divided menu-list">
                     <li class="item">
@@ -50,7 +51,14 @@
             </main>
 
         </div>
-
+        {% else %}
+            <div class="new-pub-banner-container">
+                <div>Your organization has been moved over to new publisher.</div>
+                {% if publisher_url %}
+                    <div>Please visit <a href="{{publisher_url}}">here</a>.</div>
+                {% endif %}
+            </div>
+        {% endif %}
         {% include 'publisher/_footer.html' %}
     </div>
 {% endblock %}

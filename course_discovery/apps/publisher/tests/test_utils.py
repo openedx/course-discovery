@@ -20,7 +20,8 @@ from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
     find_discovery_course, get_internal_users, has_role_for_course, is_email_notification_enabled, is_internal_user,
-    is_project_coordinator_user, is_publisher_admin, is_publisher_user, make_bread_crumbs, parse_datetime_field
+    is_on_new_pub_fe, is_project_coordinator_user, is_publisher_admin, is_publisher_user, make_bread_crumbs,
+    parse_datetime_field
 )
 
 
@@ -244,3 +245,12 @@ class PublisherUtilsTests(TestCase):
         assert find_discovery_course(pub_run2) == cm_run2.course
         assert find_discovery_course(pub_run_no_id) == cm_run2.course  # Most recent sibling run's course
         assert find_discovery_course(pub_run_no_siblings) is None
+
+    def test_is_on_new_pub_fe(self):
+        self.user.groups.add(self.organization_extension.group)
+
+        with self.settings(ORGS_ON_NEW_PUB_FE=self.organization_extension.organization.key):
+            self.assertTrue(is_on_new_pub_fe(self.user))
+
+        with self.settings(ORGS_ON_NEW_PUB_FE='example-key'):
+            self.assertFalse(is_on_new_pub_fe(self.user))

@@ -17,6 +17,17 @@ html, body {
     background: $white;
 }
 
+.new-pub-banner-container {
+    background-color: #FFFFFF;
+    height: calc(100vh - 283px);
+    width: 100%;
+
+    div {
+        width: 100%;
+        margin-top: 20px;
+        text-align: center;
+    }
+}
 // ------------------------------
 // #TYPOGRAPHY
 // ------------------------------
