@@ -218,10 +218,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'enrollment_start': self.parse_date(body['enrollment_start']),
             'enrollment_end': self.parse_date(body['enrollment_end']),
             'hidden': body.get('hidden', False),
+            'license': body.get('license') or '',  # license cannot be None
         }
-
-        # NOTE: The license field is non-nullable.
-        defaults['license'] = body.get('license') or ''
 
         start = self.parse_date(body['start'])
         pacing_type = self.get_pacing_type(body)

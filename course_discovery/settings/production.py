@@ -99,3 +99,6 @@ COMPRESS_CSS_FILTERS += [
 # Enable offline compression of CSS/JS
 COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
+
+# Use bucket-default ACLs
+AWS_DEFAULT_ACL = None
