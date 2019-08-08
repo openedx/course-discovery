@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-06 01:15+0000\n"
+"POT-Creation-Date: 2019-08-08 11:40-0400\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -130,7 +130,7 @@ msgid "Failed to set course run data: {}"
 msgstr ""
 "Fäïléd tö sét çöürsé rün dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
-#: apps/api/v1/views/course_runs.py apps/api/v1/views/course_runs.py
+#: apps/api/v1/views/course_runs.py
 msgid "Can only update status, ofac restrictions, and ofac comment"
 msgstr ""
 "Çän önlý üpdäté stätüs, öfäç réstrïçtïöns, änd öfäç çömmént Ⱡ'σяєм ιρѕυм "
@@ -839,6 +839,39 @@ msgid "Failed to redirect runs in course {key}"
 msgstr ""
 "Fäïléd tö rédïréçt rüns ïn çöürsé {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "This mode is one that is paid to the current platform operator."
+msgstr ""
+"Thïs mödé ïs öné thät ïs päïd tö thé çürrént plätförm öpérätör. Ⱡ'σяєм ιρѕυм"
+" ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This mode is one that is paid to a partner, e.g. a masters course paid to "
+"the school."
+msgstr ""
+"Thïs mödé ïs öné thät ïs päïd tö ä pärtnér, é.g. ä mästérs çöürsé päïd tö "
+"thé sçhööl. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid "This mode requires ID verification."
+msgstr ""
+"Thïs mödé réqüïrés ÌD vérïfïçätïön. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Certificate type granted if this mode is eligible for a certificate, or "
+"blank if not."
+msgstr ""
+"Çértïfïçäté týpé gräntéd ïf thïs mödé ïs élïgïßlé för ä çértïfïçäté, ör "
+"ßlänk ïf nöt. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid "Completion can impart credit toward a partner institution's degree."
+msgstr ""
+"Çömplétïön çän ïmpärt çrédït töwärd ä pärtnér ïnstïtütïön's dégréé. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
 msgid ""
