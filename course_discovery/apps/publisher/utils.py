@@ -2,6 +2,8 @@
 import re
 
 from dateutil import parser
+from django.apps import apps
+from django.conf import settings
 
 from course_discovery.apps.core.models import User
 from course_discovery.apps.publisher.constants import (
@@ -150,5 +152,34 @@ def find_discovery_course(publisher_course_run):
     for run in publisher_course.course_runs:  # returns newest first
         if run.discovery_counterpart:
             return run.discovery_counterpart.course
+
+    return None
+
+
+def user_orgs(user):
+    # We load the organization model like this due to a circular import with the course
+    # metadata models file
+    Organization = apps.get_model('course_metadata', 'Organization')
+    return Organization.user_organizations(user)
+
+
+def is_on_new_pub_fe(user):
+    """Returns if all the user's organizations have been moved to new publisher frontend"""
+    try:
+        orgs_on_new_pub_fe = settings.ORGS_ON_NEW_PUB_FE.split(',')
+        for org in user_orgs(user):
+            if org.key not in orgs_on_new_pub_fe:
+                return False
+
+        return True
+    except AttributeError:
+        return False
+
+
+def publisher_url(user):
+    """Returns appropriate publisher url according to current environment."""
+    orgs = user_orgs(user)
+    if orgs:
+        return orgs.first().partner.publisher_url
 
     return None
