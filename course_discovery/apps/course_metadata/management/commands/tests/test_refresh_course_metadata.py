@@ -137,7 +137,7 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             self.mock_apis()
 
             with mock.patch('course_discovery.apps.course_metadata.management.commands.'
-                            'refresh_course_metadata.execute_loader') as mock_executor:
+                            'refresh_course_metadata.execute_loader', return_value=True) as mock_executor:
                 call_command('refresh_course_metadata')
 
                 # Set up expected calls
@@ -198,7 +198,8 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
 
             logger_target = 'course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.logger'
             with mock.patch(logger_target) as mock_logger:
-                call_command('refresh_course_metadata')
+                with self.assertRaisesMessage(CommandError, 'One or more of the data loaders above failed.'):
+                    call_command('refresh_course_metadata')
 
                 loader_classes = (
                     SubjectMarketingSiteDataLoader,
