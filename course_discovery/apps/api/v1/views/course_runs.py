@@ -232,6 +232,16 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             # This will prevent a breaking change if users of this endpoint don't choose to provide a key on rerun
             old_course_run_key = course.canonical_course_run.key
 
+        if old_course_run_key:
+            old_course_run = CourseRun.objects.filter_drafts().get(key=old_course_run_key)
+            course_run.language = old_course_run.language
+            course_run.min_effort = old_course_run.min_effort
+            course_run.max_effort = old_course_run.max_effort
+            course_run.weeks_to_complete = old_course_run.weeks_to_complete
+            course_run.save()
+            course_run.staff.set(old_course_run.staff.all())
+            course_run.transcript_languages.set(old_course_run.transcript_languages.all())
+
         # And finally, push run to studio
         self.push_to_studio(self.request, course_run, create=True, old_course_run_key=old_course_run_key)
 

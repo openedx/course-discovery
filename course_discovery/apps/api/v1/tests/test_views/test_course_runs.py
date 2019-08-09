@@ -195,6 +195,38 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         else:
             self.assertEqual(course.canonical_course_run, new_course_run)
 
+    @responses.activate
+    def test_create_sets_additional_fields(self):
+        """ Verify that instructors, languages, min & max effort, and weeks to complete are set on a rerun. """
+        self.draft_course_run.staff.add(PersonFactory())
+        self.draft_course_run.transcript_languages.add(self.draft_course_run.language)
+        self.draft_course_run.save()
+
+        # Create rerun based on draft course
+        course = self.draft_course_run.course
+        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        url = reverse('api:v1:course_run-list')
+
+        self.mock_post_to_studio(new_key, rerun_key=self.draft_course_run.key)
+
+        response = self.client.post(url, {
+            'course': course.key,
+            'start': '2000-01-01T00:00:00Z',
+            'end': '2001-01-01T00:00:00Z',
+            'rerun': self.draft_course_run.key,
+        }, format='json')
+
+        self.assertEqual(response.status_code, 201)
+        new_course_run = CourseRun.everything.get(key=new_key, draft=True)
+
+        self.assertEqual(new_course_run.max_effort, self.draft_course_run.max_effort)
+        self.assertEqual(new_course_run.min_effort, self.draft_course_run.min_effort)
+        self.assertEqual(new_course_run.weeks_to_complete, self.draft_course_run.weeks_to_complete)
+        self.assertEqual(list(new_course_run.staff.all()), list(self.draft_course_run.staff.all()))
+        self.assertEqual(new_course_run.language, self.draft_course_run.language)
+        self.assertEqual(list(new_course_run.transcript_languages.all()),
+                         list(self.draft_course_run.transcript_languages.all()))
+
     @ddt.data(True, False, "bogus")
     @responses.activate
     def test_create_draft_ignored(self, draft):
