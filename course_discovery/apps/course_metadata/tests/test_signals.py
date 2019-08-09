@@ -632,7 +632,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
         )
 
     def test_draft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(77):
+        with self.assertNumQueries(FuzzyInt(77, 2)):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=True,
@@ -642,7 +642,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
     def test_draft_collides_with_nondraft(self):
         course_run_1a = self.course_1.course_runs.get(external_key='ext-key-course-1a')
         message = _duplicate_external_key_message([course_run_1a])
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(FuzzyInt(8, 2)):
             with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
                 factories.CourseRunFactory(
                     course=self.course_1,
@@ -651,7 +651,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                 )
 
     def test_nondraft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(77):
+        with self.assertNumQueries(FuzzyInt(77, 2)):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
@@ -659,14 +659,14 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
             )
 
     def test_collision_does_not_include_drafts(self):
-        with self.assertNumQueries(77):
+        with self.assertNumQueries(FuzzyInt(77, 2)):
             course_run = factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
                 external_key='external-key-drafttest'
             )
         message = _duplicate_external_key_message([course_run])  # Not draft_course_run_1
-        with self.assertNumQueries(7):
+        with self.assertNumQueries(FuzzyInt(7, 2)):
             with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
                 factories.CourseRunFactory(
                     course=self.course_1,

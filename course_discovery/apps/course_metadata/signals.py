@@ -162,12 +162,12 @@ def ensure_external_key_uniquness__course_run(sender, instance, **kwargs):  # py
     If the course is not associated with a program, we will still verify that the external_key
     is unique within course runs in the course
     """
-    if instance.id:
-        old_course_run = CourseRun.everything.get(pk=instance.id)
-        if instance.external_key == old_course_run.external_key and instance.course == old_course_run.course:
-            return
     if not instance.external_key:
         return
+    if instance.id:
+        old_course_run = CourseRun.everything.get(pk=instance.pk)
+        if instance.external_key == old_course_run.external_key and instance.course == old_course_run.course:
+            return
 
     course = instance.course
     curricula = course.degree_course_curricula.select_related('program').all()
@@ -196,7 +196,7 @@ def ensure_external_key_uniquness__curriculum(sender, instance, **kwargs):  # py
     if not instance.id:
         return  # If not instance.id, we can't access course_curriculum, so we can't do anything
     if instance.program:
-        old_curriculum = Curriculum.objects.get(pk=instance.id)
+        old_curriculum = Curriculum.objects.get(pk=instance.pk)
         if old_curriculum.program and instance.program.id == old_curriculum.program.id:
             return
 
