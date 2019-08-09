@@ -167,7 +167,11 @@ def is_on_new_pub_fe(user):
     """Returns if all the user's organizations have been moved to new publisher frontend"""
     try:
         orgs_on_new_pub_fe = settings.ORGS_ON_NEW_PUB_FE.split(',')
-        for org in user_orgs(user):
+        orgs = user_orgs(user)
+        if not orgs:
+            return False
+
+        for org in orgs:
             if org.key not in orgs_on_new_pub_fe:
                 return False
 
