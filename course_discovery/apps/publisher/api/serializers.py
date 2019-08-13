@@ -18,7 +18,9 @@ from course_discovery.apps.publisher.emails import (
     send_change_role_assignment_email, send_email_for_studio_instance_created, send_email_preview_accepted,
     send_email_preview_page_is_available
 )
-from course_discovery.apps.publisher.models import CourseRun, CourseRunState, CourseState, CourseUserRole
+from course_discovery.apps.publisher.models import (
+    CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationUserRole
+)
 
 
 class UnvalidatedField(serializers.Field):
@@ -75,6 +77,15 @@ class GroupUserSerializer(serializers.ModelSerializer):
         Return full_name if exist otherwise username, to fix empty values in dropdown.
         """
         return obj.get_full_name() or obj.username
+
+
+class OrganizationUserRoleSerializer(serializers.ModelSerializer):
+    """Serializer for the `OrganizationUserRole` model to show role assignment. """
+    user = GroupUserSerializer()
+
+    class Meta:
+        model = OrganizationUserRole
+        fields = ('id', 'user', 'role',)
 
 
 class CourseRunSerializer(serializers.ModelSerializer):
