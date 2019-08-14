@@ -15,7 +15,7 @@ from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError
+from django.db import IntegrityError, transaction
 from django.test import TestCase
 from freezegun import freeze_time
 from taggit.models import Tag
@@ -1140,18 +1140,39 @@ class AbstractTitleDescriptionModelTests(TestCase):
 class ProgramTests(TestCase):
     """Tests of the Program model."""
 
-    def setUp(self):
-        super(ProgramTests, self).setUp()
+    @classmethod
+    def setUpClass(cls):
+        """
+        Creates fixture subjects, course_runs, courses, and programs from factories.
+        """
+        super(ProgramTests, cls).setUpClass()
         transcript_languages = LanguageTag.objects.all()[:2]
-        self.subjects = factories.SubjectFactory.create_batch(3)
-        self.course_runs = factories.CourseRunFactory.create_batch(
-            3, transcript_languages=transcript_languages, course__subjects=self.subjects,
+        cls.subjects = factories.SubjectFactory.create_batch(3)
+        cls.course_runs = factories.CourseRunFactory.create_batch(
+            3, transcript_languages=transcript_languages, course__subjects=cls.subjects,
             weeks_to_complete=2)
-        self.courses = [course_run.course for course_run in self.course_runs]
-        self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
-        self.program = factories.ProgramFactory(courses=self.courses, excluded_course_runs=[self.excluded_course_run])
+        cls.courses = [course_run.course for course_run in cls.course_runs]
+        cls.excluded_course_run = factories.CourseRunFactory(course=cls.courses[0])
+        cls.program = factories.ProgramFactory(courses=cls.courses, excluded_course_runs=[cls.excluded_course_run])
 
+        cls.other_course_run = factories.CourseRunFactory()
+        cls.other_program = factories.ProgramFactory(courses=[cls.other_course_run.course])
+
+    def tearDown(self):
+        """
+        Resets course canonical_course_runs to initial state.
+        """
+        super(ProgramTests, self).tearDown()
+        for course_run in self.course_runs[:2]:
+            course = course_run.course
+            course.canonical_course_run = None
+            course.save()
+
+    # pylint: disable=access-member-before-definition, attribute-defined-outside-init
     def create_program_with_seats(self):
+        if getattr(self, '__program_with_seats', None):
+            return self.__program_with_seats
+
         currency = Currency.objects.get(code='USD')
 
         course_run = factories.CourseRunFactory()
@@ -1164,32 +1185,28 @@ class ProgramTests(TestCase):
         applicable_seat_types = SeatType.objects.filter(slug__in=['credit', 'verified'])
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
-        return factories.ProgramFactory(type=program_type, courses=[course_run.course])
+        self.__program_with_seats = factories.ProgramFactory(type=program_type, courses=[course_run.course])
+        return self.__program_with_seats
 
     def test_search(self):
         """
         Verify that the program endpoint correctly handles basic elasticsearch queries
         """
-        title = 'Some random title'
-        expected = set(factories.ProgramFactory.create_batch(1, title=title))
-        # Create an extra program that should not show up
-        factories.ProgramFactory()
-        query = 'title:' + title
-        self.assertSetEqual(set(Program.search(query)), expected)
+        query = 'title:' + self.program.title
+        self.assertSetEqual(set(Program.search(query)), set([self.program]))
 
     def test_subject_search(self):
         """
         Verify that the program endpoint correctly handles elasticsearch queries on the subject uuid
         """
-        subject = factories.SubjectFactory()
-        course = factories.CourseFactory(subjects=[subject])
-        expected = set(factories.ProgramFactory.create_batch(1, courses=[course]))
-        # Create an extra program that should not show up
-        factories.ProgramFactory()
-        query = str(subject.uuid)
-        self.assertSetEqual(set(Program.search(query)), expected)
+        query = str(self.subjects[0].uuid)
+        self.assertSetEqual(set(Program.search(query)), set([self.program]))
 
+    # pylint: disable=access-member-before-definition, attribute-defined-outside-init
     def create_program_with_entitlements_and_seats(self):
+        if getattr(self, '__entitlements_program_and_courses', None):
+            return self.__entitlements_program_and_courses
+
         verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         courses = []
@@ -1211,6 +1228,7 @@ class ProgramTests(TestCase):
             one_click_purchase_enabled=True,
             type=program_type,
         )
+        self.__entitlements_program_and_courses = (program, courses)
         return program, courses
 
     def assert_one_click_purchase_ineligible_program(
@@ -1332,9 +1350,14 @@ class ProgramTests(TestCase):
         program, courses = self.create_program_with_entitlements_and_seats()
         honor_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.HONOR)
         honor_mode_entitlement = courses[0].entitlements.first()
+        original_mode = honor_mode_entitlement.mode
         honor_mode_entitlement.mode = honor_seat_type
         honor_mode_entitlement.save()
         self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+
+        # clean up local modifications
+        honor_mode_entitlement.mode = original_mode
+        honor_mode_entitlement.mode.save()
 
     def test_one_click_purchase_ineligible_multiple_entitlements(self):
         """
@@ -1345,8 +1368,9 @@ class ProgramTests(TestCase):
         credit_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.CREDIT)
         program.type.applicable_seat_types.add(credit_seat_type)
         # We are limiting each course to a single entitlement so this should raise an IntegrityError
-        with self.assertRaises(IntegrityError):
-            factories.CourseEntitlementFactory(mode=credit_seat_type, expires=None, course=courses[0])
+        with transaction.atomic():
+            with self.assertRaises(IntegrityError):
+                factories.CourseEntitlementFactory(mode=credit_seat_type, expires=None, course=courses[0])
 
     def test_one_click_purchase_eligible_with_unpublished_runs(self):
         """ Verify that program with unpublished course runs is one click purchase eligible. """
@@ -1390,7 +1414,7 @@ class ProgramTests(TestCase):
         # Program has one_click_purchase_enabled set to True and
         # one course has two course runs
         course_run = factories.CourseRunFactory(end=None, enrollment_end=None)
-        factories.CourseRunFactory(end=None, enrollment_end=None, course=course_run.course)
+        second_course_run = factories.CourseRunFactory(end=None, enrollment_end=None, course=course_run.course)
         factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
         program = factories.ProgramFactory(
             courses=[course_run.course],
@@ -1401,14 +1425,9 @@ class ProgramTests(TestCase):
 
         # Program has one_click_purchase_enabled set to True and
         # one course with one course run excluded from the program
-        course_run = factories.CourseRunFactory(end=None, enrollment_end=None)
-        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
-        program = factories.ProgramFactory(
-            courses=[course_run.course],
-            one_click_purchase_enabled=True,
-            excluded_course_runs=[course_run],
-            type=program_type,
-        )
+        second_course_run.delete()
+        program.excluded_course_runs.set([course_run])
+        program.save()
         self.assertFalse(program.is_program_eligible_for_one_click_purchase)
 
         # Program has one_click_purchase_enabled set to True, one course
@@ -1482,22 +1501,18 @@ class ProgramTests(TestCase):
 
     def test_course_runs(self):
         """
-        Verify that we only fetch course runs for the program, and not other course runs for other programs and that the
-        property returns the set of associated CourseRuns minus those that are explicitly excluded.
+        Verify that we only fetch course runs for the program, and not other course runs for other programs.
+        Also verify that the property returns the set of associated
+        CourseRuns minus those that are explicitly excluded.
         """
-        course_run = factories.CourseRunFactory()
-        factories.ProgramFactory(courses=[course_run.course])
-        # Verify that course run is not returned in set
+        # Verify that self.other_course_run is not returned in set
         self.assertEqual(set(self.program.course_runs), set(self.course_runs))
 
     def test_canonical_course_runs(self):
-        course = self.course_runs[0].course
-        course.canonical_course_run = self.course_runs[0]
-        course.save()
-
-        course = self.course_runs[1].course
-        course.canonical_course_run = self.course_runs[1]
-        course.save()
+        for course_run in self.course_runs[:2]:
+            course = course_run.course
+            course.canonical_course_run = course_run
+            course.save()
 
         expected_canonical_runs = [self.course_runs[0], self.course_runs[1]]
         # Verify only canonical course runs are returned in set
@@ -1744,19 +1759,20 @@ class ProgramTests(TestCase):
         """
         Verify that the publisher is not initialized when publication is disabled.
         """
+        program = factories.ProgramFactory()
         with mock.patch.object(ProgramMarketingSitePublisher, '__init__') as mock_init:
-            self.program.save()
-            self.program.delete()
+            program.save()
+            program.delete()
 
             assert mock_init.call_count == 0
 
         with override_switch('publish_program_to_marketing_site', True):
-            self.program.partner.marketing_site_url_root = ''
-            self.program.partner.save()
+            program.partner.marketing_site_url_root = ''
+            program.partner.save()
 
             with mock.patch.object(ProgramMarketingSitePublisher, '__init__') as mock_init:
-                self.program.save()
-                self.program.delete()
+                program.save()
+                program.delete()
 
                 assert mock_init.call_count == 0
 
@@ -1765,12 +1781,13 @@ class ProgramTests(TestCase):
         """
         Verify that the publisher is called when publication is enabled.
         """
+        program = factories.ProgramFactory()
         with mock.patch.object(ProgramMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
-            self.program.save()
+            program.save()
             assert mock_publish_obj.called
 
         with mock.patch.object(ProgramMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
-            self.program.delete()
+            program.delete()
             assert mock_delete_obj.called
 
 
