@@ -90,5 +90,5 @@ COMPRESS_CSS_FILTERS += [
 COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
 
-# Use bucket-default ACLs
-AWS_DEFAULT_ACL = None
+# Have images and such that we upload be publicly readable
+AWS_DEFAULT_ACL = 'public-read'
