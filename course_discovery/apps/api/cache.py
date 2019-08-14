@@ -49,9 +49,8 @@ def timestamped_object_key_constructor(*args, **kwargs):  # pylint: disable=unus
     return TimestampedObjectKeyConstructor()(**kwargs)
 
 
-def set_api_timestamp(msg):
+def set_api_timestamp():
     timestamp = time.time()
-    logger.debug('{msg} Updating API timestamp to {timestamp}'.format(msg=msg, timestamp=timestamp))
     cache.set(API_TIMESTAMP_KEY, timestamp, None)
 
 
@@ -60,7 +59,7 @@ def api_change_receiver(sender, **kwargs):  # pylint: disable=unused-argument
     Receiver function for handling post_save and post_delete signals emitted by
     course_metadata models.
     """
-    set_api_timestamp('{model_name} model changed.'.format(model_name=sender.__name__))
+    set_api_timestamp()
 
 
 class CompressedCacheResponse(CacheResponse):

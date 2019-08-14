@@ -207,7 +207,7 @@ class Command(BaseCommand):
 
             # TODO Cleanup CourseRun overrides equivalent to the Course values.
 
-        set_api_timestamp('Data loading complete.')
+        set_api_timestamp()
 
         if not success:
             raise CommandError('One or more of the data loaders above failed.')
