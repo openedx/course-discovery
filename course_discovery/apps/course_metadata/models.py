@@ -503,6 +503,8 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
     )
     key = models.CharField(max_length=255, db_index=True)
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
+    url_slug = AutoSlugField(populate_from='title', editable=True, slugify_function=uslugify, overwrite_on_add=False,
+                             help_text=_('Leave this field blank to have the value generated automatically.'))
     short_description = NullHtmlField()
     full_description = NullHtmlField()
     extra_description = models.ForeignKey(
@@ -544,7 +546,7 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
-    history = HistoricalRecords(excluded_fields=['slug'])
+    history = HistoricalRecords(excluded_fields=['slug', 'url_slug'])
 
     # TODO Remove this field.
     number = models.CharField(
