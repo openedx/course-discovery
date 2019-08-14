@@ -828,6 +828,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, models.CASCADE, related_name='course_runs')
     key = models.CharField(max_length=255)
+    # There is a post save function in signals.py that verifies that this is unique within a program
     external_key = models.CharField(max_length=225, blank=True, null=True)
     status = models.CharField(default=CourseRunStatus.Unpublished, max_length=255, null=False, blank=False,
                               db_index=True, choices=CourseRunStatus.choices, validators=[CourseRunStatus.validator])
