@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from django_fsm import FSMField, transition
 from guardian.shortcuts import get_objects_for_user
@@ -22,7 +23,9 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import Course as DiscoveryCourse
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
-from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath, calculated_seat_upgrade_deadline
+from course_discovery.apps.course_metadata.utils import (
+    UploadToFieldNamePath, calculated_seat_upgrade_deadline, uslugify
+)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import (
@@ -102,8 +105,10 @@ class Course(TimeStampedModel, ChangedByMixin):
 
     # temp fields for data migrations only.
     course_metadata_pk = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Course Metadata Course PK'))
+    url_slug = AutoSlugField(populate_from='title', editable=True, slugify_function=uslugify, overwrite_on_add=False,
+                             help_text=_('Leave this field blank to have the value generated automatically.'))
 
-    history = HistoricalRecords()
+    history = HistoricalRecords(excluded_fields=['url_slug'])
 
     def __str__(self):
         return self.title

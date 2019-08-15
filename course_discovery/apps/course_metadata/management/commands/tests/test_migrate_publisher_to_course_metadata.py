@@ -242,6 +242,8 @@ class TestMigratePublisherToCourseMetadata(TestCase):
         draft_course = Course.everything.get(key=course_key, draft=True)
         self.assertEqual(editor.course, draft_course)
 
+        self.assertEqual(editor.course.url_slug, draft_course.url_slug)
+
         self.assertEqual(Course.everything.count(), 1)
         self.assertEqual(CourseRun.everything.count(), 1)
 

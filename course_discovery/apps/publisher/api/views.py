@@ -108,7 +108,7 @@ class RevertCourseRevisionView(APIView):
         course = get_object_or_404(Course, id=history_object.id)
         try:
             for field in CourseForm().fields:
-                if field not in ['team_admin', 'organization', 'add_new_run']:
+                if field not in ['team_admin', 'organization', 'add_new_run', 'url_slug']:
                     setattr(course, field, getattr(history_object, field))
 
             course.changed_by = self.request.user
