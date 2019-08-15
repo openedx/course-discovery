@@ -171,6 +171,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             'number': request.data.get('number'),
             'org': request.data.get('org'),
             'mode': request.data.get('mode'),
+            'url_slug': request.data.get('url_slug') or '',
         }
         missing_values = [k for k, v in course_creation_fields.items() if v is None]
         error_message = ''
