@@ -49,7 +49,10 @@ DATABASES = {
 
 JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
 
-LOGGING['handlers']['local'] = {'class': 'logging.NullHandler'}
+LOGGING['handlers']['local'] = {
+    'class': 'logging.NullHandler',
+    'level': 'INFO',
+}
 
 PUBLISHER_FROM_EMAIL = 'test@example.com'
 
