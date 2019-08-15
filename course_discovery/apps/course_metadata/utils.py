@@ -523,6 +523,8 @@ def publish_to_course_metadata(partner, course_run, draft=False):
     discovery_course.subjects.clear()
     discovery_course.subjects.add(*subjects)
 
+    discovery_course.url_slug = publisher_course.url_slug
+
     expected_program_type, program_name = ProgramType.get_program_type_data(course_run, ProgramType)
 
     defaults = {

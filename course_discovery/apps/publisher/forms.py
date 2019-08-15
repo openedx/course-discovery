@@ -146,6 +146,9 @@ class CourseForm(BaseForm):
     syllabus = forms.CharField(
         label=_('Syllabus'), widget=forms.Textarea, required=False,
     )
+    url_slug = forms.CharField(
+        label=_('URL slug'), required=False,
+    )
 
     add_new_run = forms.BooleanField(required=False)
 
@@ -159,7 +162,8 @@ class CourseForm(BaseForm):
             'expected_learnings', 'primary_subject', 'secondary_subject',
             'tertiary_subject', 'prerequisites', 'image', 'team_admin',
             'level_type', 'organization', 'is_seo_review', 'syllabus',
-            'learner_testimonial', 'faq', 'video_link', 'additional_information'
+            'learner_testimonial', 'faq', 'video_link', 'additional_information',
+            'url_slug',
         )
 
     def __init__(self, *args, **kwargs):

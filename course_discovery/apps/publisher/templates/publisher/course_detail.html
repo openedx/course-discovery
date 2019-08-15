@@ -70,7 +70,13 @@
                 <div class="current number">{{ object.number }}</div>
                 <div class="show-diff"></div>
             </div>
-
+            <div class="info-item">
+                <div class="heading">
+                    {% trans "URL Slug" %}
+                </div>
+                <div class="current">{{ object.url_slug }}</div>
+                <div class="show-diff"></div>
+            </div>
             <div class="info-item history-field-container">
                 <div class="heading">
                     {% trans "Enrollment Track" %}
