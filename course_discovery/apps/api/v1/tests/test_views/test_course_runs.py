@@ -638,27 +638,44 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert draft_course_run.official_version.status == CourseRunStatus.Reviewed
 
     @ddt.data(
-        CourseRunStatus.Unpublished,
-        CourseRunStatus.Reviewed,
+        ({
+            'original_status': CourseRunStatus.Unpublished,
+            'new_status': CourseRunStatus.LegalReview,
+        }),
+        ({
+            'original_status': CourseRunStatus.Reviewed,
+            'new_status': CourseRunStatus.Reviewed,
+        }),
+        ({
+            'original_status': CourseRunStatus.Reviewed,
+            'new_status': CourseRunStatus.LegalReview,
+            'non_exempt_data': {
+                'expected_program_name': 'example name',
+            }
+        }),
     )
     @responses.activate
-    def test_patch_put_draft_false(self, status):
-        """ Verify that setting draft to False moves status to LegalReview. """
+    def test_patch_put_draft_false(self, update_transaction):
+        """ Verify that setting draft to False moves status correctly. Test Cases: Unpublished Course Run,
+        Reviewed Course Run, Reviewed Course Run Requiring Legal Review"""
         self.mock_patch_to_studio(self.draft_course_run.key)
-        if status == CourseRunStatus.Reviewed:
+        if update_transaction['original_status'] == CourseRunStatus.Reviewed:
             self.mock_ecommerce_publication()
-        self.draft_course_run.status = status
+        self.draft_course_run.status = update_transaction['original_status']
         self.draft_course_run.save()
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
-        response = self.client.put(url, {
+        body = {
             'course': self.draft_course_run.course.key,  # required, so we need for a put
             'start': self.draft_course_run.start,  # required, so we need for a put
             'end': self.draft_course_run.end,  # required, so we need for a put
             'draft': False,
-        }, format='json')
+        }
+        if 'non_exempt_data' in update_transaction.keys():
+            body.update(update_transaction['non_exempt_data'])
+        response = self.client.put(url, body, format='json')
         assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
         draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
-        assert draft_course_run.status == CourseRunStatus.LegalReview
+        assert draft_course_run.status == update_transaction['new_status']
 
     @responses.activate
     def test_patch_published(self):
