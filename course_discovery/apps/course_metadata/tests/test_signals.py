@@ -230,14 +230,19 @@ class SeatSignalsTests(TestCase):
 
 class CurriculumCourseMembershipTests(TestCase):
     """ Tests of the CurriculumCourseMembership model """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.course_runs = factories.CourseRunFactory.create_batch(3)
+        cls.course = cls.course_runs[0].course
+        cls.program_type = ProgramType.objects.get(slug='masters')
+        cls.partner = factories.PartnerFactory()
+        cls.degree = factories.DegreeFactory(courses=[cls.course], type=cls.program_type, partner=cls.partner)
+        cls.curriculum = Curriculum.objects.create(program=cls.degree, uuid=uuid.uuid4())
+
     def setUp(self):
         super().setUp()
-        self.course_runs = factories.CourseRunFactory.create_batch(3)
-        self.course = self.course_runs[0].course
-        self.program_type = ProgramType.objects.get(slug='masters')
-        self.partner = factories.PartnerFactory()
-        self.degree = factories.DegreeFactory(courses=[self.course], type=self.program_type, partner=self.partner)
-        self.curriculum = Curriculum.objects.create(program=self.degree, uuid=uuid.uuid4())
+        self.program_type.refresh_from_db()
 
     @override_switch('masters_course_mode_enabled', active=False)
     def test_course_curriculum_membership_side_effect_flag_inactive(self):

@@ -108,33 +108,37 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
     Tests for person autocomplete lookups
     """
 
-    def setUp(self):
-        super(AutoCompletePersonTests, self).setUp()
-        self.user = UserFactory(is_staff=True)
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.courses = factories.CourseFactory.create_batch(3, title='Some random course title')
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = UserFactory(is_staff=True)
+        cls.courses = factories.CourseFactory.create_batch(3, title='Some random course title')
 
         first_instructor = PersonFactory(given_name="First", family_name="Instructor")
         second_instructor = PersonFactory(given_name="Second", family_name="Instructor")
-        self.instructors = [first_instructor, second_instructor]
+        cls.instructors = [first_instructor, second_instructor]
 
-        self.organizations = OrganizationFactory.create_batch(3)
-        self.organization_extensions = []
+        cls.organizations = OrganizationFactory.create_batch(3)
+        cls.organization_extensions = []
 
-        for instructor in self.instructors:
-            PositionFactory(organization=self.organizations[0], title="professor", person=instructor)
+        for instructor in cls.instructors:
+            PositionFactory(organization=cls.organizations[0], title="professor", person=instructor)
 
-        self.course_runs = [factories.CourseRunFactory(course=course) for course in self.courses]
+        cls.course_runs = [factories.CourseRunFactory(course=course) for course in cls.courses]
 
-        for organization in self.organizations:
-            self.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
+        for organization in cls.organizations:
+            cls.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
 
-        disco_course = CourseFactory(authoring_organizations=[self.organizations[0]])
-        disco_course2 = CourseFactory(authoring_organizations=[self.organizations[1]])
+        disco_course = CourseFactory(authoring_organizations=[cls.organizations[0]])
+        disco_course2 = CourseFactory(authoring_organizations=[cls.organizations[1]])
         CourseRunFactory(course=disco_course, staff=[first_instructor])
         CourseRunFactory(course=disco_course2, staff=[second_instructor])
 
-        self.user.groups.add(self.organization_extensions[0].group)
+        cls.user.groups.add(cls.organization_extensions[0].group)
+
+    def setUp(self):
+        super().setUp()
+        self._set_user_is_staff_and_login(True)
 
     def query(self, q):
         query_params = '?q={q}'.format(q=q)
@@ -148,16 +152,13 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         response = self.query('ins')
         self._assert_response(response, 2)
 
-        # update first instructor's name
-        self.instructors[0].given_name = 'dummy_name'
-        self.instructors[0].save()
-
-        response = self.query('dummy')
+        # look for the name of the first instructor
+        response = self.query('First')
         self._assert_response(response, 1)
 
     def test_instructor_autocomplete_un_authorize_user(self):
         """ Verify instructor autocomplete returns empty list for un-authorized users. """
-        self._make_user_non_staff()
+        self._set_user_is_staff_and_login(False)
         response = self.client.get(reverse('admin_metadata:person-autocomplete'))
         self._assert_response(response, 0)
 
@@ -251,8 +252,8 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
         assert data.get('results') == expected_results
 
-    def _make_user_non_staff(self):
+    def _set_user_is_staff_and_login(self, is_staff=True):
         self.client.logout()
-        self.user = UserFactory(is_staff=False)
+        self.user.is_staff = is_staff
         self.user.save()
         self.client.login(username=self.user.username, password=USER_PASSWORD)

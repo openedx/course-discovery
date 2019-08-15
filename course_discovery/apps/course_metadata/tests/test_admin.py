@@ -31,17 +31,23 @@ from course_discovery.apps.course_metadata.tests import factories
 class AdminTests(SiteMixin, TestCase):
     """ Tests Admin page."""
 
-    def setUp(self):
-        super(AdminTests, self).setUp()
-        self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.course_runs = factories.CourseRunFactory.create_batch(3)
-        self.courses = [course_run.course for course_run in self.course_runs]
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = UserFactory(is_staff=True, is_superuser=True)
+        cls.course_runs = factories.CourseRunFactory.create_batch(3)
+        cls.courses = [course_run.course for course_run in cls.course_runs]
 
-        self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
-        self.program = factories.ProgramFactory(
-            courses=self.courses, excluded_course_runs=[self.excluded_course_run]
+        cls.excluded_course_run = factories.CourseRunFactory(course=cls.courses[0])
+        cls.program = factories.ProgramFactory(
+            courses=cls.courses,
+            excluded_course_runs=[cls.excluded_course_run],
+            partner=cls.partner,  # cls.partner provided by SiteMixin.setUpClass()
         )
+
+    def setUp(self):
+        super().setUp()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def _post_data(self, status=ProgramStatus.Unpublished, marketing_slug='/foo'):
         return {

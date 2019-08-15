@@ -24,6 +24,11 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
     """ Tests for the person resource. """
     people_list_url = reverse('api:v1:person-list')
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._original_partner_marketing_site_api_username = cls.partner.marketing_site_api_username
+
     def setUp(self):
         super(PersonViewSetTests, self).setUp()
         self.user = UserFactory()
@@ -45,6 +50,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             'uuid': '18d5542f-fa80-418e-b416-455cfdeb4d4e',
             'uri': 'https://stage.edx.org/node/28691'
         }
+
+        self.partner.marketing_site_api_username = self._original_partner_marketing_site_api_username
+        self.partner.save()
 
     def person_exists(self, data):
         return Person.objects.filter(
