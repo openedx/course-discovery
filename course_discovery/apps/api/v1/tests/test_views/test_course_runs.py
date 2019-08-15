@@ -41,6 +41,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.refresh_index()
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
+        self.partner.save()
 
     def mock_patch_to_studio(self, key, access_token=True, status=200):
         if access_token:
@@ -404,6 +405,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
     def test_partial_update_no_studio_url(self):
         """ Verify we skip pushing when no studio url is set. """
+        orignal_partner_studio_url = self.partner.studio_url
         self.partner.studio_url = None
         self.partner.save()
 
@@ -425,6 +427,10 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             self.draft_course_run.key,
             self.partner.short_code,
         ))
+
+        # reset the shared self.partner attribute
+        self.partner.studio_url = orignal_partner_studio_url
+        self.partner.save()
 
     def test_partial_update_bad_permission(self):
         """ Verify partially updating will fail if user doesn't have permission. """
@@ -738,7 +744,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         query = 'title:Some random title'
         url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
 
-        with self.assertNumQueries(44, threshold=3):
+        with self.assertNumQueries(46):
             response = self.client.get(url)
 
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])

@@ -157,15 +157,16 @@ class TestCourse(TestCase):
 
 
 class TestCourseUpdateMarketingRedirects(MarketingSitePublisherTestMixin, TestCase):
-    def setUp(self):
-        super().setUp()
-        self.course = factories.CourseFactory()
-        self.partner = self.course.partner
-        self.past = datetime.datetime(2010, 1, 1, tzinfo=pytz.UTC)
-        self.base_args = {'course': self.course, 'status': CourseRunStatus.Published}
-        self.active = factories.CourseRunFactory(**self.base_args, end=None, enrollment_end=None)
-        self.inactive = factories.CourseRunFactory(**self.base_args, end=self.past)
-        self.api_root = self.partner.marketing_site_url_root.rstrip('/')  # overwrite the mixin's version
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.course = factories.CourseFactory()
+        cls.partner = cls.course.partner
+        cls.past = datetime.datetime(2010, 1, 1, tzinfo=pytz.UTC)
+        cls.base_args = {'course': cls.course, 'status': CourseRunStatus.Published}
+        cls.active = factories.CourseRunFactory(**cls.base_args, end=None, enrollment_end=None)
+        cls.inactive = factories.CourseRunFactory(**cls.base_args, end=cls.past)
+        cls.api_root = cls.partner.marketing_site_url_root.rstrip('/')  # overwrite the mixin's version
 
     def assertRedirect(self, published_runs=None, succeed=True, to_run=None, from_runs=None):
         """
@@ -276,57 +277,65 @@ class TestCourseUpdateMarketingRedirects(MarketingSitePublisherTestMixin, TestCa
 
 
 class TestCourseEditor(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.user = factories.UserFactory()
-        self.courses_qs = Course.objects.all()
-        self.runs_qs = CourseRun.objects.all()
+    """ Tests for the CourseEditor module. """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = factories.UserFactory()
+        cls.courses_qs = Course.objects.all()
+        cls.runs_qs = CourseRun.objects.all()
 
-        self.org_ext = OrganizationExtensionFactory()
-        self.user.groups.add(self.org_ext.group)
+        cls.org_ext = OrganizationExtensionFactory()
 
         # *** Add a bunch of courses ***
 
         # Course with no editors
-        self.course_no_editors = factories.CourseFactory(title="no editors")
-        self.run_no_editors = factories.CourseRunFactory(course=self.course_no_editors)
+        cls.course_no_editors = factories.CourseFactory(title="no editors")
+        cls.run_no_editors = factories.CourseRunFactory(course=cls.course_no_editors)
 
         # Course with an invalid editor (no group membership)
         bad_editor = factories.UserFactory()
-        self.course_bad_editor = factories.CourseFactory(title="bad editor")
-        self.run_bad_editor = factories.CourseRunFactory(course=self.course_bad_editor)
-        factories.CourseEditorFactory(user=bad_editor, course=self.course_bad_editor)
+        cls.course_bad_editor = factories.CourseFactory(title="bad editor")
+        cls.run_bad_editor = factories.CourseRunFactory(course=cls.course_bad_editor)
+        factories.CourseEditorFactory(user=bad_editor, course=cls.course_bad_editor)
 
         # Course with an invalid editor (but course is in our group)
-        self.course_bad_editor_in_group = factories.CourseFactory(title="bad editor in group")
-        self.course_bad_editor_in_group.authoring_organizations.add(self.org_ext.organization)  # pylint: disable=no-member
-        self.run_bad_editor_in_group = factories.CourseRunFactory(course=self.course_bad_editor_in_group)
-        factories.CourseEditorFactory(user=bad_editor, course=self.course_bad_editor_in_group)
+        cls.course_bad_editor_in_group = factories.CourseFactory(title="bad editor in group")
+        cls.course_bad_editor_in_group.authoring_organizations.add(cls.org_ext.organization)  # pylint: disable=no-member
+        cls.run_bad_editor_in_group = factories.CourseRunFactory(course=cls.course_bad_editor_in_group)
+        factories.CourseEditorFactory(user=bad_editor, course=cls.course_bad_editor_in_group)
 
         # Course with a valid other editor
-        self.good_editor = factories.UserFactory()
-        self.good_editor.groups.add(self.org_ext.group)
-        self.course_good_editor = factories.CourseFactory(title="good editor")
-        self.course_good_editor.authoring_organizations.add(self.org_ext.organization)  # pylint: disable=no-member
-        self.run_good_editor = factories.CourseRunFactory(course=self.course_good_editor)
-        factories.CourseEditorFactory(user=self.good_editor, course=self.course_good_editor)
+        cls.good_editor = factories.UserFactory()
+        cls.good_editor.groups.add(cls.org_ext.group)
+        cls.course_good_editor = factories.CourseFactory(title="good editor")
+        cls.course_good_editor.authoring_organizations.add(cls.org_ext.organization)  # pylint: disable=no-member
+        cls.run_good_editor = factories.CourseRunFactory(course=cls.course_good_editor)
+        factories.CourseEditorFactory(user=cls.good_editor, course=cls.course_good_editor)
 
         # Course with user as an invalid editor (no group membership)
-        self.course_no_group = factories.CourseFactory(title="no group")
-        self.run_no_group = factories.CourseRunFactory(course=self.course_no_group)
-        factories.CourseEditorFactory(user=self.user, course=self.course_no_group)
+        cls.course_no_group = factories.CourseFactory(title="no group")
+        cls.run_no_group = factories.CourseRunFactory(course=cls.course_no_group)
+        factories.CourseEditorFactory(user=cls.user, course=cls.course_no_group)
 
         # Course with user as an valid editor
-        self.course_editor = factories.CourseFactory(title="editor")
-        self.course_editor.authoring_organizations.add(self.org_ext.organization)  # pylint: disable=no-member
-        self.run_editor = factories.CourseRunFactory(course=self.course_editor)
-        factories.CourseEditorFactory(user=self.user, course=self.course_editor)
+        cls.course_editor = factories.CourseFactory(title="editor")
+        cls.course_editor.authoring_organizations.add(cls.org_ext.organization)  # pylint: disable=no-member
+        cls.run_editor = factories.CourseRunFactory(course=cls.course_editor)
+        factories.CourseEditorFactory(user=cls.user, course=cls.course_editor)
 
         # Add another authoring_org, which will cause django to return duplicates, if we don't filter them out
         org_ext2 = OrganizationExtensionFactory()
-        self.user.groups.add(org_ext2.group)
-        self.course_editor.authoring_organizations.add(org_ext2.organization)  # pylint: disable=no-member
-        self.course_bad_editor_in_group.authoring_organizations.add(org_ext2.organization)  # pylint: disable=no-member
+        cls.user.groups.add(org_ext2.group)
+        cls.course_editor.authoring_organizations.add(org_ext2.organization)  # pylint: disable=no-member
+        cls.course_bad_editor_in_group.authoring_organizations.add(org_ext2.organization)  # pylint: disable=no-member
+
+    def setUp(self):
+        """ Resets self.user to not be staff and to belong to the self.org_ext group. """
+        super().setUp()
+        self.user.groups.add(self.org_ext.group)
+        self.user.is_staff = False
+        self.user.save()
 
     def filter_editable_courses(self):
         return CourseEditor.editable_courses(self.user, self.courses_qs)
@@ -377,8 +386,11 @@ class TestCourseEditor(TestCase):
 
     def test_course_editors_when_no_editors(self):
         # two queries: one to check for valid editors, one for everybody in group
-        self.assertResultsEqual(partial(CourseEditor.course_editors, self.course_bad_editor_in_group),
-                                {self.user, self.good_editor}, queries=2)
+        self.assertResultsEqual(
+            partial(CourseEditor.course_editors, self.course_bad_editor_in_group),
+            {self.user, self.good_editor},
+            queries=2,
+        )
 
     def test_editors_for_user(self):
         """Verify that the editors_for_user method returns editors for a give user"""
@@ -391,14 +403,18 @@ class TestCourseEditor(TestCase):
 class CourseRunTests(OAuth2Mixin, TestCase):
     """ Tests for the `CourseRun` model. """
 
-    def setUp(self):
-        super(CourseRunTests, self).setUp()
-        self.course_run = factories.CourseRunFactory()
-        self.partner = self.course_run.course.partner
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.course_run = factories.CourseRunFactory()
+        cls.partner = cls.course_run.course.partner
 
-    def mock_ecommerce_publication(self):
-        url = '{root}publication/'.format(root=self.partner.ecommerce_api_url)
-        responses.add(responses.POST, url, json={}, status=200)
+    def setUp(self):
+        """ Reset self.course_run and self.partner to whatever the DB says. """
+        super().setUp()
+        self.course_run.refresh_from_db()
+        self.course_run.course.refresh_from_db()
+        self.partner.refresh_from_db()
 
     def test_enrollable_seats(self):
         """ Verify the expected seats get returned. """
@@ -703,45 +719,6 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         factories.SeatFactory.create(course_run=course_run, upgrade_deadline=deadline, type='verified', price=1)
         assert course_run.is_current_and_still_upgradeable() == is_current
 
-    def test_publication_disabled(self):
-        """
-        Verify that the publisher is not initialized when publication is disabled.
-        """
-        with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
-            self.course_run.save()
-            self.course_run.delete()
-
-            assert mock_init.call_count == 0
-
-        with override_switch('publish_course_runs_to_marketing_site', True):
-            with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
-                # Make sure if the save comes from refresh_course_metadata, we don't actually publish
-                self.course_run.save(suppress_publication=True)
-                assert mock_init.call_count == 0
-
-            self.partner.marketing_site_url_root = ''
-            self.partner.save()
-
-            with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
-                self.course_run.save()
-                self.course_run.delete()
-
-                assert mock_init.call_count == 0
-
-    @override_switch('publish_course_runs_to_marketing_site', True)
-    def test_publication_enabled(self):
-        """
-        Verify that the publisher is called when publication is enabled.
-        """
-        with mock.patch.object(CourseRunMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
-            self.course_run.save()
-            assert mock_publish_obj.called
-
-        with mock.patch.object(CourseRunMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
-            self.course_run.delete()
-            # We don't want to delete course run nodes when CourseRuns are deleted.
-            assert not mock_delete_obj.called
-
     def test_image_url(self):
         assert self.course_run.image_url == self.course_run.course.image_url
 
@@ -750,92 +727,6 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         self.course_run.video = None
         self.course_run.save()
         assert self.course_run.get_video == self.course_run.course.video
-
-    def test_official_created(self):
-        self.mock_access_token()
-        self.mock_ecommerce_publication()
-
-        self.course_run.draft = True
-        self.course_run.status = CourseRunStatus.Reviewed
-        self.course_run.course.draft = True
-        factories.SeatFactory(course_run=self.course_run, draft=True)
-        # We have to specify a SeatType that exists in Seat.ENTITLEMENT_MODES in order for the
-        # official version of the Entitlement to be created
-        entitlement_mode = SeatType.objects.get(slug='verified')
-        factories.CourseEntitlementFactory(course=self.course_run.course, mode=entitlement_mode, draft=True)
-        self.course_run.course.save()
-        self.course_run.save()
-        assert CourseRun.everything.all().count() == 2
-        official_run = CourseRun.everything.get(key=self.course_run.key, draft=False)
-        draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
-
-        assert official_run.draft_version == draft_run
-        assert official_run != draft_run
-        assert official_run.slug == draft_run.slug
-
-        assert official_run.course.draft is False
-        assert official_run.course.draft_version == draft_run.course
-        assert official_run.course != draft_run.course
-        assert official_run.course.slug == draft_run.course.slug
-
-        official_entitlement = official_run.course.entitlements.first()
-        draft_entitlement = draft_run.course.entitlements.first()
-        assert official_entitlement.draft_version == draft_entitlement
-        assert official_entitlement.draft is False
-        assert draft_entitlement.draft is True
-        assert official_entitlement != draft_entitlement
-
-        official_seat = official_run.seats.first()
-        draft_seat = draft_run.seats.first()
-        assert official_seat.draft_version == draft_seat
-        assert official_seat.draft is False
-        assert draft_seat.draft is True
-        assert official_seat != draft_seat
-
-    def test_official_canonical_updates_to_official(self):
-        self.course_run.draft = True
-        self.course_run.status = CourseRunStatus.Reviewed
-        self.course_run.course.canonical_course_run = self.course_run
-        self.course_run.course.draft = True
-        self.course_run.course.save()
-        self.course_run.save()
-
-        official_run = CourseRun.everything.get(key=self.course_run.key, draft=False)
-        assert official_run.course.canonical_course_run == official_run
-
-        draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
-        assert draft_run.course.canonical_course_run == draft_run
-
-    def test_canonical_becomes_first_reviewed(self):
-        course = factories.CourseFactory(draft=True)
-        (run_a, run_b) = tuple(factories.CourseRunFactory.create_batch(2, course=course, draft=True))
-        course.canonical_course_run = run_a
-        run_b.status = CourseRunStatus.Reviewed
-        course.save()
-        run_a.save()
-        run_b.save()
-
-        draft_run_b = CourseRun.everything.get(key=run_b.key, draft=True)
-        assert draft_run_b.course.canonical_course_run == draft_run_b
-
-        official_run_b = CourseRun.everything.get(key=run_b.key, draft=False)
-        assert official_run_b.course.canonical_course_run == official_run_b
-
-    def test_no_duplicate_official(self):
-        self.course_run.course.draft = True
-        official_course = factories.CourseFactory.create()
-        official_course.draft_version = self.course_run.course
-        official_course.save()
-
-        self.course_run.draft = True
-        official_version = factories.CourseRunFactory.create(course=official_course, status=CourseRunStatus.Unpublished)
-        official_version.draft_version = self.course_run
-        official_version.save()
-
-        self.course_run.status = CourseRunStatus.Reviewed
-        self.course_run.save()
-        assert CourseRun.everything.all().count() == 2
-        assert Course.everything.all().count() == 2
 
     @ddt.data(
         (None, False),
@@ -939,13 +830,160 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         self.assertEqual(course_run.is_marketable, expected)
 
 
+class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
+    """
+    Tests for the `CourseRun` model where the course_run fixture object
+    REALLY needs to be re-created before each test.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.course_run = factories.CourseRunFactory()
+        self.partner = self.course_run.course.partner
+
+    def mock_ecommerce_publication(self):
+        url = '{root}publication/'.format(root=self.partner.ecommerce_api_url)
+        responses.add(responses.POST, url, json={}, status=200)
+
+    def test_official_created(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+
+        self.course_run.draft = True
+        self.course_run.status = CourseRunStatus.Reviewed
+        self.course_run.course.draft = True
+        factories.SeatFactory(course_run=self.course_run, draft=True)
+        # We have to specify a SeatType that exists in Seat.ENTITLEMENT_MODES in order for the
+        # official version of the Entitlement to be created
+        entitlement_mode = SeatType.objects.get(slug='verified')
+        factories.CourseEntitlementFactory(course=self.course_run.course, mode=entitlement_mode, draft=True)
+        self.course_run.course.save()
+        self.course_run.save()
+        assert CourseRun.everything.all().count() == 2
+        official_run = CourseRun.everything.get(key=self.course_run.key, draft=False)
+        draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
+
+        assert official_run.draft_version == draft_run
+        assert official_run != draft_run
+        assert official_run.slug == draft_run.slug
+
+        assert official_run.course.draft is False
+        assert official_run.course.draft_version == draft_run.course
+        assert official_run.course != draft_run.course
+        assert official_run.course.slug == draft_run.course.slug
+
+        official_entitlement = official_run.course.entitlements.first()
+        draft_entitlement = draft_run.course.entitlements.first()
+        assert official_entitlement.draft_version == draft_entitlement
+        assert official_entitlement.draft is False
+        assert draft_entitlement.draft is True
+        assert official_entitlement != draft_entitlement
+
+        official_seat = official_run.seats.first()
+        draft_seat = draft_run.seats.first()
+        assert official_seat.draft_version == draft_seat
+        assert official_seat.draft is False
+        assert draft_seat.draft is True
+        assert official_seat != draft_seat
+
+    def test_official_canonical_updates_to_official(self):
+        self.course_run.draft = True
+        self.course_run.status = CourseRunStatus.Reviewed
+        self.course_run.course.canonical_course_run = self.course_run
+        self.course_run.course.draft = True
+        self.course_run.course.save()
+        self.course_run.save()
+
+        official_run = CourseRun.everything.get(key=self.course_run.key, draft=False)
+        assert official_run.course.canonical_course_run == official_run
+
+        draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
+        assert draft_run.course.canonical_course_run == draft_run
+
+    def test_canonical_becomes_first_reviewed(self):
+        course = factories.CourseFactory(draft=True)
+        (run_a, run_b) = tuple(factories.CourseRunFactory.create_batch(2, course=course, draft=True))
+        course.canonical_course_run = run_a
+        run_b.status = CourseRunStatus.Reviewed
+        course.save()
+        run_a.save()
+        run_b.save()
+
+        draft_run_b = CourseRun.everything.get(key=run_b.key, draft=True)
+        assert draft_run_b.course.canonical_course_run == draft_run_b
+
+        official_run_b = CourseRun.everything.get(key=run_b.key, draft=False)
+        assert official_run_b.course.canonical_course_run == official_run_b
+
+    def test_no_duplicate_official(self):
+        self.course_run.course.draft = True
+        official_course = factories.CourseFactory.create()
+        official_course.draft_version = self.course_run.course
+        official_course.save()
+
+        self.course_run.draft = True
+        official_version = factories.CourseRunFactory.create(course=official_course, status=CourseRunStatus.Unpublished)
+        official_version.draft_version = self.course_run
+        official_version.save()
+
+        self.course_run.status = CourseRunStatus.Reviewed
+        self.course_run.save()
+        assert CourseRun.everything.all().count() == 2
+        assert Course.everything.all().count() == 2
+
+    def test_publication_disabled(self):
+        """
+        Verify that the publisher is not initialized when publication is disabled.
+        """
+        with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
+            self.course_run.save()
+            self.course_run.delete()
+
+            assert mock_init.call_count == 0
+
+        with override_switch('publish_course_runs_to_marketing_site', True):
+            with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
+                # Make sure if the save comes from refresh_course_metadata, we don't actually publish
+                self.course_run.save(suppress_publication=True)
+                assert mock_init.call_count == 0
+
+            self.partner.marketing_site_url_root = ''
+            self.partner.save()
+
+            with mock.patch.object(CourseRunMarketingSitePublisher, '__init__') as mock_init:
+                self.course_run.save()
+                self.course_run.delete()
+
+                assert mock_init.call_count == 0
+
+    @override_switch('publish_course_runs_to_marketing_site', True)
+    def test_publication_enabled(self):
+        """
+        Verify that the publisher is called when publication is enabled.
+        """
+        with mock.patch.object(CourseRunMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
+            self.course_run.save()
+            assert mock_publish_obj.called
+
+        with mock.patch.object(CourseRunMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
+            self.course_run.delete()
+            # We don't want to delete course run nodes when CourseRuns are deleted.
+            assert not mock_delete_obj.called
+
+
 @ddt.ddt
 class OrganizationTests(TestCase):
     """ Tests for the `Organization` model. """
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.organization = factories.OrganizationFactory()
+        cls._original_org_key = cls.organization.key
+
     def setUp(self):
-        super(OrganizationTests, self).setUp()
-        self.organization = factories.OrganizationFactory()
+        super().setUp()
+        self.organization.key = self._original_org_key
 
     @ddt.data(
         [" ", ",", "@", "(", "!", "#", "$", "%", "^", "&", "*", "+", "=", "{", "[", "ó"]
