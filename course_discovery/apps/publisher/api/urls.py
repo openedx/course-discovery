@@ -3,14 +3,16 @@ from django.conf.urls import include, url
 
 from course_discovery.apps.publisher.api.views import (
     AcceptAllRevisionView, ChangeCourseRunStateView, ChangeCourseStateView, CourseRevisionDetailView,
-    CourseRoleAssignmentView, CoursesAutoComplete, OrganizationGroupUserView, RevertCourseRevisionView,
-    UpdateCourseRunView
+    CourseRoleAssignmentView, CoursesAutoComplete, OrganizationGroupUserView, OrganizationUserRoleView,
+    RevertCourseRevisionView, UpdateCourseRunView
 )
 
 urlpatterns = [
     url(r'^course_role_assignments/(?P<pk>\d+)/$', CourseRoleAssignmentView.as_view(), name='course_role_assignments'),
     url(r'^admins/organizations/(?P<pk>[0-9a-f-]+)/users/$', OrganizationGroupUserView.as_view(),
         name='organization_group_users'),
+    url(r'^admins/organizations/(?P<pk>[0-9a-f-]+)/roles/$', OrganizationUserRoleView.as_view(),
+        name='organization_user_roles'),
     url(r'^course_state/(?P<pk>\d+)/$', ChangeCourseStateView.as_view(), name='change_course_state'),
     url(r'^course_runs/(?P<pk>\d+)/$', UpdateCourseRunView.as_view(), name='update_course_run'),
     url(r'^course_revisions/(?P<history_id>\d+)/$', CourseRevisionDetailView.as_view(), name='course_revisions'),

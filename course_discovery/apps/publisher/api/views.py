@@ -4,29 +4,35 @@ import re
 from dal import autocomplete
 from django.apps import apps
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
+from rest_framework.pagination import CursorPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from course_discovery.apps.core.models import User
+from course_discovery.apps.publisher.api.filters import OrganizationUserRoleFilterSet
 from course_discovery.apps.publisher.api.paginations import LargeResultsSetPagination
 from course_discovery.apps.publisher.api.permissions import (
     CanViewAssociatedCourse, InternalUserPermission, PublisherUserPermission
 )
 from course_discovery.apps.publisher.api.serializers import (
     CourseRevisionSerializer, CourseRunSerializer, CourseRunStateSerializer, CourseStateSerializer,
-    CourseUserRoleSerializer, GroupUserSerializer
+    CourseUserRoleSerializer, GroupUserSerializer, OrganizationUserRoleSerializer
 )
 from course_discovery.apps.publisher.forms import CourseForm
 from course_discovery.apps.publisher.models import (
-    Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension, PublisherUser
+    Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension, OrganizationUserRole,
+    PublisherUser
 )
 
 logger = logging.getLogger(__name__)
 
 historicalcourse = apps.get_model('publisher', 'historicalcourse')
+
+id_regex = re.compile(r'\d+')
 
 
 class CourseRoleAssignmentView(UpdateAPIView):
@@ -36,20 +42,29 @@ class CourseRoleAssignmentView(UpdateAPIView):
     serializer_class = CourseUserRoleSerializer
 
 
+class OrganizationUserRoleView(ListAPIView):
+    """ List view for OrganizationUserRole """
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = OrganizationUserRoleFilterSet
+    pagination_class = CursorPagination
+    permission_classes = (IsAuthenticated, PublisherUserPermission)
+    serializer_class = OrganizationUserRoleSerializer
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        lookup = {'organization': pk} if id_regex.fullmatch(pk) else {'organization__uuid': pk}
+        return OrganizationUserRole.objects.filter(**lookup)
+
+
 class OrganizationGroupUserView(ListAPIView):
     """ List view for Users filtered by group """
     serializer_class = GroupUserSerializer
     permission_classes = (IsAuthenticated, PublisherUserPermission)
     pagination_class = LargeResultsSetPagination
 
-    id_regex = re.compile(r'\d+')
-
     def get_queryset(self):
         pk = self.kwargs.get('pk')
-        if self.id_regex.fullmatch(pk):
-            lookup = {'organization': pk}
-        else:
-            lookup = {'organization__uuid': pk}
+        lookup = {'organization': pk} if id_regex.fullmatch(pk) else {'organization__uuid': pk}
         org_extension = get_object_or_404(OrganizationExtension, **lookup)
         return User.objects.filter(groups__organization_extension=org_extension).order_by('full_name', 'username')
 

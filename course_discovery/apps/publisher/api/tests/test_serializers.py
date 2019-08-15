@@ -14,13 +14,13 @@ from course_discovery.apps.course_metadata.tests.factories import OrganizationFa
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import (
     CourseRevisionSerializer, CourseRunSerializer, CourseRunStateSerializer, CourseStateSerializer,
-    CourseUserRoleSerializer, GroupUserSerializer
+    CourseUserRoleSerializer, GroupUserSerializer, OrganizationUserRoleSerializer
 )
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
 from course_discovery.apps.publisher.models import CourseRun, CourseState, Seat
 from course_discovery.apps.publisher.tests.factories import (
     CourseFactory, CourseRunFactory, CourseRunStateFactory, CourseStateFactory, CourseUserRoleFactory,
-    OrganizationExtensionFactory, SeatFactory
+    OrganizationExtensionFactory, OrganizationUserRoleFactory, SeatFactory
 )
 
 
@@ -93,6 +93,15 @@ class GroupUserSerializerTests(TestCase):
         serializer = GroupUserSerializer(user)
 
         expected = {'id': user.id, 'full_name': user.username, 'email': user.email}
+        self.assertDictEqual(serializer.data, expected)
+
+
+class OrganizationUserRoleSerializerTests(TestCase):
+    def test_basic_serialization(self):
+        role = OrganizationUserRoleFactory()
+        serializer = OrganizationUserRoleSerializer(role)
+
+        expected = {'id': role.id, 'role': role.role, 'user': GroupUserSerializer(role.user).data}
         self.assertDictEqual(serializer.data, expected)
 
 
