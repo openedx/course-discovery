@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-16 14:02+0000\n"
+"POT-Creation-Date: 2019-08-16 19:36+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -874,6 +874,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/publisher/models.py
 msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
 "Léävé thïs fïéld ßlänk tö hävé thé välüé générätéd äütömätïçällý. Ⱡ'σяєм "
@@ -2081,6 +2082,10 @@ msgid "Syllabus"
 msgstr "Sýlläßüs Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/forms.py
+msgid "URL slug"
+msgstr "ÛRL slüg Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/publisher/forms.py
 msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen."
@@ -2743,11 +2748,13 @@ msgstr "ÇÖÛRSÉ TÌTLÉ Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Best Practices"
 msgstr "Bést Präçtïçés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/add_course_form.html
+#: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -3066,6 +3073,10 @@ msgid "Course Team Admin"
 msgstr "Çöürsé Téäm Àdmïn Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/publisher/templates/publisher/course_detail.html
+msgid "URL Slug"
+msgstr "ÛRL Slüg Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Certificate Price"
 msgstr "Çértïfïçäté Prïçé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
@@ -3187,6 +3198,49 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "BIO1.1x, BIO1.2x"
 msgstr "BÌÖ1.1x, BÌÖ1.2x Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "URL SLUG"
+msgstr "ÛRL SLÛG Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "(currently unused)"
+msgstr "(çürréntlý ünüséd) Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"The default URL slug is based on the course title. This URL slug can be "
+"changed, and learners who visit an older URL will be redirected to the "
+"current URL."
+msgstr ""
+"Thé défäült ÛRL slüg ïs ßäséd ön thé çöürsé tïtlé. Thïs ÛRL slüg çän ßé "
+"çhängéd, änd léärnérs whö vïsït än öldér ÛRL wïll ßé rédïréçtéd tö thé "
+"çürrént ÛRL. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ "
+"∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ "
+"мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ "
+"єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє "
+"νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт "
+"¢υρι∂αтαт ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσł#"
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid "What is a URL Slug?"
+msgstr "Whät ïs ä ÛRL Slüg? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/publisher/templates/publisher/course_edit_form.html
+msgid ""
+"In the example URL www.edx.org/course/math-101, the URL slug is “math-101.” "
+"Using URL slugs that are short and easily understandable helps learners find"
+" and remember course pages, and also drives higher rankings in search engine"
+" results"
+msgstr ""
+"Ìn thé éxämplé ÛRL www.édx.örg/çöürsé/mäth-101, thé ÛRL slüg ïs “mäth-101.” "
+"Ûsïng ÛRL slügs thät äré shört änd éäsïlý ündérständäßlé hélps léärnérs fïnd"
+" änd rémémßér çöürsé pägés, änd älsö drïvés hïghér ränkïngs ïn séärçh éngïné"
+" résülts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ "
+"єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм"
+" νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα "
+"¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт"
+" єѕѕє ¢ιł#"
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "SHORT DESCRIPTION"
