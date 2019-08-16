@@ -13,6 +13,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models, transaction
 from django.db.models import F, Q
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
@@ -720,6 +722,9 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
             self.save()
 
         return official_version
+
+
+
 
 
 class CourseEditor(TimeStampedModel):
@@ -2370,6 +2375,10 @@ class PersonAreaOfExpertise(AbstractValueModel):
 
     class Meta(object):
         verbose_name_plural = 'Person Areas of Expertise'
+
+
+class CourseHistoricalSlug(AbstractValueModel):
+    course = models.ForeignKey(Course, models.CASCADE, related_name='url_slug_history')
 
 
 class DataLoaderConfig(SingletonModel):

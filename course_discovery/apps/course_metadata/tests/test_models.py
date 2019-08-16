@@ -29,7 +29,7 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel, AbstractValueModel,
-    CorporateEndorsement, Course, CourseEditor, CourseRun, Curriculum, CurriculumCourseMembership,
+    CorporateEndorsement, Course, CourseEditor, CourseHistoricalSlug, CourseRun, Curriculum, CurriculumCourseMembership,
     CurriculumCourseRunExclusion, DegreeCost, DegreeDeadline, Endorsement, Organization, Program, Ranking, Seat,
     SeatType, Subject, Topic
 )
@@ -154,6 +154,27 @@ class TestCourse(TestCase):
             fourth_course_run,
         ]
         self.assertEqual(sorted(out_of_order_runs, key=course.course_run_sort), expected_order)
+
+    def test_add_to_url_slug_history(self):
+        """ Verify that url_slug_history only gets updated when the url_slug is updated
+         on an official course """
+        course = factories.CourseFactory.create()
+        course.draft = True
+        course.url_slug = 'a-new-slug'
+        course.save()
+        previous_slugs = CourseHistoricalSlug.objects.filter(course=course)
+        self.assertEqual(len(previous_slugs), 0)
+
+        # create an official version of the draft, which should have its slug set to 'a-new-slug'
+        course_run = factories.CourseRunFactory(course=course, status=CourseRunStatus.Unpublished,
+                                                end=datetime.datetime(2010, 1, 1, tzinfo=pytz.UTC))
+        official_course_run = course_run.update_or_create_official_version()
+        official_course = official_course_run.course
+        official_course.url_slug = 'a-newer-slug'
+        official_course.save()
+        previous_slugs = CourseHistoricalSlug.objects.filter(course=official_course)
+        self.assertEqual(len(previous_slugs), 1)
+        self.assertEqual(previous_slugs[0].value, 'a-new-slug')
 
 
 class TestCourseUpdateMarketingRedirects(MarketingSitePublisherTestMixin, TestCase):

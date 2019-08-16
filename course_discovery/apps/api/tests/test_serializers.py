@@ -178,6 +178,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'enrollment_count': 0,
             'recent_enrollment_count': 0,
             'topics': list(course.topics.names()),
+            'url_slug_history': [],
         })
 
         return expected

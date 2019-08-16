@@ -908,6 +908,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     original_image = ImageField(read_only=True, source='original_image_url')
     extra_description = AdditionalPromoAreaSerializer(required=False)
     topics = TagListSerializerField(required=False)
+    url_slug_history = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
@@ -928,6 +929,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'prerequisites',
             'subjects',
             'topics',
+            'url_slug_history',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
@@ -940,7 +942,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
-            'enrollment_count', 'recent_enrollment_count', 'topics', 'partner',
+            'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'url_slug_history',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -960,6 +962,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         if obj.canonical_course_run:
             return obj.canonical_course_run.key
         return None
+
+    def get_url_slug_history(self, obj):
+        return [slug_history_entry.value for slug_history_entry in obj.url_slug_history.all()]
 
     def to_internal_value(self, data):
         # Allow incoming writes to just specify a list of slugs for subjects

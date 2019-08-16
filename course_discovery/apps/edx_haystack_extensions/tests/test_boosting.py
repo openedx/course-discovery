@@ -55,7 +55,9 @@ class TestSearchBoosting:
         search_results = SearchQuerySet().models(CourseRun).all()
         assert len(search_results) == 2
         assert search_results[0].score > search_results[1].score
-        assert int(test_record.start.timestamp()) == int(search_results[0].start.timestamp())
+        test_record_timestamp = test_record.start.timestamp()  # pylint disabled=no-member
+        search_result_timestamp = search_results[0].start.timestamp()  # pylint disabled=no-member
+        assert int(test_record_timestamp) == int(search_result_timestamp)
 
     @pytest.mark.parametrize(
         'has_enrollable_paid_seats,paid_seat_enrollment_end,expects_boost',

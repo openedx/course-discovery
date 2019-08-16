@@ -10,9 +10,12 @@ from django.dispatch import receiver
 from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
+
 from course_discovery.apps.course_metadata.models import (
-    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Program, Seat
+    CourseHistoricalSlug, CourseRun, Curriculum, CurriculumCourseMembership,
+    CurriculumProgramMembership, Program, Seat
 )
+
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.waffle import masters_course_mode_enabled
 
@@ -192,6 +195,18 @@ def _seat_type_exists(course_modes, seat_type):
             return True
     return False
 
+
+@receiver(pre_save, sender=Course)
+def add_to_slug_history(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    if instance.draft:
+        return
+    try:
+        obj = sender.objects.get(pk=instance.pk)
+    except sender.DoesNotExist:
+        pass
+    else:
+        if obj.url_slug != instance.url_slug:
+            CourseHistoricalSlug.objects.create(course=instance, **kwargs)
 
 # Invalidate API cache when any model in the course_metadata app is saved or
 # deleted. Given how interconnected our data is and how infrequently our models
