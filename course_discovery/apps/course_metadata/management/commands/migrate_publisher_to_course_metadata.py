@@ -33,7 +33,7 @@ class Command(BaseCommand):
             for publisher_course in PublisherCourse.objects.filter(organizations__in=[org]).order_by('modified'):
                 for course_run in publisher_course.course_runs.all():
                     try:
-                        publish_to_course_metadata(partner, course_run, draft=True)
+                        publish_to_course_metadata(partner, course_run, create_official=False)
                     except IntegrityError as e:
                         logger.exception(
                             _('Error publishing course run [{course_run_key}] to Course Metadata: {error}. '

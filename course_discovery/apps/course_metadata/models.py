@@ -1295,7 +1295,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).delete()  # pylint: disable=no-member
         self.seats.set(seats)
 
-    def update_or_create_official_version(self):
+    def update_or_create_official_version(self, create_ecom_products=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
         official_version = set_official_state(draft_version, CourseRun)
 
@@ -1309,7 +1309,8 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         official_version.save()
 
         # Push any product (seat, entitlement) changes to ecommerce as well
-        push_to_ecommerce_for_course_run(official_version)
+        if create_ecom_products:
+            push_to_ecommerce_for_course_run(official_version)
 
         return official_version
 
