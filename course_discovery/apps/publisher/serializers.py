@@ -27,12 +27,9 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
         return course.number
 
     def get_course_title(self, course):
-        publisher_hide_features_for_pilot = self.context['publisher_hide_features_for_pilot']
         return {
             'title': course.title,
-            'url': None if publisher_hide_features_for_pilot else reverse(
-                'publisher:publisher_course_detail', kwargs={'pk': course.id}
-            )
+            'url': reverse('publisher:publisher_course_detail', kwargs={'pk': course.id}),
         }
 
     def get_organization_name(self, course):
@@ -65,8 +62,7 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
 
     def get_edit_url(self, course):
         courses_edit_url = None
-        publisher_hide_features_for_pilot = self.context['publisher_hide_features_for_pilot']
-        if not publisher_hide_features_for_pilot and self.can_edit_course(course, self.context['user']):
+        if self.can_edit_course(course, self.context['user']):
             courses_edit_url = reverse('publisher:publisher_courses_edit', kwargs={'pk': course.id})
 
         return {

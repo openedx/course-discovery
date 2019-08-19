@@ -158,7 +158,7 @@
                 </div>
             </fieldset>
         </div>
-        <div id="about-page" class="course-information {% if publisher_hide_features_for_pilot %}hidden{% endif %}">
+        <div id="about-page" class="course-information">
             <fieldset class="form-group grid-container grid-manual">
                 <div class="field-title">{% trans "PROGRAM ASSOCIATION" %} <span class="optional float-right">Optional</span></div>
                 <div class="row">
@@ -287,11 +287,9 @@
                                 id="id_staff" data-html="true" class="field-input">
                         </select>
                         <div class="selected-instructor">
-                            {% if publisher_add_instructor_feature %}
-                                <button type="button"
-                                        id="add-new-instructor">{% trans "Create new" %}<br>{% trans "instructor" %}
-                                </button>
-                            {% endif %}
+                            <button type="button" id="add-new-instructor">
+                              {% trans "Create new" %}<br>{% trans "instructor" %}
+                            </button>
                             {% for staff in run_form.instance.staff.all %}
                                 {% include "publisher/_personFieldLabel.html" %}
                             {% endfor %}
@@ -382,9 +380,7 @@
 </form>
 </div>
 </div>
-{% if publisher_add_instructor_feature %}
-    {% include "publisher/_add_instructor_popup.html" %}
-{% endif %}
+{% include "publisher/_add_instructor_popup.html" %}
 {% endblock %}
 
 {% block extra_js %}

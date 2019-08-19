@@ -237,8 +237,6 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
             ]
         )
         context['can_view_all_tabs'] = mixins.check_roles_access(user)
-        context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
-        context['publisher_comment_widget_feature'] = waffle.switch_is_active('publisher_comment_widget_feature')
         context['publisher_approval_widget_feature'] = waffle.switch_is_active('publisher_approval_widget_feature')
         context['publish_state_name'] = CourseRunStateChoices.Published
 
@@ -283,8 +281,6 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
         return {
             'course_form': self.course_form(user=self.request.user),
             'entitlement_form': self.entitlement_form(),
-            'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
-            'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
         }
 
     def get(self, request, *args, **kwargs):
@@ -700,8 +696,6 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         )
         context['comment_object'] = course
         context['post_back_url'] = reverse('publisher:publisher_course_detail', kwargs={'pk': self.object.id})
-        context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
-        context['publisher_comment_widget_feature'] = waffle.switch_is_active('publisher_comment_widget_feature')
         context['publisher_history_widget_feature'] = waffle.switch_is_active('publisher_history_widget_feature')
         context['publisher_approval_widget_feature'] = waffle.switch_is_active('publisher_approval_widget_feature')
         context['role_widgets'] = get_course_role_widgets_data(
@@ -1048,8 +1042,6 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         return {
             'course_run': course_run,
             'has_masters_seat': has_masters_seat,
-            'publisher_hide_features_for_pilot': waffle.switch_is_active('publisher_hide_features_for_pilot'),
-            'publisher_add_instructor_feature': waffle.switch_is_active('publisher_add_instructor_feature'),
             'is_internal_user': mixins.check_roles_access(user),
             'is_project_coordinator': is_project_coordinator_user(user),
             'organizations': mixins.get_user_organizations(user),
@@ -1203,7 +1195,6 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(CourseListView, self).get_context_data(**kwargs)
-        context['publisher_hide_features_for_pilot'] = waffle.switch_is_active('publisher_hide_features_for_pilot')
         site = Site.objects.first()
         context['site_name'] = 'edX' if 'edx' in site.name.lower() else site.name
         context['publisher_courses_url'] = reverse('publisher:publisher_courses')
@@ -1368,7 +1359,6 @@ class CourseListView(mixins.LoginRequiredMixin, ListView):
             many=True,
             context={
                 'user': request.user,
-                'publisher_hide_features_for_pilot': context['publisher_hide_features_for_pilot'],
             }
         ).data
 
