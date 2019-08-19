@@ -471,7 +471,7 @@ def push_to_ecommerce_for_course_run(course_run):
 
 
 @transaction.atomic
-def publish_to_course_metadata(partner, course_run, draft=False):
+def publish_to_course_metadata(partner, course_run, create_official=True):
     from course_discovery.apps.course_metadata.models import (
         Course, CourseEntitlement, CourseRun, ProgramType, Seat, SeatType, Video
     )
@@ -499,18 +499,15 @@ def publish_to_course_metadata(partner, course_run, draft=False):
     discovery_course = find_discovery_course(course_run)
     course_key = discovery_course.key if discovery_course else publisher_course.key
 
-    if draft and discovery_course:
-        # We want to only save to drafts when draft=True so let's ensure the draft version of everything exists.
-        # If it doesn't, we will just create it below.
+    if discovery_course:
+        # Let's ensure the draft version of everything exists. If it doesn't, we will just create it below.
         ensure_draft_world(discovery_course)
 
     discovery_course, created = Course.everything.update_or_create(
-        partner=partner, key=course_key, draft=draft, defaults=defaults
+        partner=partner, key=course_key, draft=True, defaults=defaults
     )
-    # If draft=True, we do not require any fields to be set since we are writing to
-    # a course_metadata draft row. If draft=False, we are publishing from the Publisher
-    # app and image is required and should fail if not provided.
-    if not draft or publisher_course.image:
+    # If we are publishing from the Publisher app, image is required and should fail if not provided.
+    if create_official or publisher_course.image:
         discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
     discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
 
@@ -543,7 +540,7 @@ def publish_to_course_metadata(partner, course_run, draft=False):
         'course': discovery_course,
     }
     discovery_course_run, __ = CourseRun.everything.update_or_create(
-        key=course_run.lms_course_id, draft=draft, defaults=defaults
+        key=course_run.lms_course_id, draft=True, defaults=defaults
     )
     discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
     discovery_course_run.staff.clear()
@@ -552,7 +549,7 @@ def publish_to_course_metadata(partner, course_run, draft=False):
     for entitlement in publisher_course.entitlements.all():
         CourseEntitlement.everything.update_or_create(  # pylint: disable=no-member
             course=discovery_course,
-            draft=draft,
+            draft=True,
             defaults={
                 'mode': SeatType.objects.get(slug=entitlement.mode),
                 'partner': partner,
@@ -566,7 +563,7 @@ def publish_to_course_metadata(partner, course_run, draft=False):
             course_run=discovery_course_run,
             type=seat.type,
             currency=seat.currency,
-            draft=draft,
+            draft=True,
             defaults={
                 'price': seat.price,
                 'upgrade_deadline': seat.calculated_upgrade_deadline,
@@ -577,7 +574,7 @@ def publish_to_course_metadata(partner, course_run, draft=False):
                 course_run=discovery_course_run,
                 type=Seat.MASTERS,
                 currency=seat.currency,
-                draft=draft,
+                draft=True,
                 defaults={
                     'price': seat.price,
                     'upgrade_deadline': seat.calculated_upgrade_deadline,
@@ -587,6 +584,12 @@ def publish_to_course_metadata(partner, course_run, draft=False):
     if created:
         discovery_course.canonical_course_run = discovery_course_run
         discovery_course.save()
+
+    if create_official:
+        # This will update or create the official version for the Course,
+        # Course Run, Seats, and Entitlements. We are not creating ecom products in this
+        # case because they are created separately as part of old publisher's publish button.
+        discovery_course_run.update_or_create_official_version(create_ecom_products=False)
 
 
 class MarketingSiteAPIClient(object):
