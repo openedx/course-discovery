@@ -99,7 +99,7 @@
           {% include 'publisher/course_run_detail/_widgets.html' %}
         {% endwith %}
         </div>
-        <div id="comments-widget" class="comment-container {% if not publisher_comment_widget_feature %}hidden{% endif %}">
+        <div id="comments-widget" class="comment-container">
             {% include 'publisher/comments/add_auth_comments.html' with comment_type='default' %}
             {% include 'publisher/comments/comments_list.html' %}
         </div>

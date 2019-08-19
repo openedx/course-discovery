@@ -263,10 +263,10 @@
     </main>
 
     <aside id="right-panel" class="layout-col layout-col-a layout-col-a-custom">
-        <div id="approval-widget" class="{% if publisher_hide_features_for_pilot %}hidden{% endif %}">
+        <div id="approval-widget">
             {% include 'publisher/course_detail/_widgets.html' %}
         </div>
-        <div id="comments-widget" class="comment-container {% if not publisher_comment_widget_feature %}hidden{% endif %}">
+        <div id="comments-widget" class="comment-container">
             {% include 'publisher/comments/add_auth_comments.html' %}
             {% include 'publisher/comments/comments_list.html' %}
         </div>

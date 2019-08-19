@@ -1268,21 +1268,10 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         self.assertNotIn(response_string, '<button data-tab="#tab-4">DRUPAL</button>')
         self.assertNotIn(response_string, '<button data-tab="#tab-5">Salesforce</button>')
 
-    @override_switch('publisher_comment_widget_feature', True)
-    def test_comments_with_enable_switch(self):
-        """ Verify that user will see the comments widget when
-        'publisher_comment_widget_feature' is enabled.
-        """
+    def test_comments(self):
+        """ Verify that user will see the comments widget """
         response = self.client.get(self.page_url)
-
-        self.assertContains(response, '<div id="comments-widget" class="comment-container ">')
-
-    def test_comments_with_disable_switch(self):
-        """ Verify that user will not see the comments widget when
-        'publisher_comment_widget_feature' is disable.
-        """
-        response = self.client.get(self.page_url)
-        self.assertContains(response, '<div id="comments-widget" class="comment-container hidden">')
+        self.assertContains(response, '<div id="comments-widget" class="comment-container">')
 
     @override_switch('publisher_approval_widget_feature', True)
     def test_approval_widget_with_enable_switch(self):
@@ -2036,29 +2025,9 @@ class CourseListViewTests(SiteMixin, PaginationMixin, TestCase):
             courses = json.loads(response.context_data['courses'].decode('utf-8'))
             self.assertIn(self.course.title, [course['course_title']['title'] for course in courses])
 
-    def test_page_with_enable_waffle_switch(self):
+    def test_page_has_edit_button(self):
         """
-        Verify that edit button will not be shown if 'publisher_hide_features_for_pilot' activated.
-        """
-        edit_url = {'title': 'Edit', 'url': reverse('publisher:publisher_courses_edit', args=[self.course.id])}
-
-        factories.CourseUserRoleFactory(course=self.course, user=self.user, role=PublisherUserRole.CourseTeam)
-        organization_extension = factories.OrganizationExtensionFactory()
-        self.course.organizations.add(organization_extension.organization)
-        self.user.groups.add(organization_extension.group)
-        assign_perm(OrganizationExtension.VIEW_COURSE, organization_extension.group, organization_extension)
-        assign_perm(OrganizationExtension.EDIT_COURSE, organization_extension.group, organization_extension)
-        response = self.get_courses()
-        self.assertEqual(response[0]['edit_url'], edit_url)
-
-        with override_switch('publisher_hide_features_for_pilot', True):
-            response = self.get_courses()
-            edit_url['url'] = None
-            self.assertEqual(response[0]['edit_url'], edit_url)
-
-    def test_page_with_disable_waffle_switch(self):
-        """
-        Verify that edit button will be shown if 'publisher_hide_features_for_pilot' deactivated.
+        Verify that edit button is shown
         """
         organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(organization_extension.organization)
@@ -2414,38 +2383,17 @@ class CourseDetailViewTests(SiteMixin, TestCase):
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, 'course/{}'.format(lms_course_id))
 
-    @override_switch('publisher_hide_features_for_pilot', True)
-    def test_page_enable_waffle_switch_pilot(self):
-        """ Verify that user will not see approval widget when 'publisher_hide_features_for_pilot' is activated. """
+    def test_page_has_approval_widget(self):
+        """ Verify that user will see approval widget """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         response = self.client.get(self.detail_page_url)
+        self.assertContains(response, '<div id="approval-widget">')
 
-        self.assertContains(response, '<div id="approval-widget" class="hidden">')
-
-    def test_page_disable_waffle_switch_pilot(self):
-        """ Verify that user will see approval widget when 'publisher_hide_features_for_pilot' is deactivated. """
+    def test_comments(self):
+        """ Verify that user will see the comments widget """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         response = self.client.get(self.detail_page_url)
-
-        self.assertContains(response, '<div id="approval-widget" class="">')
-
-    @override_switch('publisher_comment_widget_feature', True)
-    def test_comments_with_enable_switch(self):
-        """ Verify that user will see the comments widget when
-        'publisher_comment_widget_feature' is enabled.
-        """
-        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        response = self.client.get(self.detail_page_url)
-
-        self.assertContains(response, '<div id="comments-widget" class="comment-container ">')
-
-    def test_comments_with_disable_switch(self):
-        """ Verify that user will not see the comments widget when
-        'publisher_comment_widget_feature' is disabled.
-        """
-        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        response = self.client.get(self.detail_page_url)
-        self.assertContains(response, '<div id="comments-widget" class="comment-container hidden">')
+        self.assertContains(response, '<div id="comments-widget" class="comment-container">')
 
     @override_switch('publisher_history_widget_feature', True)
     def test_history_with_enable_switch(self):
@@ -3855,22 +3803,12 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         response = self.client.get(self.edit_page_url)
         self.assertContains(response, '<div id="seatPriceBlock" class="col col-6')
 
-    @override_switch('publisher_hide_features_for_pilot', True)
-    def test_page_with_enable_waffle_switch(self):
+    def test_has_about_page_info(self):
         """
-        Verify that edit pages shows the about page information block but only visible
-        if the switch `publisher_hide_features_for_pilot` is enable.
+        Verify that edit pages shows the about page information block
         """
         response = self.client.get(self.edit_page_url)
-        self.assertContains(response, '<div id="about-page" class="course-information hidden">')
-
-    def test_page_with_disable_waffle_switch(self):
-        """
-        Verify that edit pages shows the about page information block but hidden
-        if the switch `publisher_hide_features_for_pilot` is disable
-        """
-        response = self.client.get(self.edit_page_url)
-        self.assertContains(response, '<div id="about-page" class="course-information ">')
+        self.assertContains(response, '<div id="about-page" class="course-information">')
 
     def test_owner_role_change_on_edit(self):
         """ Verify that when a user made changes in course run, course will be assign to him,
