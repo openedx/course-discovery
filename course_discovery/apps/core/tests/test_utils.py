@@ -2,9 +2,9 @@ from django.db import models
 from django.test import TestCase
 from haystack.query import SearchQuerySet
 
-from course_discovery.apps.core.utils import SearchQuerySetWrapper, get_all_related_field_names
-from course_discovery.apps.course_metadata.models import CourseRun
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
+from course_discovery.apps.core.utils import SearchQuerySetWrapper, delete_orphans, get_all_related_field_names
+from course_discovery.apps.course_metadata.models import CourseRun, Video
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, VideoFactory
 
 
 class UnrelatedModel(models.Model):
@@ -40,6 +40,16 @@ class ModelUtilTests(TestCase):
         """ Verify the method returns the names of all relational fields for a model. """
         self.assertEqual(get_all_related_field_names(UnrelatedModel), [])
         self.assertEqual(set(get_all_related_field_names(RelatedModel)), {'foreignrelatedmodel', 'm2mrelatedmodel'})
+
+    def test_delete_orphans(self):
+        """ Verify the delete_orphans method deletes orphaned instances. """
+        orphan = VideoFactory()
+        used = CourseRunFactory().video
+
+        delete_orphans(Video)
+
+        self.assertTrue(used.__class__.objects.filter(pk=used.pk).exists())
+        self.assertFalse(orphan.__class__.objects.filter(pk=orphan.pk).exists())
 
 
 class SearchQuerySetWrapperTests(TestCase):

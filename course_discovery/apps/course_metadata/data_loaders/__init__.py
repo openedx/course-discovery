@@ -8,7 +8,6 @@ from django.utils.functional import cached_property
 from edx_rest_api_client.client import EdxRestApiClient
 from opaque_keys.edx.keys import CourseKey
 
-from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.models import Image, Video
 
 
@@ -134,12 +133,6 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
             str
         """
         return '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
-
-    @classmethod
-    def delete_orphans(cls):
-        """ Remove orphaned objects from the database. """
-        for model in (Image, Video):
-            delete_orphans(model)
 
     @classmethod
     def _get_or_create_media(cls, media_type, url):

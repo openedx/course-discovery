@@ -19,6 +19,7 @@ from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.management.commands.refresh_course_metadata import execute_parallel_loader
+from course_discovery.apps.course_metadata.models import Image, Video
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 JSON = 'application/json'
@@ -213,3 +214,13 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
                 )
                 expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
                 mock_logger.exception.assert_has_calls(expected_calls)
+
+    @mock.patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.delete_orphans')
+    def test_deletes_orphans(self, mock_delete_orphans):
+        """ Verify execution culls any orphans left behind. """
+        # Don't bother setting anything up - we expect to delete orphans on success or failure
+        with self.assertRaisesMessage(CommandError, 'One or more of the data loaders above failed.'):
+            call_command('refresh_course_metadata')
+
+        self.assertEqual(mock_delete_orphans.call_count, 2)
+        self.assertEqual({x[0][0] for x in mock_delete_orphans.call_args_list}, {Image, Video})
