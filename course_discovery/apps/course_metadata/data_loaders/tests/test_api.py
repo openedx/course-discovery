@@ -20,8 +20,7 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, ImageFactory, OrganizationFactory, SeatFactory,
-    VideoFactory
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory
 )
 from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 
@@ -53,14 +52,6 @@ class AbstractDataLoaderTest(TestCase):
         # Parse datetime strings
         dt = datetime.datetime.utcnow()
         self.assertEqual(AbstractDataLoader.parse_date(dt.isoformat()), dt)
-
-    def test_delete_orphans(self):
-        """ Verify the delete_orphans method deletes orphaned instances. """
-        instances = (ImageFactory(), VideoFactory(),)
-        AbstractDataLoader.delete_orphans()
-
-        for instance in instances:
-            self.assertFalse(instance.__class__.objects.filter(pk=instance.pk).exists())
 
     def test_clean_html(self):
         """ Verify the method removes unnecessary HTML attributes. """

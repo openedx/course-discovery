@@ -49,8 +49,6 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
 
         logger.info('Retrieved %d organizations from %s.', count, api_url)
 
-        self.delete_orphans()
-
     def update_organization(self, body):
         key = body['short_name']
         logo = body['logo']
@@ -108,8 +106,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     self._process_response(response)
 
         logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
-
-        self.delete_orphans()
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
@@ -328,8 +324,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 if attempt_count >= EcommerceApiDataLoader.LOADER_MAX_RETRY:
                     raise CommandError('Max retries exceeded and Ecommerce Data Loader failed to successfully load')
             else:
-                # If no errors were detected clean up Orphans
-                self.delete_orphans()
                 self._delete_entitlements()
 
     def _load_ecommerce_data(self):

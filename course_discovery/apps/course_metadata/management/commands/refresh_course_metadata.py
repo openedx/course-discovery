@@ -12,6 +12,7 @@ from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
 from course_discovery.apps.core.models import Partner
+from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
 from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
@@ -19,7 +20,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
     SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
 )
-from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig
+from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig, Image, Video
 
 logger = logging.getLogger(__name__)
 
@@ -206,6 +207,10 @@ class Command(BaseCommand):
                         ) and success
 
             # TODO Cleanup CourseRun overrides equivalent to the Course values.
+
+        # Clean up any media orphans that we might have created
+        delete_orphans(Image)
+        delete_orphans(Video)
 
         set_api_timestamp()
 
