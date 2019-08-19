@@ -15,7 +15,7 @@
     {% blocktrans trimmed asvar tmsg %}
         The {link_start}{course_page_url}{link_middle}{course_run_number} course run{link_end} of {course_name} has been reviewed and approved by {platform_name}.
     {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe course_run_number=course_run_number|safe link_middle=link_middle|safe course_name=course_name|safe course_page_url=course_page_url|safe platform_name=platform_name %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe course_run_number=course_run_number|safe course_name=course_name|safe course_page_url=course_page_url|safe platform_name=platform_name %}
 
     {% if go_live_date %}
         {% filter force_escape %}
@@ -36,7 +36,7 @@
     {% blocktrans trimmed asvar tmsg %}
         Note: This email address is unable to receive replies. For questions or comments, please contact {link_start}{contact_us_email}{link_middle}your Project Coordinator{link_end}.
     {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe link_middle=link_middle|safe %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe %}
 </p>
 
 <!-- End Message Body -->

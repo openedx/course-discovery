@@ -40,7 +40,7 @@
                                             {% blocktrans asvar tmsg %}
                                                 If your course cannot be found, make sure the course name is correct, or {link_start}{new_course_url}{link_middle}create a new course{link_end}.
                                             {% endblocktrans%}
-                                            {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe new_course_url=new_course_url|safe%}
+                                            {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe new_course_url=new_course_url|safe %}
                                         </p>
                                     </div>
                                     <div class="col col-6">

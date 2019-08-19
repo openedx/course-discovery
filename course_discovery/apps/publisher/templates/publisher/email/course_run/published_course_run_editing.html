@@ -4,27 +4,32 @@
 <!-- Message Body -->
 
     <p>
+        {% filter force_escape %}
         {% blocktrans trimmed %}
             Dear {{ recipient_name }},
         {% endblocktrans %}
+        {% endfilter %}
     </p>
     <p>
+        {% filter force_escape %}
         {% blocktrans trimmed %}
             {{ course_team }} has made changes to the following published course run.
         {% endblocktrans %}
+        {% endfilter %}
     </p>
     <p>
-        {{ course_name }} {{ course_run_number }} <a href="{{ course_run_page_url }}">{% trans "View the course run in Publisher" %}</a> {% trans "to make changes and republish the course run." %}
+        {{ course_name }} {{ course_run_number }} <a href="{{ course_run_page_url }}">{% trans "View the course run in Publisher" as tmsg %}{{ tmsg | force_escape }</a> {% trans "to make changes and republish the course run." as tmsg %}{{ tmsg | force_escape }}
     </p>
 
     {% comment %}Translators: It's closing of mail.{% endcomment %}
-    {% trans "Thanks," %}<br>
+    {% trans "Thanks," as tmsg %}{{ tmsg | force_escape }}<br>
     {{ course_team }}
 
-
+{% filter force_escape %}
 {% blocktrans trimmed %}
     <p>Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.</p>
 {% endblocktrans %}
+{% endfilter %}
 
 <!-- End Message Body -->
 {% endblock body %}

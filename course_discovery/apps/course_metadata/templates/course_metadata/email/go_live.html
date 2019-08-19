@@ -25,7 +25,7 @@
         {% blocktrans trimmed asvar tmsg %}
             { link_start }{ preview_url }{ link_middle }View this About page.{ link_end }
         {% endblocktrans %}
-      {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe preview_url=preview_url|safe link_middle=link_middle|safe %}
+      {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe preview_url=preview_url|safe %}
       {% endfilter %}
 </p>
 
@@ -34,7 +34,7 @@
         {% blocktrans trimmed asvar tmsg %}
             Note: This email address is unable to receive replies. For questions or comments, please contact {link_start}{contact_us_email}{link_middle}your Project Coordinator{link_end}.
         {% endblocktrans %}
-        {% interpolate_html tmsg link_start='<a href="mailto:' link_middle='">'|safe link_end='</a>'|safe contact_us_email=contact_us_email|safe link_middle=link_middle|safe %}
+        {% interpolate_html tmsg link_start='<a href="mailto:'|safe link_middle='">'|safe link_end='</a>'|safe contact_us_email=contact_us_email|safe %}
    {% endfilter %}
 </p>
 

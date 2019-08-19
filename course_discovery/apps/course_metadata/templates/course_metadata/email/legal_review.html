@@ -5,29 +5,31 @@
 <!-- Message Body -->
 
 <p>
+    {% filter force_escape %}
     {% blocktrans trimmed %}
         Dear {{ recipient_name }},
     {% endblocktrans %}
+    {% endfilter %}
 </p>
 <p>
     {% blocktrans trimmed asvar tmsg %}
         {org_name} has submitted {course_name} for review. {link_start}{course_page_url}{link_middle}View this course run in Publisher{link_end} to determine OFAC status.
     {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe org_name=org_name|safe link_middle=link_middle|safe course_name=course_name|safe course_page_url=course_page_url|safe %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe org_name=org_name|safe course_name=course_name|safe course_page_url=course_page_url|safe %}
 </p>
 <p>
     {% blocktrans trimmed asvar tmsg %}
         But to actually change OFAC status, visit the {link_start}{course_approval_url}{link_middle}admin page{link_end} for this course run.
         Click the OFAC checkbox if needed, tell the PC which countries are restricted, and set the course run status to Internal Review.
     {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe course_approval_url=course_approval_url|safe link_middle=link_middle|safe %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe course_approval_url=course_approval_url|safe %}
 </p>
 
 <p>
     {% blocktrans trimmed asvar tmsg %}
         Note: This email address is unable to receive replies. For questions or comments, please contact {link_start}{contact_us_email}{link_middle}the Project Coordinator{link_end}.
     {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe contact_us_email=contact_us_email|safe link_middle=link_middle|safe %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe contact_us_email=contact_us_email|safe  %}
 </p>
 
 <!-- End Message Body -->

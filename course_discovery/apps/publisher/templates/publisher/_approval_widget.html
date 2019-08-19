@@ -9,7 +9,7 @@
             {% blocktrans trimmed asvar tmsg %}
                 You can currently edit information for this course run. However, before you can submit this course run for review, you must finalize the information for {link_start}{course_url}{link_middle}{course_name}{link_end} with edX.
             {% endblocktrans %}
-            {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe course_name=course_run.course.title|safe course_url=course_url|safe %}
+            {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe course_name=course_run.course.title|safe course_url=course_url|safe %}
         </div>
     {% endif %}
 

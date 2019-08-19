@@ -48,7 +48,7 @@
                                 {% blocktrans asvar tmsg  %}
                                 For the most accurate information, and to make any edits to start date, please visit {link_start}{url}{link_middle}Studio{link_end}.
                                 {% endblocktrans %}
-                                {% interpolate_html tmsg link_start='<a class="studio-start-date-link" target="_blank" href="' link_middle='">'|safe link_end='</a>'|safe url=course_run.studio_schedule_and_details_url|safe %}
+                                {% interpolate_html tmsg link_start='<a class="studio-start-date-link" target="_blank" href="'|safe link_middle='">'|safe link_end='</a>'|safe url=course_run.studio_schedule_and_details_url|safe %}
 
                             </p>
                         {% else %}
@@ -124,7 +124,7 @@
                                 {% blocktrans asvar tmsg %}
                                 For the most accurate information, and to make any edits to pacing type, please visit {link_start}{url}{link_middle}Studio{link_end}.
                                 {% endblocktrans %}
-                                {% interpolate_html tmsg link_start='<a class="studio-pacing-link" target="_blank" href="' link_middle='">'|safe link_end='</a>'|safe url=course_run.studio_schedule_and_details_url|safe %}
+                                {% interpolate_html tmsg link_start='<a class="studio-pacing-link" target="_blank" href="'|safe link_middle='">'|safe link_end='</a>'|safe url=course_run.studio_schedule_and_details_url|safe %}
                             </p>
                         {% else %}
                             <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." as tmsg %}{{ tmsg | force_escape }} </p>

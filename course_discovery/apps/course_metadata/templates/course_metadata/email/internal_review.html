@@ -14,26 +14,26 @@
     {% blocktrans trimmed asvar tmsg  %}
         {org_name} has submitted {course_key} for review. {link_start}{course_page_url}{link_middle}View this course run in Publisher{link_end} to review the changes or make edits.
     {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe course_key=course_key|safe link_middle=link_middle|safe org_name=org_name|safe %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe course_key=course_key|safe org_name=org_name|safe %}
 </p>
 <p>
     {% blocktrans trimmed asvar tmsg %}
         This is a good time to {link_start}{studio_url}{link_middle}review this course run in Studio{link_end}.
     {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe studio_url=studio_url|safe link_middle=link_middle|safe %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe studio_url=studio_url|safe %}
 </p>
 <p>
     {% blocktrans trimmed asvar tmsg  %}
         Visit the {link_start}{course_approval_url}{link_middle}admin page{link_end} for this course run to actually mark it as reviewed.
     {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe course_approval_url=course_approval_url|safe link_middle=link_middle|safe %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe course_approval_url=course_approval_url|safe %}
 </p>
 {% if restricted_admin_url %}
     <p>
         {% blocktrans trimmed asvar tmsg %}
             Visit the {link_start}{restricted_admin_url}{link_middle}restricted course admin page{link_end} to set embargo rules for this course, as needed.
         {% endblocktrans %}
-        {% interpolate_html tmsg link_start='<a href="' link_middle='">'|safe link_end='</a>'|safe restricted_admin_url=restricted_admin_url|safe link_middle=link_middle|safe %}
+        {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe restricted_admin_url=restricted_admin_url|safe %}
     </p>
 {% endif %}
 
