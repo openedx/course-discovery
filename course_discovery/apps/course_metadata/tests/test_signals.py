@@ -14,9 +14,9 @@ from waffle.testutils import override_switch
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.models import (
-    CourseRun, Curriculum, CurriculumCourseMembership, DataLoaderConfig, DeletePersonDupsConfig,
-    DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, ProgramType, Seat,
-    SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
+    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, DataLoaderConfig,
+    DeletePersonDupsConfig, DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig,
+    Program, ProgramType, Seat, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
@@ -276,6 +276,120 @@ class CurriculumCourseMembershipTests(TestCase):
         for course_run in self.course_runs:
             for seat in course_run.seats.all():
                 self.assertNotEqual(seat.type, Seat.MASTERS)
+
+
+@ddt.ddt
+class ProgramStructureValidationTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        """
+        Set up program structure to test for cycles
+
+        program           p1
+                        /    \\
+        curriculum     c1      c2
+                      /  \\   /  \\
+        program      p2    p3     p4
+                     |     |
+        curriculum   c3    c4
+                     | \\  |
+        program      p5   p6
+        """
+        super().setUpTestData()
+        cls.program_1 = factories.ProgramFactory(title='program_1')
+        cls.program_2 = factories.ProgramFactory(title='program_2')
+        cls.program_3 = factories.ProgramFactory(title='program_3')
+        cls.program_4 = factories.ProgramFactory(title='program_4')
+        cls.program_5 = factories.ProgramFactory(title='program_5')
+        cls.program_6 = factories.ProgramFactory(title='program_6')
+
+        cls.curriculum_1 = factories.CurriculumFactory(name='curriculum_1', program=cls.program_1)
+        cls.curriculum_2 = factories.CurriculumFactory(name='curriculum_2', program=cls.program_1)
+        cls.curriculum_3 = factories.CurriculumFactory(name='curriculum_3', program=cls.program_2)
+        cls.curriculum_4 = factories.CurriculumFactory(name='curriculum_4', program=cls.program_3)
+
+        factories.CurriculumProgramMembershipFactory(curriculum=cls.curriculum_1, program=cls.program_2)
+        factories.CurriculumProgramMembershipFactory(curriculum=cls.curriculum_1, program=cls.program_3)
+        factories.CurriculumProgramMembershipFactory(curriculum=cls.curriculum_2, program=cls.program_3)
+        factories.CurriculumProgramMembershipFactory(curriculum=cls.curriculum_2, program=cls.program_4)
+        factories.CurriculumProgramMembershipFactory(curriculum=cls.curriculum_3, program=cls.program_5)
+        factories.CurriculumProgramMembershipFactory(curriculum=cls.curriculum_3, program=cls.program_6)
+        factories.CurriculumProgramMembershipFactory(curriculum=cls.curriculum_4, program=cls.program_6)
+
+    def curriculum_program_membership_error(self, program, curriculum):
+            return 'Circular ref error. Program [{}] already contains Curriculum [{}]'.format(
+                program,
+                curriculum,
+            )
+
+    @ddt.data(
+        ('program_2', True),    # immediate child program through CurriculumProgramMembership should fail
+        ('program_5', True),    # nested child program should fail
+        ('program_6', True),    # nested child program with multiple paths to it should fail
+        ('program_4', False),   # 'nephew' program is non-circular and should save successfully
+        ('program_1', False),   # keeping existing parent program should save successfully
+    )
+    @ddt.unpack
+    def test_update_curriculum_program(self, program_title, is_circular_ref):
+        program = Program.objects.get(title=program_title)
+        curriculum = self.curriculum_1
+        curriculum.program = program
+
+        if is_circular_ref:
+            expected_error = 'Circular ref error.  Curriculum already contains program {}'.format(program)
+            with self.assertRaisesRegex(ValidationError, escape(expected_error)):  # pylint: disable=deprecated-method
+                curriculum.save()
+        else:
+            curriculum.save()
+            curriculum.refresh_from_db()
+            self.assertEqual(curriculum.program.title, program_title)
+
+    def test_create_new_curriculum(self):
+        """ create should be unaffected, impossible to create circular ref """
+        factories.CurriculumFactory(program=self.program_2)
+
+    @ddt.data(
+        ('curriculum_1', 'program_1', True),    # parent program as member program should fail
+        ('curriculum_3', 'program_1', True),    # nth parent program up tree as member program should fail
+        ('curriculum_4', 'program_1', True),    # nth parent program with multiple search paths as member should fail
+        ('curriculum_4', 'program_2', False),   # valid non-circular CurriculumProgramMembership
+    )
+    @ddt.unpack
+    def test_create_curriculum_program_membership(self, curriculum_name, program_title, is_circular_ref):
+        curriculum = Curriculum.objects.get(name=curriculum_name)
+        program = Program.objects.get(title=program_title)
+
+        if is_circular_ref:
+            expected_error = self.curriculum_program_membership_error(program, curriculum)
+            with self.assertRaisesRegex(ValidationError, escape(expected_error)):  # pylint: disable=deprecated-method
+                CurriculumProgramMembership.objects.create(
+                    program=program,
+                    curriculum=curriculum,
+                )
+        else:
+                CurriculumProgramMembership.objects.create(
+                    program=program,
+                    curriculum=curriculum,
+                )
+
+    @ddt.data(
+        ('program_5', False),   # update to valid program
+        ('program_1', True),    # update creates circular reference
+        ('program_6', False),   # re-saving with existing model should succeed
+    )
+    @ddt.unpack
+    def test_update_curriculum_program_membership(self, new_program_title, is_circular_ref):
+        membership = CurriculumProgramMembership.objects.get(curriculum=self.curriculum_4, program=self.program_6)
+        new_program = Program.objects.get(title=new_program_title)
+        membership.program = new_program
+
+        if is_circular_ref:
+            expected_error = self.curriculum_program_membership_error(new_program, self.curriculum_4)
+            with self.assertRaisesRegex(ValidationError, escape(expected_error)):  # pylint: disable=deprecated-method
+                membership.save()
+        else:
+            membership.save()
 
 
 class ExternalCourseKeyTestMixin(object):

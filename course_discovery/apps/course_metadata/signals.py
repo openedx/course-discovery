@@ -11,7 +11,7 @@ from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.models import (
-    CourseRun, Curriculum, CurriculumCourseMembership, Program, Seat
+    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Program, Seat
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.waffle import masters_course_mode_enabled
@@ -94,6 +94,54 @@ def publish_masters_track(sender, instance, **kwargs):  # pylint: disable=unused
         return
 
     _create_masters_track_on_lms_if_necessary(seat, partner)
+
+
+@receiver(pre_save, sender=Curriculum)
+def save_curriculum(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    """
+    Check for circular references in program structure before saving.
+    Short circuit on newly created Curriculum since it cannot have member programs yet
+    """
+    if not instance.id:
+        return
+
+    curriculum = instance
+    if _find_in_programs(curriculum.program_curriculum.all(), program=curriculum.program):
+        raise ValidationError('Circular ref error.  Curriculum already contains program {}'.format(curriculum.program))
+
+
+@receiver(pre_save, sender=CurriculumProgramMembership)
+def save_curriculum_program_membership(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    """
+    Check for circular references in program structure before saving.
+    """
+    curriculum = instance.curriculum
+    program = instance.program
+    if _find_in_programs([program], curriculum=curriculum):
+        msg = 'Circular ref error. Program [{}] already contains Curriculum [{}]'.format(
+            program,
+            curriculum,
+        )
+        raise ValidationError(msg)
+
+
+def _find_in_programs(programs, curriculum=None, program=None):
+    """
+    Travese the stucture of a given list of programs for a curriculm or program node.
+    Returns True if an instance is found
+    """
+    if curriculum is None and program is None:
+        raise TypeError('_find_in_programs takes at least one of (curriculum, program)')
+
+    curricula = Curriculum.objects.filter(program__in=programs).prefetch_related('program_curriculum')
+
+    if curriculum in curricula or program in programs:
+        return True
+    if not programs:
+        return False
+
+    child_programs = [program for curriculum in curricula for program in curriculum.program_curriculum.all()]
+    return _find_in_programs(child_programs, curriculum=curriculum, program=program)
 
 
 def _create_masters_track_on_lms_if_necessary(seat, partner):
