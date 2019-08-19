@@ -847,11 +847,15 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     def test_reviewed_with_go_live_date(self, when, published, mock_email):
         draft = factories.CourseRunFactory(draft=True, go_live_date=when, announcement=None)
 
+        # force this prop to be cached, to catch any errors if we assume .official_version is valid after creation
+        self.assertIsNone(draft.official_version)
+
         draft.status = CourseRunStatus.Reviewed
         draft.save()
         draft.refresh_from_db()
+        official_version = CourseRun.objects.get(key=draft.key)
 
-        for run in [draft, draft.official_version]:
+        for run in [draft, official_version]:
             if published:
                 self.assertEqual(run.status, CourseRunStatus.Published)
                 self.assertIsNotNone(run.announcement)

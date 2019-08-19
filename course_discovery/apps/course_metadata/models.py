@@ -1336,11 +1336,11 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             emails.send_email_for_internal_review(self)
 
         elif self.status == CourseRunStatus.Reviewed:
-            self.update_or_create_official_version()
+            official_version = self.update_or_create_official_version()
 
             # If we're due to go live already and we just now got reviewed, immediately go live
             if self.go_live_date and self.go_live_date <= datetime.datetime.now(pytz.UTC):
-                self.official_version.publish()  # will edit/save us too
+                official_version.publish()  # will edit/save us too
             else:  # The publish status check will send an email for go-live
                 emails.send_email_for_reviewed(self)
 

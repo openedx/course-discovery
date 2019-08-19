@@ -88,15 +88,15 @@ class CourseEditorAdmin(admin.ModelAdmin):
 
 @admin.register(CourseEntitlement)
 class CourseEntitlementAdmin(admin.ModelAdmin):
-    list_display = ['course', 'get_course_number', 'mode', 'draft']
+    list_display = ['course', 'get_course_key', 'mode', 'draft']
 
-    def get_course_number(self, obj):
-        return obj.course.number
+    def get_course_key(self, obj):
+        return obj.course.key
 
-    get_course_number.short_description = 'Course number'
+    get_course_key.short_description = 'Course key'
 
     raw_id_fields = ('course', 'draft_version',)
-    search_fields = ['course__title', 'course__number']
+    search_fields = ['course__title', 'course__key']
 
 
 @admin.register(CourseRun)
