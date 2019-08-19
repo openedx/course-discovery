@@ -20,11 +20,10 @@
     {% trans "Thanks," as tmsg %}{{ tmsg | force_escape }}<br>
     {{ platform_name}} {{ sender_role }}
 
-{% filter force_escape %}
-{% blocktrans trimmed %}
-    <p>Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.</p>
+{% blocktrans trimmed asvar tmsg %}
+    {p_start}Note: This email address is unable to receive replies. For questions or comments, contact {contact_us_email}.{p_end}
 {% endblocktrans %}
-{% endfilter %}
+{% interpolate_html tmsg p_start='<p>'|safe p_end='</p>'|safe contact_us_email=contact_us_email|safe %}
 
 <!-- End Message Body -->
 {% endblock body %}

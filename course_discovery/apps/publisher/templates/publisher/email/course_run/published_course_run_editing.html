@@ -18,18 +18,17 @@
         {% endfilter %}
     </p>
     <p>
-        {{ course_name }} {{ course_run_number }} <a href="{{ course_run_page_url }}">{% trans "View the course run in Publisher" as tmsg %}{{ tmsg | force_escape }</a> {% trans "to make changes and republish the course run." as tmsg %}{{ tmsg | force_escape }}
+        {{ course_name }} {{ course_run_number }} <a href="{{ course_run_page_url }}">{% trans "View the course run in Publisher" as tmsg %}{{ tmsg | force_escape }}</a> {% trans "to make changes and republish the course run." as tmsg %}{{ tmsg | force_escape }}
     </p>
 
     {% comment %}Translators: It's closing of mail.{% endcomment %}
     {% trans "Thanks," as tmsg %}{{ tmsg | force_escape }}<br>
     {{ course_team }}
 
-{% filter force_escape %}
-{% blocktrans trimmed %}
-    <p>Note: This email address is unable to receive replies. For questions or comments, contact {{ contact_us_email }}.</p>
+{% blocktrans trimmed asvar tmsg %}
+    {p_start}Note: This email address is unable to receive replies. For questions or comments, contact {contact_us_email}.{p_end}
 {% endblocktrans %}
-{% endfilter %}
+{% interpolate_html tmsg p_start='<p>'|safe p_end='</p>'|safe contact_us_email=contact_us_email|safe %}
 
 <!-- End Message Body -->
 {% endblock body %}

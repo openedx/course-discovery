@@ -14,7 +14,7 @@
     {% blocktrans trimmed asvar tmsg  %}
         {org_name} has submitted {course_key} for review. {link_start}{course_page_url}{link_middle}View this course run in Publisher{link_end} to review the changes or make edits.
     {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe course_key=course_key|safe org_name=org_name|safe %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe course_key=course_key|safe org_name=org_name|safe course_page_url=course_page_url|safe %}
 </p>
 <p>
     {% blocktrans trimmed asvar tmsg %}

@@ -23,7 +23,7 @@
   <p>
       {% filter force_escape %}
         {% blocktrans trimmed asvar tmsg %}
-            { link_start }{ preview_url }{ link_middle }View this About page.{ link_end }
+            {link_start}{preview_url}{link_middle}View this About page.{link_end}
         {% endblocktrans %}
       {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe preview_url=preview_url|safe %}
       {% endfilter %}
