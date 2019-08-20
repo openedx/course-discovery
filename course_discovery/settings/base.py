@@ -62,6 +62,7 @@ THIRD_PARTY_APPS = [
     'csrf.apps.CsrfAppConfig',  # Enables frontend apps to retrieve CSRF tokens.
     'corsheaders',
     'adminsortable2',
+    'xss_utils',
 ]
 
 PROJECT_APPS = [

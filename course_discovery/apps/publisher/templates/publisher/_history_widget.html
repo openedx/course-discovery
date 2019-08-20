@@ -1,13 +1,15 @@
 {% load i18n %}
 <div class="margin-top20">
-    <div class="info-item heading"><strong>{% trans "REVISION HISTORY" %}</strong></div>
+    <div class="info-item heading"><strong>{% trans "REVISION HISTORY" as tmsg %}{{ tmsg | force_escape }}</strong></div>
     <select id="id_select_revisions" class="select-revision">
         {% for history in history_list %}
             {% if forloop.first %}
                 <option value="{% url 'publisher:publisher_course_revision' course.id history.history_id %}">
-                    {% blocktrans with history.history_date|date:'d-m-Y' as history_date and history.changed_by as changed_by trimmed %}
-                        {{ history_date }}&nbsp;by&nbsp;{{ changed_by}} (Latest)
-                    {% endblocktrans %}
+                    {% filter force_escape %}
+                        {% blocktrans with history.history_date|date:'d-m-Y' as history_date and history.changed_by as changed_by trimmed %}
+                            {{ history_date }}&nbsp;by&nbsp;{{ changed_by}} (Latest)
+                        {% endblocktrans %}
+                    {% endfilter %}
                 </option>
             {% else %}
                 {% url 'publisher:api:course_revisions' history.history_id as revision_url  %}
@@ -21,9 +23,11 @@
                         data-revision-id="{{ revision_id_url }}?history_id={{ history.history_id }}"
                         data-reversion-value="{{ history.history_id }}"
                         data-accept-revision="{{ accept_revision_url }}" >
-                    {% blocktrans with history.history_date|date:'d-m-Y' as history_date and history.changed_by as changed_by trimmed %}
-                        {{ history_date }}&nbsp;by&nbsp;{{ changed_by}}
-                    {% endblocktrans %}
+                    {% filter force_escape %}
+                        {% blocktrans with history.history_date|date:'d-m-Y' as history_date and history.changed_by as changed_by trimmed %}
+                            {{ history_date }}&nbsp;by&nbsp;{{ changed_by}}
+                        {% endblocktrans %}
+                    {% endfilter %}
                 </option>
             {% endif %}
         {% endfor %}
@@ -32,12 +36,12 @@
 
     {% if can_edit %}
         <span id="span_revert_revision" class="hidden">
-            <a id="id_revert_revision" class="btn btn-brand btn-small btn-courserun-add btn-revision">{% trans "Restore to this version" %}</a>
+            <a id="id_revert_revision" class="btn btn-brand btn-small btn-courserun-add btn-revision">{% trans "Restore to this version" as tmsg %}{{ tmsg | force_escape }}</a>
         </span>
-        <div id="RevertRevisionAlert" class="alert alert-error hidden" role="alert">{% trans "Unable to revert the revision, Please try again later." %}</div>
+        <div id="RevertRevisionAlert" class="alert alert-error hidden" role="alert">{% trans "Unable to revert the revision, Please try again later." as tmsg %}{{ tmsg | force_escape }}</div>
         {% if accept_all_button %}
             <a id="btn_accept_revision" type="button" data-most-recent-revision-id="{{ most_recent_revision_id }}" class="hidden btn btn-brand btn-small btn-courserun-add btn-revision">
-                {% trans "Accept All" %}
+                {% trans "Accept All" as tmsg %}{{ tmsg | force_escape }}
             </a>
         {% endif %}
     {% endif %}

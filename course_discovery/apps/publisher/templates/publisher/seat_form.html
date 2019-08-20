@@ -2,14 +2,14 @@
 {% load i18n %}
 {% load static %}
 {% block title %}
-    {% trans "Seat Form" %}
+    {% trans "Seat Form" as tmsg %}{{ tmsg | force_escape }}
 {% endblock title %}
 
 {% block page_content %}
     <div class="layout-full layout publisher-layout">
         <div class="publisher-container">
             <div class="course-information">
-                <h4 class="hd-4">{% trans "Seat Form" %}</h4>
+                <h4 class="hd-4">{% trans "Seat Form" as tmsg %}{{ tmsg | force_escape }}</h4>
                 <form class="form" method="post" action="" enctype="multipart/form-data">
                     {% csrf_token %}
                     <fieldset class="form-group">
@@ -17,7 +17,7 @@
                             {% include "publisher/form_field.html" %}
                         {% endfor %}
                     </fieldset>
-                    <button class="btn-brand btn-base" type="submit">{% trans "Save" %}</button>
+                    <button class="btn-brand btn-base" type="submit">{% trans "Save" as tmsg %}{{ tmsg | force_escape }}</button>
                 </form>
             </div>
             <div class="comment-container">

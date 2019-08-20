@@ -3,13 +3,13 @@
 {% load static %}
 
 {% block title %}
-    {% trans "Create New Course" %}
+    {% trans "Create New Course" as tmsg %}{{ tmsg | force_escape }}
 {% endblock title %}
 
 {% block page_content %}
 <div>
 <h1 class="hd-1 emphasized">
-    {% trans "Create New Course" %}
+    {% trans "Create New Course" as tmsg %}{{ tmsg | force_escape }}
 </h1>
 
 <div class="alert-messages">
@@ -26,39 +26,39 @@
     <div class="course-form">
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
-                <div class="field-title">{% trans "COURSE TITLE" %} <span class="required float-right">* Required</span></div>
+                <div class="field-title">{% trans "COURSE TITLE" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         <div class="row">
                             <ul class="tabs">
                                 <li class="course-tabs active" data-tab="tab-practices">
-                                    {% trans "Best Practices" %}
+                                    {% trans "Best Practices" as tmsg %}{{ tmsg | force_escape }}
                                 </li>
                                 <li class="course-tabs" data-tab="tab-example">
-                                    {% trans "Examples" %}
+                                    {% trans "Examples" as tmsg %}{{ tmsg | force_escape }}
                                 </li>
                             </ul>
                         </div>
                         <div id="tab-practices" class="content active">
-                            <p>{% trans "Maximum 70 characters. Recommended 50 or fewer characters." %}</p>
-                            <p>{% trans "An effective course title:" %}</p>
+                            <p>{% trans "Maximum 70 characters. Recommended 50 or fewer characters." as tmsg %}{{ tmsg | force_escape }}</p>
+                            <p>{% trans "An effective course title:" as tmsg %}{{ tmsg | force_escape }}</p>
                             <ul>
-                                <li>{% trans "Clearly indicates the course subject matter." %}</li>
-                                <li>{% trans "Follows search engine optimization (SEO) guidelines." %}</li>
-                                <li>{% trans "Targets a global audience." %}</li>
+                                <li>{% trans "Clearly indicates the course subject matter." as tmsg %}{{ tmsg | force_escape }}</li>
+                                <li>{% trans "Follows search engine optimization (SEO) guidelines." as tmsg %}{{ tmsg | force_escape }}</li>
+                                <li>{% trans "Targets a global audience." as tmsg %}{{ tmsg | force_escape }}</li>
                             </ul>
-                            <p>{% trans "If the course is part of a sequence, include both sequence and course information as \"Sequence: Course\"." %}</p>
+                            <p>{% trans "If the course is part of a sequence, include both sequence and course information as \"Sequence: Course\"." as tmsg %}{{ tmsg | force_escape }}</p>
                         </div>
                         <div id="tab-example" class="content">
                             <p></p>
-                            <strong>{% trans "Single Courses" %}</strong>
+                            <strong>{% trans "Single Courses" as tmsg %}{{ tmsg | force_escape }}</strong>
                             <ul>
-                                <li>{% trans "English Grammar and Essay Writing" %}</li>
+                                <li>{% trans "English Grammar and Essay Writing" as tmsg %}{{ tmsg | force_escape }}</li>
                             </ul>
-                            <strong>{% trans "Sequence Courses" %}</strong>
+                            <strong>{% trans "Sequence Courses" as tmsg %}{{ tmsg | force_escape }}</strong>
                             <ul>
-                                <li>{% trans "Statistics: Inference" %}</li>
-                                <li>{% trans "Statistics: Probability" %}</li>
+                                <li>{% trans "Statistics: Inference" as tmsg %}{{ tmsg | force_escape }}</li>
+                                <li>{% trans "Statistics: Probability" as tmsg %}{{ tmsg | force_escape }}</li>
                             </ul>
                         </div>
                     </div>
@@ -98,23 +98,23 @@
                         <div class="row">
                             <ul class="tabs">
                                 <li class="course-tabs active" data-tab="tab-practices">
-                                    {% trans "Best Practices" %}
+                                    {% trans "Best Practices" as tmsg %}{{ tmsg | force_escape }}
                                 </li>
                                 <li class="course-tabs" data-tab="tab-example">
-                                    {% trans "Examples" %}
+                                    {% trans "Examples" as tmsg %}{{ tmsg | force_escape }}
                                 </li>
                             </ul>
                         </div>
                         <div id="tab-practices" class="content active">
                             <ul>
-                                <li>{% trans "Maximum 50 characters. Characters can be letters, numbers, periods, underscores or hyphens." %}</li>
-                                <li>{% trans "If a course consists of several modules, the course number can have an ending such as .1x or .2x." %}</li>
+                                <li>{% trans "Maximum 50 characters. Characters can be letters, numbers, periods, underscores or hyphens." as tmsg %}{{ tmsg | force_escape }}</li>
+                                <li>{% trans "If a course consists of several modules, the course number can have an ending such as .1x or .2x." as tmsg %}{{ tmsg | force_escape }}</li>
                             </ul>
                         </div>
                         <div id="tab-example" class="content">
                             <ul>
-                                <li>{% trans "CS002x" %}</li>
-                                <li>{% trans "BIO1.1x; BIO1.2x etc." %}</li>
+                                <li>{% trans "CS002x" as tmsg %}{{ tmsg | force_escape }}</li>
+                                <li>{% trans "BIO1.1x; BIO1.2x etc." as tmsg %}{{ tmsg | force_escape }}</li>
                             </ul>
                         </div>
                     </div>
@@ -130,10 +130,10 @@
                 </div>
 
                 {% if entitlement_form %}
-                <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %}</span></div>
+                <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" as tmsg %}{{ tmsg | force_escape }}</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." %}
+                        {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." as tmsg %}{{ tmsg | force_escape }}
                     </div>
                     <div class="col col-6">
                         <div class="row">
@@ -166,14 +166,14 @@
             <label class="field-label label-inline">
                 {{ course_form.add_new_run }}
                 <span class="field-input-label">
-                    {% trans "I want to add a run to this course at this time" %}
+                    {% trans "I want to add a run to this course at this time" as tmsg %}{{ tmsg | force_escape }}
                 </span>
             </label>
         </div>
         <div class="action-buttons">
-            <a href="{% url 'publisher:publisher_courses' %}">{% trans "Cancel" %}</a>
+            <a href="{% url 'publisher:publisher_courses' %}">{% trans "Cancel" as tmsg %}{{ tmsg | force_escape }}</a>
             <button class="btn-brand btn-base btn-save" type="submit">
-                {% trans "Create New Course" %}
+                {% trans "Create New Course" as tmsg %}{{ tmsg | force_escape }}
             </button>
         </div>
     </div>

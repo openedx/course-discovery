@@ -22,28 +22,30 @@
             <thead>
                 <tr>
                     <th role="button">
-                        {% trans "Course Name" %}
+                        {% trans "Course Name" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th role="button">
-                        {% trans "Course Number" %}
+                        {% trans "Course Number" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th role="button">
-                        {% trans "Organization" %}
+                        {% trans "Organization" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th role="button">
-                        {% trans "Project Coordinator" %}
+                        {% trans "Project Coordinator" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th role="button">
-                        {% trans "Runs" %}
+                        {% trans "Runs" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th role="button">
-                        {% trans "Course Team Status" %}
+                        {% trans "Course Team Status" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th role="button">
-                        {% blocktrans with site_name=site_name trimmed %}{{ site_name }} Status{% endblocktrans %}
+                        {% filter force_escape %}
+                            {% blocktrans with site_name=site_name trimmed %}{{ site_name }} Status{% endblocktrans %}
+                        {% endfilter %}
                     </th>
                     <th role="button">
-                        {% trans "Last Handoff" %}
+                        {% trans "Last Handoff" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th></th>
                 </tr>

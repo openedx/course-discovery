@@ -24,13 +24,13 @@
                         {% url 'publisher:publisher_dashboard' as dashboard_url %}
                         <a class="btn {% if request.path == dashboard_url %}active{% endif %}"
                            href="{{ dashboard_url }}">
-                            {% trans "Dashboard" %}
+                            {% trans "Dashboard" as tmsg %}{{ tmsg | force_escape }}
                         </a>
                     </li>
                     <li class="item">
                         {% url 'publisher:publisher_courses' as courses_url %}
                         <a class="btn {% if request.path == courses_url %}active{% endif %}" href="{{ courses_url }}">
-                            {% trans "Courses" %}
+                            {% trans "Courses" as tmsg %}{{ tmsg | force_escape }}
                         </a>
                     </li>
                 </ul>

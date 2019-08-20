@@ -4,27 +4,27 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Studio URL" %}
+      {% trans "Studio URL" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>
       {% if course_run.studio_url %}
         <a target="_blank" href="{{ course_run.studio_url }}">{{ course_run.lms_course_id }}</a>
       {% else %}
-        {% trans "(Required) To be added by edX" %}
+        {% trans "(Required) To be added by edX" as tmsg %}{{ tmsg | force_escape }}
       {% endif %}
     </div>
   </div>
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Start Date (time in UTC)" %}
+      {% trans "Start Date (time in UTC)" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>{{ course_run.start_date_temporary }}</div>
   </div>
 
   <div class="info-item">
     <div class="heading">
-      {% trans "End Date (time in UTC)" %}
+      {% trans "End Date (time in UTC)" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>{{ course_run.end_date_temporary }}</div>
   </div>
@@ -32,7 +32,7 @@
   {% if is_seat_version %}
     <div class="info-item">
       <div class="heading">
-        {% trans "Enrollment Track" %}
+        {% trans "Enrollment Track" as tmsg %}{{ tmsg | force_escape }}
       </div>
       <div>{{ course_run.course_type }}</div>
     </div>
@@ -40,7 +40,7 @@
     {% if course_run.seat_price %}
       <div class="info-item">
         <div class="heading">
-          {% trans "Certificate Price" %}
+          {% trans "Certificate Price" as tmsg %}{{ tmsg | force_escape }}
         </div>
         <div>
           ${{ course_run.seat_price }}
@@ -51,7 +51,7 @@
     {% if course_run.credit_seat_price %}
       <div class="info-item">
         <div class="heading">
-          {% trans "Credit Price" %}
+          {% trans "Credit Price" as tmsg %}{{ tmsg | force_escape }}
         </div>
         <div>
           ${{ course_run.credit_seat_price }}
@@ -62,7 +62,7 @@
     {% if course_run.external_key %}
       <div class="info-item">
         <div class="heading">
-          {% trans "Institution Course ID" %}
+          {% trans "Institution Course ID" as tmsg %}{{ tmsg | force_escape }}
         </div>
         <div>{{ course_run.external_key }}</div>
       </div>
@@ -75,7 +75,7 @@
     </div>
     <div>
       {% if not course_run.course_staff %}
-        {% trans "(Required) Not yet added" %}
+        {% trans "(Required) Not yet added" as tmsg %}{{ tmsg | force_escape }}
       {% else %}
         {% for obj in course_run.course_staff %}
           <div class="course-staff">
@@ -97,13 +97,13 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Estimated Effort" %}
+      {% trans "Estimated Effort" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>
       {% if course_run.min_effort and course_run.max_effort %}
-        {{ course_run.min_effort }}-{{ course_run.max_effort }} {% trans "hours per week" %}
+        {{ course_run.min_effort }}-{{ course_run.max_effort }} {% trans "hours per week" as tmsg %}{{ tmsg | force_escape }}
       {% elif course_run.min_effort %}
-        {{ course_run.min_effort }} {% trans "hours per week" %}
+        {{ course_run.min_effort }} {% trans "hours per week" as tmsg %}{{ tmsg | force_escape }}
       {% else %}
         {% with  course_run.estimated_effort as field %}
             {% include "publisher/_render_required_field.html" %}
@@ -114,7 +114,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Course Content Language" %}
+      {% trans "Course Content Language" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>
       {% with  course_run.language.name as field %}
@@ -125,7 +125,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Video Transcript Language" %}
+      {% trans "Video Transcript Language" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>
       {% with  course_run.transcript_languages as field %}
@@ -136,7 +136,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Course Video Language" %}
+      {% trans "Course Video Language" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>
       {% with  course_run.video_language as field %}
@@ -147,7 +147,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Course Length (Weeks)" %}
+      {% trans "Course Length (Weeks)" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>
       {% with  course_run.length as field %}
@@ -158,7 +158,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Has OFAC Restriction text" %}
+      {% trans "Has OFAC Restriction text" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>
       {% with  course_run.has_ofac_restrictions as field %}
@@ -169,7 +169,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "MicroMasters Program Name" %}
+      {% trans "MicroMasters Program Name" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>
       {% with  course_run.micromasters_name as field %}
@@ -180,7 +180,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "XSeries Program Name" %}
+      {% trans "XSeries Program Name" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>
       {% with  course_run.xseries_name as field %}
@@ -191,7 +191,7 @@
 
   <div class="info-item">
     <div class="heading">
-      {% trans "Professional Certificate Program Name" %}
+      {% trans "Professional Certificate Program Name" as tmsg %}{{ tmsg | force_escape }}
     </div>
     <div>
       {% with  course_run.professional_certificate_name as field %}

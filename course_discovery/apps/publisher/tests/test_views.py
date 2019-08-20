@@ -1043,7 +1043,7 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         fields = [
             'Title', 'Number', 'Course ID', 'Price', 'Subtitle', 'Organization', 'Subject', 'XSeries',
             'Start Date (time in UTC)', 'End Date (time in UTC)', 'Self Paced', 'Staff', 'Estimated Effort',
-            'Languages', 'Video Transcript Languages', 'Level', 'Full Description', "What You'll Learn",
+            'Languages', 'Video Transcript Languages', 'Level', 'Full Description', "What You&#39;ll Learn",
             'Keywords', 'Sponsors', 'Enrollment Types', 'Learner Testimonials', 'FAQ', 'Course About Video',
             'Prerequisites'
         ]

@@ -4,10 +4,10 @@
 <div class="seat-set">
     <table class="table">
             <tr>
-              <th scope="col">{% trans "Enrollment Type" %}</th>
-              <th scope="col">{% trans "Price" %}</th>
-              <th scope="col">{% trans "Currency" %}</th>
-              <th scope="col">{% trans "Upgrade Deadline (time in UTC)" %}</th>
+              <th scope="col">{% trans "Enrollment Type" as tmsg %}{{ tmsg | force_escape }}</th>
+              <th scope="col">{% trans "Price" as tmsg %}{{ tmsg | force_escape }}</th>
+              <th scope="col">{% trans "Currency" as tmsg %}{{ tmsg | force_escape }}</th>
+              <th scope="col">{% trans "Upgrade Deadline (time in UTC)" as tmsg %}{{ tmsg | force_escape }}</th>
             </tr>
             {% for seat in course_run.non_credit_seats %}
                     <tr>
@@ -20,5 +20,5 @@
     </table>
 </div>
 {% else %}
-   {% trans "(Required) Not yet added" %}
+   {% trans "(Required) Not yet added" as tmsg %}
 {% endif %}
