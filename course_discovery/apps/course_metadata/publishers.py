@@ -64,8 +64,8 @@ class BaseMarketingSitePublisher:
             obj (django.db.models.Model): Model instance to be deleted.
         """
         node_id = self.node_id(obj)
-
-        self.delete_node(node_id)
+        if node_id:
+            self.delete_node(node_id)
 
     def serialize_obj(self, obj):
         """
@@ -443,9 +443,13 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
         if obj.type.name in types_to_publish:
             node_data = self.serialize_obj(obj)
 
+            changed = False
             node_id = None
-            if not previous_obj:
+            if previous_obj:
+                node_id = self.node_id(obj)  # confirm that it already exists on marketing side
+            if not node_id:
                 node_id = self.create_node(node_data)
+                changed = True
             else:
                 trigger_fields = (
                     'marketing_slug',
@@ -455,13 +459,13 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
                 )
 
                 if any(getattr(obj, field) != getattr(previous_obj, field) for field in trigger_fields):
-                    node_id = self.node_id(obj)
                     # Drupal does not allow modification of the UUID field.
                     node_data.pop('uuid', None)
 
                     self.edit_node(node_id, node_data)
+                    changed = True
 
-            if node_id:
+            if changed:
                 self.get_and_delete_alias(uslugify(obj.title))
                 self.update_node_alias(obj, node_id, previous_obj)
 
