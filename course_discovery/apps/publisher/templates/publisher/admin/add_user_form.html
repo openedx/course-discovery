@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block form_top %}
-    <p>{% trans "First, enter a username and select a group. Then, you'll be able to edit more user options." %}</p>
+    <p>{% trans "First, enter a username and select a group. Then, you'll be able to edit more user options." as tmsg %}{{ tmsg | force_escape }}</p>
 {% endblock %}
 
 {% block after_field_sets %}

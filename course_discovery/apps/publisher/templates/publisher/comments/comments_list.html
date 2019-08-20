@@ -13,7 +13,7 @@
         {% endifequal %}
         <dt class="submitted-by">
             <span>
-                <em>{% trans 'Submitted by' %}&nbsp;{{ comment.name }}</em>
+                <em>{% trans 'Submitted by' as tmsg %}{{ tmsg | force_escape }}&nbsp;{{ comment.name }}</em>
             </span>
             {% ifequal user comment.user %}
                 <button class="align-right btn-neutral btn-small btn-comment comment-edit" data-url="{% url 'publisher_comments:api:comments' comment.id %}">Edit</button>

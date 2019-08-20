@@ -6,9 +6,9 @@
     <div class="clearfix"></div>
 
     <div>
-        <h5 class="hd-5 emphasized course-runs-heading">{% trans "COURSE RUNS" %}</h5>
+        <h5 class="hd-5 emphasized course-runs-heading">{% trans "COURSE RUNS" as tmsg %}{{ tmsg | force_escape }}</h5>
         <a href="{% url 'publisher:publisher_course_runs_new' parent_course_id=object.id %}" class="btn btn-brand btn-small btn-courserun-add">
-            {% trans "CREATE RUN" %}
+            {% trans "CREATE RUN" as tmsg %}{{ tmsg | force_escape }}
         </a>
     </div>
     <div class="course-run-list">
@@ -16,9 +16,11 @@
         {% for course_run in course.course_runs %}
             <div class="layout-1t2t layout-reversed course-run-item">
                 <div class="layout-col layout-col-a created-by">
-                    {% blocktrans with created_date=course_run.created.date created_time=course_run.created.time created_by=course_run.created_by %}
-                        Created {{ created_date }} at {{ created_time }} by {{ created_by }}
-                    {% endblocktrans %}
+                    {% filter force_escape %}
+                        {% blocktrans with created_date=course_run.created.date created_time=course_run.created.time created_by=course_run.created_by %}
+                            Created {{ created_date }} at {{ created_time }} by {{ created_by }}
+                        {% endblocktrans %}
+                    {% endfilter %}
                 </div>
                 <div class="layout-col layout-col-b course-run-details">
                     <div class="courserun-details">
@@ -27,11 +29,11 @@
                         </a>
                     </div>
                     <div class="studio-url">
-                        <span class="studio-url-heading">{% trans "STUDIO URL" %} - </span>
+                        <span class="studio-url-heading">{% trans "STUDIO URL" as tmsg %}{{ tmsg | force_escape }} - </span>
                         {% if course_run.studio_url %}
                             <a class="studio-link" href="{{ course_run.studio_url }}" target="_blank">{{ course_run.lms_course_id }}</a>
                         {% else %}
-                            {% trans "To be added by edX" %}
+                            {% trans "To be added by edX" as tmsg %}{{ tmsg | force_escape }}
                         {% endif %}
                     </div>
                 </div>
@@ -39,7 +41,7 @@
         {% endfor %}
         {% else %}
         <div class="course-run-item">
-            {% trans "No course runs exist for this course" %}
+            {% trans "No course runs exist for this course" as tmsg %}{{ tmsg | force_escape }}
         </div>
         {% endif %}
     </div>
