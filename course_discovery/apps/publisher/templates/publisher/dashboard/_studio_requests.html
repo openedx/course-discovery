@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% if studio_count > 0 %}
-    <p>{% trans "The following courses are ready for a Studio URL." %}</p>
+    <p>{% trans "The following courses are ready for a Studio URL." as tmsg %}{{ tmsg | force_escape }}</p>
         <div class="studio-instance-success depth depth-0">
           <p class="copy-meta"></p>
         </div>
@@ -15,19 +15,19 @@
             <thead>
                 <tr>
                     <th role="button">
-                        {% trans "Course Name" %}
+                        {% trans "Course Name" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th role="button">
-                        {% trans "Organization" %}
+                        {% trans "Organization" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th role="button">
-                        {% trans "Modified" %}
+                        {% trans "Modified" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th role="button">
-                        {% trans "Course Number" %}
+                        {% trans "Course Number" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                     <th id="column-title" role="button">
-                        {% trans "Studio Course Run Key" %}
+                        {% trans "Studio Course Run Key" as tmsg %}{{ tmsg | force_escape }}
                     </th>
                 </tr>
             </thead>
@@ -49,7 +49,7 @@
                             </td>
                             <td class="form-group">
                                 <input type="text" class="field-input input-text small" aria-labelledby="course-title-{{ course_run.title }} column-title" />
-                                <button data-update-course-key-url="{% url 'publisher:api:update_course_run' course_run.id %}" class="btn-inline btn-add-course-key">{% trans "Add" %}</button>
+                                <button data-update-course-key-url="{% url 'publisher:api:update_course_run' course_run.id %}" class="btn-inline btn-add-course-key">{% trans "Add" as tmsg %}{{ tmsg | force_escape }}</button>
                             </td>
                     </tr>
                 {% endfor %}
@@ -58,5 +58,5 @@
     </div>
 
 {% else %}
-    <div class="empty-courserun-text">{% trans "No courses are currently ready for a Studio URL." %}</div>
+    <div class="empty-courserun-text">{% trans "No courses are currently ready for a Studio URL." as tmsg %}{{ tmsg | force_escape }}</div>
 {% endif %}

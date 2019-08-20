@@ -1,15 +1,16 @@
 {% extends 'publisher/base.html' %}
 {% load i18n %}
+{% load django_markup %}
 {% load static %}
 
 {% block title %}
-    {% trans "Edit Course Run" %}
+    {% trans "Edit Course Run" as tmsg %}{{ tmsg | force_escape }}
 {% endblock title %}
 
 {% block page_content %}
 <div>
 <h1 class="hd-1 emphasized">
-    {% trans "Edit Course Run" %}
+    {% trans "Edit Course Run" as tmsg %}{{ tmsg | force_escape }}
 </h1>
 
 <div class="alert-messages">
@@ -21,14 +22,16 @@
     {% endfor %}
 {% endif %}
 <p>
-    {% blocktrans with span_start='<span class="required">' span_end='</span>' trimmed %}
-        {{ span_start }}* All required fields must be complete before this course run can be sent for review.{{ span_end }}
+    {% blocktrans trimmed asvar tmsg %}
+        {span_start}* All required fields must be complete before this course run can be sent for review.{span_end}
     {% endblocktrans %}
+    {% interpolate_html tmsg span_start='<span class="required">'|safe span_end='</span>'|safe %}
 </p>
 <p>
-    {% blocktrans with strong_start='<strong>' strong_end='</strong>' trimmed %}
-        {{ strong_start }}Note:{{  strong_end }} If you edit course information after edX marketing has reviewed the course, you have to send the course to edX marketing for review again.
+    {% blocktrans trimmed asvar tmsg %}
+        {strong_start}Note:{strong_end} If you edit course information after edX marketing has reviewed the course, you have to send the course to edX marketing for review again.
     {% endblocktrans %}
+    {% interpolate_html tmsg strong_start='<strong>'|safe strong_end='</strong>'|safe %}
 </p>
 <form class="form" method="post" action="" enctype="multipart/form-data">
 {% csrf_token %}
@@ -36,36 +39,38 @@
     <div class="course-form">
         <div class="course-information">
             <fieldset class="form-group grid-container grid-manual">
-                <div class="field-title">{% trans "COURSE START DATE" %} <span class="required float-right">* Required for review</span></div>
+                <div class="field-title">{% trans "COURSE START DATE" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         {% if publisher_enable_read_only_fields %}
                             <p>
-                                {% trans "The start date for this course." %}
-                                {% blocktrans with link_start='<a class="studio-start-date-link" target="_blank" href="' link_middle='">' link_end='</a>' url=course_run.studio_schedule_and_details_url %}
-                                For the most accurate information, and to make any edits to start date, please visit {{ link_start }}{{ url }}{{ link_middle }}Studio{{ link_end }}.
+                                {% trans "The start date for this course." as tmsg %}{{ tmsg | force_escape }}
+                                {% blocktrans asvar tmsg %}
+                                For the most accurate information, and to make any edits to start date, please visit {link_start}{url}{link_middle}Studio{link_end}.
                                 {% endblocktrans %}
+                                {% interpolate_html tmsg link_start='<a class="studio-start-date-link" target="_blank" href="'|safe link_middle='">'|safe link_end='</a>'|safe url=course_run.studio_schedule_and_details_url|safe %}
+
                             </p>
                         {% else %}
                             <ul>
                                 <li>
-                                    {% trans "Note that times use UTC." %}
+                                    {% trans "Note that times use UTC." as tmsg %}{{ tmsg | force_escape }}
                                 </li>
                                 <li>
-                                    {% trans "Start on a Tuesday, Wednesday, or Thursday." %}
+                                    {% trans "Start on a Tuesday, Wednesday, or Thursday." as tmsg %}{{ tmsg | force_escape }}
                                 </li>
                                 <li>
-                                    {% trans "Avoid major U.S. holidays." %}
+                                    {% trans "Avoid major U.S. holidays." as tmsg %}{{ tmsg | force_escape }}
                                 </li>
                                 <li>
-                                    {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." %}
+                                    {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." as tmsg %}{{ tmsg | force_escape }}
                                 </li>
                             </ul>
                         {% endif %}
                     </div>
                     <div class="col col-6">
                         {% if publisher_enable_read_only_fields %}
-                            <label class="field-label ">{% trans "Course Start Date (time in UTC)" %}  <span class="required">*</span></label>
+                            <label class="field-label ">{% trans "Course Start Date (time in UTC)" as tmsg %}{{ tmsg | force_escape }}  <span class="required">*</span></label>
                             <div>{{ course_run.start_date_temporary| date:"M d, Y, H:i:s A" }}</div>
                         {% else %}
                             <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
@@ -79,18 +84,19 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "COURSE END DATE" %} <span class="required float-right">* Required for review</span></div>
+                <div class="field-title">{% trans "COURSE END DATE" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
                         {% if publisher_enable_read_only_fields %}
                             <p>
-                                {% trans "The end date for this course." %}
-                                {% blocktrans with link_start='<a class="studio-end-date-link" target="_blank" href="' link_middle='">' link_end='</a>' url=course_run.studio_schedule_and_details_url %}
-                                For the most accurate information, and to make any edits to end date, please visit {{ link_start }}{{ url }}{{ link_middle }}Studio{{ link_end }}.
+                                {% trans "The end date for this course." as tmsg %}{{ tmsg | force_escape }}
+                                {% blocktrans asvar tmsg %}
+                                For the most accurate information, and to make any edits to end date, please visit {link_start}{url}{link_middle}Studio{link_end}.
                                 {% endblocktrans %}
+                                {% interpolate_html tmsg link_start='<a class="studio-end-date-link" target="_blank" href="' link_middle='">'|safe link_end='</a>'|safe url=course_run.studio_schedule_and_details_url|safe %}
                             </p>
                         {% else %}
-                            {% trans "Note that times use UTC. Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." %}
+                            {% trans "Note that times use UTC. Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." as tmsg %}{{ tmsg | force_escape }}
                         {% endif %}
                     </div>
                     <div class="col col-6">
@@ -114,19 +120,20 @@
                     <div class="col col-6 help-text">
                         {% if publisher_enable_read_only_fields %}
                             <p>
-                                {% trans "The pacing type for this course." %}
-                                {% blocktrans with link_start='<a class="studio-pacing-link" target="_blank" href="' link_middle='">' link_end='</a>' url=course_run.studio_schedule_and_details_url %}
-                                For the most accurate information, and to make any edits to pacing type, please visit {{ link_start }}{{ url }}{{ link_middle }}Studio{{ link_end }}.
+                                {% trans "The pacing type for this course." as tmsg %}{{ tmsg | force_escape }}
+                                {% blocktrans asvar tmsg %}
+                                For the most accurate information, and to make any edits to pacing type, please visit {link_start}{url}{link_middle}Studio{link_end}.
                                 {% endblocktrans %}
+                                {% interpolate_html tmsg link_start='<a class="studio-pacing-link" target="_blank" href="'|safe link_middle='">'|safe link_end='</a>'|safe url=course_run.studio_schedule_and_details_url|safe %}
                             </p>
                         {% else %}
-                            <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." %} </p>
-                            <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." %}</p>
+                            <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." as tmsg %}{{ tmsg | force_escape }} </p>
+                            <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." as tmsg %}{{ tmsg | force_escape }}</p>
                         {% endif %}
                     </div>
                     <div class="col col-6">
                         {% if publisher_enable_read_only_fields %}
-                            <label class="field-label ">{% trans "Course Pacing" %}  <span class="required">*</span></label>
+                            <label class="field-label ">{% trans "Course Pacing" as tmsg %}{{ tmsg | force_escape }}  <span class="required">*</span></label>
                             <div>{{ course_run.get_pacing_type_temporary_display }}</div>
                         {% else %}
                             <label class="field-label">{{ run_form.pacing_type.label_tag }}  <span class="required">*</span></label>
@@ -135,10 +142,10 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "STUDIO URL" %} <span class="required float-right">* Required for review</span></div>
+                <div class="field-title">{% trans "STUDIO URL" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        <p>{% trans "The Studio URL for this course run. The edX PC creates this URL." %}</p>
+                        <p>{% trans "The Studio URL for this course run. The edX PC creates this URL." as tmsg %}{{ tmsg | force_escape }}</p>
                     </div>
                     <div class="col col-6">
                         <label class="field-label ">{{ run_form.lms_course_id.label_tag }}  <span class="required">*</span></label>
@@ -146,11 +153,11 @@
 
                         {% if not is_project_coordinator %}
                             <div class="studio-url">
-                                <span class="studio-url-heading">{% trans "STUDIO URL" %} - </span>
+                                <span class="studio-url-heading">{% trans "STUDIO URL" as tmsg %}{{ tmsg | force_escape }} - </span>
                                 {% if course_run.studio_url %}
                                     <a class="studio-link" href="{{ course_run.studio_url }}" target="_blank">{{ course_run.lms_course_id }}</a>
                                 {% else %}
-                                    {% trans "Not yet created" %}
+                                    {% trans "Not yet created" as tmsg %}{{ tmsg | force_escape }}
                                 {% endif %}
                             </div>
                         {% endif %}
@@ -160,10 +167,10 @@
         </div>
         <div id="about-page" class="course-information">
             <fieldset class="form-group grid-container grid-manual">
-                <div class="field-title">{% trans "PROGRAM ASSOCIATION" %} <span class="optional float-right">Optional</span></div>
+                <div class="field-title">{% trans "PROGRAM ASSOCIATION" as tmsg %}{{ tmsg | force_escape }} <span class="optional float-right">Optional</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        {% trans "If this course is part of a program, select the program type, and then enter the name of the program." %}
+                        {% trans "If this course is part of a program, select the program type, and then enter the name of the program." as tmsg %}{{ tmsg | force_escape }}
                     </div>
                     <div class="col col-6">
                         <div class="row">
@@ -221,10 +228,10 @@
                 </div>
 
                 {% if seat_form %}
-                    <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %} <span class="required float-right">* Required for review</span></div>
+                    <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required for review</span></div>
                     <div class="row">
                         <div class="col col-6 help-text">
-                            {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." %}
+                            {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." as tmsg %}{{ tmsg | force_escape }}
                         </div>
                         <div class="col col-6">
                             <div class="row">
@@ -253,10 +260,10 @@
                 {% endif %}
 
                 {% if has_masters_seat %}
-                    <div class="field-title" id="institution-course-id">{% trans "INSTITUTION COURSE ID" %}<span class="optional float-right">Optional</span></div>
+                    <div class="field-title" id="institution-course-id">{% trans "INSTITUTION COURSE ID" as tmsg %}{{ tmsg | force_escape }}<span class="optional float-right">Optional</span></div>
                     <div class="row">
                         <div class="col col-6 help-text">
-                            {% trans "Only fill in this field if you are planning to integrate with your Institution's systems through edX registrar service. If you have any questions about this, reach out to your PC." %}
+                            {% trans "Only fill in this field if you are planning to integrate with your Institution's systems through edX registrar service. If you have any questions about this, reach out to your PC." as tmsg %}{{ tmsg | force_escape }}
                         </div>
                         <div class="col col-6">
                             <label class="field-label ">{{ run_form.external_key.label_tag }}</label>
@@ -265,13 +272,13 @@
                     </div>
                 {% endif %}
 
-                <div class="field-title">{% trans "COURSE STAFF" %} <span class="required float-right">* Required for review</span></div>
+                <div class="field-title">{% trans "COURSE STAFF" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        <div>{% trans "The primary instructor or instructors for the course." %}</div>
-                        <div>{% trans "The order that instructors are entered here is the same order they will be displayed on course pages." %}</div>
+                        <div>{% trans "The primary instructor or instructors for the course." as tmsg %}{{ tmsg | force_escape }}</div>
+                        <div>{% trans "The order that instructors are entered here is the same order they will be displayed on course pages." as tmsg %}{{ tmsg | force_escape }}</div>
                         <strong>
-                            {% trans "Make sure that you search for an instructor before you create a new instructor." %}
+                            {% trans "Make sure that you search for an instructor before you create a new instructor." as tmsg %}{{ tmsg | force_escape }}
                         </strong>
                     </div>
                     <div id="user_organizations_ids" class="hidden">{{ organizations_ids|safe }}</div>
@@ -279,7 +286,7 @@
                     <div id="is_internal_user" class="hidden"> {{ is_internal_user }}</div>
                     <div class="col col-6 instructor-select">
                         <label class="field-label ">
-                            {% trans "Search for Instructor:" %}
+                            {% trans "Search for Instructor:" as tmsg %}{{ tmsg | force_escape }}
                         </label>
                         <select name="instructor" data-autocomplete-light-function="select2"
                                 multiple="multiple" data-minimum-input-length="2"
@@ -288,7 +295,7 @@
                         </select>
                         <div class="selected-instructor">
                             <button type="button" id="add-new-instructor">
-                              {% trans "Create new" %}<br>{% trans "instructor" %}
+                              {% trans "Create new" as tmsg %}{{ tmsg | force_escape }}<br>{% trans "instructor" as tmsg %}{{ tmsg | force_escape }}
                             </button>
                             {% for staff in run_form.instance.staff.all %}
                                 {% include "publisher/_personFieldLabel.html" %}
@@ -298,32 +305,32 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "ESTIMATED EFFORT" %} <span class="required float-right">* Required for review</span></div>
+                <div class="field-title">{% trans "ESTIMATED EFFORT" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6">
-                        {% trans "The number of hours per week the learner should expect to spend on the course. This may be a range." %}
+                        {% trans "The number of hours per week the learner should expect to spend on the course. This may be a range." as tmsg %}{{ tmsg | force_escape }}
                     </div>
                     <div class="col col-6">
                         <div class="row">
                             <div class="col col-6">
-                                <label class="field-label ">{% trans "Min Effort" %}</label>
+                                <label class="field-label ">{% trans "Min Effort" as tmsg %}</label>{{ tmsg | force_escape }}
                                 {{ run_form.min_effort }}
                                 {% if run_form.min_effort.errors %}
                                     {{ run_form.min_effort.errors|escape }}
                                 {% endif %}
                             </div>
                             <div class="col col-6">
-                                <label class="field-label ">{% trans "Max Effort" %}</label>
+                                <label class="field-label ">{% trans "Max Effort" as tmsg %}{{ tmsg | force_escape }}</label>
                                 {{ run_form.max_effort }}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "LANGUAGE(S)" %} <span class="required float-right">* Required for review</span></div>
+                <div class="field-title">{% trans "LANGUAGE(S)" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        {% trans "The languages available for videos, video transcripts, and other course content." %}
+                        {% trans "The languages available for videos, video transcripts, and other course content." as tmsg %}{{ tmsg | force_escape }}
                     </div>
                     <div class="col col-6">
                         <label class="field-label ">{{ run_form.language.label_tag }} <span class="required">*</span></label>
@@ -337,10 +344,10 @@
                     </div>
                 </div>
 
-                <div class="field-title">{% trans "LENGTH" %} <span class="required float-right">* Required for review</span></div>
+                <div class="field-title">{% trans "LENGTH" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        {% trans "The length of the course, in weeks, rounded to the nearest whole number." %}
+                        {% trans "The length of the course, in weeks, rounded to the nearest whole number." as tmsg %}{{ tmsg | force_escape }}
                     </div>
                     <div class="col col-6">
                         <label class="field-label ">{{ run_form.length.label_tag }}</label>
@@ -354,7 +361,7 @@
                     </div>
                     <div class="row">
                         <div class="col col-6 help-text">
-                            {% trans "Checking this box will add the OFAC language to the FAQ on the marketing page." %}
+                            {% trans "Checking this box will add the OFAC language to the FAQ on the marketing page." as tmsg %}{{ tmsg | force_escape }}
                         </div>
                         <div class="col col-6">
                            <label class="field-label">{{ run_form.has_ofac_restrictions.label_tag }}</label>
@@ -370,9 +377,9 @@
 
 <div class="course-form">
     <div class="course-information action-buttons">
-        <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{% trans "Cancel" %}</a>
+        <a href="{% url 'publisher:publisher_course_run_detail' course_run.id %}">{% trans "Cancel" as tmsg %}{{ tmsg | force_escape }}</a>
         <button class="btn-brand btn-base btn-save" type="submit">
-            {% trans "Update Course Run" %}
+            {% trans "Update Course Run" as tmsg %}{{ tmsg | force_escape }}
         </button>
     </div>
 </div>

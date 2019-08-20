@@ -21,12 +21,12 @@
     {% block submit_buttons_bottom %}
         <div class="submit-row">
             <a href="{% url 'admin:course_metadata_program_changelist' %}">
-                <input type="button" name="Cancel" value="{% trans 'Cancel' %}">
+                <input type="button" name="Cancel" value="{% trans 'Cancel' as tmsg %}{{ tmsg | force_escape }}">
             </a>
             <a  href="{% url 'admin:course_metadata_program_change' program_id %}">
-                <input type="button" name="Back" value="{% trans 'Back to Program' %}">
+                <input type="button" name="Back" value="{% trans 'Back to Program' as tmsg %}{{ tmsg | force_escape }}">
             </a>
-            <input type="submit" value="{% trans 'Save Course Run' %}" class="default" name="_save" />
+            <input type="submit" value="{% trans 'Save Course Run' as tmsg %}{{ tmsg | force_escape }}" class="default" name="_save" />
         </div>
     {% endblock %}
 </form>

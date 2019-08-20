@@ -52,3 +52,4 @@ pytz
 requests
 simple-salesforce
 unicode-slugify
+xss-utils

@@ -1,15 +1,15 @@
 {% load i18n %}
+{% load django_markup %}
 
 <div class="approval-widget">
-    <h5 class="hd-5 emphasized approvals-heading">{% trans "REVIEWS" %}</h5>
+    <h5 class="hd-5 emphasized approvals-heading">{% trans "REVIEWS" as tmsg %}{{ tmsg | force_escape }}</h5>
     {% if is_course_run and not course_run.course.course_state.is_approved %}
         <div class="parent-course-approval">
             {% url 'publisher:publisher_course_detail' course_run.course.id as course_url %}
-            {% with link_start='<a href="' link_middle='">' link_end='</a>' %}
-            {% blocktrans with course_name=course_run.course.title trimmed %}
-                You can currently edit information for this course run. However, before you can submit this course run for review, you must finalize the information for {{ link_start }}{{ course_url }}{{ link_middle }}{{ course_name }}{{ link_end }} with edX.
+            {% blocktrans trimmed asvar tmsg %}
+                You can currently edit information for this course run. However, before you can submit this course run for review, you must finalize the information for {link_start}{course_url}{link_middle}{course_name}{link_end} with edX.
             {% endblocktrans %}
-            {% endwith %}
+            {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe course_name=course_run.course.title|safe course_url=course_url|safe %}
         </div>
     {% endif %}
 
@@ -22,38 +22,38 @@
                     {% if course_run.preview_url %}
                         {% if is_in_preview_review and course_run.course.course_team_admin == request.user %}
                             <button class="btn btn-neutral btn-preview btn-preview-decline" type="button">
-                                {% trans "Decline" %}
+                                {% trans "Decline" as tmsg %}{{ tmsg | force_escape }}
                             </button>
                             <button class="btn btn-neutral btn-preview btn-preview-accept" type="button">
-                                {% trans "Accept" %}
+                                {% trans "Accept" as tmsg %}{{ tmsg | force_escape }}
                             </button>
                         {% elif preview_accepted_date %}
                             <span class="state-status">
                                 <span class="icon fa fa-check" aria-hidden="true"></span>
-                                {% trans "Accepted" %}<br>
+                                {% trans "Accepted" as tmsg %}{{ tmsg | force_escape }}<br>
                                 {{ preview_accepted_date|date:'m/d/y H:i a' }}
                             </span>
                             {% if course_run.course_run_state.is_ready_to_publish and course_run.course.publisher == request.user %}
                                 <button class="btn-brand btn-base btn-publish" data-change-state-url="{% url 'publisher:api:change_course_run_state' course_run.course_run_state.id %}" data-state-name="{{ publish_state_name }}" type="button">
-                                    {% trans "Publish" %}
+                                    {% trans "Publish" as tmsg %}{{ tmsg | force_escape }}
                                 </button>
                             {% endif %}
                         {% elif course_run.course.publisher == request.user %}
                             <span class="preview-status">{{course_run.course_run_state.preview_status_for_publisher}}</span>
-                                <button data-url="{% url 'publisher:api:update_course_run' course_run.id %}" class="btn btn-neutral btn-edit-preview-url">{% trans "Edit" %}</button>
+                                <button data-url="{% url 'publisher:api:update_course_run' course_run.id %}" class="btn btn-neutral btn-edit-preview-url">{% trans "Edit" as tmsg %}{{ tmsg | force_escape }}</button>
                         {% endif %}
                     {% endif %}
                     </div>
                     <div class="layout-col layout-col-b">
                         <span class="preview-heading">
-                            <strong>{% trans "ABOUT PAGE PREVIEW" %}</strong>
+                            <strong>{% trans "ABOUT PAGE PREVIEW" as tmsg %}{{ tmsg | force_escape }}</strong>
                         </span>
                         <div class="preview-url">
                             {% if course_run.preview_url %}
-                                <span class="preview-url-heading">{% trans "Preview URL" %} - </span>
-                                <a href="{{ course_run.preview_url }}" target="_blank">{% trans "View About page preview" %}</a>
+                                <span class="preview-url-heading">{% trans "Preview URL" as tmsg %}{{ tmsg | force_escape }} - </span>
+                                <a href="{{ course_run.preview_url }}" target="_blank">{% trans "View About page preview" as tmsg %}{{ tmsg | force_escape }}</a>
                             {% else %}
-                                <span>{% trans "Not available" %}</span>
+                                <span>{% trans "Not available" as tmsg %}{{ tmsg | force_escape }}</span>
                             {% endif %}
                         </div>
                     </div>
@@ -74,13 +74,13 @@
                             {% if role_widget.sent_for_review %}
                                 <span class="state-status">
                                     <span class="icon fa fa-check" aria-hidden="true"></span>
-                                    {% trans "Sent for Review" %}<br>
+                                    {% trans "Sent for Review" as tmsg %}{{ tmsg | force_escape }}<br>
                                     {{ role_widget.sent_for_review|date:'m/d/y H:i a' }}
                                 </span>
                             {% elif role_widget.reviewed %}
                                 <span class="state-status">
                                     <span class="icon fa fa-check" aria-hidden="true"></span>
-                                    {% trans "Reviewed" %}<br>
+                                    {% trans "Reviewed" as tmsg %}{{ tmsg | force_escape }}<br>
                                     {{ role_widget.reviewed|date:'m/d/y H:i a' }}
                                 </span>
                             {% endif %}
@@ -130,7 +130,7 @@
                                     </select>
                                     <input type="hidden" id="roleName" value="{{ role_widget.course_role.role }}">
                                     <button type="button" class="btn-neutral btn-change-assignment" data-role="{{ role_widget.course_role.role }}" data-api-endpoint="{% url 'publisher:api:course_role_assignments' role_widget.course_role.id %}">
-                                        {% trans "CHANGE" %}
+                                        {% trans "CHANGE" as tmsg %}{{ tmsg | force_escape }}
                                     </button>
                                 </div>
                             {% endif %}

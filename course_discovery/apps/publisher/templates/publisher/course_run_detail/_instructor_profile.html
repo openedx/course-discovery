@@ -7,26 +7,26 @@
             <img class="image_url instructor-image" src="" alt="avatar">
             <a download href="" class="btn btn-download">
                 <span class="icon fa fa-download" aria-hidden="true"></span>
-                {% trans "Download" %}
+                {% trans "Download" as tmsg %}{{ tmsg | force_escape }}
             </a>
         </div>
 
         <div class="info-item">
-            <div class="heading">{% trans "Name" %}
+            <div class="heading">{% trans "Name" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy full_name"></div>
         </div>
 
         <div class="info-item">
-            <div class="heading">{% trans "Organization" %}
+            <div class="heading">{% trans "Organization" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy organization"></div>
         </div>
 
         <div class="info-item">
-            <div class="heading">{% trans "Title" %}
+            <div class="heading">{% trans "Title" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy position"></div>
@@ -34,38 +34,38 @@
 
         <div class="info-item">
             <div class="heading">
-                <a class="profile_url" target="_blank">{% trans "Profile URL "%}</a>
+                <a class="profile_url" target="_blank">{% trans "Profile URL " as tmsg %}{{ tmsg | force_escape }}</a>
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy profile_url_copy hidden"></div>
         </div>
 
         <div class="info-item">
-            <div class="heading">{% trans "Bio" %}
+            <div class="heading">{% trans "Bio" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy bio pre"></div>
         </div>
 
         <div class="info-item">
-            <div class="heading">{% trans "Social Links" %}</div>
+            <div class="heading">{% trans "Social Links" as tmsg %}{{ tmsg | force_escape }}</div>
             <div class="social-links"></div>
         </div>
 
         <div class="info-item">
-            <div class="heading">{% trans "Major Works" %}
+            <div class="heading">{% trans "Major Works" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy major-works"></div>
         </div>
 
         <div class="info-item">
-            <div class="heading">{% trans "Areas of Expertise" %}</div>
+            <div class="heading">{% trans "Areas of Expertise" as tmsg %}{{ tmsg | force_escape }}</div>
             <div class="areas-of-expertise"></div>
         </div>
 
         <div class="actions">
-            <a class="btn-cancel closeModal" href="#">{% trans "Close" %}</a>
+            <a class="btn-cancel closeModal" href="#">{% trans "Close" as tmsg %}{{ tmsg | force_escape }}</a>
         </div>
     </div>
 </div>

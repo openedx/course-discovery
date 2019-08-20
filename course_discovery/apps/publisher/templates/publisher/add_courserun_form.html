@@ -1,5 +1,6 @@
 {% extends 'publisher/base.html' %}
 {% load i18n %}
+{% load django_markup %}
 {% load static %}
 
 {% block title %}
@@ -8,12 +9,14 @@
 
 {% block page_content %}
 <div xmlns="http://www.w3.org/1999/html">
-        <h1 class="hd-1 emphasized">{% trans "New Course Run" %}</h1>
+        <h1 class="hd-1 emphasized">{% trans "New Course Run" as tmsg %}{{ tmsg | force_escape }}</h1>
         <div class="copy-base">
             <p>
-                {% blocktrans %}
-                    When you create a course run, Publisher immediately creates a page for the course run in Publisher, and the edX team creates a Studio URL for the course run. You will receive an email message when edX has created the Studio URL.
-                {% endblocktrans %}
+                {% filter force_escape %}
+                    {% blocktrans %}
+                        When you create a course run, Publisher immediately creates a page for the course run in Publisher, and the edX team creates a Studio URL for the course run. You will receive an email message when edX has created the Studio URL.
+                    {% endblocktrans %}
+                {% endfilter %}
             </p>
         </div>
 
@@ -26,17 +29,18 @@
                     <div class="course-form">
                         <div class="course-information">
                             <fieldset class="form-group grid-container grid-manual">
-                                <div class="field-title">{% trans "FIND COURSE" %} <span class="required float-right">* Required</span></div>
+                                <div class="field-title">{% trans "FIND COURSE" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required</span></div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
                                         <p>
-                                            {% trans "Enter the name of the course for which you want to create a course run." %}
+                                            {% trans "Enter the name of the course for which you want to create a course run." as tmsg %}{{ tmsg | force_escape }}
                                         </p>
                                         <p class="margin-top20">
                                             {% url 'publisher:publisher_courses_new' as new_course_url %}
-                                            {% blocktrans with link_start='<a href="' link_middle='">' link_end='</a>' %}
-                                                If your course cannot be found, make sure the course name is correct, or {{ link_start }}{{ new_course_url }}{{ link_middle }}create a new course{{ link_end }}.
+                                            {% blocktrans asvar tmsg %}
+                                                If your course cannot be found, make sure the course name is correct, or {link_start}{new_course_url}{link_middle}create a new course{link_end}.
                                             {% endblocktrans%}
+                                            {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe new_course_url=new_course_url|safe %}
                                         </p>
                                     </div>
                                     <div class="col col-6">
@@ -61,18 +65,18 @@
                     <div class="course-information">
                         <fieldset class="form-group grid-container grid-manual">
 
-                            <div class="field-title">{% trans "COURSE START DATE" %} <span class="required float-right">* Required</span></div>
+                            <div class="field-title">{% trans "COURSE START DATE" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required</span></div>
                             <div class="row">
                                 <div class="col col-6 help-text">
                                     <ul>
                                         <li>
-                                            {% trans "Start on a Tuesday, Wednesday, or Thursday." %}
+                                            {% trans "Start on a Tuesday, Wednesday, or Thursday." as tmsg %}{{ tmsg | force_escape }}
                                         </li>
                                         <li>
-                                            {% trans "Avoid major U.S. holidays." %}
+                                            {% trans "Avoid major U.S. holidays." as tmsg %}{{ tmsg | force_escape }}
                                         </li>
                                         <li>
-                                            {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." %}
+                                            {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." as tmsg %}{{ tmsg | force_escape }}
                                         </li>
                                     </ul>
                                 </div>
@@ -83,11 +87,11 @@
                             </div>
 
                             {% if not publisher_enable_read_only_fields %}
-                                <div class="field-title">{% trans "PACING TYPE" %}<span class="required float-right">* Required</span></div>
+                                <div class="field-title">{% trans "PACING TYPE" as tmsg %}{{ tmsg | force_escape }}<span class="required float-right">* Required</span></div>
                                 <div class="row">
                                     <div class="col col-6 help-text">
-                                        <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." %} </p>
-                                        <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." %}</p>
+                                        <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." as tmsg %}{{ tmsg | force_escape }} </p>
+                                        <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." as tmsg %}{{ tmsg | force_escape }}</p>
                                     </div>
                                     <div class="col col-6">
                                         <label class="field-label">{{ run_form.pacing_type.label_tag }}  <span class="required">*</span></label>
@@ -96,10 +100,10 @@
                                 </div>
                             {% endif %}
 
-                            <div class="field-title">{% trans "COURSE END DATE" %} <span class="required float-right">* Required</span></div>
+                            <div class="field-title">{% trans "COURSE END DATE" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required</span></div>
                             <div class="row">
                                 <div class="col col-6 help-text">
-                                    {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." %}
+                                    {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." as tmsg %}{{ tmsg | force_escape }}
                                 </div>
                                 <div class="col col-6">
                                     <label class="field-label ">{{ run_form.end.label_tag }}  <span class="required">*</span></label>
@@ -117,10 +121,10 @@
                     <div class="course-information">
                         <fieldset class="form-group grid-container grid-manual">
 
-                            <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" %}</div>
+                            <div class="field-title">{% trans "CERTIFICATE TYPE AND PRICE" as tmsg %}{{ tmsg | force_escape }}</div>
                             <div class="row">
                                 <div class="col col-6 help-text">
-                                    {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." %}
+                                    {% trans "If the course offers a verified or professional education certificate, select the certificate type and enter the price for the certificate." as tmsg %}{{ tmsg | force_escape }}
                                 </div>
                                 <div class="col col-6">
                                     <div class="row">
@@ -158,9 +162,9 @@
 
             <div class="course-form">
                 <div class="course-information action-buttons">
-                    <a href="{{ cancel_url }}">{% trans "Cancel" %}</a>
+                    <a href="{{ cancel_url }}">{% trans "Cancel" as tmsg %}{{ tmsg | force_escape }}</a>
                     <button class="btn-brand btn-base btn-save" type="submit">
-                            {% trans "Create New Course Run" %}
+                            {% trans "Create New Course Run" as tmsg %}{{ tmsg | force_escape }}
                     </button>
                 </div>
             </div>

@@ -1,44 +1,44 @@
 {% load i18n %}
 {% block content %}
     <div class="course-information">
-        <h3 class="hd-3 emphasized">{% trans "Course" %}</h3>
+        <h3 class="hd-3 emphasized">{% trans "Course" as tmsg %}{{ tmsg | force_escape }}</h3>
         <hr>
         <div class="info-item">
             <div class="heading">
-                {% trans "Title" %}
+                {% trans "Title" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ course_run.title }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Number" %}
+                {% trans "Number" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ course_run.number }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Account" %}
+                {% trans "Account" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ course_run.organization_name }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Authored in Studio?" %}
+                {% trans "Authored in Studio?" as tmsg %}{{ tmsg | force_escape }}
             </div>
             <div class="copy">{{ course_run.is_authored_in_studio }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Multiple Partner Course?" %}
+                {% trans "Multiple Partner Course?" as tmsg %}{{ tmsg | force_escape }}
             </div>
             <div class="copy">{{ course_run.is_multiple_partner_course }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Course Level" %}
+                {% trans "Course Level" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -49,7 +49,7 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Subject Area" %}
+                {% trans "Subject Area" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -60,7 +60,7 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Language: Course Text" %}
+                {% trans "Language: Course Text" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -71,7 +71,7 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Language: Transcripts" %}
+                {% trans "Language: Transcripts" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -82,7 +82,7 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Language: Video" %}
+                {% trans "Language: Video" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -92,30 +92,30 @@
             </div>
         </div>
 
-        <h3 class="hd-3 emphasized">{% trans "Course Run" %}</h3>
+        <h3 class="hd-3 emphasized">{% trans "Course Run" as tmsg %}{{ tmsg | force_escape }}</h3>
         <hr>
 
         <div class="info-item">
             <div class="heading">
-                {% trans "New or Rerun?" %}
+                {% trans "New or Rerun?" as tmsg %}{{ tmsg | force_escape }}
             </div>
             <div class="copy">{{ course_run.is_re_run }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Platform" %}
+                {% trans "Platform" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ platform_name }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Faculty" %}
+                {% trans "Faculty" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
                 {% if not course_run.course_staff %}
-                    {% trans "(Required) Not yet added" %}
+                    {% trans "(Required) Not yet added" as tmsg %}{{ tmsg | force_escape }}
                 {% else %}
                     {% for obj in course_run.course_staff %}
                       <div class="course-staff">
@@ -140,21 +140,21 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Course Run Display Name" %}
+                {% trans "Course Run Display Name" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ course_run.title }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Course Run Number" %}
+                {% trans "Course Run Number" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ course_run.number }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "edX Course Run ID" %}
+                {% trans "edX Course Run ID" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -165,14 +165,14 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Certificate Type" %}
+                {% trans "Certificate Type" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ course_run.course_type }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Course $ (minimum)" %}
+                {% trans "Course $ (minimum)" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -183,7 +183,7 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Credit $ (minimum)" %}
+                {% trans "Credit $ (minimum)" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -194,13 +194,13 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Self Paced?" %}
+                {% trans "Self Paced?" as tmsg %}{{ tmsg | force_escape }}
             </div>
             <div class="copy">{{ course_run.is_self_paced }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "MDC Submission Due Date" %}
+                {% trans "MDC Submission Due Date" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -211,21 +211,21 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Start Date" %}
+                {% trans "Start Date" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ course_run.start_date_temporary }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "End Date" %}
+                {% trans "End Date" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ course_run.end_date_temporary }}</div>
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Verified Registration Expiration Date" %}
+                {% trans "Verified Registration Expiration Date" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -236,7 +236,7 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Certificate Issued Date" %}
+                {% trans "Certificate Issued Date" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">

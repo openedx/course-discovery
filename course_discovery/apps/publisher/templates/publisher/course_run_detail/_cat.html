@@ -4,7 +4,7 @@
    <div class="course-information">
         <div class="info-item">
             <div class="heading">
-                {% trans "Course ID" %}
+                {% trans "Course ID" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">
@@ -15,7 +15,7 @@
         </div>
         <div class="info-item">
             <div class="heading">
-                {% trans "Enrollment Types" %}
+                {% trans "Enrollment Types" as tmsg %}{{ tmsg | force_escape }}
                 {% include "publisher/course_run_detail/_clipboard.html" %}
             </div>
             <div class="copy">{{ course_run.course_type|capfirst }}</div>

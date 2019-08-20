@@ -33,7 +33,7 @@
             {% if can_edit %}
                 {% url 'publisher:publisher_courses_edit' pk=object.id as edit_page_url %}
                 <a id="btn_course_edit" href="{% if add_warning_popup %}#{% else %}{{ edit_page_url }}{% endif %}" class="btn btn-neutral btn-course-edit">
-                    {% trans "EDIT" %}
+                    {% trans "EDIT" as tmsg %}{{ tmsg | force_escape }}
                 </a>
                 <div class="clearfix"></div>
             {% endif %}
@@ -41,7 +41,7 @@
 
             <div class="info-item">
                 <div class="heading">
-                    {% trans "Organization Name" %}
+                    {% trans "Organization Name" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div>
                     {{ object.organizations.first }}
@@ -50,14 +50,14 @@
 
             <div class="info-item">
                 <div class="heading">
-                    {% trans "Course Team Admin" %}
+                    {% trans "Course Team Admin" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div>{% firstof  object.course_team_admin.full_name object.course_team_admin.username %}</div>
             </div>
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Course Title" %}
+                    {% trans "Course Title" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current title">{{ object.course_title }}</div>
                 <div class="show-diff"></div>
@@ -65,7 +65,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Course Number" %}
+                    {% trans "Course Number" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current number">{{ object.number }}</div>
                 <div class="show-diff"></div>
@@ -79,7 +79,7 @@
             </div>
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Enrollment Track" %}
+                    {% trans "Enrollment Track" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current type">
                     {% with object.entitlements.first.mode as field %}
@@ -91,7 +91,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Certificate Price" %}
+                    {% trans "Certificate Price" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current price">
                     {% with object.entitlements.first.price as field %}
@@ -103,7 +103,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Short Description" %}
+                    {% trans "Short Description" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current short_description">
                     {% with  object.course_short_description as field %}
@@ -115,7 +115,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Long Description" %}
+                    {% trans "Long Description" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current full_description">
                     {% with  object.course_full_description as field %}
@@ -127,7 +127,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "What You Will Learn" %}
+                    {% trans "What You Will Learn" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current expected_learnings">
                     {% with  object.expected_learnings as field %}
@@ -139,7 +139,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Primary Subject" %}
+                    {% trans "Primary Subject" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current primary_subject">
                     {% with  object.primary_subject as field %}
@@ -151,7 +151,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Additional Subject" %}
+                    {% trans "Additional Subject" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current secondary_subject">
                     {% with  object.secondary_subject as field %}
@@ -163,7 +163,7 @@
 
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Additional Subject" %}
+                    {% trans "Additional Subject" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current tertiary_subject">
                     {% with  object.tertiary_subject as field %}
@@ -174,17 +174,17 @@
             </div>
             <div class="info-item">
                 <div class="heading course-image-heading">
-                    {% trans "Course Image" %}
+                    {% trans "Course Image" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 {% if object.image %}
                     <img class="course-image" src="{{ object.image.url }}" alt="{% trans 'Course Image' %}">
                 {% else %}
-                    {% trans "(Required) Not yet added" %}
+                    {% trans "(Required) Not yet added" as tmsg %}{{ tmsg | force_escape }}
                 {% endif %}
             </div>
             <div class="info-item history-field-container">
                 <div class="heading">
-                    {% trans "Prerequisites" %}
+                    {% trans "Prerequisites" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current prerequisites">
                     {% with  object.prerequisites as field %}
@@ -194,7 +194,7 @@
                 <div class="show-diff"></div>
             </div>
             <div class="info-item history-field-container">
-                <div class="heading">{% trans "Course Level" %}
+                <div class="heading">{% trans "Course Level" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current level_type">
                     {% with  object.level_type as field %}
@@ -204,7 +204,7 @@
                 <div class="show-diff"></div>
             </div>
             <div class="info-item history-field-container">
-                <div class="heading">{% trans "Learner Testimonials" %}
+                <div class="heading">{% trans "Learner Testimonials" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current learner_testimonial">
                     {% with  object.learner_testimonial as field %}
@@ -214,7 +214,7 @@
                 <div class="show-diff"></div>
             </div>
             <div class="info-item history-field-container">
-                <div class="heading">{% trans "FAQ" %}
+                <div class="heading">{% trans "FAQ" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current faq">
                     {% with  object.faq as field %}
@@ -225,7 +225,7 @@
             </div>
 
             <div class="info-item history-field-container">
-                <div class="heading">{% trans "Additional Information" %}
+                <div class="heading">{% trans "Additional Information" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current additional_information">
                     {% with  object.additional_information as field %}
@@ -237,7 +237,7 @@
 
 
             <div class="info-item history-field-container">
-                <div class="heading">{% trans "Syllabus" %}
+                <div class="heading">{% trans "Syllabus" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 <div class="current faq">
                     {% with  object.syllabus as field %}
@@ -248,13 +248,13 @@
             </div>
 
             <div class="info-item history-field-container">
-                <div class="heading">{% trans "About Video Link" %}
+                <div class="heading">{% trans "About Video Link" as tmsg %}{{ tmsg | force_escape }}
                 </div>
                 {% with  object.video_link as value %}
                     {% if value %}
                         <a class="current video_link" href="{{ value }}" target="_blank">{{ value }}</a>
                     {% else %}
-                        {% trans "(Optional) Not yet added" %}
+                        {% trans "(Optional) Not yet added" as tmsg %}{{ tmsg | force_escape }}
                     {% endif %}
                 {% endwith %}
                 <div class="show-diff"></div>
