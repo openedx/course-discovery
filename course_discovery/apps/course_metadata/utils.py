@@ -372,6 +372,9 @@ def calculated_seat_upgrade_deadline(seat):
         if seat.upgrade_deadline:
             return seat.upgrade_deadline
 
+        if not seat.course_run.end:
+            return None
+
         deadline = seat.course_run.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
         deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
         return deadline
