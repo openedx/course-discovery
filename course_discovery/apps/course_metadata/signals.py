@@ -100,12 +100,14 @@ def publish_masters_track(sender, instance, **kwargs):  # pylint: disable=unused
 def save_curriculum(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
     Check for circular references in program structure before saving.
-    Short circuit on newly created Curriculum since it cannot have member programs yet
+    Short circuits on:
+        - newly created Curriculum since it cannot have member programs yet
+        - Curriculum with a 'None' program since there cannot be a loop
     """
-    if not instance.id:
+    curriculum = instance
+    if not curriculum.id or not curriculum.program:
         return
 
-    curriculum = instance
     if _find_in_programs(curriculum.program_curriculum.all(), program=curriculum.program):
         raise ValidationError('Circular ref error.  Curriculum already contains program {}'.format(curriculum.program))
 
