@@ -1361,7 +1361,7 @@ class CourseEntitlementSerializerTests(TestCase):
             'currency': self.entitlement.currency.code,
             'sku': self.entitlement.sku,
             'mode': str(self.entitlement.mode).lower(),
-            'expires': json_date_format(self.entitlement.expires)
+            'expires': None,
         }
 
         self.assertDictEqual(serializer.data, expected)

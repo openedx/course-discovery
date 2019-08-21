@@ -616,7 +616,6 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         body = [d for d in body if d['product_class'] == 'Course Entitlement']
         self.assertEqual(CourseEntitlement.objects.count(), len(body))
         for datum in body:
-            expires = datum['expires']
             attributes = {attribute['name']: attribute['value'] for attribute in datum['attribute_values']}
             course = Course.objects.get(uuid=attributes['UUID'])
             stock_record = datum['stockrecords'][0]
@@ -629,7 +628,6 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
 
             entitlement = course.entitlements.get(mode=mode)
 
-            self.assertEqual(entitlement.expires, expires)
             self.assertEqual(entitlement.course, course)
             self.assertEqual(entitlement.price, price)
             self.assertEqual(entitlement.currency.code, price_currency)

@@ -1529,7 +1529,6 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
     currency = models.ForeignKey(Currency, models.CASCADE, default='USD')
     sku = models.CharField(max_length=128, null=True, blank=True)
-    expires = models.DateTimeField(null=True, blank=True)
 
     history = HistoricalRecords()
 

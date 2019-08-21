@@ -674,7 +674,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'price': price,
             'currency': currency,
             'sku': sku,
-            'expires': self.parse_date(body['expires'])
         }
         msg = 'Creating entitlement {title} with sku {sku} for partner {partner}'.format(
             title=title, sku=sku, partner=self.partner
