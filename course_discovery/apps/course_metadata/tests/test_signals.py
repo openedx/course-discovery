@@ -564,7 +564,7 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
             curricula=[curriculum_4]
         )
         message = _duplicate_external_key_message([course_run_1a])
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(5):
             with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
                 curriculum_4.program = self.program_1
                 curriculum_4.save()
@@ -598,7 +598,7 @@ class ExternalCourseKeyMultipleCollisionTests(ExternalCourseKeyTestDataMixin, Te
 
     def test_multiple_collisions__curriculum(self):
         message = _duplicate_external_key_message([self.course_run_2b, self.course_run_3c])
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(5):
             with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
                 self.curriculum.program = self.program_2
                 self.curriculum.save()
