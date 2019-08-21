@@ -9,7 +9,7 @@ from django.test import TestCase
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
 from course_discovery.apps.course_metadata.management.commands.migrate_publisher_to_course_metadata import Command
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseRun, MigratePublisherToCourseMetadataConfig
+    Course, CourseEditor, CourseRun, MigratePublisherToCourseMetadataConfig, Organization
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.publisher.choices import PublisherUserRole
@@ -24,21 +24,21 @@ class TestMigratePublisherToCourseMetadata(TestCase):
         super(TestMigratePublisherToCourseMetadata, self).setUp()
         self.partner = PartnerFactory()
         self.user_1 = UserFactory()
-        self.org_1 = factories.OrganizationFactory(partner=self.partner)
+        self.org_1 = factories.OrganizationFactory(partner=self.partner, key='org1')
         self.course_1 = factories.CourseFactory(
             partner=self.partner,
             authoring_organizations=[self.org_1],
             key=self.org_1.key + '+101x',
             title='Old Title',
         )
+        self.run_key = 'course-v1:{course_key}+1T2019'.format(course_key=self.course_1.key)
+        self.run_1 = factories.CourseRunFactory(course=self.course_1, key=self.run_key)
 
         self.publisher_course_1 = publisher_factories.CourseFactory(number='101x', title='New Title')
         self.publisher_course_1.organizations.add(self.org_1)  # pylint: disable=no-member
         self.publisher_course_run_1 = publisher_factories.CourseRunFactory(
             course=self.publisher_course_1,
-            lms_course_id='course-v1:{org}+{number}+1T2019'.format(
-                org=self.org_1.key, number=self.publisher_course_1.number
-            ),
+            lms_course_id=self.run_key,
         )
         self.course_team_user_role_1 = publisher_factories.CourseUserRoleFactory(
             course=self.publisher_course_1,
@@ -50,6 +50,38 @@ class TestMigratePublisherToCourseMetadata(TestCase):
             course=self.publisher_course_1,
             role=PublisherUserRole.ProjectCoordinator
         )
+
+    @ddt.data(
+        # No matching course in CM, right Pub org
+        (None, 'org1', False),
+        # No matching course in CM, wrong Pub org
+        (None, 'org2', False),
+        # Matching course in CM, with right CM org and mismatched Pub org
+        ('org1', 'org2', True),
+        # Matching course in CM, with mismatched CM org and right Pub org
+        ('org2', 'org1', False),
+    )
+    @ddt.unpack
+    def test_mismatched_course_orgs(self, cm_org, pub_org, migrated):
+        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
+        config.orgs.add(self.org_1)
+
+        factories.OrganizationFactory(partner=self.partner, key='org2')
+
+        if cm_org:
+            self.course_1.authoring_organizations.set([Organization.objects.get(key=cm_org)])  # pylint: disable=no-member
+        else:
+            self.course_1.delete()
+
+        self.publisher_course_1.organizations.set([Organization.objects.get(key=pub_org)])  # pylint: disable=no-member
+
+        self.assertFalse(Course.everything.filter(key=self.course_1.key, draft=True).exists())
+        self.assertFalse(CourseRun.everything.filter(key=self.run_key, draft=True).exists())
+
+        Command().handle()
+
+        self.assertEqual(Course.everything.filter(key=self.course_1.key, draft=True).exists(), migrated)
+        self.assertEqual(CourseRun.everything.filter(key=self.run_key, draft=True).exists(), migrated)
 
     def test_handle_with_one_org(self):
         config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
@@ -78,13 +110,14 @@ class TestMigratePublisherToCourseMetadata(TestCase):
             key=org_2.key + '+102x',
             title='Old Title 2'
         )
+        course_2.authoring_organizations.add(org_2)
+        run_key_2 = 'course-v1:{course_key}+1T2019'.format(course_key=course_2.key)
+        factories.CourseRunFactory(course=course_2, key=run_key_2)
         publisher_course_2 = publisher_factories.CourseFactory(number='102x', title='New Title 2')
         publisher_course_2.organizations.add(org_2)  # pylint: disable=no-member
         publisher_factories.CourseRunFactory(
             course=publisher_course_2,
-            lms_course_id='course-v1:{org}+{number}+1T2019'.format(
-                org=org_2.key, number=publisher_course_2.number
-            ),
+            lms_course_id=run_key_2,
         )
         course_team_user_role_2 = publisher_factories.CourseUserRoleFactory(
             course=publisher_course_2,
@@ -165,12 +198,13 @@ class TestMigratePublisherToCourseMetadata(TestCase):
             modified=self.publisher_course_1.modified + datetime.timedelta(days=1),
         )
         publisher_course_2.organizations.add(self.org_1)  # pylint: disable=no-member
-        publisher_factories.CourseRunFactory(
+        publisher_run_2 = publisher_factories.CourseRunFactory(
             course=publisher_course_2,
             lms_course_id='course-v1:{org}+{number}+1T2019'.format(
                 org=self.org_1.key, number='102x'
             ),
         )
+        factories.CourseRunFactory(course=self.course_1, key=publisher_run_2.lms_course_id)
         config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
         config.orgs.add(self.org_1)
         self.assertEqual(self.course_1.title, 'Old Title')
@@ -180,81 +214,20 @@ class TestMigratePublisherToCourseMetadata(TestCase):
         draft_course = Course.everything.get(key=self.course_1.key, draft=True)
         self.assertEqual(draft_course.title, publisher_course_2.title)
 
+        run_key_3 = 'course-v1:{org}+{number}+1T2019'.format(org=self.org_1.key, number='103x')
+        factories.CourseRunFactory(course=self.course_1, key=run_key_3)
         publisher_course_3 = publisher_factories.CourseFactory(
             number=self.publisher_course_1.number,
             title='Newest Title',
             modified=self.publisher_course_1.modified + datetime.timedelta(days=10),
         )
         publisher_course_3.organizations.add(self.org_1)  # pylint: disable=no-member
-        publisher_factories.CourseRunFactory(
-            course=publisher_course_3,
-            lms_course_id='course-v1:{org}+{number}+1T2019'.format(
-                org=self.org_1.key, number='103x'
-            ),
-        )
+        publisher_factories.CourseRunFactory(course=publisher_course_3, lms_course_id=run_key_3)
 
         Command().handle()
 
         draft_course.refresh_from_db()
         self.assertEqual(draft_course.title, publisher_course_3.title)
-
-    def test_handle_with_no_course_metadata_course(self):
-        """
-        If the course_metadata version of the Publisher Course and Course run doesn't exist, this
-        command should create them.
-        """
-        self.course_1.delete()
-        user = UserFactory()
-        org = factories.OrganizationFactory(partner=self.partner)
-        publisher_course = publisher_factories.CourseFactory(number='102x', title='New Title 2')
-        publisher_course.organizations.add(org)  # pylint: disable=no-member
-        lms_course_id = 'course-v1:{org}+{number}+1T2019'.format(org=org.key, number=publisher_course.number)
-        publisher_course_run = publisher_factories.CourseRunFactory(
-            course=publisher_course,
-            lms_course_id=lms_course_id,
-        )
-        course_team_user_role = publisher_factories.CourseUserRoleFactory(
-            course=publisher_course,
-            user=user,
-            role=PublisherUserRole.CourseTeam
-        )
-        # Shouldn't show up as a CourseEditor
-        publisher_factories.CourseUserRoleFactory(
-            course=publisher_course,
-            role=PublisherUserRole.ProjectCoordinator
-        )
-        config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
-        config.orgs.add(org)
-
-        self.assertEqual(CourseEditor.objects.count(), 0)
-        self.assertEqual(Course.objects.count(), 0)
-        self.assertEqual(CourseRun.objects.count(), 0)
-
-        Command().handle()
-
-        self.assertEqual(CourseEditor.objects.count(), 1)
-
-        editor = CourseEditor.objects.first()
-        self.assertEqual(editor.user, user)
-        self.assertEqual(editor.user, course_team_user_role.user)
-
-        course_key = '{org}+{number}'.format(org=org.key, number=publisher_course.number)
-        draft_course = Course.everything.get(key=course_key, draft=True)
-        self.assertEqual(editor.course, draft_course)
-
-        self.assertEqual(editor.course.url_slug, draft_course.url_slug)
-
-        self.assertEqual(Course.everything.count(), 1)
-        self.assertEqual(CourseRun.everything.count(), 1)
-
-        self.assertEqual(draft_course.title, publisher_course.title)
-        self.assertEqual(draft_course.short_description, publisher_course.short_description)
-        self.assertEqual(draft_course.full_description, publisher_course.full_description)
-
-        draft_course_run = CourseRun.everything.get(key=lms_course_id, draft=True)
-        self.assertEqual(draft_course_run.start, publisher_course_run.start)
-        self.assertEqual(draft_course_run.end, publisher_course_run.end)
-        self.assertEqual(draft_course_run.weeks_to_complete, publisher_course_run.length)
 
     def test_pub_course_pointing_at_two_metadata_courses(self):
         """
@@ -264,18 +237,20 @@ class TestMigratePublisherToCourseMetadata(TestCase):
         [Course Metadata] Course 101x has one course run 101x+1T2019 and Course 102x has one course run
             102x+1T2019.
         """
+        self.run_1.max_effort = 1234
+        self.run_1.save()
+
         key_2 = 'course-v1:{org}+{number}+1T2019'.format(org=self.org_1.key, number='102x')
         publisher_run_2 = publisher_factories.CourseRunFactory(course=self.publisher_course_1, lms_course_id=key_2)
-        run_1 = factories.CourseRunFactory(course=self.course_1, key=self.publisher_course_run_1.lms_course_id,
-                                           max_effort=1234)
         course_2 = factories.CourseFactory(partner=self.partner, key=self.org_1.key + '+102x', title="CM Course 2")
+        course_2.authoring_organizations.add(self.org_1)
         run_2 = factories.CourseRunFactory(course=course_2, key=key_2, max_effort=12345)
 
         config = factories.MigratePublisherToCourseMetadataConfigFactory(partner=self.partner)
         config.orgs.add(self.org_1)
         Command().handle()
 
-        draft_1 = CourseRun.everything.get(key=run_1.key, draft=True)
+        draft_1 = CourseRun.everything.get(key=self.run_1.key, draft=True)
         draft_2 = CourseRun.everything.get(key=run_2.key, draft=True)
         self.course_1.refresh_from_db()
         course_2.refresh_from_db()
@@ -295,9 +270,12 @@ class TestMigratePublisherToCourseMetadata(TestCase):
         [Publisher] Course 101x has two course runs, 101x+1T2019 and 102x+1T2019. Course 102x does not exist.
         [Course Metadata] Course 101x has no runs, while 102x has both course runs 101x+1T2019 and 102x+1T2019.
         """
+        self.run_1.delete()
+
         key_2 = 'course-v1:{org}+{number}+1T2019'.format(org=self.org_1.key, number='102x')
         publisher_run_2 = publisher_factories.CourseRunFactory(course=self.publisher_course_1, lms_course_id=key_2)
         course_2 = factories.CourseFactory(partner=self.partner, key=self.org_1.key + '+102x', title="CM Course 2")
+        course_2.authoring_organizations.add(self.org_1)
         run_1 = factories.CourseRunFactory(course=course_2, key=self.publisher_course_run_1.lms_course_id,
                                            max_effort=1234)
         run_2 = factories.CourseRunFactory(course=course_2, key=key_2, max_effort=12345)
