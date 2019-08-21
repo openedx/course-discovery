@@ -748,7 +748,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                     'mode': entitlement.mode.slug,
                     'price': 1000,
                     'sku': entitlement.sku,
-                    'expires': entitlement.expires,
+                    'expires': None,
                 },
             ],
             # The API is expecting the image to be base64 encoded. We are simulating that here.

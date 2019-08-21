@@ -558,7 +558,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
     currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
     sku = serializers.CharField(allow_blank=True, allow_null=True)
     mode = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all().order_by('name'))
-    expires = serializers.DateTimeField()
+    expires = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -567,6 +567,10 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = CourseEntitlement
         fields = ('mode', 'price', 'currency', 'sku', 'expires')
+
+    def get_expires(self, _obj):
+        # This was a never-used, deprecated field. Just keep returning None to avoid breaking our API.
+        return None
 
 
 class CatalogSerializer(serializers.ModelSerializer):

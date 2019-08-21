@@ -1215,7 +1215,7 @@ class ProgramTests(TestCase):
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         courses = []
         for __ in range(3):
-            entitlement = factories.CourseEntitlementFactory(mode=verified_seat_type, expires=None)
+            entitlement = factories.CourseEntitlementFactory(mode=verified_seat_type)
             for __ in range(3):
                 factories.SeatFactory(
                     course_run=factories.CourseRunFactory(
@@ -1374,7 +1374,7 @@ class ProgramTests(TestCase):
         # We are limiting each course to a single entitlement so this should raise an IntegrityError
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
-                factories.CourseEntitlementFactory(mode=credit_seat_type, expires=None, course=courses[0])
+                factories.CourseEntitlementFactory(mode=credit_seat_type, course=courses[0])
 
     def test_one_click_purchase_eligible_with_unpublished_runs(self):
         """ Verify that program with unpublished course runs is one click purchase eligible. """
