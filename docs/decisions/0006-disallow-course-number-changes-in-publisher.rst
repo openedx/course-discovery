@@ -148,8 +148,7 @@ information in platform so we can have quick lookups
 **edx-platform Repo** - Do a double check in edx-platform to look for anything using
 org+course relationships
 
-**Research data packages for Partners** - I did not have time to look into this, but
-open questions are:
-Do we use course keys there? Or do they use OpaqueKeys with course run keys to
-try and get from that to the course key? If so, maybe make a join table that
-they can use instead.
+**Research data packages for Partners** - Brian Wilson looked into this and found we
+only use Course Run keys as part of the research data packages. Specifically, we
+pull the org from the course run and map the org to Partner, so there’s no
+concept of course — just course_run and org.
