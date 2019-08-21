@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api.serializers import CommentSerializer
+from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.course_metadata.models import Course, CourseEditor
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -28,6 +29,11 @@ class CommentViewSet(viewsets.GenericViewSet):
 
     def list(self, request):
         partner = request.site.partner
+        try:
+            util = SalesforceUtil(partner)
+        except SalesforceConfiguration.DoesNotExist:
+            raise Http404
+
         course_uuid = request.query_params.get('course_uuid')
         if not course_uuid:
             return Response(
@@ -38,7 +44,6 @@ class CommentViewSet(viewsets.GenericViewSet):
         if not CourseEditor.is_course_editable(request.user, course):
             raise PermissionDenied
 
-        util = SalesforceUtil(partner)
         comments = util.get_comments_for_course(course)
 
         return Response(comments)
@@ -57,7 +62,10 @@ class CommentViewSet(viewsets.GenericViewSet):
             return Response((_('Incorrect data sent. ') + error_message).strip(), status=status.HTTP_400_BAD_REQUEST)
 
         partner = self.request.site.partner
-        util = SalesforceUtil(partner)
+        try:
+            util = SalesforceUtil(partner)
+        except SalesforceConfiguration.DoesNotExist:
+            raise Http404
 
         course = self._get_course_or_404(partner, comment_creation_fields.get('course_uuid'))
 

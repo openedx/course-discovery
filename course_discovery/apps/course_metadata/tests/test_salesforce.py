@@ -137,7 +137,6 @@ class TestSalesforce(TestCase):
                 'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
                     url=partner.site.domain, id=course.id
                 ) if partner.site.domain else None,
-                'Publisher_Status__c': None,
                 'OFAC_Review_Decision__c': course.has_ofac_restrictions,
                 'Course_Key__c': course.key,
             })
@@ -170,7 +169,6 @@ class TestSalesforce(TestCase):
                     'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
                         url=partner.site.domain, id=course.id
                     ) if partner.site.domain else None,
-                    'Publisher_Status__c': None,
                     'OFAC_Review_Decision__c': course.has_ofac_restrictions,
                     'Course_Key__c': course.key,
                 })
@@ -211,9 +209,10 @@ class TestSalesforce(TestCase):
                 ),
                 'Course_Start_Date__c': course_run.start.isoformat(),
                 'Course_End_Date__c': course_run.end.isoformat(),
-                'Publisher_Status__c': course_run.status,
+                'Publisher_Status__c': 'Live',  # Expected return value from _get_salesforce_equivalent
                 'Course_Run_Name__c': course_run.title,
                 'Expected_Go_Live_Date__c': None,
+                'Course_Number__c': course_run.key,
             })
             self.assertEqual(course_run.salesforce_id, return_value.get('id'))
 
@@ -241,9 +240,10 @@ class TestSalesforce(TestCase):
                     ),
                     'Course_Start_Date__c': course_run.start.isoformat(),
                     'Course_End_Date__c': course_run.end.isoformat(),
-                    'Publisher_Status__c': course_run.status,
+                    'Publisher_Status__c': 'Live',  # Expected return value from _get_salesforce_equivalent
                     'Course_Run_Name__c': course_run.title,
                     'Expected_Go_Live_Date__c': None,
+                    'Course_Number__c': course_run.key,
                 })
 
             mock_create_course.assert_called_with(course)
@@ -325,7 +325,7 @@ class TestSalesforce(TestCase):
                 util.create_comment_for_course_case(course, user, body)
                 mock_salesforce().FeedItem.create.assert_called_with({
                     'ParentId': course.salesforce_case_id,
-                    'Body': util._format_user_comment_body(user, body, None)  # pylint: disable=protected-access
+                    'Body': util.format_user_comment_body(user, body, None)
                 })
                 mock_create_case_for_course.assert_not_called()
 
@@ -344,7 +344,7 @@ class TestSalesforce(TestCase):
                 util.create_comment_for_course_case(course, user, body)
                 mock_salesforce().FeedItem.create.assert_called_with({
                     'ParentId': course.salesforce_case_id,
-                    'Body': util._format_user_comment_body(user, body, None)  # pylint: disable=protected-access
+                    'Body': util.format_user_comment_body(user, body, None)
                 })
                 mock_create_case_for_course.assert_called_with(course)
 
@@ -429,7 +429,7 @@ class TestSalesforce(TestCase):
 
         with mock.patch(salesforce_path):
             util = SalesforceUtil(self.salesforce_config.partner)
-            formatted_message = util._format_user_comment_body(user, body, course_run_key)  # pylint: disable=protected-access
+            formatted_message = util.format_user_comment_body(user, body, course_run_key)
             expected_formatted_message = '[User]\n{}\n\n[Course Run]\n{}\n\n[Body]\n{}'.format(
                 '{} {} ({})'.format(user.first_name, user.last_name, user.username), course_run_key, body
             )
