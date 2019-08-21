@@ -4,10 +4,13 @@ from django.core.management import BaseCommand, CommandError
 from django.db import IntegrityError
 from django.utils.translation import ugettext as _
 
-from course_discovery.apps.course_metadata.models import Course, CourseEditor, MigratePublisherToCourseMetadataConfig
+from course_discovery.apps.course_metadata.models import (
+    Course, CourseEditor, CourseRun, MigratePublisherToCourseMetadataConfig
+)
 from course_discovery.apps.course_metadata.utils import publish_to_course_metadata
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import Course as PublisherCourse
+from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 
 logger = logging.getLogger(__name__)
 
@@ -30,19 +33,22 @@ class Command(BaseCommand):
         exception_course_run_keys = []
         partner = config.partner
         for org in orgs:
-            for publisher_course in PublisherCourse.objects.filter(organizations__in=[org]).order_by('modified'):
-                for course_run in publisher_course.course_runs.all():
-                    try:
-                        publish_to_course_metadata(partner, course_run, create_official=False)
-                    except IntegrityError as e:
-                        logger.exception(
-                            _('Error publishing course run [{course_run_key}] to Course Metadata: {error}. '
-                              'This may have caused the corresponding course to not be published as well.').format(
-                                course_run_key=course_run.lms_course_id, error=str(e)
-                            )
+            org_runs = CourseRun.objects.filter(course__authoring_organizations__in=[org])
+            key_queryset = org_runs.values_list('key', flat=True)
+            matched_runs = PublisherCourseRun.objects.filter(lms_course_id__in=key_queryset)  # in both CM and Pub
+
+            for course_run in matched_runs.order_by('modified'):
+                try:
+                    publish_to_course_metadata(partner, course_run, create_official=False)
+                except IntegrityError as e:
+                    logger.exception(
+                        _('Error publishing course run [{course_run_key}] to Course Metadata: {error}. '
+                          'This may have caused the corresponding course to not be published as well.').format(
+                            course_run_key=course_run.lms_course_id, error=str(e)
                         )
-                        exception_course_run_keys.append(course_run.lms_course_id)
-                        continue
+                    )
+                    exception_course_run_keys.append(course_run.lms_course_id)
+                    continue
 
             for discovery_course in Course.everything.filter(authoring_organizations__in=[org], draft=True):
                 course_number = discovery_course.key.split('+')[-1]
