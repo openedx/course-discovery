@@ -262,13 +262,16 @@ class CourseRunViewSet(viewsets.ModelViewSet):
     def _update_course_run(self, course_run, draft, changed, serializer, request, save_kwargs):
         # If changes are made after review and before publish, revert status to unpublished.
         # Unless we're just switching the status
-        if changed and course_run.status == CourseRunStatus.Reviewed:
+        non_exempt_update = changed and course_run.status == CourseRunStatus.Reviewed
+        if non_exempt_update:
             save_kwargs['status'] = CourseRunStatus.Unpublished
             official_run = course_run.official_version
             official_run.status = CourseRunStatus.Unpublished
             official_run.save()
-
-        if not draft and course_run.status != CourseRunStatus.Published:
+        # When the course run is being updated and is coming from the Unpublished state, we always want to set
+        # it's status to in legal review.  If it is coming from the Reviewed state, we only want to put it
+        # back into legal review if a non exempt field was changed (expected_program_name and expected_program_type)
+        if not draft and (course_run.status == CourseRunStatus.Unpublished or non_exempt_update):
             save_kwargs['status'] = CourseRunStatus.LegalReview
 
         course_run = serializer.save(**save_kwargs)
@@ -310,6 +313,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         # Handle regular non-internal update
         request.data.pop('status', None)  # Status management is handled in the model
+        serializer.validated_data.pop('status', None)  # Status management is handled in the model
         # Disallow patch or put if the course run is in review.
         if course_run.in_review:
             return Response(

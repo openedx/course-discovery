@@ -262,6 +262,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     @writable_request_wrapper
     def update_course(self, data, partial=False):
         """ Updates an existing course from incoming data. """
+        changed = False
         # Sending draft=False means the course data is live and updates should be pushed out immediately
         draft = data.pop('draft', True)
         # Pop nested writables that we will handle ourselves (the serializer won't handle them)
@@ -281,6 +282,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             if entitlement_data == {}:
                 continue
             entitlements.append(self.update_entitlement(course, entitlement_data, partial=partial))
+            # We set changed to True here if the price of the course is being updated
+            changed = format(float(entitlement_data['price']), '.2f') != str(course.entitlements.first().price)
         if entitlements:
             course.entitlements = entitlements
             # If entitlements were updated, we also want to update seats
@@ -301,7 +304,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             image_data = ContentFile(base64.b64decode(imgstr), name='tmp.{extension}'.format(extension=ext))
             course.image.save(image_data.name, image_data)
 
-        changed = reviewable_data_has_changed(course, serializer.validated_data.items())
+        # If price didnt change, check the other fields on the course
+        # (besides image and video, they are popped off above)
+        changed = changed or reviewable_data_has_changed(course, serializer.validated_data.items())
 
         # Then the course itself
         course = serializer.save()
