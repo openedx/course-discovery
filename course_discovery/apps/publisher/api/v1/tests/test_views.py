@@ -4,6 +4,7 @@ from datetime import date
 
 import mock
 import responses
+from django.db.utils import IntegrityError
 from django.test import override_settings
 from django.urls import reverse
 from testfixtures import LogCapture
@@ -18,7 +19,7 @@ from course_discovery.apps.course_metadata.models import CourseEntitlement as Di
 from course_discovery.apps.course_metadata.models import CourseRun, ProgramType
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import SeatType, Video
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory, PersonFactory
 from course_discovery.apps.course_metadata.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
 )
@@ -39,7 +40,6 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         super().setUp()
         self.user = StaffUserFactory()
         self.client.force_login(self.user)
-
         # Two access tokens, because Studio pusher is using old rest API client and ecommerce pusher is using new one,
         # so their cache of the access token is not shared yet.
         self.mock_access_token()
@@ -214,6 +214,38 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
             price=verified_seat.price,
             **common_seat_kwargs
         )
+
+    @responses.activate
+    def test_publish_with_duplicate_url_slug(self):
+        publisher_course_run = self._create_course_run_for_publication()
+        publisher_course_run.course.url_slug = 'duplicate'
+        publisher_course_run.course.save()
+        publisher_course_run.save()
+        discovery_matching_course = CourseFactory()
+        discovery_matching_course.url_slug = 'duplicate'
+        discovery_matching_course.draft = False
+        discovery_matching_course.save()
+        self._mock_studio_api_success(publisher_course_run)
+        self._mock_ecommerce_api(publisher_course_run)
+        with LogCapture(LOGGER_NAME):
+            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+            try:
+                self.client.post(url, {})
+            except IntegrityError as integrity_error:
+                assert 'UNIQUE constraint failed' in integrity_error.args[0]
+            else:
+                assert False
+
+        discovery_matching_course.draft = True
+        discovery_matching_course.save()
+        with LogCapture(LOGGER_NAME):
+            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+            try:
+                self.client.post(url, {})
+            except IntegrityError as integrity_error:
+                assert 'UNIQUE constraint failed' in integrity_error.args[0]
+            else:
+                assert False
 
     @responses.activate
     @override_settings(PUBLISHER_UPGRADE_DEADLINE_DAYS=PUBLISHER_UPGRADE_DEADLINE_DAYS)
