@@ -1562,6 +1562,8 @@ class AffiliateWindowSerializerTests(TestCase):
         user = UserFactory()
         CatalogFactory(query='*:*', viewers=[user])
         course_run = CourseRunFactory(card_image_url='')
+        course_run.weeks_to_complete = 1
+        course_run.save()
         seat = SeatFactory(course_run=course_run)
         serializer = AffiliateWindowSerializer(seat)
 
@@ -1587,6 +1589,7 @@ class AffiliateWindowSerializerTests(TestCase):
             'custom3': ','.join(subject.name for subject in course_run.subjects.all()),
             'custom4': ','.join(org.name for org in course_run.authoring_organizations.all()),
             'custom5': course_run.short_description,
+            'custom6': str(course_run.weeks_to_complete) + ' week',
         }
 
         assert serializer.data == expected

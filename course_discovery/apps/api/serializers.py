@@ -1551,6 +1551,7 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
     custom3 = serializers.SerializerMethodField()
     custom4 = serializers.SerializerMethodField()
     custom5 = serializers.CharField(source='course_run.short_description')
+    custom6 = serializers.SerializerMethodField()
 
     class Meta:
         model = Seat
@@ -1573,6 +1574,7 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
             'custom3',
             'custom4',
             'custom5',
+            'custom6',
         )
 
     def get_pid(self, obj):
@@ -1596,6 +1598,12 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
 
     def get_custom4(self, obj):
         return ','.join(org.name for org in obj.course_run.authoring_organizations.all())
+
+    def get_custom6(self, obj):
+        weeks = obj.course_run.weeks_to_complete
+        if weeks > 0:
+            return '{} {}'.format(weeks, 'week' if weeks == 1 else 'weeks')
+        return ''
 
     def get_imgurl(self, obj):
         return obj.course_run.card_image_url or obj.course_run.course.card_image_url
