@@ -14,7 +14,7 @@
     basic requirements for a product are:pid, name, purl, category and price(actualp).
      The more data you provide the better an affiliate can promote your products!
 -->
-<!ELEMENT product ( name, pid, desc, category, purl, imgurl?, price, ean?, upc?, isbn?, mpn?, parentpid?, brand?, modelno?, basket_link?, colour?, cg?, condition?, dimensions?, keywords?, lang?, ptype?, weight?, promotext?, spec?, warranty?, currency?, delcost?, delivery_restrictions?, deltime?, instock?, forsale?, preorder?, stockquant?, saving?, validfrom?, validto?, weboffer?, alternate_image?, large_image?, thumburl?, average_rating?, reviews?, rating?, custom1?, custom2?, custom3?, custom4?, custom5?, fashion?, tickets?, travel?, groupbuy?, telco?, giftoptions?, lastupdated?)>
+<!ELEMENT product ( name, pid, desc, category, purl, imgurl?, price, ean?, upc?, isbn?, mpn?, parentpid?, brand?, modelno?, basket_link?, colour?, cg?, condition?, dimensions?, keywords?, lang?, ptype?, weight?, promotext?, spec?, warranty?, currency?, delcost?, delivery_restrictions?, deltime?, instock?, forsale?, preorder?, stockquant?, saving?, validfrom?, validto?, weboffer?, alternate_image?, large_image?, thumburl?, average_rating?, reviews?, rating?, custom1?, custom2?, custom3?, custom4?, custom5?, custom6?, fashion?, tickets?, travel?, groupbuy?, telco?, giftoptions?, lastupdated?)>
 
 
 <!ATTLIST product
@@ -122,6 +122,8 @@
 <!ELEMENT custom4 (#PCDATA)>
 <!-- Custom field 5 -->
 <!ELEMENT custom5 (#PCDATA)>
+<!-- Custom field 6 -->
+<!ELEMENT custom6 (#PCDATA)>
 
 <!-- Fashion specific fields -->
 <!ELEMENT fashion (swatch?, material?, pattern?, size?, suitable_for?)>
