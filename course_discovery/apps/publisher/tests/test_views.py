@@ -38,8 +38,8 @@ from course_discovery.apps.publisher.choices import (
     CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
 )
 from course_discovery.apps.publisher.constants import (
-    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME,
-    PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, PUBLISHER_ENABLE_READ_ONLY_FIELDS, REVIEWER_GROUP_NAME
+    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_ENABLE_READ_ONLY_FIELDS,
+    REVIEWER_GROUP_NAME
 )
 from course_discovery.apps.publisher.forms import CourseEntitlementForm
 from course_discovery.apps.publisher.models import (
@@ -772,7 +772,6 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         (CourseEntitlement.VERIFIED, 1, [{'type': Seat.VERIFIED, 'price': 1}, {'type': Seat.AUDIT, 'price': 0}]),
     )
     @ddt.unpack
-    @override_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
     def test_create_run_for_entitlement_course(self, entitlement_mode, entitlement_price, expected_seats):
         """
         Verify that when creating a run for a Course that uses entitlements, Seats are created from the
@@ -3056,7 +3055,6 @@ class CourseEditViewTests(SiteMixin, TestCase):
         post_data['price'] = 1
         self.AssertEditCourseSuccess(post_data)
 
-    @override_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
     def test_entitlement_changes(self):
         """
         Verify that an entitlement course's type or price changes take effect correctly
@@ -3468,7 +3466,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assertEqual(self.new_course_run.seats.first().price, 10)
         self.assertEqual(self.new_course_run.seats.first().history.all().count(), 1)
 
-    @override_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
     def test_update_course_run_create_duplicate_seats(self):
         """
         Tests that course run seats are not duplicated when editing.
@@ -3504,12 +3501,11 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         self.assert_seats(self.new_course_run, 10, [seat_type] * 10)
 
         # Make course run save post request and verify the correct course seats.
-        with override_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True):
-            data = {'image': '', 'type': Seat.VERIFIED, 'price': 100.00}
-            post_data = self._post_data(data, self.new_course, self.new_course_run)
-            self.client.post(self.edit_page_url, post_data)
-            self.assert_seats(self.new_course_run, 2, [Seat.AUDIT, Seat.VERIFIED])
-            self.assertEqual(self.new_course_run.paid_seats.first().price, 100.00)
+        data = {'image': '', 'type': Seat.VERIFIED, 'price': 100.00}
+        post_data = self._post_data(data, self.new_course, self.new_course_run)
+        self.client.post(self.edit_page_url, post_data)
+        self.assert_seats(self.new_course_run, 2, [Seat.AUDIT, Seat.VERIFIED])
+        self.assertEqual(self.new_course_run.paid_seats.first().price, 100.00)
 
     def test_update_course_run_for_course_that_uses_entitlements(self):
         """ Verify that a user cannot change Seat data when editing courseruns for courses that use entitlements. """
@@ -4113,7 +4109,6 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         (CourseEntitlement.VERIFIED, 1, [{'type': Seat.VERIFIED, 'price': 1}, {'type': Seat.AUDIT, 'price': 0}]),
     )
     @ddt.unpack
-    @override_switch(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, True)
     def test_create_run_for_entitlement_course(self, entitlement_mode, entitlement_price, expected_seats):
         """
         Verify that when creating a run for a Course that uses entitlements, Seats are created from the

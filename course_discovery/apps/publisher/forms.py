@@ -17,9 +17,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.constants import (
-    PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS, PUBLISHER_ENABLE_READ_ONLY_FIELDS
-)
+from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, get_user_organizations
 from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
@@ -445,20 +443,19 @@ class SeatForm(BaseForm):
         if commit:
             seat.save()
 
-            if waffle.switch_is_active(PUBLISHER_CREATE_AUDIT_SEATS_FOR_VERIFIED_COURSE_RUNS):
-                course_run = seat.course_run
-                audit_seats = course_run.seats.filter(type=Seat.AUDIT)
+            course_run = seat.course_run
+            audit_seats = course_run.seats.filter(type=Seat.AUDIT)
 
-                # Ensure that course runs with a verified seat always have an audit seat
-                if seat.type in Seat.PAID_AND_AUDIT_APPLICABLE_SEATS:
-                    if not audit_seats.exists():
-                        course_run.seats.create(type=Seat.AUDIT, price=0, upgrade_deadline=None)
-                        logger.info('Created audit seat for course run [%d]', course_run.id)
-                elif seat.type != Seat.AUDIT:
-                    # Ensure that professional course runs do NOT have an audit seat
-                    count = audit_seats.count()
-                    audit_seats.delete()
-                    logger.info('Removed [%d] audit seat for course run [%d]', count, course_run.id)
+            # Ensure that course runs with a verified seat always have an audit seat
+            if seat.type in Seat.PAID_AND_AUDIT_APPLICABLE_SEATS:
+                if not audit_seats.exists():
+                    course_run.seats.create(type=Seat.AUDIT, price=0, upgrade_deadline=None)
+                    logger.info('Created audit seat for course run [%d]', course_run.id)
+            elif seat.type != Seat.AUDIT:
+                # Ensure that professional course runs do NOT have an audit seat
+                count = audit_seats.count()
+                audit_seats.delete()
+                logger.info('Removed [%d] audit seat for course run [%d]', count, course_run.id)
 
         return seat
 
