@@ -24,7 +24,7 @@
         <div class="edit-history-widget">
             {% with object.history.all as history_list %}
                 {% if history_list.count > 1 %}
-                    <div class="history-widget {% if not publisher_history_widget_feature %}hidden{% endif %}">
+                    <div class="history-widget">
                         {% include 'publisher/_history_widget.html' %}
                     </div>
                 {% endif %}

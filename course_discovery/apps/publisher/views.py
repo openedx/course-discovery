@@ -695,7 +695,6 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         )
         context['comment_object'] = course
         context['post_back_url'] = reverse('publisher:publisher_course_detail', kwargs={'pk': self.object.id})
-        context['publisher_history_widget_feature'] = waffle.switch_is_active('publisher_history_widget_feature')
         context['role_widgets'] = get_course_role_widgets_data(
             user, course, course.course_state, 'publisher:api:change_course_state', parent_course=True
         )
