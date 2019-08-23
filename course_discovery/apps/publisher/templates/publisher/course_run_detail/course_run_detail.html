@@ -94,7 +94,7 @@
     </main>
 
     <aside id="right-panel" class="layout-col layout-col-a layout-col-a-custom">
-        <div id="approval-widget" class="approval-widget {% if not publisher_approval_widget_feature %}hidden{% endif %}">
+        <div id="approval-widget" class="approval-widget">
         {% with is_course_run=True %}
           {% include 'publisher/course_run_detail/_widgets.html' %}
         {% endwith %}

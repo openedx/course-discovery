@@ -1273,24 +1273,14 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         response = self.client.get(self.page_url)
         self.assertContains(response, '<div id="comments-widget" class="comment-container">')
 
-    @override_switch('publisher_approval_widget_feature', True)
-    def test_approval_widget_with_enable_switch(self):
-        """ Verify that user will see the history widget when
-        'publisher_approval_widget_feature' is enabled.
+    def test_approval_widget_on_course_run_detail_page(self):
+        """ Verify that user will see the history widget on
+        the course run detail page.
         """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         response = self.client.get(self.page_url)
-        self.assertContains(response, '<div id="approval-widget" class="approval-widget ">')
+        self.assertContains(response, '<div id="approval-widget" class="approval-widget">')
 
-    def test_approval_widget_with_disable_switch(self):
-        """ Verify that user will not see the history widget when
-        'publisher_approval_widget_feature' is disabled.
-        """
-        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        response = self.client.get(self.page_url)
-        self.assertContains(response, '<div id="approval-widget" class="approval-widget hidden">')
-
-    @override_switch('publisher_approval_widget_feature', True)
     def test_course_run_approval_widget_for_course_team(self):
         """
         Verify that user can see approval widget on course detail page with `Send for Review` button.
@@ -1320,7 +1310,6 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         # Verify that Reviewed button is enabled
         self.assertContains(response, self.get_expected_data(CourseRunStateChoices.Review))
 
-    @override_switch('publisher_approval_widget_feature', True)
     def test_course_approval_widget_for_marketing_team(self):
         """
         Verify that project coordinator can't see the `Send for Review` button.
@@ -1383,7 +1372,6 @@ class CourseRunDetailTests(SiteMixin, TestCase):
         response = self.client.get(self.page_url)
         self.assertContains(response, '<div class="parent-course-approval">')
 
-    @override_switch('publisher_approval_widget_feature', True)
     def test_course_run_mark_as_reviewed(self):
         """
         Verify that user can see mark as reviewed button on course detail page.
@@ -2418,22 +2406,13 @@ class CourseDetailViewTests(SiteMixin, TestCase):
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, '<div class="history-widget hidden">')
 
-    @override_switch('publisher_approval_widget_feature', True)
-    def test_approval_widget_with_enable_switch(self):
-        """ Verify that user will see the history widget when
-        'publisher_approval_widget_feature' is enabled.
+    def test_approval_widget_on_course_detail_page(self):
+        """ Verify that user will see the history widget on
+        the course detail page.
         """
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         response = self.client.get(self.detail_page_url)
-        self.assertContains(response, '<div class="approval-widget ">')
-
-    def test_approval_widget_with_disable_switch(self):
-        """ Verify that user will not see the history widget when
-        'publisher_approval_widget_feature' is disabled.
-        """
-        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        response = self.client.get(self.detail_page_url)
-        self.assertContains(response, '<div class="approval-widget hidden">')
+        self.assertContains(response, '<div class="approval-widget">')
 
     def test_course_approval_widget(self):
         """

@@ -237,7 +237,6 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
             ]
         )
         context['can_view_all_tabs'] = mixins.check_roles_access(user)
-        context['publisher_approval_widget_feature'] = waffle.switch_is_active('publisher_approval_widget_feature')
         context['publish_state_name'] = CourseRunStateChoices.Published
 
         context['course_staff_config'] = json.dumps({
@@ -697,7 +696,6 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context['comment_object'] = course
         context['post_back_url'] = reverse('publisher:publisher_course_detail', kwargs={'pk': self.object.id})
         context['publisher_history_widget_feature'] = waffle.switch_is_active('publisher_history_widget_feature')
-        context['publisher_approval_widget_feature'] = waffle.switch_is_active('publisher_approval_widget_feature')
         context['role_widgets'] = get_course_role_widgets_data(
             user, course, course.course_state, 'publisher:api:change_course_state', parent_course=True
         )
