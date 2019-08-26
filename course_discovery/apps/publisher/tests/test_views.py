@@ -2383,28 +2383,16 @@ class CourseDetailViewTests(SiteMixin, TestCase):
         response = self.client.get(self.detail_page_url)
         self.assertContains(response, '<div id="comments-widget" class="comment-container">')
 
-    @override_switch('publisher_history_widget_feature', True)
-    def test_history_with_enable_switch(self):
-        """ Verify that user will see the history widget when
-        'publisher_history_widget_feature' is enabled.
+    def test_history_widget_on_course_detail_page(self):
+        """ Verify that user will see the history widget on
+        the course detail page.
         """
         # Update course to create multiple history objects.
         self.course.title = 'Updated Test Title'
         self.course.save()
         self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
         response = self.client.get(self.detail_page_url)
-        self.assertContains(response, '<div class="history-widget ">')
-
-    def test_history_with_disable_switch(self):
-        """ Verify that user will not see the history widget when
-        'publisher_history_widget_feature' is disabled.
-        """
-        # Update course to create multiple history objects.
-        self.course.title = 'Updated Test Title'
-        self.course.save()
-        self.user.groups.add(Group.objects.get(name=INTERNAL_USER_GROUP_NAME))
-        response = self.client.get(self.detail_page_url)
-        self.assertContains(response, '<div class="history-widget hidden">')
+        self.assertContains(response, '<div class="history-widget">')
 
     def test_approval_widget_on_course_detail_page(self):
         """ Verify that user will see the history widget on
