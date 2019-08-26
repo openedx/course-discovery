@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-30 18:18+0000\n"
+"POT-Creation-Date: 2019-09-03 13:18+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -162,12 +162,20 @@ msgid "Invalid param"
 msgstr "Ìnvälïd päräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/api/v1/views/courses.py
+msgid ""
+"Course edit was unsuccessful. The course URL slug ‘{}’ is already in use. "
+"Please update this field and try again."
+msgstr ""
+"Çöürsé édït wäs ünsüççéssfül. Thé çöürsé ÛRL slüg ‘{}’ ïs älréädý ïn üsé. "
+"Pléäsé üpdäté thïs fïéld änd trý ägäïn. Ⱡ'σяєм ιρѕυм ∂σłσ#"
+
+#: apps/api/v1/views/courses.py apps/api/v1/views/courses.py
 msgid "An error occurred while setting Course or Course Run data."
 msgstr ""
 "Àn érrör öççürréd whïlé séttïng Çöürsé ör Çöürsé Rün dätä. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
-#: apps/api/v1/views/courses.py
+#: apps/api/v1/views/courses.py apps/api/v1/views/courses.py
 msgid "Failed to set data: {}"
 msgstr "Fäïléd tö sét dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
@@ -951,7 +959,6 @@ msgstr ""
 
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/publisher/models.py
 msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
 "Léävé thïs fïéld ßlänk tö hävé thé välüé générätéd äütömätïçällý. Ⱡ'σяєм "
@@ -2357,6 +2364,13 @@ msgstr "Vïdéö Lïnk Ⱡ'σяєм ιρѕυм ∂σłσ#"
 #: apps/publisher/models.py
 msgid "Course Metadata Course PK"
 msgstr "Çöürsé Métädätä Çöürsé PK Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/publisher/models.py
+msgid ""
+"Leave this field blank to bananas have the value generated automatically."
+msgstr ""
+"Léävé thïs fïéld ßlänk tö ßänänäs hävé thé välüé générätéd äütömätïçällý. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: apps/publisher/models.py
 msgid "Level 1"

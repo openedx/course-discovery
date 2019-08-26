@@ -31,7 +31,7 @@ from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
-from course_discovery.apps.course_metadata.managers import DraftManager
+from course_discovery.apps.course_metadata.managers import DraftManager, MigratableCourseDraftManager
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -567,12 +567,13 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
     additional_information = NullHtmlField(verbose_name=_('Additional Information'))
 
     everything = CourseQuerySet.as_manager()
-    objects = DraftManager.from_queryset(CourseQuerySet)()
+    objects = MigratableCourseDraftManager()
 
     class Meta:
         unique_together = (
             ('partner', 'uuid', 'draft'),
             ('partner', 'key', 'draft'),
+            ('url_slug', 'draft'),
         )
         ordering = ['id']
 

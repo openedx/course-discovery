@@ -3,7 +3,9 @@ import random
 from datetime import date
 
 import mock
+import pytest
 import responses
+from django.db.utils import IntegrityError
 from django.test import override_settings
 from django.urls import reverse
 from testfixtures import LogCapture
@@ -17,7 +19,7 @@ from course_discovery.apps.course_metadata.models import CourseEntitlement as Di
 from course_discovery.apps.course_metadata.models import CourseRun, ProgramType
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import SeatType, Video
-from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory, PersonFactory
 from course_discovery.apps.course_metadata.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
 )
@@ -211,6 +213,46 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
             price=verified_seat.price,
             **common_seat_kwargs
         )
+
+    @responses.activate
+    def test_publish_with_duplicate_url_slug(self):
+        publisher_course_run = self._create_course_run_for_publication()
+        publisher_course_run.course.url_slug = 'duplicate'
+        publisher_course_run.course.save()
+        publisher_course_run.save()
+        discovery_matching_course = CourseFactory()
+        discovery_matching_course.url_slug = 'duplicate'
+        discovery_matching_course.draft = False
+        discovery_matching_course.save()
+        self._mock_studio_api_success(publisher_course_run)
+        self._mock_ecommerce_api(publisher_course_run)
+
+        with pytest.raises(IntegrityError):
+            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+            self.client.post(url, {})
+
+        discovery_matching_course.draft = True
+        discovery_matching_course.save()
+
+        with pytest.raises(IntegrityError):
+            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+            self.client.post(url, {})
+
+        publisher_course_run.course.url_slug = 'fixed'
+        publisher_course_run.course.save()
+        publisher_course_run.save()
+
+        with LogCapture(LOGGER_NAME) as log:
+            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+            response = self.client.post(url, {})
+            assert response.status_code == 200
+            log.check((LOGGER_NAME, 'INFO',
+                       'Published course run with id: [{}] lms_course_id: [{}], user: [{}], date: [{}]'.format(
+                           publisher_course_run.id, publisher_course_run.lms_course_id, self.user, date.today())))
+
+        discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
+        discovery_course = discovery_course_run.course
+        assert discovery_course.url_slug == publisher_course_run.course.url_slug
 
     @responses.activate
     @override_settings(PUBLISHER_UPGRADE_DEADLINE_DAYS=PUBLISHER_UPGRADE_DEADLINE_DAYS)

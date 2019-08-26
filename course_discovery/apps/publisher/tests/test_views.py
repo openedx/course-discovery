@@ -130,7 +130,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         """
         Verify a new course with valid image of acceptable image sizes can be saved properly
         """
-        data = {'title': 'Test valid', 'number': 'testX453', 'image': image}
+        data = {'title': 'Test valid', 'number': 'testX453', 'image': image, 'url_slug': ''}
         course_dict = self._post_data(data, self.course)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
         course = Course.objects.get(number=course_dict['number'])
@@ -289,7 +289,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         Verify that if add_new_run is checked user is redirected to
         create course run page instead course detail page.
         """
-        data = {'title': 'Test2', 'number': 'testX234', 'image': '', 'add_new_run': True}
+        data = {'title': 'Test2', 'number': 'testX234', 'image': '', 'add_new_run': True, 'url_slug': ''}
         course_dict = self._post_data(data, self.course)
         response = self.client.post(reverse('publisher:publisher_courses_new'), course_dict)
 
@@ -303,7 +303,7 @@ class CreateCourseViewTests(SiteMixin, TestCase):
         )
 
     def _create_course_with_post(self, data=None):
-        initial_data = {'title': 'Test Course', 'number': 'test1', 'image': ''}
+        initial_data = {'title': 'Test Course', 'number': 'test1', 'image': '', 'url_slug': ''}
         if data:
             initial_data.update(**data)
         course_dict = self._post_data(initial_data, self.course)
@@ -3270,7 +3270,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
         # create a course instance using the new page so that all related objects created
         # in other tables also
-        data = {'number': 'course_update_1', 'image': '', 'title': 'test course'}
+        data = {'number': 'course_update_1', 'image': '', 'title': 'test course', 'url_slug': ''}
         self.user.groups.add(Group.objects.get(name=ADMIN_GROUP_NAME))
         course_dict = self._post_data(data, self.course, self.course_run)
         self.client.post(reverse('publisher:publisher_courses_new'), course_dict, files=data['image'])

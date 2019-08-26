@@ -7,6 +7,7 @@ from django.core.files.base import ContentFile
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.functions import Lower
+from django.db.utils import IntegrityError
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
@@ -47,6 +48,29 @@ def writable_request_wrapper(method):
                             status=status.HTTP_400_BAD_REQUEST)
         except (PermissionDenied, Http404):
             raise  # just pass these along
+        except IntegrityError as ex:
+            # special handling for a url_slug uniqueness error when creating or editing a course
+            # need to handle this here because we can't make these queries inside an atomic block
+            # 1062 is the code for a uniqueness violation
+            form_data = args[1]
+            if hasattr(form_data, 'data'):
+                form_data = form_data.data
+            url_slug_present = 'url_slug' in form_data
+            is_uniqueness_error = ex.args and ex.args[0]
+            from_course_view = isinstance(args[0], CourseViewSet)
+            if from_course_view and is_uniqueness_error and url_slug_present:
+                # make sure the slug was the issue
+                matches = Course.everything.filter(url_slug=form_data['url_slug']).exclude(key=form_data['key'])
+                if matches:
+                    return Response(
+                        _('Course edit was unsuccessful. '
+                            'The course URL slug ‘{}’ is already in use. '
+                            'Please update this field and try again.').format(form_data['url_slug']),
+                        status=status.HTTP_400_BAD_REQUEST)
+            # if it's not a slug uniqueness error, return the default message
+            logger.exception(_('An error occurred while setting Course or Course Run data.'))
+            return Response(_('Failed to set data: {}').format(str(ex)),
+                            status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:  # pylint: disable=broad-except
             logger.exception(_('An error occurred while setting Course or Course Run data.'))
             return Response(_('Failed to set data: {}').format(str(e)),

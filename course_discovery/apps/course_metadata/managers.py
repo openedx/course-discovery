@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models import Q
 
+from course_discovery.apps.course_metadata.query import CourseQuerySet
+
 
 class DraftManager(models.Manager):
     """ Model manager that hides draft rows unless you ask for them. """
@@ -24,3 +26,8 @@ class DraftManager(models.Manager):
         If a draft is not available, we give back the non-draft version.
         """
         return self.filter_drafts(**kwargs).get()
+
+
+class MigratableCourseDraftManager(DraftManager.from_queryset(CourseQuerySet)):
+    """ Model manager specifically for making the Course object fully available in migrations """
+    use_in_migrations = True
