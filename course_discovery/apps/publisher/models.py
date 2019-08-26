@@ -104,7 +104,8 @@ class Course(TimeStampedModel, ChangedByMixin):
     # temp fields for data migrations only.
     course_metadata_pk = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Course Metadata Course PK'))
     url_slug = AutoSlugField(populate_from='title', editable=True, slugify_function=uslugify, overwrite_on_add=False,
-                             help_text=_('Leave this field blank to have the value generated automatically.'))
+                             help_text=_('Leave this field blank to have the value generated automatically.'),
+                             unique=True)
 
     history = HistoricalRecords(excluded_fields=['url_slug'])
 
