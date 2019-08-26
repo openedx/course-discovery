@@ -1,7 +1,6 @@
 import html
 import logging
 
-import waffle
 from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
@@ -17,7 +16,6 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing
 from course_discovery.apps.course_metadata.models import LevelType, Organization, Person, Subject
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.mixins import LanguageModelSelect2Multiple, get_user_organizations
 from course_discovery.apps.publisher.models import (
     Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
@@ -381,12 +379,6 @@ class CourseRunForm(BaseForm):
         super(CourseRunForm, self).__init__(*args, **kwargs)
         if not self.is_project_coordinator:
             self.fields['lms_course_id'].widget = forms.HiddenInput()
-
-        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
-            if self.hide_start_date_field:
-                self.fields['start'].widget = forms.HiddenInput()
-            if self.hide_end_date_field:
-                self.fields['end'].widget = forms.HiddenInput()
 
 
 class SeatForm(BaseForm):

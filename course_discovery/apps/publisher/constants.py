@@ -14,6 +14,3 @@ PARTNER_SUPPORT_GROUP_NAME = 'Partner Support Members'
 
 # Being used in old migration `0019_create_user_groups`.
 PARTNER_COORDINATOR_GROUP_NAME = 'Partner Coordinators'
-
-# Waffle switches
-PUBLISHER_ENABLE_READ_ONLY_FIELDS = 'publisher_enable_read_only_fields'

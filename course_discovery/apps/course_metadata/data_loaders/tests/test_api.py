@@ -7,7 +7,6 @@ import mock
 import responses
 from django.test import TestCase
 from pytz import UTC
-from waffle.testutils import override_switch
 
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
@@ -22,7 +21,6 @@ from course_discovery.apps.course_metadata.models import (
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory
 )
-from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
 
@@ -159,11 +157,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         )
         return bodies
 
-    def assert_course_run_loaded(
-        self,
-        body, partner_has_marketing_site=True,
-        is_publisher_read_only_switch_active=True
-    ):
+    def assert_course_run_loaded(self, body, partner_has_marketing_site=True):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """
 
         # Validate the Course
@@ -208,12 +202,6 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             # Check if the course card_image_url was correctly updated
             self.assertEqual(course.card_image_url, body['media'].get('image', {}).get('raw'),)
 
-        if is_publisher_read_only_switch_active:
-            expected_values.update({
-                'start': start,
-                'pacing_type': pacing_type
-            })
-
         for field, value in expected_values.items():
             self.assertEqual(getattr(course_run, field), value, 'Field {} is invalid.'.format(field))
 
@@ -222,36 +210,37 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
     @responses.activate
     @ddt.unpack
     @ddt.data(
-        (True, True),
-        (True, False),
-        (False, True),
-        (False, False)
+        (
+            True,
+        ),
+        (
+            False,
+        ),
     )
-    def test_ingest(self, partner_has_marketing_site, is_publisher_read_only_switch_active):
+    def test_ingest(self, partner_has_marketing_site):
         """ Verify the method ingests data from the Courses API. """
-        with override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=is_publisher_read_only_switch_active):
-            api_data = self.mock_api()
-            if not partner_has_marketing_site:
-                self.partner.marketing_site_url_root = None
-                self.partner.save()
+        api_data = self.mock_api()
+        if not partner_has_marketing_site:
+            self.partner.marketing_site_url_root = None
+            self.partner.save()
 
-            self.assertEqual(Course.objects.count(), 0)
-            self.assertEqual(CourseRun.objects.count(), 0)
+        self.assertEqual(Course.objects.count(), 0)
+        self.assertEqual(CourseRun.objects.count(), 0)
 
-            self.loader.ingest()
+        self.loader.ingest()
 
-            # Verify the API was called with the correct authorization header
-            self.assert_api_called(1)
+        # Verify the API was called with the correct authorization header
+        self.assert_api_called(1)
 
-            # Verify the CourseRuns were created correctly
-            expected_num_course_runs = len(api_data)
-            self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
+        # Verify the CourseRuns were created correctly
+        expected_num_course_runs = len(api_data)
+        self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
 
-            for datum in api_data:
-                self.assert_course_run_loaded(datum, partner_has_marketing_site, is_publisher_read_only_switch_active)
+        for datum in api_data:
+            self.assert_course_run_loaded(datum, partner_has_marketing_site)
 
-            # Verify multiple calls to ingest data do NOT result in data integrity errors.
-            self.loader.ingest()
+        # Verify multiple calls to ingest data do NOT result in data integrity errors.
+        self.loader.ingest()
 
     @responses.activate
     def test_ingest_exception_handling(self):
