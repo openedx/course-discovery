@@ -3,6 +3,8 @@ import random
 from datetime import date
 
 import mock
+import pytest
+import re
 import responses
 from django.db.utils import IntegrityError
 from django.test import override_settings
@@ -227,26 +229,22 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         discovery_matching_course.save()
         self._mock_studio_api_success(publisher_course_run)
         self._mock_ecommerce_api(publisher_course_run)
-        with LogCapture(LOGGER_NAME):
+
+        with pytest.raises(IntegrityError) as err:
             url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
-            try:
-                self.client.post(url, {})
-            except IntegrityError as integrity_error:
-                assert 'UNIQUE constraint failed' in integrity_error.args[0]
-            else:
-                assert False
+            self.client.post(url, {})
+        expected_msg = r'UNIQUE constraint failed: course_metadata_course.url_slug, course_metadata_course.draft'
+        assert re.match(expected_msg, str(err.value))
 
         discovery_matching_course.draft = True
         discovery_matching_course.save()
-        with LogCapture(LOGGER_NAME):
-            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
-            try:
-                self.client.post(url, {})
-            except IntegrityError as integrity_error:
-                assert 'UNIQUE constraint failed' in integrity_error.args[0]
-            else:
-                assert False
 
+        with pytest.raises(IntegrityError) as second_err:
+            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+            self.client.post(url, {})
+        expected_msg = r'UNIQUE constraint failed: course_metadata_course.url_slug, course_metadata_course.draft'
+        assert re.match(expected_msg, str(second_err.value))
+        
     @responses.activate
     @override_settings(PUBLISHER_UPGRADE_DEADLINE_DAYS=PUBLISHER_UPGRADE_DEADLINE_DAYS)
     def test_publish_seat_without_upgrade_deadline(self):
