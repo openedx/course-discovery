@@ -92,12 +92,20 @@ msgstr ""
 msgid "You must include a course_uuid in your query parameters."
 msgstr ""
 
+<<<<<<< HEAD
 #: apps/api/v1/views/comments.py:56 apps/api/v1/views/courses.py:203
+=======
+#: apps/api/v1/views/comments.py:55 apps/api/v1/views/courses.py:197
+>>>>>>> ac7e2893... Make slug field unique
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr ""
 
+<<<<<<< HEAD
 #: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:209
+=======
+#: apps/api/v1/views/comments.py:57 apps/api/v1/views/courses.py:203
+>>>>>>> ac7e2893... Make slug field unique
 msgid "Incorrect data sent. "
 msgstr ""
 
@@ -121,12 +129,17 @@ msgstr ""
 msgid "Invalid param"
 msgstr ""
 
+<<<<<<< HEAD
 #: apps/api/v1/views/courses.py:66
+=======
+#: apps/api/v1/views/courses.py:59
+>>>>>>> ac7e2893... Make slug field unique
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘{}’ is already in use. "
 "Please update this field and try again."
 msgstr ""
 
+<<<<<<< HEAD
 #: apps/api/v1/views/courses.py:71 apps/api/v1/views/courses.py:75
 msgid "An error occurred while setting Course or Course Run data."
 msgstr ""
@@ -144,10 +157,30 @@ msgid "Entitlement Track does not exist. "
 msgstr ""
 
 #: apps/api/v1/views/courses.py:222
+=======
+#: apps/api/v1/views/courses.py:65 apps/api/v1/views/courses.py:69
+msgid "An error occurred while setting Course or Course Run data."
+msgstr ""
+
+#: apps/api/v1/views/courses.py:66 apps/api/v1/views/courses.py:70
+msgid "Failed to set data: {}"
+msgstr ""
+
+#: apps/api/v1/views/courses.py:199
+msgid "Organization does not exist. "
+msgstr ""
+
+#: apps/api/v1/views/courses.py:201
+msgid "Entitlement Track does not exist. "
+msgstr ""
+
+#: apps/api/v1/views/courses.py:216
+>>>>>>> ac7e2893... Make slug field unique
 #, python-brace-format
 msgid "A course with key {key} already exists."
 msgstr ""
 
+<<<<<<< HEAD
 #: apps/api/v1/views/courses.py:261
 msgid "Entitlements must have a mode specified."
 msgstr ""
@@ -157,11 +190,26 @@ msgid "Entitlement mode {} not found."
 msgstr ""
 
 #: apps/api/v1/views/courses.py:269
+=======
+#: apps/api/v1/views/courses.py:255
+msgid "Entitlements must have a mode specified."
+msgstr ""
+
+#: apps/api/v1/views/courses.py:259
+msgid "Entitlement mode {} not found."
+msgstr ""
+
+#: apps/api/v1/views/courses.py:263
+>>>>>>> ac7e2893... Make slug field unique
 #, python-brace-format
 msgid "Existing entitlement not found for course {0}."
 msgstr ""
 
+<<<<<<< HEAD
 #: apps/api/v1/views/courses.py:278
+=======
+#: apps/api/v1/views/courses.py:272
+>>>>>>> ac7e2893... Make slug field unique
 msgid ""
 "Switching entitlement modes after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
@@ -1908,6 +1956,7 @@ msgstr ""
 msgid "Course Metadata Course PK"
 msgstr ""
 
+<<<<<<< HEAD
 #: apps/publisher/models.py:107
 msgid ""
 "Leave this field blank to bananas have the value generated automatically."
@@ -1929,6 +1978,24 @@ msgstr ""
 msgid "Level 4"
 msgstr ""
 
+=======
+#: apps/publisher/models.py:282
+msgid "Level 1"
+msgstr ""
+
+#: apps/publisher/models.py:283
+msgid "Level 2"
+msgstr ""
+
+#: apps/publisher/models.py:284
+msgid "Level 3"
+msgstr ""
+
+#: apps/publisher/models.py:285
+msgid "Level 4"
+msgstr ""
+
+>>>>>>> ac7e2893... Make slug field unique
 #: apps/publisher/models.py:286
 msgid "Level 5"
 msgstr ""

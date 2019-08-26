@@ -505,7 +505,7 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
     key = models.CharField(max_length=255, db_index=True)
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
     url_slug = AutoSlugField(populate_from='title', editable=True, slugify_function=uslugify, overwrite_on_add=False,
-                             help_text=_('Leave this field blank to have the value generated automatically.'))
+                             help_text=_('Leave this field blank to have the value generated automatically.'),)
     short_description = NullHtmlField()
     full_description = NullHtmlField()
     extra_description = models.ForeignKey(
