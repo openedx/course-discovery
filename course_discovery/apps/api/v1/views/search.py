@@ -167,6 +167,30 @@ class AggregateSearchViewSet(BaseHaystackViewSet, CatalogDataViewSet):
     serializer_class = serializers.AggregateSearchSerializer
 
 
+class LimitedAggregateSearchView(FacetMixin, HaystackViewSet):
+    """
+    The purpose of this endpoint is to provide search data in the correct order to
+    consume the ordering for another service. We will be providing a limited
+    set of data based on what exists in the search indexes. Other types of
+    ordering are not supported.
+    """
+    document_uid_field = 'key'
+    facet_filter_backends = [filters.HaystackFilter]
+
+    lookup_field = 'key'
+    permission_classes = (IsAuthenticated,)
+    facet_serializer_class = serializers.AggregateFacetSearchSerializer
+    serializer_class = serializers.LimitedAggregateSearchModelSerializer
+
+    def filter_facet_queryset(self, queryset):
+        queryset = super().filter_facet_queryset(queryset)
+
+        # Ensure we only return published, non-hidden items
+        queryset = queryset.filter(published=True).exclude(hidden=True)
+
+        return queryset
+
+
 class PersonSearchViewSet(BaseHaystackViewSet):
     """
     Generic person search

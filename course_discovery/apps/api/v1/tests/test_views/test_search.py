@@ -364,6 +364,66 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         assert expected == actual
 
 
+class LimitedAggregateSearchViewSetTests(
+    ElasticsearchTestMixin, mixins.LoginMixin, mixins.SerializationMixin, mixins.APITestCase
+):
+    path = reverse('api:v1:search-limited-facets')
+
+    # pylint: disable=no-member
+    def serialize_course_run_search(self, run):
+        return super().serialize_course_run_search(run, serializers.LimitedAggregateSearchModelSerializer)
+
+    # pylint: disable=no-member
+    def serialize_program_search(self, program):
+        return super().serialize_program_search(program, serializers.LimitedAggregateSearchModelSerializer)
+
+    def test_results_only_include_published_objects(self):
+        """ Verify the search results only include items with status set to 'Published'. """
+        # These items should NOT be in the results
+        CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Unpublished)
+        ProgramFactory(partner=self.partner, status=ProgramStatus.Unpublished)
+
+        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
+        program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
+
+        with self.assertNumQueries(5):
+            response = self.client.get(self.path)
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data['objects']['results'] == \
+            [self.serialize_program_search(program), self.serialize_course_run_search(course_run)]
+
+    def test_hidden_runs_excluded(self):
+        """Search results should not include hidden runs."""
+        visible_run = CourseRunFactory(course__partner=self.partner)
+        hidden_run = CourseRunFactory(course__partner=self.partner, hidden=True)
+
+        assert CourseRun.objects.get(hidden=True) == hidden_run
+
+        with self.assertNumQueries(5):
+            response = self.client.get(self.path)
+        data = response.json()
+        assert data['objects']['results'] == [self.serialize_course_run_search(visible_run)]
+
+    def test_results_include_aggregation_key(self):
+        """ Verify the search results only include the aggregation_key for each document. """
+        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
+        program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
+
+        with self.assertNumQueries(5):
+            response = self.client.get(self.path)
+        assert response.status_code == 200
+        response_data = response.json()
+
+        expected = sorted(
+            ['courserun:{}'.format(course_run.course.key), 'program:{}'.format(program.uuid)]
+        )
+        actual = sorted(
+            [obj.get('aggregation_key') for obj in response_data['objects']['results']]
+        )
+        assert expected == actual
+
+
 class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
                                          mixins.APITestCase):
     path = reverse('api:v1:search-all-list')
