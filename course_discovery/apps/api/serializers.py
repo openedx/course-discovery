@@ -2036,6 +2036,15 @@ class AggregateSearchModelSerializer(HaystackSerializer):
         }
 
 
+class LimitedAggregateSearchModelSerializer(HaystackSerializer):
+    class Meta:
+        index_classes = [
+            search_indexes.CourseRunIndex,
+            search_indexes.CourseIndex,
+            search_indexes.ProgramIndex,
+        ]
+
+
 class TypeaheadBaseSearchSerializer(serializers.Serializer):
     orgs = serializers.SerializerMethodField()
     title = serializers.CharField()
