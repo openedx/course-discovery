@@ -503,6 +503,7 @@ def publish_to_course_metadata(partner, course_run, create_official=True):
     course_key = discovery_course.key if discovery_course else publisher_course.key
 
     if discovery_course:
+        defaults['uuid'] = discovery_course.uuid  # just sanity ensure that UUIDs will match
         # Let's ensure the draft version of everything exists. If it doesn't, we will just create it below.
         ensure_draft_world(discovery_course)
 
@@ -542,12 +543,23 @@ def publish_to_course_metadata(partner, course_run, create_official=True):
         'expected_program_type': expected_program_type,
         'course': discovery_course,
     }
+
+    discovery_official_course_run = CourseRun.objects.filter(key=course_run.lms_course_id).first()
+    if discovery_official_course_run:
+        # Just sanity ensure that UUIDs will match (might be mismatched from prior or current bugs)
+        defaults['uuid'] = discovery_official_course_run.uuid
+
     discovery_course_run, __ = CourseRun.everything.update_or_create(
         key=course_run.lms_course_id, draft=True, defaults=defaults
     )
     discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
     discovery_course_run.staff.clear()
     discovery_course_run.staff.add(*course_run.staff.all())
+
+    if discovery_official_course_run and not discovery_official_course_run.draft_version:
+        # Ensure that draft and official are linked. They might be mismatched from prior or current bugs.
+        discovery_official_course_run.draft_version = discovery_course_run
+        discovery_official_course_run.save(suppress_publication=True)
 
     for entitlement in publisher_course.entitlements.all():
         CourseEntitlement.everything.update_or_create(  # pylint: disable=no-member
