@@ -14,7 +14,7 @@ from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.forms import model_to_dict
-from django.http import Http404, HttpRequest
+from django.http import HttpRequest
 from django.test import TestCase
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
@@ -4240,7 +4240,7 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
         self.assertContains(response, 'The page could not be updated.', status_code=400)
 
 
-@override_switch('publisher_enable_course_import', True)
+@ddt.ddt
 class CreateAdminImportCourseTest(SiteMixin, TestCase):
     """ Tests for the publisher `CreateAdminImportCourse`. """
 
@@ -4254,7 +4254,7 @@ class CreateAdminImportCourseTest(SiteMixin, TestCase):
         self.course = CourseFactory()
 
     def test_page_without_login(self):
-        """ Verify that user can't access page when not logged in. """
+        """ Verify that user can't access page and is correctly redirected when not logged in. """
         self.client.logout()
         response = self.client.get(self.page_url)
 
@@ -4273,35 +4273,33 @@ class CreateAdminImportCourseTest(SiteMixin, TestCase):
         response = self.client.get(self.page_url)
         self.assertEqual(response.status_code, 404)
 
-    def test_page_with_superuser_and_waffle(self):
-        """ Verify that user can't access page when not logged in. """
+    def test_page_with_superuser(self):
+        """ Verify that user can access page as a super user. """
         response = self._make_users_valid()
         self.assertEqual(response.status_code, 200)
 
-    @override_switch('publisher_enable_course_import', False)
-    def test_page_with_superuser_without_waffle(self):
-        """ Verify that user can't access page when not logged in. """
-        response = self._make_users_valid()
-        self.assertRaises(Http404)
-        self.assertEqual(response.status_code, 404)
-
-    def test_page_with_waffle_without_superuser(self):
-        """ Verify that user can't access page if not he is not superuser. """
-        response = self._make_users_valid(False)
-        self.assertRaises(Http404)
-        self.assertEqual(response.status_code, 404)
-
-    def test_page_with_post(self):
-        """ Verify page shows message with successful import. """
+    @ddt.data(
+        (
+            {'is_superuser': True, 'status_code': 200}
+        ),
+        (
+            {'is_superuser': False, 'status_code': 404}
+        ),
+    )
+    def test_page_with_post(self, post_transaction):
+        """ Verify page shows message with successful import.
+            Test Cases: Super User, non Super User.
+        """
 
         # organization should be available for import
         self.course.authoring_organizations.add(OrganizationFactory())
 
-        self._make_users_valid()
+        self._make_users_valid(post_transaction['is_superuser'])
         post_data = {'start_id': self.course.pk}
         response = self.client.post(self.page_url, post_data)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Course Imported')
+        self.assertEqual(response.status_code, post_transaction['status_code'])
+        if response.status_code == 200:
+            self.assertContains(response, 'Course Imported')
 
     def test_page_with_invalid_course_id(self):
         """ Verify page shows error message if import fails. """

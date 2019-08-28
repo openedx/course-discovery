@@ -1465,7 +1465,7 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         """Get method for import page."""
-        if self.request.user.is_superuser and waffle.switch_is_active('publisher_enable_course_import'):
+        if self.request.user.is_superuser:
             return super(AdminImportCourse, self).get(request, args, **kwargs)
         else:
             raise Http404
@@ -1473,7 +1473,7 @@ class AdminImportCourse(mixins.LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         """Post method for import page."""
 
-        if not (self.request.user.is_superuser and waffle.switch_is_active('publisher_enable_course_import')):
+        if not self.request.user.is_superuser:
             raise Http404
 
         form = AdminImportCourseForm(request.POST)
