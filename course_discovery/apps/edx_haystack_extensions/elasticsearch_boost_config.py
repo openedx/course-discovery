@@ -37,6 +37,14 @@ def get_elasticsearch_boost_config():
                 {
                     'filter': {
                         'term': {
+                            'type_exact': 'MicroBachelors'
+                        }
+                    },
+                    'weight': 5.0
+                },
+                {
+                    'filter': {
+                        'term': {
                             'type_exact': 'MicroMasters'
                         }
                     },
