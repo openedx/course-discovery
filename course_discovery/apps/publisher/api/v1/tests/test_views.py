@@ -7,7 +7,6 @@ import responses
 from django.test import override_settings
 from django.urls import reverse
 from testfixtures import LogCapture
-from waffle.testutils import override_switch
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.models import Currency
@@ -24,7 +23,6 @@ from course_discovery.apps.course_metadata.utils import (
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.v1.views import CourseRunViewSet
-from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.models import CourseEntitlement, Seat
 from course_discovery.apps.publisher.tests.factories import CourseEntitlementFactory, CourseRunFactory, SeatFactory
 
@@ -92,7 +90,6 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         responses.add(responses.POST, url, json=body, status=status)
 
     @responses.activate
-    @override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=True)
     def test_publish(self):  # pylint: disable=too-many-statements
         publisher_course_run = self._create_course_run_for_publication()
         currency = Currency.objects.get(code='USD')

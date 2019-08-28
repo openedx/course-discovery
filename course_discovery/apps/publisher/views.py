@@ -29,7 +29,6 @@ from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher import emails, mixins, serializers
 from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
-from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 from course_discovery.apps.publisher.dataloader.create_courses import process_course
 from course_discovery.apps.publisher.emails import send_email_for_published_course_run_editing
 from course_discovery.apps.publisher.forms import (
@@ -698,7 +697,6 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         context['role_widgets'] = get_course_role_widgets_data(
             user, course, course.course_state, 'publisher:api:change_course_state', parent_course=True
         )
-        context['publisher_enable_read_only_fields'] = waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
 
         # Add warning popup information if user can edit the course but does not own it.
         if context['can_edit'] and not waffle.switch_is_active('disable_publisher_permissions'):
@@ -957,7 +955,6 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             'seat_form': seat_form,
             'hide_seat_form': parent_course.uses_entitlements,
             'course_in_masters': course_in_masters,
-            'publisher_enable_read_only_fields': waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
         }
         return context
 
@@ -979,7 +976,6 @@ class CreateRunFromDashboardView(CreateCourseRunView):
             'run_form': self.run_form(),
             'seat_form': self.seat_form(),
             'hide_seat_form': False,
-            'publisher_enable_read_only_fields': waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
         }
         return context
 
@@ -1042,7 +1038,6 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             'is_internal_user': mixins.check_roles_access(user),
             'is_project_coordinator': is_project_coordinator_user(user),
             'organizations': mixins.get_user_organizations(user),
-            'publisher_enable_read_only_fields': waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS)
         }
 
     def get_latest_course_run_seat(self, course_run):

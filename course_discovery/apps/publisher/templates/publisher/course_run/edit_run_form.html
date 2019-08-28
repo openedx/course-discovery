@@ -42,39 +42,23 @@
                 <div class="field-title">{% trans "COURSE START DATE" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        {% if publisher_enable_read_only_fields %}
-                            <p>
-                                {% trans "The start date for this course." as tmsg %}{{ tmsg | force_escape }}
-                                {% blocktrans asvar tmsg %}
-                                For the most accurate information, and to make any edits to start date, please visit {link_start}{url}{link_middle}Studio{link_end}.
-                                {% endblocktrans %}
-                                {% interpolate_html tmsg link_start='<a class="studio-start-date-link" target="_blank" href="'|safe link_middle='">'|safe link_end='</a>'|safe url=course_run.studio_schedule_and_details_url|safe %}
-
-                            </p>
-                        {% else %}
-                            <ul>
-                                <li>
-                                    {% trans "Note that times use UTC." as tmsg %}{{ tmsg | force_escape }}
-                                </li>
-                                <li>
-                                    {% trans "Start on a Tuesday, Wednesday, or Thursday." as tmsg %}{{ tmsg | force_escape }}
-                                </li>
-                                <li>
-                                    {% trans "Avoid major U.S. holidays." as tmsg %}{{ tmsg | force_escape }}
-                                </li>
-                                <li>
-                                    {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." as tmsg %}{{ tmsg | force_escape }}
-                                </li>
-                            </ul>
-                        {% endif %}
+                        <ul>
+                            <li>
+                                {% trans "Note that times use UTC." %}
+                            </li>
+                            <li>
+                                {% trans "Start on a Tuesday, Wednesday, or Thursday." %}
+                            </li>
+                            <li>
+                                {% trans "Avoid major U.S. holidays." %}
+                            </li>
+                            <li>
+                                {% trans "Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated start date. For example, if your course will start near the end of March, specify March 31." %}
+                            </li>
+                        </ul>
                     </div>
                     <div class="col col-6">
-                        {% if publisher_enable_read_only_fields %}
-                            <label class="field-label ">{% trans "Course Start Date (time in UTC)" as tmsg %}{{ tmsg | force_escape }}  <span class="required">*</span></label>
-                            <div>{{ course_run.start_date_temporary| date:"M d, Y, H:i:s A" }}</div>
-                        {% else %}
-                            <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
-                        {% endif %}
+                        <label class="field-label ">{{ run_form.start.label_tag }}  <span class="required">*</span></label>
                         {{ run_form.start }}
                         {% if run_form.start.errors %}
                             <div class="field-message-content">
@@ -87,25 +71,10 @@
                 <div class="field-title">{% trans "COURSE END DATE" as tmsg %}{{ tmsg | force_escape }} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        {% if publisher_enable_read_only_fields %}
-                            <p>
-                                {% trans "The end date for this course." as tmsg %}{{ tmsg | force_escape }}
-                                {% blocktrans asvar tmsg %}
-                                For the most accurate information, and to make any edits to end date, please visit {link_start}{url}{link_middle}Studio{link_end}.
-                                {% endblocktrans %}
-                                {% interpolate_html tmsg link_start='<a class="studio-end-date-link" target="_blank" href="' link_middle='">'|safe link_end='</a>'|safe url=course_run.studio_schedule_and_details_url|safe %}
-                            </p>
-                        {% else %}
-                            {% trans "Note that times use UTC. Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." as tmsg %}{{ tmsg | force_escape }}
-                        {% endif %}
+                        {% trans "Note that times use UTC. Specify a month, day, and year. If you are unsure of the exact date, specify a day that is close to the estimated end date. For example, if your course will end near the end of March, specify March 31." %}
                     </div>
                     <div class="col col-6">
-                        {% if publisher_enable_read_only_fields %}
-                            <label class="field-label ">{% trans "Course End Date (time in UTC)" %}  <span class="required">*</span></label>
-                            <div>{{ course_run.end_date_temporary| date:"M d, Y, H:i:s A" }}</div>
-                        {% else %}
-                            <label class="field-label ">{{ run_form.end.label_tag }}  <span class="required">*</span></label>
-                        {% endif %}
+                        <label class="field-label ">{{ run_form.end.label_tag }}  <span class="required">*</span></label>
                         {{ run_form.end }}
                         {% if run_form.end.errors %}
                             <div class="field-message-content">
@@ -118,27 +87,12 @@
                 <div class="field-title">{% trans "COURSE PACING" %} <span class="required float-right">* Required for review</span></div>
                 <div class="row">
                     <div class="col col-6 help-text">
-                        {% if publisher_enable_read_only_fields %}
-                            <p>
-                                {% trans "The pacing type for this course." as tmsg %}{{ tmsg | force_escape }}
-                                {% blocktrans asvar tmsg %}
-                                For the most accurate information, and to make any edits to pacing type, please visit {link_start}{url}{link_middle}Studio{link_end}.
-                                {% endblocktrans %}
-                                {% interpolate_html tmsg link_start='<a class="studio-pacing-link" target="_blank" href="'|safe link_middle='">'|safe link_end='</a>'|safe url=course_run.studio_schedule_and_details_url|safe %}
-                            </p>
-                        {% else %}
-                            <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." as tmsg %}{{ tmsg | force_escape }} </p>
-                            <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." as tmsg %}{{ tmsg | force_escape }}</p>
-                        {% endif %}
+                        <p>{% trans "Instructor-paced courses include individual assignments that have specific due dates before the course end date." %} </p>
+                        <p>{% trans "Self-paced courses do not have individual assignments that have specific due dates before the course end date. All assignments are due on the course end date." %}</p>
                     </div>
                     <div class="col col-6">
-                        {% if publisher_enable_read_only_fields %}
-                            <label class="field-label ">{% trans "Course Pacing" as tmsg %}{{ tmsg | force_escape }}  <span class="required">*</span></label>
-                            <div>{{ course_run.get_pacing_type_temporary_display }}</div>
-                        {% else %}
-                            <label class="field-label">{{ run_form.pacing_type.label_tag }}  <span class="required">*</span></label>
-                            <div class="checkbox-inline">{{ run_form.pacing_type }}</div>
-                        {% endif %}
+                        <label class="field-label">{{ run_form.pacing_type.label_tag }}  <span class="required">*</span></label>
+                        <div class="checkbox-inline">{{ run_form.pacing_type }}</div>
                     </div>
                 </div>
 

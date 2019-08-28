@@ -7,7 +7,6 @@ from decimal import Decimal
 from io import BytesIO
 
 import requests
-import waffle
 from django.core.files import File
 from django.core.management import CommandError
 from opaque_keys.edx.keys import CourseKey
@@ -18,7 +17,6 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
 )
-from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
 
 logger = logging.getLogger(__name__)
 
@@ -217,25 +215,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'license': body.get('license') or '',  # license cannot be None
         }
 
-        start = self.parse_date(body['start'])
-        pacing_type = self.get_pacing_type(body)
-
-        # When the switch is active, dates and pacing type should come from the Course API.
-        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
-            defaults.update({
-                'start': start,
-                'pacing_type': pacing_type
-            })
-
         # When using a marketing site, only dates (excluding start) should come from the Course API.
         if not self.partner.has_marketing_site:
             defaults.update({
-                'start': start,
+                'start': self.parse_date(body['start']),
                 'title_override': body['name'],
                 'short_description_override': body['short_description'],
                 'video': self.get_courserun_video(body),
                 'status': CourseRunStatus.Published,
-                'pacing_type': pacing_type,
+                'pacing_type': self.get_pacing_type(body),
                 'mobile_available': body.get('mobile_available') or False,
             })
 
