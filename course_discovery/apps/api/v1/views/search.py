@@ -180,7 +180,7 @@ class LimitedAggregateSearchView(FacetMixin, HaystackViewSet):
     lookup_field = 'key'
     permission_classes = (IsAuthenticated,)
     facet_serializer_class = serializers.AggregateFacetSearchSerializer
-    serializer_class = serializers.LimitedAggregateSearchModelSerializer
+    serializer_class = serializers.LimitedAggregateSearchSerializer
 
     def filter_facet_queryset(self, queryset):
         queryset = super().filter_facet_queryset(queryset)
