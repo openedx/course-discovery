@@ -43,7 +43,6 @@ urlpatterns = oauth2_urlpatterns + [
     url(r'^health/$', core_views.health, name='health'),
     url('^$', QueryPreviewView.as_view()),
     url(r'^publisher/', include('course_discovery.apps.publisher.urls', namespace='publisher')),
-    url(r'^journal/', include('course_discovery.apps.journal.urls', namespace='journal')),
     url(
         r'^publisher/comments/', include(
             'course_discovery.apps.publisher_comments.urls', namespace='publisher_comments'
