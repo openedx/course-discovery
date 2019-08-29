@@ -1601,7 +1601,7 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
 
     def get_custom6(self, obj):
         weeks = obj.course_run.weeks_to_complete
-        if weeks > 0:
+        if weeks and weeks > 0:
             return '{} {}'.format(weeks, 'week' if weeks == 1 else 'weeks')
         return ''
 
