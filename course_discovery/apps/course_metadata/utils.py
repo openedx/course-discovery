@@ -15,8 +15,10 @@ from slugify import slugify
 from stdimage.models import StdImageFieldFile
 from stdimage.utils import UploadTo
 
+from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
+from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
 from course_discovery.apps.publisher.utils import find_discovery_course
 
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
@@ -113,6 +115,7 @@ def set_draft_state(obj, model, attrs=None):
         (Model obj, Model obj): Tuple of Model objects where the first is the draft object
             and the second is the original
     """
+    from course_discovery.apps.course_metadata.models import Course, CourseRun
     original_obj = model.objects.get(pk=obj.pk)
     obj.pk = None
     obj.draft = True
@@ -123,6 +126,13 @@ def set_draft_state(obj, model, attrs=None):
             setattr(obj, key, value)
 
     obj.save()
+
+    # We refresh the object's instance before we set its salesforce_id because the instance in memory is
+    # out of sync with what is actually in the database.  The salesforce_id is indeed in the database at this point
+    # because we generate it on a post_save signal for Course's and CourseRun's.
+    if model in (Course, CourseRun):
+        obj.refresh_from_db()
+        original_obj.salesforce_id = obj.salesforce_id
 
     original_obj.draft_version = obj
     original_obj.save()
@@ -683,3 +693,10 @@ class MarketingSiteAPIClient(object):
             'Content-Type': 'application/json',
             'X-CSRF-Token': self.csrf_token,
         }
+
+
+def get_salesforce_util(partner):
+    try:
+        return SalesforceUtil(partner)
+    except SalesforceConfiguration.DoesNotExist:
+        return None

@@ -11,9 +11,13 @@ from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.models import (
-    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Program, Seat
+    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program, Seat
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
+from course_discovery.apps.course_metadata.salesforce import (
+    populate_official_with_existing_draft, requires_salesforce_update
+)
+from course_discovery.apps.course_metadata.utils import get_salesforce_util
 from course_discovery.apps.course_metadata.waffle import masters_course_mode_enabled
 
 logger = logging.getLogger(__name__)
@@ -257,6 +261,48 @@ def ensure_external_key_uniquness__curriculum(sender, instance, **kwargs):  # py
         external_key__isnull=False
     ).iterator()
     check_curricula_and_related_programs_for_duplicate_external_key([instance], course_runs)
+
+
+@receiver(post_save, sender=Organization)
+def update_or_create_salesforce_organization(instance, created, **kwargs):  # pylint: disable=unused-argument
+    partner = instance.partner
+    util = get_salesforce_util(partner)
+    if util:
+        if created:
+            util.create_publisher_organization(instance)
+        else:
+            if requires_salesforce_update('organization', instance):
+                util.update_publisher_organization(instance)
+
+
+@receiver(post_save, sender=Course)
+def update_or_create_salesforce_course(instance, created, **kwargs):  # pylint: disable=unused-argument
+    partner = instance.partner
+    util = get_salesforce_util(partner)
+    if util:
+        if created and instance.draft:
+            util.create_course(instance)
+        elif not created and not instance.draft:
+            created = False
+            if not instance.salesforce_id and instance.draft_version:
+                created = populate_official_with_existing_draft(instance, util)
+            if not created and requires_salesforce_update('course', instance):
+                util.update_course(instance)
+
+
+@receiver(post_save, sender=CourseRun)
+def update_or_create_salesforce_course_run(instance, created, **kwargs):  # pylint: disable=unused-argument
+    partner = instance.course.partner
+    util = get_salesforce_util(partner)
+    if util:
+        if created and instance.draft:
+            util.create_course_run(instance)
+        elif not created and not instance.draft:
+            created = False
+            if not instance.salesforce_id and instance.draft_version:
+                created = populate_official_with_existing_draft(instance, util)
+            if not created and requires_salesforce_update('course_run', instance):
+                util.update_course_run(instance)
 
 
 def _build_external_key_sets(course_runs):

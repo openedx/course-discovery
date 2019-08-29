@@ -792,3 +792,69 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                     draft=False,
                     external_key='external-key-drafttest'
                 )
+
+
+class SalesforceTests(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.salesforce_util_path = 'course_discovery.apps.course_metadata.utils.SalesforceUtil'
+
+    def test_update_or_create_salesforce_organization(self):
+        #  we mock the __init__ method in SalesforceUtil to ignore login functionality
+        with mock.patch(self.salesforce_util_path + '.__init__', return_value=None):
+            with mock.patch(self.salesforce_util_path + '.create_publisher_organization') as mock_create_method:
+                with mock.patch(self.salesforce_util_path + '.update_publisher_organization') as mock_update_method:
+                    organization = factories.OrganizationFactory()
+
+                    mock_create_method.assert_called()
+                    mock_update_method.assert_not_called()
+
+                    organization.name = 'changed'
+                    organization.save()
+
+                    mock_update_method.assert_called()
+
+    def test_update_or_create_salesforce_course(self):
+        #  we mock the __init__ method in SalesforceUtil to ignore login functionality
+        with mock.patch(self.salesforce_util_path + '.__init__', return_value=None):
+            with mock.patch(self.salesforce_util_path + '.create_course') as mock_create_method:
+                with mock.patch(self.salesforce_util_path + '.update_course') as mock_update_method:
+                    course = factories.CourseFactory(draft=True)
+
+                    mock_create_method.assert_called()
+                    mock_update_method.assert_not_called()
+
+                    course.save()
+
+                    # This shows that an update to a draft does not hit the salesforce update method
+                    mock_update_method.assert_not_called()
+
+                    course.draft = False
+                    course.title = 'changed'
+                    course.save()
+
+                    self.assertEqual(1, mock_update_method.call_count)
+
+    def test_update_or_create_salesforce_course_run(self):
+        #  we mock the __init__ method in SalesforceUtil to ignore login functionality
+        with mock.patch(self.salesforce_util_path + '.__init__', return_value=None):
+            #  we mock out create_course and update_course to avoid recursion errors
+            with mock.patch(self.salesforce_util_path + '.create_course'):
+                with mock.patch(self.salesforce_util_path + '.update_course'):
+                    with mock.patch(self.salesforce_util_path + '.create_course_run') as mock_create_method:
+                        with mock.patch(self.salesforce_util_path + '.update_course_run') as mock_update_method:
+                            course_run = factories.CourseRunFactory(draft=True)
+
+                            mock_create_method.assert_called()
+                            mock_update_method.assert_not_called()
+
+                            course_run.save()
+
+                            # This shows that an update to a draft does not hit the salesforce update method
+                            mock_update_method.assert_not_called()
+
+                            course_run.draft = False
+                            course_run.name = 'changed'
+                            course_run.save()
+
+                            self.assertEqual(1, mock_create_method.call_count)

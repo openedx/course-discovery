@@ -1,4 +1,6 @@
+import factory
 import mock
+from django.db.models.signals import post_save
 from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -8,6 +10,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseFactory,
 
 
 class CommentViewSetTests(OAuth2Mixin, APITestCase):
+    @factory.django.mute_signals(post_save)
     def setUp(self):
         super(CommentViewSetTests, self).setUp()
         self.salesforce_config = SalesforceConfigurationFactory(partner=self.partner)
@@ -31,6 +34,7 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, [])
 
+    @factory.django.mute_signals(post_save)
     def test_list_salesforce_case_id_set(self):
         self.course.salesforce_id = 'TestSalesforceId'
         self.course.save()
