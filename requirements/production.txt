@@ -97,7 +97,7 @@ requests-oauthlib==1.2.0  # via social-auth-core
 requests[security]==2.11.1
 rest-condition==1.0.3     # via edx-drf-extensions
 rjsmin==1.1.0             # via django-compressor
-semantic-version==2.6.0   # via edx-drf-extensions
+semantic-version==2.8.0   # via edx-drf-extensions
 simple-salesforce==0.74.3
 simplejson==3.16.0        # via django-rest-swagger
 six==1.12.0               # via cryptography, django-appconf, django-extensions, django-simple-history, django-sortedm2m, django-taggit-serializer, djangorestframework-csv, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-opaque-keys, libsass, progressbar2, pyjwkest, pyopenssl, python-dateutil, python-memcached, python-utils, social-auth-app-django, social-auth-core, stevedore, unicode-slugify
