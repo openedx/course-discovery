@@ -371,11 +371,11 @@ class LimitedAggregateSearchViewSetTests(
 
     # pylint: disable=no-member
     def serialize_course_run_search(self, run):
-        return super().serialize_course_run_search(run, serializers.LimitedAggregateSearchModelSerializer)
+        return super().serialize_course_run_search(run, serializers.LimitedAggregateSearchSerializer)
 
     # pylint: disable=no-member
     def serialize_program_search(self, program):
-        return super().serialize_program_search(program, serializers.LimitedAggregateSearchModelSerializer)
+        return super().serialize_program_search(program, serializers.LimitedAggregateSearchSerializer)
 
     def test_results_only_include_published_objects(self):
         """ Verify the search results only include items with status set to 'Published'. """

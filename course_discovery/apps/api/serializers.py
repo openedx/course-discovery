@@ -1995,6 +1995,16 @@ class AggregateSearchSerializer(HaystackSerializer):
         }
 
 
+class LimitedAggregateSearchSerializer(HaystackSerializer):
+    class Meta:
+        fields = ['subject', 'uuid', 'key', 'aggregation_key', 'content_type']
+        index_classes = [
+            search_indexes.CourseRunIndex,
+            search_indexes.CourseIndex,
+            search_indexes.ProgramIndex,
+        ]
+
+
 class AggregateFacetSearchSerializer(BaseHaystackFacetSerializer):
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -2034,15 +2044,6 @@ class AggregateSearchModelSerializer(HaystackSerializer):
             search_indexes.CourseIndex: CourseSearchModelSerializer,
             search_indexes.ProgramIndex: ProgramSearchModelSerializer,
         }
-
-
-class LimitedAggregateSearchModelSerializer(HaystackSerializer):
-    class Meta:
-        index_classes = [
-            search_indexes.CourseRunIndex,
-            search_indexes.CourseIndex,
-            search_indexes.ProgramIndex,
-        ]
 
 
 class TypeaheadBaseSearchSerializer(serializers.Serializer):
