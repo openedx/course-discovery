@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api.serializers import CommentSerializer
+from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.course_metadata.models import Course, CourseEditor
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -27,18 +28,18 @@ class CommentViewSet(viewsets.GenericViewSet):
         pass
 
     def list(self, request):
-        partner = request.site.partner
         course_uuid = request.query_params.get('course_uuid')
         if not course_uuid:
             return Response(
                 _('You must include a course_uuid in your query parameters.'),
                 status=status.HTTP_400_BAD_REQUEST
             )
+        partner = request.site.partner
         course = self._get_course_or_404(partner, course_uuid)
         if not CourseEditor.is_course_editable(request.user, course):
             raise PermissionDenied
 
-        util = SalesforceUtil(partner)
+        util = self._get_salesforce_util_or_404(partner)
         comments = util.get_comments_for_course(course)
 
         return Response(comments)
@@ -57,13 +58,12 @@ class CommentViewSet(viewsets.GenericViewSet):
             return Response((_('Incorrect data sent. ') + error_message).strip(), status=status.HTTP_400_BAD_REQUEST)
 
         partner = self.request.site.partner
-        util = SalesforceUtil(partner)
-
         course = self._get_course_or_404(partner, comment_creation_fields.get('course_uuid'))
 
         if not CourseEditor.is_course_editable(request.user, course):
             raise PermissionDenied
 
+        util = self._get_salesforce_util_or_404(partner)
         comment = util.create_comment_for_course_case(
             course,
             request.user,
@@ -79,4 +79,11 @@ class CommentViewSet(viewsets.GenericViewSet):
             course = Course.objects.filter_drafts().get(partner=partner, uuid=course_uuid)
             return ensure_draft_world(course)
         except Course.DoesNotExist:
+            raise Http404
+
+    @staticmethod
+    def _get_salesforce_util_or_404(partner):
+        try:
+            return SalesforceUtil(partner)
+        except SalesforceConfiguration.DoesNotExist:
             raise Http404

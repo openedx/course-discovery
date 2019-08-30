@@ -144,3 +144,32 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
             url = reverse('api:v1:comment-list')
             response = self.client.post(url, body, format='json')
             self.assertEqual(response.status_code, 404)
+
+    def test_create_404s_without_a_config(self):
+        body = {
+            'course_uuid': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',  # Needs to resemble a uuid to pass validation
+            'comment': 'Test comment',
+            'course_run_key': 'test-key',
+        }
+
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+
+        with mock.patch(salesforce_path):
+            url = reverse('api:v1:comment-list')
+            response = self.client.post(url, body, format='json')
+            self.assertEqual(response.status_code, 404)
+
+    def test_list_404s_without_a_config(self):
+        self.salesforce_config.delete()
+        body = {
+            'course_uuid': 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',  # Needs to resemble a uuid to pass validation
+            'comment': 'Test comment',
+            'course_run_key': 'test-key',
+        }
+
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+
+        with mock.patch(salesforce_path):
+            url = reverse('api:v1:comment-list')
+            response = self.client.post(url, body, format='json')
+            self.assertEqual(response.status_code, 404)

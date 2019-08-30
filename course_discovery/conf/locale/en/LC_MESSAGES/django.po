@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-28 19:59+0000\n"
+"POT-Creation-Date: 2019-08-30 18:18+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -92,12 +92,12 @@ msgstr ""
 msgid "You must include a course_uuid in your query parameters."
 msgstr ""
 
-#: apps/api/v1/views/comments.py:55 apps/api/v1/views/courses.py:179
+#: apps/api/v1/views/comments.py:56 apps/api/v1/views/courses.py:179
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr ""
 
-#: apps/api/v1/views/comments.py:57 apps/api/v1/views/courses.py:185
+#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:185
 msgid "Incorrect data sent. "
 msgstr ""
 
@@ -622,6 +622,67 @@ msgstr ""
 msgid "You must specify at least one person"
 msgstr ""
 
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:20
+msgid ""
+"Based on the configuration object, goes through all of the courses for an "
+"Organization and takes all of the Course Metadata Courses, Course Metadata "
+"Course Runs, and Publisher Comments, and writes them to Salesforce."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:30
+msgid ""
+"No organizations were defined. Please add organizations to the "
+"MigrateCommentsToSalesforce model."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:32
+#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:31
+msgid "No organizations were defined."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:35
+msgid ""
+"No partner was defined. Please add a partner to the "
+"MigrateCommentsToSalesforce model."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:36
+msgid "No partner was defined."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:40
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:41
+msgid "Salesforce configuration for {} does not exist"
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:43
+msgid "Executing for Organization: {}"
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:47
+msgid "Found {} courses for {}"
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:51
+msgid "Creating Salesforce Case for Course: {}"
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:58
+msgid "Creating Salesforce Course_Run__c for Course Run: {}"
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:66
+msgid "No PublisherCourseRun found for {}."
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:100
+msgid "Inserted {} comments for {}"
+msgstr ""
+
+#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:102
+msgid "No PublisherCourses found for {}"
+msgstr ""
+
 #: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:19
 msgid ""
 "Based on the configuration object, goes through all courses for an "
@@ -633,10 +694,6 @@ msgstr ""
 msgid ""
 "No organizations were defined. Please add organizations to the "
 "MigratePublisherToCourseMetadataConfig model."
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:31
-msgid "No organizations were defined."
 msgstr ""
 
 #: apps/course_metadata/management/commands/migrate_publisher_to_course_metadata.py:45

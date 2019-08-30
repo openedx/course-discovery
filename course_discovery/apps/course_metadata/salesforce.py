@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from simple_salesforce import Salesforce, SalesforceExpiredSession
 
 from course_discovery.apps.core.models import User
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 
 
 def salesforce_request_wrapper(method):
@@ -116,7 +117,6 @@ class SalesforceUtil:
                 'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
                     url=self.partner.site.domain if self.partner.site.domain else '', id=course.id
                 ),
-                'Publisher_Status__c': None,
                 'OFAC_Review_Decision__c': course.has_ofac_restrictions,
                 'Course_Key__c': course.key,
             })
@@ -133,11 +133,12 @@ class SalesforceUtil:
                 'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/courserun/{id}/change/'.format(
                     url=self.partner.site, id=course_run.id
                 ),
-                'Course_Start_Date__c': course_run.start.isoformat(),
-                'Course_End_Date__c': course_run.end.isoformat(),
-                'Publisher_Status__c': course_run.status,
+                'Course_Start_Date__c': course_run.start.isoformat() if course_run.start else None,
+                'Course_End_Date__c': course_run.end.isoformat() if course_run.end else None,
+                'Publisher_Status__c': self._get_salesforce_equivalent(course_run.status),
                 'Course_Run_Name__c': course_run.title,
                 'Expected_Go_Live_Date__c': course_run.go_live_date.isoformat() if course_run.go_live_date else None,
+                'Course_Number__c': course_run.key,
             })
             course_run.salesforce_id = sf_course_run.get('id')
             course_run.save()
@@ -167,7 +168,7 @@ class SalesforceUtil:
     def create_comment_for_course_case(self, course, user, body, course_run_key=None):
         if not course.salesforce_case_id:
             self.create_case_for_course(course)
-        user_comment_body = self._format_user_comment_body(user, body, course_run_key)
+        user_comment_body = self.format_user_comment_body(user, body, course_run_key=course_run_key)
         self.client.FeedItem.create({
             'ParentId': course.salesforce_case_id,
             'Body': user_comment_body,
@@ -175,7 +176,7 @@ class SalesforceUtil:
         return self._create_comment_return_body(user, body, course_run_key)
 
     @staticmethod
-    def _format_user_comment_body(user, body, course_run_key=None):
+    def format_user_comment_body(user, body, course_run_key=None):
         if user.first_name and user.last_name:
             user_message = '[User]\n{first_name} {last_name} ({username})'.format(
                 first_name=user.first_name,
@@ -291,3 +292,15 @@ class SalesforceUtil:
             'comment': body,
             'created': datetime.now(timezone.utc).isoformat(),
         }
+
+    @staticmethod
+    def _get_salesforce_equivalent(status):
+        # Note: these must match the equivalent 'picklistValues' for Salesforce's Course_Run__c.Publisher_Status__c
+        salesforce_statuses = {
+            CourseRunStatus.Unpublished: 'New/Unsubmitted Edits',
+            CourseRunStatus.LegalReview: 'In Legal Review',
+            CourseRunStatus.InternalReview: 'In PC Review',
+            CourseRunStatus.Reviewed: 'Scheduled',
+            CourseRunStatus.Published: 'Live',
+        }
+        return salesforce_statuses.get(status)
