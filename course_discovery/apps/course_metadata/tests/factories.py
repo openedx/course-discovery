@@ -543,3 +543,8 @@ class ProfileImageDownloadConfigFactory(factory.DjangoModelFactory):
 class MigratePublisherToCourseMetadataConfigFactory(factory.DjangoModelFactory):
     class Meta:
         model = MigratePublisherToCourseMetadataConfig
+
+
+class MigrateCommentsToSalesforceFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = MigrateCommentsToSalesforce

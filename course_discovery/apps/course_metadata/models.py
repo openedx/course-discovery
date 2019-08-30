@@ -2424,3 +2424,11 @@ class TagCourseUuidsConfig(SingletonModel):
     """
     tag = models.TextField(default=None, null=True, blank=False, verbose_name=_('Tag'))
     course_uuids = models.TextField(default=None, null=True, blank=False, verbose_name=_('Course UUIDs'))
+
+
+class MigrateCommentsToSalesforce(SingletonModel):
+    """
+    Configuration for the migrate_comments_to_salesforce command.
+    """
+    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
+    orgs = SortedManyToManyField(Organization, blank=True)
