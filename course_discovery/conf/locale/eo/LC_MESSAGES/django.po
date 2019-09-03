@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-30 18:18+0000\n"
+"POT-Creation-Date: 2019-09-03 18:48+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -545,11 +545,11 @@ msgstr "Ìnstrüçtör-päçéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#
 msgid "Self-paced"
 msgstr "Sélf-päçéd Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: apps/course_metadata/choices.py apps/journal/choices.py
+#: apps/course_metadata/choices.py
 msgid "Active"
 msgstr "Àçtïvé Ⱡ'σяєм ιρѕυ#"
 
-#: apps/course_metadata/choices.py apps/journal/choices.py
+#: apps/course_metadata/choices.py
 msgid "Retired"
 msgstr "Rétïréd Ⱡ'σяєм ιρѕυм #"
 
@@ -961,8 +961,7 @@ msgstr ""
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py apps/journal/models.py
-#: apps/journal/models.py
+#: apps/course_metadata/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
@@ -1935,10 +1934,6 @@ msgid "The program was changed successfully."
 msgstr ""
 "Thé prögräm wäs çhängéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
-
-#: apps/journal/choices.py
-msgid "Inactive"
-msgstr "Ìnäçtïvé Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
