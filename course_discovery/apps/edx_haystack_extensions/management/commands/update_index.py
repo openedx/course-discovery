@@ -1,4 +1,3 @@
-import json
 import logging
 import time
 
@@ -53,9 +52,10 @@ class Command(HaystackCommand):
             for backend, index, alias, record_count in alias_mappings:
                 # Run a sanity check to ensure we aren't drastically changing the
                 # index, which could be indicative of a bug.
-                if not options.get('disable_change_limit', False):
-                    record_count_is_sane, index_info_string = \
-                        self.sanity_check_new_index(backend.conn, index, record_count)
+                if index in indexes_pending and not options.get('disable_change_limit', False):
+                    record_count_is_sane, index_info_string = self.sanity_check_new_index(
+                        backend.conn, index, record_count
+                    )
                     if record_count_is_sane:
                         self.set_alias(backend, alias, index)
                         indexes_pending.pop(index, None)
@@ -66,7 +66,7 @@ class Command(HaystackCommand):
                     indexes_pending.pop(index, None)
 
         if indexes_pending:
-            raise CommandError('Sanity check failed for new index(es). ' + json.dumps(indexes_pending))
+            raise CommandError('Sanity check failed for new index(es): {}'.format(indexes_pending))
 
     def percentage_change(self, current, previous):
         try:
