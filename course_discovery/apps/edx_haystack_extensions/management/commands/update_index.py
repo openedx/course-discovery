@@ -1,3 +1,4 @@
+import json
 import logging
 import time
 
@@ -42,18 +43,30 @@ class Command(HaystackCommand):
             alias, index_name = self.prepare_backend_index(backend)
             alias_mappings.append((backend, index_name, alias, record_count))
 
-        super(Command, self).handle(**options)
-
         # Set the alias (from settings) to the timestamped catalog.
-        for backend, index, alias, record_count in alias_mappings:
-            # Run a sanity check to ensure we aren't drastically changing the
-            # index, which could be indicative of a bug.
-            if not options.get('disable_change_limit', False):
-                record_count_is_sane, index_info_string = self.sanity_check_new_index(backend.conn, index, record_count)
-                if not record_count_is_sane:
-                    raise CommandError('Sanity check failed for new index. ' + index_info_string)
+        run_attempts = 0
+        indexes_pending = {key: '' for key in [x[1] for x in alias_mappings]}
+        while indexes_pending and run_attempts < 2:
+            run_attempts += 1
+            super(Command, self).handle(**options)
 
-            self.set_alias(backend, alias, index)
+            for backend, index, alias, record_count in alias_mappings:
+                # Run a sanity check to ensure we aren't drastically changing the
+                # index, which could be indicative of a bug.
+                if not options.get('disable_change_limit', False):
+                    record_count_is_sane, index_info_string = \
+                        self.sanity_check_new_index(backend.conn, index, record_count)
+                    if record_count_is_sane:
+                        self.set_alias(backend, alias, index)
+                        indexes_pending.pop(index, None)
+                    else:
+                        indexes_pending[index] = index_info_string
+                else:
+                    self.set_alias(backend, alias, index)
+                    indexes_pending.pop(index, None)
+
+        if indexes_pending:
+            raise CommandError('Sanity check failed for new index(es). ' + json.dumps(indexes_pending))
 
     def percentage_change(self, current, previous):
         try:
