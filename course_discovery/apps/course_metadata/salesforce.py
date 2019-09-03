@@ -112,13 +112,14 @@ class SalesforceUtil:
             sf_course = self.client.Course__c.create({
                 'Course_Name__c': course.title,
                 'Link_to_Publisher__c': '{url}/courses/{uuid}'.format(
-                    url=self.partner.publisher_url if self.partner.publisher_url else '', uuid=course.uuid
+                    url=self.partner.publisher_url.strip('/') if self.partner.publisher_url else '', uuid=course.uuid
                 ),
                 'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
-                    url=self.partner.site.domain if self.partner.site.domain else '', id=course.id
+                    url=self.partner.site.domain.strip('/') if self.partner.site.domain else '', id=course.id
                 ),
                 'OFAC_Review_Decision__c': course.has_ofac_restrictions,
                 'Course_Key__c': course.key,
+                'Publisher_Organization__c': organization.salesforce_id if organization else None,
             })
             course.salesforce_id = sf_course.get('id')
             course.save()
@@ -131,7 +132,7 @@ class SalesforceUtil:
             sf_course_run = self.client.Course_Run__c.create({
                 'Course__c': course_run.course.salesforce_id,
                 'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/courserun/{id}/change/'.format(
-                    url=self.partner.site, id=course_run.id
+                    url=self.partner.site.domain.strip('/') if self.partner.site.domain else '', id=course_run.id
                 ),
                 'Course_Start_Date__c': course_run.start.isoformat() if course_run.start else None,
                 'Course_End_Date__c': course_run.end.isoformat() if course_run.end else None,
