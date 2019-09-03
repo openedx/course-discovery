@@ -12,7 +12,7 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 
 from course_discovery.apps.course_metadata.models import (
-    CourseHistoricalSlug, CourseRun, Curriculum, CurriculumCourseMembership,
+    Course, CourseHistoricalSlug, CourseRun, Curriculum, CurriculumCourseMembership,
     CurriculumProgramMembership, Program, Seat
 )
 
@@ -198,6 +198,10 @@ def _seat_type_exists(course_modes, seat_type):
 
 @receiver(pre_save, sender=Course)
 def add_to_slug_history(sender, instance, **kwargs):  # pylint: disable=unused-argument
+    # check to make sure slug is not in any other course's history
+    print("Slug-to-be: ")
+    print(instance.url_slug)
+    matching_history = CourseHistoricalSlug.objects.filter(value=instance.url_slug)
     if instance.draft:
         return
     try:

@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('course_metadata', '0193_migratecommentstosalesforce'),
+        ('course_metadata', '0192_draft_version_set_null'),
     ]
 
     operations = [

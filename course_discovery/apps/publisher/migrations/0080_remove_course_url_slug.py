@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('publisher', '0080_remove_publisher_waffle_switches'),
+        ('publisher', '0079_course_url_slug'),
     ]
 
     operations = [

@@ -10,7 +10,7 @@ import django_extensions.db.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('course_metadata', '0189_add_salesforce_ids'),
+        ('course_metadata', '0197_make_slug_unique'),
     ]
 
     operations = [
