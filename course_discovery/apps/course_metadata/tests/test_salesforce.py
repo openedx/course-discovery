@@ -119,6 +119,8 @@ class TestSalesforce(TestCase):
         salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
 
         course = CourseFactory(partner=self.salesforce_config.partner)
+        organization = OrganizationFactory(key='edX', partner=self.salesforce_config.partner, salesforce_id='Test')
+        course.authoring_organizations.add(organization)
         partner = self.salesforce_config.partner
 
         return_value = {
@@ -132,13 +134,14 @@ class TestSalesforce(TestCase):
             mock_salesforce().Course__c.create.assert_called_with({
                 'Course_Name__c': course.title,
                 'Link_to_Publisher__c': '{url}/courses/{uuid}'.format(
-                    url=partner.publisher_url, uuid=course.uuid
+                    url=partner.publisher_url.strip('/'), uuid=course.uuid
                 ) if partner.publisher_url else None,
                 'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
-                    url=partner.site.domain, id=course.id
+                    url=partner.site.domain.strip('/'), id=course.id
                 ) if partner.site.domain else None,
                 'OFAC_Review_Decision__c': course.has_ofac_restrictions,
                 'Course_Key__c': course.key,
+                'Publisher_Organization__c': organization.salesforce_id,
             })
             self.assertEqual(course.salesforce_id, return_value.get('id'))
 
@@ -164,13 +167,14 @@ class TestSalesforce(TestCase):
                 mock_salesforce().Course__c.create.assert_called_with({
                     'Course_Name__c': course.title,
                     'Link_to_Publisher__c': '{url}/courses/{uuid}'.format(
-                        url=partner.publisher_url, uuid=course.uuid
+                        url=partner.publisher_url.strip('/'), uuid=course.uuid
                     ) if partner.publisher_url else None,
                     'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
-                        url=partner.site.domain, id=course.id
+                        url=partner.site.domain.strip('/'), id=course.id
                     ) if partner.site.domain else None,
                     'OFAC_Review_Decision__c': course.has_ofac_restrictions,
                     'Course_Key__c': course.key,
+                    'Publisher_Organization__c': organization.salesforce_id,
                 })
 
                 mock_create_account.assert_called_with(organization)
@@ -205,7 +209,7 @@ class TestSalesforce(TestCase):
             mock_salesforce().Course_Run__c.create.assert_called_with({
                 'Course__c': course_run.course.salesforce_id,
                 'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/courserun/{id}/change/'.format(
-                    url=partner.site, id=course_run.id
+                    url=partner.site.domain.strip('/'), id=course_run.id
                 ),
                 'Course_Start_Date__c': course_run.start.isoformat(),
                 'Course_End_Date__c': course_run.end.isoformat(),
