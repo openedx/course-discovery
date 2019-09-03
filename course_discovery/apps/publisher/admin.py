@@ -56,6 +56,12 @@ class OrganizationUserRoleAdmin(SimpleHistoryAdmin):
     }
 
     def save_model(self, request, obj, form, change):
+        # If trying to do an update, check to see if there's an original user associated with the model
+        try:
+            original_user = self.model.objects.get(id=obj.id).user
+        except self.model.DoesNotExist:
+            original_user = None
+
         obj.save()
         publisher_courses = obj.organization.publisher_courses
 
@@ -65,7 +71,17 @@ class OrganizationUserRoleAdmin(SimpleHistoryAdmin):
             [CourseUserRole(course=course, user=obj.user, role=obj.role) for course in courses_without_role]
         )
 
-        CourseUserRole.objects.filter(course__organizations__in=[obj.organization], role=obj.role).update(user=obj.user)
+        if original_user:
+            CourseUserRole.objects.filter(
+                course__organizations__in=[obj.organization],
+                role=obj.role,
+                user=original_user,
+            ).update(user=obj.user)
+        else:
+            CourseUserRole.objects.filter(
+                course__organizations__in=[obj.organization],
+                role=obj.role,
+            ).update(user=obj.user)
 
         # Assign user a group according to its role.
         group = Group.objects.get(name=self.role_groups_dict.get(obj.role))
