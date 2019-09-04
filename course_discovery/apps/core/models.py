@@ -130,6 +130,10 @@ class Partner(TimeStampedModel):
         return bool(self.marketing_site_url_root)
 
     @property
+    def uses_publisher(self):
+        return settings.ENABLE_PUBLISHER and self.publisher_url
+
+    @property
     def access_token(self):
         """
         Returns the access token for this service.

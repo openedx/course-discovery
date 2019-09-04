@@ -576,6 +576,7 @@ TAGGIT_CASE_INSENSITIVE = True
 SOLO_CACHE = 'default'
 SOLO_CACHE_TIMEOUT = 3600
 
+ENABLE_PUBLISHER = False  # either old (publisher djangoapp) or new (publisher-frontend)
 PUBLISHER_FROM_EMAIL = None
 
 USERNAME_REPLACEMENT_WORKER = "REPLACE WITH VALID USERNAME"
