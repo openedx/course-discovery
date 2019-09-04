@@ -89,13 +89,89 @@ decide to revisit this decision.
 
 
 **Marketing** - uses course keys as part of their scripts or reporting. Open to
-switching to UUIDs, but would need to make the switch. See thread here:
-https://edx-internal.slack.com/archives/CD80GQ6NS/p1565716321000400
+switching to UUIDs, but would need to make the switch. See thread here::
 
+    Dillon Dumesnil
+        Hi Marketing! I’ve been looking into the possibility of changing
+        Course numbers (NOT Course Run keys) and was curious if anyone here
+        currently uses them in any manually maintained lists or spreadsheets.
+        If so, please let me know in a thread here so we can talk further.
+        Thanks for your help!
+
+    Ned Elwell
+        Can you give an example of a course number? (our terminology isn't
+        great in the course key, course number department)
+
+    Dillon Dumesnil
+        Totally understand. Something like this: Say you have the course key
+        MichiganX+PUBLIB606x. The idea would be to allow them to change it to
+        something like MichiganX+PUBLIB616x. The change being going from 606x
+        to 616x
+
+    Ned Elwell
+        We don't have any manual sheets that key off of that, but it would
+        break a LOT of reporting.
+        Unless we're equipped to redo reporting on a value that's not related
+        to course number/name, I can foresee problems with this.
+
+    Dillon Dumesnil
+        Would UUID be a potential fix for this issue?
+
+    Ned Elwell
+        I think the uuid fix would unblock any marketing reporting. it's just
+        a major perspective shift. Otherwise, I see no issues as almost all
+        other reporting is based on course run.
+
+    [Paraphrased]
+    Ned Elwell
+        Would there be no historical record of the Course once the number
+        changes?
+
+    Dillon Dumesnil
+        Well the row will continue to exist, but the course key on that row
+        would be changed. We do have historical course tables in
+        course_metadata that would see these changes, but as far as the actual
+        table goes, that one row would just change course keys
 
 **Data Engineering** - Brian Wilson did research into this and does not believe
 there are any major concerns here. Should also encourage to always use UUIDs.
-See thread here: https://edx-internal.slack.com/archives/CDCK46GRX/p1565639625010200
+See thread here::
+
+    Brian Wilson
+        I’m assuming that the only things in SQL scripts that would actually
+        break on a change to values in
+        discovery_read_replica.course_metadata_course.key would be tables that
+        are calculated incrementally and store and make use of this value.
+        I’ve identified the following as incremental tables:
+            * business_intelligence.user_session_summary
+            * finance.recognized_certificate_revenue_total
+            * business_intelligence.activity_engagement_user_daily
+            * business_intelligence.identify
+            * business_intelligence.deprecated_user_activity_engagement_eligible_users
+            * business_intelligence.survey_history
+            * business_intelligence.experiment_exposure
+            * business_intelligence.utm_touch
+            * business_intelligence.country_region_mapping
+            * financial_reporting.intermediate_organization_courserun_previously_paid
+        The main one I’m worried about is
+        finance.recognized_certificate_revenue_total.  As we’ve seen before,
+        it’s not the easiest set of queries to analyze.
+
+        I should also note that this change would also affect
+        production.d_course., not just course_metadata_course.
+
+        finance.recognized_certificate_revenue_total, of course, depends on
+        both.
+
+        Okay, the latter table doesn’t actually persist a course-level
+        identifier, only the course run key (as course_id).  And it looks like
+        all the places that group by the catalog_course will switch to using
+        the new values in case of any change. So I think things should be okay.
+
+        One level where there may be issues is with a lag between
+        course_metadata_course changing, and when the change shows up in
+        production.d_course. That lag effect might be an issue. But I’m
+        hoping it would be only temporary.
 
 **Data Science** - Details for the impact to financial reporting if we change
 course keys (as reported by Jacqueline Finkielsztein):
