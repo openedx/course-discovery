@@ -126,11 +126,9 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 if course_run:
                     self.update_course_run(course_run, body)
                     course = getattr(course_run, 'canonical_for_course', False)
-                    if course and not self.partner.has_marketing_site:
-                        # If the partner have marketing site,
-                        # we should only update the course information from the marketing site.
-                        # Therefore, we don't need to do the statements below
-                        course = self.update_course(course, body)
+                    if course and not self.partner.uses_publisher:
+                        # Without publisher, we'll use Studio as the source of truth for course data
+                        self.update_course(course, body)
                 else:
                     # We need to add in this check as part of the Publisher Frontend work. This is caused by
                     # the creation of a draft version pushing out to Studio and then this function creating the
@@ -208,6 +206,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def format_course_run_data(self, body, course=None):
         defaults = {
             'key': body['id'],
+            'start': self.parse_date(body['start']),
             'end': self.parse_date(body['end']),
             'enrollment_start': self.parse_date(body['enrollment_start']),
             'enrollment_end': self.parse_date(body['enrollment_end']),
@@ -215,10 +214,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'license': body.get('license') or '',  # license cannot be None
         }
 
-        # When using a marketing site, only dates (excluding start) should come from the Course API.
-        if not self.partner.has_marketing_site:
+        if not self.partner.uses_publisher:
             defaults.update({
-                'start': self.parse_date(body['start']),
                 'title_override': body['name'],
                 'short_description_override': body['short_description'],
                 'video': self.get_courserun_video(body),
@@ -237,8 +234,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'title': body['name'],
         }
 
-        # When using a marketing site, only dates (excluding start) should come from the Course API.
-        if not self.partner.has_marketing_site:
+        if not self.partner.uses_publisher:
             defaults.update({
                 'card_image_url': body['media'].get('image', {}).get('raw'),
             })

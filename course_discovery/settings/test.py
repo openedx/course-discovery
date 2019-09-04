@@ -54,6 +54,7 @@ LOGGING['handlers']['local'] = {
     'level': 'INFO',
 }
 
+ENABLE_PUBLISHER = True
 PUBLISHER_FROM_EMAIL = 'test@example.com'
 
 # Set to 0 to disable edx-django-sites-extensions to retrieve

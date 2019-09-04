@@ -84,7 +84,8 @@ def assert_data_generated_correctly(course_run, expected_team_data):
         'team': expected_team_data,
         'pacing_type': course_run.pacing_type_temporary,
     }
-    assert StudioAPI.generate_data_for_studio_api(course_run) == expected
+    # the publisher djangoapp doesn't care about the 'creating' flag passed below, so we just always set it False
+    assert StudioAPI.generate_data_for_studio_api(course_run, creating=False) == expected
 
 
 @pytest.mark.django_db

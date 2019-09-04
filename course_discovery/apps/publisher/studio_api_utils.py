@@ -19,7 +19,10 @@ class StudioAPI(StudioAPIBase):
         return course_run.title_override or course_run.course.title
 
     @classmethod
-    def _run_times(cls, course_run):
+    def _run_times(cls, course_run, creating):
+        # We don't use the creating param - normal StudioAPI uses it to only send dates when creating.
+        # But for historical reasons, we always push them. (rest of system is moving to Studio as the
+        # only place these dates get edited, but we are from an older time and didn't want to change it)
         return course_run.start_date_temporary, course_run.end_date_temporary
 
     @classmethod

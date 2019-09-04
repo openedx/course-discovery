@@ -150,10 +150,10 @@ class StudioAPI:
         return cls._get_next_run(run, '', related_course_runs)
 
     @classmethod
-    def generate_data_for_studio_api(cls, course_run, user=None):
+    def generate_data_for_studio_api(cls, course_run, creating, user=None):
         editors = cls._run_editors(course_run)
         org, number, run = cls._run_key_parts(course_run)
-        start, end = cls._run_times(course_run)
+        start, end = cls._run_times(course_run, creating)
 
         if user:
             editors.append(user)
@@ -171,25 +171,29 @@ class StudioAPI:
             logger.warning('No course team admin specified for course [%s]. This may result in a Studio '
                            'course run being created without a course team.', number)
 
-        return {
+        data = {
             'title': cls._run_title(course_run),
             'org': org,
             'number': number,
             'run': run,
-            'schedule': {
-                'start': serialize_datetime(start),
-                'end': serialize_datetime(end),
-            },
             'team': team,
             'pacing_type': cls._run_pacing(course_run),
         }
 
+        if start or end:
+            data['schedule'] = {
+                'start': serialize_datetime(start),
+                'end': serialize_datetime(end),
+            }
+
+        return data
+
     def create_course_rerun_in_studio(self, course_run, old_course_run_key, user=None):
-        data = self.generate_data_for_studio_api(course_run, user=user)
+        data = self.generate_data_for_studio_api(course_run, creating=True, user=user)
         return self._api.course_runs(old_course_run_key).rerun.post(data)
 
     def create_course_run_in_studio(self, publisher_course_run, user=None):
-        data = self.generate_data_for_studio_api(publisher_course_run, user=user)
+        data = self.generate_data_for_studio_api(publisher_course_run, creating=True, user=user)
         return self._api.course_runs.post(data)
 
     def update_course_run_image_in_studio(self, course_run, run_response=None):
@@ -213,7 +217,7 @@ class StudioAPI:
             )
 
     def update_course_run_details_in_studio(self, course_run):
-        data = self.generate_data_for_studio_api(course_run)
+        data = self.generate_data_for_studio_api(course_run, creating=False)
         # NOTE: We use PATCH to avoid overwriting existing team data that may have been manually input in Studio.
         return self._api.course_runs(self._run_key(course_run)).patch(data)
 
@@ -241,7 +245,9 @@ class StudioAPI:
         return course_run.title
 
     @classmethod
-    def _run_times(cls, course_run):
+    def _run_times(cls, course_run, creating):
+        if not creating:
+            return None, None  # not sent by default on update - studio is where the schedule is edited by users
         return course_run.start, course_run.end
 
     @classmethod

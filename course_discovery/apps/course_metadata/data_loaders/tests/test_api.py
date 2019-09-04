@@ -157,7 +157,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         )
         return bodies
 
-    def assert_course_run_loaded(self, body, partner_has_marketing_site=True):
+    def assert_course_run_loaded(self, body, partner_uses_publisher=True):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """
 
         # Validate the Course
@@ -187,7 +187,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         start = self.loader.parse_date(body['start'])
         pacing_type = self.loader.get_pacing_type(body)
 
-        if not partner_has_marketing_site:
+        if not partner_uses_publisher:
             expected_values.update({
                 'start': start,
                 'card_image_url': None,
@@ -217,11 +217,11 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             False,
         ),
     )
-    def test_ingest(self, partner_has_marketing_site):
+    def test_ingest(self, partner_uses_publisher):
         """ Verify the method ingests data from the Courses API. """
         api_data = self.mock_api()
-        if not partner_has_marketing_site:
-            self.partner.marketing_site_url_root = None
+        if not partner_uses_publisher:
+            self.partner.publisher_url = None
             self.partner.save()
 
         self.assertEqual(Course.objects.count(), 0)
@@ -237,7 +237,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
 
         for datum in api_data:
-            self.assert_course_run_loaded(datum, partner_has_marketing_site)
+            self.assert_course_run_loaded(datum, partner_uses_publisher)
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
@@ -259,7 +259,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
 
     @responses.activate
     @ddt.data(True, False)
-    def test_ingest_canonical(self, partner_has_marketing_site):
+    def test_ingest_canonical(self, partner_uses_publisher):
         """ Verify the method ingests data from the Courses API. """
         self.assertEqual(Course.objects.count(), 0)
         self.assertEqual(CourseRun.objects.count(), 0)
@@ -270,8 +270,8 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             mock_data.COURSES_API_BODY_UPDATED,
         ])
 
-        if not partner_has_marketing_site:
-            self.partner.marketing_site_url_root = None
+        if not partner_uses_publisher:
+            self.partner.publisher_url = None
             self.partner.save()
 
         self.loader.ingest()
@@ -291,7 +291,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
 
         # Verify second course not used to update course
         self.assertNotEqual(mock_data.COURSES_API_BODY_SECOND['name'], course.title)
-        if partner_has_marketing_site:
+        if partner_uses_publisher:
             # Verify the course remains unchanged by api update if we have marketing site
             self.assertEqual(mock_data.COURSES_API_BODY_ORIGINAL['name'], course.title)
         else:
