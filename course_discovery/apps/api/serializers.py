@@ -1997,6 +1997,8 @@ class AggregateSearchSerializer(HaystackSerializer):
 
 class LimitedAggregateSearchSerializer(HaystackSerializer):
     class Meta:
+        field_aliases = COMMON_SEARCH_FIELD_ALIASES
+        ignore_fields = COMMON_IGNORED_FIELDS
         fields = ['subject', 'uuid', 'key', 'aggregation_key', 'content_type']
         index_classes = [
             search_indexes.CourseRunIndex,
