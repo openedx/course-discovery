@@ -157,22 +157,20 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         )
         return bodies
 
-    def assert_course_run_loaded(self, body, partner_uses_publisher=True):
+    def assert_course_run_loaded(self, body, partner_uses_publisher=True, draft=False):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """
 
         # Validate the Course
         course_key = '{org}+{key}'.format(org=body['org'], key=body['number'])
         organization = Organization.objects.get(key=body['org'])
-        course = Course.objects.get(key=course_key)
+        course = Course.everything.get(key=course_key, draft=draft)
 
-        self.assertEqual(course.title, body['name'])
         self.assertListEqual(list(course.authoring_organizations.all()), [organization])
 
         # Validate the course run
         course_run = course.course_runs.get(key=body['id'])
         expected_values = {
-            'title': self.loader.clean_string(body['name']),
-            'short_description': self.loader.clean_string(body['short_description']),
+            'start': self.loader.parse_date(body['start']),
             'end': self.loader.parse_date(body['end']),
             'enrollment_start': self.loader.parse_date(body['enrollment_start']),
             'enrollment_end': self.loader.parse_date(body['enrollment_end']),
@@ -184,18 +182,14 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             'license': body.get('license', ''),
         }
 
-        start = self.loader.parse_date(body['start'])
-        pacing_type = self.loader.get_pacing_type(body)
-
         if not partner_uses_publisher:
             expected_values.update({
-                'start': start,
                 'card_image_url': None,
                 'title_override': body['name'],
                 'short_description_override': self.loader.clean_string(body['short_description']),
                 'video': self.loader.get_courserun_video(body),
                 'status': CourseRunStatus.Published,
-                'pacing_type': pacing_type,
+                'pacing_type': self.loader.get_pacing_type(body),
                 'mobile_available': body['mobile_available'] or False,
             })
 
@@ -208,15 +202,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         return course_run
 
     @responses.activate
-    @ddt.unpack
-    @ddt.data(
-        (
-            True,
-        ),
-        (
-            False,
-        ),
-    )
+    @ddt.data(True, False)
     def test_ingest(self, partner_uses_publisher):
         """ Verify the method ingests data from the Courses API. """
         api_data = self.mock_api()
@@ -292,7 +278,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         # Verify second course not used to update course
         self.assertNotEqual(mock_data.COURSES_API_BODY_SECOND['name'], course.title)
         if partner_uses_publisher:
-            # Verify the course remains unchanged by api update if we have marketing site
+            # Verify the course remains unchanged by api update if we have publisher
             self.assertEqual(mock_data.COURSES_API_BODY_ORIGINAL['name'], course.title)
         else:
             # Verify updated canonical course used to update course
@@ -300,46 +286,88 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         # Verify the updated course run updated the original course run
         self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['hidden'], course_run_orig.hidden)
 
-    @responses.activate
-    def test_ingest_does_not_create_if_draft_exists(self):
-        """
-        Verify the method ingests data from the Courses API, but does not create a
-        Course or CourseRun if a draft version already exists.
-        """
-        self.assertEqual(Course.objects.count(), 0)
-        self.assertEqual(CourseRun.objects.count(), 0)
+    def assert_run_and_course_updated(self, datum, run, exists, draft, partner_uses_publisher):
+        course_key = '{org}+{number}'.format(org=datum['org'], number=datum['number'])
+        run_key = datum['id']
+        if run:
+            self.assert_course_run_loaded(datum, partner_uses_publisher, draft=draft)
+            if partner_uses_publisher and exists:  # will not update course
+                self.assertNotEqual(Course.everything.get(key=course_key, draft=draft).title, datum['name'])
+            else:
+                self.assertEqual(Course.everything.get(key=course_key, draft=draft).title, datum['name'])
+        else:
+            self.assertFalse(CourseRun.everything.filter(key=run_key, draft=draft).exists())
+            self.assertFalse(Course.everything.filter(key=course_key, draft=draft).exists())
 
-        self.mock_api([
-            mock_data.COURSES_API_BODY_ORIGINAL,
-            mock_data.COURSES_API_BODY_SECOND,
-        ])
-        key = '{org}+{number}'.format(org=mock_data.COURSES_API_BODY_ORIGINAL['org'],
-                                      number=mock_data.COURSES_API_BODY_ORIGINAL['number'])
-        dummy_course = CourseFactory(key=key, title=mock_data.COURSES_API_BODY_ORIGINAL['name'], partner=self.partner)
-        CourseRunFactory(course=dummy_course, key=mock_data.COURSES_API_BODY_SECOND['id'], draft=True)
+    @responses.activate
+    @ddt.data(
+        (True, True, True),
+        (True, False, True),
+        (False, True, True),
+        (False, False, True),
+        (True, True, False),
+        (True, False, False),
+        (False, True, False),
+        (False, False, False),
+    )
+    @ddt.unpack
+    def test_ingest_handles_draft(self, official_exists, draft_exists, partner_uses_publisher):
+        """
+        Verify the method ingests data from the Courses API, and updates both official and draft versions.
+        """
+        datum = mock_data.COURSES_API_BODY_ORIGINAL
+        self.mock_api([datum])
+
+        if not partner_uses_publisher:
+            self.partner.publisher_url = None
+            self.partner.save()
+
+        official_run = None
+        draft_run = None
+
+        course_key = '{org}+{number}'.format(org=datum['org'], number=datum['number'])
+        run_key = datum['id']
+        official_course_kwargs = {}
+        official_run_kwargs = {}
+        all_courses = set()
+        all_runs = set()
+        if draft_exists or official_exists:
+            org = OrganizationFactory(key=datum['org'])
+        if draft_exists:
+            draft_course = Course.objects.create(partner=self.partner, key=course_key, title='Title', draft=True)
+            draft_run = CourseRun.objects.create(course=draft_course, key=run_key, draft=True)
+            draft_course.canonical_course_run = draft_run
+            draft_course.save()
+            draft_course.authoring_organizations.add(org)
+            official_course_kwargs = {'draft_version': draft_course}
+            official_run_kwargs = {'draft_version': draft_run}
+            all_courses.add(draft_course)
+            all_runs.add(draft_run)
+        if official_exists:
+            official_course = Course.objects.create(partner=self.partner, key=course_key, title='Title',
+                                                    **official_course_kwargs)
+            official_run = CourseRun.objects.create(course=official_course, key=run_key, **official_run_kwargs)
+            official_course.canonical_course_run = official_run
+            official_course.save()
+            official_course.authoring_organizations.add(org)
+            all_courses.add(official_course)
+            all_runs.add(official_run)
 
         self.loader.ingest()
 
-        self.assertEqual(Course.objects.count(), 1)
-        # The official version of the ORIGINAL should have been created, but not the SECOND
-        self.assertEqual(CourseRun.objects.count(), 1)
-        self.assertEqual(CourseRun.everything.count(), 2)
+        if draft_exists or official_exists:
+            self.assertEqual(set(Course.everything.all()), all_courses)
+            self.assertEqual(set(CourseRun.everything.all()), all_runs)
+        else:
+            # We should have made official versions of the data
+            official_course = Course.everything.get()
+            official_run = CourseRun.everything.get()
+            self.assertFalse(official_course.draft)
+            self.assertFalse(official_run.draft)
+            self.assertEqual(official_course.canonical_course_run, official_run)
 
-        course_run_orig = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_ORIGINAL['id'])
-        self.assertEqual(course_run_orig.key, mock_data.COURSES_API_BODY_ORIGINAL['id'])
-        self.assertEqual(course_run_orig.course.title, mock_data.COURSES_API_BODY_ORIGINAL['name'])
-
-        expected_enrollment_start = datetime.datetime.strptime(
-            mock_data.COURSES_API_BODY_ORIGINAL['enrollment_start'], "%Y-%m-%dT%H:%M:%SZ"
-        ).replace(tzinfo=UTC)
-        expected_enrollment_end = datetime.datetime.strptime(
-            mock_data.COURSES_API_BODY_ORIGINAL['enrollment_end'], "%Y-%m-%dT%H:%M:%SZ"
-        ).replace(tzinfo=UTC)
-        self.assertEqual(course_run_orig.enrollment_start, expected_enrollment_start)
-        self.assertEqual(course_run_orig.enrollment_end, expected_enrollment_end)
-
-        course_run_second = CourseRun.objects.filter(key=mock_data.COURSES_API_BODY_SECOND['id']).first()
-        self.assertIsNone(course_run_second)
+        self.assert_run_and_course_updated(datum, draft_run, draft_exists, True, partner_uses_publisher)
+        self.assert_run_and_course_updated(datum, official_run, official_exists, False, partner_uses_publisher)
 
     def test_get_pacing_type_field_missing(self):
         """ Verify the method returns None if the API response does not include a pacing field. """

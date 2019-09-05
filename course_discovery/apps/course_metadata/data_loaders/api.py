@@ -122,20 +122,16 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
             try:
                 body = self.clean_strings(body)
-                course_run = self.get_course_run(body)
-                if course_run:
-                    self.update_course_run(course_run, body)
-                    course = getattr(course_run, 'canonical_for_course', False)
-                    if course and not self.partner.uses_publisher:
+                official_run, draft_run = self.get_course_run(body)
+                if official_run or draft_run:
+                    self.update_course_run(official_run, draft_run, body)
+                    if not self.partner.uses_publisher:
                         # Without publisher, we'll use Studio as the source of truth for course data
-                        self.update_course(course, body)
+                        official_course = getattr(official_run, 'canonical_for_course', None)
+                        draft_course = getattr(draft_run, 'canonical_for_course', None)
+                        if official_course or draft_course:
+                            self.update_course(official_course, draft_course, body)
                 else:
-                    # We need to add in this check as part of the Publisher Frontend work. This is caused by
-                    # the creation of a draft version pushing out to Studio and then this function creating the
-                    # official version from the course run in Studio. Instead, we want to prevent the creation of
-                    # official versions if the draft version of the course run already exists.
-                    if CourseRun.everything.filter(key=course_run_id, draft=True).first():
-                        continue
                     course, created = self.get_or_create_course(body)
                     course_run = self.create_course_run(course, body)
                     if created:
@@ -149,17 +145,26 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 logger.exception(msg)
 
     def get_course_run(self, body):
+        """
+        Returns:
+            Tuple of (official, draft) versions of the run.
+        """
         course_run_key = body['id']
-        try:
-            return CourseRun.objects.get(key__iexact=course_run_key)
-        except CourseRun.DoesNotExist:
-            return None
+        run = CourseRun.objects.filter_drafts(key__iexact=course_run_key).first()
+        if not run:
+            return None, None
+        elif run.draft:
+            return run.official_version, run
+        else:
+            return run, run.draft_version
 
-    def update_course_run(self, course_run, body):
+    def update_course_run(self, official_run, draft_run, body):
         validated_data = self.format_course_run_data(body)
-        self._update_instance(course_run, validated_data, suppress_publication=True)
+        self._update_instance(official_run, validated_data, suppress_publication=True)
+        self._update_instance(draft_run, validated_data, suppress_publication=True)
 
-        logger.info('Processed course run with UUID [%s].', course_run.uuid)
+        run = official_run or draft_run
+        logger.info('Processed course run with UUID [%s].', run.uuid)
 
     def create_course_run(self, course, body):
         defaults = self.format_course_run_data(body, course=course)
@@ -189,15 +194,18 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         return (course, created)
 
-    def update_course(self, course, body):
+    def update_course(self, official_course, draft_course, body):
         validated_data = self.format_course_data(body)
-        self._update_instance(course, validated_data)
+        self._update_instance(official_course, validated_data)
+        self._update_instance(draft_course, validated_data)
 
+        course = official_course or draft_course
         logger.info('Processed course with key [%s].', course.key)
 
-        return course
-
     def _update_instance(self, instance, validated_data, **kwargs):
+        if not instance:
+            return
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
