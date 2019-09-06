@@ -22,25 +22,25 @@ Registrar - django backend integration layer between edX and master's partners t
 
 Old Publisher - Course Discovery frontend integrated with the Discovery IDA. On track to be deprecated in the future.
 
-New Publisher - publisher-frontend repository, microfrontend written in React using Discovery APIs
+New Publisher - frontend-app-publisher repository, microfrontend written in React using Discovery APIs
 
 
 Context
 -------
 
-Within the Registrar service, there are several endoints that require an edX 
+Within the Registrar service, there are several endoints that require an edX
 course run key in order to identify a specific course run. When the Registrar API
 documentation was first released to partners, they expressed a desire to identify course
 runs in a different way. They have systems that identify their courses by some internal
-naming scheme, and they requested the ability to use those identifiers in the context of 
+naming scheme, and they requested the ability to use those identifiers in the context of
 Registrar so that they wouldn't have to convert between their own course run ids and
 edX course run keys.
 
 Example:
 
     There is an edX course, Introduction To Calculus.
-    It has a course run with the key ``course-v1:exampleX+IntoToCalc+Fall2020``. 
-    
+    It has a course run with the key ``course-v1:exampleX+IntoToCalc+Fall2020``.
+
     In the partner's systems, their Introduction to Calculus Fall 2020 course is
     called ``MATH205-Fall20``", and they would like to use this identifier when interfacing with edX.
 

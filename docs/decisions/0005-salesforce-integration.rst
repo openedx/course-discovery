@@ -16,7 +16,7 @@ Record: A representation of a model (Course/Course Run) within Salesforce
 
 Old Publisher: Course Discovery frontend integrated with the Discovery IDA
 
-New Publisher: publisher-frontend repository, microfrontend written in React using Discovery APIs
+New Publisher: frontend-app-publisher repository, microfrontend written in React using Discovery APIs
 
 Context
 -------

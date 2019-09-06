@@ -13,7 +13,7 @@ LOGGING['handlers']['local'] = {
 INTERNAL_IPS = ('127.0.0.1',)
 
 CORS_ORIGIN_WHITELIST = (
-    'localhost:18400',  # publisher-frontend
+    'localhost:18400',  # frontend-app-publisher
 )
 
 HAYSTACK_CONNECTIONS['default']['URL'] = 'http://edx.devstack.elasticsearch:9200/'
