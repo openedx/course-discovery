@@ -10,22 +10,33 @@ import django_extensions.db.fields
 class Migration(migrations.Migration):
 
     def migrate_data_forward(apps, schema_editor):
+        DiscoveryCourseRun = apps.get_model('course_metadata', 'courseRun')
+
+        # need to recreate generated properties since the model managers aren't serialized
+        def get_discovery_course_run(course_run_instance):
+            if course_run_instance.lms_course_id:
+                return DiscoveryCourseRun.everything.filter(draft=False, key=course_run_instance.lms_course_id).first()
+            else:
+                return None
+
+        # find the course metadata counterpart by finding the counterpart of the most recent course run and extracting
+        # the course object
+        def get_discovery_course(course_instance):
+            for course_run in course_instance.publisher_course_runs.all():
+                # recreate discovery_counterpart generated property
+                course_run_discovery_counterpart = get_discovery_course_run(course_run)
+                if course_run_discovery_counterpart:
+                    return course_run_discovery_counterpart.course
+            return None
+
         Course = apps.get_model('publisher', 'course')
-        DiscoveryCourse = apps.get_model('course_metadata', 'course')
+
         for instance in Course.objects.all():
             # clear any existing slugs to ensure uniqueness
             instance.url_slug = ''
-            # recreate organization() and partner() methods
-            organization = instance.organizations.all().first()
-            partner = organization.partner if organization else None
-            key = '{org}+{number}'.format(org=instance.organizations.first().key, number=instance.number)
-            try:
-                discovery_course = DiscoveryCourse.everything.get(partner=partner, key=key, draft=False)
+            discovery_course = get_discovery_course(instance)
+            if discovery_course:
                 instance.url_slug = discovery_course.url_slug
-            except ObjectDoesNotExist:
-                # no matching discovery course just means this one hasn't been published yet
-                pass
-            # will set the url_slug if not already set
             instance.save()
 
     dependencies = [
