@@ -2,10 +2,12 @@ from django.conf.urls import include, url
 
 from course_discovery.apps.publisher import views
 
+app_name = 'publisher'
+
 urlpatterns = [
     url(r'^$', views.CourseRunListView.as_view(), name='publisher_dashboard'),
     url(r'^admin/importcourses/$', views.AdminImportCourse.as_view(), name='publisher_admin_import_course'),
-    url(r'^api/', include('course_discovery.apps.publisher.api.urls', namespace='api')),
+    url(r'^api/', include('course_discovery.apps.publisher.api.urls')),
     url(r'^courses/$', views.CourseListView.as_view(), name='publisher_courses'),
     url(r'^courses/new/$', views.CreateCourseView.as_view(), name='publisher_courses_new'),
     url(r'^courses/(?P<pk>\d+)/$', views.CourseDetailView.as_view(), name='publisher_course_detail'),

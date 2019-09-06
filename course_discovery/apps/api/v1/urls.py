@@ -20,11 +20,13 @@ from course_discovery.apps.api.v1.views.subjects import SubjectViewSet
 from course_discovery.apps.api.v1.views.topics import TopicViewSet
 from course_discovery.apps.api.v1.views.user_management import UsernameReplacementView
 
+app_name = 'v1'
+
 partners_router = routers.SimpleRouter()
 partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, basename='affiliate_window')
 
 urlpatterns = [
-    url(r'^partners/', include(partners_router.urls, namespace='partners')),
+    url(r'^partners/', include((partners_router.urls, 'partners'))),
     url(r'search/typeahead', search_views.TypeaheadSearchView.as_view(), name='search-typeahead'),
     url(r'^search/person_typeahead', search_views.PersonTypeaheadSearchView.as_view(), name='person-search-typeahead'),
     url(r'currency', CurrencyView.as_view(), name='currency'),

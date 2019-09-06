@@ -7,6 +7,8 @@ from course_discovery.apps.publisher.api.views import (
     RevertCourseRevisionView, UpdateCourseRunView
 )
 
+app_name = 'api'
+
 urlpatterns = [
     url(r'^course_role_assignments/(?P<pk>\d+)/$', CourseRoleAssignmentView.as_view(), name='course_role_assignments'),
     url(r'^admins/organizations/(?P<pk>[0-9a-f-]+)/users/$', OrganizationGroupUserView.as_view(),
@@ -26,5 +28,5 @@ urlpatterns = [
         r'^course/revision/(?P<history_id>\d+)/accept_revision/$',
         AcceptAllRevisionView.as_view(), name='accept_all_revision'
     ),
-    url(r'^v1/', include('course_discovery.apps.publisher.api.v1.urls', namespace='v1')),
+    url(r'^v1/', include('course_discovery.apps.publisher.api.v1.urls')),
 ]
