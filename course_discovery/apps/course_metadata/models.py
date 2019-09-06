@@ -573,6 +573,7 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         unique_together = (
             ('partner', 'uuid', 'draft'),
             ('partner', 'key', 'draft'),
+            ('partner', 'url_slug', 'draft'),
         )
         ordering = ['id']
 
