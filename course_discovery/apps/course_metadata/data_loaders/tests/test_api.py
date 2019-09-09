@@ -157,7 +157,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         )
         return bodies
 
-    def assert_course_run_loaded(self, body, partner_uses_publisher=True, draft=False):
+    def assert_course_run_loaded(self, body, partner_uses_publisher=True, draft=False, new_pub=False):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """
 
         # Validate the Course
@@ -182,6 +182,9 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             'license': body.get('license', ''),
         }
 
+        if not partner_uses_publisher or new_pub:
+            expected_values['pacing_type'] = self.loader.get_pacing_type(body)
+
         if not partner_uses_publisher:
             expected_values.update({
                 'card_image_url': None,
@@ -202,8 +205,14 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         return course_run
 
     @responses.activate
-    @ddt.data(True, False)
-    def test_ingest(self, partner_uses_publisher):
+    @ddt.data(
+        (True, True),
+        (True, False),
+        (False, True),
+        (False, False),
+    )
+    @ddt.unpack
+    def test_ingest(self, partner_uses_publisher, on_new_publisher):
         """ Verify the method ingests data from the Courses API. """
         api_data = self.mock_api()
         if not partner_uses_publisher:
@@ -213,7 +222,8 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         self.assertEqual(Course.objects.count(), 0)
         self.assertEqual(CourseRun.objects.count(), 0)
 
-        self.loader.ingest()
+        with self.settings(ORGS_ON_NEW_PUB_FE='MITx' if on_new_publisher else ''):
+            self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
         self.assert_api_called(1)
@@ -223,7 +233,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
 
         for datum in api_data:
-            self.assert_course_run_loaded(datum, partner_uses_publisher)
+            self.assert_course_run_loaded(datum, partner_uses_publisher, new_pub=on_new_publisher)
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()

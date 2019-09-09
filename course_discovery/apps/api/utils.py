@@ -154,6 +154,7 @@ class StudioAPI:
         editors = cls._run_editors(course_run)
         org, number, run = cls._run_key_parts(course_run)
         start, end = cls._run_times(course_run, creating)
+        pacing = cls._run_pacing(course_run, creating)
 
         if user:
             editors.append(user)
@@ -177,8 +178,10 @@ class StudioAPI:
             'number': number,
             'run': run,
             'team': team,
-            'pacing_type': cls._run_pacing(course_run),
         }
+
+        if pacing:
+            data['pacing_type'] = pacing
 
         if start or end:
             data['schedule'] = {
@@ -251,7 +254,9 @@ class StudioAPI:
         return course_run.start, course_run.end
 
     @classmethod
-    def _run_pacing(cls, course_run):
+    def _run_pacing(cls, course_run, creating):
+        if not creating:
+            return None  # not sent by default on update - studio is where pacing is edited by users
         return course_run.pacing_type
 
     @classmethod

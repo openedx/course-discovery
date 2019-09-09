@@ -17,6 +17,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
 )
+from course_discovery.apps.publisher.utils import is_course_on_new_pub_fe
 
 logger = logging.getLogger(__name__)
 
@@ -159,15 +160,18 @@ class CoursesApiDataLoader(AbstractDataLoader):
             return run, run.draft_version
 
     def update_course_run(self, official_run, draft_run, body):
-        validated_data = self.format_course_run_data(body)
+        run = draft_run or official_run
+        new_pub_fe = is_course_on_new_pub_fe(run.course)
+
+        validated_data = self.format_course_run_data(body, new_pub_fe=new_pub_fe)
         self._update_instance(official_run, validated_data, suppress_publication=True)
         self._update_instance(draft_run, validated_data, suppress_publication=True)
 
-        run = official_run or draft_run
         logger.info('Processed course run with UUID [%s].', run.uuid)
 
     def create_course_run(self, course, body):
-        defaults = self.format_course_run_data(body, course=course)
+        new_pub_fe = is_course_on_new_pub_fe(course)
+        defaults = self.format_course_run_data(body, course=course, new_pub_fe=new_pub_fe)
 
         return CourseRun.objects.create(**defaults)
 
@@ -211,7 +215,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         instance.save(**kwargs)
 
-    def format_course_run_data(self, body, course=None):
+    def format_course_run_data(self, body, course=None, new_pub_fe=False):
         defaults = {
             'key': body['id'],
             'start': self.parse_date(body['start']),
@@ -222,13 +226,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'license': body.get('license') or '',  # license cannot be None
         }
 
+        if not self.partner.uses_publisher or new_pub_fe:
+            defaults['pacing_type'] = self.get_pacing_type(body)
+
         if not self.partner.uses_publisher:
             defaults.update({
                 'title_override': body['name'],
                 'short_description_override': body['short_description'],
                 'video': self.get_courserun_video(body),
                 'status': CourseRunStatus.Published,
-                'pacing_type': self.get_pacing_type(body),
                 'mobile_available': body.get('mobile_available') or False,
             })
 
