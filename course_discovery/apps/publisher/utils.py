@@ -165,19 +165,35 @@ def user_orgs(user):
 
 def is_on_new_pub_fe(user):
     """Returns if all the user's organizations have been moved to new publisher frontend"""
-    try:
-        orgs_on_new_pub_fe = settings.ORGS_ON_NEW_PUB_FE.split(',')
-        orgs = user_orgs(user)
-        if not orgs:
+    orgs_on_new_pub_fe = frozenset(filter(None, getattr(settings, 'ORGS_ON_NEW_PUB_FE', '').split(',')))
+    if not orgs_on_new_pub_fe:
+        return False
+
+    orgs = user_orgs(user)
+    for org in orgs:
+        if org.key not in orgs_on_new_pub_fe:
             return False
 
-        for org in orgs:
-            if org.key not in orgs_on_new_pub_fe:
-                return False
+    return True
 
-        return True
-    except AttributeError:
+
+def is_course_on_new_pub_fe(course):
+    """
+    Returns True if all the course's organizations have been moved to new publisher frontend
+
+    Args:
+        course: A course_metadata Course object (not a Publisher one)
+    """
+    orgs_on_new_pub_fe = frozenset(filter(None, getattr(settings, 'ORGS_ON_NEW_PUB_FE', '').split(',')))
+    if not orgs_on_new_pub_fe:
         return False
+
+    orgs = course.authoring_organizations.all()
+    for org in orgs:
+        if org.key not in orgs_on_new_pub_fe:
+            return False
+
+    return True
 
 
 def publisher_url(user):

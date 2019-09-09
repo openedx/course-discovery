@@ -51,7 +51,7 @@ class StudioAPITests(TestCase):
         self.client = mock.Mock()
         self.api = StudioAPI(self.client)
 
-    def make_studio_data(self, run, add_schedule=True):
+    def make_studio_data(self, run, add_pacing=True, add_schedule=True):
         key = CourseKey.from_string(run.key)
         data = {
             'title': run.title,
@@ -59,8 +59,9 @@ class StudioAPITests(TestCase):
             'number': key.course,
             'run': key.run,
             'team': [],
-            'pacing_type': run.pacing_type,
         }
+        if add_pacing:
+            data['pacing_type'] = run.pacing_type
         if add_schedule:
             data['schedule'] = {
                 'start': serialize_datetime(run.start),
@@ -88,6 +89,6 @@ class StudioAPITests(TestCase):
         run = CourseRunFactory()
         self.api.update_course_run_details_in_studio(run)
 
-        expected_data = self.make_studio_data(run, add_schedule=False)
+        expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False)
         self.assertEqual(self.client.course_runs.call_args_list, [mock.call(run.key)])
         self.assertEqual(self.client.course_runs.return_value.patch.call_args_list[0][0][0], expected_data)
