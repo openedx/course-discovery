@@ -3,9 +3,7 @@ import random
 from datetime import date
 
 import mock
-import pytest
 import responses
-from django.db.utils import IntegrityError
 from django.test import override_settings
 from django.urls import reverse
 from testfixtures import LogCapture
@@ -19,7 +17,7 @@ from course_discovery.apps.course_metadata.models import CourseEntitlement as Di
 from course_discovery.apps.course_metadata.models import CourseRun, ProgramType
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import SeatType, Video
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory, PersonFactory
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.course_metadata.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
 )
@@ -183,7 +181,6 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         assert discovery_course.learner_testimonials == publisher_course.learner_testimonial
         assert discovery_course.faq == publisher_course.faq
         assert discovery_course.additional_information == publisher_course.additional_information
-        assert discovery_course.url_slug == publisher_course.url_slug
         expected = list(publisher_course_run.course.organizations.all())
         assert list(discovery_course.authoring_organizations.all()) == expected
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}
@@ -214,28 +211,6 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
             price=verified_seat.price,
             **common_seat_kwargs
         )
-
-    @responses.activate
-    def test_publish_with_duplicate_url_slug(self):
-        publisher_course_run = self._create_course_run_for_publication()
-        publisher_course_run.course.url_slug = 'duplicate'
-        publisher_course_run.course.save()
-        discovery_matching_course = CourseFactory(url_slug='duplicate', draft=False,
-                                                  partner=publisher_course_run.course.partner)
-        discovery_matching_course.save()
-        self._mock_studio_api_success(publisher_course_run)
-        self._mock_ecommerce_api(publisher_course_run)
-
-        with pytest.raises(IntegrityError):
-            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
-            self.client.post(url, {})
-
-        discovery_matching_course.draft = True
-        discovery_matching_course.save()
-
-        with pytest.raises(IntegrityError):
-            url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
-            self.client.post(url, {})
 
     @responses.activate
     @override_settings(PUBLISHER_UPGRADE_DEADLINE_DAYS=PUBLISHER_UPGRADE_DEADLINE_DAYS)

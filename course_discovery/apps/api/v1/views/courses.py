@@ -197,14 +197,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         if Course.objects.filter(partner=partner, key=course_creation_fields['key']).exists():
             raise Exception(_('A course with key {key} already exists.').format(key=course_creation_fields['key']))
 
-        # if a manually entered url_slug, ensure it's not already taken (auto-generated are guaranteed uniqueness)
-        if (course_creation_fields['url_slug'] and
-            Course.everything.filter(url_slug=course_creation_fields['url_slug'],
-                                     partner_id=course_creation_fields['partner']).exists()):
-            raise Exception(
-                _('Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. Please '
-                  'update this field and try again.').format(url_slug=course_creation_fields['url_slug']))
-
         course = serializer.save(draft=True)
 
         organization = Organization.objects.get(key=course_creation_fields['org'])
@@ -315,14 +307,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # If price didnt change, check the other fields on the course
         # (besides image and video, they are popped off above)
         changed = changed or reviewable_data_has_changed(course, serializer.validated_data.items())
-        validated_data = serializer.validated_data
-
-        if (validated_data.get('url_slug') and
-            Course.everything.filter(url_slug=validated_data['url_slug'],
-                                     partner=course.partner).exclude(uuid=course.uuid).exists()):
-            raise Exception(
-                _('Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. '
-                  'Please update this field and try again.').format(url_slug=validated_data['url_slug']))
 
         # Then the course itself
         course = serializer.save()
