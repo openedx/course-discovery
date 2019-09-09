@@ -208,6 +208,8 @@ class Command(BaseCommand):
 
             # TODO Cleanup CourseRun overrides equivalent to the Course values.
 
+        connection.connect()  # reconnect to django outside of loop (see connect comment above)
+
         # Clean up any media orphans that we might have created
         delete_orphans(Image)
         delete_orphans(Video)
