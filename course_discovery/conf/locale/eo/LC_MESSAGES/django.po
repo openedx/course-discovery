@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-09 17:08+0000\n"
+"POT-Creation-Date: 2019-09-10 16:46+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -188,6 +188,15 @@ msgstr ""
 "¢σηѕє¢тєтυ#"
 
 #: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid ""
+"Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
+"already in use. Please update this field and try again."
+msgstr ""
+"Çöürsé çréätïön wäs ünsüççéssfül. Thé çöürsé ÛRL slüg ‘[{url_slug}]’ ïs "
+"älréädý ïn üsé. Pléäsé üpdäté thïs fïéld änd trý ägäïn. Ⱡ'σяєм ιρѕυ#"
+
+#: apps/api/v1/views/courses.py
 msgid "Entitlements must have a mode specified."
 msgstr ""
 "Éntïtléménts müst hävé ä mödé spéçïfïéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -217,6 +226,15 @@ msgstr ""
 "¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂#"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid ""
+"Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
+"in use. Please update this field and try again."
+msgstr ""
+"Çöürsé édït wäs ünsüççéssfül. Thé çöürsé ÛRL slüg ‘[{url_slug}]’ ïs älréädý "
+"ïn üsé. Pléäsé üpdäté thïs fïéld änd trý ägäïn. Ⱡ'σяєм ιρѕυм ∂σ#"
 
 #: apps/api/views.py
 msgid "You are not permitted to access the API documentation."

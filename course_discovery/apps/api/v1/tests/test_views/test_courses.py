@@ -641,6 +641,46 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(audit_seat.price, 0.00)
         self.assertTrue(audit_seat.draft)
 
+    def test_create_auto_creates_slug_if_not_set(self):
+        self.mock_access_token()
+        response = self.create_course()
+        self.assertEqual(response.status_code, 201)
+        course = Course.everything.last()
+        self.assertEqual(course.url_slug, 'course-title')
+
+    def test_create_saves_manual_url_slug(self):
+        self.mock_access_token()
+        response = self.create_course({'url_slug': 'manual'})
+        self.assertEqual(response.status_code, 201)
+        course = Course.everything.last()
+        self.assertEqual(course.url_slug, 'manual')
+
+    def test_create_increments_auto_url_slug(self):
+        self.mock_access_token()
+        response = self.create_course()
+        self.assertEqual(response.status_code, 201)
+        course = Course.everything.last()
+        self.assertEqual(course.url_slug, 'course-title')
+
+        response = self.create_course({'number': 'a123'})
+        self.assertEqual(response.status_code, 201)
+        course = Course.everything.last()
+        self.assertEqual(course.url_slug, 'course-title-2')
+
+    def test_create_fails_if_manual_slug_exists(self):
+        self.mock_access_token()
+        response = self.create_course()
+        self.assertEqual(response.status_code, 201)
+        course = Course.everything.last()
+        self.assertEqual(course.url_slug, 'course-title')
+
+        response = self.create_course({'url_slug': 'course-title'})
+        self.assertEqual(response.status_code, 400)
+        expected_error_message = 'Failed to set data: Course creation was unsuccessful. ' \
+                                 'The course URL slug ‘[course-title]’ is already in use. ' \
+                                 'Please update this field and try again.'
+        self.assertEqual(response.data, expected_error_message)
+
     def test_create_fails_if_official_version_exists(self):
         """ When creating a course, it should not create one if an official version already exists. """
         self.mock_access_token()
@@ -741,6 +781,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
             'title': 'Course title',
+            'url_slug': 'manual',
             'partner': self.partner.id,
             'key': self.course.key,
             'entitlements': [
@@ -762,8 +803,20 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
         self.assertEqual(course.title, 'Course title')
+        self.assertEqual(course.url_slug, 'manual')
         self.assertEqual(course.entitlements.first().price, 1000)
         self.assertDictEqual(response.data, self.serialize_course(course))
+
+    def test_update_defaults_url_slug_if_removed(self):
+        self.mock_access_token()
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        course_data = {
+            'url_slug': ''
+        }
+        response = self.client.patch(url, course_data, format='json')
+        self.assertEqual(response.status_code, 200)
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        self.assertEqual(course.url_slug, 'fake-test')
 
     @responses.activate
     def test_update_operates_on_drafts(self):
@@ -1094,6 +1147,22 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         CourseEntitlementFactory(course=course, mode=mode1, sku=None)
         response = self.client.patch(url, course_data, format='json')
         self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data, expected_error_message)
+
+    def test_update_fails_if_manual_slug_exists(self):
+        self.mock_access_token()
+        response = self.create_course()
+        self.assertEqual(response.status_code, 201)
+        course = Course.everything.last()
+        self.assertEqual(course.url_slug, 'course-title')
+
+        course_data = {'url_slug': 'course-title'}
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        response = self.client.patch(url, course_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        expected_error_message = 'Failed to set data: Course edit was unsuccessful. ' \
+                                 'The course URL slug ‘[course-title]’ is already in use. ' \
+                                 'Please update this field and try again.'
         self.assertEqual(response.data, expected_error_message)
 
     def test_update_with_api_exception(self):
