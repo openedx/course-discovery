@@ -206,6 +206,7 @@ class SchoolMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             'field_school_is_charter': 'charter',
             'field_school_is_contributor': 'contributor',
             'field_school_is_partner': 'partner',
+            'field_school_is_display': 'displayed_on_schools_and_partners_page',
         }
 
         for field, tag in mapping.items():

@@ -196,7 +196,7 @@ class SchoolMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         for field, value in expected_values.items():
             self.assertEqual(getattr(school, field), value)
 
-        self.assertEqual(sorted(school.tags.names()), ['charter', 'founder'])
+        self.assertEqual(sorted(school.tags.names()), ['charter', 'displayed_on_schools_and_partners_page', 'founder'])
 
     @responses.activate
     def test_ingest(self):
