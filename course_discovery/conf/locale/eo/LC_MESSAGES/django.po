@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-10 16:46+0000\n"
+"POT-Creation-Date: 2019-09-12 14:12+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1725,11 +1725,11 @@ msgstr ""
 msgid ""
 "{org_name} has submitted {course_key} for review. "
 "{link_start}{course_page_url}{link_middle}View this course run in "
-"Publisher{link_end} to review the changes or make edits."
+"Publisher{link_end} to review the changes and mark it as reviewed."
 msgstr ""
 "{org_name} häs süßmïttéd {course_key} för révïéw. "
 "{link_start}{course_page_url}{link_middle}Vïéw thïs çöürsé rün ïn "
-"Püßlïshér{link_end} tö révïéw thé çhängés ör mäké édïts. Ⱡ'σяєм ιρѕυм ∂σ#"
+"Püßlïshér{link_end} tö révïéw thé çhängés änd märk ït äs révïéwéd. Ⱡ'σяєм#"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html
 #, python-brace-format
@@ -1739,16 +1739,6 @@ msgid ""
 msgstr ""
 "Thïs ïs ä gööd tïmé tö {link_start}{studio_url}{link_middle}révïéw thïs "
 "çöürsé rün ïn Stüdïö{link_end}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
-
-#: apps/course_metadata/templates/course_metadata/email/internal_review.html
-#, python-brace-format
-msgid ""
-"Visit the {link_start}{course_approval_url}{link_middle}admin page{link_end}"
-" for this course run to actually mark it as reviewed."
-msgstr ""
-"Vïsït thé {link_start}{course_approval_url}{link_middle}ädmïn pägé{link_end}"
-" för thïs çöürsé rün tö äçtüällý märk ït äs révïéwéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
-" αмєт, ¢σηѕє¢#"
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html
 #, python-brace-format
@@ -1784,15 +1774,6 @@ msgstr ""
 "Réstrïçtéd Çöürsé ädmïn: %(restricted_admin_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢#"
 
-#: apps/course_metadata/templates/course_metadata/email/internal_review.txt
-#, python-format
-msgid ""
-"Visit the admin page to actually mark this course run as reviewed: "
-"%(course_approval_url)s"
-msgstr ""
-"Vïsït thé ädmïn pägé tö äçtüällý märk thïs çöürsé rün äs révïéwéd: "
-"%(course_approval_url)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
-
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html
 #, python-brace-format
 msgid ""
@@ -1803,24 +1784,6 @@ msgstr ""
 "{org_name} häs süßmïttéd {course_name} för révïéw. "
 "{link_start}{course_page_url}{link_middle}Vïéw thïs çöürsé rün ïn "
 "Püßlïshér{link_end} tö détérmïné ÖFÀÇ stätüs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
-
-#: apps/course_metadata/templates/course_metadata/email/legal_review.html
-#, python-brace-format
-msgid ""
-"But to actually change OFAC status, visit the "
-"{link_start}{course_approval_url}{link_middle}admin page{link_end} for this "
-"course run. Click the OFAC checkbox if needed, tell the PC which countries "
-"are restricted, and set the course run status to Internal Review."
-msgstr ""
-"Büt tö äçtüällý çhängé ÖFÀÇ stätüs, vïsït thé "
-"{link_start}{course_approval_url}{link_middle}ädmïn pägé{link_end} för thïs "
-"çöürsé rün. Çlïçk thé ÖFÀÇ çhéçkßöx ïf néédéd, téll thé PÇ whïçh çöüntrïés "
-"äré réstrïçtéd, änd sét thé çöürsé rün stätüs tö Ìntérnäl Révïéw. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяι#"
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html
 #, python-brace-format
@@ -1845,21 +1808,6 @@ msgid "View this course run in Publisher above to determine OFAC status."
 msgstr ""
 "Vïéw thïs çöürsé rün ïn Püßlïshér äßövé tö détérmïné ÖFÀÇ stätüs. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/templates/course_metadata/email/legal_review.txt
-msgid ""
-"But to actually change OFAC status, visit the admin page above for this "
-"course run. Click the OFAC checkbox if needed, tell the PC which countries "
-"are restricted, and set the course run status to Internal Review."
-msgstr ""
-"Büt tö äçtüällý çhängé ÖFÀÇ stätüs, vïsït thé ädmïn pägé äßövé för thïs "
-"çöürsé rün. Çlïçk thé ÖFÀÇ çhéçkßöx ïf néédéd, téll thé PÇ whïçh çöüntrïés "
-"äré réstrïçtéd, änd sét thé çöürsé rün stätüs tö Ìntérnäl Révïéw. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢є#"
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.txt
 #, python-format

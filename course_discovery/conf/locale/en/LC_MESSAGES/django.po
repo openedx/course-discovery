@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-10 16:46+0000\n"
+"POT-Creation-Date: 2019-09-12 14:12+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1366,7 +1366,7 @@ msgstr ""
 msgid ""
 "{org_name} has submitted {course_key} for review. {link_start}"
 "{course_page_url}{link_middle}View this course run in Publisher{link_end} to "
-"review the changes or make edits."
+"review the changes and mark it as reviewed."
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html:20
@@ -1376,14 +1376,7 @@ msgid ""
 "course run in Studio{link_end}."
 msgstr ""
 
-#: apps/course_metadata/templates/course_metadata/email/internal_review.html:26
-#, python-brace-format
-msgid ""
-"Visit the {link_start}{course_approval_url}{link_middle}admin page{link_end} "
-"for this course run to actually mark it as reviewed."
-msgstr ""
-
-#: apps/course_metadata/templates/course_metadata/email/internal_review.html:33
+#: apps/course_metadata/templates/course_metadata/email/internal_review.html:27
 #, python-brace-format
 msgid ""
 "Visit the {link_start}{restricted_admin_url}{link_middle}restricted course "
@@ -1410,13 +1403,6 @@ msgstr ""
 msgid "Restricted Course admin: %(restricted_admin_url)s"
 msgstr ""
 
-#: apps/course_metadata/templates/course_metadata/email/internal_review.txt:24
-#, python-format
-msgid ""
-"Visit the admin page to actually mark this course run as reviewed: "
-"%(course_approval_url)s"
-msgstr ""
-
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html:15
 #, python-brace-format
 msgid ""
@@ -1426,15 +1412,6 @@ msgid ""
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html:21
-#, python-brace-format
-msgid ""
-"But to actually change OFAC status, visit the {link_start}"
-"{course_approval_url}{link_middle}admin page{link_end} for this course run. "
-"Click the OFAC checkbox if needed, tell the PC which countries are "
-"restricted, and set the course run status to Internal Review."
-msgstr ""
-
-#: apps/course_metadata/templates/course_metadata/email/legal_review.html:29
 #, python-brace-format
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "
@@ -1451,14 +1428,7 @@ msgstr ""
 msgid "View this course run in Publisher above to determine OFAC status."
 msgstr ""
 
-#: apps/course_metadata/templates/course_metadata/email/legal_review.txt:16
-msgid ""
-"But to actually change OFAC status, visit the admin page above for this "
-"course run. Click the OFAC checkbox if needed, tell the PC which countries "
-"are restricted, and set the course run status to Internal Review."
-msgstr ""
-
-#: apps/course_metadata/templates/course_metadata/email/legal_review.txt:21
+#: apps/course_metadata/templates/course_metadata/email/legal_review.txt:15
 #, python-format
 msgid ""
 "Note: This email address is unable to receive replies. For questions or "

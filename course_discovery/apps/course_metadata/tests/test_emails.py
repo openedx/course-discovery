@@ -133,15 +133,11 @@ class EmailTests(TestCase):
             ],
             html_regexes=[
                 '<a href="%s">View this course run in Publisher</a> to determine OFAC status.' % self.publisher_url,
-                'But to actually change OFAC status, visit the <a href="%s">admin page</a> for this course run.' %
-                self.admin_url,
                 'For questions or comments, please contact '
                 '<a href="mailto:pc@example.com">the Project Coordinator</a>.',
             ],
             text_regexes=[
                 '%s\nView this course run in Publisher above to determine OFAC status.' % self.publisher_url,
-                '%s\nBut to actually change OFAC status, visit the admin page above for this course run.' %
-                self.admin_url,
                 'For questions or comments, please contact the Project Coordinator at pc@example.com.',
             ],
         )
@@ -160,11 +156,9 @@ class EmailTests(TestCase):
                 'MyOrg has submitted %s for review.' % self.course_run.key,
             ],
             html_regexes=[
-                '<a href="%s">View this course run in Publisher</a> to review the changes or make edits.' %
+                '<a href="%s">View this course run in Publisher</a> to review the changes and mark it as reviewed.' %
                 self.publisher_url,
                 'This is a good time to <a href="%s">review this course run in Studio</a>.' % self.studio_url,
-                'Visit the <a href="%s">admin page</a> for this course run to actually mark it as reviewed.' %
-                self.admin_url,
                 'Visit the <a href="%s">restricted course admin page</a> to set embargo rules for this course, '
                 'as needed.' % restricted_url,
             ],
@@ -172,7 +166,6 @@ class EmailTests(TestCase):
                 '\n\nPublisher page: %s\n' % self.publisher_url,
                 '\n\nStudio page: %s\n' % self.studio_url,
                 '\n\nRestricted Course admin: %s\n' % restricted_url,
-                '\n\nVisit the admin page to actually mark this course run as reviewed: %s\n' % self.admin_url,
             ],
         )
 

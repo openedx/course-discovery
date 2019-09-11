@@ -100,7 +100,6 @@ def send_email(course_run, template_name, subject, to_users, recipient_name, con
 
     run_studio_url = urljoin(studio_url, 'course/{}'.format(course_run.key))
     review_url = urljoin(publisher_url, 'courses/{}'.format(course.uuid))
-    approve_url = 'https://{}/admin/course_metadata/courserun/{}/change/'.format(partner.site.domain, course_run.id)
 
     context = context or {}
     context.update({
@@ -112,7 +111,6 @@ def send_email(course_run, template_name, subject, to_users, recipient_name, con
         'org_name': org.name,
         'contact_us_email': project_coordinator.email,
         'course_page_url': review_url,
-        'course_approval_url': approve_url,
         'studio_url': run_studio_url,
         'preview_url': course_run.marketing_url,
     })

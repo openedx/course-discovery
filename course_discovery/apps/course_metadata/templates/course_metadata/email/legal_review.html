@@ -19,14 +19,6 @@
 </p>
 <p>
     {% blocktrans trimmed asvar tmsg %}
-        But to actually change OFAC status, visit the {link_start}{course_approval_url}{link_middle}admin page{link_end} for this course run.
-        Click the OFAC checkbox if needed, tell the PC which countries are restricted, and set the course run status to Internal Review.
-    {% endblocktrans %}
-    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe course_approval_url=course_approval_url|safe %}
-</p>
-
-<p>
-    {% blocktrans trimmed asvar tmsg %}
         Note: This email address is unable to receive replies. For questions or comments, please contact {link_start}{contact_us_email}{link_middle}the Project Coordinator{link_end}.
     {% endblocktrans %}
     {% interpolate_html tmsg link_start='<a href="mailto:'|safe link_middle='">'|safe link_end='</a>'|safe contact_us_email=contact_us_email|safe  %}
