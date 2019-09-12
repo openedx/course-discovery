@@ -156,6 +156,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     prerequisites = indexes.MultiValueField(faceted=True)
     languages = indexes.MultiValueField()
+    seat_types = indexes.MultiValueField()
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
@@ -177,6 +178,10 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_first_enrollable_paid_seat_price(self, obj):
         return obj.first_enrollable_paid_seat_price
+
+    def prepare_seat_types(self, obj):
+        seat_types = [seat for course_run in obj.course_runs.all() for seat in course_run.seat_types]
+        return list(set(seat_types))
 
     def prepare_subject_uuids(self, obj):
         return [str(subject.uuid) for subject in obj.subjects.all()]
