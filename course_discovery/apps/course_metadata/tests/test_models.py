@@ -39,6 +39,7 @@ from course_discovery.apps.course_metadata.publishers import (
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
+from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -166,6 +167,7 @@ class TestCourseUpdateMarketingRedirects(MarketingSitePublisherTestMixin, TestCa
         cls.base_args = {'course': cls.course, 'status': CourseRunStatus.Published}
         cls.active = factories.CourseRunFactory(**cls.base_args, end=None, enrollment_end=None)
         cls.inactive = factories.CourseRunFactory(**cls.base_args, end=cls.past)
+        ensure_draft_world(Course.objects.get(pk=cls.course.pk))
         cls.api_root = cls.partner.marketing_site_url_root.rstrip('/')  # overwrite the mixin's version
 
     def assertRedirect(self, published_runs=None, succeed=True, to_run=None, from_runs=None):
@@ -196,6 +198,8 @@ class TestCourseUpdateMarketingRedirects(MarketingSitePublisherTestMixin, TestCa
             for from_run in from_runs:
                 from_run.refresh_from_db()
                 self.assertEqual(from_run.status, CourseRunStatus.Unpublished)
+                if from_run.draft_version:
+                    self.assertEqual(from_run.draft_version.status, CourseRunStatus.Unpublished)
         else:
             self.assertEqual(mock_redirect.call_count, 0)
 

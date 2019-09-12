@@ -661,6 +661,8 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
         Find old course runs that are no longer active but still published.
         These will be unpublished and linked to an active course run.
 
+        Designed to work on official runs.
+
         Arguments:
             published_runs (iterable): optional optimization; pass published CourseRuns to avoid a lookup
 
@@ -690,6 +692,9 @@ class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
             publisher.add_url_redirect(earliest_active_run, run)
             run.status = CourseRunStatus.Unpublished
             run.save()
+            if run.draft_version:
+                run.draft_version.status = CourseRunStatus.Unpublished
+                run.draft_version.save()
 
         return True
 
