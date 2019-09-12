@@ -1620,11 +1620,12 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
         course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
         course.save()
+        seat = SeatFactory(course_run=course_run)
         serializer = self.serialize_course(course, request)
-        assert serializer.data == self.get_expected_data(course, course_run, request)
+        assert serializer.data == self.get_expected_data(course, course_run, seat)
 
     @classmethod
-    def get_expected_data(cls, course, course_run, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, course, course_run, seat):
         return {
             'key': course.key,
             'title': course.title,
@@ -1651,11 +1652,11 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0
             }],
             'uuid': str(course.uuid),
-            'subjects': [subject.name for subject in course.subjects.all()],
             'languages': [
                 serialize_language(course_run.language) for course_run in course.course_runs.all()
                 if course_run.language
             ],
+            'seat_types': [seat.type],
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,

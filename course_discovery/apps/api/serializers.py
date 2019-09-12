@@ -1770,6 +1770,7 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 
 class CourseSearchSerializer(HaystackSerializer):
     course_runs = serializers.SerializerMethodField()
+    seat_types = serializers.SerializerMethodField()
 
     def get_course_runs(self, result):
         return [
@@ -1793,6 +1794,10 @@ class CourseSearchSerializer(HaystackSerializer):
             for course_run in result.object.course_runs.all()
         ]
 
+    def get_seat_types(self, result):
+        seat_types = [seat for course_run in result.object.course_runs.all() for seat in course_run.seat_types]
+        return list(set(seat_types))
+
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         ignore_fields = COMMON_IGNORED_FIELDS
@@ -1805,6 +1810,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'card_image_url',
             'course_runs',
             'uuid',
+            'seat_types'
             'subjects',
             'languages',
             'organizations',
