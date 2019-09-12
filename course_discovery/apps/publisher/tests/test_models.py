@@ -5,6 +5,7 @@ import random
 import ddt
 import pytest
 import responses
+from django.core import mail
 from django.db import IntegrityError
 from django.test import TestCase
 from django.urls import reverse
@@ -12,17 +13,22 @@ from django_fsm import TransitionNotAllowed
 from factory.fuzzy import FuzzyDateTime
 from guardian.shortcuts import assign_perm
 from pytz import UTC
+from waffle.testutils import override_switch
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.models import Course as DiscoveryCourse
 from course_discovery.apps.course_metadata.publishers import CourseRunMarketingSitePublisher
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory as DiscoveryCourseFactory
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
+from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher.choices import CourseRunStateChoices, CourseStateChoices, PublisherUserRole
+from course_discovery.apps.publisher.choices import (
+    CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
+)
 from course_discovery.apps.publisher.mixins import check_course_organization_permission
 from course_discovery.apps.publisher.models import (
     Course, CourseUserRole, OrganizationExtension, OrganizationUserRole, Seat
@@ -896,8 +902,10 @@ class CourseRunStateTests(MarketingSitePublisherTestMixin):
         self.assertEqual(self.course_run_state.name, state)
 
     @responses.activate
+    @override_switch('enable_publisher_email_notifications', True)
     def test_published(self):
         person = PersonFactory()
+        org = OrganizationFactory()
         primary = DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[person],
                                             status=CourseRunStatus.Unpublished, announcement=None,
                                             course__partner=self.partner, end=None, enrollment_end=None)
@@ -905,8 +913,14 @@ class CourseRunStateTests(MarketingSitePublisherTestMixin):
                                            enrollment_end=None, start=(primary.start + datetime.timedelta(days=1)))
         third = DiscoveryCourseRunFactory(course=primary.course, status=CourseRunStatus.Published,
                                           end=datetime.datetime(2010, 1, 1, tzinfo=UTC), enrollment_end=None)
+        primary.course.authoring_organizations.add(org)
+        self.course.organizations.add(org)
+        ensure_draft_world(DiscoveryCourse.objects.get(pk=primary.course.pk))
 
-        user = UserFactory()
+        pc = UserFactory()
+        factories.CourseUserRoleFactory(course=self.course, role=PublisherUserRole.ProjectCoordinator, user=pc)
+        factories.OrganizationUserRoleFactory(organization=org, role=InternalUserRole.ProjectCoordinator, user=pc)
+
         self.mock_api_client()
 
         lookup_value = getattr(primary, self.publisher.unique_field)
@@ -918,7 +932,7 @@ class CourseRunStateTests(MarketingSitePublisherTestMixin):
         self.mock_add_redirect()
 
         self.course_run.course_run_state.name = CourseRunStateChoices.Approved
-        self.course_run.course_run_state.change_state(CourseRunStateChoices.Published, user, self.site)
+        self.course_run.course_run_state.change_state(CourseRunStateChoices.Published, self.user, self.site)
         primary.refresh_from_db()
         second.refresh_from_db()
         third.refresh_from_db()
@@ -928,6 +942,13 @@ class CourseRunStateTests(MarketingSitePublisherTestMixin):
         self.assertEqual(primary.status, CourseRunStatus.Published)
         self.assertEqual(second.status, CourseRunStatus.Published)  # doesn't change end=None runs
         self.assertEqual(third.status, CourseRunStatus.Unpublished)  # does change archived runs
+
+        # Check email was sent (only one - from old publisher, not new publisher flow)
+        assert len(mail.outbox) == 1
+        message = mail.outbox[0]
+        self.assertTrue(message.subject.startswith('Publication complete: '))
+        self.assertEqual(message.to, [self.user.email])
+        self.assertEqual(message.cc, [pc.email])
 
     def test_with_invalid_parent_course_state(self):
         """
