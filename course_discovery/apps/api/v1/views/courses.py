@@ -329,11 +329,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 raise Exception(
                     _('Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. '
                       'Please update this field and try again.').format(url_slug=url_slug))
+            course.set_active_url_slug(url_slug)
 
         # Then the course itself
         course = serializer.save()
-        if url_slug:
-            course.set_active_url_slug(url_slug)
 
         if not draft:
             for course_run in course.active_course_runs:

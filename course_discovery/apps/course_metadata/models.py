@@ -40,8 +40,8 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run, set_official_state,
-    uslugify
+    UploadToFieldNamePath, clean_query, custom_render_variations, ensure_draft_world, push_to_ecommerce_for_course_run,
+    set_official_state, uslugify
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -2583,6 +2583,7 @@ class PersonAreaOfExpertise(AbstractValueModel):
 
 
 class CourseUrlSlug(TimeStampedModel):
+
     course = models.ForeignKey(Course, models.CASCADE, related_name='url_slug_history')
     # need to have these on the model separately for unique_together to work, but it should always match course.partner
     partner = models.ForeignKey(Partner, models.CASCADE)

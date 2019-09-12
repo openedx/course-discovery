@@ -857,7 +857,7 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
 
         self.course_run.draft = True
         self.course_run.status = CourseRunStatus.Reviewed
-        self.course_run.course.draft = True
+        self.course_run.course = factories.CourseFactory(draft=True)
         factories.SeatFactory(course_run=self.course_run, draft=True)
         # We have to specify a SeatType that exists in Seat.ENTITLEMENT_MODES in order for the
         # official version of the Entitlement to be created
@@ -896,6 +896,7 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         self.course_run.draft = True
         self.course_run.status = CourseRunStatus.Reviewed
         self.course_run.course.draft = True
+        self.course_run.course.canonical_course_run = self.course_run
         self.course_run.course.save()
         self.course_run.save()
 
@@ -982,7 +983,7 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
 
         self.course_run.draft = True
         self.course_run.status = CourseRunStatus.Reviewed
-        self.course_run.course.draft = True
+        self.course_run.course = factories.CourseFactory(draft=True)
         upgrade_deadline = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10)
         factories.SeatFactory(
             course_run=self.course_run,

@@ -16,7 +16,7 @@ from course_discovery.apps.core.tests.factories import StaffUserFactory, UserFac
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
-from course_discovery.apps.course_metadata.models import CourseRun, ProgramType
+from course_discovery.apps.course_metadata.models import CourseRun, CourseUrlSlugHistory, ProgramType
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.models import SeatType, Video
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory, PersonFactory
@@ -260,6 +260,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         assert discovery_course.url_slug_history.count() == 2
         assert discovery_course.active_url_slug == 'second'
         assert discovery_course.url_slug_history.filter(url_slug='first', is_active=False).count() == 1
+
 
     @responses.activate
     @override_settings(PUBLISHER_UPGRADE_DEADLINE_DAYS=PUBLISHER_UPGRADE_DEADLINE_DAYS)

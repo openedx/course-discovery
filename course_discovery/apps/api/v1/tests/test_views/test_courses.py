@@ -791,6 +791,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     @ddt.data('put', 'patch')
     @responses.activate
     def test_update_success(self, method):
+        self.maxDiff = None
         self.mock_access_token()
         entitlement = CourseEntitlementFactory(course=self.course)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
@@ -1318,7 +1319,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.client.patch(url, course_data, format='json')
         self.assertEqual(response.status_code, 200)
         draft_course.refresh_from_db()
-        print('just before i try to get the active url slug')
         self.assertEqual(draft_course.active_url_slug, 'course-title')
 
     def test_update_with_api_exception(self):
