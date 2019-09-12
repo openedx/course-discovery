@@ -1320,7 +1320,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
 
         return official_version
 
-    def handle_status_change(self):
+    def handle_status_change(self, send_emails):
         """
         If a row's status changed, take any cleanup actions necessary.
 
@@ -1337,11 +1337,13 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
 
         # OK, now check for various status change triggers
 
+        email_method = None
+
         if self.status == CourseRunStatus.LegalReview:
-            emails.send_email_for_legal_review(self)
+            email_method = emails.send_email_for_legal_review
 
         elif self.status == CourseRunStatus.InternalReview:
-            emails.send_email_for_internal_review(self)
+            email_method = emails.send_email_for_internal_review
 
         elif self.status == CourseRunStatus.Reviewed:
             official_version = self.update_or_create_official_version()
@@ -1350,15 +1352,19 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             if self.go_live_date and self.go_live_date <= datetime.datetime.now(pytz.UTC):
                 official_version.publish()  # will edit/save us too
             else:  # The publish status check will send an email for go-live
-                emails.send_email_for_reviewed(self)
+                email_method = emails.send_email_for_reviewed
 
         elif self.status == CourseRunStatus.Published:
-            emails.send_email_for_go_live(self)
+            email_method = emails.send_email_for_go_live
 
-    def save(self, suppress_publication=False, **kwargs):  # pylint: disable=arguments-differ
+        if send_emails and email_method:
+            email_method(self)
+
+    def save(self, suppress_publication=False, send_emails=True, **kwargs):  # pylint: disable=arguments-differ
         """
         Arguments:
             suppress_publication (bool): if True, we won't push the run data to the marketing site
+            send_emails (bool): whether to send email notifications for status changes from this save
         """
         is_new_course_run = not self.id
         push_to_marketing = (not suppress_publication and
@@ -1371,7 +1377,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
                 previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
 
             super().save(**kwargs)
-            self.handle_status_change()
+            self.handle_status_change(send_emails)
 
             if push_to_marketing:
                 self.push_to_marketing_site(previous_obj)
@@ -1381,12 +1387,15 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             for program in retired_programs:
                 program.excluded_course_runs.add(self)
 
-    def publish(self):
+    def publish(self, send_emails=True):
         """
         Marks the course run as announced and published if it is time to do so.
 
         Course run must be an official version - both it and any draft version will be published.
         Marketing site redirects will also be updated.
+
+        Args:
+            send_emails (bool): whether to send email notifications for this publish action
 
         Returns:
             True if the run was published, False if it was not eligible
@@ -1399,7 +1408,7 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
             for run in filter(None, [self, self.draft_version]):
                 run.announcement = now
                 run.status = CourseRunStatus.Published
-                run.save()
+                run.save(send_emails=send_emails)
 
         # It is likely that we are sunsetting an old run in favor of this new run, so update redirects just in case
         self.course.update_marketing_redirects()

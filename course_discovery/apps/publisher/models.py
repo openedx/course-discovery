@@ -956,7 +956,7 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         if not discovery_run:
             return
 
-        discovery_run.publish()
+        discovery_run.publish(send_emails=False)  # disable new-style emails, we'll send our own below
 
         # Notify course team
         if waffle.switch_is_active('enable_publisher_email_notifications'):
