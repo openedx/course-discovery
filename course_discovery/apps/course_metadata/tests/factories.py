@@ -133,6 +133,23 @@ class CourseFactory(SalesforceRecordFactory):
         if create:
             add_m2m_data(self.sponsoring_organizations, extracted)
 
+    @factory.post_generation
+    def url_slug_history(self, create, extracted, **kwargs):
+        if create:
+            data = {'is_active': True, 'course': self, 'partner': self.partner}
+            if extracted:
+                data.update(extracted)
+            CourseUrlSlugHistoryFactory(**data)
+
+
+class CourseUrlSlugHistoryFactory(factory.DjangoModelFactory):
+    course = factory.SubFactory(CourseFactory)
+    partner = factory.SelfAttribute('course.partner')
+    url_slug = FuzzyText()
+
+    class Meta:
+        model = CourseUrlSlugHistory
+
 
 @factory.django.mute_signals(post_save)
 class CourseFactoryNoSignals(CourseFactory):

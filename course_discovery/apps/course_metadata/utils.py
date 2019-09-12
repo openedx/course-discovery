@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 
 import requests
 from django.conf import settings
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from opaque_keys.edx.locator import CourseLocator
@@ -484,7 +484,15 @@ def push_to_ecommerce_for_course_run(course_run):
 
 
 @transaction.atomic
-def publish_to_course_metadata(partner, course_run, create_official=True):
+def publish_to_course_metadata(partner, course_run, create_official=True, fail_on_url_slug=True):
+    """
+        Args:
+            partner: Partner object associated with the course_run being published
+            course_run: The instance of Publisher.CourseRun being published
+            create_official: Default true. If false, will only create draft version
+            fail_on_url_slug: Default true. If false, will replace any duplicated slugs with the default instead of
+                              failing.
+    """
     from course_discovery.apps.course_metadata.models import (
         Course, CourseEntitlement, CourseRun, ProgramType, Seat, SeatType, Video
     )
@@ -534,8 +542,6 @@ def publish_to_course_metadata(partner, course_run, create_official=True):
     discovery_course.subjects.clear()
     discovery_course.subjects.add(*subjects)
 
-    discovery_course.url_slug = publisher_course.url_slug
-
     expected_program_type, program_name = ProgramType.get_program_type_data(course_run, ProgramType)
 
     defaults = {
@@ -582,6 +588,12 @@ def publish_to_course_metadata(partner, course_run, create_official=True):
                 'currency': entitlement.currency,
             }
         )
+
+    try:
+        discovery_course.set_active_url_slug(publisher_course.url_slug)
+    except IntegrityError:
+        if fail_on_url_slug:
+            raise
 
     for seat in course_run.seats.exclude(type=Seat.CREDIT).order_by('created'):
         Seat.everything.update_or_create(  # pylint: disable=no-member

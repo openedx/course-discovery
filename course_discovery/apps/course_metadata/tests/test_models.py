@@ -741,6 +741,8 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
     def test_reviewed_with_go_live_date(self, when, published, mock_email):
         draft = factories.CourseRunFactory(draft=True, go_live_date=when, announcement=None)
+        draft.course.draft = True
+        draft.course.save()
 
         # force this prop to be cached, to catch any errors if we assume .official_version is valid after creation
         self.assertIsNone(draft.official_version)
@@ -893,8 +895,8 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
     def test_official_canonical_updates_to_official(self):
         self.course_run.draft = True
         self.course_run.status = CourseRunStatus.Reviewed
-        self.course_run.course.canonical_course_run = self.course_run
         self.course_run.course.draft = True
+        self.course_run.course.canonical_course_run = self.course_run
         self.course_run.course.save()
         self.course_run.save()
 
@@ -921,7 +923,8 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
 
     def test_no_duplicate_official(self):
         self.course_run.course.draft = True
-        official_course = factories.CourseFactory.create()
+        self.course_run.course.save()
+        official_course = factories.CourseFactory.create(partner=self.course_run.course.partner)
         official_course.draft_version = self.course_run.course
         official_course.save()
 

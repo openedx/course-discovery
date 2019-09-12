@@ -50,7 +50,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
     SubjectFactory, TopicFactory, VideoFactory
 )
-from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, uslugify
+from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -126,7 +126,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
             'image': ImageField().to_representation(course.image_url),
             'short_description': course.short_description,
-            'url_slug': uslugify(course.title),
+            'url_slug': None,
         }
 
     def test_data(self):
@@ -179,6 +179,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'recent_enrollment_count': 0,
             'topics': list(course.topics.names()),
             'key_for_reruns': course.key_for_reruns,
+            'url_slug': course.active_url_slug,
+            'url_slug_history': [course.active_url_slug]
         })
 
         return expected

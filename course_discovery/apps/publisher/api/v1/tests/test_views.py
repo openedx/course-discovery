@@ -183,7 +183,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         assert discovery_course.learner_testimonials == publisher_course.learner_testimonial
         assert discovery_course.faq == publisher_course.faq
         assert discovery_course.additional_information == publisher_course.additional_information
-        assert discovery_course.url_slug == publisher_course.url_slug
+        assert discovery_course.active_url_slug == publisher_course.url_slug
         expected = list(publisher_course_run.course.organizations.all())
         assert list(discovery_course.authoring_organizations.all()) == expected
         expected = {publisher_course.primary_subject, publisher_course.secondary_subject}
@@ -220,8 +220,8 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         publisher_course_run = self._create_course_run_for_publication()
         publisher_course_run.course.url_slug = 'duplicate'
         publisher_course_run.course.save()
-        discovery_matching_course = CourseFactory(url_slug='duplicate', draft=False,
-                                                  partner=publisher_course_run.course.partner)
+        discovery_matching_course = CourseFactory(draft=False, partner=publisher_course_run.course.partner)
+        discovery_matching_course.set_active_url_slug('duplicate')
         discovery_matching_course.save()
         self._mock_studio_api_success(publisher_course_run)
         self._mock_ecommerce_api(publisher_course_run)
@@ -236,6 +236,30 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         with pytest.raises(IntegrityError):
             url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
             self.client.post(url, {})
+
+    def test_publish_to_existing_updates_slug_history(self):
+        publisher_course_run = self._create_course_run_for_publication()
+        publisher_course_run.course.url_slug = 'first'
+        publisher_course_run.course.save()
+
+        self._mock_studio_api_success(publisher_course_run)
+        self._mock_ecommerce_api(publisher_course_run)
+
+        publish_url = reverse('publisher:api:v1:course_run-publish', kwargs={'pk': publisher_course_run.pk})
+        response = self.client.post(publish_url, {})
+        assert response.status_code == 200
+
+        publisher_course_run.course.url_slug = 'second'
+        publisher_course_run.course.save()
+        response = self.client.post(publish_url, {})
+        assert response.status_code == 200
+
+        discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
+        discovery_course = discovery_course_run.course
+
+        assert discovery_course.url_slug_history.count() == 2
+        assert discovery_course.active_url_slug == 'second'
+        assert discovery_course.url_slug_history.filter(url_slug='first', is_active=False).count() == 1
 
     @responses.activate
     @override_settings(PUBLISHER_UPGRADE_DEADLINE_DAYS=PUBLISHER_UPGRADE_DEADLINE_DAYS)

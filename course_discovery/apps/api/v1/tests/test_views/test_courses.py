@@ -48,7 +48,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(45):
+        with self.assertNumQueries(49):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -57,7 +57,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(43, threshold=3):
+        with self.assertNumQueries(48, threshold=3):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -66,7 +66,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns no deleted associated programs """
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        with self.assertNumQueries(31):
+        with self.assertNumQueries(34):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data.get('programs'), [])
@@ -79,7 +79,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_deleted_programs=1'
-        with self.assertNumQueries(51):
+        with self.assertNumQueries(54):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -215,7 +215,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(40, threshold=2):
+        with self.assertNumQueries(43, threshold=2):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(
@@ -231,7 +231,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
-        with self.assertNumQueries(55, threshold=3):
+        with self.assertNumQueries(64, threshold=3):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -242,7 +242,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        with self.assertNumQueries(54):
+        with self.assertNumQueries(64):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -253,7 +253,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(56):
+        with self.assertNumQueries(64):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -646,35 +646,36 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.create_course()
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'course-title')
+        course.refresh_from_db()
+        self.assertEqual(course.active_url_slug, 'course-title')
 
     def test_create_saves_manual_url_slug(self):
         self.mock_access_token()
         response = self.create_course({'url_slug': 'manual'})
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'manual')
+        self.assertEqual(course.active_url_slug, 'manual')
 
     def test_create_increments_auto_url_slug(self):
         self.mock_access_token()
         response = self.create_course()
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'course-title')
+        self.assertEqual(course.active_url_slug, 'course-title')
 
         response = self.create_course({'number': 'a123'})
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'course-title-2')
+        self.assertEqual(course.active_url_slug, 'course-title-2')
 
     def test_create_fails_if_manual_slug_exists(self):
         self.mock_access_token()
         response = self.create_course()
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'course-title')
+        self.assertEqual(course.active_url_slug, 'course-title')
 
-        response = self.create_course({'url_slug': 'course-title'})
+        response = self.create_course({'url_slug': 'course-title', 'number': 'a123'})
         self.assertEqual(response.status_code, 400)
         expected_error_message = 'Failed to set data: Course creation was unsuccessful. ' \
                                  'The course URL slug ‘[course-title]’ is already in use. ' \
@@ -790,6 +791,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     @ddt.data('put', 'patch')
     @responses.activate
     def test_update_success(self, method):
+        self.maxDiff = None
         self.mock_access_token()
         entitlement = CourseEntitlementFactory(course=self.course)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
@@ -817,12 +819,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
         self.assertEqual(course.title, 'Course title')
-        self.assertEqual(course.url_slug, 'manual')
+        self.assertEqual(course.active_url_slug, 'manual')
         self.assertEqual(course.entitlements.first().price, 1000)
         self.assertDictEqual(response.data, self.serialize_course(course))
 
-    def test_update_defaults_url_slug_if_removed(self):
+    def test_update_keeps_url_slug_if_removed_from_form(self):
         self.mock_access_token()
+        self.course.set_active_url_slug('fake-test')
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
             'url_slug': ''
@@ -830,7 +833,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.client.patch(url, course_data, format='json')
         self.assertEqual(response.status_code, 200)
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
-        self.assertEqual(course.url_slug, 'fake-test')
+        self.assertEqual(course.active_url_slug, 'fake-test')
 
     @responses.activate
     def test_update_operates_on_drafts(self):
@@ -991,6 +994,83 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         official_course.refresh_from_db()
         self.assertEqual(draft_course.entitlements.first().price, updated_entitlement['price'])
         self.assertEqual(official_course.entitlements.first().price, updated_entitlement['price'])
+
+    def test_patch_publish_saves_old_url_in_history(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.status = CourseRunStatus.Published
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        self.assertEqual(official_course.active_url_slug, 'course-title')
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+
+        response = self.client.patch(url, {'url_slug': 'manual', 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+
+        self.assertEqual(official_course.active_url_slug, 'manual')
+        url_history = official_course.url_slug_history.all().values('url_slug')
+        url_history_strings = [history_item['url_slug'] for history_item in url_history]
+        self.assertIn('course-title', url_history_strings)
+
+    def test_unpublished_url_slugs_not_added_to_history(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.status = CourseRunStatus.Published
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        self.assertEqual(official_course.active_url_slug, 'course-title')
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+
+        # add new slug to draft but don't publish
+        response = self.client.patch(url, {'url_slug': 'unpublished', 'draft': True}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        self.assertEqual(draft_course.active_url_slug, 'unpublished')
+        self.assertEqual(official_course.active_url_slug, 'course-title')
+        url_history = official_course.url_slug_history.all().values('url_slug')
+        url_history_strings = [history_item['url_slug'] for history_item in url_history]
+        self.assertNotIn('manual', url_history_strings)
+
+        # add new slug and publish at the same time
+        response = self.client.patch(url, {'url_slug': 'published', 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+        official_course.refresh_from_db()
+        self.assertEqual(official_course.active_url_slug, 'published')
+        self.assertEqual(official_course.url_slug_history.count(), 2)
+
+        # unpublished slug not in history, previously published slug is
+        url_history = official_course.url_slug_history.all().values('url_slug')
+        url_history_strings = [history_item['url_slug'] for history_item in url_history]
+        self.assertNotIn('unpublished', url_history_strings)
+        self.assertIn('course-title', url_history_strings)
+
+        # unpublished slug is now available to other courses
+        self.create_course({'url_slug': 'unpublished', 'number': 'a123'})
+        new_course = Course.everything.last()
+        self.assertEqual(new_course.active_url_slug, 'unpublished')
 
     @responses.activate
     def test_patch_published_switch_audit_to_verified(self):
@@ -1168,7 +1248,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.create_course()
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'course-title')
+        self.assertEqual(course.active_url_slug, 'course-title')
 
         course_data = {'url_slug': 'course-title'}
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
@@ -1178,6 +1258,69 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                                  'The course URL slug ‘[course-title]’ is already in use. ' \
                                  'Please update this field and try again.'
         self.assertEqual(response.data, expected_error_message)
+
+    def test_update_fails_if_manual_slug_in_other_course_history(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.status = CourseRunStatus.Published
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        self.assertEqual(official_course.active_url_slug, 'course-title')
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+
+        response = self.client.patch(url, {'url_slug': 'manual', 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        # at this point history of the created course should contain 'course-title'
+        course_data = {'url_slug': 'course-title'}
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        response = self.client.patch(url, course_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        expected_error_message = 'Failed to set data: Course edit was unsuccessful. ' \
+                                 'The course URL slug ‘[course-title]’ is already in use. ' \
+                                 'Please update this field and try again.'
+        self.assertEqual(response.data, expected_error_message)
+
+    def test_update_succeeds_if_reusing_previous_slug_on_same_course(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.status = CourseRunStatus.Published
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        self.assertEqual(official_course.active_url_slug, 'course-title')
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+
+        response = self.client.patch(url, {'url_slug': 'manual', 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+        draft_course.refresh_from_db()
+        self.assertEqual(draft_course.active_url_slug, 'manual')
+
+        # at this point history of the created course should contain 'course-title'
+        course_data = {'url_slug': 'course-title'}
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+        response = self.client.patch(url, course_data, format='json')
+        self.assertEqual(response.status_code, 200)
+        draft_course.refresh_from_db()
+        print('just before i try to get the active url slug')
+        self.assertEqual(draft_course.active_url_slug, 'course-title')
 
     def test_update_with_api_exception(self):
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
