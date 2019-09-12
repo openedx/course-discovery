@@ -1319,7 +1319,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.client.patch(url, course_data, format='json')
         self.assertEqual(response.status_code, 200)
         draft_course.refresh_from_db()
-        print('just before i try to get the active url slug')
         self.assertEqual(draft_course.active_url_slug, 'course-title')
 
     def test_update_with_api_exception(self):

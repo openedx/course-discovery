@@ -155,6 +155,8 @@ class CourseUrlSlugHistoryFactory(factory.DjangoModelFactory):
 class CourseFactoryNoSignals(CourseFactory):
     pass
 
+=======
+>>>>>>> a6d175ca... progress has been made
 
 class CourseEditorFactory(factory.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
