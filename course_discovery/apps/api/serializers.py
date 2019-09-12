@@ -65,6 +65,7 @@ PREFETCH_FIELDS = {
         'authoring_organizations__tags',
         'course_runs',
         'expected_learning_items',
+        'url_slug_history',
         'level_type',
         'prerequisites',
         'programs',
@@ -880,6 +881,7 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
     image = ImageField(read_only=True, source='image_url')
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
+    url_slug = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -893,10 +895,13 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
             Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
         )
 
+    def get_url_slug(self, obj):  # pylint: disable=unused-argument
+        return None  # this has been removed from the MinimalCourseSerializer, set to None to not break APIs
+
     class Meta:
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
-                  'short_description', 'url_slug', )
+                  'short_description', 'url_slug',)
 
 
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
@@ -915,6 +920,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     original_image = ImageField(read_only=True, source='original_image_url')
     extra_description = AdditionalPromoAreaSerializer(required=False)
     topics = TagListSerializerField(required=False)
+    url_slug = serializers.SlugField(read_only=True, source='active_url_slug')
+    url_slug_history = serializers.SlugRelatedField(slug_field='url_slug', read_only=True, many=True)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
@@ -935,6 +942,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'prerequisites',
             'subjects',
             'topics',
+            'url_slug_history',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
@@ -947,7 +955,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
-            'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns',
+            'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
+            'url_slug_history',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1030,6 +1039,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
             'expected_learning_items',
             'prerequisites',
             'topics',
+            'url_slug_history',
             Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset()),
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
@@ -1083,6 +1093,7 @@ class CatalogCourseSerializer(CourseSerializer):
             'expected_learning_items',
             'prerequisites',
             'subjects',
+            'url_slug_history',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
