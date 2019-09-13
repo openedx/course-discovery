@@ -1652,6 +1652,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0
             }],
             'uuid': str(course.uuid),
+            'subjects': [subject.name for subject in course.subjects.all()],
             'languages': [
                 serialize_language(course_run.language) for course_run in course.course_runs.all()
                 if course_run.language
