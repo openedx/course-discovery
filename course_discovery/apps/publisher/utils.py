@@ -165,6 +165,9 @@ def user_orgs(user):
 
 def is_on_new_pub_fe(user):
     """Returns if all the user's organizations have been moved to new publisher frontend"""
+    if user.is_staff:
+        return True
+
     orgs_on_new_pub_fe = frozenset(filter(None, getattr(settings, 'ORGS_ON_NEW_PUB_FE', '').split(',')))
     if not orgs_on_new_pub_fe:
         return False
