@@ -247,8 +247,14 @@ class PublisherUtilsTests(TestCase):
         assert find_discovery_course(pub_run_no_siblings) is None
 
     def test_is_on_new_pub_fe(self):
+        def staff_user_always_true(user):
+            user.is_staff = True
+            self.assertTrue(is_on_new_pub_fe(user))
+            user.is_staff = False
+
         # When no ORGS_ON_NEW_PUB_FE list present
         self.assertFalse(is_on_new_pub_fe(self.user))
+        staff_user_always_true(self.user)
 
         with self.settings(ORGS_ON_NEW_PUB_FE=self.organization_extension.organization.key):
             # When ORGS_ON_NEW_PUB_FE list present and user has no orgs
@@ -263,6 +269,7 @@ class PublisherUtilsTests(TestCase):
         with self.settings(ORGS_ON_NEW_PUB_FE='example-key'):
             # When ORGS_ON_NEW_PUB_FE list present and user belongs to org not in the list
             self.assertFalse(is_on_new_pub_fe(self.user))
+            staff_user_always_true(self.user)
 
         with self.settings(ORGS_ON_NEW_PUB_FE=self.organization_extension.organization.key):
             org_ext = factories.OrganizationExtensionFactory()
@@ -270,6 +277,7 @@ class PublisherUtilsTests(TestCase):
             self.user.groups.add(org_ext.group)
             # When ORGS_ON_NEW_PUB_FE list present and user belongs to orgs both on and off the list
             self.assertFalse(is_on_new_pub_fe(self.user))
+            staff_user_always_true(self.user)
 
     def test_course_is_on_new_pub_fe(self):
         org = self.organization_extension.organization
