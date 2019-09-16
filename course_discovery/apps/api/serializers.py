@@ -1606,7 +1606,7 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
         return ''
 
     def get_imgurl(self, obj):
-        return obj.course_run.card_image_url or obj.course_run.course.card_image_url
+        return obj.course_run.image_url or obj.course_run.card_image_url
 
 
 class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):

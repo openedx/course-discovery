@@ -1579,7 +1579,7 @@ class AffiliateWindowSerializerTests(TestCase):
                 'actualp': seat.price
             },
             'currency': seat.currency.code,
-            'imgurl': course_run.course.card_image_url,
+            'imgurl': course_run.image_url,
             'category': 'Other Experiences',
             'validfrom': course_run.start.strftime('%Y-%m-%d'),
             'validto': course_run.end.strftime('%Y-%m-%d'),
