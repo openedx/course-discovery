@@ -103,7 +103,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         assert content.find('name').text == self.course_run.title
         assert content.find('desc').text == self.course_run.full_description
         assert content.find('purl').text == self.course_run.marketing_url
-        assert content.find('imgurl').text == self.course_run.card_image_url
+        assert content.find('imgurl').text == self.course_run.image_url
         assert content.find('price/actualp').text == str(seat.price)
         assert content.find('currency').text == seat.currency.code
         assert content.find('category').text == AffiliateWindowSerializer.CATEGORY
