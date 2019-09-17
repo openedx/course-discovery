@@ -745,6 +745,20 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, expected_error_message)
 
+    def test_create_fails_if_run_creation_fails(self):
+        '''
+        For clarity, this only applies for when the course run endpoint receives an error response
+        from Studio. Other errors (PermissionDenied, ValidationError, Http404) are all caught and
+        raised to the course endpoint, but some errors just create a response.
+        '''
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        responses.add(responses.POST, studio_url, status=400)
+        response = self.create_course_and_course_run()
+        self.assertEqual(response.status_code, 400)
+        expected_error_message = ('Failed to set data: Failed to set course run data: '
+                                  'Client Error 400: {studio_url}'.format(studio_url=studio_url))
+        self.assertEqual(response.data, expected_error_message)
+
     def test_create_with_api_exception(self):
         with mock.patch(
             # We are using get_course_key because it is called prior to tryig to contact the
