@@ -12,11 +12,13 @@ from django.test import TestCase
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Curriculum, CurriculumCourseMembership, Organization, Program, ProgramType, SeatType
+    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program,
+    ProgramType, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory, OrganizationFactory,
-    PartnerFactory, ProgramFactory, ProgramTypeFactory, SeatTypeFactory
+    CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
+    CurriculumProgramMembershipFactory, OrganizationFactory, PartnerFactory, ProgramFactory, ProgramTypeFactory,
+    SeatTypeFactory
 )
 
 
@@ -49,6 +51,12 @@ class TestLoadProgramFixture(TestCase):
             applicable_seat_types=[self.seat_type_verified]
         )
 
+        self.program_type_mm = ProgramTypeFactory(
+            name='MicroMasters',
+            slug='micromasters',
+            applicable_seat_types=[self.seat_type_verified]
+        )
+
         self.course = CourseFactory(partner=self.partner, authoring_organizations=[self.organization])
         self.course_run = CourseRunFactory(course=self.course)
         self.program = ProgramFactory(
@@ -56,9 +64,20 @@ class TestLoadProgramFixture(TestCase):
             partner=self.partner,
             authoring_organizations=[self.organization]
         )
+        self.course_mm = CourseFactory(partner=self.partner, authoring_organizations=[self.organization])
+        self.course_run_mm = CourseRunFactory(course=self.course)
+        self.program_mm = ProgramFactory(
+            type=self.program_type_mm,
+            partner=self.partner,
+            authoring_organizations=[self.organization],
+            courses=[self.course_mm]
+        )
         self.curriculum = CurriculumFactory(program=self.program)
         self.curriculum_course_membership = CurriculumCourseMembershipFactory(
             course=self.course, curriculum=self.curriculum
+        )
+        self.curriculum_program_membership = CurriculumProgramMembershipFactory(
+            program=self.program_mm, curriculum=self.curriculum
         )
 
         self.program_2 = ProgramFactory(
@@ -100,6 +119,7 @@ class TestLoadProgramFixture(TestCase):
         CourseRun.objects.all().delete()
         Curriculum.objects.all().delete()
         CurriculumCourseMembership.objects.all().delete()
+        CurriculumProgramMembership.objects.all().delete()
         ProgramType.objects.all().delete()
         Organization.objects.all().delete()
         Program.objects.all().delete()
@@ -109,14 +129,19 @@ class TestLoadProgramFixture(TestCase):
 
         fixture = json_serializer.Serializer().serialize([
             self.program_type_masters,
+            self.program_type_mm,
             self.organization,
             self.seat_type_verified,
             self.program,
             self.program_2,
+            self.program_mm,
+            self.curriculum_program_membership,
+            self.curriculum_course_membership,
             self.curriculum,
             self.course,
+            self.course_mm,
             self.course_run,
-            self.curriculum_course_membership,
+            self.course_run_mm,
         ])
         self._mock_fixture_response(fixture)
 
@@ -152,6 +177,9 @@ class TestLoadProgramFixture(TestCase):
 
         stored_course = stored_curriculum.course_curriculum.first()
         self.assertEqual(stored_course.key, self.course.key)
+
+        stored_mm = stored_curriculum.program_curriculum.first()
+        self.assertEqual(stored_mm.uuid, self.program_mm.uuid)
 
         stored_course_run = stored_course.course_runs.first()
         self.assertEqual(stored_course_run.key, self.course_run.key)

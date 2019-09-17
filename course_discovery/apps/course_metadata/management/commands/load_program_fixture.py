@@ -13,10 +13,12 @@ from edx_rest_api_client import client as rest_client
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import (
-    CourseRun, Curriculum, CurriculumCourseMembership, Program, ProgramType, Seat, SeatType
+    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Program, ProgramType, Seat,
+    SeatType
 )
 from course_discovery.apps.course_metadata.signals import (
-    add_masters_track_on_course, ensure_external_key_uniquness__course_run, ensure_external_key_uniquness__curriculum,
+    add_masters_track_on_course, check_curriculum_for_cycles, check_curriculum_program_membership_for_cycles,
+    ensure_external_key_uniquness__course_run, ensure_external_key_uniquness__curriculum,
     ensure_external_key_uniquness__curriculum_course_membership, publish_masters_track
 )
 
@@ -32,6 +34,8 @@ def disconnect_program_signals():
     - publish_masters_track
 
     and the following pre_save signals for verifying external course keys
+    - check_curriculum_for_cycles
+    - check_curriculum_program_membership_for_cycles
     - ensure_external_key_uniquness__course_run
     - ensure_external_key_uniquness__curriculum
     - ensure_external_key_uniquness__curriculum_course_membership
@@ -39,41 +43,52 @@ def disconnect_program_signals():
     post_save = db.models.signals.post_save
     pre_save = db.models.signals.pre_save
 
-    post_save.disconnect(
-        add_masters_track_on_course, sender=CurriculumCourseMembership,
-    )
-    post_save.disconnect(
-        publish_masters_track, sender=Seat,
-    )
+    signals_list = [
+        {
+            'action': post_save,
+            'signal': add_masters_track_on_course,
+            'sender': CurriculumCourseMembership,
+        },
+        {
+            'action': post_save,
+            'signal': publish_masters_track,
+            'sender': Seat,
+        },
+        {
+            'action': pre_save,
+            'signal': check_curriculum_for_cycles,
+            'sender': Curriculum,
+        },
+        {
+            'action': pre_save,
+            'signal': check_curriculum_program_membership_for_cycles,
+            'sender': CurriculumProgramMembership,
+        },
+        {
+            'action': pre_save,
+            'signal': ensure_external_key_uniquness__course_run,
+            'sender': CourseRun,
+        },
+        {
+            'action': pre_save,
+            'signal': ensure_external_key_uniquness__curriculum,
+            'sender': Curriculum,
+        },
+        {
+            'action': pre_save,
+            'signal': ensure_external_key_uniquness__curriculum_course_membership,
+            'sender': CurriculumCourseMembership,
+        },
+    ]
 
-    pre_save.disconnect(
-        ensure_external_key_uniquness__course_run, sender=CourseRun,
-    )
-    pre_save.disconnect(
-        ensure_external_key_uniquness__curriculum, sender=Curriculum,
-    )
-    pre_save.disconnect(
-        ensure_external_key_uniquness__curriculum_course_membership, sender=CurriculumCourseMembership,
-    )
+    for signal in signals_list:
+        signal['action'].disconnect(signal['signal'], sender=signal['sender'])
+
     try:
         yield
     finally:
-        post_save.connect(
-            add_masters_track_on_course, sender=CurriculumCourseMembership,
-        )
-        post_save.connect(
-            publish_masters_track, sender=Seat,
-        )
-
-        pre_save.connect(
-            ensure_external_key_uniquness__course_run, sender=CourseRun,
-        )
-        pre_save.connect(
-            ensure_external_key_uniquness__curriculum, sender=Curriculum,
-        )
-        pre_save.connect(
-            ensure_external_key_uniquness__curriculum_course_membership, sender=CurriculumCourseMembership,
-        )
+        for signal in signals_list:
+            signal['action'].connect(signal['signal'], sender=signal['sender'])
 
 
 class Command(BaseCommand):
