@@ -974,6 +974,45 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
             # We don't want to delete course run nodes when CourseRuns are deleted.
             assert not mock_delete_obj.called
 
+    def test_verified_seat_upgrade_deadline_override(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+
+        self.course_run.draft = True
+        self.course_run.status = CourseRunStatus.Reviewed
+        self.course_run.course.draft = True
+        upgrade_deadline = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10)
+        factories.SeatFactory(
+            course_run=self.course_run,
+            draft=True,
+            type=Seat.VERIFIED,
+            upgrade_deadline=upgrade_deadline
+        )
+
+        entitlement_mode = SeatType.objects.get(slug='verified')
+        factories.CourseEntitlementFactory(course=self.course_run.course, mode=entitlement_mode, draft=True)
+        self.course_run.course.save()
+        self.course_run.save()
+        draft_seat = Seat.everything.get(course_run=self.course_run, draft=True, type=Seat.VERIFIED)
+        official_run = CourseRun.everything.get(key=self.course_run.key, draft=False)
+        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=Seat.VERIFIED)
+
+        assert draft_seat.upgrade_deadline == upgrade_deadline
+        assert official_seat.upgrade_deadline == upgrade_deadline
+
+        # Simulate updating the draft seat in Django admin which is how we currently support changing it
+        new_deadline = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=15)
+        draft_seat.upgrade_deadline = new_deadline
+        draft_seat.save()
+
+        draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
+        draft_run.update_or_create_official_version()
+
+        draft_seat = Seat.everything.get(course_run=self.course_run, draft=True, type=Seat.VERIFIED)
+        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=Seat.VERIFIED)
+        assert draft_run.seats.get(type=Seat.VERIFIED).upgrade_deadline == new_deadline
+        assert official_run.seats.get(type=Seat.VERIFIED).upgrade_deadline == new_deadline
+
 
 @ddt.ddt
 class OrganizationTests(TestCase):

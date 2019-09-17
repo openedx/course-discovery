@@ -234,7 +234,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 'price': price,
                 'mode': course_creation_fields['mode'],
             })
-            CourseRunViewSet().create_run_helper(course_run_creation_fields, request)
+            run_response = CourseRunViewSet().create_run_helper(course_run_creation_fields, request)
+            if run_response.status_code != 201:
+                raise Exception(str(run_response.data))
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)

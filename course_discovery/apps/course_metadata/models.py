@@ -1066,13 +1066,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         # An unenrolled user may not enroll and purchase paid seats after the course or enrollment has ended.
         deadline = self.enrollment_deadline
 
-        # Note that even though we're sorting in descending order by upgrade_deadline, we will need to look at
-        # both the first and last record in the result set to determine which Seat has the latest upgrade_deadline.
-        # We consider Null values to be > than non-Null values, and Null values may sort to the top or bottom of
-        # the result set, depending on the DB backend.
-        latest_seat = seats[-1] if seats[-1].upgrade_deadline is None else seats[0]
-        if latest_seat.upgrade_deadline and (deadline is None or latest_seat.upgrade_deadline < deadline):
-            deadline = latest_seat.upgrade_deadline
+        seat = seats[0]
+        if seat.upgrade_deadline and (deadline is None or seat.upgrade_deadline < deadline):
+            deadline = seat.upgrade_deadline
 
         return deadline
 
@@ -1289,8 +1285,12 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         deadline = None
         # only verified seats have a deadline specified
         if mode == Seat.VERIFIED:
-            deadline = self.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
-            deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
+            seats = [s for s in self.seats.all() if s.type == mode]
+            if seats:
+                deadline = seats[0].upgrade_deadline
+            else:
+                deadline = self.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
+                deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
         if mode == Seat.AUDIT:
             price = 0.00
 
