@@ -7,7 +7,7 @@
 asn1crypto==0.24.0        # via cryptography
 beautifulsoup4==4.8.0
 boto==2.49.0              # via django-ses
-certifi==2019.6.16
+certifi==2019.9.11
 cffi==1.12.3              # via cryptography
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
@@ -50,12 +50,12 @@ drf-haystack==1.8.2
 dry-rest-permissions==0.1.10
 edx-analytics-data-api-client==0.15.3
 edx-auth-backends==2.0.2
-edx-ccx-keys==0.2.2
+edx-ccx-keys==1.0.0
 edx-django-release-util==0.3.1
 edx-django-sites-extensions==2.4.0
 edx-django-utils==2.0.0
 edx-drf-extensions==2.4.0
-edx-opaque-keys==1.0.1
+edx-opaque-keys==2.0.0
 edx-rest-api-client==1.9.2
 elasticsearch==1.9.0
 future==0.17.1            # via django-ses, pyjwkest
