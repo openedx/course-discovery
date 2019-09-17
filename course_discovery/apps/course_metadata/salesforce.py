@@ -6,6 +6,43 @@ from simple_salesforce import Salesforce, SalesforceExpiredSession
 from course_discovery.apps.core.models import User
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 
+ORGANIZATION_SALESFORCE_FIELDS = {
+    'organization': ('name', 'key')
+}
+COURSE_SALESFORCE_FIELDS = {
+    'course': ('title', 'has_ofac_restrictions', 'key'),
+}
+COURSE_RUN_SALESFORCE_FIELDS = {
+    'course_run': ('start', 'end', 'status', 'title', 'go_live_date', 'key'),
+}
+
+
+def requires_salesforce_update(source_of_edit, instance):
+    from course_discovery.apps.course_metadata.models import Course, CourseRun
+    relative_fields = ORGANIZATION_SALESFORCE_FIELDS
+    if isinstance(instance, Course):
+        relative_fields = COURSE_SALESFORCE_FIELDS
+    elif isinstance(instance, CourseRun):
+        relative_fields = COURSE_RUN_SALESFORCE_FIELDS
+    return any(attr in relative_fields[source_of_edit] and
+               instance.did_change(attr) for
+               attr in instance.__dict__)
+
+
+def populate_official_with_existing_draft(instance, util):
+    from course_discovery.apps.course_metadata.models import Course, CourseRun
+    created = False
+    if not instance.draft_version.salesforce_id:
+        if isinstance(instance, Course):
+            util.create_course(instance.draft_version)
+        elif isinstance(instance, CourseRun):
+            util.create_course_run(instance.draft_version)
+        created = True
+
+    instance.salesforce_id = instance.draft_version.salesforce_id
+    instance.save()
+    return created
+
 
 def salesforce_request_wrapper(method):
     """
@@ -96,10 +133,9 @@ class SalesforceUtil:
     @salesforce_request_wrapper
     def create_publisher_organization(self, organization):
         if not organization.salesforce_id:
-            sf_organization = self.client.Publisher_Organization__c.create({
-                'Organization_Name__c': organization.name,
-                'Organization_Key__c': organization.key,
-            })
+            sf_organization = self.client.Publisher_Organization__c.create(
+                self._build_publisher_organization_payload(organization)
+            )
             organization.salesforce_id = sf_organization.get('id')
             organization.save()
 
@@ -109,18 +145,9 @@ class SalesforceUtil:
             organization = course.authoring_organizations.first()
             if organization and not organization.salesforce_id:
                 self.create_publisher_organization(organization)
-            sf_course = self.client.Course__c.create({
-                'Course_Name__c': course.title,
-                'Link_to_Publisher__c': '{url}/courses/{uuid}'.format(
-                    url=self.partner.publisher_url.strip('/') if self.partner.publisher_url else '', uuid=course.uuid
-                ),
-                'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
-                    url=self.partner.site.domain.strip('/') if self.partner.site.domain else '', id=course.id
-                ),
-                'OFAC_Review_Decision__c': course.has_ofac_restrictions,
-                'Course_Key__c': course.key,
-                'Publisher_Organization__c': organization.salesforce_id if organization else None,
-            })
+            sf_course = self.client.Course__c.create(
+                self._build_course_payload(course, organization)
+            )
             course.salesforce_id = sf_course.get('id')
             course.save()
 
@@ -129,18 +156,9 @@ class SalesforceUtil:
         if not course_run.salesforce_id:
             if not course_run.course.salesforce_id:
                 self.create_course(course_run.course)
-            sf_course_run = self.client.Course_Run__c.create({
-                'Course__c': course_run.course.salesforce_id,
-                'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/courserun/{id}/change/'.format(
-                    url=self.partner.site.domain.strip('/') if self.partner.site.domain else '', id=course_run.id
-                ),
-                'Course_Start_Date__c': course_run.start.isoformat() if course_run.start else None,
-                'Course_End_Date__c': course_run.end.isoformat() if course_run.end else None,
-                'Publisher_Status__c': self._get_salesforce_equivalent(course_run.status),
-                'Course_Run_Name__c': course_run.title,
-                'Expected_Go_Live_Date__c': course_run.go_live_date.isoformat() if course_run.go_live_date else None,
-                'Course_Number__c': course_run.key,
-            })
+            sf_course_run = self.client.Course_Run__c.create(
+                self._build_course_run_payload(course_run)
+            )
             course_run.salesforce_id = sf_course_run.get('id')
             course_run.save()
 
@@ -164,6 +182,10 @@ class SalesforceUtil:
             sf_case = self.client.Case.create(case)
             course.salesforce_case_id = sf_case.get('id')
             course.save()
+            if course.official_version and not course.official_version.salesforce_case_id:
+                official_version = course.official_version
+                official_version.salesforce_case_id = sf_case.get('id')
+                official_version.save()
 
     @salesforce_request_wrapper
     def create_comment_for_course_case(self, course, user, body, course_run_key=None):
@@ -175,6 +197,31 @@ class SalesforceUtil:
             'Body': user_comment_body,
         })
         return self._create_comment_return_body(user, body, course_run_key)
+
+    @salesforce_request_wrapper
+    def update_publisher_organization(self, organization):
+        """Triggered by the update_salesforce_organization signal receiver"""
+        if organization.salesforce_id:
+            self.client.Publisher_Organization__c.update(
+                organization.salesforce_id, self._build_publisher_organization_payload(organization)
+            )
+
+    @salesforce_request_wrapper
+    def update_course(self, course):
+        """Triggered by the update_salesforce_course signal receiver"""
+        if course.salesforce_id:
+            organization = course.authoring_organizations.first()
+            self.client.Course__c.update(
+                course.salesforce_id, self._build_course_payload(course, organization)
+            )
+
+    @salesforce_request_wrapper
+    def update_course_run(self, course_run):
+        """Triggered by the update_salesforce_course_run signal receiver"""
+        if course_run.salesforce_id:
+            self.client.Course_Run__c.update(
+                course_run.salesforce_id, self._build_course_run_payload(course_run)
+            )
 
     @staticmethod
     def format_user_comment_body(user, body, course_run_key=None):
@@ -292,6 +339,41 @@ class SalesforceUtil:
             'course_run_key': course_run_key,
             'comment': body,
             'created': datetime.now(timezone.utc).isoformat(),
+        }
+
+    @staticmethod
+    def _build_publisher_organization_payload(organization):
+        return {
+            'Organization_Name__c': organization.name,
+            'Organization_Key__c': organization.key,
+        }
+
+    def _build_course_payload(self, course, organization):
+        return {
+            'Course_Name__c': course.title,
+            'Link_to_Publisher__c': '{url}/courses/{uuid}'.format(
+                url=self.partner.publisher_url.strip('/') if self.partner.publisher_url else '', uuid=course.uuid
+            ),
+            'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
+                url=self.partner.site.domain.strip('/') if self.partner.site.domain else '', id=course.id
+            ),
+            'OFAC_Review_Decision__c': course.has_ofac_restrictions,
+            'Course_Key__c': course.key,
+            'Publisher_Organization__c': organization.salesforce_id if organization else None,
+        }
+
+    def _build_course_run_payload(self, course_run):
+        return {
+            'Course__c': course_run.course.salesforce_id,
+            'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/courserun/{id}/change/'.format(
+                url=self.partner.site.domain.strip('/') if self.partner.site.domain else '', id=course_run.id
+            ),
+            'Course_Start_Date__c': course_run.start.isoformat() if course_run.start else None,
+            'Course_End_Date__c': course_run.end.isoformat() if course_run.end else None,
+            'Publisher_Status__c': self._get_salesforce_equivalent(course_run.status),
+            'Course_Run_Name__c': course_run.title,
+            'Expected_Go_Live_Date__c': course_run.go_live_date.isoformat() if course_run.go_live_date else None,
+            'Course_Number__c': course_run.key,
         }
 
     @staticmethod

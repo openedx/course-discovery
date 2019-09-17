@@ -84,6 +84,25 @@ class DraftModelMixin(models.Model):
         abstract = True
 
 
+class CachedMixin:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._cache = dict(self.__dict__)
+
+    def refresh_from_db(self, using=None, fields=None, **kwargs):
+        super().refresh_from_db(using, fields, **kwargs)
+        self.__dict__.pop('_cache', None)
+        self._cache = dict(self.__dict__)
+
+    def save(self, **kwargs):
+        super().save(**kwargs)
+        self.__dict__.pop('_cache', None)
+        self._cache = dict(self.__dict__)
+
+    def did_change(self, field):
+        return field in self.__dict__ and (field not in self._cache or getattr(self, field) != self._cache[field])
+
+
 class AbstractNamedModel(TimeStampedModel):
     """ Abstract base class for models with only a name field. """
     name = models.CharField(max_length=255, unique=True)
@@ -320,7 +339,7 @@ class AdditionalPromoArea(AbstractTitleDescriptionModel):
     pass
 
 
-class Organization(TimeStampedModel):
+class Organization(CachedMixin, TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
@@ -494,7 +513,7 @@ class PkSearchableMixin:
         return queryset.filter(pk__in=ids)
 
 
-class Course(DraftModelMixin, PkSearchableMixin, TimeStampedModel):
+class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
@@ -823,7 +842,7 @@ class CourseEditor(TimeStampedModel):
         return queryset.filter(user_can_edit, course__authoring_organizations__in=user_orgs).distinct()
 
 
-class CourseRun(DraftModelMixin, TimeStampedModel):
+class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     """ CourseRun model. """
     OFAC_RESTRICTION_CHOICES = (
         ('', '--'),
@@ -1317,7 +1336,6 @@ class CourseRun(DraftModelMixin, TimeStampedModel):
         # Push any product (seat, entitlement) changes to ecommerce as well
         if create_ecom_products:
             push_to_ecommerce_for_course_run(official_version)
-
         return official_version
 
     def handle_status_change(self, send_emails):
