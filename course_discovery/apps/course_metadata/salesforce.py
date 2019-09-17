@@ -214,6 +214,8 @@ class SalesforceUtil:
             self.client.Course__c.update(
                 course.salesforce_id, self._build_course_payload(course, organization)
             )
+        else:
+            self.create_course(course)
 
     @salesforce_request_wrapper
     def update_course_run(self, course_run):
@@ -222,6 +224,8 @@ class SalesforceUtil:
             self.client.Course_Run__c.update(
                 course_run.salesforce_id, self._build_course_run_payload(course_run)
             )
+        else:
+            self.create_course_run(course_run)
 
     @staticmethod
     def format_user_comment_body(user, body, course_run_key=None):

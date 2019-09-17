@@ -268,11 +268,9 @@ def update_or_create_salesforce_organization(instance, created, **kwargs):  # py
     partner = instance.partner
     util = get_salesforce_util(partner)
     if util:
-        if created:
-            util.create_publisher_organization(instance)
-        else:
-            if requires_salesforce_update('organization', instance):
-                util.update_publisher_organization(instance)
+        util.create_publisher_organization(instance)
+        if not created and requires_salesforce_update('organization', instance):
+            util.update_publisher_organization(instance)
 
 
 @receiver(post_save, sender=Course)
@@ -280,13 +278,13 @@ def update_or_create_salesforce_course(instance, created, **kwargs):  # pylint: 
     partner = instance.partner
     util = get_salesforce_util(partner)
     if util:
-        if created and instance.draft:
+        if instance.draft:
             util.create_course(instance)
         elif not created and not instance.draft:
-            created = False
+            created_in_salseforce = False
             if not instance.salesforce_id and instance.draft_version:
-                created = populate_official_with_existing_draft(instance, util)
-            if not created and requires_salesforce_update('course', instance):
+                created_in_salseforce = populate_official_with_existing_draft(instance, util)
+            if not created_in_salseforce and requires_salesforce_update('course', instance):
                 util.update_course(instance)
 
 
@@ -295,13 +293,13 @@ def update_or_create_salesforce_course_run(instance, created, **kwargs):  # pyli
     partner = instance.course.partner
     util = get_salesforce_util(partner)
     if util:
-        if created and instance.draft:
+        if instance.draft:
             util.create_course_run(instance)
         elif not created and not instance.draft:
-            created = False
+            created_in_salesforce = False
             if not instance.salesforce_id and instance.draft_version:
-                created = populate_official_with_existing_draft(instance, util)
-            if not created and requires_salesforce_update('course_run', instance):
+                created_in_salesforce = populate_official_with_existing_draft(instance, util)
+            if not created_in_salesforce and requires_salesforce_update('course_run', instance):
                 util.update_course_run(instance)
 
 
