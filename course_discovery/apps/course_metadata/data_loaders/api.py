@@ -82,6 +82,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self._process_response(response)
 
         pagerange = range(initial_page + 1, pages + 1)
+        logger.info('Looping to request all %d pages...', pages)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:  # pragma: no cover
             if self.is_threadsafe:
@@ -112,6 +113,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self._process_response(response)
 
     def _make_request(self, page):
+        logger.info('Requesting course run page %d...', page)
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, username=self.username)
 
     def _process_response(self, response):
