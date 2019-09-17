@@ -11,7 +11,7 @@ import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.query import Prefetch
+from django.db.models.query import Prefetch, prefetch_related_objects
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from drf_dynamic_fields import DynamicFieldsMixin
@@ -1771,6 +1771,14 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 class CourseSearchSerializer(HaystackSerializer):
     course_runs = serializers.SerializerMethodField()
     seat_types = serializers.SerializerMethodField()
+
+    def to_representation(self, instance):
+        """
+        There are 2 course_run.all() calls in serializerMethodFields, so let's
+        prefetch their objects to reduce the number of queries we have.
+        """
+        prefetch_related_objects([instance.object], 'course_runs__seats')
+        return super().to_representation(instance)
 
     def get_course_runs(self, result):
         return [
