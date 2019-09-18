@@ -1,6 +1,8 @@
 import re
 from datetime import datetime, timezone
 
+import requests
+from requests.adapters import HTTPAdapter
 from simple_salesforce import Salesforce, SalesforceExpiredSession
 
 from course_discovery.apps.core.models import User
@@ -93,6 +95,11 @@ class SalesforceUtil:
             return bool(self.partner.salesforce)
 
         def login(self):
+            # Need to instantiate a session with multiple retries to avoid OSError
+            session = requests.Session()
+            adapter = HTTPAdapter(max_retries=2)
+            session.mount('https://', adapter)
+
             salesforce_config = self.partner.salesforce
             sf_kwargs = {
                 'username': salesforce_config.username,
@@ -102,7 +109,7 @@ class SalesforceUtil:
                 'security_token': '' if salesforce_config.organization_id else salesforce_config.token,
                 'domain': 'test' if salesforce_config.is_sandbox else None
             }
-            return Salesforce(**sf_kwargs)
+            return Salesforce(session=session, **sf_kwargs)
 
     instances = {}
 
@@ -275,9 +282,9 @@ class SalesforceUtil:
     @staticmethod
     def _parse_user_comment_body(comment):
         match = re.match(
-            r"\[User\]\n?(?:^(?:.*\s\(?)?(.+?)\)?$\n\n)(?:\[Course Run\]\n^(.+)$\n\n)?\[Body\]\n^(.+)",
+            r"\[User\]\n(?:.*?\()?(.*?)\)?\n\n(?:\[Course Run\]\n^(.+)$\n\n)?\[Body\]\n^(.+)",
             str(comment.get('Body')),
-            flags=re.MULTILINE
+            flags=re.MULTILINE | re.DOTALL
         )
         if match:
             return {

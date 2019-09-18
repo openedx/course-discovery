@@ -33,14 +33,18 @@ class TestSalesforce(TestCase):
         self.salesforce_config.save()
 
         with mock.patch(self.salesforce_path) as mock_salesforce:
-            SalesforceUtil(self.salesforce_config.partner)
-            mock_salesforce.assert_called_with(**{
-                'username': self.salesforce_config.username,
-                'password': self.salesforce_config.password,
-                'organizationId': self.salesforce_config.organization_id,
-                'security_token': '',
-                'domain': 'test',
-            })
+            with mock.patch('course_discovery.apps.course_metadata.salesforce.requests') as mock_requests:
+                SalesforceUtil(self.salesforce_config.partner)
+                mock_salesforce.assert_called_with(
+                    session=mock_requests.Session(),
+                    **{
+                        'username': self.salesforce_config.username,
+                        'password': self.salesforce_config.password,
+                        'organizationId': self.salesforce_config.organization_id,
+                        'security_token': '',
+                        'domain': 'test',
+                    }
+                )
 
     @factory.django.mute_signals(post_save)
     def test_wrapper_salesforce_expired_session_calls_login(self):
