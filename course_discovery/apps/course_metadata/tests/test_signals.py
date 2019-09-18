@@ -13,6 +13,7 @@ from waffle.testutils import override_switch
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, DataLoaderConfig,
     DeletePersonDupsConfig, DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig,
@@ -843,18 +844,13 @@ class SalesforceTests(TestCase):
                 with mock.patch(self.salesforce_util_path + '.update_course'):
                     with mock.patch(self.salesforce_util_path + '.create_course_run') as mock_create_method:
                         with mock.patch(self.salesforce_util_path + '.update_course_run') as mock_update_method:
-                            course_run = factories.CourseRunFactory(draft=True)
+                            course_run = factories.CourseRunFactory(draft=True, status=CourseRunStatus.Published)
 
                             mock_create_method.assert_called()
                             mock_update_method.assert_not_called()
 
-                            course_run.save()
-
-                            # This shows that an update to a draft does not hit the salesforce update method
-                            mock_update_method.assert_not_called()
-
                             course_run.draft = False
-                            course_run.name = 'changed'
+                            course_run.status = CourseRunStatus.Unpublished
                             course_run.save()
 
-                            self.assertEqual(1, mock_create_method.call_count)
+                            mock_update_method.assert_called()

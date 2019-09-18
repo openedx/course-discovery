@@ -476,12 +476,14 @@ class TestSalesforce(TestCase):
         course.salesforce_id = salesforce_id
 
         with mock.patch(self.salesforce_path) as mock_salesforce:
-            util = SalesforceUtil(self.salesforce_config.partner)
-            util.update_course(course)
-            if salesforce_id:
-                mock_salesforce().Course__c.update.assert_called()
-            else:
-                mock_salesforce().Course__c.update.assert_not_called()
+            with mock.patch(self.salesforce_util_path + '.create_course') as mock_create:
+                util = SalesforceUtil(self.salesforce_config.partner)
+                util.update_course(course)
+                if salesforce_id:
+                    mock_salesforce().Course__c.update.assert_called()
+                else:
+                    mock_salesforce().Course__c.update.assert_not_called()
+                    mock_create.assert_called()
 
     @ddt.data('test-id', None)
     def test_update_course_run(self, salesforce_id):
@@ -490,12 +492,14 @@ class TestSalesforce(TestCase):
         course_run.salesforce_id = salesforce_id
 
         with mock.patch(self.salesforce_path) as mock_salesforce:
-            util = SalesforceUtil(self.salesforce_config.partner)
-            util.update_course_run(course_run)
-            if salesforce_id:
-                mock_salesforce().Course_Run__c.update.assert_called()
-            else:
-                mock_salesforce().Course_Run__c.update.assert_not_called()
+            with mock.patch(self.salesforce_util_path + '.create_course_run') as mock_create:
+                util = SalesforceUtil(self.salesforce_config.partner)
+                util.update_course_run(course_run)
+                if salesforce_id:
+                    mock_salesforce().Course_Run__c.update.assert_called()
+                else:
+                    mock_salesforce().Course_Run__c.update.assert_not_called()
+                    mock_create.assert_called()
 
     @ddt.data(
         (OrganizationFactory, 'organization', 'description', False),
