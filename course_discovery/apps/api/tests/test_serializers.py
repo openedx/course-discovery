@@ -1342,6 +1342,7 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
             'logo_image_url': organization.logo_image_url,
             'tags': [cls.TAG],
             'marketing_url': organization.marketing_url,
+            'banner_image_url': organization.banner_image_url,
         })
 
         return expected
