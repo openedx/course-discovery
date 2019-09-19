@@ -78,7 +78,8 @@ class Command(BaseCommand):
                         comments.append({
                             'ParentId': course.salesforce_case_id,
                             'Body': user_comment_body,
-                            '_modified': comment.modified,  # To be removed below, just for ordering
+                            # Use modified for CreatedDate as that is the time this exact comment began to exist
+                            'CreatedDate': comment.modified.strftime('%Y-%m-%dT%H:%M:%SZ'),
                         })
                 if publisher_courses:
                     publisher_course_ids = [publisher_course.id for publisher_course in publisher_courses]
@@ -91,11 +92,10 @@ class Command(BaseCommand):
                         comments.append({
                             'ParentId': course.salesforce_case_id,
                             'Body': user_comment_body,
-                            '_modified': comment.modified,  # To be removed below, just for ordering
+                            # Use modified for CreatedDate as that is the time this exact comment began to exist
+                            'CreatedDate': comment.modified.strftime('%Y-%m-%dT%H:%M:%SZ'),
                         })
                     if comments:
-                        for comment in comments:
-                            del comment['_modified']
                         util.client.bulk.FeedItem.insert(comments)
                         logger.info(_('Inserted {} comments for {}').format(len(comments), course.title))
                 else:
