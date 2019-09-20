@@ -522,6 +522,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         default=None, null=True, blank=True,
     )
     key = models.CharField(max_length=255, db_index=True)
+    key_for_reruns = models.CharField(
+        max_length=255, blank=True,
+        help_text=_('When making reruns for this course, they will use this key instead of the course key.'),
+    )
     title = models.CharField(max_length=255, default=None, null=True, blank=True)
     url_slug = AutoSlugField(populate_from='title', editable=True, slugify_function=uslugify, overwrite_on_add=False,
                              help_text=_('Leave this field blank to have the value generated automatically.'))

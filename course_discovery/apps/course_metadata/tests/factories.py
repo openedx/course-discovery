@@ -84,6 +84,7 @@ class AdditionalPromoAreaFactory(AbstractTitleDescriptionFactory):
 class CourseFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-id/')
+    key_for_reruns = FuzzyText(prefix='OrgX+')
     title = FuzzyText(prefix="Test çօմɾʂҽ ")
     short_description = FuzzyText(prefix="Test çօմɾʂҽ short description")
     full_description = FuzzyText(prefix="Test çօմɾʂҽ FULL description")

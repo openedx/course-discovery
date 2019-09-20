@@ -132,7 +132,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     def test_create_minimum(self):
         """ Verify the endpoint supports creating a course_run with the least info. """
         course = self.draft_course_run.course
-        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
         self.mock_post_to_studio(new_key)
         url = reverse('api:v1:course_run-list')
 
@@ -161,12 +161,42 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertEqual(new_seat.price, 0.00)
         self.assertTrue(new_seat.draft)
 
+    @responses.activate
+    def test_create_without_course_key_for_reruns(self):
+        """ Verify the endpoint supports creating a course_run without a specified course key_for_reruns. """
+        course = self.draft_course_run.course
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
+        self.mock_post_to_studio(new_key)
+        url = reverse('api:v1:course_run-list')
+
+        data = {
+            'course': course.key,
+            'start': '2000-01-01T00:00:00Z',
+            'end': '2001-01-01T00:00:00Z',
+        }
+
+        self.assertNotEqual(course.key, course.key_for_reruns)  # sanity check
+
+        # Try first with a boring old key_for_reruns
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['key'], new_key)
+        CourseRun.everything.get(key=response.data['key'])
+
+        # Now try without a key_for_reruns set
+        course.key_for_reruns = ''
+        course.save()
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['key'], 'course-v1:{}+1T2000'.format(course.key.replace('/', '+')))
+        CourseRun.everything.get(key=response.data['key'])
+
     @ddt.data(True, False)
     @responses.activate
     def test_create_sets_canonical_course_run(self, has_canonical_run):
         """ Verify the endpoint supports setting an empty canonical course run. """
         course = self.draft_course_run.course
-        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
         url = reverse('api:v1:course_run-list')
 
         self.assertIsNone(course.canonical_course_run)  # sanity check
@@ -205,7 +235,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         # Create rerun based on draft course
         course = self.draft_course_run.course
-        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
         url = reverse('api:v1:course_run-list')
 
         self.mock_post_to_studio(new_key, rerun_key=self.draft_course_run.key)
@@ -233,7 +263,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     def test_create_draft_ignored(self, draft):
         """ Verify the endpoint supports creating a course_run, but always as a draft. """
         course = self.draft_course_run.course
-        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
         self.mock_post_to_studio(new_key)
         url = reverse('api:v1:course_run-list')
 
@@ -254,8 +284,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     def test_create_with_key(self):
         """ Verify the endpoint supports creating a course_run when specifying a key (if allowed). """
         course = self.draft_course_run.course
-        date_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
-        desired_key = 'course-v1:{}+HowdyDoing'.format(course.key.replace('/', '+'))
+        date_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
+        desired_key = 'course-v1:{}+HowdyDoing'.format(course.key_for_reruns)
         url = reverse('api:v1:course_run-list')
 
         data = {
@@ -305,7 +335,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
     def test_create_fails_with_all_missing_fields(self):
         course = self.draft_course_run.course
-        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
         self.mock_post_to_studio(new_key)
         url = reverse('api:v1:course_run-list')
 
@@ -318,7 +348,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
     def test_create_fails_with_partial_missing_fields(self):
         course = self.draft_course_run.course
-        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
         self.mock_post_to_studio(new_key)
         url = reverse('api:v1:course_run-list')
 
@@ -339,7 +369,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         course = self.draft_course_run.course
         course.canonical_course_run = self.draft_course_run
         course.save()
-        new_key = 'course-v1:{}+1T2000'.format(course.key.replace('/', '+'))
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
         url = reverse('api:v1:course_run-list')
 
         self.mock_access_token()

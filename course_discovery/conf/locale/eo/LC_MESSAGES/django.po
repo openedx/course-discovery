@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-12 14:12+0000\n"
+"POT-Creation-Date: 2019-09-23 14:41+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1039,6 +1039,14 @@ msgstr ""
 #: apps/course_metadata/models.py
 msgid "People"
 msgstr "Péöplé Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"When making reruns for this course, they will use this key instead of the "
+"course key."
+msgstr ""
+"Whén mäkïng rérüns för thïs çöürsé, théý wïll üsé thïs kéý ïnstéäd öf thé "
+"çöürsé kéý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: apps/course_metadata/models.py
 msgid "Add the course image"
