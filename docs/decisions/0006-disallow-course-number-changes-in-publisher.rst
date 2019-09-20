@@ -65,10 +65,17 @@ create new Courses to have the desired result.
 Decision
 --------
 
-At this time, we **disallow** modifying the Course number in both the Publisher
-app and the Publisher Microfrontend. I believe this could (and should) change
-in the future so I am documenting below the investigation I did including some
-of the changes that would need to happen before switching over.
+At this time, we **disallow** modifying the Course number in both the Publisher app and the Publisher Microfrontend.
+The Course number is used as a matching string between data sets in too many places.
+
+But we **do allow** setting a separate Course field that controls what key new reruns use as a course key.
+So if we want to rename a course key, we'll instead set this new key.
+The course key will remain constant at the old value and continue to be able to be used for matching data sets.
+But all new reruns in that course will use course run keys derived from this new field.
+
+I believe this could (and should) change in the future to simply allow renaming a course key,
+so I am documenting below the investigation I did including some of the changes that would need
+to happen before allowing that.
 
 
 Investigation

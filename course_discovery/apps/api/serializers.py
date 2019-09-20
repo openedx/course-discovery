@@ -710,7 +710,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 
         # Now, override whatever value for key was provided by looking at the start date
         start = data['start']  # required
-        org, number = parse_course_key_fragment(course.key)
+        org, number = parse_course_key_fragment(course.key_for_reruns or course.key)
         run = StudioAPI.calculate_course_run_key_run_value(number, start)
         key = CourseLocator(org=org, course=number, run=run)
         data['key'] = str(key)
@@ -946,7 +946,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
-            'enrollment_count', 'recent_enrollment_count', 'topics', 'partner',
+            'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
