@@ -406,7 +406,7 @@ REST_FRAMEWORK = {
         'course_discovery.apps.core.throttles.OverridableUserRateThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
-        'user': '100/hour',
+        'user': '100/minute',
     },
 }
 
