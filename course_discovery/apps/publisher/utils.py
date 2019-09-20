@@ -163,13 +163,22 @@ def user_orgs(user):
     return Organization.user_organizations(user)
 
 
-def is_on_new_pub_fe(user):
+def check_orgs_from_settings(method):
+    """Decorator for retrieving orgs on new pub fe from settings"""
+    def wrapper(obj):
+        orgs_on_new_pub_fe = frozenset(filter(None, getattr(settings, 'ORGS_ON_NEW_PUB_FE', '').split(',')))
+        if not orgs_on_new_pub_fe:
+            return False
+
+        return method(obj, orgs_on_new_pub_fe)
+
+    return wrapper
+
+
+@check_orgs_from_settings
+def is_on_new_pub_fe(user, orgs_on_new_pub_fe=None):
     """Returns if all the user's organizations have been moved to new publisher frontend"""
     if user.is_staff:
-        return False
-
-    orgs_on_new_pub_fe = frozenset(filter(None, getattr(settings, 'ORGS_ON_NEW_PUB_FE', '').split(',')))
-    if not orgs_on_new_pub_fe:
         return False
 
     orgs = user_orgs(user)
@@ -180,18 +189,27 @@ def is_on_new_pub_fe(user):
     return True
 
 
-def is_course_on_new_pub_fe(course):
+@check_orgs_from_settings
+def is_course_on_new_pub_fe(course, orgs_on_new_pub_fe=None):
     """
+    Handles course_metadata courses, not publisher courses
     Returns True if all the course's organizations have been moved to new publisher frontend
-
-    Args:
-        course: A course_metadata Course object (not a Publisher one)
     """
-    orgs_on_new_pub_fe = frozenset(filter(None, getattr(settings, 'ORGS_ON_NEW_PUB_FE', '').split(',')))
-    if not orgs_on_new_pub_fe:
-        return False
-
     orgs = course.authoring_organizations.all()
+    for org in orgs:
+        if org.key not in orgs_on_new_pub_fe:
+            return False
+
+    return True
+
+
+@check_orgs_from_settings
+def is_publisher_course_on_new_pub_fe(course, orgs_on_new_pub_fe=None):
+    """
+    Handles publisher courses, not course_metadata courses
+    Returns True if all the course's organizations have been moved to new publisher frontend
+    """
+    orgs = course.organizations.all()
     for org in orgs:
         if org.key not in orgs_on_new_pub_fe:
             return False

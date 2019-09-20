@@ -8,6 +8,7 @@
 {% endblock title %}
 
 {% block page_content %}
+{% if not is_course_on_new_pub_fe %}
 <div class="layout-1t2t layout-flush publisher-container course-detail">
     <main class="layout-col layout-col-b layout-col-b-custom">
         {% if course_run.course_run_state.is_published %}
@@ -108,6 +109,14 @@
     </aside>
 </div>
 {% include 'publisher/course_run_detail/_instructor_profile.html' %}
+{% else %}
+<div class="new-pub-banner-container">
+    <div>Your organization has been moved over to new publisher.</div>
+    {% if publisher_url %}
+        <div>Please visit <a href="{{publisher_url}}">here</a>.</div>
+    {% endif %}
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
