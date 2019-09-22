@@ -9,14 +9,14 @@
 # 6e68c7971a89e50e680ae9444d303c8f, 2016
 # e2f_ar r3 <e2f_ar_r3@outlook.com>, 2017
 # e2f_ar t3 <e2f_ar_t3@outlook.com>, 2016
-# Omar Al-Ithawi <oithawi@qrf.org>, 2016
+# Omar Al-Ithawi <omar.al.dolaimy@gmail.com>, 2016
 # Sahbi BG <sahbi.g@gmail.com>, 2017
 # shefaa abu jabel <shefaa.aj@gmail.com>, 2016-2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-08-16 14:02+0000\n"
+"POT-Creation-Date: 2019-09-12 14:12+0000\n"
 "PO-Revision-Date: 2019-06-25 23:24+0000\n"
 "Last-Translator: Ahmed Rizk <mr.rizk@gmail.com>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"

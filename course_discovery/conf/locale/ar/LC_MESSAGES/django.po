@@ -12,7 +12,7 @@
 # e2f_ar r3 <e2f_ar_r3@outlook.com>, 2016-2017
 # e2f_ar t3 <e2f_ar_t3@outlook.com>, 2016
 # Natalia Berdnikov <nberdnikov@edx.org>, 2016
-# Omar Al-Ithawi <oithawi@qrf.org>, 2016
+# Omar Al-Ithawi <omar.al.dolaimy@gmail.com>, 2016
 # qualityalltext <quality@alltext.co.il>, 2016
 # Renzo Lucioni <rlucioni@edx.org>, 2017
 # Sahbi BG <sahbi.g@gmail.com>, 2017
