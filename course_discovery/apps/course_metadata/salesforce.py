@@ -89,7 +89,7 @@ class SalesforceUtil:
         def __init__(self, partner):
             self.partner = partner
             if self.salesforce_is_enabled():
-                self.client = self.login()
+                self.login()
 
         def salesforce_is_enabled(self):
             return bool(self.partner.salesforce)
@@ -109,7 +109,7 @@ class SalesforceUtil:
                 'security_token': '' if salesforce_config.organization_id else salesforce_config.token,
                 'domain': 'test' if salesforce_config.is_sandbox else None
             }
-            return Salesforce(session=session, **sf_kwargs)
+            self.client = Salesforce(session=session, **sf_kwargs)
 
     instances = {}
 
