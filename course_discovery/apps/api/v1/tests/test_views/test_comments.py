@@ -28,11 +28,14 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
         SalesforceUtil.instances = {}
 
     def test_list_no_salesforce_case_id_set(self):
+        user_orgs_path = 'course_discovery.apps.course_metadata.models.Organization.user_organizations'
+
         with mock.patch('course_discovery.apps.course_metadata.salesforce.Salesforce'):
-            url = '{}?course_uuid={}'.format(reverse('api:v1:comment-list'), self.course.uuid)
-            response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, [])
+            with mock.patch(user_orgs_path, return_value=[self.org]):
+                url = '{}?course_uuid={}'.format(reverse('api:v1:comment-list'), self.course.uuid)
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.data, [])
 
     @factory.django.mute_signals(post_save)
     def test_list_salesforce_case_id_set(self):
@@ -41,6 +44,7 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
 
         salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
         get_comments_path = 'course_discovery.apps.api.v1.views.comments.SalesforceUtil.get_comments_for_course'
+        user_orgs_path = 'course_discovery.apps.course_metadata.models.Organization.user_organizations'
         return_value = [
             {
                 'user': {
@@ -55,12 +59,13 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
             }
         ]
         with mock.patch(salesforce_path):
-            with mock.patch(get_comments_path, return_value=return_value) as mock_get_comments:
-                url = '{}?course_uuid={}'.format(reverse('api:v1:comment-list'), self.course.uuid)
-                response = self.client.get(url)
-                mock_get_comments.assert_called_with(self.course)
-                self.assertEqual(response.status_code, 200)
-                self.assertEqual(response.data, return_value)
+            with mock.patch(user_orgs_path, return_value=[self.org]):
+                with mock.patch(get_comments_path, return_value=return_value) as mock_get_comments:
+                    url = '{}?course_uuid={}'.format(reverse('api:v1:comment-list'), self.course.uuid)
+                    response = self.client.get(url)
+                    mock_get_comments.assert_called_with(self.course)
+                    self.assertEqual(response.status_code, 200)
+                    self.assertEqual(response.data, return_value)
 
     def test_list_400s_without_course_uuid(self):
         with mock.patch('course_discovery.apps.course_metadata.salesforce.Salesforce'):
@@ -77,10 +82,10 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
 
     def test_list_403s_without_permissions(self):
         salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
-        is_editable_path = 'course_discovery.apps.api.v1.views.comments.CourseEditor.is_course_editable'
+        user_orgs_path = 'course_discovery.apps.course_metadata.models.Organization.user_organizations'
 
         with mock.patch(salesforce_path):
-            with mock.patch(is_editable_path, return_value=False):
+            with mock.patch(user_orgs_path, return_value=[]):
                 url = '{}?course_uuid={}'.format(reverse('api:v1:comment-list'), self.course.uuid)
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, 403)
