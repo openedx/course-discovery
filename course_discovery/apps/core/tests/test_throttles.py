@@ -7,6 +7,7 @@ from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.models import UserThrottleRate
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.throttles import OverridableUserRateThrottle, throttling_cache
+from course_discovery.apps.publisher.tests.factories import GroupFactory
 
 
 class RateLimitingExceededTest(SiteMixin, APITestCase):
@@ -72,4 +73,9 @@ class RateLimitingExceededTest(SiteMixin, APITestCase):
         """ Verify staff users are not throttled. """
         self.user.is_staff = True
         self.user.save()
+        self.assert_rate_limit_successfully_exceeded()
+
+    def test_publisher_user_throttling(self):
+        """ Verify publisher users are not throttled. """
+        self.user.groups.add(GroupFactory())
         self.assert_rate_limit_successfully_exceeded()

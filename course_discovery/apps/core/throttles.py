@@ -3,6 +3,7 @@ from django.core.cache import InvalidCacheBackendError, caches
 from rest_framework.throttling import UserRateThrottle
 
 from course_discovery.apps.core.models import UserThrottleRate
+from course_discovery.apps.publisher.utils import is_publisher_user
 
 
 def throttling_cache():
@@ -23,7 +24,7 @@ class OverridableUserRateThrottle(UserRateThrottle):
         user = request.user
 
         if user and user.is_authenticated:
-            if user.is_superuser or user.is_staff:
+            if user.is_superuser or user.is_staff or is_publisher_user(user):
                 return True
             try:
                 # Override this throttle's rate if applicable
