@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from course_discovery.apps.api.serializers import CommentSerializer
 from course_discovery.apps.core.models import SalesforceConfiguration
-from course_discovery.apps.course_metadata.models import Course, CourseEditor
+from course_discovery.apps.course_metadata.models import Course, CourseEditor, Organization
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 
@@ -36,7 +36,9 @@ class CommentViewSet(viewsets.GenericViewSet):
             )
         partner = request.site.partner
         course = self._get_course_or_404(partner, course_uuid)
-        if not CourseEditor.is_course_editable(request.user, course):
+
+        user_orgs = Organization.user_organizations(request.user)
+        if not set(user_orgs).intersection(course.authoring_organizations.all()):
             raise PermissionDenied
 
         util = self._get_salesforce_util_or_404(partner)
