@@ -91,6 +91,8 @@ class Command(BaseCommand):
                 for column_name in ['slug', 'url_slug']:
                     if column_name in columns:
                         columns.remove(column_name)
+                # Quote column names to make sure reserved words do not throw an exception.
+                columns = ['`{}`'.format(c) for c in columns]
             while True:
                 with transaction.atomic():
                     with connection.cursor() as cursor:
