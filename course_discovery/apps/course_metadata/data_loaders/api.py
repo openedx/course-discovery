@@ -550,7 +550,12 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'credit_hours': credit_hours,
         }
 
-        found_seats = Seat.objects.filter(type=seat_type, credit_provider=credit_provider, currency=currency)
+        found_seats = Seat.objects.filter(
+            type=seat_type,
+            credit_provider=credit_provider,
+            currency=currency,
+            course_run=course_run
+        )
         if found_seats.count() > 1:
             ids = [seat.id for seat in found_seats]
             msg = 'Found [{ids}] with type {type}, credit provider {provider} and currency {currency} for {key}'.format(
