@@ -165,12 +165,20 @@ class Video(AbstractMediaModel):
         return '{src}: {description}'.format(src=self.src, description=self.description)
 
 
-class LevelType(AbstractNamedModel):
+class LevelType(TranslatableModel, AbstractNamedModel):
     """ LevelType model. """
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
 
     class Meta:
         ordering = ('order',)
+
+
+class LevelTypeTranslation(TranslatedFieldsModel):
+    master = models.ForeignKey(LevelType, models.CASCADE, related_name='translations', null=True)
+
+    class Meta:
+        unique_together = ('language_code', 'master')
+        verbose_name = _('LevelType model translations')
 
 
 class SeatType(TimeStampedModel):
@@ -181,7 +189,7 @@ class SeatType(TimeStampedModel):
         return self.name
 
 
-class ProgramType(TimeStampedModel):
+class ProgramType(TranslatableModel, TimeStampedModel):
     XSERIES = 'xseries'
     MICROMASTERS = 'micromasters'
     PROFESSIONAL_CERTIFICATE = 'professional-certificate'
@@ -234,6 +242,14 @@ class ProgramType(TimeStampedModel):
         if slug:
             program_type = program_model.objects.get(slug=slug)
         return program_type, name
+
+
+class ProgramTypeTranslation(TranslatedFieldsModel):
+    master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
+
+    class Meta:
+        unique_together = ('language_code', 'master')
+        verbose_name = _('ProgramType model translations')
 
 
 class Subject(TranslatableModel, TimeStampedModel):
