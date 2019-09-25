@@ -71,11 +71,11 @@ class PersonAreaOfExpertiseInline(admin.TabularInline):
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     form = CourseAdminForm
-    list_display = ('uuid', 'key', 'title', 'draft',)
+    list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
     readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count',)
-    search_fields = ('uuid', 'key', 'title',)
+    search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('draft_version',)
 
 
@@ -97,6 +97,28 @@ class CourseEntitlementAdmin(admin.ModelAdmin):
 
     raw_id_fields = ('course', 'draft_version',)
     search_fields = ['course__title', 'course__key']
+
+
+@admin.register(Mode)
+class ModeAdmin(admin.ModelAdmin):
+    list_display = ['slug', 'name']
+
+
+@admin.register(Track)
+class TrackAdmin(admin.ModelAdmin):
+    list_display = ['mode', 'seat_type']
+
+
+@admin.register(CourseRunType)
+class CourseRunTypeAdmin(admin.ModelAdmin):
+    list_display = ['uuid', 'name']
+    search_fields = ['uuid', 'name']
+
+
+@admin.register(CourseType)
+class CourseTypeAdmin(admin.ModelAdmin):
+    list_display = ['uuid', 'name']
+    search_fields = ['uuid', 'name']
 
 
 @admin.register(CourseRun)

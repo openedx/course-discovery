@@ -651,6 +651,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     short_description = serializers.CharField(required=False, allow_blank=True)
     start = serializers.DateTimeField(required=True)  # required so we can craft key number from it
     end = serializers.DateTimeField(required=True)  # required by studio
+    type = serializers.CharField(read_only=True, source='type_legacy')
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -1798,7 +1799,7 @@ class CourseSearchSerializer(HaystackSerializer):
                 'modified': course_run.modified,
                 'availability': course_run.availability,
                 'pacing_type': course_run.pacing_type,
-                'enrollment_mode': course_run.type,
+                'enrollment_mode': course_run.type_legacy,
                 'min_effort': course_run.min_effort,
                 'max_effort': course_run.max_effort,
                 'weeks_to_complete': course_run.weeks_to_complete,
@@ -1847,12 +1848,20 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
 class CourseRunSearchSerializer(HaystackSerializer):
     availability = serializers.SerializerMethodField()
     first_enrollable_paid_seat_price = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
 
     def get_availability(self, result):
         return result.object.availability
 
     def get_first_enrollable_paid_seat_price(self, result):
         return result.object.first_enrollable_paid_seat_price
+
+    def get_type(self, result):
+        return result.object.type_legacy
+
+    def to_representation(self, instance):
+        prefetch_related_objects([instance.object], 'seats')
+        return super().to_representation(instance)
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -1913,7 +1922,6 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
             'seat_types': {},
             'subjects': {},
             'transcript_languages': {},
-            'type': {},
         }
         field_queries = {
             'availability_current': {'query': 'start:<now AND end:>now'},

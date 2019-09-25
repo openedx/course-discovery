@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-25 20:20+0000\n"
+"POT-Creation-Date: 2019-09-30 16:00+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -575,6 +575,45 @@ msgstr "Rétïréd Ⱡ'σяєм ιρѕυм #"
 msgid "Deleted"
 msgstr "Délétéd Ⱡ'σяєм ιρѕυм #"
 
+#: apps/course_metadata/choices.py apps/course_metadata/models.py
+#: apps/publisher/models.py
+msgid "Honor"
+msgstr "Hönör Ⱡ'σяєм ιρѕ#"
+
+#: apps/course_metadata/choices.py apps/course_metadata/models.py
+#: apps/publisher/forms.py apps/publisher/forms.py apps/publisher/models.py
+msgid "Credit"
+msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/choices.py apps/course_metadata/models.py
+#: apps/publisher/forms.py apps/publisher/forms.py apps/publisher/models.py
+#: apps/publisher/models.py
+msgid "Verified"
+msgstr "Vérïfïéd Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/choices.py apps/course_metadata/models.py
+#: apps/publisher/models.py
+msgid "Professional"
+msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/choices.py
+#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
+msgid "Platform"
+msgstr "Plätförm Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/choices.py
+#: apps/publisher/templates/publisher/_add_instructor_popup.html
+#: apps/publisher/templates/publisher/course_list.html
+#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
+#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
+#: apps/publisher/templates/publisher/course_run_detail/_studio.html
+#: apps/publisher/templates/publisher/dashboard/_in_preview.html
+#: apps/publisher/templates/publisher/dashboard/_in_progress.html
+#: apps/publisher/templates/publisher/dashboard/_published.html
+#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
+msgid "Organization"
+msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
 #: apps/course_metadata/emails.py
 #, python-brace-format
 msgid ""
@@ -975,6 +1014,34 @@ msgstr ""
 "Léävé thïs fïéld ßlänk tö hävé thé välüé générätéd äütömätïçällý. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
+#: apps/course_metadata/models.py
+msgid "This mode requires ID verification."
+msgstr ""
+"Thïs mödé réqüïrés ÌD vérïfïçätïön. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid "Completion can grant credit toward an organization’s degree."
+msgstr ""
+"Çömplétïön çän gränt çrédït töwärd än örgänïzätïön’s dégréé. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Certificate type granted if this mode is eligible for a certificate, or "
+"blank if not."
+msgstr ""
+"Çértïfïçäté týpé gräntéd ïf thïs mödé ïs élïgïßlé för ä çértïfïçäté, ör "
+"ßlänk ïf nöt. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Who gets paid for the course? Platform is the site owner, Organization is "
+"the school."
+msgstr ""
+"Whö géts päïd för thé çöürsé? Plätförm ïs thé sïté öwnér, Örgänïzätïön ïs "
+"thé sçhööl. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
@@ -1225,26 +1292,8 @@ msgstr ""
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
 
 #: apps/course_metadata/models.py apps/publisher/models.py
-msgid "Honor"
-msgstr "Hönör Ⱡ'σяєм ιρѕ#"
-
-#: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Audit"
 msgstr "Àüdït Ⱡ'σяєм ιρѕ#"
-
-#: apps/course_metadata/models.py apps/publisher/forms.py
-#: apps/publisher/forms.py apps/publisher/models.py apps/publisher/models.py
-msgid "Verified"
-msgstr "Vérïfïéd Ⱡ'σяєм ιρѕυм ∂#"
-
-#: apps/course_metadata/models.py apps/publisher/models.py
-msgid "Professional"
-msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: apps/course_metadata/models.py apps/publisher/forms.py
-#: apps/publisher/forms.py apps/publisher/models.py
-msgid "Credit"
-msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
 
 #: apps/course_metadata/models.py
 msgid "Masters"
@@ -2498,18 +2547,6 @@ msgstr "Läst Nämé Ⱡ'σяєм ιρѕυм ∂σł#"
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
 msgstr "Tïtlé Ⱡ'σяєм ιρѕ#"
-
-#: apps/publisher/templates/publisher/_add_instructor_popup.html
-#: apps/publisher/templates/publisher/course_list.html
-#: apps/publisher/templates/publisher/course_run_detail/_drupal.html
-#: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
-#: apps/publisher/templates/publisher/course_run_detail/_studio.html
-#: apps/publisher/templates/publisher/dashboard/_in_preview.html
-#: apps/publisher/templates/publisher/dashboard/_in_progress.html
-#: apps/publisher/templates/publisher/dashboard/_published.html
-#: apps/publisher/templates/publisher/dashboard/_studio_requests.html
-msgid "Organization"
-msgstr "Örgänïzätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Enter a different organization"
@@ -4337,10 +4374,6 @@ msgstr "Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσ#"
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "New or Rerun?"
 msgstr "Néw ör Rérün? Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
-
-#: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
-msgid "Platform"
-msgstr "Plätförm Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Faculty"

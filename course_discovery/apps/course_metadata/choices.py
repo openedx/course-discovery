@@ -40,3 +40,15 @@ class ReportingType(DjangoChoices):
     test = ChoiceItem('test', 'test')
     demo = ChoiceItem('demo', 'demo')
     other = ChoiceItem('other', 'other')
+
+
+class CertificateType(DjangoChoices):
+    Honor = ChoiceItem('honor', _('Honor'))
+    Credit = ChoiceItem('credit', _('Credit'))
+    Verified = ChoiceItem('verified', _('Verified'))
+    Professional = ChoiceItem('professional', _('Professional'))
+
+
+class PayeeType(DjangoChoices):
+    Platform = ChoiceItem('platform', _('Platform'))
+    Organization = ChoiceItem('organization', _('Organization'))

@@ -193,7 +193,7 @@ def create_seats(metadata_course_run, publisher_course_run):
             if created:
                 logger.info(
                     'Import seat with id [%s], type [%s].',
-                    seat.id, metadata_course_run.type
+                    seat.id, metadata_seat.type
                 )
 
     else:
