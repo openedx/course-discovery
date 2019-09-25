@@ -22,14 +22,14 @@ class InternalUserPermission(BasePermission):
     """ Permission class to check user is an internal user. """
 
     def has_object_permission(self, request, view, obj):
-        return is_internal_user(request.user)
+        return request.user.is_staff or is_internal_user(request.user)
 
 
 class PublisherUserPermission(BasePermission):
     """ Permission class to check user is a publisher user. """
 
     def has_object_permission(self, request, view, obj):
-        return is_publisher_user(request.user)
+        return request.user.is_staff or is_publisher_user(request.user)
 
     def has_permission(self, request, view):
-        return is_publisher_user(request.user)
+        return request.user.is_staff or is_publisher_user(request.user)
