@@ -28,7 +28,9 @@ from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata import emails
-from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
+from course_discovery.apps.course_metadata.choices import (
+    CertificateType, CourseRunPacing, CourseRunStatus, PayeeType, ProgramStatus, ReportingType
+)
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
 from course_discovery.apps.course_metadata.managers import DraftManager
@@ -234,6 +236,104 @@ class ProgramType(TimeStampedModel):
         if slug:
             program_type = program_model.objects.get(slug=slug)
         return program_type, name
+
+
+class Mode(TimeStampedModel):
+    """
+    This model is similar to the LMS CourseMode model.
+
+    It holds several fields that (one day will) control logic for handling enrollments in this mode.
+    Examples of names would be "Verified", "Credit", or "Masters"
+
+    See docs/decisions/0009-LMS-types-in-course-metadata.rst for more information.
+    """
+    name = models.CharField(max_length=64)
+    slug = models.CharField(max_length=64, unique=True)
+    is_id_verified = models.BooleanField(default=False, help_text=_('This mode requires ID verification.'))
+    is_credit_eligible = models.BooleanField(
+        default=False,
+        help_text=_('Completion can grant credit toward an organization’s degree.'),
+    )
+    certificate_type = models.CharField(
+        max_length=64, choices=CertificateType, blank=True,
+        help_text=_('Certificate type granted if this mode is eligible for a certificate, or blank if not.'),
+    )
+    payee = models.CharField(
+        max_length=64, choices=PayeeType, default=PayeeType.Platform,
+        help_text=_('Who gets paid for the course? Platform is the site owner, Organization is the school.'),
+    )
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def is_certificate_eligible(self):
+        """
+        Returns True if completion can impart any kind of certificate to the learner.
+        """
+        return bool(self.certificate_type)
+
+
+class Track(TimeStampedModel):
+    """
+    This model ties a Mode (an LMS concept) with a SeatType (an E-Commerce concept)
+
+    Basically, a track is all the metadata for a single enrollment type, with both the course logic and product sides.
+
+    See docs/decisions/0009-LMS-types-in-course-metadata.rst for more information.
+    """
+    seat_type = models.ForeignKey(SeatType, models.CASCADE, null=True, blank=True)
+    mode = models.ForeignKey(Mode, models.CASCADE)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.mode.name
+
+
+class CourseRunType(TimeStampedModel):
+    """
+    This model defines the enrollment options (Tracks) for a given course run.
+
+    A single course might have runs with different enrollment options. Like a course that has a
+    "Masters, Verified, and Audit" CourseType might contain CourseRunTypes named
+    - "Masters, Verified, and Audit" (pointing to three different tracks)
+    - "Verified and Audit"
+    - "Audit only"
+    - "Masters only"
+
+    See docs/decisions/0009-LMS-types-in-course-metadata.rst for more information.
+    """
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    name = models.CharField(max_length=64)
+    tracks = models.ManyToManyField(Track)
+    is_marketable = models.BooleanField(default=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name
+
+
+class CourseType(TimeStampedModel):
+    """
+    This model defines the permissible types of enrollments provided by a whole course.
+
+    It holds a list of permissible entitlement options and a list of permissible CourseRunTypes.
+
+    Examples of names would be "Masters, Verified, and Audit" or "Verified and Audit"
+    """
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    name = models.CharField(max_length=64)
+    entitlement_types = models.ManyToManyField(SeatType)
+    course_run_types = models.ManyToManyField(CourseRunType)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name
 
 
 class Subject(TranslatableModel, TimeStampedModel):
@@ -569,6 +669,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     )
     salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Course__c in Salesforce
     salesforce_case_id = models.CharField(max_length=255, null=True, blank=True)  # Case in Salesforce
+    type = models.ForeignKey(CourseType, models.CASCADE, null=True, blank=True)
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
@@ -923,6 +1024,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         help_text=_(
             "'What You Will Learn' description for this particular course run. Leave this value blank to default "
             "to the parent course's Outcome attribute."))
+    type = models.ForeignKey(CourseRunType, models.CASCADE, null=True, blank=True)
 
     tags = TaggableManager(
         blank=True,
@@ -1201,7 +1303,19 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         return [seat.type for seat in self.seats.all()]
 
     @property
-    def type(self):
+    def type_legacy(self):
+        """
+        Calculates a single type slug from the seats in this run.
+
+        This is a property that makes less sense these days. It used to be called simply `type`. But now that Tracks
+        and Modes and CourseRunType have made our mode / type situation less rigid, this is losing relevance.
+
+        For example, this cannot support modes that don't have corresponding seats (like Masters).
+
+        It's better to just look at all the modes in the run via type -> tracks -> modes and base any logic off that
+        rather than trying to read the tea leaves at the entire run level. The mode combinations are just too complex
+        these days.
+        """
         seat_types = set(self.seat_types)
         mapping = (
             ('credit', {'credit'}),

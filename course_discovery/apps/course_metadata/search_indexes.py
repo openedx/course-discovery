@@ -215,7 +215,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     marketing_url = indexes.CharField(null=True)
     slug = indexes.CharField(model_attr='slug', null=True)
     seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
-    type = indexes.CharField(model_attr='type', null=True, faceted=True)
+    type = indexes.CharField(model_attr='type_legacy', null=True, faceted=True)
     image_url = indexes.CharField(model_attr='image_url', null=True)
     partner = indexes.CharField(null=True, faceted=True)
     program_types = indexes.MultiValueField()

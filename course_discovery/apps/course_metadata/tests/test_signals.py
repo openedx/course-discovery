@@ -15,9 +15,10 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
-    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, DataLoaderConfig,
-    DeletePersonDupsConfig, DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig,
-    Program, ProgramType, Seat, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
+    CourseRun, CourseRunType, CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership,
+    DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, Mode,
+    ProfileImageDownloadConfig, Program, ProgramType, Seat, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation,
+    Track
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
@@ -47,7 +48,9 @@ class TestCacheInvalidation:
             # Ignore models that aren't exposed by the API or are only used for testing.
             if model in [DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
                          MigratePublisherToCourseMetadataConfig, SubjectTranslation, TopicTranslation,
-                         ProfileImageDownloadConfig, TagCourseUuidsConfig]:
+                         ProfileImageDownloadConfig, TagCourseUuidsConfig,
+                         # TODO: this group of modes and types should get factories once we start testing them
+                         Mode, Track, CourseRunType, CourseType]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue

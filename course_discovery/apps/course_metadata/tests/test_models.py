@@ -517,11 +517,11 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         (('no-id-professional',), 'professional',),
     )
     @ddt.unpack
-    def test_type(self, seat_types, expected_course_run_type):
+    def test_type_legacy(self, seat_types, expected_course_run_type):
         """ Verify the property returns the appropriate type string for the CourseRun. """
         for seat_type in seat_types:
             factories.SeatFactory(course_run=self.course_run, type=seat_type)
-        self.assertEqual(self.course_run.type, expected_course_run_type)
+        self.assertEqual(self.course_run.type_legacy, expected_course_run_type)
 
     def test_level_type(self):
         """ Verify the property returns the associated Course's level type. """
