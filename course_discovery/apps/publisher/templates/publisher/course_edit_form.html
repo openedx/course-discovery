@@ -5,7 +5,9 @@
 {% load static %}
 
 {% block title %}
+    {% if not is_course_on_new_pub_fe %}
     {% trans "Edit Course" %}
+    {% endif %}
 {% endblock title %}
 
 {% block css %}
@@ -17,6 +19,7 @@
 {% endblock %}
 
 {% block page_content %}
+    {% if not is_course_on_new_pub_fe %}
     <div>
         <h1 class="hd-1 emphasized">{% trans "Edit Course" as tmsg %}{{ tmsg | force_escape }}</h1>
 
@@ -665,6 +668,14 @@
             </form>
         </div>
     </div>
+    {% else %}
+        <div class="new-pub-banner-container">
+            <div>Your organization has been moved over to new publisher.</div>
+            {% if publisher_url %}
+                <div>Please visit <a href="{{publisher_url}}">here</a>.</div>
+            {% endif %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {{% block extra_js %}

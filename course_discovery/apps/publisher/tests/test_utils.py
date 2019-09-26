@@ -21,7 +21,7 @@ from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
     find_discovery_course, get_internal_users, has_role_for_course, is_course_on_new_pub_fe,
     is_email_notification_enabled, is_internal_user, is_on_new_pub_fe, is_project_coordinator_user, is_publisher_admin,
-    is_publisher_user, make_bread_crumbs, parse_datetime_field
+    is_publisher_course_on_new_pub_fe, is_publisher_user, make_bread_crumbs, parse_datetime_field
 )
 
 
@@ -278,7 +278,7 @@ class PublisherUtilsTests(TestCase):
             # When ORGS_ON_NEW_PUB_FE list present and user belongs to orgs both on and off the list
             self.assertFalse(is_on_new_pub_fe(self.user))
 
-    def test_course_is_on_new_pub_fe(self):
+    def test_is_course_is_on_new_pub_fe(self):
         org = self.organization_extension.organization
         course = cm_factories.CourseFactory()
 
@@ -304,3 +304,30 @@ class PublisherUtilsTests(TestCase):
             course.authoring_organizations.add(org2)
             # When ORGS_ON_NEW_PUB_FE list present and course is authored by orgs both on and off the list
             self.assertFalse(is_course_on_new_pub_fe(course))
+
+    def test_publisher_course_on_new_pub_fe(self):
+        org = self.organization_extension.organization
+        course = factories.CourseFactory()
+
+        # When no ORGS_ON_NEW_PUB_FE list present
+        self.assertFalse(is_publisher_course_on_new_pub_fe(course))
+
+        with self.settings(ORGS_ON_NEW_PUB_FE=org.key):
+            # When ORGS_ON_NEW_PUB_FE list present and course has no orgs
+            self.assertTrue(is_publisher_course_on_new_pub_fe(course))
+
+        course.organizations.add(org)
+
+        with self.settings(ORGS_ON_NEW_PUB_FE=org.key):
+            # When ORGS_ON_NEW_PUB_FE list present and course is authored by an org in the list
+            self.assertTrue(is_publisher_course_on_new_pub_fe(course))
+
+        with self.settings(ORGS_ON_NEW_PUB_FE='example-key'):
+            # When ORGS_ON_NEW_PUB_FE list present and course is authored by an org not in the list
+            self.assertFalse(is_publisher_course_on_new_pub_fe(course))
+
+        with self.settings(ORGS_ON_NEW_PUB_FE=org.key):
+            org2 = cm_factories.OrganizationFactory()
+            course.organizations.add(org2)
+            # When ORGS_ON_NEW_PUB_FE list present and course is authored by orgs both on and off the list
+            self.assertFalse(is_publisher_course_on_new_pub_fe(course))

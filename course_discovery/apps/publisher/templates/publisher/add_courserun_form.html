@@ -8,6 +8,7 @@
 {% endblock title %}
 
 {% block page_content %}
+{% if not is_course_on_new_pub_fe %}
 <div xmlns="http://www.w3.org/1999/html">
         <h1 class="hd-1 emphasized">{% trans "New Course Run" as tmsg %}{{ tmsg | force_escape }}</h1>
         <div class="copy-base">
@@ -167,6 +168,14 @@
             </div>
         </form>
     </div>
+{% else %}
+    <div class="new-pub-banner-container">
+        <div>Your organization has been moved over to new publisher.</div>
+        {% if publisher_url %}
+            <div>Please visit <a href="{{publisher_url}}">here</a>.</div>
+        {% endif %}
+    </div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
