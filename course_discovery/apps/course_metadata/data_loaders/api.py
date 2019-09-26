@@ -550,23 +550,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'credit_hours': credit_hours,
         }
 
-        found_seats = Seat.objects.filter(
-            type=seat_type,
-            credit_provider=credit_provider,
-            currency=currency,
-            course_run=course_run
-        )
-        if found_seats.count() > 1:
-            ids = [seat.id for seat in found_seats]
-            msg = 'Found [{ids}] with type {type}, credit provider {provider} and currency {currency} for {key}'.format(
-                ids=ids,
-                type=seat_type,
-                provider=credit_provider,
-                currency=currency,
-                key=course_run.key
-            )
-            logger.warning(msg)
-
         course_run.seats.update_or_create(
             type=seat_type,
             credit_provider=credit_provider,
@@ -728,16 +711,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
         seat_type = attributes.get('seat_type')
         try:
-            found_seats = Seat.objects.filter(type=seat_type, course_run=course_run)
-            if found_seats.count() > 1:
-                ids = [seat.id for seat in found_seats]
-                msg = 'Found [{ids}] with type {type}, for {key}'.format(
-                    ids=ids,
-                    type=seat_type,
-                    key=course_run.key
-                )
-                logger.warning(msg)
-
             Seat.objects.get(course_run=course_run, type=seat_type)
         except Seat.DoesNotExist:
             msg = 'Could not find seat type {type} while loading enrollment code {title} with sku {sku}'.format(
@@ -753,15 +726,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             title=title, sku=sku, partner=self.partner
         )
         logger.info(msg)
-        found_seats = Seat.objects.filter(type=seat_type, course_run=course_run)
-        if found_seats.count() > 1:
-            ids = [seat.id for seat in found_seats]
-            msg = 'Found {ids} with type {type}, for {key}'.format(
-                ids=ids,
-                type=seat_type,
-                key=course_run.key
-            )
-            logger.warning(msg)
+
         course_run.seats.update_or_create(type=seat_type, defaults=defaults)
         return sku
 
