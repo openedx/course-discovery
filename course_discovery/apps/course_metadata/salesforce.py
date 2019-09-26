@@ -15,7 +15,7 @@ COURSE_SALESFORCE_FIELDS = {
     'course': ('title', 'has_ofac_restrictions', 'key'),
 }
 COURSE_RUN_SALESFORCE_FIELDS = {
-    'course_run': ('start', 'end', 'status', 'title', 'go_live_date', 'key'),
+    'course_run': ('start', 'end', 'status', 'title', 'go_live_date', 'key', 'has_ofac_restrictions'),
 }
 
 
@@ -368,7 +368,6 @@ class SalesforceUtil:
             'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
                 url=self.partner.site.domain.strip('/') if self.partner.site.domain else '', id=course.id
             ),
-            'OFAC_Review_Decision__c': course.has_ofac_restrictions,
             'Course_Key__c': course.key,
             'Publisher_Organization__c': organization.salesforce_id if organization else None,
         }
@@ -381,14 +380,25 @@ class SalesforceUtil:
             ),
             'Course_Start_Date__c': course_run.start.isoformat() if course_run.start else None,
             'Course_End_Date__c': course_run.end.isoformat() if course_run.end else None,
-            'Publisher_Status__c': self._get_salesforce_equivalent(course_run.status),
+            'Publisher_Status__c': self._get_equivalent_status(course_run.status),
             'Course_Run_Name__c': course_run.title,
             'Expected_Go_Live_Date__c': course_run.go_live_date.isoformat() if course_run.go_live_date else None,
             'Course_Number__c': course_run.key,
+            'OFAC_Review_Decision__c': self._get_equivalent_ofac_review_decision(course_run.has_ofac_restrictions),
         }
 
     @staticmethod
-    def _get_salesforce_equivalent(status):
+    def _get_equivalent_ofac_review_decision(has_ofac_restrictions):
+        # Note: these must match the equivalent 'picklistValues' for Salesforce's Course_Run__c.OFAC_Review_Decision__c
+        salesforce_ofac_restrictions = {
+            None: 'Not Reviewed',
+            False: 'OFAC Disabled',
+            True: 'OFAC Enabled',
+        }
+        return salesforce_ofac_restrictions.get(has_ofac_restrictions)
+
+    @staticmethod
+    def _get_equivalent_status(status):
         # Note: these must match the equivalent 'picklistValues' for Salesforce's Course_Run__c.Publisher_Status__c
         salesforce_statuses = {
             CourseRunStatus.Unpublished: 'New/Unsubmitted Edits',
