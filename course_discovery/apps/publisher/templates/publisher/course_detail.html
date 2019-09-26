@@ -6,6 +6,7 @@
 {% endblock title %}
 
 {% block page_content %}
+{% if not is_course_on_new_pub_fe %}
 {% include 'alert_messages.html' %}
 
 <div id="stateChangeAlert" class="alert-messages hidden">
@@ -271,7 +272,14 @@
             {% include 'publisher/comments/comments_list.html' %}
         </div>
     </aside>
-</div>
+{% else %}
+    <div class="new-pub-banner-container">
+        <div>This course has been moved over to new publisher.</div>
+        {% if publisher_url %}
+            <div>Please visit <a href="{{publisher_url}}">here</a>.</div>
+        {% endif %}
+    </div>
+{% endif %}
 {% endblock %}
 {% block extra_js %}
     <script src="{% static 'bower_components/google-diff-match-patch/diff_match_patch.js' %}"></script>
