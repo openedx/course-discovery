@@ -38,7 +38,7 @@ class CommentViewSet(viewsets.GenericViewSet):
         course = self._get_course_or_404(partner, course_uuid)
 
         user_orgs = Organization.user_organizations(request.user)
-        if not set(user_orgs).intersection(course.authoring_organizations.all()):
+        if not set(user_orgs).intersection(course.authoring_organizations.all()) and not request.user.is_staff:
             raise PermissionDenied
 
         util = self._get_salesforce_util_or_404(partner)
