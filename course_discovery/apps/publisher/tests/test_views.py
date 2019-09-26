@@ -1860,26 +1860,6 @@ class CourseRunListViewTests(SiteMixin, TestCase):
         site = Site.objects.first()
         self.assertEqual(response.context['site_name'], site.name)
 
-    def test_filters(self):
-        """
-        Verify that filters available on dashboard.
-        """
-        course_team_user = UserFactory()
-        course_run = self._create_course_assign_role(
-            CourseRunStateChoices.Review, self.user1, PublisherUserRole.ProjectCoordinator
-        )
-        factories.CourseUserRoleFactory(
-            course=course_run.course, role=PublisherUserRole.CourseTeam, user=course_team_user
-        )
-        course_run.course_run_state.owner_role = PublisherUserRole.CourseTeam
-        course_run.course_run_state.save()
-
-        response = self.client.get(self.page_url)
-
-        self._assert_filter_counts(response, 'All', 3)
-        self._assert_filter_counts(response, 'With Course Team', 2)
-        self._assert_filter_counts(response, 'With {site_name}'.format(site_name=self.site.name), 1)
-
     def _assert_filter_counts(self, response, expected_label, count):
         """
         Assert label and course run count for filters.
