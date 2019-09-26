@@ -83,12 +83,24 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
     def test_list_403s_without_permissions(self):
         salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
         user_orgs_path = 'course_discovery.apps.course_metadata.models.Organization.user_organizations'
+        self.user.is_staff = False
+        self.user.save()
 
         with mock.patch(salesforce_path):
             with mock.patch(user_orgs_path, return_value=[]):
                 url = '{}?course_uuid={}'.format(reverse('api:v1:comment-list'), self.course.uuid)
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, 403)
+
+    def test_list_200s_as_staff(self):
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+        user_orgs_path = 'course_discovery.apps.course_metadata.models.Organization.user_organizations'
+
+        with mock.patch(salesforce_path):
+            with mock.patch(user_orgs_path, return_value=[]):
+                url = '{}?course_uuid={}'.format(reverse('api:v1:comment-list'), self.course.uuid)
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
 
     def test_create(self):
         body = {
