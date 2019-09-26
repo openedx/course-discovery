@@ -150,7 +150,6 @@ class TestSalesforce(TestCase):
                 'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
                     url=partner.site.domain.strip('/'), id=course.id
                 ) if partner.site.domain else None,
-                'OFAC_Review_Decision__c': course.has_ofac_restrictions,
                 'Course_Key__c': course.key,
                 'Publisher_Organization__c': organization.salesforce_id,
             })
@@ -182,7 +181,6 @@ class TestSalesforce(TestCase):
                     'Link_to_Admin_Portal__c': '{url}/admin/course_metadata/course/{id}/change/'.format(
                         url=partner.site.domain.strip('/'), id=course.id
                     ) if partner.site.domain else None,
-                    'OFAC_Review_Decision__c': course.has_ofac_restrictions,
                     'Course_Key__c': course.key,
                     'Publisher_Organization__c': organization.salesforce_id,
                 })
@@ -221,10 +219,12 @@ class TestSalesforce(TestCase):
                 ),
                 'Course_Start_Date__c': course_run.start.isoformat(),
                 'Course_End_Date__c': course_run.end.isoformat(),
-                'Publisher_Status__c': 'Live',  # Expected return value from _get_salesforce_equivalent
+                'Publisher_Status__c': 'Live',  # Expected return value from _get_equivalent_status
                 'Course_Run_Name__c': course_run.title,
                 'Expected_Go_Live_Date__c': None,
                 'Course_Number__c': course_run.key,
+                # Expected return value from _get_equivalent_ofac_review_decision
+                'OFAC_Review_Decision__c': 'OFAC Enabled',
             })
             self.assertEqual(course_run.salesforce_id, return_value.get('id'))
 
@@ -252,10 +252,12 @@ class TestSalesforce(TestCase):
                     ),
                     'Course_Start_Date__c': course_run.start.isoformat(),
                     'Course_End_Date__c': course_run.end.isoformat(),
-                    'Publisher_Status__c': 'Live',  # Expected return value from _get_salesforce_equivalent
+                    'Publisher_Status__c': 'Live',  # Expected return value from _get_equivalent_status
                     'Course_Run_Name__c': course_run.title,
                     'Expected_Go_Live_Date__c': None,
                     'Course_Number__c': course_run.key,
+                    # Expected return value from _get_equivalent_ofac_review_decision
+                    'OFAC_Review_Decision__c': 'OFAC Enabled',
                 })
 
             mock_create_course.assert_called_with(course)
