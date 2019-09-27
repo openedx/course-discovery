@@ -1,7 +1,5 @@
 import ddt
-import factory
 import mock
-from django.db.models.signals import post_save
 from django.test import TestCase
 from simple_salesforce import SalesforceExpiredSession
 
@@ -11,7 +9,10 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun  # py
 from course_discovery.apps.course_metadata.salesforce import (
     SalesforceUtil, populate_official_with_existing_draft, requires_salesforce_update
 )
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, OrganizationFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseFactoryNoSignals, CourseRunFactory, CourseRunFactoryNoSignals, OrganizationFactory,
+    OrganizationFactoryNoSignals
+)
 
 
 @ddt.ddt
@@ -46,14 +47,13 @@ class TestSalesforce(TestCase):
                     }
                 )
 
-    @factory.django.mute_signals(post_save)
     def test_wrapper_salesforce_expired_session_calls_login(self):
         """
         Tests the wrapper when a SalesforceExpiredSession exception is thrown every query.
         The first exception thrown will trigger a re-login, the second will
         throw an exception as we don't want infinite retries.
         """
-        course = CourseFactory(
+        course = CourseFactoryNoSignals(
             partner=self.salesforce_config.partner,
             salesforce_id='TestSalesforceId',
             salesforce_case_id='TestSalesforceCaseId',
@@ -90,9 +90,10 @@ class TestSalesforce(TestCase):
                 r"Some \'test\' \\string",
             )
 
-    @factory.django.mute_signals(post_save)
     def test_create_account_salesforce_id_set(self):
-        organization = OrganizationFactory(key='edX', partner=self.salesforce_config.partner, salesforce_id='Test')
+        organization = OrganizationFactoryNoSignals(
+            key='edX', partner=self.salesforce_config.partner, salesforce_id='Test'
+        )
 
         with mock.patch(self.salesforce_path) as mock_salesforce:
             util = SalesforceUtil(self.salesforce_config.partner)
@@ -100,9 +101,8 @@ class TestSalesforce(TestCase):
 
             mock_salesforce().Publisher_Organization__c.create.assert_not_called()
 
-    @factory.django.mute_signals(post_save)
     def test_create_account_salesforce_id_not_set(self):
-        organization = OrganizationFactory(key='edX', partner=self.salesforce_config.partner)
+        organization = OrganizationFactoryNoSignals(key='edX', partner=self.salesforce_config.partner)
 
         return_value = {
             'id': 'SomeSalesforceId'
@@ -118,19 +118,19 @@ class TestSalesforce(TestCase):
             })
             self.assertEqual(organization.salesforce_id, return_value.get('id'))
 
-    @factory.django.mute_signals(post_save)
     def test_create_course_salesforce_id_set(self):
-        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='Test')
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_id='Test')
 
         with mock.patch(self.salesforce_path) as mock_salesforce:
             util = SalesforceUtil(self.salesforce_config.partner)
             util.create_course(course)
             mock_salesforce().Course__c.create.assert_not_called()
 
-    @factory.django.mute_signals(post_save)
     def test_create_course_salesforce_id_not_set(self):
-        course = CourseFactory(partner=self.salesforce_config.partner)
-        organization = OrganizationFactory(key='edX', partner=self.salesforce_config.partner, salesforce_id='Test')
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner)
+        organization = OrganizationFactoryNoSignals(
+            key='edX', partner=self.salesforce_config.partner, salesforce_id='Test'
+        )
         course.authoring_organizations.add(organization)
         partner = self.salesforce_config.partner
 
@@ -155,12 +155,11 @@ class TestSalesforce(TestCase):
             })
             self.assertEqual(course.salesforce_id, return_value.get('id'))
 
-    @factory.django.mute_signals(post_save)
     def test_create_course_organization_salesforce_id_not_set(self):
         create_pub_org_path = (self.salesforce_util_path + '.create_publisher_organization')
 
-        course = CourseFactory(partner=self.salesforce_config.partner)
-        organization = OrganizationFactory(key='edX', partner=self.salesforce_config.partner)
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner)
+        organization = OrganizationFactoryNoSignals(key='edX', partner=self.salesforce_config.partner)
         course.authoring_organizations.add(organization)
         partner = self.salesforce_config.partner
 
@@ -188,20 +187,18 @@ class TestSalesforce(TestCase):
                 mock_create_account.assert_called_with(organization)
                 self.assertEqual(course.salesforce_id, return_value.get('id'))
 
-    @factory.django.mute_signals(post_save)
     def test_create_course_run_salesforce_id_set(self):
-        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='Test')
-        course_run = CourseRunFactory(course=course, salesforce_id='Test')
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_id='Test')
+        course_run = CourseRunFactoryNoSignals(course=course, salesforce_id='Test')
 
         with mock.patch(self.salesforce_path) as mock_salesforce:
             util = SalesforceUtil(self.salesforce_config.partner)
             util.create_course_run(course_run)
             mock_salesforce().Course_Run__c.create.assert_not_called()
 
-    @factory.django.mute_signals(post_save)
     def test_create_course_run_salesforce_id_not_set(self):
-        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
-        course_run = CourseRunFactory(course=course)
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
+        course_run = CourseRunFactoryNoSignals(course=course)
         partner = self.salesforce_config.partner
 
         return_value = {
@@ -228,12 +225,11 @@ class TestSalesforce(TestCase):
             })
             self.assertEqual(course_run.salesforce_id, return_value.get('id'))
 
-    @factory.django.mute_signals(post_save)
     def test_create_course_run_course_salesforce_id_not_set(self):
         create_course_path = self.salesforce_util_path + '.create_course'
 
-        course = CourseFactory(partner=self.salesforce_config.partner)
-        course_run = CourseRunFactory(course=course)
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner)
+        course_run = CourseRunFactoryNoSignals(course=course)
         partner = self.salesforce_config.partner
 
         return_value = {
@@ -263,18 +259,16 @@ class TestSalesforce(TestCase):
             mock_create_course.assert_called_with(course)
             self.assertEqual(course_run.salesforce_id, return_value.get('id'))
 
-    @factory.django.mute_signals(post_save)
     def test_create_case_for_course_salesforce_case_id_set(self):
-        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_case_id='Test')
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_case_id='Test')
 
         with mock.patch(self.salesforce_path) as mock_salesforce:
             util = SalesforceUtil(self.salesforce_config.partner)
             util.create_case_for_course(course)
             mock_salesforce().Case.create.assert_not_called()
 
-    @factory.django.mute_signals(post_save)
     def test_create_case_for_course_salesforce_case_id_not_set_salesforce_id_set(self):
-        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
 
         return_value = {
             'id': 'SomeSalesforceId'
@@ -294,13 +288,12 @@ class TestSalesforce(TestCase):
             })
             self.assertEqual(course.salesforce_case_id, return_value.get('id'))
 
-    @factory.django.mute_signals(post_save)
     def test_create_case_for_course_salesforce_case_id_not_set_salesforce_id_not_set(self):
         create_course_path = self.salesforce_util_path + '.create_course'
 
         self.salesforce_config.case_record_type_id = 'TestId'
 
-        course = CourseFactory(partner=self.salesforce_config.partner)
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner)
 
         return_value = {
             'id': 'SomeSalesforceId'
@@ -322,11 +315,10 @@ class TestSalesforce(TestCase):
                 mock_create_course.assert_called_with(course)
                 self.assertEqual(course.salesforce_case_id, return_value.get('id'))
 
-    @factory.django.mute_signals(post_save)
     def test_create_comment_for_course_case_salesforce_case_id_set(self):
         create_case_path = self.salesforce_util_path + '.create_case_for_course'
 
-        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_case_id='TestSalesforceId')
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_case_id='TestSalesforceId')
         user = UserFactory()
 
         body = 'Test body'
@@ -341,11 +333,10 @@ class TestSalesforce(TestCase):
                 })
                 mock_create_case_for_course.assert_not_called()
 
-    @factory.django.mute_signals(post_save)
     def test_create_comment_for_course_case_salesforce_case_id_not_set(self):
         create_case_path = self.salesforce_util_path + '.create_case_for_course'
 
-        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
         user = UserFactory()
 
         body = 'Test body'
@@ -360,20 +351,18 @@ class TestSalesforce(TestCase):
                 })
                 mock_create_case_for_course.assert_called_with(course)
 
-    @factory.django.mute_signals(post_save)
     def test_get_comments_for_course_case_id_not_set(self):
-        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
 
         with mock.patch(self.salesforce_path):
             util = SalesforceUtil(self.salesforce_config.partner)
             comments = util.get_comments_for_course(course)
             self.assertEqual(comments, [])
 
-    @factory.django.mute_signals(post_save)
     def test_get_comments_for_course_case_id_set(self):
         query_path = self.salesforce_util_path + '._query'
 
-        course = CourseFactory(partner=self.salesforce_config.partner, salesforce_case_id='TestSalesforceId')
+        course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_case_id='TestSalesforceId')
 
         return_value = {
             'records': [
@@ -516,7 +505,7 @@ class TestSalesforce(TestCase):
         (CourseRunFactory, 'course_run', 'key', True),
     )
     @ddt.unpack
-    def test_requires_salesforce_update(self, factory, source_of_edit, field, return_value):  # pylint: disable=redefined-outer-name
+    def test_requires_salesforce_update(self, factory, source_of_edit, field, return_value):
         instance = factory()
         setattr(instance, field, 'changed')
         self.assertEqual(requires_salesforce_update(source_of_edit, instance), return_value)

@@ -34,7 +34,9 @@ class TestCacheInvalidation:
         are saved or deleted.
         """
         factory_map = {}
-        for factorylike in factories.__dict__.values():
+        for key, factorylike in factories.__dict__.items():
+            if 'NoSignals' in key:
+                continue
             if isinstance(factorylike, type) and issubclass(factorylike, DjangoModelFactory):
                 if getattr(factorylike, '_meta', None) and factorylike._meta.model:
                     factory_map[factorylike._meta.model] = factorylike

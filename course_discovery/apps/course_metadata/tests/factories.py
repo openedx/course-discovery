@@ -1,6 +1,8 @@
 from datetime import datetime
 
 import factory
+import requests
+from django.db.models.signals import post_save
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 
@@ -81,7 +83,18 @@ class AdditionalPromoAreaFactory(AbstractTitleDescriptionFactory):
         model = AdditionalPromoArea
 
 
-class CourseFactory(factory.DjangoModelFactory):
+class SalesforceRecordFactory(factory.DjangoModelFactory):
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        from course_discovery.apps.course_metadata.tests.utils import build_salesforce_exception
+        try:
+            return super()._create(model_class, *args, **kwargs)
+        except requests.ConnectionError:
+            # raise user friendly suggestion to use factory with muted signals
+            raise ConnectionError(build_salesforce_exception(model_class.__name__))
+
+
+class CourseFactory(SalesforceRecordFactory):
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-id/')
     key_for_reruns = FuzzyText(prefix='OrgX+')
@@ -121,6 +134,11 @@ class CourseFactory(factory.DjangoModelFactory):
             add_m2m_data(self.sponsoring_organizations, extracted)
 
 
+@factory.django.mute_signals(post_save)
+class CourseFactoryNoSignals(CourseFactory):
+    pass
+
+
 class CourseEditorFactory(factory.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     course = factory.SubFactory(CourseFactory)
@@ -129,7 +147,7 @@ class CourseEditorFactory(factory.DjangoModelFactory):
         model = CourseEditor
 
 
-class CourseRunFactory(factory.DjangoModelFactory):
+class CourseRunFactory(SalesforceRecordFactory):
     status = CourseRunStatus.Published
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-run-id/', suffix='/fake')
@@ -175,6 +193,11 @@ class CourseRunFactory(factory.DjangoModelFactory):
             add_m2m_data(self.authoring_organizations, extracted)
 
 
+@factory.django.mute_signals(post_save)
+class CourseRunFactoryNoSignals(CourseRunFactory):
+    pass
+
+
 class SeatFactory(factory.DjangoModelFactory):
     type = FuzzyChoice([name for name, __ in Seat.SEAT_TYPE_CHOICES])
     price = FuzzyDecimal(0.0, 650.0)
@@ -188,7 +211,7 @@ class SeatFactory(factory.DjangoModelFactory):
         model = Seat
 
 
-class OrganizationFactory(factory.DjangoModelFactory):
+class OrganizationFactory(SalesforceRecordFactory):
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText()
     name = FuzzyText()
@@ -202,6 +225,11 @@ class OrganizationFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Organization
+
+
+@factory.django.mute_signals(post_save)
+class OrganizationFactoryNoSignals(OrganizationFactory):
+    pass
 
 
 class PersonFactory(factory.DjangoModelFactory):
