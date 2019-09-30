@@ -334,8 +334,10 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
             'tags',
             'logo_image_url',
             'marketing_url',
+            'slug',
             'banner_image_url',
         )
+        read_only_fields = ('slug',)
 
 
 class MinimalPersonSerializer(serializers.ModelSerializer):

@@ -12,6 +12,7 @@ from django.core.management import CommandError
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 class OrganizationsApiDataLoader(AbstractDataLoader):
     """ Loads organizations from the Organizations API. """
+    loaded_org_pks = set()
 
     def ingest(self):
         api_url = self.partner.organizations_api_url
@@ -48,6 +50,10 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
 
         logger.info('Retrieved %d organizations from %s.', count, api_url)
 
+        delete_orphans(Organization, exclude=self.loaded_org_pks)
+
+        logger.info('Removed orphan Organizations excluding those which were loaded via OrganizationsApiDataLoader')
+
     def update_organization(self, body):
         key = body['short_name']
         logo = body['logo']
@@ -58,14 +64,18 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
             'certificate_logo_image_url': logo,
         }
 
-        if not self.partner.has_marketing_site:
-            defaults.update({
-                'name': body['name'],
-                'description': body['description'],
-                'logo_image_url': logo,
-            })
+        for attr in ('name', 'description', 'logo'):
+            if body.get(attr):
+                if attr == 'logo':
+                    defaults['logo_image_url'] = logo
+                else:
+                    defaults[attr] = body[attr]
 
-        Organization.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
+        org, _ = Organization.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
+
+        if org:
+            self.loaded_org_pks.add(org.pk)
+
         logger.info('Processed organization "%s"', key)
 
 

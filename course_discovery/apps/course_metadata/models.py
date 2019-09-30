@@ -447,6 +447,7 @@ class Organization(CachedMixin, TimeStampedModel):
                                                        'than period, underscore or hyphen. This key will be used '
                                                        'in the course\'s course key.'))
     name = models.CharField(max_length=255)
+    slug = AutoSlugField(populate_from='key', editable=False, slugify_function=uslugify)
     description = models.TextField(null=True, blank=True)
     homepage_url = models.URLField(max_length=255, null=True, blank=True)
     logo_image_url = models.URLField(null=True, blank=True)
@@ -482,8 +483,8 @@ class Organization(CachedMixin, TimeStampedModel):
 
     @property
     def marketing_url(self):
-        if self.key:
-            return urljoin(self.partner.marketing_site_url_root, uslugify(self.key))
+        if self.slug:
+            return urljoin(self.partner.marketing_site_url_root, self.slug)
 
         return None
 

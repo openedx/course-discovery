@@ -87,19 +87,24 @@ def get_all_related_field_names(model):
     return list(names)
 
 
-def delete_orphans(model):
+def delete_orphans(model, exclude=None):
     """
     Deletes all instances of the given model with no relationships to other models.
 
     Args:
         model (Model): Model whose instances should be deleted
+        exclude: ID's of records to exclude from deletion
 
     Returns:
         None
     """
     field_names = get_all_related_field_names(model)
     kwargs = {'{0}__isnull'.format(field_name): True for field_name in field_names}
-    model.objects.filter(**kwargs).delete()
+    query = model.objects.filter(**kwargs)
+    if exclude:
+        query = query.exclude(pk__in=exclude)
+
+    query.delete()
 
 
 class SearchQuerySetWrapper(object):

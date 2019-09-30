@@ -39,7 +39,7 @@ from course_discovery.apps.course_metadata.publishers import (
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
-from course_discovery.apps.course_metadata.utils import ensure_draft_world, uslugify
+from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -1060,12 +1060,12 @@ class OrganizationTests(TestCase):
     def test_marketing_url(self):
         """ Verify the property creates a complete marketing URL. """
         expected = '{root}/{slug}'.format(root=self.organization.partner.marketing_site_url_root.strip('/'),
-                                          slug=uslugify(self.organization.key))
+                                          slug=self.organization.slug)
         self.assertEqual(self.organization.marketing_url, expected)
 
-    def test_marketing_url_without_key(self):
-        """ Verify the property returns None if the Organization has no marketing_url_path set. """
-        self.organization.key = ''
+    def test_marketing_url_without_slug(self):
+        """ Verify the property returns None if the Organization has no slug set. """
+        self.organization.slug = ''
         self.assertIsNone(self.organization.marketing_url)
 
     def test_user_organizations(self):
