@@ -1822,6 +1822,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'short_description',
             'title',
             'card_image_url',
+            'image_url',
             'course_runs',
             'uuid',
             'seat_types',
