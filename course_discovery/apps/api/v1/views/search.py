@@ -134,7 +134,7 @@ class CatalogDataViewSet(viewsets.GenericViewSet):
     filter_backends = (CatalogDataFilterBackend,)
 
     def create(self, request):
-        return self.list(request)
+        return self.list(request)  # pylint: disable=no-member
 
 
 class CourseSearchViewSet(BaseHaystackViewSet):
@@ -288,9 +288,9 @@ class TypeaheadSearchView(APIView):
 
             if course_key in seen_course_keys:
                 continue
-            else:
-                seen_course_keys.add(course_key)
-                course_run_list.append(course_run)
+
+            seen_course_keys.add(course_key)
+            course_run_list.append(course_run)
 
             if len(course_run_list) == self.RESULT_COUNT:
                 break

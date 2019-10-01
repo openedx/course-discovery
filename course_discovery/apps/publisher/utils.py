@@ -129,13 +129,13 @@ def parse_datetime_field(date):
         datetime (object): returns datetime object after parsing
     """
     if not date:
-        return
+        return None
 
     try:
         return parser.parse(date)
 
     except ValueError:
-        return
+        return None
 
 
 def find_discovery_course(publisher_course_run):

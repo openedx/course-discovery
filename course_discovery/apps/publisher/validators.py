@@ -64,7 +64,6 @@ def validate_text_count(max_length):
     def innerfn(raw_html):
         cleantext = BeautifulSoup(raw_html, 'html.parser').get_text(strip=True)
         if len(cleantext) > max_length:
-            # pylint: disable=no-member
             raise forms.ValidationError(
                 _('Ensure this value has at most {allowed_char} characters (it has {current_char}).').format(
                     allowed_char=max_length,

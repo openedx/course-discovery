@@ -1635,12 +1635,12 @@ class ProgramTests(TestCase):
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
         program = factories.ProgramFactory(type=program_type, courses=courses)
-        expected = set([c.entitlements.filter(mode__in=applicable_seat_types).first() for c in courses])
+        expected = {c.entitlements.filter(mode__in=applicable_seat_types).first() for c in courses}
         expected.remove(None)
         self.assertEqual(expected, set(program.entitlements))
 
     def test_languages(self):
-        expected_languages = set([course_run.language for course_run in self.course_runs])
+        expected_languages = {course_run.language for course_run in self.course_runs}
         actual_languages = self.program.languages
         self.assertGreater(len(actual_languages), 0)
         self.assertEqual(actual_languages, expected_languages)
@@ -2174,7 +2174,7 @@ class DegreeTests(TestCase):
         self.curriculum = factories.CurriculumFactory(program=self.degree)
 
     def test_basic_degree(self):
-        assert self.degree.curricula != []
+        assert self.degree.curricula.exists()
         assert self.curriculum.program_curriculum is not None
         assert self.curriculum.course_curriculum is not None
         assert self.curriculum.marketing_text is not None

@@ -13,4 +13,4 @@ class CourseMetadataConfig(AppConfig):
         # to allow PIL to work with these images correctly by setting this variable true
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         # noinspection PyUnresolvedReferences
-        import course_discovery.apps.course_metadata.signals  # pylint: disable=unused-variable
+        import course_discovery.apps.course_metadata.signals  # pylint: disable=import-outside-toplevel,unused-import

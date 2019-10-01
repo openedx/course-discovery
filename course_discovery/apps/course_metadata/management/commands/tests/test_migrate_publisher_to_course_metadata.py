@@ -18,7 +18,8 @@ from course_discovery.apps.publisher.tests import factories as publisher_factori
 
 @ddt.ddt
 class TestMigratePublisherToCourseMetadata(TestCase):
-    LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.migrate_publisher_to_course_metadata.logger'  # pylint: disable=line-too-long
+    COMMAND_PATH = 'course_discovery.apps.course_metadata.management.commands.migrate_publisher_to_course_metadata'
+    LOGGER_PATH = COMMAND_PATH + '.logger'
 
     def setUp(self):
         super(TestMigratePublisherToCourseMetadata, self).setUp()

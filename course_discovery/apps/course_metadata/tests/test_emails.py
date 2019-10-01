@@ -62,7 +62,7 @@ class EmailTests(TestCase):
         if to_users is not None:
             self.assertEqual(set(email.to), {u.email for u in to_users})
         if subject is not None:
-            self.assertRegex(str(email.subject), subject)  # pylint: disable=deprecated-method
+            self.assertRegex(str(email.subject), subject)
         self.assertEqual(len(email.alternatives), 1)
         self.assertEqual(email.alternatives[0][1], 'text/html')
 
@@ -70,14 +70,14 @@ class EmailTests(TestCase):
         html = email.alternatives[0][0]
 
         for regex in both_regexes or []:
-            self.assertRegex(text, regex)  # pylint: disable=deprecated-method
-            self.assertRegex(html, regex)  # pylint: disable=deprecated-method
+            self.assertRegex(text, regex)
+            self.assertRegex(html, regex)
 
         for regex in text_regexes or []:
-            self.assertRegex(text, regex)  # pylint: disable=deprecated-method
+            self.assertRegex(text, regex)
 
         for regex in html_regexes or []:
-            self.assertRegex(html, regex)  # pylint: disable=deprecated-method
+            self.assertRegex(html, regex)
 
     def assertEmailDoesNotContain(self, both_regexes=None, text_regexes=None, html_regexes=None, index=0):
         email = mail.outbox[index]
@@ -85,14 +85,14 @@ class EmailTests(TestCase):
         html = email.alternatives[0][0]
 
         for regex in both_regexes or []:
-            self.assertNotRegex(text, regex)  # pylint: disable=deprecated-method
-            self.assertNotRegex(html, regex)  # pylint: disable=deprecated-method
+            self.assertNotRegex(text, regex)
+            self.assertNotRegex(html, regex)
 
         for regex in text_regexes or []:
-            self.assertNotRegex(text, regex)  # pylint: disable=deprecated-method
+            self.assertNotRegex(text, regex)
 
         for regex in html_regexes or []:
-            self.assertNotRegex(html, regex)  # pylint: disable=deprecated-method
+            self.assertNotRegex(html, regex)
 
     def assertEmailSent(self, function, subject=None, to_users=None, both_regexes=None, text_regexes=None,
                         html_regexes=None, index=0, total=1):

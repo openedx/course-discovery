@@ -25,7 +25,7 @@ def send_email_for_studio_instance_created(course_run, site):
     try:
         course_key = CourseKey.from_string(course_run.lms_course_id)
         object_path = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
-        subject = _('Studio URL created: {title} {run_number}').format(  # pylint: disable=no-member
+        subject = _('Studio URL created: {title} {run_number}').format(
             title=course_run.course.title,
             run_number=course_key.run
         )
@@ -76,7 +76,7 @@ def send_email_for_course_creation(course, course_run, site):
     txt_template = 'publisher/email/course_created.txt'
     html_template = 'publisher/email/course_created.html'
 
-    subject = _('Studio URL requested: {title}').format(title=course.title)  # pylint: disable=no-member
+    subject = _('Studio URL requested: {title}').format(title=course.title)
     project_coordinator = course.project_coordinator
     course_team = course.course_team_admin
 
@@ -124,7 +124,7 @@ def send_email_for_send_for_review(course, user, site):
     """
     txt_template = 'publisher/email/course/send_for_review.txt'
     html_template = 'publisher/email/course/send_for_review.html'
-    subject = _('Review requested: {title}').format(title=course.title)  # pylint: disable=no-member
+    subject = _('Review requested: {title}').format(title=course.title)
 
     try:
         recipient_user = course.marketing_reviewer
@@ -156,7 +156,7 @@ def send_email_for_mark_as_reviewed(course, user, site):
     """
     txt_template = 'publisher/email/course/mark_as_reviewed.txt'
     html_template = 'publisher/email/course/mark_as_reviewed.html'
-    subject = _('Review complete: {title}').format(title=course.title)  # pylint: disable=no-member
+    subject = _('Review complete: {title}').format(title=course.title)
 
     try:
         recipient_user = course.marketing_reviewer
@@ -235,7 +235,7 @@ def send_email_for_send_for_review_course_run(course_run, user, site):
     course_key = CourseKey.from_string(course_run.lms_course_id)
     txt_template = 'publisher/email/course_run/send_for_review.txt'
     html_template = 'publisher/email/course_run/send_for_review.html'
-    subject = _('Review requested: {title} {run_number}').format(  # pylint: disable=no-member
+    subject = _('Review requested: {title} {run_number}').format(
         title=course.title,
         run_number=course_key.run)
 
@@ -273,7 +273,7 @@ def send_email_for_mark_as_reviewed_course_run(course_run, user, site):
     html_template = 'publisher/email/course_run/mark_as_reviewed_pc.html'
     course = course_run.course
     course_key = CourseKey.from_string(course_run.lms_course_id)
-    subject = _('Review complete: {course_name} {run_number}').format(  # pylint: disable=no-member
+    subject = _('Review complete: {course_name} {run_number}').format(
         course_name=course.title,
         run_number=course_key.run
     )
@@ -313,7 +313,7 @@ def send_email_to_publisher(course_run, user, site):
     html_template = 'publisher/email/course_run/mark_as_reviewed.html'
 
     course_key = CourseKey.from_string(course_run.lms_course_id)
-    subject = _('Review complete: {course_name} {run_number}').format(  # pylint: disable=no-member
+    subject = _('Review complete: {course_name} {run_number}').format(
         course_name=course_run.course.title,
         run_number=course_key.run
     )
@@ -374,7 +374,7 @@ def send_email_preview_accepted(course_run, site):
     try:
         if is_email_notification_enabled(publisher_user):
             course_key = CourseKey.from_string(course_run.lms_course_id)
-            subject = _('Publication requested: {course_name} {run_number}').format(  # pylint: disable=no-member
+            subject = _('Publication requested: {course_name} {run_number}').format(
                 course_name=course.title,
                 run_number=course_key.run)
             project_coordinator = course.project_coordinator
@@ -430,7 +430,7 @@ def send_email_preview_page_is_available(course_run, site):
     try:
         if is_email_notification_enabled(course_team_user):
             course_key = CourseKey.from_string(course_run.lms_course_id)
-            subject = _('Review requested: Preview for {course_name} {run_number}').format(  # pylint: disable=no-member
+            subject = _('Review requested: Preview for {course_name} {run_number}').format(
                 course_name=course_run.course.title,
                 run_number=course_key.run
             )
@@ -480,7 +480,7 @@ def send_course_run_published_email(course_run, site):
     try:
         if is_email_notification_enabled(course_team_user):
             course_key = CourseKey.from_string(course_run.lms_course_id)
-            subject = _('Publication complete: About page for {course_name} {run_number}').format(  # pylint:disable=no-member
+            subject = _('Publication complete: About page for {course_name} {run_number}').format(
                 course_name=course_run.course.title,
                 run_number=course_key.run
             )
@@ -541,7 +541,7 @@ def send_change_role_assignment_email(course_role, former_user, site):
 
     try:
         role_name = course_role.get_role_display()
-        subject = _('{role_name} changed for {course_title}').format(  # pylint: disable=no-member
+        subject = _('{role_name} changed for {course_title}').format(
             role_name=role_name.lower(),
             course_title=course.title
         )
@@ -590,7 +590,7 @@ def send_email_for_seo_review(course, site):
     """
     txt_template = 'publisher/email/course/seo_review.txt'
     html_template = 'publisher/email/course/seo_review.html'
-    subject = _('Legal review requested: {title}').format(title=course.title)  # pylint: disable=no-member
+    subject = _('Legal review requested: {title}').format(title=course.title)
 
     try:
         legal_team_users = User.objects.filter(groups__name=LEGAL_TEAM_GROUP_NAME)
@@ -640,7 +640,7 @@ def send_email_for_published_course_run_editing(course_run, site):
 
         txt_template = 'publisher/email/course_run/published_course_run_editing.txt'
         html_template = 'publisher/email/course_run/published_course_run_editing.html'
-        subject = _('Changes to published course run: {title} {run_number}').format(  # pylint: disable=no-member
+        subject = _('Changes to published course run: {title} {run_number}').format(
             title=course.title,
             run_number=course_key.run
         )

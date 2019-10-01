@@ -1922,7 +1922,7 @@ class ToggleEmailNotificationTests(SiteMixin, TestCase):
         self.assertEqual(is_email_notification_enabled(user), is_enabled)
 
 
-class PaginationMixin(object):
+class PaginationMixin:
     """
     Common methods to be used for Paginated views.
     """

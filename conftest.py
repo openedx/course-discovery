@@ -100,5 +100,5 @@ def client():
 
 
 @pytest.fixture(autouse=True)
-def clear_cache(request):  # pylint: disable=unused-argument
+def clear_cache(request):
     cache.clear()

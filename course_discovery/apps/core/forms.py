@@ -19,7 +19,6 @@ class UserThrottleRateForm(forms.ModelForm):
                 int(num)  # Only evaluated for the (possible) side effect of a ValueError
                 period_choices = ('second', 'minute', 'hour', 'day')
                 if period not in period_choices:
-                    # pylint: disable=no-member
                     # Translators: 'period_choices' is a list of possible values, like ('second', 'minute', 'hour')
                     error_msg = _("period must be one of {period_choices}.").format(period_choices=period_choices)
                     raise forms.ValidationError(error_msg)

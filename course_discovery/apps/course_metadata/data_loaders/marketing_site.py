@@ -124,7 +124,8 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
     def process_node(self, data):  # pragma: no cover
         pass
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def node_type(self):  # pragma: no cover
         pass
 

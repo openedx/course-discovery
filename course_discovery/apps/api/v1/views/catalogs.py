@@ -52,7 +52,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         """ Destroy a catalog. """
-        return super(CatalogViewSet, self).destroy(request, *args, **kwargs)
+        return super().destroy(request, *args, **kwargs)  # pylint: disable=no-member
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all catalogs.
@@ -65,22 +65,22 @@ class CatalogViewSet(viewsets.ModelViewSet):
               paramType: query
               multiple: false
         """
-        return super(CatalogViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)  # pylint: disable=no-member
 
     def partial_update(self, request, *args, **kwargs):
         """ Update one, or more, fields for a catalog. """
-        return super(CatalogViewSet, self).partial_update(request, *args, **kwargs)
+        return super().partial_update(request, *args, **kwargs)  # pylint: disable=no-member
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a catalog. """
-        return super(CatalogViewSet, self).retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)  # pylint: disable=no-member
 
     def update(self, request, *args, **kwargs):
         """ Update a catalog. """
-        return super(CatalogViewSet, self).update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)  # pylint: disable=no-member
 
     @action(detail=True)
-    def courses(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
+    def courses(self, request, id=None):  # pylint: disable=redefined-builtin
         """
         Retrieve the list of courses contained within this catalog.
 
@@ -110,7 +110,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(detail=True)
-    def contains(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
+    def contains(self, request, id=None):  # pylint: disable=redefined-builtin
         """
         Determine if this catalog contains the provided courses.
 

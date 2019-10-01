@@ -1,4 +1,4 @@
-# pylint: disable=abstract-method,no-member
+# pylint: disable=abstract-method
 import datetime
 import json
 from collections import OrderedDict
@@ -194,7 +194,6 @@ class CommentSerializer(serializers.Serializer):
     Serializer for retrieving comments from Salesforce.
     This is required by DRF despite being empty.
     """
-    pass
 
 
 class ContentTypeSerializer(serializers.Serializer):
@@ -204,7 +203,7 @@ class ContentTypeSerializer(serializers.Serializer):
     def get_content_type(self, obj):
         return obj._meta.model_name
 
-    class Meta(object):
+    class Meta:
         fields = ('content_type',)
 
 
@@ -212,13 +211,13 @@ class NamedModelSerializer(serializers.ModelSerializer):
     """Serializer for models inheriting from ``AbstractNamedModel``."""
     name = serializers.CharField()
 
-    class Meta(object):
+    class Meta:
         fields = ('name',)
 
 
 class TitleDescriptionSerializer(serializers.ModelSerializer):
     """Serializer for models inheriting from ``AbstractTitleDescription``."""
-    class Meta(object):
+    class Meta:
         fields = ('title', 'description',)
 
 
@@ -231,7 +230,7 @@ class AdditionalPromoAreaSerializer(TitleDescriptionSerializer):
 class FAQSerializer(serializers.ModelSerializer):
     """Serializer for the ``FAQ`` model."""
 
-    class Meta(object):
+    class Meta:
         model = FAQ
         fields = ('question', 'answer',)
 
@@ -243,7 +242,7 @@ class SubjectSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return Subject.objects.all().prefetch_related('translations')
 
-    class Meta(object):
+    class Meta:
         model = Subject
         fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug', 'uuid')
 
@@ -271,7 +270,7 @@ class ImageSerializer(MediaSerializer):
     height = serializers.IntegerField()
     width = serializers.IntegerField()
 
-    class Meta(object):
+    class Meta:
         model = Image
         fields = ('src', 'description', 'height', 'width')
 
@@ -280,7 +279,7 @@ class VideoSerializer(MediaSerializer):
     """Serializer for the ``Video`` model."""
     image = ImageSerializer()
 
-    class Meta(object):
+    class Meta:
         model = Video
         fields = ('src', 'description', 'image',)
 
@@ -293,7 +292,7 @@ class PositionSerializer(serializers.ModelSerializer):
     organization = serializers.PrimaryKeyRelatedField(allow_null=True, write_only=True, required=False,
                                                       queryset=Organization.objects.all().order_by('key'))
 
-    class Meta(object):
+    class Meta:
         model = Position
         fields = (
             'title', 'organization_name', 'organization', 'organization_id', 'organization_override',
@@ -306,10 +305,12 @@ class PositionSerializer(serializers.ModelSerializer):
     def get_organization_marketing_url(self, obj):
         if obj.organization:
             return obj.organization.marketing_url
+        return None
 
     def get_organization_uuid(self, obj):
         if obj.organization:
             return obj.organization.uuid
+        return None
 
 
 class MinimalOrganizationSerializer(serializers.ModelSerializer):
@@ -363,7 +364,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
             'position__organization__partner',
         )
 
-    class Meta(object):
+    class Meta:
         model = Person
         fields = (
             'uuid', 'salutation', 'given_name', 'family_name', 'bio', 'slug', 'position', 'areas_of_expertise',
@@ -384,6 +385,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
 
         if social_networks:
             return social_networks[0].url
+        return None
 
     def get_profile_image_url(self, obj):
         return obj.get_profile_image_url
@@ -510,7 +512,7 @@ class EndorsementSerializer(serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return Endorsement.objects.all().select_related('endorser')
 
-    class Meta(object):
+    class Meta:
         model = Endorsement
         fields = ('endorser', 'quote',)
 
@@ -526,7 +528,7 @@ class CorporateEndorsementSerializer(serializers.ModelSerializer):
             Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
         )
 
-    class Meta(object):
+    class Meta:
         model = CorporateEndorsement
         fields = ('corporation_name', 'statement', 'image', 'individual_endorsements',)
 
@@ -552,7 +554,7 @@ class SeatSerializer(serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return Seat.everything.all().select_related('currency')
 
-    class Meta(object):
+    class Meta:
         model = Seat
         fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours', 'sku', 'bulk_sku')
 
@@ -573,7 +575,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return CourseEntitlement.everything.all().select_related('currency', 'mode')
 
-    class Meta(object):
+    class Meta:
         model = CourseEntitlement
         fields = ('mode', 'price', 'currency', 'sku', 'expires')
 
@@ -600,7 +602,7 @@ class CatalogSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    class Meta(object):
+    class Meta:
         model = Catalog
         fields = ('id', 'name', 'query', 'courses_count', 'viewers')
 
@@ -1298,7 +1300,7 @@ class CurriculumSerializer(serializers.ModelSerializer):
                 'course__authoring_organizations',
                 'course_run_exclusions',
             )
-            self._prefetched_memberships = [membership for membership in queryset]  # pylint: disable=attribute-defined-outside-init
+            self._prefetched_memberships = list(queryset)  # pylint: disable=attribute-defined-outside-init
 
     def prefetch_program_memberships(self, curriculum):
         """
@@ -1317,7 +1319,7 @@ class CurriculumSerializer(serializers.ModelSerializer):
                 'program__degree',
                 Prefetch('program__courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
             )
-            self._prefetched_program_memberships = [membership for membership in queryset]  # pylint: disable=attribute-defined-outside-init
+            self._prefetched_program_memberships = list(queryset)  # pylint: disable=attribute-defined-outside-init
 
     def prefetched_programs(self, curriculum):
         self.prefetch_program_memberships(curriculum)
@@ -2200,6 +2202,6 @@ class TopicSerializer(serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return Topic.objects.filter()
 
-    class Meta(object):
+    class Meta:
         model = Topic
         fields = ('name', 'subtitle', 'description', 'long_description', 'banner_image_url', 'slug', 'uuid')

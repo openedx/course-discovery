@@ -75,7 +75,7 @@ class SearchQuerySetWrapperTests(TestCase):
         self.assertEqual(self.search_queryset.count(), self.wrapper.count())
 
     def test_iter(self):
-        self.assertEqual([e for e in self.course_runs], [e for e in self.wrapper])
+        self.assertEqual(self.course_runs, list(self.wrapper))
 
     def test_getitem(self):
         self.assertEqual(self.course_runs[0], self.wrapper[0])
