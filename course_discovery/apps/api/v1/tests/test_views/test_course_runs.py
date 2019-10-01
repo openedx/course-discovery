@@ -923,15 +923,15 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertEqual(response.status_code, 200)
 
         draft_course_run = CourseRun.everything.last()
-        num_seats = Seat.everything.count()  # pylint: disable=no-member
+        num_seats = Seat.everything.count()
         if seat_type == 'verified':
             self.assertEqual(num_seats, 2)
-            audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')  # pylint: disable=no-member
+            audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')
             self.assertEqual(audit_seat.price, 0.00)
             self.assertTrue(audit_seat.draft)
         else:
             self.assertEqual(num_seats, 1)
-        seat = Seat.everything.get(course_run=draft_course_run, type=seat_type)  # pylint: disable=no-member
+        seat = Seat.everything.get(course_run=draft_course_run, type=seat_type)
         self.assertEqual(seat.price, price)
         # This is probably not a great way of verifying this with the last, it just so happens
         # that if there are two tracks (verified and audit), the verified track is last
@@ -970,7 +970,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         draft_course_run = CourseRun.everything.last()
         self.assertEqual(draft_course_run.min_effort, 1)
-        seat = Seat.everything.get(course_run=draft_course_run, type=Seat.VERIFIED)  # pylint: disable=no-member
+        seat = Seat.everything.get(course_run=draft_course_run, type=Seat.VERIFIED)
         self.assertEqual(seat.price, 49)
 
         self.mock_patch_to_studio(run_key)

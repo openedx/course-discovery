@@ -187,7 +187,7 @@ class Command(BaseCommand):
             # maps the pk of incoming SeatType/ProgramType references to a new
             # or existing model to avoid duplicate values.
             if isinstance(item.object, SeatType):
-                stored_seat_type, created = SeatType.objects.get_or_create(name=item.object.name)  # pylint: disable=unused-variable
+                stored_seat_type, created = SeatType.objects.get_or_create(name=item.object.name)
                 seat_type_map[item.object.id] = (stored_seat_type, item)
             elif isinstance(item.object, ProgramType):
                 stored_program_type, created = ProgramType.objects.get_or_create(name=item.object.name)

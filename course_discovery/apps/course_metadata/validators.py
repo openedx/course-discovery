@@ -28,8 +28,7 @@ class HtmlValidator(HTMLParser):
         """
         if message:
             raise ValidationError(_('Invalid HTML received: {0}').format(message))
-        else:
-            raise ValidationError(_('Invalid HTML received'))
+        raise ValidationError(_('Invalid HTML received'))
 
     def handle_starttag(self, tag, attrs):
         if tag not in self.ALLOWED_TAGS:

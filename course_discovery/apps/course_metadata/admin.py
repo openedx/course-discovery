@@ -152,7 +152,7 @@ class CourseRunAdmin(admin.ModelAdmin):
 
             logger.exception('An error occurred while publishing course run [%s] to the marketing site.', obj.key)
 
-            msg = PUBLICATION_FAILURE_MSG_TPL.format(model='course run')  # pylint: disable=no-member
+            msg = PUBLICATION_FAILURE_MSG_TPL.format(model='course run')
             messages.add_message(request, messages.ERROR, msg)
 
 
@@ -217,7 +217,7 @@ class ProgramAdmin(admin.ModelAdmin):
 
             logger.exception('An error occurred while publishing program [%s] to the marketing site.', obj.uuid)
 
-            msg = PUBLICATION_FAILURE_MSG_TPL.format(model='program')  # pylint: disable=no-member
+            msg = PUBLICATION_FAILURE_MSG_TPL.format(model='program')
             messages.add_message(request, messages.ERROR, msg)
 
     class Media:

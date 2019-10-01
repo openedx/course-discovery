@@ -29,6 +29,3 @@ django-cors-headers<3
 
 # FIXME: 3.2 changed the 'id' field in responses from a number to a string - need to validate if that's a safe change
 django-autocomplete-light<3.2
-
-# FIXME: bumping this requires quite a few code style changes (see mikix/pylint-upgrade for WIP fix for this)
-edx-lint<1.4

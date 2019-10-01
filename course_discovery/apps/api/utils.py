@@ -46,7 +46,7 @@ def get_query_param(request, name):
     # This facilitates DRF's schema generation. For more, see
     # https://github.com/encode/django-rest-framework/blob/3.6.3/rest_framework/schemas.py#L383
     if request is None:
-        return
+        return None
 
     return cast2int(request.query_params.get(name), name)
 

@@ -65,6 +65,7 @@ def salesforce_request_wrapper(method):
             raise SalesforceNotConfiguredException(
                 _('Attempted to query Salesforce with no client for partner={}').format(self.partner.name)
             )
+        return None
     return inner
 
 
@@ -73,7 +74,6 @@ class SalesforceNotConfiguredException(Exception):
     Exception to be raised if the configuration of Salesforce does not exist,
     but an attempt is still made to query for data from within Salesforce
     """
-    pass
 
 
 class SalesforceMissingCaseException(Exception):

@@ -388,7 +388,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         if history_user:
             return history_user.get_full_name() or history_user.username
 
-        return
+        return None
 
     @property
     def preview_url(self):
@@ -417,6 +417,7 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         if self.lms_course_id and self.course.partner and self.course.partner.studio_url:
             path = 'settings/details/{lms_course_id}'.format(lms_course_id=self.lms_course_id)
             return urljoin(self.course.partner.studio_url, path)
+        return None
 
     @property
     def has_valid_staff(self):
@@ -647,7 +648,7 @@ class CourseEntitlement(TimeStampedModel):
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
     currency = models.ForeignKey(Currency, models.CASCADE, default='USD', related_name='publisher_entitlements')
 
-    class Meta(object):
+    class Meta:
         unique_together = (
             ('course', 'mode')
         )
@@ -888,6 +889,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
             return self.ApprovedByCourseTeam
         elif self.marketing_reviewed and self.owner_role == PublisherUserRole.CourseTeam:
             return self.AwaitingCourseTeamReview
+        return None
 
     @property
     def internal_user_status(self):
@@ -897,6 +899,7 @@ class CourseState(TimeStampedModel, ChangedByMixin):
             return self.AwaitingMarketingReview
         elif self.marketing_reviewed:
             return self.ApprovedByMarketing
+        return None
 
 
 class CourseRunState(TimeStampedModel, ChangedByMixin):

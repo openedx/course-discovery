@@ -25,14 +25,14 @@ class User(GuardianUserMixin, AbstractUser):
 
         Assumes user has authenticated at least once with edX Open ID Connect.
         """
-        social_auth = self.social_auth.first()
+        social_auth = self.social_auth.first()  # pylint: disable=no-member
 
         if social_auth:
             return social_auth.access_token
 
         return None
 
-    class Meta(object):
+    class Meta:
         get_latest_by = 'date_joined'
 
     def get_full_name(self):
@@ -59,7 +59,7 @@ class Currency(models.Model):
     def __str__(self):
         return '{code} - {name}'.format(code=self.code, name=self.name)
 
-    class Meta(object):
+    class Meta:
         verbose_name_plural = 'Currencies'
 
 

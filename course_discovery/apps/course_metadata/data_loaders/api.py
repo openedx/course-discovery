@@ -516,7 +516,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             course_run = CourseRun.objects.get(key__iexact=course_run_key)
         except CourseRun.DoesNotExist:
             logger.warning('Could not find course run [%s]', course_run_key)
-            return None
+            return
 
         for product_body in body['products']:
             if product_body['structure'] != 'child':
@@ -544,7 +544,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             currency = Currency.objects.get(code=currency_code)
         except Currency.DoesNotExist:
             logger.warning("Could not find currency [%s]", currency_code)
-            return None
+            return
 
         attributes = {attribute['name']: attribute['value'] for attribute in product_body['attribute_values']}
 

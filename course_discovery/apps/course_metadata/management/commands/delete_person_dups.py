@@ -11,7 +11,7 @@ from course_discovery.apps.course_metadata.people import MarketingSitePeople
 logger = logging.getLogger(__name__)
 
 
-class PersonInfo(object):
+class PersonInfo:
     def __init__(self, partner, uuid, target_uuid):
         self.person = Person.objects.get(partner=partner, uuid=uuid)
         self.target = Person.objects.get(partner=partner, uuid=target_uuid)
@@ -81,7 +81,7 @@ class Command(BaseCommand):
         # - CourseRun staff (sortedm2m)
         # - Publisher CourseRun staff (sortedm2m)
 
-        logger.info(
+        logger.info(  # pylint: disable=logging-not-lazy
             '{} {}:\n'.format(_('Deleting') if commit else _('Would delete'), pinfo.person.uuid) +
             ' {}: {}\n'.format(_('Name'), pinfo.person.full_name) +
             ' {}: {}\n'.format(_('Endorsements'), pinfo.person.endorsement_set.count()) +

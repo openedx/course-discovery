@@ -67,7 +67,6 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def ingest(self):  # pragma: no cover
         """ Load data for all supported objects (e.g. courses, runs). """
-        pass
 
     @classmethod
     def clean_string(cls, s):

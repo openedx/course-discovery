@@ -310,10 +310,10 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
 
         if attrs:
             model_fields = [field.name for field in CourseRun._meta.get_fields()]
-            diff_of_fields = [field for field in filter(
+            diff_of_fields = list(filter(
                 lambda f: getattr(original_course_run, f, None) != getattr(draft_course_run, f, None),
                 model_fields
-            )]
+            ))
             for key, value in attrs.items():
                 # Make sure that any attributes we changed are different in the draft course run from the original
                 self.assertIn(key, diff_of_fields)

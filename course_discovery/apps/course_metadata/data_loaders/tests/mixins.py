@@ -8,7 +8,7 @@ ACCESS_TOKEN = 'secret'
 ACCESS_TOKEN_TYPE = 'JWT'
 
 
-class ApiClientTestMixin(object):
+class ApiClientTestMixin:
     def test_api_client(self):
         """ Verify the property returns an API client with the correct authentication. """
         loader = self.loader_class(self.partner, self.api_url, ACCESS_TOKEN, ACCESS_TOKEN_TYPE)
@@ -21,7 +21,7 @@ class ApiClientTestMixin(object):
 
 
 # pylint: disable=not-callable
-class DataLoaderTestMixin(object):
+class DataLoaderTestMixin:
     loader_class = None
     partner = None
 

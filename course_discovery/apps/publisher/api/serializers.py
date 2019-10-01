@@ -103,7 +103,6 @@ class CourseRunSerializer(serializers.ModelSerializer):
         try:
             CourseKey.from_string(value)
         except InvalidKeyError:
-            # pylint: disable=no-member
             raise serializers.ValidationError(
                 {'lms_course_id': _('Invalid course key "{lms_course_id}"').format(lms_course_id=value)}
             )
@@ -115,7 +114,6 @@ class CourseRunSerializer(serializers.ModelSerializer):
             return value
 
         if not re.match(self.EXTERNAL_COURSE_KEY_PATTERN, value):
-            # pylint: disable=no-member
             raise serializers.ValidationError(
                 {'lms_course_id': _('Invalid external course key "{external_key}"').format(external_key=value)}
             )
@@ -127,7 +125,6 @@ class CourseRunSerializer(serializers.ModelSerializer):
             return value
 
         if not re.match(r'https?://(?:www)?(?:[\w-]{2,255}(?:\.\w{2,6}){1,2})(?:/[\w&%?#-]{1,300})?', value):
-            # pylint: disable=no-member
             raise serializers.ValidationError(
                 {'preview_url': _('Invalid URL format "{preview_url}"').format(preview_url=value)}
             )
@@ -207,18 +204,22 @@ class CourseRevisionSerializer(serializers.ModelSerializer):
     def get_primary_subject(self, obj):
         if obj.primary_subject:
             return obj.primary_subject.name
+        return None
 
     def get_secondary_subject(self, obj):
         if obj.secondary_subject:
             return obj.secondary_subject.name
+        return None
 
     def get_tertiary_subject(self, obj):
         if obj.tertiary_subject:
             return obj.tertiary_subject.name
+        return None
 
     def get_level_type(self, obj):
         if obj.level_type:
             return obj.level_type.name
+        return None
 
 
 class CourseStateSerializer(serializers.ModelSerializer):
@@ -239,7 +240,6 @@ class CourseStateSerializer(serializers.ModelSerializer):
         try:
             instance.change_state(state=state, user=request.user, site=request.site)
         except TransitionNotAllowed:
-            # pylint: disable=no-member
             raise serializers.ValidationError(
                 {
                     'name': _('Cannot switch from state `{state}` to `{target_state}`').format(
@@ -276,7 +276,6 @@ class CourseRunStateSerializer(serializers.ModelSerializer):
             try:
                 instance.change_state(state=state, user=request.user, site=request.site)
             except TransitionNotAllowed:
-                # pylint: disable=no-member
                 raise serializers.ValidationError(
                     {
                         'name': _('Cannot switch from state `{state}` to `{target_state}`').format(
