@@ -994,8 +994,7 @@ class CourseRunStateTests(MarketingSitePublisherTestMixin):
         """
         Verify that method return False if data is missing.
         """
-        self.course_run.transcript_languages = []
-        self.course_run.save()
+        self.course_run.transcript_languages.clear()
         self.assertFalse(self.course_run_state.can_send_for_review())
 
     def test_preview_accepted(self):

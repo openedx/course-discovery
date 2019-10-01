@@ -132,18 +132,14 @@ class DeletePersonDupsCommandTests(TestCase):
         ])
 
     def test_target_already_present(self):
+        # pylint: disable=no-member
         # Change everything to include target. We expect that target's place isn't altered.
-        self.courserun1.staff = list(self.courserun1.staff.all()) + [self.target]
-        self.courserun1.save()
-        self.courserun2.staff = list(self.courserun2.staff.all()) + [self.target]
-        self.courserun2.save()
-        self.publisher_courserun1.staff = list(self.publisher_courserun1.staff.all()) + [self.target]
-        self.publisher_courserun1.save()
+        self.courserun1.staff.set(list(self.courserun1.staff.all()) + [self.target])
+        self.courserun2.staff.set(list(self.courserun2.staff.all()) + [self.target])
+        self.publisher_courserun1.staff.set(list(self.publisher_courserun1.staff.all()) + [self.target])
         # This one is reversed, because target would normally be on end anyway. So put it first instead.
-        self.publisher_courserun2.staff = [self.target] + list(self.publisher_courserun2.staff.all())
-        self.publisher_courserun2.save()
-        self.program.instructor_ordering = list(self.program.instructor_ordering.all()) + [self.target]
-        self.program.save()
+        self.publisher_courserun2.staff.set([self.target] + list(self.publisher_courserun2.staff.all()))
+        self.program.instructor_ordering.set(list(self.program.instructor_ordering.all()) + [self.target])
 
         expected = [self.instructor1, self.instructor2, self.instructor3, self.target]
         expected_first = [self.target, self.instructor1, self.instructor2, self.instructor3]

@@ -815,13 +815,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         # Handle writing nested video data separately
         if 'get_video' in validated_data:
             self.update_video(instance, validated_data.pop('get_video'))
-
-        # Write all other attributes to the instance
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
-        instance.save()
-        return instance
+        return super().update(instance, validated_data)
 
     def validate(self, attrs):
         course = attrs.get('course', None)

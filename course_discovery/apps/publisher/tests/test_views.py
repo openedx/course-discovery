@@ -4079,8 +4079,7 @@ class CreateRunFromDashboardViewTests(SiteMixin, TestCase):
     def test_create_course_run_without_access_to_course(self):
         """ Verify that user cannot create course run for a course they don't have access to.
         """
-        self.course.organizations = []  # user will no longer be associated with course
-        self.course.save()
+        self.course.organizations.clear()  # user will no longer be associated with course
         post_data = self._post_data()
         response = self.client.post(self.create_course_run_url, post_data)
         self.assertContains(response, 'The page could not be updated. Make', status_code=400)

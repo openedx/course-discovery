@@ -199,7 +199,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         request = make_request()
         course = CourseFactory()
         course_runs = CourseRunFactory.create_batch(3, course=course)
-        course.course_runs = course_runs
+        course.course_runs.set(course_runs)
         course.canonical_course_run = course_runs[0]
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1})
 
@@ -1061,7 +1061,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         rankings = RankingFactory.create_batch(3)
         degree = DegreeFactory.create(rankings=rankings)
         curriculum = CurriculumFactory.create(program=degree)
-        degree.curricula = [curriculum]
+        degree.curricula.set([curriculum])
         quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
         degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
         degree.cost = DegreeCostFactory.create_batch(size=3, degree=degree)
