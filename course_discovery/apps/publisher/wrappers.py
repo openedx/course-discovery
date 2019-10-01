@@ -10,7 +10,7 @@ from course_discovery.apps.publisher.models import Course, Seat
 from course_discovery.apps.publisher_comments.models import Comments, CommentTypeChoices
 
 
-class BaseWrapper(object):
+class BaseWrapper:
     def __init__(self, wrapped_obj):
         self.wrapped_obj = wrapped_obj
 
@@ -262,6 +262,7 @@ class CourseRunWrapper(BaseWrapper):
             return self.SubmittedForProjectCoordinatorReview
         elif course_run_state.is_in_review and course_run_state.owner_role == PublisherUserRole.CourseTeam:
             return self.AwaitingCourseTeamReview
+        return None
 
     @property
     def internal_user_status(self):
@@ -273,6 +274,7 @@ class CourseRunWrapper(BaseWrapper):
             return self.AwaitingProjectCoordinatorReview
         elif course_run_state.is_in_review and course_run_state.owner_role == PublisherUserRole.CourseTeam:
             return self.ApprovedByProjectCoordinator
+        return None
 
     @property
     def owner_role_is_publisher(self):

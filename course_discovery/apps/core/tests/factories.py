@@ -60,7 +60,7 @@ class PartnerFactory(factory.DjangoModelFactory):
     studio_url = factory.Faker('url')
     publisher_url = factory.Faker('url')
 
-    class Meta(object):
+    class Meta:
         model = Partner
 
 
@@ -68,7 +68,7 @@ class CurrencyFactory(factory.DjangoModelFactory):
     code = factory.fuzzy.FuzzyText(length=6)
     name = factory.fuzzy.FuzzyText()
 
-    class Meta(object):
+    class Meta:
         model = Currency
 
 
@@ -81,5 +81,5 @@ class SalesforceConfigurationFactory(factory.DjangoModelFactory):
     partner = factory.SubFactory(PartnerFactory)
     case_record_type_id = factory.fuzzy.FuzzyText()
 
-    class Meta(object):
+    class Meta:
         model = SalesforceConfiguration

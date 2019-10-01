@@ -2,7 +2,6 @@ from datetime import datetime
 
 import factory
 from django.contrib.auth.models import Group
-# pylint:disable=ungrouped-imports
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 

@@ -81,7 +81,6 @@ class SalesforceUtil:
         Exception to be raised if the configuration of Salesforce does not exist,
         but an attempt is still made to query for data from within Salesforce
         """
-        pass
 
     class __SalesforceUtil:
         client = None

@@ -531,7 +531,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
             status=200,
         )
-        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))  # pylint: disable=no-member
         responses.add(responses.POST, studio_url, status=200)
         key = 'course-v1:{org}+{number}+1T2001'.format(org=course_data['org'], number=course_data['number'])
         responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=key), status=200)
@@ -553,7 +553,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(course.key, expected_course_key)
         self.assertEqual(course.title, 'Course title')
         self.assertListEqual(list(course.authoring_organizations.all()), [self.org])
-        self.assertEqual(1, CourseEntitlement.everything.count())  # pylint: disable=no-member
+        self.assertEqual(1, CourseEntitlement.everything.count())
 
     def test_create_with_authentication_audit_mode(self):
         """
@@ -608,7 +608,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(course_run.course, course)
 
         # Creating with mode = 'audit' should also create an audit seat
-        self.assertEqual(1, Seat.everything.count())  # pylint: disable=no-member
+        self.assertEqual(1, Seat.everything.count())
         seat = course_run.seats.first()
         self.assertEqual(seat.type, Seat.AUDIT)
         self.assertEqual(seat.price, 0.00)
@@ -634,10 +634,10 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         course_run = CourseRun.everything.last()
 
-        self.assertEqual(Seat.everything.count(), 2)  # pylint: disable=no-member
-        verified_seat = Seat.everything.get(course_run=course_run, type='verified')  # pylint: disable=no-member
+        self.assertEqual(Seat.everything.count(), 2)
+        verified_seat = Seat.everything.get(course_run=course_run, type='verified')
         self.assertEqual(float(verified_seat.price), data['price'])
-        audit_seat = Seat.everything.get(course_run=course_run, type='audit')  # pylint: disable=no-member
+        audit_seat = Seat.everything.get(course_run=course_run, type='audit')
         self.assertEqual(audit_seat.price, 0.00)
         self.assertTrue(audit_seat.draft)
 
@@ -751,7 +751,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         from Studio. Other errors (PermissionDenied, ValidationError, Http404) are all caught and
         raised to the course endpoint, but some errors just create a response.
         '''
-        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))  # pylint: disable=no-member
         responses.add(responses.POST, studio_url, status=400)
         response = self.create_course_and_course_run()
         self.assertEqual(response.status_code, 400)
@@ -914,7 +914,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         a draft audit entitlement. This happens as part of the call to ensure_draft_world.
         """
         self.mock_access_token()
-        self.assertFalse(CourseEntitlement.everything.filter(course=self.course).exists())  # pylint: disable=no-member
+        self.assertFalse(CourseEntitlement.everything.filter(course=self.course).exists())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         response = self.client.patch(url, {'entitlements': [{}]}, format='json')
@@ -1014,7 +1014,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         draft_course = official_course.draft_version
 
         # We only expect the draft course to have an entitlement since we don't create official Audit entitlements
-        self.assertEqual(CourseEntitlement.everything.count(), 1)  # pylint: disable=no-member
+        self.assertEqual(CourseEntitlement.everything.count(), 1)
         self.assertEqual(draft_course.entitlements.first().mode.slug, 'audit')
         self.assertTrue(draft_course.entitlements.first().draft)
         self.assertIsNone(official_course.entitlements.first())
@@ -1022,7 +1022,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         # We expect the draft course run and the official course run to now both have audit Seats
         official_course_run = CourseRun.objects.get(key=draft_course_run.key)
         draft_course_run = official_course_run.draft_version
-        self.assertEqual(Seat.everything.count(), 2)  # pylint: disable=no-member
+        self.assertEqual(Seat.everything.count(), 2)
         self.assertEqual(draft_course_run.seats.first().type, 'audit')
         self.assertTrue(draft_course_run.seats.first().draft)
         self.assertEqual(official_course_run.seats.first().type, 'audit')
@@ -1039,7 +1039,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         draft_course.refresh_from_db()
         official_course.refresh_from_db()
-        self.assertEqual(CourseEntitlement.everything.count(), 2)  # pylint: disable=no-member
+        self.assertEqual(CourseEntitlement.everything.count(), 2)
         self.assertEqual(draft_course.entitlements.first().price, updated_entitlement['price'])
         self.assertEqual(draft_course.entitlements.first().mode.slug, updated_entitlement['mode'])
         self.assertEqual(official_course.entitlements.first().price, updated_entitlement['price'])
@@ -1048,15 +1048,15 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         draft_course_run.refresh_from_db()
         official_course_run.refresh_from_db()
         # Verified means there should be both an Audit seat and Verified seat
-        self.assertEqual(Seat.everything.count(), 4)  # pylint: disable=no-member
-        draft_verified_seat = Seat.everything.get(course_run=draft_course_run, type='verified')  # pylint: disable=no-member
+        self.assertEqual(Seat.everything.count(), 4)
+        draft_verified_seat = Seat.everything.get(course_run=draft_course_run, type='verified')
         self.assertEqual(float(draft_verified_seat.price), updated_entitlement['price'])
-        draft_audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')  # pylint: disable=no-member
+        draft_audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')
         self.assertEqual(draft_audit_seat.price, 0.00)
 
-        official_verified_seat = Seat.everything.get(course_run=official_course_run, type='verified')  # pylint: disable=no-member
+        official_verified_seat = Seat.everything.get(course_run=official_course_run, type='verified')
         self.assertEqual(float(official_verified_seat.price), updated_entitlement['price'])
-        official_audit_seat = Seat.everything.get(course_run=official_course_run, type='audit')  # pylint: disable=no-member
+        official_audit_seat = Seat.everything.get(course_run=official_course_run, type='audit')
         self.assertEqual(official_audit_seat.price, 0.00)
 
     @ddt.data(
@@ -1095,15 +1095,15 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.client.patch(url, {'entitlements': [updated_entitlement], 'draft': False}, format='json')
         self.assertEqual(response.status_code, 200)
 
-        num_seats = Seat.everything.count()  # pylint: disable=no-member
+        num_seats = Seat.everything.count()
         if mode == 'verified':
             self.assertEqual(num_seats, 2)
-            audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')  # pylint: disable=no-member
+            audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')
             self.assertEqual(audit_seat.price, 0.00)
             self.assertTrue(audit_seat.draft)
         else:
             self.assertEqual(num_seats, 1)
-        seat = Seat.everything.get(course_run=draft_course_run, type=mode)  # pylint: disable=no-member
+        seat = Seat.everything.get(course_run=draft_course_run, type=mode)
         self.assertEqual(seat.price, price)
         self.assertTrue(seat.draft)
 

@@ -5,7 +5,7 @@ from course_discovery.apps.catalogs.models import Catalog
 
 
 class CatalogFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = Catalog
 
     name = FuzzyText(prefix='catalog-name-')

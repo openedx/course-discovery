@@ -23,7 +23,7 @@ def _with_basic_auth(url):
     return url
 
 
-class AffiliateCookieTestMixin(object):
+class AffiliateCookieTestMixin:
     """
     Test mixin for affiliate tracking cookies. Classes inheriting from
     this should also inherit from TestCase and define a `url` property

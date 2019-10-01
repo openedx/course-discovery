@@ -1597,7 +1597,7 @@ class AffiliateWindowSerializerTests(TestCase):
         assert serializer.data == expected
 
 
-class CourseSearchSerializerMixin(object):
+class CourseSearchSerializerMixin:
     serializer_class = None
 
     def serialize_course(self, course, request):
@@ -1682,7 +1682,7 @@ class CourseSearchModelSerializerTests(TestCase, CourseSearchSerializerMixin):
         assert serializer.data == self.get_expected_data(course, course_run, request)
 
     @classmethod
-    def get_expected_data(cls, course, course_run, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, course, course_run, request):
         expected_data = CourseWithProgramsSerializerTests.get_expected_data(course, request)
         expected_data.update({'content_type': 'course'})
         return expected_data
@@ -1715,7 +1715,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
         return serializer
 
     @classmethod
-    def get_expected_data(cls, course_run, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, course_run, request):
         return {
             'transcript_languages': [serialize_language(l) for l in course_run.transcript_languages.all()],
             'min_effort': course_run.min_effort,
@@ -1771,7 +1771,7 @@ class PersonSearchSerializerTest(ElasticsearchTestMixin, TestCase):
     serializer_class = PersonSearchSerializer
 
     @classmethod
-    def get_expected_data(cls, person, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, person, request):
         return {
             'salutation': person.salutation,
             'position': [person.position.title, person.position.organization_override],
@@ -1841,7 +1841,7 @@ class TestProgramSearchSerializer(TestCase):
         self.request = make_request()
 
     @classmethod
-    def get_expected_data(cls, program, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, program, request):
         return {
             'uuid': str(program.uuid),
             'title': program.title,

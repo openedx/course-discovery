@@ -333,7 +333,6 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
                     CourseState.objects.create(course=course, owner_role=PublisherUserRole.CourseTeam)
 
                     if add_new_run:
-                        # pylint: disable=no-member
                         messages.success(
                             request, _(
                                 "{course_title} has been created successfully. Enter information on this page to "
@@ -351,7 +350,6 @@ class CreateCourseView(mixins.LoginRequiredMixin, mixins.PublisherUserRequiredMi
 
                     return HttpResponseRedirect(self.get_success_url(course.id, add_new_run=add_new_run))
             except Exception as e:  # pylint: disable=broad-except
-                # pylint: disable=no-member
                 error_message = _('An error occurred while saving your changes. {error}').format(error=str(e))
                 messages.error(request, error_message)
 
@@ -562,7 +560,6 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                 self.object, entitlement_price, entitlement_mode
             )
             if type_misconfigurations:
-                # pylint: disable=no-member
                 error_message = _(
                     'The entered price does not match the price for the following course run(s): '
                     '{course_runs}. The price that you enter must match the price of all active '
@@ -572,7 +569,6 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                 ))
                 messages.error(request, error_message)
             if seat_misconfigurations:
-                # pylint: disable=no-member
                 error_message = _(
                     'The entered seat type does not match the seat type for the following course '
                     'run(s): {course_runs}. The seat type that you enter must match the seat '
@@ -599,7 +595,6 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
             published_runs = self._get_published_course_runs(self.object)
             # Only check published runs if there are changes to the mode or price
             if published_runs and entitlement.mode != entitlement_mode:
-                # pylint: disable=no-member
                 error_message = _(
                     'The following active course run(s) are published: {course_runs}. You cannot change the mode '
                     'if there are published active runs.'
@@ -614,6 +609,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
 
         version = Course.ENTITLEMENT_VERSION if entitlement_mode else Course.SEAT_VERSION
         self._update_course(course_form, entitlement_form, user, version)
+        return None
 
     def post(self, request, *args, **kwargs):
         user = self.request.user
@@ -928,7 +924,6 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
                 # Initialize workflow for Course-run.
                 CourseRunState.objects.create(course_run=course_run, owner_role=PublisherUserRole.CourseTeam)
 
-                # pylint: disable=no-member
                 success_msg = _('You have successfully created a course run for {course_title}.').format(
                     course_title=parent_course.title
                 )
@@ -1151,7 +1146,6 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
 
                     return HttpResponseRedirect(reverse(self.success_url, kwargs={'pk': course_run.id}))
             except Exception as e:  # pylint: disable=broad-except
-                # pylint: disable=no-member
                 error_message = _('An error occurred while saving your changes. {error}').format(error=str(e))
                 messages.error(request, error_message)
                 logger.exception('Unable to update course run and seat for course [%s].', course_run.id)

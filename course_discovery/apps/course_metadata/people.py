@@ -7,7 +7,7 @@ from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 logger = logging.getLogger(__name__)
 
 
-class MarketingSitePeople(object):
+class MarketingSitePeople:
     """
     This will add the object data to marketing site
     """
@@ -57,6 +57,7 @@ class MarketingSitePeople(object):
             else:
                 node_data['uuid'] = str(person.uuid)
                 return self._create_node(api_client, node_data)
+        return None
 
     def delete_person(self, partner, node_id):
         api_client = self._get_api_client(partner)

@@ -18,7 +18,7 @@ class CommentTypeChoices(DjangoChoices):
     Decline_Preview = ChoiceItem('decline_preview', _('Decline Preview'))
 
 
-class Comments(CommentAbstractModel):
+class Comments(CommentAbstractModel):  # pylint: disable=model-no-explicit-unicode
     DEFAULT = 'default'
     DECLINE_PREVIEW = 'decline_preview'
 
@@ -39,7 +39,7 @@ class Comments(CommentAbstractModel):
                 return
         else:
             if waffle.switch_is_active('enable_publisher_email_notifications'):
-                created = False if self.id else True
+                created = not self.id
                 send_email_for_comment(self, created)
 
         super(Comments, self).save(*args, **kwargs)

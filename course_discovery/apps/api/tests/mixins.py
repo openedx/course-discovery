@@ -6,7 +6,7 @@ from conftest import TEST_DOMAIN
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 
 
-class SiteMixin(object):
+class SiteMixin:
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

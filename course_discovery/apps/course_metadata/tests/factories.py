@@ -256,7 +256,7 @@ class PositionFactory(factory.DjangoModelFactory):
 
 
 class ProgramTypeFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = ProgramType
 
     name = FuzzyText()
@@ -270,7 +270,7 @@ class ProgramTypeFactory(factory.django.DjangoModelFactory):
 
 
 class EndorsementFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = Endorsement
 
     endorser = factory.SubFactory(PersonFactory)
@@ -278,7 +278,7 @@ class EndorsementFactory(factory.django.DjangoModelFactory):
 
 
 class CorporateEndorsementFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = CorporateEndorsement
 
     corporation_name = FuzzyText()
@@ -292,14 +292,14 @@ class CorporateEndorsementFactory(factory.django.DjangoModelFactory):
 
 
 class JobOutlookItemFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = JobOutlookItem
 
     value = FuzzyText()
 
 
 class FAQFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = FAQ
 
     question = FuzzyText()
@@ -307,14 +307,14 @@ class FAQFactory(factory.django.DjangoModelFactory):
 
 
 class ExpectedLearningItemFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = ExpectedLearningItem
 
     value = FuzzyText()
 
 
 class RankingFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = Ranking
 
     rank = FuzzyText(length=9)
@@ -323,7 +323,7 @@ class RankingFactory(factory.django.DjangoModelFactory):
 
 
 class ProgramFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = Program
 
     title = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
@@ -402,7 +402,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
 
 
 class DegreeFactory(ProgramFactory):
-    class Meta(object):
+    class Meta:
         model = Degree
 
     apply_url = FuzzyURL()
@@ -426,7 +426,7 @@ class DegreeFactory(ProgramFactory):
 
 
 class IconTextPairingFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = IconTextPairing
 
     degree = factory.SubFactory(DegreeFactory)
@@ -435,7 +435,7 @@ class IconTextPairingFactory(factory.django.DjangoModelFactory):
 
 
 class CurriculumFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = Curriculum
 
     name = FuzzyText()
@@ -456,7 +456,7 @@ class CurriculumFactory(factory.DjangoModelFactory):
 
 
 class DegreeDeadlineFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = DegreeDeadline
 
     degree = factory.SubFactory(DegreeFactory)
@@ -467,7 +467,7 @@ class DegreeDeadlineFactory(factory.DjangoModelFactory):
 
 
 class DegreeCostFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = DegreeCost
 
     degree = factory.SubFactory(DegreeFactory)
@@ -476,7 +476,7 @@ class DegreeCostFactory(factory.DjangoModelFactory):
 
 
 class CurriculumProgramMembershipFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = CurriculumProgramMembership
 
     program = factory.SubFactory(ProgramFactory)
@@ -484,7 +484,7 @@ class CurriculumProgramMembershipFactory(factory.DjangoModelFactory):
 
 
 class CurriculumCourseMembershipFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = CurriculumCourseMembership
 
     course = factory.SubFactory(CourseFactory)
@@ -497,7 +497,7 @@ class CurriculumCourseMembershipFactory(factory.DjangoModelFactory):
 
 
 class CurriculumCourseRunExclusionFactory(factory.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = CurriculumCourseRunExclusion
 
     course_membership = factory.SubFactory(CurriculumCourseMembershipFactory)
@@ -537,7 +537,7 @@ class PersonAreaOfExpertiseFactory(factory.DjangoModelFactory):
 
 
 class SeatTypeFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = SeatType
 
     name = FuzzyText()

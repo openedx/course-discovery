@@ -572,7 +572,7 @@ def publish_to_course_metadata(partner, course_run, create_official=True):
         discovery_official_course_run.save(suppress_publication=True)
 
     for entitlement in publisher_course.entitlements.all():
-        CourseEntitlement.everything.update_or_create(  # pylint: disable=no-member
+        CourseEntitlement.everything.update_or_create(
             course=discovery_course,
             draft=True,
             defaults={
@@ -584,7 +584,7 @@ def publish_to_course_metadata(partner, course_run, create_official=True):
         )
 
     for seat in course_run.seats.exclude(type=Seat.CREDIT).order_by('created'):
-        Seat.everything.update_or_create(  # pylint: disable=no-member
+        Seat.everything.update_or_create(
             course_run=discovery_course_run,
             type=seat.type,
             currency=seat.currency,
@@ -595,7 +595,7 @@ def publish_to_course_metadata(partner, course_run, create_official=True):
             }
         )
         if seat.masters_track:
-            Seat.everything.update_or_create(  # pylint: disable=no-member
+            Seat.everything.update_or_create(
                 course_run=discovery_course_run,
                 type=Seat.MASTERS,
                 currency=seat.currency,
@@ -617,7 +617,7 @@ def publish_to_course_metadata(partner, course_run, create_official=True):
         discovery_course_run.update_or_create_official_version(create_ecom_products=False)
 
 
-class MarketingSiteAPIClient(object):
+class MarketingSiteAPIClient:
     """
     The marketing site API client we can use to communicate with the marketing site
     """

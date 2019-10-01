@@ -25,7 +25,6 @@ class CommentViewSet(viewsets.GenericViewSet):
         """
         Override needed for DRF, but we don't use any queryset for this ViewSet
         """
-        pass
 
     def list(self, request):
         course_uuid = request.query_params.get('course_uuid')

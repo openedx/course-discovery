@@ -332,7 +332,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
         return [str(subject.uuid) for subject in obj.subjects]
 
     def prepare_staff_uuids(self, obj):
-        return set([str(staff.uuid) for course_run in obj.course_runs for staff in course_run.staff.all()])
+        return {str(staff.uuid) for course_run in obj.course_runs for staff in course_run.staff.all()}
 
     def prepare_credit_backing_organizations(self, obj):
         return self._prepare_organizations(obj.credit_backing_organizations.all())
@@ -383,4 +383,4 @@ class PersonIndex(BaseIndex, indexes.Indexable):
     def prepare_bio_language(self, obj):
         if obj.bio_language:
             return obj.bio_language.name
-        return
+        return None

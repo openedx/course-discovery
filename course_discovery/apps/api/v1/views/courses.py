@@ -54,7 +54,7 @@ def writable_request_wrapper(method):
     return inner
 
 
-# pylint: disable=no-member,useless-super-delegation
+# pylint: disable=useless-super-delegation
 class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ Course resource. """
 

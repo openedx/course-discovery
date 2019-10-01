@@ -127,7 +127,7 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         return super(DistinctCountsSearchQuery, self).add_field_facet(field, **options)
 
 
-class DistinctCountsElasticsearchBackendWrapper(object):
+class DistinctCountsElasticsearchBackendWrapper:
     """
     Custom backend-like class that enables the computation of distinct hit and facet counts during search queries.
     This class is not meant to be a true ElasticsearchSearchBackend. It is meant to wrap an existing
@@ -287,7 +287,7 @@ class DistinctCountsElasticsearchBackendWrapper(object):
                 continue
 
             # Field facets:
-            elif 'buckets' in data:
+            if 'buckets' in data:
                 buckets = data['buckets']
                 facets['fields'][name] = [
                     # Extract the facet name, count, and distinct_count

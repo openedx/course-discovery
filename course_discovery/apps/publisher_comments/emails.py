@@ -42,7 +42,7 @@ def send_email_for_comment(comment, created=False):
             # 'title' and 'start' will be the value of course title & start date fields.
             pacing_type = publisher_obj.get_pacing_type_temporary_display()
 
-            subject = _('{subject_desc} {title} {start} - {pacing_type}').format(  # pylint: disable=no-member
+            subject = _('{subject_desc} {title} {start} - {pacing_type}').format(
                 subject_desc=subject_desc,
                 title=course.title,
                 pacing_type=pacing_type,
@@ -59,7 +59,7 @@ def send_email_for_comment(comment, created=False):
 
             # Translators: 'subject_desc' will be choice from ('New comment added', 'Comment updated')
             # and 'title' will be the value of course title field.
-            subject = _('{subject_desc} {title}').format(  # pylint: disable=no-member
+            subject = _('{subject_desc} {title}').format(
                 subject_desc=subject_desc,
                 title=course.title
             )
@@ -115,7 +115,7 @@ def send_email_decline_preview(comment, course_run, preview_url):
 
         # Translators: subject_desc will be Preview Decline for course run,
         # 'title' will be the value of course title.
-        subject = _('Preview declined: {course_name}').format(  # pylint: disable=no-member
+        subject = _('Preview declined: {course_name}').format(
             course_name=course_name
         )
 

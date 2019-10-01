@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.usefixtures('haystack_default_connection')
-class ElasticsearchTestMixin(object):
+class ElasticsearchTestMixin:
     def setUp(self):
         super(ElasticsearchTestMixin, self).setUp()
         self.index = settings.HAYSTACK_CONNECTIONS['default']['INDEX_NAME']
@@ -44,7 +44,7 @@ class ElasticsearchTestMixin(object):
         index.update_object(person)
 
 
-class LMSAPIClientMixin(object):
+class LMSAPIClientMixin:
     def mock_api_access_request(self, lms_url, user, status=200, api_access_request_overrides=None):
         """
         Mock the api access requests endpoint response of the LMS.

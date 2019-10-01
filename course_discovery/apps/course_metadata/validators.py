@@ -27,9 +27,8 @@ class HtmlValidator(HTMLParser):
         Be careful of putting bad html in your message, as this might end up in a log or somewhere it will be parsed.
         """
         if message:
-            raise ValidationError(_('Invalid HTML received: {0}').format(message))
-        else:
-            raise ValidationError(_('Invalid HTML received'))
+            raise ValidationError(_('Icourse_metadata/search_indexes.pynvalid HTML received: {0}').format(message))
+        raise ValidationError(_('Invalid HTML received'))
 
     def handle_starttag(self, tag, attrs):
         if tag not in self.ALLOWED_TAGS:

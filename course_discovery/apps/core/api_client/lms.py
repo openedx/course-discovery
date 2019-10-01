@@ -17,7 +17,7 @@ ONE_HOUR = 60 * 60
 ONE_MINUTE = 60
 
 
-class LMSAPIClient(object):
+class LMSAPIClient:
     """
     API Client for communication between discovery and LMS.
     """

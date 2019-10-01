@@ -403,7 +403,7 @@ class ProgramStructureValidationTests(TestCase):
             membership.save()
 
 
-class ExternalCourseKeyTestMixin(object):
+class ExternalCourseKeyTestMixin:
 
     @staticmethod
     def _add_courses_to_curriculum(curriculum, *courses):

@@ -117,7 +117,7 @@ def check_curriculum_for_cycles(sender, instance, **kwargs):  # pylint: disable=
 
 
 @receiver(pre_save, sender=CurriculumProgramMembership)
-def check_curriculum_program_membership_for_cycles(sender, instance, **kwargs):  # pylint: disable=unused-argument
+def check_curriculum_program_membership_for_cycles(sender, instance, **kwargs):
     """
     Check for circular references in program structure before saving.
     """

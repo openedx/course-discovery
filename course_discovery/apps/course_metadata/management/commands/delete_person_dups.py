@@ -11,7 +11,7 @@ from course_discovery.apps.course_metadata.people import MarketingSitePeople
 logger = logging.getLogger(__name__)
 
 
-class PersonInfo(object):
+class PersonInfo:
     def __init__(self, partner, uuid, target_uuid):
         self.person = Person.objects.get(partner=partner, uuid=uuid)
         self.target = Person.objects.get(partner=partner, uuid=target_uuid)

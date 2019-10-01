@@ -76,12 +76,12 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
     def _mock_studio_api_success(self, publisher_course_run):
         body = {'id': publisher_course_run.lms_course_id}
         url = '{root}/api/v1/course_runs/{key}/'.format(
-            root=self.partner.studio_url.strip('/'),
+            root=self.partner.studio_url.strip('/'),  # pylint: disable=no-member
             key=publisher_course_run.lms_course_id
         )
         responses.add(responses.PATCH, url, json=body, status=200)
         url = '{root}/api/v1/course_runs/{key}/images/'.format(
-            root=self.partner.studio_url.strip('/'),
+            root=self.partner.studio_url.strip('/'),  # pylint: disable=no-member
             key=publisher_course_run.lms_course_id
         )
         responses.add(responses.POST, url, json=body, status=200)
@@ -317,7 +317,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
 
         expected_error = {'error': 'Oops!'}
         url = '{root}/api/v1/course_runs/{key}/'.format(
-            root=self.partner.studio_url.strip('/'),
+            root=self.partner.studio_url.strip('/'),  # pylint: disable=no-member
             key=publisher_course_run.lms_course_id
         )
         responses.add(responses.PATCH, url, json=expected_error, status=500)
@@ -341,7 +341,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
 
         expected_error = {'error': 'Oops!'}
         url = '{root}/api/v1/course_runs/{key}/'.format(
-            root=self.partner.studio_url.strip('/'),
+            root=self.partner.studio_url.strip('/'),  # pylint: disable=no-member
             key=publisher_course_run.lms_course_id
         )
         responses.add(responses.PATCH, url, status=200)

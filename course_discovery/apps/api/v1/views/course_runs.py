@@ -166,7 +166,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
               paramType: query
               multiple: false
         """
-        return super(CourseRunViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)  # pylint: disable=no-member
 
     @classmethod
     def push_to_studio(cls, request, course_run, create=False, old_course_run_key=None):
@@ -339,7 +339,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
-        return super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)  # pylint: disable=no-member
 
     @action(detail=False)
     def contains(self, request):

@@ -82,7 +82,7 @@ class DraftModelMixin(models.Model):
         except ObjectDoesNotExist:
             return None
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
 
@@ -112,7 +112,7 @@ class AbstractNamedModel(TimeStampedModel):
     def __str__(self):
         return self.name
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
 
@@ -123,7 +123,7 @@ class AbstractValueModel(TimeStampedModel):
     def __str__(self):
         return self.value
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
 
@@ -135,7 +135,7 @@ class AbstractMediaModel(TimeStampedModel):
     def __str__(self):
         return self.src
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
 
@@ -149,7 +149,7 @@ class AbstractTitleDescriptionModel(TimeStampedModel):
             return self.title
         return self.description
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
 
@@ -363,7 +363,7 @@ class Subject(TranslatableModel, TimeStampedModel):
             raise ValidationError({'name': ['Subject with this Name and Partner already exists', ]})
 
 
-class SubjectTranslation(TranslatedFieldsModel):
+class SubjectTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
     master = models.ForeignKey(Subject, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -401,7 +401,7 @@ class Topic(TranslatableModel, TimeStampedModel):
             raise ValidationError({'name': ['Topic with this Name and Partner already exists', ]})
 
 
-class TopicTranslation(TranslatedFieldsModel):
+class TopicTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
     master = models.ForeignKey(Topic, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -416,17 +416,14 @@ class TopicTranslation(TranslatedFieldsModel):
 
 class Prerequisite(AbstractNamedModel):
     """ Prerequisite model. """
-    pass
 
 
 class ExpectedLearningItem(AbstractValueModel):
     """ ExpectedLearningItem model. """
-    pass
 
 
 class JobOutlookItem(AbstractValueModel):
     """ JobOutlookItem model. """
-    pass
 
 
 class SyllabusItem(AbstractValueModel):
@@ -436,7 +433,6 @@ class SyllabusItem(AbstractValueModel):
 
 class AdditionalPromoArea(AbstractTitleDescriptionModel):
     """ Additional Promo Area Model """
-    pass
 
 
 class Organization(CachedMixin, TimeStampedModel):
@@ -860,7 +856,7 @@ class CourseEditor(TimeStampedModel):
     user = models.ForeignKey(get_user_model(), models.CASCADE, related_name='courses_edited')
     course = models.ForeignKey(Course, models.CASCADE, related_name='editors')
 
-    class Meta(object):
+    class Meta:
         unique_together = ('user', 'course',)
 
     # The logic for whether a user can edit a course gets a little complicated, so try to use the following class
@@ -1296,7 +1292,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     @property
     def programs(self):
-        return self.course.programs
+        return self.course.programs  # pylint: disable=no-member
 
     @property
     def seat_types(self):
@@ -1382,7 +1378,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         course run exists. After an official version of the course run exists, it only supports
         price changes or upgrades from Audit -> Verified.
         """
-        course_entitlement = self.course.entitlements.first()
+        course_entitlement = self.course.entitlements.first()  # pylint: disable=no-member
         mode = Seat.AUDIT
         price = 0.00
         if course_entitlement:
@@ -1412,7 +1408,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if mode == Seat.AUDIT:
             price = 0.00
 
-        seat, __ = Seat.everything.update_or_create(  # pylint: disable=no-member
+        seat, __ = Seat.everything.update_or_create(
             course_run=self,
             type=mode,
             draft=True,
@@ -1423,8 +1419,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         )
         seats = [seat]
         if mode in Seat.REQUIRES_AUDIT_SEAT or mode == Seat.AUDIT:
-            Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).exclude(type=Seat.AUDIT).delete()  # pylint: disable=no-member
-            audit_seat, __ = Seat.everything.update_or_create(  # pylint: disable=no-member
+            Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).exclude(type=Seat.AUDIT).delete()
+            audit_seat, __ = Seat.everything.update_or_create(
                 course_run=self,
                 type=Seat.AUDIT,
                 draft=True,
@@ -1435,8 +1431,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             )
             seats.append(audit_seat)
         else:
-            Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).delete()  # pylint: disable=no-member
-        self.seats.set(seats)
+            Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).delete()
+        self.seats.set(seats)  # pylint: disable=no-member
 
     def update_or_create_official_version(self, create_ecom_products=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
@@ -1659,7 +1655,7 @@ class Seat(DraftModelMixin, TimeStampedModel):
 
     history = HistoricalRecords()
 
-    class Meta(object):
+    class Meta:
         unique_together = (
             ('course_run', 'type', 'currency', 'credit_provider', 'draft')
         )
@@ -1683,7 +1679,7 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
 
     history = HistoricalRecords()
 
-    class Meta(object):
+    class Meta:
         unique_together = (
             ('course', 'draft')
         )
@@ -2247,7 +2243,7 @@ class Degree(Program):
         null=True,
     )
 
-    class Meta(object):
+    class Meta:
         verbose_name_plural = "Degrees"
 
     def __str__(self):
@@ -2292,7 +2288,7 @@ class IconTextPairing(TimeStampedModel):
     icon = models.CharField(max_length=100, verbose_name=_('Icon FA class'), choices=ICON_CHOICES)
     text = models.CharField(max_length=255, verbose_name=_('Paired text'))
 
-    class Meta(object):
+    class Meta:
         verbose_name_plural = "IconTextPairings"
 
     def __str__(self):
@@ -2471,7 +2467,7 @@ class Pathway(TimeStampedModel):
         bad_programs = [str(x) for x in programs if x.partner != partner]
         if bad_programs:
             msg = _('These programs are for a different partner than the pathway itself: {}')
-            raise ValidationError(msg.format(', '.join(bad_programs)))  # pylint: disable=no-member
+            raise ValidationError(msg.format(', '.join(bad_programs)))
 
 
 class PersonSocialNetwork(TimeStampedModel):
@@ -2493,7 +2489,7 @@ class PersonSocialNetwork(TimeStampedModel):
     title = models.CharField(max_length=255, blank=True)
     person = models.ForeignKey(Person, models.CASCADE, related_name='person_networks')
 
-    class Meta(object):
+    class Meta:
         verbose_name_plural = 'Person SocialNetwork'
 
         unique_together = (
@@ -2518,7 +2514,7 @@ class PersonAreaOfExpertise(AbstractValueModel):
     """ Person Area of Expertise model. """
     person = models.ForeignKey(Person, models.CASCADE, related_name='areas_of_expertise')
 
-    class Meta(object):
+    class Meta:
         verbose_name_plural = 'Person Areas of Expertise'
 
 
@@ -2533,7 +2529,7 @@ class DeletePersonDupsConfig(SingletonModel):
     """
     Configuration for the delete_person_dups management command.
     """
-    class Meta(object):
+    class Meta:
         verbose_name = 'delete_person_dups argument'
 
     arguments = models.TextField(

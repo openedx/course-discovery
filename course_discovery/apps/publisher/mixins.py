@@ -30,7 +30,7 @@ def enforce_site_host(func):
     return inner
 
 
-class PublisherPermissionMixin(object):
+class PublisherPermissionMixin:
     """
     This class will check the logged in user permission for a given course object.
     """
@@ -76,7 +76,7 @@ class PublisherPermissionMixin(object):
         return super(PublisherPermissionMixin, self).dispatch(request, *args, **kwargs)
 
 
-class LoginRequiredMixin(object):
+class LoginRequiredMixin:
 
     @enforce_site_host
     @method_decorator(login_required)
@@ -84,7 +84,7 @@ class LoginRequiredMixin(object):
         return super(LoginRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
-class FormValidMixin(object):
+class FormValidMixin:
     change_state = False
 
     def form_valid(self, form):
@@ -132,7 +132,7 @@ def publisher_user_required(func):
     return wrapped
 
 
-class PublisherUserRequiredMixin(object):
+class PublisherUserRequiredMixin:
     """
     Mixin to view the user is part of any publisher app group.
     """
