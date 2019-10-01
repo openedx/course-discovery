@@ -94,6 +94,37 @@ class SalesforceRecordFactory(factory.DjangoModelFactory):
             raise ConnectionError(build_salesforce_exception(model_class.__name__))
 
 
+class CourseRunTypeFactory(factory.DjangoModelFactory):
+    uuid = factory.LazyFunction(uuid4)
+    name = FuzzyText()
+
+    class Meta:
+        model = CourseRunType
+
+    @factory.post_generation
+    def tracks(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.tracks, extracted)
+
+
+class CourseTypeFactory(factory.DjangoModelFactory):
+    uuid = factory.LazyFunction(uuid4)
+    name = FuzzyText()
+
+    class Meta:
+        model = CourseType
+
+    @factory.post_generation
+    def entitlement_types(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.entitlement_types, extracted)
+
+    @factory.post_generation
+    def course_run_types(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.course_run_types, extracted)
+
+
 class CourseFactory(SalesforceRecordFactory):
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-id/')
@@ -114,6 +145,7 @@ class CourseFactory(SalesforceRecordFactory):
     additional_information = FuzzyText()
     faq = FuzzyText()
     learner_testimonials = FuzzyText()
+    type = factory.SubFactory(CourseTypeFactory)
 
     class Meta:
         model = Course
@@ -190,6 +222,7 @@ class CourseRunFactory(SalesforceRecordFactory):
     weeks_to_complete = FuzzyInteger(1)
     license = 'all-rights-reserved'
     has_ofac_restrictions = True
+    type = factory.SubFactory(CourseRunTypeFactory)
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):
