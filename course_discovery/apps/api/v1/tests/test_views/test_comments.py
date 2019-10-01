@@ -6,11 +6,10 @@ from rest_framework.reverse import reverse
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, SalesforceConfigurationFactory, UserFactory
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactoryNoSignals, OrganizationFactoryNoSignals
 
 
 class CommentViewSetTests(OAuth2Mixin, APITestCase):
-    @factory.django.mute_signals(post_save)
     def setUp(self):
         super(CommentViewSetTests, self).setUp()
         self.salesforce_config = SalesforceConfigurationFactory(partner=self.partner)
@@ -18,8 +17,8 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
         self.request.user = self.user
         self.request.site.partner = self.partner
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.course = CourseFactory(partner=self.partner, title='Fake Test', key='edX+Fake101', draft=True)
-        self.org = OrganizationFactory(key='edX', partner=self.partner)
+        self.course = CourseFactoryNoSignals(partner=self.partner, title='Fake Test', key='edX+Fake101', draft=True)
+        self.org = OrganizationFactoryNoSignals(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)  # pylint: disable=no-member
 
     def tearDown(self):
@@ -37,10 +36,10 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.data, [])
 
-    @factory.django.mute_signals(post_save)
     def test_list_salesforce_case_id_set(self):
         self.course.salesforce_id = 'TestSalesforceId'
-        self.course.save()
+        with factory.django.mute_signals(post_save):
+            self.course.save()
 
         salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
         get_comments_path = 'course_discovery.apps.api.v1.views.comments.SalesforceUtil.get_comments_for_course'
