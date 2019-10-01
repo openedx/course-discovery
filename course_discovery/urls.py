@@ -37,7 +37,7 @@ urlpatterns = oauth2_urlpatterns + [
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
     # Use the same auth views for all logins, including those originating from the browseable API.
-    url(r'^api-auth/', include(oauth2_urlpatterns, namespace='rest_framework')),
+    url(r'^api-auth/', include((oauth2_urlpatterns, 'rest_framework'))),
     url(r'^api-docs/', SwaggerSchemaView.as_view(), name='api_docs'),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),

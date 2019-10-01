@@ -336,7 +336,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                     format(float(entitlement_data['price']), '.2f') != str(course.entitlements.first().price)
                 )
         if entitlements:
-            course.entitlements = entitlements
+            course.entitlements.set(entitlements)
             # If entitlements were updated, we also want to update seats
             for course_run in course.active_course_runs:
                 course_run.update_or_create_seats()

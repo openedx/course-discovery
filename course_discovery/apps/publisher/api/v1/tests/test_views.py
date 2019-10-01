@@ -321,8 +321,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         assert discovery_course_run.staff.all().count() == 2
 
-        publisher_course_run.staff.clear()
-        publisher_course_run.staff = PersonFactory.create_batch(1)
+        publisher_course_run.staff.set(PersonFactory.create_batch(1))  # pylint: disable=no-member
         response = self.client.post(publish_url, {})
         assert response.status_code == 200
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)

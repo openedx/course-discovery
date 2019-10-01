@@ -170,8 +170,7 @@ class CourseRunWrapperTests(TestCase):
         staff_2 = PersonFactory()
         position = PositionFactory(person=staff_2)
 
-        self.course_run.staff = [staff, staff_2]
-        self.course_run.save()
+        self.course_run.staff.set([staff, staff_2])  # pylint: disable=no-member
 
         facebook = PersonSocialNetworkFactory(person=staff_2, type='facebook')
         twitter = PersonSocialNetworkFactory(person=staff_2, type='twitter', title='@MrTerry')
