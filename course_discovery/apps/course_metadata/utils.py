@@ -218,7 +218,7 @@ def create_missing_entitlement(course):
     return False
 
 
-def ensure_draft_world(obj):
+def ensure_draft_world(obj, course_type=None):
     """
     Ensures the draft world exists for an object. The draft world is defined as all draft objects related to
     the incoming draft object. For now, this will create the draft Course, all draft Course Runs associated
@@ -270,7 +270,7 @@ def ensure_draft_world(obj):
         if original_course.entitlements.exists():
             for entitlement in original_course.entitlements.all():
                 set_draft_state(entitlement, CourseEntitlement, {'course': draft_course})
-        elif not create_missing_entitlement(draft_course):
+        elif not create_missing_entitlement(draft_course) and not course_type:
             mode = SeatType.objects.get(slug=Seat.AUDIT)
             CourseEntitlement.objects.create(
                 course=draft_course,

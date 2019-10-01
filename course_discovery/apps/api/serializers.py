@@ -28,10 +28,10 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun, Curriculum,
-    CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline, Endorsement,
-    IconTextPairing, Image, LevelType, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork,
-    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
+    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType,
+    CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline,
+    Endorsement, IconTextPairing, Image, LevelType, Organization, Pathway, Person, PersonAreaOfExpertise,
+    PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -653,6 +653,8 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     start = serializers.DateTimeField(required=True)  # required so we can craft key number from it
     end = serializers.DateTimeField(required=True)  # required by studio
     type = serializers.CharField(read_only=True, source='type_legacy')
+    run_type = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='uuid', source='type',
+                                            queryset=CourseRunType.objects.all())
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -660,7 +662,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
-        return queryset.select_related('course').prefetch_related(
+        return queryset.select_related('course', 'type').prefetch_related(
             '_official_version',
             'course__partner',
             Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
@@ -670,7 +672,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
-                  'pacing_type', 'type', 'status', 'is_enrollable', 'is_marketable',)
+                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable',)
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -880,6 +882,8 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     entitlements = CourseEntitlementSerializer(required=False, many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
     image = ImageField(read_only=True, source='image_url')
+    type = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='uuid',
+                                        queryset=CourseType.objects.all())
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
     url_slug = serializers.SerializerMethodField()
 
@@ -889,7 +893,7 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
 
-        return queryset.select_related('partner').prefetch_related(
+        return queryset.select_related('partner', 'type').prefetch_related(
             'authoring_organizations',
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
             Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
@@ -901,7 +905,7 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     class Meta:
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
-                  'short_description', 'url_slug',)
+                  'short_description', 'type', 'url_slug',)
 
 
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
@@ -937,6 +941,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'extra_description',
             '_official_version',
             'canonical_course_run',
+            'type',
         ).prefetch_related(
             'expected_learning_items',
             'prerequisites',
@@ -1034,6 +1039,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
             'video__image',
             'partner',
             'canonical_course_run',
+            'type',
         ).prefetch_related(
             '_official_version',
             'expected_learning_items',
@@ -1221,13 +1227,15 @@ class CurriculumSerializer(serializers.ModelSerializer):
         Prefetch all member courses and related objects for this curriculum
         """
         if not hasattr(self, '_prefetched_memberships'):
-            queryset = CurriculumCourseMembership.objects.filter(curriculum=curriculum).prefetch_related(
+            queryset = CurriculumCourseMembership.objects.filter(curriculum=curriculum).select_related(
+                'course__partner', 'course__type'
+            ).prefetch_related(
                 'course',
                 'course__course_runs',
                 'course__course_runs__seats',
+                'course__course_runs__type',
                 'course__entitlements',
                 'course__authoring_organizations',
-                'course__partner',
                 'course_run_exclusions',
             )
             self._prefetched_memberships = [membership for membership in queryset]  # pylint: disable=attribute-defined-outside-init

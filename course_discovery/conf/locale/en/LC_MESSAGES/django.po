@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-04 17:16+0000\n"
+"POT-Creation-Date: 2019-10-08 15:29+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -36,43 +36,43 @@ msgstr ""
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:725 apps/publisher/forms.py:358
+#: apps/api/serializers.py:727 apps/publisher/forms.py:358
 msgid "Start date cannot be after the End date"
 msgstr ""
 
-#: apps/api/serializers.py:730
+#: apps/api/serializers.py:732
 msgid "Key cannot be changed"
 msgstr ""
 
-#: apps/api/serializers.py:741
+#: apps/api/serializers.py:743
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:825
+#: apps/api/serializers.py:827
 msgid "Course cannot be changed for an existing course run"
 msgstr ""
 
-#: apps/api/serializers.py:830 apps/publisher/forms.py:360
+#: apps/api/serializers.py:832 apps/publisher/forms.py:360
 msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr ""
 
-#: apps/api/serializers.py:832
+#: apps/api/serializers.py:834
 msgid "Minimum effort and Maximum effort cannot be the same"
 msgstr ""
 
-#: apps/api/serializers.py:874
+#: apps/api/serializers.py:876
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1114
+#: apps/api/serializers.py:1120
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1436
+#: apps/api/serializers.py:1444
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1440
+#: apps/api/serializers.py:1448
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -92,12 +92,12 @@ msgstr ""
 msgid "You must include a course_uuid in your query parameters."
 msgstr ""
 
-#: apps/api/v1/views/comments.py:59 apps/api/v1/views/courses.py:180
+#: apps/api/v1/views/comments.py:59 apps/api/v1/views/courses.py:187
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr ""
 
-#: apps/api/v1/views/comments.py:61 apps/api/v1/views/courses.py:186
+#: apps/api/v1/views/comments.py:61 apps/api/v1/views/courses.py:198
 msgid "Incorrect data sent. "
 msgstr ""
 
@@ -121,54 +121,61 @@ msgstr ""
 msgid "Invalid param"
 msgstr ""
 
-#: apps/api/v1/views/courses.py:52
+#: apps/api/v1/views/courses.py:53
 msgid "An error occurred while setting Course or Course Run data."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:53
+#: apps/api/v1/views/courses.py:54
 msgid "Failed to set data: {}"
 msgstr ""
 
-#: apps/api/v1/views/courses.py:182
-msgid "Organization does not exist. "
+#: apps/api/v1/views/courses.py:189
+#, python-brace-format
+msgid "Organization [{org}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:184
-msgid "Entitlement Track does not exist. "
+#: apps/api/v1/views/courses.py:192
+#, python-brace-format
+msgid "Entitlement Track [{entitlement_type}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:199
+#: apps/api/v1/views/courses.py:196
+#, python-brace-format
+msgid "Course Type [{course_type}] does not exist. "
+msgstr ""
+
+#: apps/api/v1/views/courses.py:214
 #, python-brace-format
 msgid "A course with key {key} already exists."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:205
+#: apps/api/v1/views/courses.py:220
 #, python-brace-format
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:248
+#: apps/api/v1/views/courses.py:266
 msgid "Entitlements must have a mode specified."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:252
+#: apps/api/v1/views/courses.py:270
 msgid "Entitlement mode {} not found."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:256
+#: apps/api/v1/views/courses.py:279
 #, python-brace-format
 msgid "Existing entitlement not found for course {0}."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:265
+#: apps/api/v1/views/courses.py:288
 msgid ""
-"Switching entitlement modes after being reviewed is not supported. Please "
+"Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:330
+#: apps/api/v1/views/courses.py:367
 #, python-brace-format
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
@@ -527,55 +534,55 @@ msgid ""
 "coordinator is defined for organization {org}"
 msgstr ""
 
-#: apps/course_metadata/emails.py:89
+#: apps/course_metadata/emails.py:91
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no publisher "
 "URL is defined for partner {partner}"
 msgstr ""
 
-#: apps/course_metadata/emails.py:97
+#: apps/course_metadata/emails.py:99
 #, python-brace-format
 msgid ""
 "Not sending notification email for template {template} because no studio URL "
 "is defined for partner {partner}"
 msgstr ""
 
-#: apps/course_metadata/emails.py:152
+#: apps/course_metadata/emails.py:165
 msgid "legal team"
 msgstr ""
 
-#: apps/course_metadata/emails.py:188 apps/publisher/views.py:251
+#: apps/course_metadata/emails.py:201 apps/publisher/views.py:251
 #: apps/publisher/views.py:254
 msgid "course team"
 msgstr ""
 
-#: apps/course_metadata/emails.py:197 apps/publisher/emails.py:593
+#: apps/course_metadata/emails.py:210 apps/publisher/emails.py:593
 #, python-brace-format
 msgid "Legal review requested: {title}"
 msgstr ""
 
-#: apps/course_metadata/emails.py:210
+#: apps/course_metadata/emails.py:223
 #, python-brace-format
 msgid "Review requested: {key} - {title}"
 msgstr ""
 
-#: apps/course_metadata/emails.py:222 apps/publisher/emails.py:159
+#: apps/course_metadata/emails.py:235 apps/publisher/emails.py:159
 #, python-brace-format
 msgid "Review complete: {title}"
 msgstr ""
 
-#: apps/course_metadata/emails.py:238
+#: apps/course_metadata/emails.py:251
 #, python-brace-format
 msgid "Published: {title}"
 msgstr ""
 
-#: apps/course_metadata/emails.py:242
+#: apps/course_metadata/emails.py:255
 #, python-brace-format
 msgid "Published: {key} - {title}"
 msgstr ""
 
-#: apps/course_metadata/emails.py:258
+#: apps/course_metadata/emails.py:270
 #, python-brace-format
 msgid "Comment added: {title}"
 msgstr ""
@@ -1361,14 +1368,14 @@ msgid ""
 "%(time)s"
 msgstr ""
 
-#: apps/course_metadata/templates/course_metadata/email/comment.html:17
+#: apps/course_metadata/templates/course_metadata/email/comment.html:19
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:9
 #: apps/publisher/templates/publisher/email/comment.html:17
 #: apps/publisher/templates/publisher/email/comment.txt:9
 msgid "View comment in Publisher"
 msgstr ""
 
-#: apps/course_metadata/templates/course_metadata/email/comment.html:19
+#: apps/course_metadata/templates/course_metadata/email/comment.html:21
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:11
 #: apps/publisher/templates/publisher/email/comment.html:19
 #: apps/publisher/templates/publisher/email/comment.txt:11
@@ -1562,7 +1569,7 @@ msgstr ""
 msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr ""
 
-#: apps/course_metadata/utils.py:358
+#: apps/course_metadata/utils.py:363
 msgid "Special characters not allowed in Course Number."
 msgstr ""
 

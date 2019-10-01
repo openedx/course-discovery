@@ -47,7 +47,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         response = self.get_response('software', path=path)
 
         assert response.status_code == 200
-        response_data = response.json()
+        response_data = response.data
 
         # Validate the search results
         expected = {
@@ -160,13 +160,13 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 
     @ddt.data(
         (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 8),
+         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 10),
         (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 8),
+         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 10),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 43),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 47),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 47),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 49),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -178,10 +178,10 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         ProgramFactory(courses=[course_run.course], status=program_status)
         self.reindex_courses(active_program)
 
-        with self.assertNumQueries(expected_queries, threshold=3):
+        with self.assertNumQueries(expected_queries, threshold=0):
             response = self.get_response('software', path=path)
             assert response.status_code == 200
-            response_data = response.json()
+            response_data = response.data
 
             # Validate the search results
             expected = {

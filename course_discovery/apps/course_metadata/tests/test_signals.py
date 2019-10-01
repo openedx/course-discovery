@@ -501,7 +501,7 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
         copied_course_run = CourseRun.objects.get(key=copy_key)
         message = _duplicate_external_key_message([copied_course_run])
         # This number may seem high but only 2 are select statements caused by the external key signal
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(12, threshold=0):
             with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
                 factories.CourseRunFactory(
                     course=self.course_2,
@@ -625,7 +625,7 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
         course = self._create_course_and_runs()
         course_run = course.course_runs.first()
         message = _duplicate_external_key_message([course_run])
-        with self.assertNumQueries(7):
+        with self.assertNumQueries(11, threshold=0):
             with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
                 factories.CourseRunFactory(
                     course=course,
@@ -645,7 +645,7 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
     def test_create_course_run__curriculum_only(self):
         course_run, _ = self._create_single_course_curriculum('colliding-key', 'curriculum_1')
         message = _duplicate_external_key_message([course_run])
-        with self.assertNumQueries(7):
+        with self.assertNumQueries(11, threshold=0):
             with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
                 factories.CourseRunFactory(
                     course=course_run.course,
@@ -757,7 +757,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
         )
 
     def test_draft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(FuzzyInt(77, 2)):
+        with self.assertNumQueries(81, threshold=0):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=True,
@@ -767,7 +767,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
     def test_draft_collides_with_nondraft(self):
         course_run_1a = self.course_1.course_runs.get(external_key='ext-key-course-1a')
         message = _duplicate_external_key_message([course_run_1a])
-        with self.assertNumQueries(FuzzyInt(8, 2)):
+        with self.assertNumQueries(12, threshold=0):
             with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
                 factories.CourseRunFactory(
                     course=self.course_1,
@@ -776,7 +776,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                 )
 
     def test_nondraft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(FuzzyInt(77, 2)):
+        with self.assertNumQueries(81, threshold=0):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
@@ -784,14 +784,14 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
             )
 
     def test_collision_does_not_include_drafts(self):
-        with self.assertNumQueries(FuzzyInt(77, 2)):
+        with self.assertNumQueries(81, threshold=0):
             course_run = factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
                 external_key='external-key-drafttest'
             )
         message = _duplicate_external_key_message([course_run])  # Not draft_course_run_1
-        with self.assertNumQueries(FuzzyInt(7, 2)):
+        with self.assertNumQueries(11, threshold=0):
             with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
                 factories.CourseRunFactory(
                     course=self.course_1,

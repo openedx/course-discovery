@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-04 17:16+0000\n"
+"POT-Creation-Date: 2019-10-08 15:29+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -172,13 +172,25 @@ msgid "Failed to set data: {}"
 msgstr "Fäïléd tö sét dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: apps/api/v1/views/courses.py
-msgid "Organization does not exist. "
-msgstr "Örgänïzätïön döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+#, python-brace-format
+msgid "Organization [{org}] does not exist. "
+msgstr ""
+"Örgänïzätïön [{org}] döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєт#"
 
 #: apps/api/v1/views/courses.py
-msgid "Entitlement Track does not exist. "
+#, python-brace-format
+msgid "Entitlement Track [{entitlement_type}] does not exist. "
 msgstr ""
-"Éntïtlémént Träçk döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+"Éntïtlémént Träçk [{entitlement_type}] döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/api/v1/views/courses.py
+#, python-brace-format
+msgid "Course Type [{course_type}] does not exist. "
+msgstr ""
+"Çöürsé Týpé [{course_type}] döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєт#"
 
 #: apps/api/v1/views/courses.py
 #, python-brace-format
@@ -215,10 +227,10 @@ msgstr ""
 
 #: apps/api/v1/views/courses.py
 msgid ""
-"Switching entitlement modes after being reviewed is not supported. Please "
+"Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
 msgstr ""
-"Swïtçhïng éntïtlémént mödés äftér ßéïng révïéwéd ïs nöt süppörtéd. Pléäsé "
+"Swïtçhïng éntïtlémént týpés äftér ßéïng révïéwéd ïs nöt süppörtéd. Pléäsé "
 "réäçh öüt tö ýöür pröjéçt çöördïnätör för äddïtïönäl hélp ïf néçéssärý. "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
 "тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"

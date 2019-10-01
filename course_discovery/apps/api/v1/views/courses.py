@@ -29,7 +29,8 @@ from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseEntitlement, CourseRun, CourseUrlSlug, Organization, Program, Seat, SeatType, Video
+    Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug, Organization, Program, Seat,
+    SeatType, Video
 )
 from course_discovery.apps.course_metadata.utils import (
     create_missing_entitlement, ensure_draft_world, validate_course_number
@@ -171,23 +172,37 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             'title': request.data.get('title'),
             'number': request.data.get('number'),
             'org': request.data.get('org'),
-            'mode': request.data.get('mode'),
         }
         url_slug = request.data.get('url_slug', '')
+        # DISCO-1399: Remove this variable declaration
+        entitlement_type = request.data.get('mode')
+        course_type = request.data.get('type')
+
         missing_values = [k for k, v in course_creation_fields.items() if v is None]
+        # DISCO-1399: Remove this if statement
+        if not entitlement_type and not course_type:
+            missing_values.append('mode')
         error_message = ''
         if missing_values:
             error_message += ''.join([_('Missing value for: [{name}]. ').format(name=name) for name in missing_values])
         if not Organization.objects.filter(key=course_creation_fields['org']).exists():
-            error_message += _('Organization does not exist. ')
-        if not SeatType.objects.filter(slug=course_creation_fields['mode']).exists():
-            error_message += _('Entitlement Track does not exist. ')
+            error_message += _('Organization [{org}] does not exist. ').format(org=course_creation_fields['org'])
+        # DISCO-1399: This if statement isn't needed anymore
+        if entitlement_type and not SeatType.objects.filter(slug=entitlement_type).exists():
+            error_message += _('Entitlement Track [{entitlement_type}] does not exist. ').format(
+                entitlement_type=entitlement_type
+            )
+        if not entitlement_type and course_type and not CourseType.objects.filter(uuid=course_type).exists():
+            error_message += _('Course Type [{course_type}] does not exist. ').format(course_type=course_type)
         if error_message:
             return Response((_('Incorrect data sent. ') + error_message).strip(), status=status.HTTP_400_BAD_REQUEST)
 
         partner = request.site.partner
         course_creation_fields['partner'] = partner.id
         course_creation_fields['key'] = self.get_course_key(course_creation_fields)
+        # DISCO-1399: Add this into the above declaration of course_creation_fields. Adding it in here for now since
+        # we do not want it to be reported as a missing value since it's not required yet.
+        course_creation_fields['type'] = course_type
 
         validate_course_number(course_creation_fields['number'])
 
@@ -211,15 +226,21 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
 
+        # DISCO-1399: No need to check the if else. It will always be course.type
+        # New flow for courses using CourseType model
+        if course.type:
+            entitlement_types = course.type.entitlement_types.all()
+        else:
+            entitlement_types = [SeatType.objects.get(slug=entitlement_type)]
         price = request.data.get('price', 0.00)
-        mode = SeatType.objects.get(slug=course_creation_fields['mode'])
-        CourseEntitlement.objects.create(
-            course=course,
-            mode=mode,
-            partner=partner,
-            price=price,
-            draft=True,
-        )
+        for entitlement_type in entitlement_types:
+            CourseEntitlement.objects.create(
+                course=course,
+                mode=entitlement_type,
+                partner=partner,
+                price=price,
+                draft=True,
+            )
 
         CourseEditor.objects.create(
             user=request.user,
@@ -230,11 +251,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # Note: We have to send the request object as well because it is used for its metadata
         # (like request.user and is set as part of the serializer context)
         if course_run_creation_fields:
-            course_run_creation_fields.update({
-                'course': course_creation_fields['key'],
-                'price': price,
-                'mode': course_creation_fields['mode'],
-            })
+            course_run_creation_fields.update({'course': course.key})
             run_response = CourseRunViewSet().create_run_helper(course_run_creation_fields, request)
             if run_response.status_code != 201:
                 raise Exception(str(run_response.data))
@@ -242,27 +259,33 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def update_entitlement(self, course, data, partial=False):
+    # DISCO-1399: This whole helper can be removed
+    def update_entitlement_helper(self, course, data, partial=False):
         """ Finds and updates an existing entitlement from the incoming data, with verification. """
         if 'mode' not in data:
             raise ValidationError(_('Entitlements must have a mode specified.'))
 
-        mode = SeatType.objects.filter(slug=data['mode']).first()
-        if not mode:
+        entitlement_type = SeatType.objects.filter(slug=data['mode']).first()
+        if not entitlement_type:
             raise ValidationError(_('Entitlement mode {} not found.').format(data['mode']))
 
+        return self.update_entitlement(course, data, entitlement_type, partial)
+
+    # DISCO-1399: You might be able to simplify this function once you can guarantee use of course type
+    def update_entitlement(self, course, data, entitlement_type, partial=False):
+        """ Finds and updates an existing entitlement from the incoming data, with verification """
         entitlement = CourseEntitlement.everything.filter(course=course, draft=True).first()
         if not entitlement:
             raise ValidationError(_('Existing entitlement not found for course {0}.')
                                   .format(course.key))
 
         # We want to allow upgrading an entitlement from Audit -> Verified, but allow no other
-        # mode changes. We use the official version existing as an indicator for ecom products
-        # having already been created.
-        mode_switch_whitelist = {Seat.AUDIT: Seat.VERIFIED}
-        if (course.official_version and entitlement.mode != mode and
-                mode_switch_whitelist.get(entitlement.mode.slug) != mode.slug):
-            raise ValidationError(_('Switching entitlement modes after being reviewed is not supported. Please reach '
+        # entitlement type changes. We use the official version existing as an indicator for
+        # ecom products having already been created.
+        entitlement_type_switch_whitelist = {Seat.AUDIT: Seat.VERIFIED}
+        if (course.official_version and entitlement.mode != entitlement_type and
+                entitlement_type_switch_whitelist.get(entitlement.mode.slug) != entitlement_type.slug):
+            raise ValidationError(_('Switching entitlement types after being reviewed is not supported. Please reach '
                                     'out to your project coordinator for additional help if necessary.'))
 
         # We have an entitlement object, now let's deserialize the incoming data and update it
@@ -270,13 +293,16 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         return serializer.save()
 
+    # DISCO-1399: You might be able to removew the too-many-statements disable since it should get rid
+    # of a number of if statements since we don't need to check for `if data.get('type')`
     @writable_request_wrapper
-    def update_course(self, data, partial=False):
+    def update_course(self, data, partial=False):  # pylint: disable=too-many-statements
         """ Updates an existing course from incoming data. """
         changed = False
         # Sending draft=False means the course data is live and updates should be pushed out immediately
         draft = data.pop('draft', True)
         # Pop nested writables that we will handle ourselves (the serializer won't handle them)
+        # DISCO-1399: entitlements should stop being sent so no need to pop them off
         entitlements_data = data.pop('entitlements', [])
         image_data = data.pop('image', None)
         video_data = data.pop('video', None)
@@ -284,18 +310,31 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         # Get and validate object serializer
         course = self.get_object()
-        course = ensure_draft_world(course)  # always work on drafts
+        course = ensure_draft_world(course, course_type=data.get('type'))  # always work on drafts
         serializer = self.get_serializer(course, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
         # First, update nested entitlements
         entitlements = []
-        for entitlement_data in entitlements_data:
-            if entitlement_data == {}:
-                continue
-            entitlements.append(self.update_entitlement(course, entitlement_data, partial=partial))
-            # We set changed to True here if the price of the course is being updated
-            changed = format(float(entitlement_data['price']), '.2f') != str(course.entitlements.first().price)
+        # New flow for courses using CourseType model
+        # DISCO-1399: I think pretty much the whole 'else' can be removed.
+        if data.get('type'):
+            course_type = CourseType.objects.get(uuid=data.get('type'))
+            entitlement_types = course_type.entitlement_types.all()
+            price = data.get('price', 0.00)
+            for entitlement_type in entitlement_types:
+                data = {'mode': entitlement_type.slug, 'price': price}
+                entitlements.append(self.update_entitlement(course, data, entitlement_type, partial=partial))
+                changed = changed or format(float(price), '.2f') != str(course.entitlements.first().price)
+        else:
+            for entitlement_data in entitlements_data:
+                if entitlement_data == {}:
+                    continue
+                entitlements.append(self.update_entitlement_helper(course, entitlement_data, partial=partial))
+                # We set changed to True here if the price of the course is being updated
+                changed = changed or (
+                    format(float(entitlement_data['price']), '.2f') != str(course.entitlements.first().price)
+                )
         if entitlements:
             course.entitlements = entitlements
             # If entitlements were updated, we also want to update seats

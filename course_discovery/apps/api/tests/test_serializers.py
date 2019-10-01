@@ -126,6 +126,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
             'image': ImageField().to_representation(course.image_url),
             'short_description': course.short_description,
+            'type': course.type.uuid,
             'url_slug': None,
         }
 
@@ -370,6 +371,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'enrollment_end': json_date_format(course_run.enrollment_end),
             'pacing_type': course_run.pacing_type,
             'type': course_run.type_legacy,
+            'run_type': course_run.type.uuid,
             'seats': SeatSerializer(course_run.seats, many=True).data,
             'status': course_run.status,
             'external_key': course_run.external_key,
