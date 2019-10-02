@@ -53,6 +53,9 @@ class TestMigrateCommentsToSalesforce(TestCase):
 
     @mock.patch(LOGGER_PATH)
     def test_handle_no_orgs(self, mock_logger):
+        config = MigrateCommentsToSalesforceFactory()
+        config.orgs.all().delete()
+
         with self.assertRaises(CommandError):
             Command().handle()
         mock_logger.error.assert_called_with(

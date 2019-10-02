@@ -4,7 +4,7 @@ import waffle
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
+from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
 from course_discovery.apps.api.cache import api_change_receiver
@@ -268,7 +268,8 @@ def update_or_create_salesforce_organization(instance, created, **kwargs):  # py
     partner = instance.partner
     util = get_salesforce_util(partner)
     if util:
-        util.create_publisher_organization(instance)
+        if not instance.salesforce_id:
+            util.create_publisher_organization(instance)
         if not created and requires_salesforce_update('organization', instance):
             util.update_publisher_organization(instance)
 
@@ -277,15 +278,27 @@ def update_or_create_salesforce_organization(instance, created, **kwargs):  # py
 def update_or_create_salesforce_course(instance, created, **kwargs):  # pylint: disable=unused-argument
     partner = instance.partner
     util = get_salesforce_util(partner)
-    if util:
-        if instance.draft:
-            util.create_course(instance)
-        elif not created and not instance.draft:
-            created_in_salseforce = False
-            if not instance.salesforce_id and instance.draft_version:
-                created_in_salseforce = populate_official_with_existing_draft(instance, util)
-            if not created_in_salseforce and requires_salesforce_update('course', instance):
+    # Only bother to create the course if there's a util, and the auth orgs are already set up
+    if util and instance.authoring_organizations.first():
+        if not created and not instance.draft:
+            created_in_salesforce = False
+            # Only populate the Official instance if the draft information is ready to go (has auth orgs set)
+            if (not instance.salesforce_id and
+                    instance.draft_version and
+                    instance.draft_version.authoring_organizations.first()):
+                created_in_salesforce = populate_official_with_existing_draft(instance, util)
+            if not created_in_salesforce and requires_salesforce_update('course', instance):
                 util.update_course(instance)
+
+
+@receiver(m2m_changed, sender=Course.authoring_organizations.through)
+def authoring_organizations_changed(sender, instance, action, **kwargs):  # pylint: disable=unused-argument
+    # Only do this after an auth org has been added, the salesforce_id isn't set and it's a draft (new)
+    if action == 'post_add' and not instance.salesforce_id and instance.draft:
+        partner = instance.partner
+        util = get_salesforce_util(partner)
+        if util:
+            util.create_course(instance)
 
 
 @receiver(post_save, sender=CourseRun)
