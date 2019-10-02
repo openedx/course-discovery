@@ -2,6 +2,7 @@ import re
 from datetime import datetime, timezone
 
 import requests
+from django.utils.translation import ugettext as _
 from requests.adapters import HTTPAdapter
 from simple_salesforce import Salesforce, SalesforceExpiredSession
 
@@ -37,12 +38,14 @@ def populate_official_with_existing_draft(instance, util):
     if not instance.draft_version.salesforce_id:
         if isinstance(instance, Course):
             util.create_course(instance.draft_version)
+            created = True
         elif isinstance(instance, CourseRun):
             util.create_course_run(instance.draft_version)
-        created = True
+            created = True
 
-    instance.salesforce_id = instance.draft_version.salesforce_id
-    instance.save()
+    if instance.draft_version.salesforce_id:
+        instance.salesforce_id = instance.draft_version.salesforce_id
+        instance.save()
     return created
 
 
@@ -59,13 +62,28 @@ def salesforce_request_wrapper(method):
                 except SalesforceExpiredSession:
                     self.login()
                     return method(self, *args, **kwargs)
-            raise SalesforceUtil.SalesforceNotConfiguredException(
-                'Attempted to query Salesforce with no client for partner={}'.format(self.partner.name)
+            raise SalesforceNotConfiguredException(
+                _('Attempted to query Salesforce with no client for partner={}').format(self.partner.name)
             )
-        raise SalesforceUtil.SalesforceNotConfiguredException(
-            'Attempted to query Salesforce with no configuration set up for partner={}'.format(self.partner.name)
-        )
     return inner
+
+
+class SalesforceNotConfiguredException(Exception):
+    """
+    Exception to be raised if the configuration of Salesforce does not exist,
+    but an attempt is still made to query for data from within Salesforce
+    """
+    pass
+
+
+class SalesforceMissingCaseException(Exception):
+    """
+    Exception to be raised if the Course does not have an associated
+    salesforce_case_id despite having called out to create_case_for_course
+    """
+    def __init__(self, message):
+        self.message = message
+        super(SalesforceMissingCaseException, self).__init__(message)
 
 
 class SalesforceUtil:
@@ -76,13 +94,6 @@ class SalesforceUtil:
     underlying child object which wraps a simple-salesforce connection.
     """
 
-    class SalesforceNotEnabledException(Exception):
-        """
-        Exception to be raised if the configuration of Salesforce does not exist,
-        but an attempt is still made to query for data from within Salesforce
-        """
-        pass
-
     class __SalesforceUtil:
         client = None
 
@@ -92,7 +103,7 @@ class SalesforceUtil:
                 self.login()
 
         def salesforce_is_enabled(self):
-            return bool(self.partner.salesforce)
+            return self.partner.salesforce is not None
 
         def login(self):
             # Need to instantiate a session with multiple retries to avoid OSError
@@ -150,60 +161,69 @@ class SalesforceUtil:
     def create_course(self, course):
         if not course.salesforce_id:
             organization = course.authoring_organizations.first()
-            if organization and not organization.salesforce_id:
-                self.create_publisher_organization(organization)
-            sf_course = self.client.Course__c.create(
-                self._build_course_payload(course, organization)
-            )
-            course.salesforce_id = sf_course.get('id')
-            course.save()
+            if organization:
+                if not organization.salesforce_id:
+                    self.create_publisher_organization(organization)
+                if organization.salesforce_id:
+                    sf_course = self.client.Course__c.create(
+                        self._build_course_payload(course, organization)
+                    )
+                    course.salesforce_id = sf_course.get('id')
+                    course.save()
 
     @salesforce_request_wrapper
     def create_course_run(self, course_run):
         if not course_run.salesforce_id:
             if not course_run.course.salesforce_id:
                 self.create_course(course_run.course)
-            sf_course_run = self.client.Course_Run__c.create(
-                self._build_course_run_payload(course_run)
-            )
-            course_run.salesforce_id = sf_course_run.get('id')
-            course_run.save()
+            if course_run.course.salesforce_id:
+                sf_course_run = self.client.Course_Run__c.create(
+                    self._build_course_run_payload(course_run)
+                )
+                course_run.salesforce_id = sf_course_run.get('id')
+                course_run.save()
 
     @salesforce_request_wrapper
     def create_case_for_course(self, course):
         if not course.salesforce_case_id:
             if not course.salesforce_id:
                 self.create_course(course)
-            case = {
-                'Course__c': course.salesforce_id,
-                'Status': 'Open',
-                'Origin': 'Publisher',
-                'Subject': '{} Comments'.format(course.title),
-                'Description': 'This case is required to be Open for the Publisher comment service.'
-            }
-            case_record_type_id = self.partner.salesforce.case_record_type_id
-            # Only add the record type ID if it's configured, this is not a required field
-            if case_record_type_id:
-                case['RecordTypeId'] = case_record_type_id
+            if course.salesforce_id:
+                case = {
+                    'Course__c': course.salesforce_id,
+                    'Status': 'Open',
+                    'Origin': 'Publisher',
+                    'Subject': '{} Comments'.format(course.title),
+                    'Description': 'This case is required to be Open for the Publisher comment service.'
+                }
+                case_record_type_id = self.partner.salesforce.case_record_type_id
+                # Only add the record type ID if it's configured, this is not a required field
+                if case_record_type_id:
+                    case['RecordTypeId'] = case_record_type_id
 
-            sf_case = self.client.Case.create(case)
-            course.salesforce_case_id = sf_case.get('id')
-            course.save()
-            if course.official_version and not course.official_version.salesforce_case_id:
-                official_version = course.official_version
-                official_version.salesforce_case_id = sf_case.get('id')
-                official_version.save()
+                sf_case = self.client.Case.create(case)
+                course.salesforce_case_id = sf_case.get('id')
+                course.save()
+                if course.official_version and not course.official_version.salesforce_case_id:
+                    official_version = course.official_version
+                    official_version.salesforce_case_id = sf_case.get('id')
+                    official_version.save()
 
     @salesforce_request_wrapper
     def create_comment_for_course_case(self, course, user, body, course_run_key=None):
         if not course.salesforce_case_id:
             self.create_case_for_course(course)
-        user_comment_body = self.format_user_comment_body(user, body, course_run_key=course_run_key)
-        self.client.FeedItem.create({
-            'ParentId': course.salesforce_case_id,
-            'Body': user_comment_body,
-        })
-        return self._create_comment_return_body(user, body, course_run_key)
+        if course.salesforce_case_id:
+            user_comment_body = self.format_user_comment_body(user, body, course_run_key=course_run_key)
+            self.client.FeedItem.create({
+                'ParentId': course.salesforce_case_id,
+                'Body': user_comment_body,
+            })
+            return self._create_comment_return_body(user, body, course_run_key)
+        else:
+            raise SalesforceMissingCaseException(
+                _('Unable to associate a case for comments for {}').format(course.key)
+            )
 
     @salesforce_request_wrapper
     def update_publisher_organization(self, organization):

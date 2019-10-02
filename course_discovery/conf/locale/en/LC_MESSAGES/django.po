@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-16 20:21+0000\n"
+"POT-Creation-Date: 2019-10-18 14:21+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1417,6 +1417,14 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2738
 msgid "Course UUIDs"
+msgstr ""
+
+#: apps/course_metadata/salesforce.py:66
+msgid "Attempted to query Salesforce with no client for partner={}"
+msgstr ""
+
+#: apps/course_metadata/salesforce.py:225
+msgid "Unable to associate a case for comments for {}"
 msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24
