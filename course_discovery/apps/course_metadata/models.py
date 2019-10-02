@@ -888,12 +888,12 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
                         active_draft_url_slug_object.delete()
                     return
             # case 2: new slug
-            obj, created = self.url_slug_history.update_or_create(is_active=True, defaults={
+            obj = self.url_slug_history.update_or_create(is_active=True, defaults={
                 'course': self,
                 'partner': self.partner,
                 'is_active': True,
                 'url_slug': slug,
-            })
+            })[0] # update_or_create returns an (obj, created?) tuple, so just get the object
             # this line necessary to clear the prefetch cache
             self.url_slug_history.add(obj)
         else:
