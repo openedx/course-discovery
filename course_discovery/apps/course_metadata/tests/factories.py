@@ -158,7 +158,8 @@ class CourseRunFactory(SalesforceRecordFactory):
     full_description_override = None
     language = factory.Iterator(LanguageTag.objects.all())
     start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
-    end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
+    end = FuzzyDateTime(start_dt=datetime.datetime(2008, 1, 1, tzinfo=UTC),
+                        end_dt=datetime.datetime(2022, 1, 1, tzinfo=UTC)).end_dt
     go_live_date = None
     enrollment_start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     enrollment_end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
