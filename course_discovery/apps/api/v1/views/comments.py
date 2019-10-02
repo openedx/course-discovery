@@ -67,15 +67,18 @@ class CommentViewSet(viewsets.GenericViewSet):
             raise PermissionDenied
 
         util = self._get_salesforce_util_or_404(partner)
-        comment = util.create_comment_for_course_case(
-            course,
-            request.user,
-            comment_creation_fields.get('comment'),
-            course_run_key=request.data.get('course_run_key')
-        )
 
-        send_email_for_comment(comment, course, request.user)
-        return Response(comment, status=status.HTTP_201_CREATED)
+        try:
+            comment = util.create_comment_for_course_case(
+                course,
+                request.user,
+                comment_creation_fields.get('comment'),
+                course_run_key=request.data.get('course_run_key')
+            )
+            send_email_for_comment(comment, course, request.user)
+            return Response(comment, status=status.HTTP_201_CREATED)
+        except SalesforceUtil.SalesforceMissingCaseException as ex:
+            return Response(ex.message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def _get_course_or_404(partner, course_uuid):

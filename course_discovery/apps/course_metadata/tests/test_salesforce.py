@@ -167,11 +167,18 @@ class TestSalesforce(TestCase):
             'id': 'SomeSalesforceId'
         }
 
+        # Need to modify state of the instance passed in
+        def new_create_organization(self, instance):  # pylint: disable=unused-argument
+            instance.salesforce_id = 'SomeSalesforceId'
+            instance.save()
+
         with mock.patch(self.salesforce_path) as mock_salesforce:
-            with mock.patch(create_pub_org_path) as mock_create_account:
+            with mock.patch(create_pub_org_path, new=new_create_organization):
                 mock_salesforce().Course__c.create.return_value = return_value
                 util = SalesforceUtil(self.salesforce_config.partner)
+                self.assertIsNone(organization.salesforce_id)
                 util.create_course(course)
+                organization.refresh_from_db()
                 mock_salesforce().Course__c.create.assert_called_with({
                     'Course_Name__c': course.title,
                     'Link_to_Publisher__c': '{url}/courses/{uuid}'.format(
@@ -184,7 +191,7 @@ class TestSalesforce(TestCase):
                     'Publisher_Organization__c': organization.salesforce_id,
                 })
 
-                mock_create_account.assert_called_with(organization)
+                self.assertIsNotNone(organization.salesforce_id)
                 self.assertEqual(course.salesforce_id, return_value.get('id'))
 
     def test_create_course_run_salesforce_id_set(self):
@@ -229,6 +236,7 @@ class TestSalesforce(TestCase):
         create_course_path = self.salesforce_util_path + '.create_course'
 
         course = CourseFactoryNoSignals(partner=self.salesforce_config.partner)
+
         course_run = CourseRunFactoryNoSignals(course=course)
         partner = self.salesforce_config.partner
 
@@ -236,10 +244,16 @@ class TestSalesforce(TestCase):
             'id': 'SomeSalesforceId'
         }
 
+        # Need to modify state of the instance passed in
+        def new_create_course(self, instance):  # pylint: disable=unused-argument
+            instance.salesforce_id = 'SomeSalesforceId'
+            instance.save()
+
         with mock.patch(self.salesforce_path) as mock_salesforce:
-            with mock.patch(create_course_path) as mock_create_course:
+            with mock.patch(create_course_path, new=new_create_course):
                 mock_salesforce().Course_Run__c.create.return_value = return_value
                 util = SalesforceUtil(self.salesforce_config.partner)
+                self.assertIsNone(course.salesforce_id)
                 util.create_course_run(course_run)
                 mock_salesforce().Course_Run__c.create.assert_called_with({
                     'Course__c': course_run.course.salesforce_id,
@@ -255,8 +269,7 @@ class TestSalesforce(TestCase):
                     # Expected return value from _get_equivalent_ofac_review_decision
                     'OFAC_Review_Decision__c': 'OFAC Enabled',
                 })
-
-            mock_create_course.assert_called_with(course)
+            self.assertIsNotNone(course.salesforce_id)
             self.assertEqual(course_run.salesforce_id, return_value.get('id'))
 
     def test_create_case_for_course_salesforce_case_id_set(self):
@@ -299,10 +312,16 @@ class TestSalesforce(TestCase):
             'id': 'SomeSalesforceId'
         }
 
+        # Need to modify state of the instance passed in
+        def new_create_course(self, instance):  # pylint: disable=unused-argument
+            instance.salesforce_id = 'SomeSalesforceId'
+            instance.save()
+
         with mock.patch(self.salesforce_path) as mock_salesforce:
-            with mock.patch(create_course_path) as mock_create_course:
+            with mock.patch(create_course_path, new=new_create_course):
                 mock_salesforce().Case.create.return_value = return_value
                 util = SalesforceUtil(self.salesforce_config.partner)
+                self.assertIsNone(course.salesforce_id)
                 util.create_case_for_course(course)
                 mock_salesforce().Case.create.assert_called_with({
                     'Course__c': course.salesforce_id,
@@ -312,7 +331,7 @@ class TestSalesforce(TestCase):
                     'Description': 'This case is required to be Open for the Publisher comment service.',
                     'RecordTypeId': self.salesforce_config.case_record_type_id,
                 })
-                mock_create_course.assert_called_with(course)
+                self.assertIsNotNone(course.salesforce_id)
                 self.assertEqual(course.salesforce_case_id, return_value.get('id'))
 
     def test_create_comment_for_course_case_salesforce_case_id_set(self):
@@ -341,15 +360,21 @@ class TestSalesforce(TestCase):
 
         body = 'Test body'
 
+        # Need to modify state of the instance passed in
+        def new_create_course_case(self, instance):  # pylint: disable=unused-argument
+            instance.salesforce_case_id = 'SomeSalesforceId'
+            instance.save()
+
         with mock.patch(self.salesforce_path) as mock_salesforce:
-            with mock.patch(create_case_path) as mock_create_case_for_course:
+            with mock.patch(create_case_path, new=new_create_course_case):
                 util = SalesforceUtil(self.salesforce_config.partner)
+                self.assertIsNone(course.salesforce_case_id)
                 util.create_comment_for_course_case(course, user, body)
                 mock_salesforce().FeedItem.create.assert_called_with({
                     'ParentId': course.salesforce_case_id,
                     'Body': util.format_user_comment_body(user, body, None)
                 })
-                mock_create_case_for_course.assert_called_with(course)
+                self.assertIsNotNone(course.salesforce_case_id)
 
     def test_get_comments_for_course_case_id_not_set(self):
         course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')
