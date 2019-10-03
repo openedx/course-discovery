@@ -1612,7 +1612,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
     def test_data(self):
         request = make_request()
         organization = OrganizationFactory()
-        # 'organizations' in serialzed data should not return duplicate organization names
+        # 'organizations' in serialized data should not return duplicate organization names
         # Add the same organization twice to the course and make sure only one is in the serialized data
         course = CourseFactory(
             subjects=SubjectFactory.create_batch(3),
@@ -1636,6 +1636,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             'content_type': 'course',
             'aggregation_key': 'course:{}'.format(course.key),
             'card_image_url': course.card_image_url,
+            'image_url': course.image_url,
             'course_runs': [{
                 'key': course_run.key,
                 'enrollment_start': course_run.enrollment_start,

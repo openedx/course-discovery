@@ -140,6 +140,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     uuid = indexes.CharField(model_attr='uuid')
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
+    image_url = indexes.CharField(model_attr='image_url', null=True)
     org = indexes.CharField()
 
     status = indexes.CharField(model_attr='course_runs__status')
