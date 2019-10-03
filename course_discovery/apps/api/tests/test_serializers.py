@@ -1619,7 +1619,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             authoring_organizations=[organization],
             sponsoring_organizations=[organization],
         )
-        course_run = CourseRunFactory(course=course)
+        course_run = CourseRunFactory(course=course, end=datetime.datetime.now(UTC) + datetime.timedelta(days=10))
         course.course_runs.add(course_run)
         course.save()
         seat = SeatFactory(course_run=course_run)
@@ -1634,7 +1634,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             authoring_organizations=[organization],
             sponsoring_organizations=[organization],
         )
-        course_run = CourseRunFactory(course=course, end=datetime.datetime(2016, 2, 1, tzinfo=UTC),)
+        course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
         course.save()
         seat = SeatFactory(course_run=course_run)
