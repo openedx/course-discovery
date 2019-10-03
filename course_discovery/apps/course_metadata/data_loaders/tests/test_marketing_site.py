@@ -1,7 +1,5 @@
-from contextlib import closing
 import json
 import math
-import tempfile
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID
 
@@ -10,7 +8,8 @@ import responses
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    CourseMarketingSiteDataLoader, SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
+    CourseMarketingSiteDataLoader, SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader,
+    SubjectMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
