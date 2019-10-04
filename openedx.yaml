@@ -3,7 +3,7 @@
 
 nick: ctlg
 openedx-release: {ref: master}
-owner: rock345
+owner: jmyatt
 oeps:
     oep-2: true
     oep-7: true
