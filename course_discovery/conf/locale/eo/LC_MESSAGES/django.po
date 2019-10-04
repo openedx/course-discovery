@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-03 23:48+0000\n"
+"POT-Creation-Date: 2019-10-04 17:16+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -683,6 +683,11 @@ msgstr "Püßlïshéd: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
 #, python-brace-format
 msgid "Published: {key} - {title}"
 msgstr "Püßlïshéd: {key} - {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/emails.py
+#, python-brace-format
+msgid "Comment added: {title}"
+msgstr "Çömmént äddéd: {title} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: apps/course_metadata/forms.py
 msgid "Programs can only be activated if they have a banner image."
@@ -1700,6 +1705,44 @@ msgstr "Bäçk tö Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Save Course Run"
 msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/templates/course_metadata/email/comment.html
+#: apps/publisher/templates/publisher/email/comment.html
+#, python-format
+msgid ""
+"%(user_name)s made the following comment on %(course_name)s on %(date)s at "
+"%(time)s"
+msgstr ""
+"%(user_name)s mädé thé föllöwïng çömmént ön %(course_name)s ön %(date)s ät "
+"%(time)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/templates/course_metadata/email/comment.html
+#: apps/course_metadata/templates/course_metadata/email/comment.txt
+#: apps/publisher/templates/publisher/email/comment.html
+#: apps/publisher/templates/publisher/email/comment.txt
+msgid "View comment in Publisher"
+msgstr "Vïéw çömmént ïn Püßlïshér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/templates/course_metadata/email/comment.html
+#: apps/course_metadata/templates/course_metadata/email/comment.txt
+#: apps/publisher/templates/publisher/email/comment.html
+#: apps/publisher/templates/publisher/email/comment.txt
+#: apps/publisher/templates/publisher/email/course/send_for_review.txt
+#: apps/publisher/templates/publisher/email/course_created.html
+#: apps/publisher/templates/publisher/email/course_created.txt
+#: apps/publisher/templates/publisher/email/decline_preview.html
+#: apps/publisher/templates/publisher/email/decline_preview.txt
+msgid "The edX team"
+msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/templates/course_metadata/email/comment.txt
+#, python-format
+msgid ""
+"%(user_name)s made the following comment on %(course_name)s %(date)s at "
+"%(time)s"
+msgstr ""
+"%(user_name)s mädé thé föllöwïng çömmént ön %(course_name)s %(date)s ät "
+"%(time)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt
@@ -4653,30 +4696,6 @@ msgid "No courses are currently ready for a Studio URL."
 msgstr ""
 "Nö çöürsés äré çürréntlý réädý för ä Stüdïö ÛRL. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/publisher/templates/publisher/email/comment.html
-#, python-format
-msgid ""
-"%(user_name)s made the following comment on %(course_name)s on %(date)s at "
-"%(time)s"
-msgstr ""
-"%(user_name)s mädé thé föllöwïng çömmént ön %(course_name)s ön %(date)s ät "
-"%(time)s Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/publisher/templates/publisher/email/comment.html
-#: apps/publisher/templates/publisher/email/comment.txt
-msgid "View comment in Publisher"
-msgstr "Vïéw çömmént ïn Püßlïshér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: apps/publisher/templates/publisher/email/comment.html
-#: apps/publisher/templates/publisher/email/comment.txt
-#: apps/publisher/templates/publisher/email/course/send_for_review.txt
-#: apps/publisher/templates/publisher/email/course_created.html
-#: apps/publisher/templates/publisher/email/course_created.txt
-#: apps/publisher/templates/publisher/email/decline_preview.html
-#: apps/publisher/templates/publisher/email/decline_preview.txt
-msgid "The edX team"
-msgstr "Thé édX téäm Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/templates/publisher/email/comment.txt
 #, python-format

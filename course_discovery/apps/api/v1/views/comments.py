@@ -9,6 +9,7 @@ from rest_framework.response import Response
 
 from course_discovery.apps.api.serializers import CommentSerializer
 from course_discovery.apps.core.models import SalesforceConfiguration
+from course_discovery.apps.course_metadata.emails import send_email_for_comment
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, Organization
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -73,6 +74,7 @@ class CommentViewSet(viewsets.GenericViewSet):
             course_run_key=request.data.get('course_run_key')
         )
 
+        send_email_for_comment(comment, course, request.user)
         return Response(comment, status=status.HTTP_201_CREATED)
 
     @staticmethod

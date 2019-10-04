@@ -1,3 +1,5 @@
+import datetime
+
 import factory
 import mock
 from django.db.models.signals import post_save
@@ -113,8 +115,16 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
                                'SalesforceUtil.create_comment_for_course_case')
 
         with mock.patch(salesforce_path):
-            # Just return an empty array for testing purposes, the utils are tested separately
-            with mock.patch(create_comment_path, return_value=[]) as mock_create_comment:
+            with mock.patch(create_comment_path, return_value={
+                'user': {
+                    'username': self.user.username,
+                    'email': self.user.email,
+                    'first_name': self.user.first_name,
+                    'last_name': self.user.last_name,
+                },
+                'comment': 'Comment body',
+                'created': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            }) as mock_create_comment:
                 url = reverse('api:v1:comment-list')
                 response = self.client.post(url, body, format='json')
                 mock_create_comment.assert_called_with(
