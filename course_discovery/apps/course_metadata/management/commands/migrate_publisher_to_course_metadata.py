@@ -39,7 +39,9 @@ class Command(BaseCommand):
 
             for course_run in matched_runs.order_by('modified'):
                 try:
-                    publish_to_course_metadata(partner, course_run, create_official=False)
+                    # set fail_on_url_slug to false so this doesn't fail in the case where one publisher course
+                    # corresponds to 2 course_metadata courses
+                    publish_to_course_metadata(partner, course_run, create_official=False, fail_on_url_slug=False)
                 except IntegrityError as e:
                     logger.exception(
                         _('Error publishing course run [{course_run_key}] to Course Metadata: {error}. '

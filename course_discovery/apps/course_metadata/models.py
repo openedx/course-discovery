@@ -697,7 +697,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         unique_together = (
             ('partner', 'uuid', 'draft'),
             ('partner', 'key', 'draft'),
-            ('partner', 'url_slug', 'draft'),
         )
         ordering = ['id']
 
@@ -732,6 +731,22 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             url = urljoin(self.partner.marketing_site_url_root, path)
 
         return url
+
+    @property
+    def active_url_slug(self):
+        """ Official rows just return whatever slug is active, draft rows will first look for an associated active
+         slug and, if they fail to find one, take the slug associated with the official course that has
+         is_active_on_draft: True."""
+        if not self.draft:
+            return self.url_slug_history.get(is_active=True).url_slug
+        else:
+            try:
+                return self.url_slug_history.get(is_active=True).url_slug
+            except ObjectDoesNotExist:
+                # current draft url slug has already been published at least once, so get it from the official course
+                if self.official_version:
+                    return self.official_version.url_slug_history.get(is_active_on_draft=True).url_slug
+                return None
 
     def course_run_sort(self, course_run):
         """
@@ -841,6 +856,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             if entitlement.mode.slug in Seat.ENTITLEMENT_MODES:
                 set_official_state(entitlement, CourseEntitlement, {'course': official_version})
 
+        official_version.set_active_url_slug(self.active_url_slug)
+
         if creating:
             official_version.canonical_course_run = course_run
             official_version.slug = self.slug
@@ -849,6 +866,49 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             self.save()
 
         return official_version
+
+    @transaction.atomic
+    def set_active_url_slug(self, slug):
+        if self.draft:
+            active_draft_url_slug_object = self.url_slug_history.filter(is_active=True).first()
+
+            # case 1: new slug matches an entry in the course's slug history
+            if self.official_version:
+                found = False
+                for url_entry in self.official_version.url_slug_history.filter(Q(is_active_on_draft=True) |
+                                                                               Q(url_slug=slug)):
+                    match = url_entry.url_slug == slug
+                    url_entry.is_active_on_draft = match
+                    found = found or match
+                    url_entry.save()
+                if found:
+                    # we will get the active slug via the official object, so delete the draft one
+                    if active_draft_url_slug_object:
+                        active_draft_url_slug_object.delete()
+                    return
+            # case 2: slug has not been used for this course before
+            obj = self.url_slug_history.update_or_create(is_active=True, defaults={
+                'course': self,
+                'partner': self.partner,
+                'is_active': True,
+                'url_slug': slug,
+            })[0]  # update_or_create returns an (obj, created?) tuple, so just get the object
+            # this line necessary to clear the prefetch cache
+            self.url_slug_history.add(obj)
+        else:
+            if self.draft_version:
+                self.draft_version.url_slug_history.filter(is_active=True).delete()  # pylint: disable=no-member
+            self.url_slug_history.update_or_create(url_slug=slug, defaults={
+                'url_slug': slug,
+                'is_active': True,
+                'is_active_on_draft': True,
+                'partner': self.partner,
+            })
+            for other_slug in self.url_slug_history.filter(Q(is_active=True) |
+                                                           Q(is_active_on_draft=True)).exclude(url_slug=slug):
+                other_slug.is_active = False
+                other_slug.is_active_on_draft = False
+                other_slug.save()
 
 
 class CourseEditor(TimeStampedModel):
@@ -1446,9 +1506,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             set_official_state(seat, Seat, {'course_run': official_version})
 
         official_course = self.course._update_or_create_official_version(official_version)  # pylint: disable=protected-access
-
         official_version.slug = self.slug
         official_version.course = official_course
+
         official_version.save()
 
         # Push any product (seat, entitlement) changes to ecommerce as well
@@ -2520,6 +2580,34 @@ class PersonAreaOfExpertise(AbstractValueModel):
 
     class Meta(object):
         verbose_name_plural = 'Person Areas of Expertise'
+
+
+class CourseUrlSlug(TimeStampedModel):
+    course = models.ForeignKey(Course, models.CASCADE, related_name='url_slug_history')
+    # need to have these on the model separately for unique_together to work, but it should always match course.partner
+    partner = models.ForeignKey(Partner, models.CASCADE)
+    url_slug = AutoSlugField(populate_from='course__title', editable=True, slugify_function=uslugify,
+                             overwrite_on_add=False)
+    is_active = models.BooleanField(default=False)
+
+    # useful if a course editor decides to edit a draft and provide a url_slug that has already been associated
+    # with the course
+    is_active_on_draft = models.BooleanField(default=False)
+
+    # ensure partner matches course
+    def save(self, **kwargs):
+        if self.partner != self.course.partner:
+            msg = _('Partner {partner_key} and course partner {course_partner_key} do not match when attempting'
+                    ' to save url slug {url_slug}')
+            raise ValidationError({'partner': [msg.format(partner_key=self.partner.name,  # pylint: disable=no-member
+                                                          course_partner_key=self.course.partner.name,
+                                                          url_slug=self.url_slug), ]})
+        super().save(**kwargs)
+
+    class Meta:
+        unique_together = (
+            ('partner', 'url_slug')
+        )
 
 
 class DataLoaderConfig(SingletonModel):

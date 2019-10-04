@@ -2,6 +2,7 @@ import base64
 import logging
 import re
 
+from django.core import validators
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -28,7 +29,7 @@ from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Program, Seat, SeatType, Video
+    Course, CourseEditor, CourseEntitlement, CourseRun, CourseUrlSlug, Organization, Program, Seat, SeatType, Video
 )
 from course_discovery.apps.course_metadata.utils import (
     create_missing_entitlement, ensure_draft_world, validate_course_number
@@ -171,8 +172,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             'number': request.data.get('number'),
             'org': request.data.get('org'),
             'mode': request.data.get('mode'),
-            'url_slug': request.data.get('url_slug', ''),
         }
+        url_slug = request.data.get('url_slug', '')
         missing_values = [k for k, v in course_creation_fields.items() if v is None]
         error_message = ''
         if missing_values:
@@ -198,14 +199,14 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             raise Exception(_('A course with key {key} already exists.').format(key=course_creation_fields['key']))
 
         # if a manually entered url_slug, ensure it's not already taken (auto-generated are guaranteed uniqueness)
-        if (course_creation_fields['url_slug'] and
-            Course.everything.filter(url_slug=course_creation_fields['url_slug'],
-                                     partner_id=course_creation_fields['partner']).exists()):
-            raise Exception(
-                _('Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. Please '
-                  'update this field and try again.').format(url_slug=course_creation_fields['url_slug']))
+        if url_slug:
+            validators.validate_slug(url_slug)
+            if CourseUrlSlug.objects.filter(url_slug=url_slug, partner=partner).exists():
+                raise Exception(_('Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in '
+                                  'use. Please update this field and try again.').format(url_slug=url_slug))
 
         course = serializer.save(draft=True)
+        course.set_active_url_slug(url_slug)
 
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
@@ -279,6 +280,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         entitlements_data = data.pop('entitlements', [])
         image_data = data.pop('image', None)
         video_data = data.pop('video', None)
+        url_slug = data.pop('url_slug', '')
 
         # Get and validate object serializer
         course = self.get_object()
@@ -317,17 +319,22 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # If price didnt change, check the other fields on the course
         # (besides image and video, they are popped off above)
         changed = changed or reviewable_data_has_changed(course, serializer.validated_data.items())
-        validated_data = serializer.validated_data
 
-        if (validated_data.get('url_slug') and
-            Course.everything.filter(url_slug=validated_data['url_slug'],
-                                     partner=course.partner).exclude(uuid=course.uuid).exists()):
-            raise Exception(
-                _('Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. '
-                  'Please update this field and try again.').format(url_slug=validated_data['url_slug']))
+        if url_slug:
+            validators.validate_slug(url_slug)
+            all_course_historical_slugs = CourseUrlSlug.objects.filter(url_slug=url_slug, partner=course.partner)
+            all_course_historical_slugs_excluding_present = all_course_historical_slugs.exclude(
+                course__uuid=course.uuid)
+            if all_course_historical_slugs_excluding_present.exists():
+                raise Exception(
+                    _('Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. '
+                      'Please update this field and try again.').format(url_slug=url_slug))
 
         # Then the course itself
         course = serializer.save()
+        if url_slug:
+            course.set_active_url_slug(url_slug)
+
         if not draft:
             for course_run in course.active_course_runs:
                 if course_run.status == CourseRunStatus.Published:
@@ -342,7 +349,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 course_run.official_version.status = CourseRunStatus.Unpublished
                 course_run.official_version.save()
 
-        return Response(serializer.data)
+        # hack to get the correctly-updated url slug into the response
+        return_dict = {'url_slug': course.active_url_slug}
+        return_dict.update(serializer.data)
+        return Response(return_dict)
 
     def update(self, request, *_args, **_kwargs):
         """ Update details for a course. """

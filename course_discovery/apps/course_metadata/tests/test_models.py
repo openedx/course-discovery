@@ -741,6 +741,8 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
     def test_reviewed_with_go_live_date(self, when, published, mock_email):
         draft = factories.CourseRunFactory(draft=True, go_live_date=when, announcement=None)
+        draft.course.draft = True
+        draft.course.save()
 
         # force this prop to be cached, to catch any errors if we assume .official_version is valid after creation
         self.assertIsNone(draft.official_version)
@@ -893,7 +895,6 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
     def test_official_canonical_updates_to_official(self):
         self.course_run.draft = True
         self.course_run.status = CourseRunStatus.Reviewed
-        self.course_run.course.canonical_course_run = self.course_run
         self.course_run.course.draft = True
         self.course_run.course.save()
         self.course_run.save()
@@ -921,7 +922,8 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
 
     def test_no_duplicate_official(self):
         self.course_run.course.draft = True
-        official_course = factories.CourseFactory.create()
+        self.course_run.course.save()
+        official_course = factories.CourseFactory.create(partner=self.course_run.course.partner)
         official_course.draft_version = self.course_run.course
         official_course.save()
 
@@ -2182,3 +2184,20 @@ class DegreeTests(TestCase):
         assert self.degree.banner_border_color is not None
         assert self.degree.title_background_image is not None
         assert self.degree.micromasters_background_image is not None
+
+
+class CourseUrlSlugHistoryTest(TestCase):
+
+    def test_slug_with_partner_mismatch(self):
+        slug_object = factories.CourseUrlSlugFactory()
+        mismatch_partner = factories.PartnerFactory()
+        slug_object.partner = mismatch_partner
+
+        with self.assertRaises(ValidationError) as validation_error:
+            slug_object.save()
+        self.assertEqual(
+            validation_error.exception.message_dict['partner'],
+            ['Partner {partner_key} and course partner {course_partner_key} do not match when attempting to save url '
+             'slug {url_slug}'.format(partner_key=mismatch_partner.name,
+                                      course_partner_key=slug_object.course.partner.name,
+                                      url_slug=slug_object.url_slug)])
