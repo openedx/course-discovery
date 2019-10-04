@@ -16,35 +16,22 @@ class Migration(migrations.Migration):
     ]
 
     def migrate_data_forward(apps, schema_editor):
-        updated_draft_course_pks = []
+        published_drafts = []
         Course = apps.get_model('course_metadata', 'course')
         CourseUrlSlug = apps.get_model('course_metadata', 'courseUrlSlug')
         for instance in Course.everything.all().order_by('draft'):
-            current_slug_is_active_on_draft = True
-            if instance.draft_version:
-                current_slug_is_active_on_draft = instance.url_slug == instance.draft_version.url_slug
 
-            if instance.pk not in updated_draft_course_pks:
+            if instance.pk not in published_drafts:
                 historical_slug = CourseUrlSlug.objects.create(
                     course=instance,
                     partner=instance.partner,
                     is_active=True,
-                    is_active_on_draft=current_slug_is_active_on_draft
+                    is_active_on_draft=True
                 )
-                # need to set slug after create so it's not overridden with the autoslugification
-                historical_slug.url_slug = instance.url_slug
                 historical_slug.save()
 
                 if instance.draft_version:
-                    if not current_slug_is_active_on_draft:
-                        new_draft_slug = CourseUrlSlug.objects.create(
-                            course=instance.draft_version,
-                            partner=instance.draft_version.partner,
-                            is_active=True,
-                        )
-                        new_draft_slug.url_slug = instance.draft_version.url_slug
-                        new_draft_slug.save()
-                    updated_draft_course_pks.append(instance.draft_version_id)
+                    published_drafts.append(instance.draft_version_id)
 
     def migrate_data_backwards(apps, schema_editor):
         Course = apps.get_model('course_metadata', 'course')
