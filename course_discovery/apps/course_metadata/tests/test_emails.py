@@ -333,3 +333,24 @@ class EmailTests(TestCase):
                 'The course run about page is now published.',
             ],
         )
+
+    def test_comment_email_sent(self):
+        comment = 'This is a test comment'
+        emails.send_email_for_comment({
+            'user': {
+                'username': self.editor.username,
+                'email': self.editor.email,
+                'first_name': self.editor.first_name,
+                'last_name': self.editor.last_name,
+            },
+            'comment': comment,
+            'created': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        }, self.course, self.editor)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEmailContains(
+            both_regexes=[
+                '{} made the following comment on'.format(self.editor.username),
+                comment
+            ],
+        )
