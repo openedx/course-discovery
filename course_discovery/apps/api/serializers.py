@@ -1806,7 +1806,7 @@ class CourseSearchSerializer(HaystackSerializer):
                 'estimated_hours': get_course_run_estimated_hours(course_run),
                 'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0
             }
-            for course_run in result.object.course_runs.all()
+            for course_run in result.object.course_runs.exclude(end__lte=datetime.datetime.now(pytz.UTC))
         ]
 
     def get_seat_types(self, result):

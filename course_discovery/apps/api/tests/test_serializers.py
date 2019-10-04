@@ -1619,12 +1619,52 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             authoring_organizations=[organization],
             sponsoring_organizations=[organization],
         )
-        course_run = CourseRunFactory(course=course)
+        course_run = CourseRunFactory(course=course, end=datetime.datetime.now(UTC) + datetime.timedelta(days=10))
         course.course_runs.add(course_run)
         course.save()
         seat = SeatFactory(course_run=course_run)
         serializer = self.serialize_course(course, request)
         assert serializer.data == self.get_expected_data(course, course_run, seat)
+
+    def test_exclude_expired_course_run(self):
+        request = make_request()
+        organization = OrganizationFactory()
+        course = CourseFactory(
+            subjects=SubjectFactory.create_batch(3),
+            authoring_organizations=[organization],
+            sponsoring_organizations=[organization],
+        )
+        course_run = CourseRunFactory(course=course)
+        course.course_runs.add(course_run)
+        course.save()
+        seat = SeatFactory(course_run=course_run)
+        expected = {
+            'key': course.key,
+            'title': course.title,
+            'short_description': course.short_description,
+            'full_description': course.full_description,
+            'content_type': 'course',
+            'aggregation_key': 'course:{}'.format(course.key),
+            'card_image_url': course.card_image_url,
+            'image_url': course.image_url,
+            'course_runs': [],
+            'uuid': str(course.uuid),
+            'subjects': [subject.name for subject in course.subjects.all()],
+            'languages': [
+                serialize_language(course_run.language) for course_run in course.course_runs.all()
+                if course_run.language
+            ],
+            'seat_types': [seat.type],
+            'organizations': [
+                '{key}: {name}'.format(
+                    key=course.sponsoring_organizations.first().key,
+                    name=course.sponsoring_organizations.first().name,
+                )
+            ]
+        }
+
+        serializer = self.serialize_course(course, request)
+        self.assertDictEqual(serializer.data, expected)
 
     @classmethod
     def get_expected_data(cls, course, course_run, seat):
