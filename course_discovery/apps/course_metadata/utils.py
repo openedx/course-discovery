@@ -249,7 +249,6 @@ def ensure_draft_world(obj):
         draft_course, original_course = set_draft_state(obj, Course, related_attrs={'url_slug_history': []})
         draft_course.slug = original_course.slug
 
-
         # Move editors from the original course to the draft course since we only care about CourseEditors
         # in the context of draft courses. This code is only necessary during the transition from using
         # Publisher in this repo to the Publisher Microfrontend.
