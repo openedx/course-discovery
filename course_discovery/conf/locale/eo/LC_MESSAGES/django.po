@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-08 15:29+0000\n"
+"POT-Creation-Date: 2019-10-08 18:58+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -727,6 +727,113 @@ msgstr ""
 msgid "Missing required arguments"
 msgstr "Mïssïng réqüïréd ärgüménts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "Backpopulate new-style CourseType and CourseRunType where possible."
+msgstr ""
+"Bäçkpöpüläté néw-stýlé ÇöürséTýpé änd ÇöürséRünTýpé whéré pössïßlé. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "CODE"
+msgstr "ÇÖDÉ Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Short code for a partner."
+msgstr "Shört çödé för ä pärtnér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py
+msgid "UUID"
+msgstr "ÛÛÌD Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "Course to backpopulate."
+msgstr "Çöürsé tö ßäçkpöpüläté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "KEY"
+msgstr "KÉÝ Ⱡ'σяєм#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "Organization to backpopulate."
+msgstr "Örgänïzätïön tö ßäçkpöpüläté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#: apps/course_metadata/management/commands/delete_person_dups.py
+msgid "Actually commit the changes to the database."
+msgstr ""
+"Àçtüällý çömmït thé çhängés tö thé dätäßäsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid ""
+"Use arguments from the BackpopulateCourseTypeConfig model instead of the "
+"command line."
+msgstr ""
+"Ûsé ärgüménts fröm thé BäçkpöpülätéÇöürséTýpéÇönfïg mödél ïnstéäd öf thé "
+"çömmänd lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid ""
+"Existing course type {type} for {key} ({id}) doesn't match its own "
+"entitlements."
+msgstr ""
+"Éxïstïng çöürsé týpé {type} för {key} ({id}) döésn't mätçh ïts öwn "
+"éntïtléménts. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid ""
+"Existing run type {run_type} for {key} ({id}) doesn't match course type "
+"{type}.Skipping type."
+msgstr ""
+"Éxïstïng rün týpé {run_type} för {key} ({id}) döésn't mätçh çöürsé týpé "
+"{type}.Skïppïng týpé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid ""
+"Existing run type {run_type} for {key} ({id}) doesn't match its own seats."
+msgstr ""
+"Éxïstïng rün týpé {run_type} för {key} ({id}) döésn't mätçh ïts öwn séäts. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid "Course {key} ({id}) matched type {type}"
+msgstr ""
+"Çöürsé {key} ({id}) mätçhéd týpé {type} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тє#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid "Could not convert course {key} ({id}) to type {type}"
+msgstr ""
+"Çöüld nöt çönvért çöürsé {key} ({id}) tö týpé {type} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "No courses found. Did you specify an argument?"
+msgstr ""
+"Nö çöürsés föünd. Dïd ýöü spéçïfý än ärgümént? Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid ""
+"Could not backpopulate a course type for the following courses: "
+"{course_keys}"
+msgstr ""
+"Çöüld nöt ßäçkpöpüläté ä çöürsé týpé för thé föllöwïng çöürsés: "
+"{course_keys} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
 #: apps/course_metadata/management/commands/delete_person_dups.py
 msgid "Delete duplicate persons in course_metadata."
 msgstr ""
@@ -746,16 +853,6 @@ msgstr ""
 #: apps/course_metadata/management/commands/delete_person_dups.py
 msgid "PARTNER"
 msgstr "PÀRTNÉR Ⱡ'σяєм ιρѕυм #"
-
-#: apps/course_metadata/management/commands/delete_person_dups.py
-msgid "Short code for a partner."
-msgstr "Shört çödé för ä pärtnér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: apps/course_metadata/management/commands/delete_person_dups.py
-msgid "Actually commit the changes to the database."
-msgstr ""
-"Àçtüällý çömmït thé çhängés tö thé dätäßäsé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py
 msgid ""
@@ -1057,15 +1154,6 @@ msgid ""
 msgstr ""
 "Whö géts päïd för thé çöürsé? Plätförm ïs thé sïté öwnér, Örgänïzätïön ïs "
 "thé sçhööl. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
-
-#: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py
-msgid "UUID"
-msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
 #: apps/course_metadata/models.py
 msgid "Subject model translations"

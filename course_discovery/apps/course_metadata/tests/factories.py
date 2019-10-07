@@ -94,6 +94,29 @@ class SalesforceRecordFactory(factory.DjangoModelFactory):
             raise ConnectionError(build_salesforce_exception(model_class.__name__))
 
 
+class SeatTypeFactory(factory.django.DjangoModelFactory):
+    class Meta(object):
+        model = SeatType
+
+    name = FuzzyText()
+
+
+class ModeFactory(factory.DjangoModelFactory):
+    name = FuzzyText()
+    slug = FuzzyText()
+
+    class Meta:
+        model = Mode
+
+
+class TrackFactory(factory.DjangoModelFactory):
+    mode = factory.SubFactory(ModeFactory)
+    seat_type = factory.SubFactory(SeatTypeFactory)
+
+    class Meta:
+        model = Track
+
+
 class CourseRunTypeFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     name = FuzzyText()
@@ -583,13 +606,6 @@ class PersonAreaOfExpertiseFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = PersonAreaOfExpertise
-
-
-class SeatTypeFactory(factory.django.DjangoModelFactory):
-    class Meta(object):
-        model = SeatType
-
-    name = FuzzyText()
 
 
 class SyllabusItemFactory(factory.django.DjangoModelFactory):
