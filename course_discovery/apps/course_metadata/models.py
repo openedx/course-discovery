@@ -306,7 +306,7 @@ class CourseRunType(TimeStampedModel):
 
     See docs/decisions/0009-LMS-types-in-course-metadata.rst for more information.
     """
-    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
     tracks = models.ManyToManyField(Track)
     is_marketable = models.BooleanField(default=True)
@@ -325,7 +325,7 @@ class CourseType(TimeStampedModel):
 
     Examples of names would be "Masters, Verified, and Audit" or "Verified and Audit"
     """
-    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
     entitlement_types = models.ManyToManyField(SeatType)
     course_run_types = models.ManyToManyField(CourseRunType)
@@ -2608,6 +2608,23 @@ class CourseUrlSlug(TimeStampedModel):
         unique_together = (
             ('partner', 'url_slug')
         )
+
+
+class BackpopulateCourseTypeConfig(SingletonModel):
+    """
+    Configuration for the backpopulate_course_type management command.
+    """
+    class Meta:
+        verbose_name = 'backpopulate_course_type argument'
+
+    arguments = models.TextField(
+        blank=True,
+        help_text='Useful for manually running a Jenkins job. Specify like "--org=key1 --org=key2".',
+        default='',
+    )
+
+    def __str__(self):
+        return self.arguments
 
 
 class DataLoaderConfig(SingletonModel):
