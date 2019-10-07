@@ -852,6 +852,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertFalse(self.course.draft)
         self.assertFalse(self.course.entitlements.first().draft)
         self.assertEqual(self.course.title, 'Fake Test')
+        self.assertDictEqual(response.data, self.serialize_course(course))
 
     @responses.activate
     def test_patch_resets_run_status(self):

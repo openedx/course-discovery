@@ -444,6 +444,10 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         self.assertNotEqual(draft_entitlement.course, not_draft_entitlement.course)
         self.assertEqual(draft_entitlement.course.uuid, not_draft_entitlement.course.uuid)
 
+        # check slug history not copied over
+        self.assertEqual(ensured_draft_course.url_slug_history.count(), 0)
+        self.assertEqual(not_draft_course.url_slug_history.count(), 1)
+
         # Check official and draft versions match up
         self.assertEqual(ensured_draft_course.official_version, not_draft_course)
         self.assertEqual(not_draft_course.draft_version, ensured_draft_course)

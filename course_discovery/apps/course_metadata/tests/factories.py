@@ -136,7 +136,7 @@ class CourseFactory(SalesforceRecordFactory):
     @factory.post_generation
     def url_slug_history(self, create, extracted, **kwargs):
         if create:
-            data = {'is_active': True, 'course': self, 'partner': self.partner}
+            data = {'is_active': True, 'is_active_on_draft': True, 'course': self, 'partner': self.partner}
             if extracted:
                 data.update(extracted)
             CourseUrlSlugFactory(**data)
