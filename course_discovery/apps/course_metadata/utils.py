@@ -99,7 +99,7 @@ def set_official_state(obj, model, attrs=None):
     return official_obj
 
 
-def set_draft_state(obj, model, attrs=None):
+def set_draft_state(obj, model, attrs=None, related_attrs=None):
     """
     Sets the draft state for an object by giving it a new primary key. Also sets any given
     attributes (primarily used for setting foreign keys that also point to draft rows). This will
@@ -126,6 +126,11 @@ def set_draft_state(obj, model, attrs=None):
             setattr(obj, key, value)
 
     obj.save()
+
+    # must be done after save so we have an id
+    if related_attrs:
+        for key, value in related_attrs.items():
+            getattr(obj, key).set(value)
 
     # We refresh the object's instance before we set its salesforce_id because the instance in memory is
     # out of sync with what is actually in the database.  The salesforce_id is indeed in the database at this point
@@ -241,8 +246,9 @@ def ensure_draft_world(obj):
     elif isinstance(obj, Course):
         # We need to null this out because it will fail with a OneToOne uniqueness error when saving the draft
         obj.canonical_course_run = None
-        draft_course, original_course = set_draft_state(obj, Course)
+        draft_course, original_course = set_draft_state(obj, Course, related_attrs={'url_slug_history': []})
         draft_course.slug = original_course.slug
+
 
         # Move editors from the original course to the draft course since we only care about CourseEditors
         # in the context of draft courses. This code is only necessary during the transition from using
