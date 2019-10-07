@@ -134,7 +134,7 @@ class CourseRunAdmin(admin.ModelAdmin):
     )
     ordering = ('key',)
     raw_id_fields = ('course', 'draft_version',)
-    readonly_fields = ('enrollment_count', 'recent_enrollment_count',)
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count',)
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key')
     save_error = False
 
