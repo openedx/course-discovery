@@ -1015,7 +1015,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         (False, _('Not restricted')),
     )
 
-    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    uuid = models.UUIDField(default=uuid4, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, models.CASCADE, related_name='course_runs')
     key = models.CharField(max_length=255)
     # There is a post save function in signals.py that verifies that this is unique within a program
