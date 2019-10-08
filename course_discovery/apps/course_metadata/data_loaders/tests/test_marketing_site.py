@@ -7,12 +7,10 @@ import mock
 import responses
 from django.test import TestCase
 
-from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
-)
+from course_discovery.apps.course_metadata.data_loaders.marketing_site import SubjectMarketingSiteDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import Organization, Subject
+from course_discovery.apps.course_metadata.models import Subject
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.marketing_site.logger'
 
@@ -176,83 +174,3 @@ class SubjectMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
 
         for datum in api_data:
             self.assert_subject_loaded(datum)
-
-
-class SchoolMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
-    loader_class = SchoolMarketingSiteDataLoader
-    mocked_data = mock_data.MARKETING_SITE_API_SCHOOL_BODIES
-
-    def assert_school_loaded(self, data):
-        school = Organization.objects.get(uuid=UUID(data['uuid']), partner=self.partner)
-        expected_values = {
-            'key': data['title'],
-            'name': data['field_school_name'],
-            'description': self.loader.clean_html(data['field_school_description']['value']),
-            'logo_image_url': data['field_school_image_logo']['url'],
-            'banner_image_url': data['field_school_image_banner']['url'],
-            'marketing_url_path': 'school/' + data['field_school_url_slug'],
-        }
-
-        for field, value in expected_values.items():
-            self.assertEqual(getattr(school, field), value)
-
-        self.assertEqual(sorted(school.tags.names()), ['charter', 'displayed_on_schools_and_partners_page', 'founder'])
-
-    @responses.activate
-    def test_ingest(self):
-        self.mock_login_response()
-        schools = self.mock_api()
-
-        self.loader.ingest()
-
-        for school in schools:
-            self.assert_school_loaded(school)
-
-        # If the key of an organization changes, the data loader should continue updating the
-        # organization by matching on the UUID.
-        school = Organization.objects.get(key='MITx', partner=self.partner)
-        # NOTE (CCB): As an MIT alum, this makes me feel dirty. IHTFT(est)!
-        modified_key = 'MassTechX'
-        school.key = modified_key
-        school.save()
-
-        count = Organization.objects.count()
-        self.loader.ingest()
-        school.refresh_from_db()
-
-        assert Organization.objects.count() == count
-        assert school.key == modified_key
-
-
-class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
-    loader_class = SponsorMarketingSiteDataLoader
-    mocked_data = mock_data.MARKETING_SITE_API_SPONSOR_BODIES
-
-    def assert_sponsor_loaded(self, data):
-        uuid = data['uuid']
-        school = Organization.objects.get(uuid=uuid, partner=self.partner)
-
-        body = (data['body'] or {}).get('value')
-
-        if body:
-            body = self.loader.clean_html(body)
-
-        expected_values = {
-            'key': data['url'].split('/')[-1],
-            'name': data['title'],
-            'description': body,
-            'logo_image_url': data['field_sponsorer_image']['url'],
-        }
-
-        for field, value in expected_values.items():
-            self.assertEqual(getattr(school, field), value)
-
-    @responses.activate
-    def test_ingest(self):
-        self.mock_login_response()
-        sponsors = self.mock_api()
-
-        self.loader.ingest()
-
-        for sponsor in sponsors:
-            self.assert_sponsor_loaded(sponsor)
