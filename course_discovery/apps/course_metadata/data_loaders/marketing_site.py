@@ -2,11 +2,12 @@ import abc
 import concurrent.futures
 import logging
 from urllib.parse import parse_qs, urlencode, urlparse
+from uuid import UUID
 
 from django.utils.functional import cached_property
 
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
-from course_discovery.apps.course_metadata.models import Subject
+from course_discovery.apps.course_metadata.models import Organization, Subject
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 
 logger = logging.getLogger(__name__)
@@ -158,3 +159,81 @@ class SubjectMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         logger.info('Processed subject with slug [%s].', slug)
         return subject
+
+
+class SchoolMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    @property
+    def node_type(self):
+        return 'school'
+
+    def process_node(self, data):
+        # NOTE: Some titles in Drupal have the form "UC BerkeleyX" however, course keys (for which we use the
+        # organization key) cannot contain spaces.
+        key = data['title'].replace(' ', '')
+        uuid = UUID(data['uuid'])
+
+        defaults = {
+            'name': data['field_school_name'],
+            'description': self.clean_html(data['field_school_description']['value']),
+            'logo_image_url': self._get_nested_url(data.get('field_school_image_logo')),
+            'banner_image_url': self._get_nested_url(data.get('field_school_image_banner')),
+            'partner': self.partner,
+        }
+
+        try:
+            school = Organization.objects.get(uuid=uuid, partner=self.partner)
+            Organization.objects.filter(pk=school.pk).update(**defaults)
+            logger.info('Updated school with key [%s].', school.key)
+        except Organization.DoesNotExist:
+            # NOTE: Some organizations' keys do not match the title. For example, "UC BerkeleyX" courses use
+            # BerkeleyX as the key. Those fixes will be made manually after initial import, and we don't want to
+            # override them with subsequent imports. Thus, we only set the key when creating a new organization.
+            defaults['key'] = key
+            defaults['uuid'] = uuid
+            school = Organization.objects.create(**defaults)
+            logger.info('Created school with key [%s].', school.key)
+
+        self.set_tags(school, data)
+
+        logger.info('Processed school with key [%s].', school.key)
+        return school
+
+    def set_tags(self, school, data):
+        tags = []
+        mapping = {
+            'field_school_is_founder': 'founder',
+            'field_school_is_charter': 'charter',
+            'field_school_is_contributor': 'contributor',
+            'field_school_is_partner': 'partner',
+            'field_school_is_display': 'displayed_on_schools_and_partners_page',
+        }
+
+        for field, tag in mapping.items():
+            if data.get(field, False):
+                tags.append(tag)
+
+        school.tags.set(*tags, clear=True)
+
+
+class SponsorMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    @property
+    def node_type(self):
+        return 'sponsorer'
+
+    def process_node(self, data):
+        uuid = data['uuid']
+        body = (data['body'] or {}).get('value')
+
+        if body:
+            body = self.clean_html(body)
+
+        defaults = {
+            'key': data['url'].split('/')[-1],
+            'name': data['title'],
+            'description': body,
+            'logo_image_url': data['field_sponsorer_image']['url'],
+        }
+        sponsor, __ = Organization.objects.update_or_create(uuid=uuid, partner=self.partner, defaults=defaults)
+
+        logger.info('Processed sponsor with UUID [%s].', uuid)
+        return sponsor
