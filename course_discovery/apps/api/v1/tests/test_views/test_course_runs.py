@@ -17,10 +17,10 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OA
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRun, Seat
+from course_discovery.apps.course_metadata.models import CourseRun, Seat, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, ProgramFactory,
-    SeatFactory
+    CourseEditorFactory, CourseFactory, CourseRunFactory, CourseRunTypeFactory, CourseTypeFactory, OrganizationFactory,
+    PersonFactory, ProgramFactory, SeatFactory, TrackFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -37,7 +37,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.draft_course = CourseFactory(partner=self.partner, draft=True)
         self.draft_course_run = CourseRunFactory(course=self.draft_course, draft=True)
         self.draft_course_run.course.authoring_organizations.add(OrganizationFactory(key='course-id'))
-        self.draft_seat = SeatFactory(course_run=self.draft_course_run)
+        self.course_run_type = CourseRunTypeFactory(tracks=[TrackFactory()])
         self.refresh_index()
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
@@ -128,6 +128,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert response.data == \
             self.serialize_course_run(self.course_run, extra_context={'include_unpublished_programs': True})
 
+    # DISCO-1399: Just swap this test out for test_create_minimum_using_type
     @responses.activate
     def test_create_minimum(self):
         """ Verify the endpoint supports creating a course_run with the least info. """
@@ -158,6 +159,40 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         new_seat = Seat.everything.get(course_run=new_course_run)
         self.assertEqual(new_seat.type, 'audit')
+        self.assertEqual(new_seat.price, 0.00)
+        self.assertTrue(new_seat.draft)
+
+    @responses.activate
+    def test_create_minimum_using_type(self):
+        """ Verify the endpoint supports creating a course_run with the least info. """
+        course = self.draft_course_run.course
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
+        self.mock_post_to_studio(new_key)
+        url = reverse('api:v1:course_run-list')
+
+        # Send nothing - expect complaints
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertDictEqual(response.data, {
+            'course': ['This field is required.'],
+        })
+
+        # Send minimum requested
+        response = self.client.post(url, {
+            'course': course.key,
+            'start': '2000-01-01T00:00:00Z',
+            'end': '2001-01-01T00:00:00Z',
+            'run_type': str(self.course_run_type.uuid),
+        }, format='json')
+        self.assertEqual(response.status_code, 201)
+        new_course_run = CourseRun.everything.get(key=new_key)
+        self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
+        self.assertEqual(new_course_run.pacing_type, 'instructor_paced')  # default we provide
+        self.assertEqual(str(new_course_run.end), '2001-01-01 00:00:00+00:00')  # spot check that input made it
+        self.assertTrue(new_course_run.draft)
+
+        new_seat = Seat.everything.get(course_run=new_course_run)
+        self.assertEqual(new_seat.type, self.course_run_type.tracks.first().seat_type.slug)
         self.assertEqual(new_seat.price, 0.00)
         self.assertTrue(new_seat.draft)
 
@@ -279,6 +314,58 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         new_course_run = CourseRun.everything.get(key=new_key)
         self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
         self.assertTrue(new_course_run.draft)
+
+    @responses.activate
+    def test_create_using_type_with_price(self):
+        """ Verify the endpoint supports creating a course_run and sets the seats price to the given price """
+        course = self.draft_course_run.course
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
+        self.mock_post_to_studio(new_key)
+        url = reverse('api:v1:course_run-list')
+
+        response = self.client.post(url, {
+            'course': course.key,
+            'start': '2000-01-01T00:00:00Z',
+            'end': '2001-01-01T00:00:00Z',
+            'run_type': str(self.course_run_type.uuid),
+            'price': 77.32,
+        }, format='json')
+
+        self.assertEqual(response.status_code, 201)
+        new_course_run = CourseRun.everything.get(key=new_key)
+        self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
+        self.assertTrue(new_course_run.draft)
+
+        new_seat = Seat.everything.get(course_run=new_course_run)
+        self.assertEqual(new_seat.type, self.course_run_type.tracks.first().seat_type.slug)
+        self.assertEqual(float(new_seat.price), 77.32)
+        self.assertTrue(new_seat.draft)
+
+    @responses.activate
+    def test_create_using_type_with_no_track_seat_types(self):
+        """
+        Verify the endpoint supports creating a course_run with no seats
+        There will be no seats if the run_type has only Tracks with no seat types defined
+        """
+        course = self.draft_course_run.course
+        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
+        self.mock_post_to_studio(new_key)
+        url = reverse('api:v1:course_run-list')
+        run_type = CourseRunTypeFactory(tracks=[TrackFactory(seat_type=None)])
+
+        response = self.client.post(url, {
+            'course': course.key,
+            'start': '2000-01-01T00:00:00Z',
+            'end': '2001-01-01T00:00:00Z',
+            'run_type': str(run_type.uuid),
+        }, format='json')
+
+        self.assertEqual(response.status_code, 201)
+        new_course_run = CourseRun.everything.get(key=new_key)
+        self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
+        self.assertTrue(new_course_run.draft)
+
+        self.assertEqual(Seat.everything.filter(course_run=new_course_run).count(), 0)
 
     @responses.activate
     def test_create_with_key(self):
@@ -758,6 +845,151 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert draft_run.end == updated_end
         assert official_run.end == updated_end
 
+    def create_course_and_run_types(self, seat_type):
+        tracks = []
+        entitlement_types = []
+        if seat_type:
+            entitlement_types.append(SeatType.objects.get(slug=seat_type))
+            tracks.append(TrackFactory(seat_type=entitlement_types[0]))
+        if seat_type == Seat.VERIFIED or not seat_type:
+            audit_type_obj = SeatType.objects.get(slug=Seat.AUDIT)
+            tracks.append(TrackFactory(seat_type=audit_type_obj))
+
+        run_type = CourseRunTypeFactory(tracks=tracks)
+        course_type = CourseTypeFactory(
+            entitlement_types=entitlement_types,
+            course_run_types=[run_type],
+        )
+        return course_type, run_type
+
+    @ddt.data(
+        ('audit', 'audit', 0.00),
+        ('audit', 'verified', 77),
+        ('audit', 'professional', 132),
+        ('verified', 'audit', 0.00),
+        ('verified', 'verified', 77),
+        ('verified', 'professional', 132),
+        ('professional', 'audit', 0.00),
+        ('professional', 'verified', 77),
+        ('professional', 'professional', 132),
+    )
+    @ddt.unpack
+    @responses.activate
+    def test_patch_updating_seats_using_type(self, original_seat_type, seat_type, price):
+        """
+        Verify that draft seats are updated when the type being passed in changes.
+        """
+        # First create a course and course run using the original seat type to inform the
+        # CourseType and CourseRunType
+        original_course_type, original_run_type = self.create_course_and_run_types(original_seat_type)
+        creation_data = {
+            'title': 'Course title',
+            'number': 'test101',
+            'org': OrganizationFactory(key='test-key').key,
+            'type': str(original_course_type.uuid),
+            'price': 49,
+            'course_run': {
+                'start': '2001-01-01T00:00:00Z',
+                'end': datetime.datetime.now() + datetime.timedelta(days=1),
+                'run_type': str(original_run_type.uuid),
+            }
+        }
+
+        run_key = 'course-v1:{org}+{number}+1T2001'.format(org=creation_data['org'], number=creation_data['number'])
+        self.mock_access_token()
+        self.mock_post_to_studio(run_key)
+
+        url = reverse('api:v1:course-list')
+        response = self.client.post(url, creation_data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        self.mock_patch_to_studio(run_key)
+        url = reverse('api:v1:course_run-detail', kwargs={'key': run_key})
+
+        __, updated_run_type = self.create_course_and_run_types(seat_type)
+        data = {
+            'run_type': str(updated_run_type.uuid),
+            'price': price,
+        }
+
+        # Update this course_run with the new info
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        draft_course_run = CourseRun.everything.last()
+        num_seats = Seat.everything.count()  # pylint: disable=no-member
+        if seat_type == 'verified':
+            self.assertEqual(num_seats, 2)
+            audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')  # pylint: disable=no-member
+            self.assertEqual(audit_seat.price, 0.00)
+            self.assertTrue(audit_seat.draft)
+        else:
+            self.assertEqual(num_seats, 1)
+        seat = Seat.everything.get(course_run=draft_course_run, type=seat_type)  # pylint: disable=no-member
+        self.assertEqual(seat.price, price)
+        # This is probably not a great way of verifying this with the last, it just so happens
+        # that if there are two tracks (verified and audit), the verified track is last
+        self.assertEqual(seat.type, updated_run_type.tracks.last().seat_type.slug)  # pylint: disable=no-member
+        self.assertTrue(seat.draft)
+
+    @responses.activate
+    def test_patch_updating_seats_only_affects_active_course_runs_using_type(self):
+        """
+        Verify that draft seats are updated when the type being passed in changes.
+        """
+        # First create a course and course run using the original seat type to inform the
+        # CourseType and CourseRunType
+        course_type, run_type = self.create_course_and_run_types(Seat.VERIFIED)
+        creation_data = {
+            'title': 'Course title',
+            'number': 'test101',
+            'org': OrganizationFactory(key='test-key').key,
+            'type': str(course_type.uuid),
+            'price': 49,
+            'course_run': {
+                'start': '2001-01-01T00:00:00Z',
+                'end': datetime.datetime.now() + datetime.timedelta(days=-1),
+                'run_type': str(run_type.uuid),
+                'min_effort': 1,
+            }
+        }
+
+        run_key = 'course-v1:{org}+{number}+1T2001'.format(org=creation_data['org'], number=creation_data['number'])
+        self.mock_access_token()
+        self.mock_post_to_studio(run_key)
+
+        url = reverse('api:v1:course-list')
+        response = self.client.post(url, creation_data, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        draft_course_run = CourseRun.everything.last()
+        self.assertEqual(draft_course_run.min_effort, 1)
+        seat = Seat.everything.get(course_run=draft_course_run, type=Seat.VERIFIED)  # pylint: disable=no-member
+        self.assertEqual(seat.price, 49)
+
+        self.mock_patch_to_studio(run_key)
+        url = reverse('api:v1:course_run-detail', kwargs={'key': run_key})
+
+        # We are changing the min_effort on the archived run which is going to send the run_type
+        # and an updated price along with it. The updated price should not go to this course run since it
+        # is not active.
+        data = {
+            'min_effort': 5,
+            'run_type': str(run_type.uuid),
+            'price': 77,
+        }
+
+        # Update this course_run with the new info
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        draft_course_run.refresh_from_db()
+        seat.refresh_from_db()
+        # Min effort was still updated
+        self.assertEqual(draft_course_run.min_effort, 5)
+        # Price did not update to 49
+        self.assertEqual(seat.price, 49)
+
     def test_list(self):
         """ Verify the endpoint returns a list of all course runs. """
         url = reverse('api:v1:course_run-list')
@@ -791,7 +1023,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         query = 'title:Some random title'
         url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
 
-        with self.assertNumQueries(50, threshold=0):
+        with self.assertNumQueries(50, threshold=2):
             response = self.client.get(url)
 
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])

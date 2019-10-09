@@ -251,7 +251,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # Note: We have to send the request object as well because it is used for its metadata
         # (like request.user and is set as part of the serializer context)
         if course_run_creation_fields:
-            course_run_creation_fields.update({'course': course.key})
+            course_run_creation_fields.update({'course': course.key, 'price': price})
             run_response = CourseRunViewSet().create_run_helper(course_run_creation_fields, request)
             if run_response.status_code != 201:
                 raise Exception(str(run_response.data))
@@ -318,10 +318,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         entitlements = []
         # New flow for courses using CourseType model
         # DISCO-1399: I think pretty much the whole 'else' can be removed.
+        price = data.get('price', 0.00)
         if data.get('type'):
             course_type = CourseType.objects.get(uuid=data.get('type'))
             entitlement_types = course_type.entitlement_types.all()
-            price = data.get('price', 0.00)
             for entitlement_type in entitlement_types:
                 data = {'mode': entitlement_type.slug, 'price': price}
                 entitlements.append(self.update_entitlement(course, data, entitlement_type, partial=partial))
@@ -337,9 +337,12 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 )
         if entitlements:
             course.entitlements.set(entitlements)
-            # If entitlements were updated, we also want to update seats
-            for course_run in course.active_course_runs:
-                course_run.update_or_create_seats()
+            # DISCO-1399: This whole if can be removed. Updating or creating seats
+            # is being moved to the course run endpoint.
+            if not course.type:
+                # If entitlements were updated, we also want to update seats
+                for course_run in course.active_course_runs:
+                    course_run.update_or_create_seats(course_run.type, price)
 
         # Save video if a new video source is provided
         if (video_data and video_data.get('src') and
