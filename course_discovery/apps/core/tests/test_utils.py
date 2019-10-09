@@ -51,6 +51,14 @@ class ModelUtilTests(TestCase):
         self.assertTrue(used.__class__.objects.filter(pk=used.pk).exists())
         self.assertFalse(orphan.__class__.objects.filter(pk=orphan.pk).exists())
 
+    def test_delete_orphans_with_exclusions(self):
+        """Verify an orphan is not deleted if it is passed in as excluded"""
+        orphan = VideoFactory()
+
+        delete_orphans(Video, {orphan.pk})
+
+        self.assertTrue(orphan.__class__.objects.filter(pk=orphan.pk).exists())
+
 
 class SearchQuerySetWrapperTests(TestCase):
     def setUp(self):
