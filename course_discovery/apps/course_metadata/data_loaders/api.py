@@ -64,12 +64,12 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
             'certificate_logo_image_url': logo,
         }
 
-        for attr in ('name', 'description', 'logo'):
-            if body.get(attr):
-                if attr == 'logo':
-                    defaults['logo_image_url'] = logo
-                else:
-                    defaults[attr] = body[attr]
+        if not self.partner.has_marketing_site:
+            defaults.update({
+                'name': body['name'],
+                'description': body['description'],
+                'logo_image_url': logo,
+            })
 
         org, _ = Organization.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
 
