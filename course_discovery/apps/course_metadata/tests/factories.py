@@ -95,10 +95,10 @@ class SalesforceRecordFactory(factory.DjangoModelFactory):
 
 
 class SeatTypeFactory(factory.django.DjangoModelFactory):
+    name = FuzzyText()
+
     class Meta(object):
         model = SeatType
-
-    name = FuzzyText()
 
 
 class ModeFactory(factory.DjangoModelFactory):
@@ -282,6 +282,17 @@ class SeatFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = Seat
+
+
+class CourseEntitlementFactory(factory.DjangoModelFactory):
+    mode = factory.SubFactory(SeatTypeFactory)
+    price = FuzzyDecimal(0.0, 650.0)
+    currency = factory.Iterator(Currency.objects.all())
+    sku = FuzzyText(length=8)
+    course = factory.SubFactory(CourseFactory)
+
+    class Meta:
+        model = CourseEntitlement
 
 
 class OrganizationFactory(SalesforceRecordFactory):
@@ -611,17 +622,6 @@ class PersonAreaOfExpertiseFactory(factory.DjangoModelFactory):
 class SyllabusItemFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = SyllabusItem
-
-
-class CourseEntitlementFactory(factory.DjangoModelFactory):
-    mode = factory.SubFactory(SeatTypeFactory)
-    price = FuzzyDecimal(0.0, 650.0)
-    currency = factory.Iterator(Currency.objects.all())
-    sku = FuzzyText(length=8)
-    course = factory.SubFactory(CourseFactory)
-
-    class Meta:
-        model = CourseEntitlement
 
 
 class DrupalPublishUuidConfigFactory(factory.DjangoModelFactory):

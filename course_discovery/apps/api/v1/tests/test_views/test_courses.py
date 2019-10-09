@@ -516,6 +516,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def create_course_and_course_run(self, data=None, update=True):
         if update:
             course_data = {
+                'title': 'Course title',
                 'number': 'test101',
                 'org': self.org.key,
                 'course_run': {
@@ -1270,7 +1271,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         official_audit_seat = Seat.everything.get(course_run=official_course_run, type='audit')  # pylint: disable=no-member
         self.assertEqual(official_audit_seat.price, 0.00)
 
-    # DISCO-1399: Update to use type
+    # DISCO-1399: Remove in place of test_patch_updating_seats_using_type in test_course_runs.py
     @ddt.data(
         ('audit', 'audit', 0.00),
         ('audit', 'verified', 77),

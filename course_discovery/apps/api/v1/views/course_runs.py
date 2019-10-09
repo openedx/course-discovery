@@ -203,6 +203,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # Guard against externally setting the draft state
         run_data.pop('draft', None)
 
+        price = run_data.pop('price', 0.00)
+
         # Grab any existing course run for this course (we'll use it when talking to studio to form basis of rerun)
         course_key = run_data.get('course', None)  # required field
         if not course_key:
@@ -220,7 +222,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # Save run to database
         course_run = serializer.save(draft=True)
 
-        course_run.update_or_create_seats()
+        course_run.update_or_create_seats(course_run.type, price)
 
         # Set canonical course run if needed (done this way to match historical behavior - but shouldn't this be
         # updated *each* time we make a new run?)
@@ -259,7 +261,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         return response
 
     @writable_request_wrapper
-    def _update_course_run(self, course_run, draft, changed, serializer, request, save_kwargs):
+    def _update_course_run(self, course_run, draft, changed, serializer, request, price):
+        save_kwargs = {}
         # If changes are made after review and before publish, revert status to unpublished.
         # Unless we're just switching the status
         non_exempt_update = changed and course_run.status == CourseRunStatus.Reviewed
@@ -275,6 +278,9 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             save_kwargs['status'] = CourseRunStatus.LegalReview
 
         course_run = serializer.save(**save_kwargs)
+
+        if course_run.type and course_run in course_run.course.active_course_runs:
+            course_run.update_or_create_seats(course_run.type, price)
 
         self.push_to_studio(request, course_run, create=False)
 
@@ -303,6 +309,9 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         partial = kwargs.pop('partial', False)
         # Sending draft=False triggers the review process for unpublished courses
         draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
+        # DISCO-1399: Price shows up if we are in the new type model.
+        price = request.data.pop('price', 0.00)
+
         serializer = self.get_serializer(course_run, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
@@ -330,8 +339,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         changed = reviewable_data_has_changed(
             course_run, serializer.validated_data.items(), CourseRun.STATUS_CHANGE_EXEMPT_FIELDS)
-        save_kwargs = {}
-        response = self._update_course_run(course_run, draft, changed, serializer, request, save_kwargs)
+        response = self._update_course_run(course_run, draft, changed, serializer, request, price)
 
         self.update_course_run_image_in_studio(course_run)
 
