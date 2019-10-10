@@ -6,7 +6,7 @@ from testfixtures import LogCapture, StringComparison
 
 from course_discovery.apps.course_metadata.management.commands.backpopulate_course_type import logger
 from course_discovery.apps.course_metadata.models import (
-    BackpopulateCourseTypeConfig, Course, CourseRunType, CourseType, Seat, SeatType
+    BackpopulateCourseTypeConfig, Course, CourseRunType, CourseType, Mode, Seat, SeatType, Track
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -23,16 +23,14 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         # Fill out a bunch of types and modes. Exact mode parameters don't matter, just the resulting seat types.
         self.audit_seat_type = SeatType.objects.get(slug=Seat.AUDIT)
         self.verified_seat_type = SeatType.objects.get(slug=Seat.VERIFIED)
-        self.audit_mode = factories.ModeFactory(name='Audit')
-        self.verified_mode = factories.ModeFactory(name='Verified')
-        self.audit_track = factories.TrackFactory(seat_type=self.audit_seat_type, mode=self.audit_mode)
-        self.verified_track = factories.TrackFactory(seat_type=self.verified_seat_type, mode=self.verified_mode)
-        self.audit_run_type = factories.CourseRunTypeFactory(name='Audit Only', tracks=[self.audit_track])
-        self.va_run_type = factories.CourseRunTypeFactory(name='Verified & Audit',
-                                                          tracks=[self.audit_track, self.verified_track])
-        self.va_course_type = factories.CourseTypeFactory(name='Verified & Audit',
-                                                          entitlement_types=[self.verified_seat_type],
-                                                          course_run_types=[self.audit_run_type, self.va_run_type])
+        self.audit_mode = Mode.objects.get(slug=Seat.AUDIT)
+        self.verified_mode = Mode.objects.get(slug=Seat.VERIFIED)
+        self.audit_track = Track.objects.get(seat_type=self.audit_seat_type, mode=self.audit_mode)
+        self.verified_track = Track.objects.get(seat_type=self.verified_seat_type, mode=self.verified_mode)
+        self.audit_run_type = CourseRunType.objects.get(slug=CourseRunType.AUDIT)
+        self.va_run_type = CourseRunType.objects.get(slug=CourseRunType.VERIFIED_AUDIT)
+        self.va_course_type = CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT)
+        self.audit_course_type = CourseType.objects.get(slug=CourseType.AUDIT)
 
         # Now create some courses and orgs that will be found to match the above, in the simple happy path case.
         self.org = factories.OrganizationFactory(partner=self.partner, key='Org1')
@@ -140,7 +138,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.assertIsNotNone(self.course.type)
 
     def test_normal_run(self):
-        self.run_command(log='Course .* matched type Verified & Audit')
+        self.run_command(log='Course .* matched type Verified and Audit')
         self.assertEqual(self.course.type, self.va_course_type)
         self.assertEqual(self.audit_run.type, self.audit_run_type)
         self.assertEqual(self.verified_run.type, self.va_run_type)
@@ -193,10 +191,13 @@ class BackpopulateCourseTypeCommandTests(TestCase):
                          {self.audit_run_type.id, self.va_run_type.id})
 
     def test_matches_earliest_course_type(self):
+        # This messes up this test due to Verified and Audit being a subset of Credit
+        # and Credit being created prior to 'Second'
+        CourseType.objects.get(slug=CourseType.CREDIT_VERIFIED_AUDIT).delete()
         second_type = factories.CourseTypeFactory(
             name='Second',
-            entitlement_types=self.va_course_type.entitlement_types.all(),  # pylint: disable=no-member
-            course_run_types=self.va_course_type.course_run_types.all(),  # pylint: disable=no-member
+            entitlement_types=self.va_course_type.entitlement_types.all(),
+            course_run_types=self.va_course_type.course_run_types.all(),
         )
 
         self.run_command()
@@ -223,24 +224,27 @@ class BackpopulateCourseTypeCommandTests(TestCase):
     def test_by_org(self):
         self.run_command(orgs=[self.org2])
         self.assertIsNone(self.course.type)
-        self.assertEqual(self.course2.type, self.va_course_type)
+        self.assertEqual(self.course2.type, self.audit_course_type)
 
     def test_by_multiple_orgs(self):
         self.run_command(orgs=[self.org, self.org3])
         self.assertEqual(self.course.type, self.va_course_type)
-        self.assertEqual(self.course2.type, self.va_course_type)
+        self.assertEqual(self.course2.type, self.audit_course_type)
 
     def test_by_multiple_courses(self):
         self.run_command(courses=[self.course, self.course2])
         self.assertEqual(self.course.type, self.va_course_type)
-        self.assertEqual(self.course2.type, self.va_course_type)
+        self.assertEqual(self.course2.type, self.audit_course_type)
 
     def test_by_course_and_org(self):
         self.run_command(courses=[self.course], orgs=[self.org2])
         self.assertEqual(self.course.type, self.va_course_type)
-        self.assertEqual(self.course2.type, self.va_course_type)
+        self.assertEqual(self.course2.type, self.audit_course_type)
 
     def test_draft_audit_entitlement(self):
+        # We are removing the Audit Course Type to test this working with a CourseType that has
+        # no entitlement types (simulated below)
+        CourseType.objects.get(slug=CourseType.AUDIT).delete()
         draft_course = ensure_draft_world(Course.objects.get(pk=self.course2.pk))
         self.course2.refresh_from_db()
         self.assertEqual(draft_course.entitlements.first().mode.slug, Seat.AUDIT)  # made a draft audit entitlement
