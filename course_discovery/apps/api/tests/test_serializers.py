@@ -58,9 +58,9 @@ def json_date_format(datetime_obj):
     return datetime_obj and datetime.datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
 
 
-def make_request():
+def make_request(query_param=None):
     user = UserFactory()
-    request = APIRequestFactory().get('/')
+    request = APIRequestFactory().get('/', query_param)
     request.user = user
     return request
 
@@ -1638,15 +1638,15 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             authoring_organizations=[organization],
             sponsoring_organizations=[organization],
         )
-        course_run = CourseRunFactory(course=course, end=datetime.datetime.now(UTC) + datetime.timedelta(days=10))
+        course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
         course.save()
         seat = SeatFactory(course_run=course_run)
         serializer = self.serialize_course(course, request)
         assert serializer.data == self.get_expected_data(course, course_run, seat)
 
-    def test_expired_and_current_course_run(self):
-        request = make_request()
+    def test_exclude_expired_and_keep_current_course_run(self):
+        request = make_request({'exclude_expire_course_run': True})
         organization = OrganizationFactory()
         course = CourseFactory(
             subjects=SubjectFactory.create_batch(3),
@@ -1662,7 +1662,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
         assert serializer.data["course_runs"] == self.get_expected_data(course, course_run, seat)["course_runs"]
 
     def test_exclude_expired_course_run(self):
-        request = make_request()
+        request = make_request({'exclude_expire_course_run': True})
         organization = OrganizationFactory()
         course = CourseFactory(
             subjects=SubjectFactory.create_batch(3),
