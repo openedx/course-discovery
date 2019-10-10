@@ -98,7 +98,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
 
         with self.assertRaises(CommandError) as cm:
             self.call_command(course_arg)  # no partner
-        self.assertEqual(cm.exception.args[0], 'Error: the following arguments are required: --partner')
+        self.assertEqual(cm.exception.args[0], 'You must specify --partner')
 
         with self.assertRaises(CommandError) as cm:
             self.call_command('--partner=NotAPartner', course_arg)
@@ -113,7 +113,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
 
         # First ensure we do correctly grab arguments from the db
         with mock.patch(module + '.Command.backpopulate') as cm:
-            self.call_command('--args-from-database', '--partner=b', '--course=f')
+            self.call_command('--args-from-database', '--course=f')
         self.assertEqual(cm.call_count, 1)
         args = cm.call_args[0][0]
         self.assertEqual(args['partner'], 'a')

@@ -35,7 +35,6 @@ class Command(BaseCommand):
             '--partner',
             metavar=_('CODE'),
             help=_('Short code for a partner.'),
-            required=True,
         )
         parser.add_argument(
             '--course',
@@ -160,6 +159,12 @@ class Command(BaseCommand):
         return False
 
     def backpopulate(self, options):
+        # Manually check required partner field (doesn't use required=True, because that would require --partner
+        # even when using --args-from-database)
+        if options['partner'] is None:
+            self.print_help('manage.py', 'backpopulate_course_type')
+            raise CommandError(_('You must specify --partner'))
+
         # We look at both draft and official rows
         courses = Course.everything.filter(partner__short_code=options['partner']).filter(
             Q(uuid__in=options['course']) |
