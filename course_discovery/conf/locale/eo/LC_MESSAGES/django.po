@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-08 18:58+0000\n"
+"POT-Creation-Date: 2019-10-10 18:11+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -818,6 +818,10 @@ msgid "Could not convert course {key} ({id}) to type {type}"
 msgstr ""
 "Çöüld nöt çönvért çöürsé {key} ({id}) tö týpé {type} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid "You must specify --partner"
+msgstr "Ýöü müst spéçïfý --pärtnér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py
 msgid "No courses found. Did you specify an argument?"
