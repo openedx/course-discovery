@@ -12,7 +12,6 @@ from django.core.management import CommandError
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import Currency
-from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
@@ -25,7 +24,8 @@ logger = logging.getLogger(__name__)
 
 class OrganizationsApiDataLoader(AbstractDataLoader):
     """ Loads organizations from the Organizations API. """
-    loaded_org_pks = set()
+    # TODO add this back in when loading from drupal is completely removed
+    # loaded_org_pks = set()
 
     def ingest(self):
         api_url = self.partner.organizations_api_url
@@ -50,7 +50,8 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
 
         logger.info('Retrieved %d organizations from %s.', count, api_url)
 
-        delete_orphans(Organization, exclude=self.loaded_org_pks)
+        # TODO add this back in when loading from drupal is completely removed
+        # delete_orphans(Organization, exclude=self.loaded_org_pks)
 
         logger.info('Removed orphan Organizations excluding those which were loaded via OrganizationsApiDataLoader')
 
@@ -71,10 +72,11 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
                 'logo_image_url': logo,
             })
 
-        org, _ = Organization.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
+        Organization.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
 
-        if org:
-            self.loaded_org_pks.add(org.pk)
+        # TODO add this back in when loading from drupal is completely removed
+        # if org:
+        #     self.loaded_org_pks.add(org.pk)
 
         logger.info('Processed organization "%s"', key)
 

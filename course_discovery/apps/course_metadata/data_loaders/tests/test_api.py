@@ -132,22 +132,23 @@ class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, T
 
         assert Organization.objects.count() == 2
 
-        with mock.patch('course_discovery.apps.course_metadata.data_loaders.api.delete_orphans'):
-            self.loader.ingest()
+        self.loader.ingest()
 
         assert Organization.objects.count() == len(api_data) + 1
 
-    def test_delete_orphans_is_called(self):
-        """Verify ingest is calling delete_orphans"""
-        self.mock_api()
-        with mock.patch('course_discovery.apps.course_metadata.data_loaders.api.delete_orphans') as mock_delete_orphan:
-            self.loader.ingest()
-            excluded = set()
-            organizations = Organization.objects.all()
-            for org in organizations:
-                excluded.add(org.pk)
-
-            mock_delete_orphan.assert_called_with(Organization, exclude=excluded)
+    # TODO add this back in when loading from drupal is completely removed
+    # def test_delete_orphans_is_called(self):
+    #     """Verify ingest is calling delete_orphans"""
+    #     self.mock_api()
+    #     with mock.patch('course_discovery.apps.course_metadata.data_loaders.api.delete_orphans')
+    #         as mock_delete_orphan:
+    #         self.loader.ingest()
+    #         excluded = set()
+    #         organizations = Organization.objects.all()
+    #         for org in organizations:
+    #             excluded.add(org.pk)
+    #
+    #         mock_delete_orphan.assert_called_with(Organization, exclude=excluded)
 
 
 @ddt.ddt
