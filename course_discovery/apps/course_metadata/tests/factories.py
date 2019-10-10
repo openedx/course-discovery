@@ -120,6 +120,7 @@ class TrackFactory(factory.DjangoModelFactory):
 class CourseRunTypeFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     name = FuzzyText()
+    slug = FuzzyText()
 
     class Meta:
         model = CourseRunType
@@ -133,6 +134,7 @@ class CourseRunTypeFactory(factory.DjangoModelFactory):
 class CourseTypeFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     name = FuzzyText()
+    slug = FuzzyText()
 
     class Meta:
         model = CourseType

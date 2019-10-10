@@ -259,7 +259,7 @@ class Mode(TimeStampedModel):
         help_text=_('Certificate type granted if this mode is eligible for a certificate, or blank if not.'),
     )
     payee = models.CharField(
-        max_length=64, choices=PayeeType, default=PayeeType.Platform,
+        max_length=64, choices=PayeeType, default='', blank=True,
         help_text=_('Who gets paid for the course? Platform is the site owner, Organization is the school.'),
     )
 
@@ -306,8 +306,14 @@ class CourseRunType(TimeStampedModel):
 
     See docs/decisions/0009-LMS-types-in-course-metadata.rst for more information.
     """
+    AUDIT = 'audit'
+    VERIFIED_AUDIT = 'verified-audit'
+    PROFESSIONAL = 'professional'
+    CREDIT_VERIFIED_AUDIT = 'credit-verified-audit'
+
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
+    slug = models.CharField(max_length=64, unique=True)
     tracks = models.ManyToManyField(Track)
     is_marketable = models.BooleanField(default=True)
 
@@ -325,8 +331,14 @@ class CourseType(TimeStampedModel):
 
     Examples of names would be "Masters, Verified, and Audit" or "Verified and Audit"
     """
+    AUDIT = 'audit'
+    VERIFIED_AUDIT = 'verified-audit'
+    PROFESSIONAL = 'professional'
+    CREDIT_VERIFIED_AUDIT = 'credit-verified-audit'
+
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
+    slug = models.CharField(max_length=64, unique=True)
     entitlement_types = models.ManyToManyField(SeatType)
     course_run_types = models.ManyToManyField(CourseRunType)
 
