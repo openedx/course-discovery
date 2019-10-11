@@ -434,8 +434,21 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'has_ofac_restrictions': course_run.has_ofac_restrictions,
             'enrollment_count': 0,
             'recent_enrollment_count': 0,
+            'course_uuid': course_run.course.uuid,
+            'expected_program_name': course_run.expected_program_name,
+            'expected_program_type': course_run.expected_program_type,
+            'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price,
+            'ofac_comment': course_run.ofac_comment,
         })
         return expected
+
+    def test_data(self):
+        request = make_request()
+        course_run = CourseRunFactory()
+        serializer = self.serializer_class(course_run, context={'request': request})
+        expected = self.get_expected_data(course_run, request)
+
+        assert serializer.data == expected
 
     def test_exclude_utm(self):
         request = make_request()

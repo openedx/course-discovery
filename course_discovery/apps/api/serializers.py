@@ -739,6 +739,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
     course = serializers.SlugRelatedField(required=True, slug_field='key', queryset=Course.objects.filter_drafts())
+    course_uuid = serializers.ReadOnlyField(source='course.uuid', default=None)
     content_language = serializers.SlugRelatedField(
         required=False, allow_null=True, slug_field='code', source='language',
         queryset=LanguageTag.objects.all().order_by('name'),
@@ -782,7 +783,8 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
-            'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name'
+            'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
+            'course_uuid',
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
 
