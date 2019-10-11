@@ -822,25 +822,21 @@ class SalesforceTests(TestCase):
         with mock.patch(self.salesforce_util_path + '.__init__', return_value=None):
             with mock.patch(self.salesforce_util_path + '.create_course') as mock_create_method:
                 with mock.patch(self.salesforce_util_path + '.update_course') as mock_update_method:
-                    with mock.patch(self.salesforce_util_path + '.create_publisher_organization'):
-                        # Does not update for non-drafts
-                        course = factories.CourseFactory(draft=True)
+                    course = factories.CourseFactory(draft=True)
 
-                        mock_create_method.assert_not_called()
-                        mock_update_method.assert_not_called()
+                    mock_create_method.assert_called()
+                    mock_update_method.assert_not_called()
 
-                        course.save()
+                    course.save()
 
-                        # This shows that an update to a draft does not hit the salesforce update method
-                        mock_update_method.assert_not_called()
-                        organization = factories.OrganizationFactory()
-                        course.authoring_organizations.add(organization)
+                    # This shows that an update to a draft does not hit the salesforce update method
+                    mock_update_method.assert_not_called()
 
-                        course.draft = False
-                        course.title = 'changed'
-                        course.save()
+                    course.draft = False
+                    course.title = 'changed'
+                    course.save()
 
-                        self.assertEqual(1, mock_update_method.call_count)
+                    self.assertEqual(1, mock_update_method.call_count)
 
     def test_update_or_create_salesforce_course_run(self):
         #  we mock the __init__ method in SalesforceUtil to ignore login functionality
@@ -860,24 +856,3 @@ class SalesforceTests(TestCase):
                             course_run.save()
 
                             mock_update_method.assert_called()
-
-    def test_authoring_organizations_changed(self):
-        #  we mock the __init__ method in SalesforceUtil to ignore login functionality
-        with mock.patch(self.salesforce_util_path + '.__init__', return_value=None):
-            #  we mock out create_course and update_course to avoid recursion errors
-            with mock.patch(self.salesforce_util_path + '.create_publisher_organization'):
-                with mock.patch(self.salesforce_util_path + '.create_course') as mock_create_method:
-                    # Does not update for non-draftstest_comments.py
-                    organization = factories.OrganizationFactory()
-                    course = factories.CourseFactory(draft=False)
-
-                    course.authoring_organizations.add(organization)
-                    mock_create_method.assert_not_called()
-
-                    # Updates for drafts when an auth org is added (new) courses
-                    organization = factories.OrganizationFactory()
-
-                    course = factories.CourseFactory(draft=True)
-
-                    course.authoring_organizations.add(organization)
-                    mock_create_method.assert_called()

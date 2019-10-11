@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-11 15:54+0000\n"
+"POT-Creation-Date: 2019-10-10 18:11+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1788,25 +1788,6 @@ msgstr "Täg Ⱡ'σяєм#"
 #: apps/course_metadata/models.py
 msgid "Course UUIDs"
 msgstr "Çöürsé ÛÛÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
-
-#: apps/course_metadata/salesforce.py
-msgid "Attempted to query Salesforce with no client for partner={}"
-msgstr ""
-"Àttémptéd tö qüérý Sälésförçé wïth nö çlïént för pärtnér={} Ⱡ'σяєм ιρѕυм "
-"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/salesforce.py
-msgid ""
-"Attempted to query Salesforce with no configuration set up for partner={}"
-msgstr ""
-"Àttémptéd tö qüérý Sälésförçé wïth nö çönfïgürätïön sét üp för pärtnér={} "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
-
-#: apps/course_metadata/salesforce.py
-msgid "Unable to associate a case for comments for {}"
-msgstr ""
-"Ûnäßlé tö ässöçïäté ä çäsé för çömménts för {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 #: apps/publisher/templates/publisher/_add_instructor_popup.html

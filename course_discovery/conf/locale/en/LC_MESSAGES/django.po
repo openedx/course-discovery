@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-11 15:54+0000\n"
+"POT-Creation-Date: 2019-10-10 18:11+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -609,20 +609,20 @@ msgstr ""
 msgid "Missing required arguments"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:33
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:31
 msgid "Backpopulate new-style CourseType and CourseRunType where possible."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:38
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:36
 msgid "CODE"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:39
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:37
 #: apps/course_metadata/management/commands/delete_person_dups.py:33
 msgid "Short code for a partner."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:43
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:41
 #: apps/course_metadata/models.py:309 apps/course_metadata/models.py:328
 #: apps/course_metadata/models.py:341 apps/course_metadata/models.py:380
 #: apps/course_metadata/models.py:445 apps/course_metadata/models.py:498
@@ -632,68 +632,68 @@ msgstr ""
 msgid "UUID"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:45
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:43
 msgid "Course to backpopulate."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:50
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:48
 msgid "KEY"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:52
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:50
 msgid "Organization to backpopulate."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:58
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:56
 #: apps/course_metadata/management/commands/delete_person_dups.py:38
 msgid "Actually commit the changes to the database."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:63
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:61
 msgid ""
 "Use arguments from the BackpopulateCourseTypeConfig model instead of the "
 "command line."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:97
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:91
 #, python-brace-format
 msgid ""
 "Existing course type {type} for {key} ({id}) doesn't match its own "
 "entitlements."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:121
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:106
 #, python-brace-format
 msgid ""
 "Existing run type {run_type} for {key} ({id}) doesn't match course type "
 "{type}.Skipping type."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:135
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:120
 #, python-brace-format
 msgid ""
 "Existing run type {run_type} for {key} ({id}) doesn't match its own seats."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:151
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:136
 #, python-brace-format
 msgid "Course {key} ({id}) matched type {type}"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:161
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:146
 #, python-brace-format
 msgid "Could not convert course {key} ({id}) to type {type}"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:181
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:166
 msgid "You must specify --partner"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:192
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:174
 msgid "No courses found. Did you specify an argument?"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:203
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:185
 #, python-brace-format
 msgid ""
 "Could not backpopulate a course type for the following courses: {course_keys}"
@@ -1410,19 +1410,6 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2682
 msgid "Course UUIDs"
-msgstr ""
-
-#: apps/course_metadata/salesforce.py:64
-msgid "Attempted to query Salesforce with no client for partner={}"
-msgstr ""
-
-#: apps/course_metadata/salesforce.py:67
-msgid ""
-"Attempted to query Salesforce with no configuration set up for partner={}"
-msgstr ""
-
-#: apps/course_metadata/salesforce.py:224
-msgid "Unable to associate a case for comments for {}"
 msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24

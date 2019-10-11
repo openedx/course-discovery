@@ -2,7 +2,7 @@ from datetime import datetime
 
 import factory
 import requests
-from django.db.models.signals import m2m_changed, post_save
+from django.db.models.signals import post_save
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 
@@ -206,7 +206,7 @@ class CourseUrlSlugFactory(factory.DjangoModelFactory):
         model = CourseUrlSlug
 
 
-@factory.django.mute_signals(post_save, m2m_changed)
+@factory.django.mute_signals(post_save)
 class CourseFactoryNoSignals(CourseFactory):
     pass
 
@@ -310,7 +310,7 @@ class OrganizationFactory(SalesforceRecordFactory):
         model = Organization
 
 
-@factory.django.mute_signals(post_save, m2m_changed)
+@factory.django.mute_signals(post_save)
 class OrganizationFactoryNoSignals(OrganizationFactory):
     pass
 

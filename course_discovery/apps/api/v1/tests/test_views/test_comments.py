@@ -2,7 +2,7 @@ import datetime
 
 import factory
 import mock
-from django.db.models.signals import m2m_changed, post_save
+from django.db.models.signals import post_save
 from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -12,8 +12,6 @@ from course_discovery.apps.course_metadata.tests.factories import CourseFactoryN
 
 
 class CommentViewSetTests(OAuth2Mixin, APITestCase):
-
-    @factory.django.mute_signals(m2m_changed)
     def setUp(self):
         super(CommentViewSetTests, self).setUp()
         self.salesforce_config = SalesforceConfigurationFactory(partner=self.partner)
@@ -190,23 +188,6 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
             url = reverse('api:v1:comment-list')
             response = self.client.post(url, body, format='json')
             self.assertEqual(response.status_code, 404)
-
-    def test_create_500s_without_a_successful_case_create(self):
-        body = {
-            'course_uuid': self.course.uuid,
-            'comment': 'Test comment',
-            'course_run_key': 'test-key',
-        }
-
-        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
-        create_comment_path = ('course_discovery.apps.api.v1.views.comments.'
-                               'SalesforceUtil.create_comment_for_course_case')
-
-        with mock.patch(salesforce_path):
-            with mock.patch(create_comment_path, side_effect=SalesforceUtil.SalesforceMissingCaseException('Error')):
-                url = reverse('api:v1:comment-list')
-                response = self.client.post(url, body, format='json')
-                self.assertEqual(response.status_code, 500)
 
     def test_list_404s_without_a_config(self):
         self.salesforce_config.delete()
