@@ -2583,7 +2583,6 @@ class PersonAreaOfExpertise(AbstractValueModel):
 
 
 class CourseUrlSlug(TimeStampedModel):
-
     course = models.ForeignKey(Course, models.CASCADE, related_name='url_slug_history')
     # need to have these on the model separately for unique_together to work, but it should always match course.partner
     partner = models.ForeignKey(Partner, models.CASCADE)

@@ -294,7 +294,6 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             return
 
         for redirect_row in node_redirects:
-            print('course key {c} - redirect {u}'.format(c=course_key, u=redirect_row['redirect_url']))
             truncated_redirect = redirect_row['redirect_url'].split('/')
             # We only want to create redirects for cases that match our existing URL slugs,
             # i.e. course/url-slug

@@ -20,7 +20,6 @@ class Migration(migrations.Migration):
         Course = apps.get_model('course_metadata', 'course')
         CourseUrlSlug = apps.get_model('course_metadata', 'courseUrlSlug')
         for instance in Course.everything.all().order_by('draft'):
-
             if instance.pk not in published_drafts:
                 historical_slug = CourseUrlSlug.objects.create(
                     course=instance,
