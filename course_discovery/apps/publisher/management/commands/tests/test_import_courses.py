@@ -11,7 +11,7 @@ from testfixtures import LogCapture
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, SeatFactory, SubjectFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.dataloader.create_courses import logger as dataloader_logger
@@ -131,7 +131,8 @@ class CreateCoursesTests(TestCase):
 
         canonical_course_run = course_runs[0]
         for seat_type in ['honor', 'credit', 'verified']:  # to avoid same type seat creation.
-            SeatFactory(course_run=canonical_course_run, type=seat_type)
+            seat_type_obj = getattr(SeatTypeFactory, seat_type)()
+            SeatFactory(course_run=canonical_course_run, type=seat_type_obj)
 
         staff = PersonFactory.create_batch(2)
         canonical_course_run.staff.add(*staff)
@@ -373,7 +374,7 @@ class CreateCoursesTests(TestCase):
         publisher_seats = publisher_course_run.seats.all()
         self.assertEqual(metadata_seats.count(), publisher_seats.count())
         self.assertListEqual(
-            sorted([(seat.type, seat.price, seat.credit_provider, seat.currency) for seat in metadata_seats]),
+            sorted([(seat.type.slug, seat.price, seat.credit_provider, seat.currency) for seat in metadata_seats]),
             sorted([(seat.type, seat.price, seat.credit_provider, seat.currency) for seat in publisher_seats])
         )
 

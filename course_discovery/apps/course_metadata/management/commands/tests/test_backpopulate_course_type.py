@@ -6,7 +6,7 @@ from testfixtures import LogCapture, StringComparison
 
 from course_discovery.apps.course_metadata.management.commands.backpopulate_course_type import logger
 from course_discovery.apps.course_metadata.models import (
-    BackpopulateCourseTypeConfig, Course, CourseRunType, CourseType, Mode, Seat, SeatType, Track
+    BackpopulateCourseTypeConfig, Course, CourseRunType, CourseType, Mode, Seat, Track
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -21,8 +21,8 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.partner = factories.PartnerFactory(marketing_site_api_password=None)
 
         # Fill out a bunch of types and modes. Exact mode parameters don't matter, just the resulting seat types.
-        self.audit_seat_type = SeatType.objects.get(slug=Seat.AUDIT)
-        self.verified_seat_type = SeatType.objects.get(slug=Seat.VERIFIED)
+        self.audit_seat_type = factories.SeatTypeFactory.audit()
+        self.verified_seat_type = factories.SeatTypeFactory.verified()
         self.audit_mode = Mode.objects.get(slug=Seat.AUDIT)
         self.verified_mode = Mode.objects.get(slug=Seat.VERIFIED)
         self.audit_track = Track.objects.get(seat_type=self.audit_seat_type, mode=self.audit_mode)
@@ -39,10 +39,10 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.entitlement = factories.CourseEntitlementFactory(partner=self.partner, course=self.course,
                                                               mode=self.verified_seat_type)
         self.audit_run = factories.CourseRunFactory(course=self.course, type=None, key='course-v1:Org1+Course1+A')
-        self.audit_seat = factories.SeatFactory(course_run=self.audit_run, type=Seat.AUDIT)
+        self.audit_seat = factories.SeatFactory(course_run=self.audit_run, type=self.audit_seat_type)
         self.verified_run = factories.CourseRunFactory(course=self.course, type=None, key='course-v1:Org1+Course1+V')
-        self.verified_seat = factories.SeatFactory(course_run=self.verified_run, type=Seat.VERIFIED)
-        self.verified_audit_seat = factories.SeatFactory(course_run=self.verified_run, type=Seat.AUDIT)
+        self.verified_seat = factories.SeatFactory(course_run=self.verified_run, type=self.verified_seat_type)
+        self.verified_audit_seat = factories.SeatFactory(course_run=self.verified_run, type=self.audit_seat_type)
 
         # Create parallel obj / course for argument testing
         self.org2 = factories.OrganizationFactory(partner=self.partner, key='Org2')
@@ -50,7 +50,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.course2 = factories.CourseFactory(partner=self.partner, authoring_organizations=[self.org2, self.org3],
                                                type=None, key='{org}+Course1'.format(org=self.org2.key))
         self.c2_audit_run = factories.CourseRunFactory(course=self.course2, type=None)
-        self.c2_audit_seat = factories.SeatFactory(course_run=self.c2_audit_run, type=Seat.AUDIT)
+        self.c2_audit_seat = factories.SeatFactory(course_run=self.c2_audit_run, type=self.audit_seat_type)
 
     def run_command(self, courses=None, orgs=None, commit=True, fails=None, log=None):
         command_args = ['--partner=' + self.partner.short_code]

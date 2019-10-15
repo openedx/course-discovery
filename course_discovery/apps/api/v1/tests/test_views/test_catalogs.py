@@ -17,7 +17,7 @@ from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import Course
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory, SeatTypeFactory
 from course_discovery.conftest import get_course_run_states
 
 User = get_user_model()
@@ -250,14 +250,15 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assert_catalog_contains_query_string(query_string_kwargs, course_run_key)
 
     def test_csv(self):
-        SeatFactory(type='audit', course_run=self.course_run)
-        SeatFactory(type='verified', course_run=self.course_run)
-        SeatFactory(type='credit', course_run=self.course_run, credit_provider='ASU', credit_hours=9)
-        SeatFactory(type='credit', course_run=self.course_run, credit_provider='Hogwarts', credit_hours=4)
+        SeatFactory(type=SeatTypeFactory.audit(), course_run=self.course_run)
+        SeatFactory(type=SeatTypeFactory.verified(), course_run=self.course_run)
+        SeatFactory(type=SeatTypeFactory.credit(), course_run=self.course_run, credit_provider='ASU', credit_hours=9)
+        SeatFactory(type=SeatTypeFactory.credit(), course_run=self.course_run, credit_provider='Hogwarts',
+                    credit_hours=4)
 
         url = reverse('api:v1:catalog-csv', kwargs={'id': self.catalog.id})
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(23):
             response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)

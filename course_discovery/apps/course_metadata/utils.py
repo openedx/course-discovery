@@ -154,12 +154,12 @@ def set_draft_state(obj, model, attrs=None, related_attrs=None):
 def _calculate_entitlement_for_run(run):
     from course_discovery.apps.course_metadata.models import Seat
 
-    entitlement_seats = [seat for seat in run.seats.all() if seat.type in Seat.ENTITLEMENT_MODES]
+    entitlement_seats = [seat for seat in run.seats.all() if seat.type.slug in Seat.ENTITLEMENT_MODES]
     if len(entitlement_seats) != 1:
         return None
 
     seat = entitlement_seats[0]
-    return seat.type, seat.price, seat.currency
+    return seat.type.slug, seat.price, seat.currency
 
 
 def _calculate_entitlement_for_course(course):
@@ -383,7 +383,8 @@ def calculated_seat_upgrade_deadline(seat):
     Only verified seats have upgrade deadlines. If the instance does not have an upgrade deadline set, the value
     will be calculated based on the related course run's end date.
     """
-    if seat.type == seat.VERIFIED:
+    slug = seat.type if isinstance(seat.type, str) else seat.type.slug
+    if slug == seat.VERIFIED:
         if seat.upgrade_deadline:
             return seat.upgrade_deadline
 
@@ -401,6 +402,7 @@ def serialize_seat_for_ecommerce_api(seat):
     # Avoid circular imports
     from course_discovery.apps.course_metadata.models import Seat
 
+    slug = seat.type if isinstance(seat.type, str) else seat.type.slug
     return {
         'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
         'price': str(seat.price),
@@ -408,11 +410,11 @@ def serialize_seat_for_ecommerce_api(seat):
         'attribute_values': [
             {
                 'name': 'certificate_type',
-                'value': '' if seat.type == Seat.AUDIT else seat.type,
+                'value': '' if slug == Seat.AUDIT else slug,
             },
             {
                 'name': 'id_verification_required',
-                'value': seat.type in (Seat.VERIFIED, Seat.PROFESSIONAL),
+                'value': slug in (Seat.VERIFIED, Seat.PROFESSIONAL),
             }
         ]
     }
@@ -603,7 +605,7 @@ def publish_to_course_metadata(partner, course_run, create_official=True, fail_o
     for seat in course_run.seats.exclude(type=Seat.CREDIT).order_by('created'):
         Seat.everything.update_or_create(
             course_run=discovery_course_run,
-            type=seat.type,
+            type=SeatType.objects.get(slug=seat.type),
             currency=seat.currency,
             draft=True,
             defaults={
@@ -614,7 +616,7 @@ def publish_to_course_metadata(partner, course_run, create_official=True, fail_o
         if seat.masters_track:
             Seat.everything.update_or_create(
                 course_run=discovery_course_run,
-                type=Seat.MASTERS,
+                type=SeatType.objects.get(slug=Seat.MASTERS),
                 currency=seat.currency,
                 draft=True,
                 defaults={

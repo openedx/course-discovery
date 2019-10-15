@@ -18,8 +18,10 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseEntitlement as DiscoveryCourseEntitlement
 from course_discovery.apps.course_metadata.models import CourseRun, ProgramType
 from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
-from course_discovery.apps.course_metadata.models import SeatType, Video
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory, PersonFactory
+from course_discovery.apps.course_metadata.models import Video
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, OrganizationFactory, PersonFactory, SeatTypeFactory
+)
 from course_discovery.apps.course_metadata.utils import (
     serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
 )
@@ -191,7 +193,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
 
         self.assertEqual(1, DiscoveryCourseEntitlement.objects.all().count())
         DiscoveryCourseEntitlement.objects.get(
-            mode=SeatType.objects.get(slug=DiscoverySeat.VERIFIED),
+            mode=SeatTypeFactory.verified(),
             price=verified_entitlement.price,
             course=discovery_course,
             currency=currency,
@@ -201,15 +203,15 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
             'course_run': discovery_course_run,
             'currency': currency,
         }
-        DiscoverySeat.objects.get(type=DiscoverySeat.AUDIT, upgrade_deadline__isnull=True, **common_seat_kwargs)
+        DiscoverySeat.objects.get(type__slug=DiscoverySeat.AUDIT, upgrade_deadline__isnull=True, **common_seat_kwargs)
         DiscoverySeat.objects.get(
-            type=DiscoverySeat.PROFESSIONAL,
+            type__slug=DiscoverySeat.PROFESSIONAL,
             upgrade_deadline__isnull=True,
             price=professional_seat.price,
             **common_seat_kwargs
         )
         DiscoverySeat.objects.get(
-            type=DiscoverySeat.VERIFIED,
+            type__slug=DiscoverySeat.VERIFIED,
             upgrade_deadline=verified_seat.upgrade_deadline,
             price=verified_seat.price,
             **common_seat_kwargs
@@ -276,7 +278,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
 
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         DiscoverySeat.objects.get(
-            type=DiscoverySeat.VERIFIED,
+            type__slug=DiscoverySeat.VERIFIED,
             upgrade_deadline=verified_seat.calculated_upgrade_deadline,
             price=verified_seat.price,
             course_run=discovery_course_run
@@ -415,8 +417,9 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         """
         Test that publishing a seat with masters_track creates a masters seat and masters track
         """
+        SeatTypeFactory.masters()  # ensure masters exists
         publisher_course_run = self._create_course_run_for_publication()
-        audit_seat_with_masters_track = SeatFactory(type="Audit", course_run=publisher_course_run, masters_track=True)
+        audit_seat_with_masters_track = SeatFactory(type='audit', course_run=publisher_course_run, masters_track=True)
         publisher_course_run.seats.add(audit_seat_with_masters_track)
 
         self._mock_studio_api_success(publisher_course_run)
@@ -427,4 +430,4 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         assert response.status_code == 200
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         assert discovery_course_run.seats.all().count() == 2
-        assert discovery_course_run.seats.filter(type=DiscoverySeat.MASTERS).count() == 1
+        assert discovery_course_run.seats.filter(type__slug=DiscoverySeat.MASTERS).count() == 1

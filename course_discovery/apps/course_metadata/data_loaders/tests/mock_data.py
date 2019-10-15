@@ -219,7 +219,7 @@ ECOMMERCE_API_BODIES = [
                 "attribute_values": [
                     {
                         "name": "certificate_type",
-                        "value": "honor"
+                        "value": "audit"
                     }
                 ],
                 "stockrecords": [

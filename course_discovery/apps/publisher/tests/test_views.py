@@ -28,10 +28,9 @@ from course_discovery.apps.core.models import Currency, User
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.models import ProgramType as DiscoveryProgramType
-from course_discovery.apps.course_metadata.models import Seat as DiscoverySeat
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory, OrganizationFactory,
-    PersonFactory, ProgramFactory, SeatFactory, SubjectFactory
+    PersonFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import (
@@ -672,7 +671,8 @@ class CreateCourseRunViewTests(SiteMixin, TestCase):
         if last_run_masters_seat:
             discovery_course.canonical_course_run = CourseRunFactory(course=discovery_course)
             discovery_course.save()
-            discovery_course.canonical_course_run.seats.add(SeatFactory(type=DiscoverySeat.MASTERS))
+            masters_seat_type = SeatTypeFactory.masters()
+            discovery_course.canonical_course_run.seats.add(SeatFactory(type=masters_seat_type))
             discovery_course.canonical_course_run.save()
 
         response = self.client.get(self.create_course_run_url_new)
@@ -3905,7 +3905,8 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
         discovery_course.canonical_course_run = CourseRunFactory(course=discovery_course)
         discovery_course.save()
-        discovery_course.canonical_course_run.seats.add(SeatFactory(type=DiscoverySeat.MASTERS))
+        masters_seat_type = SeatTypeFactory.masters()
+        discovery_course.canonical_course_run.seats.add(SeatFactory(type=masters_seat_type))
         discovery_course.canonical_course_run.save()
 
         self.new_course_run.lms_course_id = discovery_course.canonical_course_run.key
