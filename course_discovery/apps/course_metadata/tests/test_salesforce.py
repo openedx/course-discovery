@@ -617,7 +617,7 @@ class TestSalesforce(TestCase):
         course_run_2.save()
 
         # Need to modify state of the instance passed in
-        def new_create_instance(instance):  # pylint: disable=unused-argument
+        def new_create_instance(instance):
             instance.salesforce_id = salesforce_id
             instance.save()
 
