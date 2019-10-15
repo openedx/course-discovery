@@ -1059,8 +1059,8 @@ class OrganizationTests(TestCase):
 
     def test_marketing_url(self):
         """ Verify the property creates a complete marketing URL. """
-        expected = '{root}/{slug}'.format(root=self.organization.partner.marketing_site_url_root.strip('/'),
-                                          slug=self.organization.slug)
+        expected = '{root}/school/{slug}'.format(root=self.organization.partner.marketing_site_url_root.strip('/'),
+                                                 slug=self.organization.slug)
         self.assertEqual(self.organization.marketing_url, expected)
 
     def test_marketing_url_without_slug(self):

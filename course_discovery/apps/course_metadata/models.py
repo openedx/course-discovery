@@ -484,7 +484,7 @@ class Organization(CachedMixin, TimeStampedModel):
     @property
     def marketing_url(self):
         if self.slug and self.partner:
-            return urljoin(self.partner.marketing_site_url_root, self.slug)
+            return urljoin(self.partner.marketing_site_url_root, 'school/' + self.slug)
 
         return None
 
