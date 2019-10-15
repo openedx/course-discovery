@@ -1,16 +1,22 @@
 import abc
 import concurrent.futures
+import csv
 import logging
+import re
 from urllib.parse import parse_qs, urlencode, urlparse
 from uuid import UUID
 
+from django.db import IntegrityError
 from django.utils.functional import cached_property
+from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
-from course_discovery.apps.course_metadata.models import Organization, Subject
+from course_discovery.apps.course_metadata.models import Course, Organization, Subject
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 
 logger = logging.getLogger(__name__)
+
+DRUPAL_REDIRECT_CSV_FILE = 'course_discovery/apps/course_metadata/data_loaders/redirects.csv'
 
 
 class AbstractMarketingSiteDataLoader(AbstractDataLoader):
@@ -237,3 +243,85 @@ class SponsorMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         logger.info('Processed sponsor with UUID [%s].', uuid)
         return sponsor
+
+
+class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
+    """
+    This is only used to handle redirect data on a course-by-course basis.
+    We are not currently pulling in course data from the marketing site.
+    """
+    redirects = {}
+    standard_course_url_regex = re.compile('^/?course/([^/]*)$')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.load_redirect_data()
+
+    def load_redirect_data(self):
+        with open(DRUPAL_REDIRECT_CSV_FILE) as redirect_csv:
+            reader = csv.DictReader(redirect_csv, fieldnames=('redirect_url', 'node', 'redirect_type'))
+            # Order data so that we can pull it out via node ids
+            for row in reader:
+                # Node id in CSV is stored as 'node/1234'.
+                # Ignore anything that doesn't match.
+                split_string = row['node'].split('/')
+                if len(split_string) > 1:
+                    node_id = split_string[1]
+                    if node_id in self.redirects.keys():
+                        self.redirects[node_id].append(row)
+                    else:
+                        self.redirects[node_id] = [row]
+
+    @property
+    def node_type(self):
+        return 'course'
+
+    def find_course_key(self, data):
+        # Parse key up front to ensure it's a valid key.
+        # If the course is so messed up that we can't even parse the key, we don't want it.
+        course_run_key = CourseKey.from_string(data['field_course_id'])
+        return self.get_course_key_from_course_run_key(course_run_key)
+
+    def process_node(self, data):
+        node_id = data.get('nid')
+        logger.info('Processing course at node %s', node_id)
+
+        node_redirects = self.redirects.get(node_id, [])
+        course_key = self.find_course_key(data)
+        try:
+            course = Course.objects.get(key__iexact=course_key)
+        except Course.DoesNotExist:
+            logger.info('No course found for %s', course_key)
+            return
+
+        for redirect_row in node_redirects:
+            redirect = redirect_row['redirect_url']
+            matched = self.standard_course_url_regex.match(redirect)
+            if matched:
+                # if redirect path is /course/something, just add 'something' to url_slug_history
+                try:
+                    obj, created = course.url_slug_history.get_or_create(course=course, url_slug=matched.group(1),
+                                                                         defaults={
+                                                                         'is_active': False,
+                                                                         'is_active_on_draft': False,
+                                                                         'partner': course.partner
+                                                                         })
+                    if created:
+                        course.url_slug_history.add(obj)
+                except IntegrityError:
+                    logger.warning('Integrity error attempting to add url slug {slug} to course {course}'.format(
+                        slug=matched.group(1), course=course_key
+                    ))
+                continue
+            # redirect path is not /course/something, so add the full path to url_redirects
+            try:
+                obj, created = course.url_redirects.get_or_create(
+                    course=course,
+                    value=redirect,
+                    partner=course.partner
+                )
+                if created:
+                    course.url_redirects.add(obj)
+            except IntegrityError:
+                logger.warning('Integrity error attempting to add path %s to course %s', redirect, course.key)
+                continue

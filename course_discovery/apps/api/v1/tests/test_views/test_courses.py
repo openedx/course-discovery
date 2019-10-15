@@ -80,7 +80,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_deleted_programs=1'
-        with self.assertNumQueries(54):
+        with self.assertNumQueries(57):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(
@@ -216,7 +216,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(43, threshold=2):
+        with self.assertNumQueries(46, threshold=2):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertListEqual(
@@ -232,7 +232,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
-        with self.assertNumQueries(64, threshold=3):
+        with self.assertNumQueries(70, threshold=3):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -243,7 +243,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        with self.assertNumQueries(64):
+        with self.assertNumQueries(70):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -254,7 +254,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(64):
+        with self.assertNumQueries(70):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 

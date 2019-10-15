@@ -898,14 +898,14 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         else:
             if self.draft_version:
                 self.draft_version.url_slug_history.filter(is_active=True).delete()  # pylint: disable=no-member
-            self.url_slug_history.update_or_create(url_slug=slug, defaults={
+            obj = self.url_slug_history.update_or_create(url_slug=slug, defaults={
                 'url_slug': slug,
                 'is_active': True,
                 'is_active_on_draft': True,
                 'partner': self.partner,
-            })
+            })[0]
             for other_slug in self.url_slug_history.filter(Q(is_active=True) |
-                                                           Q(is_active_on_draft=True)).exclude(url_slug=slug):
+                                                           Q(is_active_on_draft=True)).exclude(url_slug=obj.url_slug):
                 other_slug.is_active = False
                 other_slug.is_active_on_draft = False
                 other_slug.save()
@@ -2643,6 +2643,26 @@ class CourseUrlSlug(TimeStampedModel):
     class Meta:
         unique_together = (
             ('partner', 'url_slug')
+        )
+
+
+class CourseUrlRedirect(AbstractValueModel):
+    course = models.ForeignKey(Course, models.CASCADE, related_name='url_redirects')
+    # need to have these on the model separately for unique_together to work, but it should always match course.partner
+    partner = models.ForeignKey(Partner, models.CASCADE)
+
+    def save(self, **kwargs):
+        if self.partner != self.course.partner:
+            msg = _('Partner {partner_key} and course partner {course_partner_key} do not match when attempting'
+                    ' to save url redirect {url_path}')
+            raise ValidationError({'partner': [msg.format(partner_key=self.partner.name,  # pylint: disable=no-member
+                                                          course_partner_key=self.course.partner.name,
+                                                          url_slug=self.value), ]})
+        super().save(**kwargs)
+
+    class Meta:
+        unique_together = (
+            ('partner', 'value')
         )
 
 
