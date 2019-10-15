@@ -282,14 +282,14 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
     def create_upgradeable_seat_for_course_run(self, course_run):
         return SeatFactory(
             course_run=course_run,
-            type='verified',
+            type=SeatTypeFactory.verified(),
             upgrade_deadline=self.TOMORROW
         )
 
     def create_not_upgradeable_seat_for_course_run(self, course_run):
         return SeatFactory(
             course_run=course_run,
-            type='verified',
+            type=SeatTypeFactory.verified(),
             upgrade_deadline=datetime.datetime(2014, 1, 1, tzinfo=UTC)
         )
 
@@ -760,11 +760,11 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
         }
 
         for seat in course_run.seats.all():
-            for key in seats[seat.type].keys():
-                if seat.type == 'credit':
+            for key in seats[seat.type.slug].keys():
+                if seat.type.slug == 'credit':
                     seats['credit'][key].append(SeatSerializer(seat).data[key])
                 else:
-                    seats[seat.type][key] = SeatSerializer(seat).data[key]
+                    seats[seat.type.slug][key] = SeatSerializer(seat).data[key]
 
         for credit_attr in seats['credit']:
             seats['credit'][credit_attr] = ','.join([str(e) for e in seats['credit'][credit_attr]])
@@ -803,7 +803,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
     def test_data(self):
         request = make_request()
         course_run = CourseRunFactory()
-        SeatFactory(course_run=course_run)
+        SeatFactory(course_run=course_run, type=SeatTypeFactory.audit())
         serializer_context = {'request': request}
         serializer = FlattenedCourseRunWithCourseSerializer(course_run, context=serializer_context)
         expected = self.get_expected_data(request, course_run)
@@ -813,7 +813,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
         """ Verify the serializer handles courses with no level type set. """
         request = make_request()
         course_run = CourseRunFactory(course__level_type=None)
-        SeatFactory(course_run=course_run)
+        SeatFactory(course_run=course_run, type=SeatTypeFactory.audit())
         serializer_context = {'request': request}
         serializer = FlattenedCourseRunWithCourseSerializer(course_run, context=serializer_context)
         expected = self.get_expected_data(request, course_run)
@@ -1579,7 +1579,7 @@ class SeatSerializerTests(TestCase):
         serializer = SeatSerializer(self.seat)
 
         expected = {
-            'type': self.seat.type,
+            'type': self.seat.type.slug,
             'price': str(self.seat.price),
             'currency': self.seat.currency.code,
             'upgrade_deadline': json_date_format(self.seat.upgrade_deadline),
@@ -1763,7 +1763,7 @@ class AffiliateWindowSerializerTests(TestCase):
         assert all((course_run.title, course_run.short_description, course_run.marketing_url))
 
         expected = {
-            'pid': '{}-{}'.format(course_run.key, seat.type),
+            'pid': '{}-{}'.format(course_run.key, seat.type.slug),
             'name': course_run.title,
             'desc': course_run.full_description,
             'purl': course_run.marketing_url,
@@ -1860,7 +1860,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 serialize_language(course_run.language) for course_run in course.course_runs.all()
                 if course_run.language
             ],
-            'seat_types': [seat.type],
+            'seat_types': [seat.type.slug],
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,
@@ -1906,7 +1906,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 serialize_language(course_run.language) for course_run in course.course_runs.all()
                 if course_run.language
             ],
-            'seat_types': [seat.type],
+            'seat_types': [seat.type.slug],
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,
@@ -1942,7 +1942,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
         request = make_request()
         course_run = CourseRunFactory(transcript_languages=LanguageTag.objects.filter(code__in=['en-us', 'zh-cn']),
                                       authoring_organizations=[OrganizationFactory()])
-        SeatFactory.create(course_run=course_run, type='verified', price=10, sku='ABCDEF')
+        SeatFactory.create(course_run=course_run, type=SeatTypeFactory.verified(), price=10, sku='ABCDEF')
         program = ProgramFactory(courses=[course_run.course])
         self.reindex_courses(program)
         serializer = self.serialize_course_run(course_run, request)
@@ -1984,7 +1984,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'content_type': 'courserun',
             'org': CourseKey.from_string(course_run.key).org,
             'number': CourseKey.from_string(course_run.key).course,
-            'seat_types': course_run.seat_types,
+            'seat_types': [seat.slug for seat in course_run.seat_types],
             'image_url': course_run.image_url,
             'type': course_run.type_legacy,
             'level_type': course_run.level_type.name,

@@ -54,7 +54,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CourseRunWithProgramsSerializer
     metadata_class = MetadataWithRelatedChoices
     metadata_related_choices_whitelist = (
-        'content_language', 'level_type', 'transcript_languages', 'expected_program_type'
+        'content_language', 'level_type', 'transcript_languages', 'expected_program_type', 'type'
     )
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future

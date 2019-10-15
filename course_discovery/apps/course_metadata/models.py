@@ -176,8 +176,8 @@ class LevelType(AbstractNamedModel):
 
 
 class SeatType(TimeStampedModel):
-    name = models.CharField(max_length=64, unique=True)
-    slug = AutoSlugField(populate_from='name', slugify_function=uslugify)
+    name = models.CharField(max_length=64)
+    slug = AutoSlugField(populate_from='name', slugify_function=uslugify, unique=True)
 
     def __str__(self):
         return self.name
@@ -339,7 +339,7 @@ class CourseType(TimeStampedModel):
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
     slug = models.CharField(max_length=64, unique=True)
-    entitlement_types = models.ManyToManyField(SeatType)
+    entitlement_types = models.ManyToManyField(SeatType, blank=True)
     course_run_types = models.ManyToManyField(CourseRunType)
 
     history = HistoricalRecords()
@@ -1167,7 +1167,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         """
         seats = []
         for seat in self.seats.all():
-            if seat.type not in Seat.SEATS_WITH_PREREQUISITES and seat.price > 0.0:
+            if seat.type.slug not in Seat.SEATS_WITH_PREREQUISITES and seat.price > 0.0:
                 seats.append(seat)
         return seats
 
@@ -1251,7 +1251,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         Returns seats, of the given type(s), that can be enrolled in/purchased.
 
         Arguments:
-            types (list of seat type names): Type of seats to limit the returned value to.
+            types (list of SeatTypes): Type of seats to limit the returned value to.
 
         Returns:
             List of Seats
@@ -1263,7 +1263,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             return []
 
         enrollable_seats = []
-        types = types or Seat.SEAT_TYPES
+        types = types or SeatType.objects.all()
         for seat in self.seats.all():
             if seat.type in types and (not seat.upgrade_deadline or now < seat.upgrade_deadline):
                 enrollable_seats.append(seat)
@@ -1384,7 +1384,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         rather than trying to read the tea leaves at the entire run level. The mode combinations are just too complex
         these days.
         """
-        seat_types = set(self.seat_types)
+        seat_types = {t.slug for t in self.seat_types}
         mapping = (
             ('credit', {'credit'}),
             ('professional', {'professional', 'no-id-professional'}),
@@ -1448,19 +1448,19 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         we only support changing mode from audit -> verified
         """
         if self.official_version:
-            old_types = set(self.official_version.seats.values_list('type', flat=True))
-            new_types = set([seat_type])
-            if seat_type in Seat.REQUIRES_AUDIT_SEAT:
+            old_types = set(self.official_version.seats.values_list('type', flat=True))  # returns strings
+            new_types = {seat_type.slug}
+            if seat_type.slug in Seat.REQUIRES_AUDIT_SEAT:
                 new_types.add(Seat.AUDIT)
             if old_types - new_types:
-                raise ValidationError(_('Switching seat modes after being reviewed is not supported. Please reach out '
+                raise ValidationError(_('Switching seat types after being reviewed is not supported. Please reach out '
                                         'to your project coordinator for additional help if necessary.'))
 
     def get_seat_upgrade_deadline(self, seat_type):
         deadline = None
         # only verified seats have a deadline specified
-        if seat_type == Seat.VERIFIED:
-            seats = [s for s in self.seats.all() if s.type == seat_type]
+        if seat_type.slug == Seat.VERIFIED:
+            seats = self.seats.filter(type=seat_type)
             if seats:
                 deadline = seats[0].upgrade_deadline
             else:
@@ -1477,7 +1477,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         # In the CourseType flow, we only send in a single price for all of the tracks (for now),
         # so it would be possible to accidentally set an Audit seat to have a nonzero price because
         # there is a Verified seat with a price.
-        if seat_type == Seat.AUDIT:
+        if seat_type.slug == Seat.AUDIT:
             price = 0.00
 
         seat, __ = Seat.everything.update_or_create(
@@ -1505,8 +1505,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if run_type:
             seat_types = []
             for track in run_type.tracks.exclude(seat_type=None):
-                # DISCO-1381: Remove the .slug from this since we are using a ForeignKey now
-                seat_type = track.seat_type.slug
+                seat_type = track.seat_type
                 seat_types.append(seat_type)
                 seat = self.update_or_create_seat_helper(seat_type, price)
                 seats.append(seat)
@@ -1516,9 +1515,10 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             self.seats.exclude(type__in=seat_types).delete()
         else:
             course_entitlement = self.course.entitlements.first()  # pylint: disable=no-member
-            seat_type = Seat.AUDIT
+            audit_seat_type = SeatType.objects.get(slug=Seat.AUDIT)
+            seat_type = audit_seat_type
             if course_entitlement:
-                seat_type = course_entitlement.mode.slug
+                seat_type = course_entitlement.mode
                 price = course_entitlement.price
 
             seat = self.update_or_create_seat_helper(seat_type, price)
@@ -1526,12 +1526,12 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             # We are deleting seats here since they would be orphaned otherwise.
             # One example of how this situation can happen is if a course team is switching between
             # professional and verified before actually publishing their course run.
-            if seat_type in Seat.REQUIRES_AUDIT_SEAT or seat_type == Seat.AUDIT:
-                self.seats.exclude(type__in=[seat_type, Seat.AUDIT]).delete()
+            if seat_type.slug in Seat.REQUIRES_AUDIT_SEAT or seat_type == audit_seat_type:
+                self.seats.exclude(type__in=[seat_type, audit_seat_type]).delete()
 
                 audit_seat, __ = Seat.everything.update_or_create(
                     course_run=self,
-                    type=Seat.AUDIT,
+                    type=audit_seat_type,
                     draft=True,
                     defaults={
                         'price': 0.00,
@@ -1716,33 +1716,23 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
 class Seat(DraftModelMixin, TimeStampedModel):
     """ Seat model. """
+
+    # This set of class variables is historic. Before CourseType and Mode and all that jazz, Seat used to just hold
+    # a CharField 'type' and the logic around what that meant often used these variables. We can slowly remove
+    # these hardcoded variables as code stops referencing them and using dynamic Modes.
     HONOR = 'honor'
     AUDIT = 'audit'
     VERIFIED = 'verified'
     PROFESSIONAL = 'professional'
     CREDIT = 'credit'
     MASTERS = 'masters'
-
-    SEAT_TYPES = [HONOR, AUDIT, VERIFIED, PROFESSIONAL, CREDIT, MASTERS]
     ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL]
-
     REQUIRES_AUDIT_SEAT = [VERIFIED]
-
     # Seat types that we don't push to ecommerce -- they are either manually or never created as products
     NON_PRODUCT_MODES = [CREDIT, MASTERS]
-
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.
     SEATS_WITH_PREREQUISITES = [CREDIT]
-
-    SEAT_TYPE_CHOICES = (
-        (HONOR, _('Honor')),
-        (AUDIT, _('Audit')),
-        (VERIFIED, _('Verified')),
-        (PROFESSIONAL, _('Professional')),
-        (CREDIT, _('Credit')),
-        (MASTERS, _('Masters')),
-    )
 
     PRICE_FIELD_CONFIG = {
         'decimal_places': 2,
@@ -1751,8 +1741,11 @@ class Seat(DraftModelMixin, TimeStampedModel):
         'default': 0.00,
     }
     course_run = models.ForeignKey(CourseRun, models.CASCADE, related_name='seats')
-    # TODO Replace with FK to SeatType model
-    type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES)
+    # The 'type' field used to be a CharField but when we converted to a ForeignKey, we kept the db column the same,
+    # by specifying a bunch of these extra kwargs.
+    type = models.ForeignKey(SeatType, models.CASCADE,
+                             to_field='slug',  # this keeps the columns as a string, not an int
+                             db_column='type')  # this avoids renaming the column to type_id
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
     currency = models.ForeignKey(Currency, models.CASCADE, default='USD')
     upgrade_deadline = models.DateTimeField(null=True, blank=True)
@@ -1939,13 +1932,13 @@ class Program(PkSearchableMixin, TimeStampedModel):
             return False
 
         excluded_course_runs = set(self.excluded_course_runs.all())
-        applicable_seat_types = [seat_type.slug for seat_type in self.type.applicable_seat_types.all()]
+        applicable_seat_types = self.type.applicable_seat_types.all()
 
         for course in self.courses.all():
             # Filter the entitlements in python, to avoid duplicate queries for entitlements after prefetching
             all_entitlements = course.entitlements.all()
             entitlement_products = {entitlement for entitlement in all_entitlements
-                                    if entitlement.mode.slug in applicable_seat_types}
+                                    if entitlement.mode in applicable_seat_types}
             if len(entitlement_products) == 1:
                 continue
 
@@ -2043,7 +2036,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def seats(self):
-        applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
+        applicable_seat_types = set(self.type.applicable_seat_types.all())
 
         for run in self.course_runs:
             for seat in run.seats.all():
@@ -2052,7 +2045,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def canonical_seats(self):
-        applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
+        applicable_seat_types = set(self.type.applicable_seat_types.all())
 
         for run in self.canonical_course_runs:
             for seat in run.seats.all():
@@ -2061,8 +2054,8 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def entitlements(self):
-        applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
-        return CourseEntitlement.objects.filter(mode__slug__in=applicable_seat_types, course__in=self.courses.all())
+        applicable_seat_types = set(self.type.applicable_seat_types.all())
+        return CourseEntitlement.objects.filter(mode__in=applicable_seat_types, course__in=self.courses.all())
 
     @property
     def seat_types(self):

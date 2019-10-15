@@ -532,7 +532,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             course_run_key,
             ', '.join(certificate_types)
         )
-        course_run.seats.exclude(type__in=certificate_types).delete()
+        course_run.seats.exclude(type__slug__in=certificate_types).delete()
 
     def update_seat(self, course_run, product_body):
         stock_record = product_body['stockrecords'][0]
@@ -548,7 +548,16 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
         attributes = {attribute['name']: attribute['value'] for attribute in product_body['attribute_values']}
 
-        seat_type = attributes.get('certificate_type', Seat.AUDIT)
+        certificate_type = attributes.get('certificate_type', Seat.AUDIT)
+        try:
+            seat_type = SeatType.objects.get(slug=certificate_type)
+        except SeatType.DoesNotExist:
+            msg = 'Could not find seat type {seat_type} while loading seat with sku {sku}'.format(
+                seat_type=certificate_type, sku=sku
+            )
+            logger.warning(msg)
+            return
+
         credit_provider = attributes.get('credit_provider')
 
         credit_hours = attributes.get('credit_hours')

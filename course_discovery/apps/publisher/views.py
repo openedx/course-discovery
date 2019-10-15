@@ -760,7 +760,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
         """
         if discovery_course.canonical_course_run:
             for seat in discovery_course.canonical_course_run.seats.all():
-                if seat.type == DiscoverySeat.MASTERS:
+                if seat.type.slug == DiscoverySeat.MASTERS:
                     return True
         return False
 
@@ -1013,7 +1013,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
         if (discovery_canonical_run and
                 publisher_course_run.lms_course_id == discovery_canonical_run.key):
             for seat in discovery_canonical_run.seats.all():
-                if seat.type == DiscoverySeat.MASTERS:
+                if seat.type.slug == DiscoverySeat.MASTERS:
                     return True
         return False
 

@@ -54,6 +54,7 @@ PREFETCH_FIELDS = {
         'language',
         'seats',
         'seats__currency',
+        'seats__type',
         'staff',
         'staff__position',
         'staff__position__organization',
@@ -535,9 +536,7 @@ class CorporateEndorsementSerializer(serializers.ModelSerializer):
 
 class SeatSerializer(serializers.ModelSerializer):
     """Serializer for the ``Seat`` model."""
-    type = serializers.ChoiceField(
-        choices=[name for name, __ in Seat.SEAT_TYPE_CHOICES]
-    )
+    type = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all().order_by('name'))
     price = serializers.DecimalField(
         decimal_places=Seat.PRICE_FIELD_CONFIG['decimal_places'],
         max_digits=Seat.PRICE_FIELD_CONFIG['max_digits'],
@@ -552,7 +551,7 @@ class SeatSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return Seat.everything.all().select_related('currency')
+        return Seat.everything.all().select_related('currency', 'type')
 
     class Meta:
         model = Seat
@@ -1062,7 +1061,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
             verified_seat_upgrade_deadline = None
 
             for seat in course_run.seats.all():
-                if seat.type == Seat.VERIFIED:
+                if seat.type.slug == Seat.VERIFIED:
                     verified_seat_upgrade_deadline = seat.upgrade_deadline
                     break
 
@@ -1295,6 +1294,7 @@ class CurriculumSerializer(serializers.ModelSerializer):
                 'course',
                 'course__course_runs',
                 'course__course_runs__seats',
+                'course__course_runs__seats__type',
                 'course__course_runs__type',
                 'course__entitlements',
                 'course__authoring_organizations',
@@ -1666,7 +1666,7 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
         )
 
     def get_pid(self, obj):
-        return '{}-{}'.format(obj.course_run.key, obj.type)
+        return '{}-{}'.format(obj.course_run.key, obj.type.slug)
 
     def get_price(self, obj):
         return {
@@ -1750,11 +1750,11 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
         }
 
         for seat in obj.seats.all():
-            for key in seats[seat.type].keys():
-                if seat.type == 'credit':
+            for key in seats[seat.type.slug].keys():
+                if seat.type.slug == 'credit':
                     seats['credit'][key].append(SeatSerializer(seat).data[key])
                 else:
-                    seats[seat.type][key] = SeatSerializer(seat).data[key]
+                    seats[seat.type.slug][key] = SeatSerializer(seat).data[key]
 
         for credit_attr in seats['credit']:
             seats['credit'][credit_attr] = ','.join([str(e) for e in seats['credit'][credit_attr]])
@@ -1896,7 +1896,7 @@ class CourseSearchSerializer(HaystackSerializer):
         ]
 
     def get_seat_types(self, result):
-        seat_types = [seat for course_run in result.object.course_runs.all() for seat in course_run.seat_types]
+        seat_types = [seat.slug for course_run in result.object.course_runs.all() for seat in course_run.seat_types]
         return list(set(seat_types))
 
     class Meta:

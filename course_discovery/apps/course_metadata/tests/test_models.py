@@ -37,7 +37,7 @@ from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.tests import factories
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory, SeatTypeFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -109,16 +109,17 @@ class TestCourse(TestCase):
             end=active_course_end,
             enrollment_end=open_enrollment_end
         )
+        verified_type = factories.SeatTypeFactory.verified()
         # Create a seat with 0 price and verify that the course field
         # `first_enrollable_paid_seat_price` returns None
-        factories.SeatFactory.create(course_run=course_run, type='verified', price=0, sku='ABCDEF')
+        factories.SeatFactory.create(course_run=course_run, type=verified_type, price=0, sku='ABCDEF')
         assert course_run.first_enrollable_paid_seat_price is None
         assert course.first_enrollable_paid_seat_price is None
 
         # Now create a seat with some price and verify that the course field
         # `first_enrollable_paid_seat_price` now returns the price of that
         # payable seat
-        factories.SeatFactory.create(course_run=course_run, type='verified', price=100, sku='ABCDEF')
+        factories.SeatFactory.create(course_run=course_run, type=verified_type, price=100, sku='ABCDEF')
         assert course_run.first_enrollable_paid_seat_price == 100
         assert course.first_enrollable_paid_seat_price == 100
 
@@ -423,23 +424,29 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     def test_enrollable_seats(self):
         """ Verify the expected seats get returned. """
         course_run = factories.CourseRunFactory(start=None, end=None, enrollment_start=None, enrollment_end=None)
-        verified_seat = factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
-        professional_seat = factories.SeatFactory(course_run=course_run, type=Seat.PROFESSIONAL, upgrade_deadline=None)
-        honor_seat = factories.SeatFactory(course_run=course_run, type=Seat.HONOR, upgrade_deadline=None)
-        assert course_run.enrollable_seats([Seat.VERIFIED, Seat.PROFESSIONAL]) == [verified_seat, professional_seat]
+        verified_seat_type = factories.SeatTypeFactory.verified()
+        professional_seat_type = factories.SeatTypeFactory.professional()
+        honor_seat_type = factories.SeatTypeFactory.honor()
+        verified_seat = factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
+        professional_seat = factories.SeatFactory(course_run=course_run, type=professional_seat_type,
+                                                  upgrade_deadline=None)
+        honor_seat = factories.SeatFactory(course_run=course_run, type=honor_seat_type, upgrade_deadline=None)
+        self.assertEqual(course_run.enrollable_seats([verified_seat_type, professional_seat_type]),
+                         [verified_seat, professional_seat])
 
         # The method should not care about the course run's start date.
         course_run.start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
         course_run.save()
-        assert course_run.enrollable_seats([Seat.VERIFIED, Seat.PROFESSIONAL]) == [verified_seat, professional_seat]
+        self.assertEqual(course_run.enrollable_seats([verified_seat_type, professional_seat_type]),
+                         [verified_seat, professional_seat])
 
         # Enrollable seats of any type should be returned when no type parameter is specified.
-        assert course_run.enrollable_seats() == [verified_seat, professional_seat, honor_seat]
+        self.assertEqual(course_run.enrollable_seats(), [verified_seat, professional_seat, honor_seat])
 
     def test_has_enrollable_seats(self):
         """ Verify the expected value of has_enrollable_seats is returned. """
         course_run = factories.CourseRunFactory(start=None, end=None, enrollment_start=None, enrollment_end=None)
-        factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
+        factories.SeatFactory(course_run=course_run, type=factories.SeatTypeFactory.verified(), upgrade_deadline=None)
         assert course_run.has_enrollable_seats is True
 
         course_run.end = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
@@ -504,8 +511,8 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         self.assertEqual(self.course_run.seat_types, [])
 
         seats = factories.SeatFactory.create_batch(3, course_run=self.course_run)
-        expected = sorted([seat.type for seat in seats])
-        self.assertEqual(sorted(self.course_run.seat_types), expected)
+        expected = sorted(seat.type.slug for seat in seats)
+        self.assertEqual(sorted(seat_type.slug for seat_type in self.course_run.seat_types), expected)
 
     @ddt.data(
         ('obviously-wrong', None,),
@@ -520,7 +527,8 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     def test_type_legacy(self, seat_types, expected_course_run_type):
         """ Verify the property returns the appropriate type string for the CourseRun. """
         for seat_type in seat_types:
-            factories.SeatFactory(course_run=self.course_run, type=seat_type)
+            type_obj = SeatType.objects.update_or_create(slug=seat_type, defaults={'name': seat_type})[0]
+            factories.SeatFactory(course_run=self.course_run, type=type_obj)
         self.assertEqual(self.course_run.type_legacy, expected_course_run_type)
 
     def test_level_type(self):
@@ -625,7 +633,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         """
         course_run = factories.CourseRunFactory.create()
         for seat_type, price in seat_config:
-            factories.SeatFactory.create(course_run=course_run, type=seat_type, price=price)
+            factories.SeatFactory.create(course_run=course_run, type=SeatType.objects.get(slug=seat_type), price=price)
         self.assertEqual(course_run.has_enrollable_paid_seats(), expected_result)
 
     def test_first_enrollable_paid_seat_sku(self):
@@ -633,7 +641,8 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         Verify that first_enrollable_paid_seat_sku returns sku of first paid seat.
         """
         course_run = factories.CourseRunFactory.create()
-        factories.SeatFactory.create(course_run=course_run, type='verified', price=10, sku='ABCDEF')
+        factories.SeatFactory.create(course_run=course_run, type=factories.SeatTypeFactory.verified(), price=10,
+                                     sku='ABCDEF')
         self.assertEqual(course_run.first_enrollable_paid_seat_sku(), 'ABCDEF')
 
     def test_first_enrollable_paid_seat_price(self):
@@ -641,7 +650,8 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         Verify that first_enrollable_paid_seat_price returns price of first paid seat.
         """
         course_run = factories.CourseRunFactory.create()
-        factories.SeatFactory.create(course_run=course_run, type='verified', price=10, sku='ABCDEF')
+        factories.SeatFactory.create(course_run=course_run, type=factories.SeatTypeFactory.verified(), price=10,
+                                     sku='ABCDEF')
         self.assertEqual(course_run.first_enrollable_paid_seat_price, 10)
 
     @ddt.data(
@@ -693,7 +703,8 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run = factories.CourseRunFactory.create(end=end, enrollment_end=enrollment_end)
         for seat_type, price, deadline in seat_config:
             deadline = parse(deadline) if deadline else None
-            factories.SeatFactory.create(course_run=course_run, type=seat_type, price=price, upgrade_deadline=deadline)
+            factories.SeatFactory.create(course_run=course_run, type=SeatType.objects.get(slug=seat_type), price=price,
+                                         upgrade_deadline=deadline)
 
         expected_result = parse(expected_result) if expected_result else None
         self.assertEqual(course_run.get_paid_seat_enrollment_end(), expected_result)
@@ -720,7 +731,8 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         and false otherwise
         """
         course_run = factories.CourseRunFactory.create(start=start, end=end, enrollment_end=end)
-        factories.SeatFactory.create(course_run=course_run, upgrade_deadline=deadline, type='verified', price=1)
+        factories.SeatFactory.create(course_run=course_run, upgrade_deadline=deadline,
+                                     type=factories.SeatTypeFactory.verified(), price=1)
         assert course_run.is_current_and_still_upgradeable() == is_current
 
     def test_image_url(self):
@@ -861,7 +873,7 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         factories.SeatFactory(course_run=self.course_run, draft=True)
         # We have to specify a SeatType that exists in Seat.ENTITLEMENT_MODES in order for the
         # official version of the Entitlement to be created
-        entitlement_mode = SeatType.objects.get(slug='verified')
+        entitlement_mode = SeatTypeFactory.verified()
         factories.CourseEntitlementFactory(course=self.course_run.course, mode=entitlement_mode, draft=True)
         self.course_run.course.save()
         self.course_run.save()
@@ -984,20 +996,20 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         self.course_run.status = CourseRunStatus.Reviewed
         self.course_run.course.draft = True
         upgrade_deadline = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=10)
+        verified_type = SeatTypeFactory.verified()
         factories.SeatFactory(
             course_run=self.course_run,
             draft=True,
-            type=Seat.VERIFIED,
+            type=verified_type,
             upgrade_deadline=upgrade_deadline
         )
 
-        entitlement_mode = SeatType.objects.get(slug='verified')
-        factories.CourseEntitlementFactory(course=self.course_run.course, mode=entitlement_mode, draft=True)
+        factories.CourseEntitlementFactory(course=self.course_run.course, mode=verified_type, draft=True)
         self.course_run.course.save()
         self.course_run.save()
-        draft_seat = Seat.everything.get(course_run=self.course_run, draft=True, type=Seat.VERIFIED)
+        draft_seat = Seat.everything.get(course_run=self.course_run, draft=True, type=verified_type)
         official_run = CourseRun.everything.get(key=self.course_run.key, draft=False)
-        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=Seat.VERIFIED)
+        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=verified_type)
 
         assert draft_seat.upgrade_deadline == upgrade_deadline
         assert official_seat.upgrade_deadline == upgrade_deadline
@@ -1010,10 +1022,10 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         draft_run = CourseRun.everything.get(key=self.course_run.key, draft=True)
         draft_run.update_or_create_official_version()
 
-        draft_seat = Seat.everything.get(course_run=self.course_run, draft=True, type=Seat.VERIFIED)
-        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=Seat.VERIFIED)
-        assert draft_run.seats.get(type=Seat.VERIFIED).upgrade_deadline == new_deadline
-        assert official_run.seats.get(type=Seat.VERIFIED).upgrade_deadline == new_deadline
+        draft_seat = Seat.everything.get(course_run=self.course_run, draft=True, type=verified_type)
+        official_seat = Seat.everything.get(course_run=official_run, draft=False, type=verified_type)
+        assert draft_run.seats.get(type=verified_type).upgrade_deadline == new_deadline
+        assert official_run.seats.get(type=verified_type).upgrade_deadline == new_deadline
 
 
 @ddt.ddt
@@ -1265,12 +1277,14 @@ class ProgramTests(TestCase):
         course_run = factories.CourseRunFactory()
         course_run.course.canonical_course_run = course_run
         course_run.course.save()
-        factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
-        factories.SeatFactory(type='credit', currency=currency, course_run=course_run, price=600)
-        factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=100)
+        audit_seat_type = factories.SeatTypeFactory.audit()
+        credit_seat_type = factories.SeatTypeFactory.credit()
+        verified_seat_type = factories.SeatTypeFactory.verified()
+        factories.SeatFactory(type=audit_seat_type, currency=currency, course_run=course_run, price=0)
+        factories.SeatFactory(type=credit_seat_type, currency=currency, course_run=course_run, price=600)
+        factories.SeatFactory(type=verified_seat_type, currency=currency, course_run=course_run, price=100)
 
-        applicable_seat_types = SeatType.objects.filter(slug__in=['credit', 'verified'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=[credit_seat_type, verified_seat_type])
 
         self.__program_with_seats = factories.ProgramFactory(type=program_type, courses=[course_run.course])
         return self.__program_with_seats
@@ -1294,7 +1308,7 @@ class ProgramTests(TestCase):
         if getattr(self, '__entitlements_program_and_courses', None):
             return self.__entitlements_program_and_courses
 
-        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
+        verified_seat_type = SeatTypeFactory.verified()
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         courses = []
         for __ in range(3):
@@ -1306,7 +1320,7 @@ class ProgramTests(TestCase):
                         enrollment_end=None,
                         course=entitlement.course
                     ),
-                    type=Seat.VERIFIED, upgrade_deadline=None
+                    type=verified_seat_type, upgrade_deadline=None
                 )
             courses.append(entitlement.course)
 
@@ -1319,12 +1333,13 @@ class ProgramTests(TestCase):
         return program, courses
 
     def assert_one_click_purchase_ineligible_program(
-            self, end=None, enrollment_start=None, enrollment_end=None, seat_type=Seat.VERIFIED,
+            self, end=None, enrollment_start=None, enrollment_end=None, seat_type=None,
             upgrade_deadline=None, one_click_purchase_enabled=True, excluded_course_runs=None, program_type=None
     ):
         course_run = factories.CourseRunFactory(
             end=end, enrollment_start=enrollment_start, enrollment_end=enrollment_end
         )
+        seat_type = seat_type or SeatTypeFactory.verified()
         factories.SeatFactory(course_run=course_run, type=seat_type, upgrade_deadline=upgrade_deadline)
         program = factories.ProgramFactory(
             courses=[course_run.course],
@@ -1383,7 +1398,7 @@ class ProgramTests(TestCase):
 
     def test_one_click_purchase_eligible(self):
         """ Verify that program is one click purchase eligible. """
-        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
+        verified_seat_type = SeatTypeFactory.verified()
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
 
         # Program has one_click_purchase_enabled set to True,
@@ -1395,7 +1410,7 @@ class ProgramTests(TestCase):
                 end=None,
                 enrollment_end=None
             )
-            factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
+            factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
             courses.append(course_run.course)
         program = factories.ProgramFactory(
             courses=courses,
@@ -1411,7 +1426,7 @@ class ProgramTests(TestCase):
             end=None,
             enrollment_end=None
         )
-        factories.SeatFactory(course_run=course_run, type=Seat.VERIFIED, upgrade_deadline=None)
+        factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
         course = course_run.course
         excluded_course_runs = [
             factories.CourseRunFactory(course=course),
@@ -1435,7 +1450,7 @@ class ProgramTests(TestCase):
     def test_one_click_purchase_ineligible_wrong_mode(self):
         """ Verify that program is not one click purchase eligible if course entitlement product has the wrong mode. """
         program, courses = self.create_program_with_entitlements_and_seats()
-        honor_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.HONOR)
+        honor_seat_type = SeatTypeFactory.honor()
         honor_mode_entitlement = courses[0].entitlements.first()
         original_mode = honor_mode_entitlement.mode
         honor_mode_entitlement.mode = honor_seat_type
@@ -1452,7 +1467,7 @@ class ProgramTests(TestCase):
         multiple entitlement products with correct modes.
         """
         program, courses = self.create_program_with_entitlements_and_seats()
-        credit_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.CREDIT)
+        credit_seat_type = SeatTypeFactory.credit()
         program.type.applicable_seat_types.add(credit_seat_type)
         # We are limiting each course to a single entitlement so this should raise an IntegrityError
         with transaction.atomic():
@@ -1462,7 +1477,7 @@ class ProgramTests(TestCase):
     def test_one_click_purchase_eligible_with_unpublished_runs(self):
         """ Verify that program with unpublished course runs is one click purchase eligible. """
 
-        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
+        verified_seat_type = SeatTypeFactory.verified()
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         published_course_run = factories.CourseRunFactory(
             end=None,
@@ -1475,8 +1490,8 @@ class ProgramTests(TestCase):
             status=CourseRunStatus.Unpublished,
             course=published_course_run.course
         )
-        factories.SeatFactory(course_run=published_course_run, type=Seat.VERIFIED, upgrade_deadline=None)
-        factories.SeatFactory(course_run=unpublished_course_run, type=Seat.VERIFIED, upgrade_deadline=None)
+        factories.SeatFactory(course_run=published_course_run, type=verified_seat_type, upgrade_deadline=None)
+        factories.SeatFactory(course_run=unpublished_course_run, type=verified_seat_type, upgrade_deadline=None)
         program = factories.ProgramFactory(
             courses=[published_course_run.course],
             one_click_purchase_enabled=True,
@@ -1488,7 +1503,7 @@ class ProgramTests(TestCase):
         """ Verify that program is one click purchase ineligible. """
         yesterday = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
         tomorrow = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
-        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
+        verified_seat_type = SeatTypeFactory.verified()
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
 
         # Program has one_click_purchase_enabled set to False and
@@ -1502,7 +1517,7 @@ class ProgramTests(TestCase):
         # one course has two course runs
         course_run = factories.CourseRunFactory(end=None, enrollment_end=None)
         second_course_run = factories.CourseRunFactory(end=None, enrollment_end=None, course=course_run.course)
-        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
+        factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
         program = factories.ProgramFactory(
             courses=[course_run.course],
             one_click_purchase_enabled=True,
@@ -1548,7 +1563,7 @@ class ProgramTests(TestCase):
         # Program has one_click_purchase_enabled set to True, one course
         # with one course run, seat type is not purchasable
         self.assert_one_click_purchase_ineligible_program(
-            seat_type='incorrect',
+            seat_type=SeatTypeFactory.credit(),
             program_type=program_type,
         )
 
@@ -1611,13 +1626,13 @@ class ProgramTests(TestCase):
 
         course = factories.CourseFactory()
         course_runs_same_course = factories.CourseRunFactory.create_batch(3, course=course)
+        verified_seat_type = factories.SeatTypeFactory.verified()
         for course_run in course_runs_same_course:
-            factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=100)
+            factories.SeatFactory(type=verified_seat_type, currency=currency, course_run=course_run, price=100)
         course.canonical_course_run = course_runs_same_course[0]
         course.save()
 
-        applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
 
         program = factories.ProgramFactory(type=program_type, courses=[course])
 
@@ -1626,12 +1641,12 @@ class ProgramTests(TestCase):
     def test_entitlements(self):
         """ Test entitlements returns only applicable course entitlements. """
         courses = factories.CourseFactory.create_batch(3)
-        verified_mode = SeatType.objects.get(slug='verified')
-        credit_mode = SeatType.objects.get(slug='credit')
-        professional_mode = SeatType.objects.get(slug='professional')
-        for i, mode in enumerate([verified_mode, credit_mode, professional_mode]):
+        verified_type = factories.SeatTypeFactory.verified()
+        credit_type = factories.SeatTypeFactory.credit()
+        professional_type = factories.SeatTypeFactory.professional()
+        for i, mode in enumerate([verified_type, credit_type, professional_type]):
             factories.CourseEntitlementFactory(course=courses[i], mode=mode)
-        applicable_seat_types = SeatType.objects.filter(name__in=['verified', 'professional'])
+        applicable_seat_types = [verified_type, professional_type]
         program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
 
         program = factories.ProgramFactory(type=program_type, courses=courses)
@@ -1714,15 +1729,16 @@ class ProgramTests(TestCase):
         """ Verifies the price_range property of a program with multiple courses """
         currency = Currency.objects.get(code='USD')
         test_price = 100
+        audit_seat_type = factories.SeatTypeFactory.audit()
+        verified_seat_type = factories.SeatTypeFactory.verified()
         for course_run in self.course_runs:
-            factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
-            factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=test_price)
+            factories.SeatFactory(type=audit_seat_type, currency=currency, course_run=course_run, price=0)
+            factories.SeatFactory(type=verified_seat_type, currency=currency, course_run=course_run, price=test_price)
             test_price += 100
             course_run.course.canonical_course_run = course_run
             course_run.course.save()
 
-        applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
 
         self.program.type = program_type
 
@@ -1734,13 +1750,13 @@ class ProgramTests(TestCase):
         """ Verifies the price_range property of a program with course entitlement products """
         currency = Currency.objects.get(code='USD')
         test_price = 100
-        verified_mode = SeatType.objects.get(slug='verified')
+        verified_type = SeatTypeFactory.verified()
         for course_run in self.course_runs:
             factories.CourseEntitlementFactory(
-                currency=currency, course=course_run.course, price=test_price, mode=verified_mode
+                currency=currency, course=course_run.course, price=test_price, mode=verified_type
             )
             if create_seats:
-                factories.SeatFactory(type='verified', currency=currency, price=test_price, course_run=course_run)
+                factories.SeatFactory(type=verified_type, currency=currency, price=test_price, course_run=course_run)
             course_run.course.canonical_course_run = course_run
             course_run.course.save()
             test_price += 100
@@ -1758,9 +1774,11 @@ class ProgramTests(TestCase):
         single_course_course_runs = factories.CourseRunFactory.create_batch(3)
         course = factories.CourseFactory()
         course_runs_same_course = factories.CourseRunFactory.create_batch(3, course=course)
+        audit_seat_type = factories.SeatTypeFactory.audit()
+        verified_seat_type = factories.SeatTypeFactory.verified()
         for course_run in single_course_course_runs:
-            factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
-            factories.SeatFactory(type='verified', currency=currency, course_run=course_run, price=10)
+            factories.SeatFactory(type=audit_seat_type, currency=currency, course_run=course_run, price=0)
+            factories.SeatFactory(type=verified_seat_type, currency=currency, course_run=course_run, price=10)
             course_run.course.canonical_course_run = course_run
             course_run.course.save()
 
@@ -1776,17 +1794,16 @@ class ProgramTests(TestCase):
                 course_run.enrollment_start = None
                 course_run.end = None
             course_run.save()
-            factories.SeatFactory(type='audit', currency=currency, course_run=course_run, price=0)
+            factories.SeatFactory(type=audit_seat_type, currency=currency, course_run=course_run, price=0)
             factories.SeatFactory(
-                type='verified',
+                type=verified_seat_type,
                 currency=currency,
                 course_run=course_run,
                 price=(day_separation * 100))
             day_separation += 1
         course.canonical_course_run = course_runs_same_course[2]
         course.save()
-        applicable_seat_types = SeatType.objects.filter(slug__in=['verified'])
-        program_type = factories.ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
+        program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
 
         program_courses = [course_run.course for course_run in single_course_course_runs]
         program_courses.append(course)
@@ -1835,7 +1852,7 @@ class ProgramTests(TestCase):
 
     def test_seat_types(self):
         program = self.create_program_with_seats()
-        self.assertEqual(program.seat_types, set(['credit', 'verified']))
+        self.assertEqual({t.slug for t in program.seat_types}, {Seat.CREDIT, Seat.VERIFIED})
 
     @ddt.data(ProgramStatus.choices)
     def test_is_active(self, status):

@@ -100,6 +100,30 @@ class SeatTypeFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = SeatType
 
+    @staticmethod
+    def audit():
+        return SeatType.objects.get(slug=Seat.AUDIT)
+
+    @staticmethod
+    def credit():
+        return SeatType.objects.get(slug=Seat.CREDIT)
+
+    @classmethod
+    def honor(cls):
+        return SeatType.objects.get_or_create(name=Seat.HONOR.capitalize())[0]  # name will create slug
+
+    @classmethod
+    def masters(cls):
+        return SeatType.objects.get_or_create(name=Seat.MASTERS.capitalize())[0]  # name will create slug
+
+    @staticmethod
+    def professional():
+        return SeatType.objects.get(slug=Seat.PROFESSIONAL)
+
+    @staticmethod
+    def verified():
+        return SeatType.objects.get(slug=Seat.VERIFIED)
+
 
 class ModeFactory(factory.DjangoModelFactory):
     name = FuzzyText()
@@ -283,7 +307,7 @@ class CourseRunFactoryNoSignals(CourseRunFactory):
 
 
 class SeatFactory(factory.DjangoModelFactory):
-    type = FuzzyChoice([name for name, __ in Seat.SEAT_TYPE_CHOICES])
+    type = factory.SubFactory(SeatTypeFactory)
     price = FuzzyDecimal(0.0, 650.0)
     currency = factory.Iterator(Currency.objects.all())
     upgrade_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))

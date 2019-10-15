@@ -11,7 +11,8 @@ from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program, Seat
+    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program, Seat,
+    SeatType
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
@@ -58,7 +59,7 @@ def add_masters_track_on_course(sender, instance, **kwargs):  # pylint: disable=
         for course_run in instance.course_runs:
             Seat.objects.update_or_create(
                 course_run=course_run,
-                type=Seat.MASTERS,
+                type=SeatType.objects.get(slug=Seat.MASTERS),
                 currency=us_currency,
             )
 
@@ -72,8 +73,8 @@ def publish_masters_track(sender, instance, **kwargs):  # pylint: disable=unused
     masters enrollment_mode created
     """
     seat = instance
-    if seat.type != Seat.MASTERS:
-        logger.debug('Not going to publish non masters seats')
+    if seat.type.slug != Seat.MASTERS:
+        logger.debug('Not going to publish non masters seat (type %s)', seat.type.slug)
         return
 
     if not masters_course_mode_enabled():
@@ -85,7 +86,7 @@ def publish_masters_track(sender, instance, **kwargs):  # pylint: disable=unused
     if not partner.lms_api_client:
         logger.info(
             'LMS api client is not initiated. Cannot publish [%s] track for [%s] course_run',
-            seat.type,
+            seat.type.slug,
             seat.course_run.key,
         )
         return
@@ -162,15 +163,15 @@ def _create_masters_track_on_lms_if_necessary(seat, partner):
     get_response = partner.lms_api_client.get(url)
     if _seat_type_exists(get_response.json(), Seat.MASTERS):
         logger.info('Creating [{}] track on LMS for [{}] while it already have the track.'.format(
-            seat.type,
+            seat.type.slug,
             course_run_key,
         ))
         return
 
     data = {
         'course_id': seat.course_run.key,
-        'mode_slug': seat.type,
-        'mode_display_name': seat.type.capitalize(),
+        'mode_slug': seat.type.slug,
+        'mode_display_name': seat.type.name,
         'currency': str(seat.currency.code) if seat.currency else '',
         'min_price': int(seat.price),
     }
@@ -178,11 +179,11 @@ def _create_masters_track_on_lms_if_necessary(seat, partner):
     response = partner.lms_api_client.post(url, json=data)
 
     if response.ok:
-        logger.info('Successfully published [%s] seat data for [%s].', seat.type, course_run_key)
+        logger.info('Successfully published [%s] seat data for [%s].', seat.type.slug, course_run_key)
     else:
         logger.exception(
             'Failed to add [%s] course_mode to course_run [%s] in course_mode api to LMS.',
-            seat.type,
+            seat.type.slug,
             course_run_key
         )
 

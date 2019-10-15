@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-18 14:21+0000\n"
+"POT-Creation-Date: 2019-10-21 17:04+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -587,24 +587,21 @@ msgstr "Rétïréd Ⱡ'σяєм ιρѕυм #"
 msgid "Deleted"
 msgstr "Délétéd Ⱡ'σяєм ιρѕυм #"
 
-#: apps/course_metadata/choices.py apps/course_metadata/models.py
-#: apps/publisher/models.py
+#: apps/course_metadata/choices.py apps/publisher/models.py
 msgid "Honor"
 msgstr "Hönör Ⱡ'σяєм ιρѕ#"
 
-#: apps/course_metadata/choices.py apps/course_metadata/models.py
-#: apps/publisher/forms.py apps/publisher/forms.py apps/publisher/models.py
+#: apps/course_metadata/choices.py apps/publisher/forms.py
+#: apps/publisher/forms.py apps/publisher/models.py
 msgid "Credit"
 msgstr "Çrédït Ⱡ'σяєм ιρѕυ#"
 
-#: apps/course_metadata/choices.py apps/course_metadata/models.py
-#: apps/publisher/forms.py apps/publisher/forms.py apps/publisher/models.py
-#: apps/publisher/models.py
+#: apps/course_metadata/choices.py apps/publisher/forms.py
+#: apps/publisher/forms.py apps/publisher/models.py apps/publisher/models.py
 msgid "Verified"
 msgstr "Vérïfïéd Ⱡ'σяєм ιρѕυм ∂#"
 
-#: apps/course_metadata/choices.py apps/course_metadata/models.py
-#: apps/publisher/models.py
+#: apps/course_metadata/choices.py apps/publisher/models.py
 msgid "Professional"
 msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -1388,10 +1385,10 @@ msgstr "Ûpçömïng Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/course_metadata/models.py
 msgid ""
-"Switching seat modes after being reviewed is not supported. Please reach out"
+"Switching seat types after being reviewed is not supported. Please reach out"
 " to your project coordinator for additional help if necessary."
 msgstr ""
-"Swïtçhïng séät mödés äftér ßéïng révïéwéd ïs nöt süppörtéd. Pléäsé réäçh öüt"
+"Swïtçhïng séät týpés äftér ßéïng révïéwéd ïs nöt süppörtéd. Pléäsé réäçh öüt"
 " tö ýöür pröjéçt çöördïnätör för äddïtïönäl hélp ïf néçéssärý. Ⱡ'σяєм ιρѕυм "
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
 "ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
@@ -1399,14 +1396,6 @@ msgstr ""
 "¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαв#"
-
-#: apps/course_metadata/models.py apps/publisher/models.py
-msgid "Audit"
-msgstr "Àüdït Ⱡ'σяєм ιρѕ#"
-
-#: apps/course_metadata/models.py
-msgid "Masters"
-msgstr "Mästérs Ⱡ'σяєм ιρѕυм #"
 
 #: apps/course_metadata/models.py
 msgid "FAQs"
@@ -2608,6 +2597,10 @@ msgstr ""
 #: apps/publisher/models.py
 msgid "Has OFAC Restriction Text"
 msgstr "Häs ÖFÀÇ Réstrïçtïön Téxt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/publisher/models.py
+msgid "Audit"
+msgstr "Àüdït Ⱡ'σяєм ιρѕ#"
 
 #: apps/publisher/models.py
 msgid "Professional (with ID verification)"

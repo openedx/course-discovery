@@ -181,7 +181,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         return obj.first_enrollable_paid_seat_price
 
     def prepare_seat_types(self, obj):
-        seat_types = [seat for course_run in obj.course_runs.all() for seat in course_run.seat_types]
+        seat_types = [seat.slug for course_run in obj.course_runs.all() for seat in course_run.seat_types]
         return list(set(seat_types))
 
     def prepare_subject_uuids(self, obj):
@@ -215,7 +215,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     pacing_type = indexes.CharField(model_attr='pacing_type', null=True, faceted=True)
     marketing_url = indexes.CharField(null=True)
     slug = indexes.CharField(model_attr='slug', null=True)
-    seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
+    seat_types = indexes.MultiValueField(model_attr='seat_types__slug', null=True, faceted=True)
     type = indexes.CharField(model_attr='type_legacy', null=True, faceted=True)
     image_url = indexes.CharField(model_attr='image_url', null=True)
     partner = indexes.CharField(null=True, faceted=True)
@@ -308,7 +308,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     status = indexes.CharField(model_attr='status', faceted=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
-    seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
+    seat_types = indexes.MultiValueField(model_attr='seat_types__slug', null=True, faceted=True)
     published = indexes.BooleanField(null=False, faceted=True)
     min_hours_effort_per_week = indexes.IntegerField(model_attr='min_hours_effort_per_week', null=True)
     max_hours_effort_per_week = indexes.IntegerField(model_attr='max_hours_effort_per_week', null=True)
