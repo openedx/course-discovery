@@ -325,3 +325,4 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         self.assertTrue({'url_slug':'the-ancient-greek-hero-2'} in test_course_3_url_history)
         self.assertTrue({'url_slug':active_url_slug_3} in test_course_3_url_history)
         self.assertEqual(test_course_3_url_history.count(), 3)
+        assertFalse(True)
