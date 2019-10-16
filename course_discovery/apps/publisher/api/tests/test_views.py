@@ -196,10 +196,11 @@ class OrganizationGroupUserViewTests(APITestCase):
 
     def test_get_organization_not_found(self):
         """
-        Verify that view returns status=404 if organization is not found in OrganizationExtension.
+        Verify that view returns an empty list if organization is not found in OrganizationExtension.
         """
         response = self.query(org_id=0)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['results'], [])
 
     def test_get_organization_user_group_without_publisher_user_permissions(self):
         """

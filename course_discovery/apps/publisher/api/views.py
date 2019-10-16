@@ -4,6 +4,7 @@ import re
 from dal import autocomplete
 from django.apps import apps
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import ObjectDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView, get_object_or_404
@@ -65,8 +66,11 @@ class OrganizationGroupUserView(ListAPIView):
     def get_queryset(self):
         pk = self.kwargs.get('pk')
         lookup = {'organization': pk} if id_regex.fullmatch(pk) else {'organization__uuid': pk}
-        org_extension = get_object_or_404(OrganizationExtension, **lookup)
-        return User.objects.filter(groups__organization_extension=org_extension).order_by('full_name', 'username')
+        try:
+            org_extension = OrganizationExtension.objects.get(**lookup)
+            return User.objects.filter(groups__organization_extension=org_extension).order_by('full_name', 'username')
+        except ObjectDoesNotExist:
+            return OrganizationExtension.objects.none()
 
 
 class UpdateCourseRunView(UpdateAPIView):
