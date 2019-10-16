@@ -44,6 +44,9 @@ DATABASES = {
         'HOST': os.environ.get('DB_HOST', ''),
         'PORT': os.environ.get('DB_PORT', ''),
         'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', 0)),
+        'TEST': {
+            'NAME': '{}_test'.format(os.environ.get('DB_NAME', ':memory:')),
+        }
     },
 }
 
