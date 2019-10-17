@@ -49,7 +49,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(49):
+        with self.assertNumQueries(52):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -58,7 +58,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(48, threshold=3):
+        with self.assertNumQueries(52, threshold=3):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.data, self.serialize_course(self.course))
@@ -243,7 +243,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        with self.assertNumQueries(70):
+        with self.assertNumQueries(73):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -254,7 +254,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(70):
+        with self.assertNumQueries(73):
             response = self.client.get(url)
             self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
