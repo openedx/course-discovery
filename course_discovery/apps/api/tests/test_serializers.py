@@ -149,6 +149,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
     @classmethod
     def get_expected_data(cls, course, request):
         expected = super().get_expected_data(course, request)
+
         expected.update({
             'short_description': course.short_description,
             'full_description': course.full_description,
@@ -258,6 +259,9 @@ class CourseEditorSerializerTests(TestCase):
 @ddt.ddt
 class CourseWithProgramsSerializerTests(CourseSerializerTests):
     serializer_class = CourseWithProgramsSerializer
+    YESTERDAY = datetime.datetime.now(UTC) - datetime.timedelta(days=1)
+    TOMORROW = datetime.datetime.now(UTC) + datetime.timedelta(days=1)
+    TWO_WEEKS_FROM_TODAY = datetime.datetime.now(UTC) + datetime.timedelta(days=14)
 
     @classmethod
     def get_expected_data(cls, course, request):
@@ -270,9 +274,24 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             ).data,
             'course_run_keys': [course_run.key for course_run in course.course_runs.all()],
             'editable': False,
+            'advertised_course_run_uuid': None,
         })
 
         return expected
+
+    def create_upgradeable_seat_for_course_run(self, course_run):
+        return SeatFactory(
+            course_run=course_run,
+            type='verified',
+            upgrade_deadline=self.TOMORROW
+        )
+
+    def create_not_upgradeable_seat_for_course_run(self, course_run):
+        return SeatFactory(
+            course_run=course_run,
+            type='verified',
+            upgrade_deadline=datetime.datetime(2014, 1, 1, tzinfo=UTC)
+        )
 
     def setUp(self):
         super().setUp()
@@ -288,6 +307,155 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         expected = self.get_expected_data(self.course, self.request)
         serializer = self.serializer_class(self.course, context={'request': self.request})
         self.assertDictEqual(serializer.data, expected)
+
+    def test_advertised_course_run_is_upgradeable_and_end_not_within_two_weeks(self):
+        start_days = [
+            self.YESTERDAY,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=2),
+            self.TOMORROW,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=30),
+        ]
+
+        end_days = [
+            datetime.datetime.now(UTC) + datetime.timedelta(days=13),
+            self.TWO_WEEKS_FROM_TODAY,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=30),
+            self.YESTERDAY,
+        ]
+
+        expected_advertised_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.YESTERDAY,
+            end=self.TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Published
+        )
+
+        self.create_upgradeable_seat_for_course_run(expected_advertised_course_run)
+
+        not_upgradeable_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.YESTERDAY,
+            end=self.TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Published
+        )
+
+        self.create_not_upgradeable_seat_for_course_run(not_upgradeable_course_run)
+
+        not_marketable_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.YESTERDAY,
+            end=self.TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Unpublished
+        )
+
+        self.create_upgradeable_seat_for_course_run(not_marketable_course_run)
+
+        for i in range(4):
+            cr = CourseRunFactory(
+                course=self.course,
+                start=start_days[i],
+                end=end_days[i],
+                status=CourseRunStatus.Published
+            )
+            self.create_upgradeable_seat_for_course_run(cr)
+
+        serializer = self.serializer_class(self.course, context={'request': self.request})
+        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
+
+    def test_advertised_course_run_is_upgradeable_and_starts_in_the_future(self):
+        start_days = [
+            self.YESTERDAY,
+            datetime.datetime.now(UTC) + datetime.timedelta(days=2),
+            datetime.datetime.now(UTC) - datetime.timedelta(days=30),
+        ]
+
+        end_days = [
+            datetime.datetime.now(UTC) + datetime.timedelta(days=13),
+            self.TWO_WEEKS_FROM_TODAY,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=1),
+        ]
+
+        expected_advertised_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.TOMORROW,
+            status=CourseRunStatus.Published
+        )
+
+        self.create_upgradeable_seat_for_course_run(expected_advertised_course_run)
+
+        not_upgradeable_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.TOMORROW,
+            end=datetime.datetime.now(UTC) + datetime.timedelta(days=30),
+            status=CourseRunStatus.Published,
+        )
+
+        self.create_not_upgradeable_seat_for_course_run(not_upgradeable_course_run)
+
+        not_marketable_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.YESTERDAY,
+            end=self.TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Unpublished
+        )
+
+        self.create_upgradeable_seat_for_course_run(not_marketable_course_run)
+
+        for i in range(3):
+            cr = CourseRunFactory(
+                course=self.course,
+                start=start_days[i],
+                end=end_days[i],
+                status=CourseRunStatus.Published,
+            )
+            self.create_upgradeable_seat_for_course_run(cr)
+
+        serializer = self.serializer_class(self.course, context={'request': self.request})
+        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
+
+    def test_advertise_course_run_else_condition(self):
+        start_days = [
+            self.YESTERDAY,
+            self.TOMORROW,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=30),
+        ]
+
+        end_days = [
+            datetime.datetime.now(UTC) + datetime.timedelta(days=13),
+            self.TWO_WEEKS_FROM_TODAY,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=1),
+        ]
+
+        expected_advertised_course_run = CourseRunFactory(
+            course=self.course,
+            start=datetime.datetime.now(UTC) + datetime.timedelta(days=2),
+            end=datetime.datetime.now(UTC) + datetime.timedelta(days=30),
+            status=CourseRunStatus.Published
+        )
+
+        self.create_not_upgradeable_seat_for_course_run(expected_advertised_course_run)
+
+        not_marketable_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.YESTERDAY,
+            end=self.TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Unpublished
+        )
+
+        self.create_upgradeable_seat_for_course_run(not_marketable_course_run)
+
+        for i in range(3):
+            cr = CourseRunFactory(
+                course=self.course,
+                start=start_days[i],
+                end=end_days[i],
+                status=CourseRunStatus.Published
+            )
+            if not i == 0:
+                self.create_not_upgradeable_seat_for_course_run(cr)
+
+        serializer = self.serializer_class(self.course, context={'request': self.request})
+        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
 
 
 class CurriculumSerializerTests(TestCase):
