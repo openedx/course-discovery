@@ -8,13 +8,16 @@ import responses
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
+    CourseMarketingSiteDataLoader, SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader,
+    SubjectMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import Organization, Subject
+from course_discovery.apps.course_metadata.models import Course, Organization, Subject
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, PartnerFactory
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.marketing_site.logger'
+MOCK_DRUPAL_REDIRECT_CSV_FILE = 'course_discovery/apps/course_metadata/data_loaders/tests/mock_redirect_csv.csv'
 
 
 class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
@@ -255,3 +258,63 @@ class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
 
         for sponsor in sponsors:
             self.assert_sponsor_loaded(sponsor)
+
+
+class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
+    loader_class = CourseMarketingSiteDataLoader
+    mocked_data = mock_data.UNIQUE_MARKETING_SITE_API_COURSE_BODIES
+
+    @mock.patch('course_discovery.apps.course_metadata.data_loaders.marketing_site.DRUPAL_REDIRECT_CSV_FILE',
+                MOCK_DRUPAL_REDIRECT_CSV_FILE)
+    def setUp(self):
+        super().setUp()
+
+    def get_key_from_mocked_data(self, course_dict):
+        compound_key = course_dict['field_course_id'].split('/')
+        return '{org}+{course}'.format(org=compound_key[0], course=compound_key[1])
+
+    def setup_courses(self):
+        # In our current world, we do not create courses from
+        # marketing site data, but we need them for creating redirects.
+        partner = PartnerFactory()
+        for course in self.mocked_data:
+            title = course['field_course_course_title']['value']
+            mocked = CourseFactory(key=self.get_key_from_mocked_data(course), partner=partner, title=title)
+            mocked.set_active_url_slug('')  # force the active url slug to be the slugified title
+
+    @responses.activate
+    def test_ingest(self):
+        self.mock_login_response()
+        self.setup_courses()
+        self.mock_api()
+
+        original_active_slugs_by_course_key = {}
+        for test_course in Course.everything.all():
+            original_active_slugs_by_course_key[test_course.key] = test_course.active_url_slug
+
+        self.loader.ingest()
+
+        test_course_1 = Course.everything.get(key='HarvardX+CS50x')
+        test_course_2 = Course.everything.get(key='HarvardX+PH207x')
+        test_course_3 = Course.everything.get(key='HarvardX+CB22x')
+
+        active_url_slug_1 = test_course_1.active_url_slug
+        active_url_slug_2 = test_course_2.active_url_slug
+        active_url_slug_3 = test_course_3.active_url_slug
+
+        # active slugs should not be affected
+        self.assertEqual(active_url_slug_1, original_active_slugs_by_course_key[test_course_1.key])
+        self.assertEqual(active_url_slug_2, original_active_slugs_by_course_key[test_course_2.key])
+        self.assertEqual(active_url_slug_3, original_active_slugs_by_course_key[test_course_3.key])
+
+        test_course_1_paths = list(map(lambda x: x.value, test_course_1.url_redirects.all()))
+
+        self.assertIn('/course/long/path', test_course_1_paths)
+        self.assertIn('/different-prefix/introduction-to-computer-science', test_course_1_paths)
+        self.assertEqual(test_course_1.url_redirects.count(), 2)
+
+        self.assertTrue(test_course_2.url_slug_history.filter(url_slug='health-numbers',
+                                                              is_active=False,
+                                                              is_active_on_draft=False).exists())
+        self.assertEqual(test_course_2.url_redirects.count(), 0)
+        self.assertEqual(test_course_3.url_redirects.count(), 0)

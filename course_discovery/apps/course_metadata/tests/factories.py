@@ -206,6 +206,15 @@ class CourseUrlSlugFactory(factory.DjangoModelFactory):
         model = CourseUrlSlug
 
 
+class CourseUrlRedirectFactory(factory.DjangoModelFactory):
+    course = factory.SubFactory(CourseFactory)
+    partner = factory.SelfAttribute('course.partner')
+    value = FuzzyText()
+
+    class Meta:
+        model = CourseUrlRedirect
+
+
 @factory.django.mute_signals(post_save)
 class CourseFactoryNoSignals(CourseFactory):
     pass

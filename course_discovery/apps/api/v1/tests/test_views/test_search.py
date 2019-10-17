@@ -178,7 +178,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         ProgramFactory(courses=[course_run.course], status=program_status)
         self.reindex_courses(active_program)
 
-        with self.assertNumQueries(expected_queries, threshold=0):
+        with self.assertNumQueries(mixins.FuzzyInt(expected_queries, 3), threshold=0):
             response = self.get_response('software', path=path)
             assert response.status_code == 200
             response_data = response.data

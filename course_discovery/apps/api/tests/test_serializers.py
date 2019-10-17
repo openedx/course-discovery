@@ -181,7 +181,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'topics': list(course.topics.names()),
             'key_for_reruns': course.key_for_reruns,
             'url_slug': course.active_url_slug,
-            'url_slug_history': [course.active_url_slug]
+            'url_slug_history': [course.active_url_slug],
+            'url_redirects': []
         })
 
         return expected

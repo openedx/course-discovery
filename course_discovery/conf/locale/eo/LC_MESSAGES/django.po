@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-10 18:11+0000\n"
+"POT-Creation-Date: 2019-10-16 20:21+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1772,6 +1772,16 @@ msgstr ""
 "Pärtnér {partner_key} änd çöürsé pärtnér {course_partner_key} dö nöt mätçh "
 "whén ättémptïng tö sävé ürl slüg {url_slug} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+#, python-brace-format
+msgid ""
+"Partner {partner_key} and course partner {course_partner_key} do not match "
+"when attempting to save url redirect {url_path}"
+msgstr ""
+"Pärtnér {partner_key} änd çöürsé pärtnér {course_partner_key} dö nöt mätçh "
+"whén ättémptïng tö sävé ürl rédïréçt {url_path} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє#"
 
 #: apps/course_metadata/models.py
 msgid "Course Run IDs"
