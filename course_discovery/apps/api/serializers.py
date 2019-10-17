@@ -186,6 +186,32 @@ class MetadataWithRelatedChoices(SimpleMetadata):
         return info
 
 
+class MetadataWithType(MetadataWithRelatedChoices):
+    """ A version of the MetadataWithRelatedChoices class that also includes logic for Course Types """
+
+    def create_type_options(self, info):
+        info['type_options'] = [{
+            'uuid': course_type.uuid,
+            'name': course_type.name,
+            'entitlement_types': [entitlement_type.slug for entitlement_type in course_type.entitlement_types.all()],
+            'course_run_types': [{
+                'uuid': course_run_type.uuid,
+                'name': course_run_type.name,
+            } for course_run_type in course_type.course_run_types.all()],
+        } for course_type in CourseType.objects.all()]
+        return info
+
+    def get_field_info(self, field):
+        info = super().get_field_info(field)
+
+        # This line is because a child serializer of Course (the ProgramSerializer) also has
+        # the type field, but we only want it to match with the CourseSerializer
+        if field.field_name == 'type' and isinstance(field.parent, self.view.get_serializer_class()):
+            return self.create_type_options(info)
+
+        return info
+
+
 class BaseModelSerializer(serializers.ModelSerializer):
     """ Base ModelSerializer class for any generic overrides we want """
 

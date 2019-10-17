@@ -22,7 +22,7 @@ from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
-from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithRelatedChoices
+from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithType
 from course_discovery.apps.api.utils import get_query_param, reviewable_data_has_changed
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
@@ -66,7 +66,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     lookup_value_regex = COURSE_ID_REGEX + '|' + COURSE_UUID_REGEX
     permission_classes = (IsAuthenticated, IsCourseEditorOrReadOnly,)
     serializer_class = serializers.CourseWithProgramsSerializer
-    metadata_class = MetadataWithRelatedChoices
+    metadata_class = MetadataWithType
     metadata_related_choices_whitelist = ('mode', 'level_type', 'subjects',)
 
     course_key_regex = re.compile(COURSE_ID_REGEX)
