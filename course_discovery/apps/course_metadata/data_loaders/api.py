@@ -238,6 +238,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'enrollment_end': self.parse_date(body['enrollment_end']),
             'hidden': body.get('hidden', False),
             'license': body.get('license') or '',  # license cannot be None
+            'title_override': body['name'],  # we support Studio edits, even though Publisher also owns titles
         }
 
         if not self.partner.uses_publisher or new_pub_fe:
@@ -245,7 +246,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         if not self.partner.uses_publisher:
             defaults.update({
-                'title_override': body['name'],
                 'short_description_override': body['short_description'],
                 'video': self.get_courserun_video(body),
                 'status': CourseRunStatus.Published,
