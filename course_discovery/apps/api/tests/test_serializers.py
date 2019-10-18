@@ -186,7 +186,9 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'key_for_reruns': course.key_for_reruns,
             'url_slug': course.active_url_slug,
             'url_slug_history': [course.active_url_slug],
-            'url_redirects': []
+            'url_redirects': [],
+            'course_run_statuses': course.course_run_statuses,
+            'editors': CourseEditorSerializer(course.editors, many=True, read_only=True).data,
         })
 
         return expected

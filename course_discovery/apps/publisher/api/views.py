@@ -69,6 +69,21 @@ class OrganizationGroupUserView(ListAPIView):
         return User.objects.filter(groups__organization_extension=org_extension).order_by('full_name', 'username')
 
 
+class OrganizationUserView(ListAPIView):
+    """ List view for all users in requester's organizations """
+    serializer_class = GroupUserSerializer
+    permission_classes = (IsAuthenticated, PublisherUserPermission)
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_staff:
+            partner = self.request.site.partner
+            organization_extensions = OrganizationExtension.objects.filter(organization__partner=partner)
+            return User.objects.filter(groups__organization_extension__in=organization_extensions).distinct()
+
+        return User.objects.filter(groups__organization_extension__group__in=user.groups.all()).distinct()
+
+
 class UpdateCourseRunView(UpdateAPIView):
     """ Update view for CourseRuns """
     permission_classes = (IsAuthenticated, InternalUserPermission,)
