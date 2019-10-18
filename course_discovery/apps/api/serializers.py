@@ -1808,14 +1808,10 @@ class CourseSearchSerializer(HaystackSerializer):
 
     def get_course_runs(self, result):
         request = self.context['request']
-        query_params = request.GET
-        exclude_expire_course_run = query_params.get("exclude_expire_course_run", None)
-        # Check if exclude_expire_course_run is in queryparams then exclude the course runs whose end date is passed.
-        if exclude_expire_course_run:
-            course_runs = [course_run for course_run in result.object.course_runs.exclude(
-                end__lte=datetime.datetime.now(pytz.UTC))]
-        else:
-            course_runs = [course_run for course_run in result.object.course_runs.all()]
+        course_runs = result.object.course_runs.all()
+        # Check if exclude_expire_course_run is in query_params then exclude the course runs whose end date is passed.
+        if request.GET.get("exclude_expired_course_run"):
+            course_runs = course_runs.exclude(end__lte=datetime.datetime.now(pytz.UTC))
         return [
             {
                 'key': course_run.key,
