@@ -189,7 +189,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             'enrollment_start': self.loader.parse_date(body['enrollment_start']),
             'enrollment_end': self.loader.parse_date(body['enrollment_end']),
             'card_image_url': None,
-            'title_override': None,
+            'title_override': body['name'],
             'short_description_override': None,
             'video': None,
             'hidden': body.get('hidden', False),
@@ -202,7 +202,6 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         if not partner_uses_publisher:
             expected_values.update({
                 'card_image_url': None,
-                'title_override': body['name'],
                 'short_description_override': self.loader.clean_string(body['short_description']),
                 'video': self.loader.get_courserun_video(body),
                 'status': CourseRunStatus.Published,
