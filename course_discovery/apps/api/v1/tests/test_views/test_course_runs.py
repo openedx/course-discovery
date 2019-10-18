@@ -729,6 +729,11 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
     @responses.activate
     def test_patch_put_non_review_fields_does_not_reset_status(self):
+        """
+        Tests that exempt fields do not reset the draft and official course runs to
+        the unpublished status. Also ensures that the official version is updated with
+        the changes to the exempt fields.
+        """
         self.mock_patch_to_studio(self.draft_course_run.key)
         self.mock_ecommerce_publication()
         self.draft_course_run.status = CourseRunStatus.Reviewed
@@ -753,6 +758,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         draft_course_run = CourseRun.everything.get(key=self.draft_course_run.key, draft=True)
         assert draft_course_run.status == CourseRunStatus.Reviewed
         assert draft_course_run.official_version.status == CourseRunStatus.Reviewed
+        assert draft_course_run.go_live_date == draft_course_run.official_version.go_live_date
 
     @ddt.data(
         ({
