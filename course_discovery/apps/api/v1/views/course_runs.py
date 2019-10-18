@@ -284,8 +284,12 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         self.push_to_studio(request, course_run, create=False)
 
-        # Published course runs can be re-published directly
-        if not draft and course_run.status == CourseRunStatus.Published:
+        # Published course runs can be re-published directly or course runs that remain in the Reviewed
+        # state can update their official version. We want to do this even in the Reviewed case for
+        # when an exempt field is changed and we still want to update the official even though we don't
+        # want to completely unpublish it.
+        if ((not draft and course_run.status == CourseRunStatus.Published) or
+           course_run.status == CourseRunStatus.Reviewed):
             course_run.update_or_create_official_version()
 
         return Response(serializer.data)
