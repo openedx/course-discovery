@@ -1807,6 +1807,11 @@ class CourseSearchSerializer(HaystackSerializer):
         return super().to_representation(instance)
 
     def get_course_runs(self, result):
+        request = self.context['request']
+        course_runs = result.object.course_runs.all()
+        # Check if exclude_expire_course_run is in query_params then exclude the course runs whose end date is passed.
+        if request.GET.get("exclude_expired_course_run"):
+            course_runs = course_runs.exclude(end__lte=datetime.datetime.now(pytz.UTC))
         return [
             {
                 'key': course_run.key,
@@ -1825,7 +1830,7 @@ class CourseSearchSerializer(HaystackSerializer):
                 'estimated_hours': get_course_run_estimated_hours(course_run),
                 'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0
             }
-            for course_run in result.object.course_runs.all()
+            for course_run in course_runs
         ]
 
     def get_seat_types(self, result):
