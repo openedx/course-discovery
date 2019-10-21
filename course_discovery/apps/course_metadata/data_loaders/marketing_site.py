@@ -7,7 +7,6 @@ from urllib.parse import parse_qs, urlencode, urlparse
 from uuid import UUID
 
 from django.contrib.staticfiles import finders
-from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db import IntegrityError
 from django.utils.functional import cached_property
 from opaque_keys.edx.keys import CourseKey
