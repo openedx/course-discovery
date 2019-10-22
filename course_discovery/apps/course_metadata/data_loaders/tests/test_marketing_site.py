@@ -15,6 +15,7 @@ from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import Course, Organization, Subject
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, PartnerFactory
+from course_discovery.apps.course_metadata.utils import clean_html
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.marketing_site.logger'
 MOCK_DRUPAL_REDIRECT_CSV_FILE = 'data/mock_redirect_csv.csv'
@@ -139,8 +140,8 @@ class SubjectMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
         expected_values = {
             'uuid': UUID(data['uuid']),
             'name': data['title'],
-            'description': self.loader.clean_html(data['body']['value']),
-            'subtitle': self.loader.clean_html(data['field_subject_subtitle']['value']),
+            'description': clean_html(data['body']['value']),
+            'subtitle': clean_html(data['field_subject_subtitle']['value']),
             'card_image_url': data['field_subject_card_image']['url'],
             'banner_image_url': data['field_xseries_banner_image']['url'],
         }
@@ -166,8 +167,8 @@ class SubjectMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
             subject_data = {
                 'uuid': UUID(data['uuid']),
                 'name': data['title'],
-                'description': self.loader.clean_html(data['body']['value']),
-                'subtitle': self.loader.clean_html(data['field_subject_subtitle']['value']),
+                'description': clean_html(data['body']['value']),
+                'subtitle': clean_html(data['field_subject_subtitle']['value']),
                 'card_image_url': data['field_subject_card_image']['url'],
                 'banner_image_url': data['field_xseries_banner_image']['url'],
             }
@@ -190,7 +191,7 @@ class SchoolMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
         expected_values = {
             'key': data['title'],
             'name': data['field_school_name'],
-            'description': self.loader.clean_html(data['field_school_description']['value']),
+            'description': clean_html(data['field_school_description']['value']),
             'logo_image_url': data['field_school_image_logo']['url'],
             'banner_image_url': data['field_school_image_banner']['url'],
         }
@@ -237,7 +238,7 @@ class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
         body = (data['body'] or {}).get('value')
 
         if body:
-            body = self.loader.clean_html(body)
+            body = clean_html(body)
 
         expected_values = {
             'key': data['url'].split('/')[-1],

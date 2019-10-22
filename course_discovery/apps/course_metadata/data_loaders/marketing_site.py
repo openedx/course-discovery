@@ -13,7 +13,7 @@ from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import Course, Organization, Subject
-from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
+from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient, clean_html
 
 logger = logging.getLogger(__name__)
 
@@ -145,8 +145,8 @@ class SubjectMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         defaults = {
             'uuid': data['uuid'],
             'name': data['title'],
-            'description': self.clean_html(data['body']['value']),
-            'subtitle': self.clean_html(data['field_subject_subtitle']['value']),
+            'description': clean_html(data['body']['value']),
+            'subtitle': clean_html(data['field_subject_subtitle']['value']),
             'card_image_url': self._get_nested_url(data.get('field_subject_card_image')),
             # NOTE (CCB): This is not a typo. Yes, the banner image for subjects is in a field with xseries in the name.
             'banner_image_url': self._get_nested_url(data.get('field_xseries_banner_image'))
@@ -182,7 +182,7 @@ class SchoolMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
 
         defaults = {
             'name': data['field_school_name'],
-            'description': self.clean_html(data['field_school_description']['value']),
+            'description': clean_html(data['field_school_description']['value']),
             'logo_image_url': self._get_nested_url(data.get('field_school_image_logo')),
             'banner_image_url': self._get_nested_url(data.get('field_school_image_banner')),
             'partner': self.partner,
@@ -233,7 +233,7 @@ class SponsorMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         body = (data['body'] or {}).get('value')
 
         if body:
-            body = self.clean_html(body)
+            body = clean_html(body)
 
         defaults = {
             'key': data['url'].split('/')[-1],

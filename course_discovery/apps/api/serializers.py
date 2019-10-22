@@ -22,11 +22,12 @@ from rest_framework.fields import CreateOnlyDefault, DictField, UUIDField
 from rest_framework.metadata import SimpleMetadata
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
-from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
+from course_discovery.apps.api.fields import HtmlField, ImageField, StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
     FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType,
     CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline,
@@ -185,7 +186,15 @@ class MetadataWithRelatedChoices(SimpleMetadata):
         return info
 
 
-class TimestampModelSerializer(serializers.ModelSerializer):
+class BaseModelSerializer(serializers.ModelSerializer):
+    """ Base ModelSerializer class for any generic overrides we want """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.serializer_field_mapping[MetadataHtmlField] = HtmlField
+
+
+class TimestampModelSerializer(BaseModelSerializer):
     """Serializer for timestamped models."""
     modified = serializers.DateTimeField(required=False)
 
@@ -208,7 +217,7 @@ class ContentTypeSerializer(serializers.Serializer):
         fields = ('content_type',)
 
 
-class NamedModelSerializer(serializers.ModelSerializer):
+class NamedModelSerializer(BaseModelSerializer):
     """Serializer for models inheriting from ``AbstractNamedModel``."""
     name = serializers.CharField()
 
@@ -216,7 +225,7 @@ class NamedModelSerializer(serializers.ModelSerializer):
         fields = ('name',)
 
 
-class TitleDescriptionSerializer(serializers.ModelSerializer):
+class TitleDescriptionSerializer(BaseModelSerializer):
     """Serializer for models inheriting from ``AbstractTitleDescription``."""
     class Meta:
         fields = ('title', 'description',)
@@ -228,7 +237,7 @@ class AdditionalPromoAreaSerializer(TitleDescriptionSerializer):
         model = AdditionalPromoArea
 
 
-class FAQSerializer(serializers.ModelSerializer):
+class FAQSerializer(BaseModelSerializer):
     """Serializer for the ``FAQ`` model."""
 
     class Meta:
@@ -236,7 +245,7 @@ class FAQSerializer(serializers.ModelSerializer):
         fields = ('question', 'answer',)
 
 
-class SubjectSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
     """Serializer for the ``Subject`` model."""
 
     @classmethod
@@ -260,7 +269,7 @@ class PrerequisiteSerializer(NamedModelSerializer):
         model = Prerequisite
 
 
-class MediaSerializer(serializers.ModelSerializer):
+class MediaSerializer(BaseModelSerializer):
     """Serializer for models inheriting from ``AbstractMediaModel``."""
     src = serializers.CharField()
     description = serializers.CharField()
@@ -285,7 +294,7 @@ class VideoSerializer(MediaSerializer):
         fields = ('src', 'description', 'image',)
 
 
-class PositionSerializer(serializers.ModelSerializer):
+class PositionSerializer(BaseModelSerializer):
     """Serializer for the ``Position`` model."""
     organization_marketing_url = serializers.SerializerMethodField()
     organization_uuid = serializers.SerializerMethodField()
@@ -314,7 +323,7 @@ class PositionSerializer(serializers.ModelSerializer):
         return None
 
 
-class MinimalOrganizationSerializer(serializers.ModelSerializer):
+class MinimalOrganizationSerializer(BaseModelSerializer):
     class Meta:
         model = Organization
         fields = ('uuid', 'key', 'name',)
@@ -342,7 +351,7 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
         read_only_fields = ('slug',)
 
 
-class MinimalPersonSerializer(serializers.ModelSerializer):
+class MinimalPersonSerializer(BaseModelSerializer):
     """
     Minimal serializer for the ``Person`` model.
     """
@@ -505,7 +514,7 @@ class PersonSerializer(MinimalPersonSerializer):
         return instance
 
 
-class EndorsementSerializer(serializers.ModelSerializer):
+class EndorsementSerializer(BaseModelSerializer):
     """Serializer for the ``Endorsement`` model."""
     endorser = MinimalPersonSerializer()
 
@@ -518,7 +527,7 @@ class EndorsementSerializer(serializers.ModelSerializer):
         fields = ('endorser', 'quote',)
 
 
-class CorporateEndorsementSerializer(serializers.ModelSerializer):
+class CorporateEndorsementSerializer(BaseModelSerializer):
     """Serializer for the ``CorporateEndorsement`` model."""
     image = ImageSerializer()
     individual_endorsements = EndorsementSerializer(many=True)
@@ -534,7 +543,7 @@ class CorporateEndorsementSerializer(serializers.ModelSerializer):
         fields = ('corporation_name', 'statement', 'image', 'individual_endorsements',)
 
 
-class SeatSerializer(serializers.ModelSerializer):
+class SeatSerializer(BaseModelSerializer):
     """Serializer for the ``Seat`` model."""
     type = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all().order_by('name'))
     price = serializers.DecimalField(
@@ -558,7 +567,7 @@ class SeatSerializer(serializers.ModelSerializer):
         fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours', 'sku', 'bulk_sku')
 
 
-class CourseEntitlementSerializer(serializers.ModelSerializer):
+class CourseEntitlementSerializer(BaseModelSerializer):
     """Serializer for the ``CourseEntitlement`` model."""
     price = serializers.DecimalField(
         decimal_places=CourseEntitlement.PRICE_FIELD_CONFIG['decimal_places'],
@@ -583,7 +592,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
         return None
 
 
-class CatalogSerializer(serializers.ModelSerializer):
+class CatalogSerializer(BaseModelSerializer):
     """Serializer for the ``Catalog`` model."""
     courses_count = serializers.IntegerField(read_only=True, help_text=_('Number of courses contained in this catalog'))
     viewers = serializers.SlugRelatedField(slug_field='username', queryset=User.objects.all(), many=True,
@@ -606,7 +615,7 @@ class CatalogSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'query', 'courses_count', 'viewers')
 
 
-class NestedProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     """
     Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
     the basic details of the Program and none of the details about its related entities, aside from the number
@@ -652,7 +661,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     key = serializers.CharField(required=False)
     title = serializers.CharField(required=False)
     external_key = serializers.CharField(required=False)
-    short_description = serializers.CharField(required=False, allow_blank=True)
+    short_description = HtmlField(required=False, allow_blank=True)
     start = serializers.DateTimeField(required=True)  # required so we can craft key number from it
     end = serializers.DateTimeField(required=True)  # required by studio
     type = serializers.CharField(read_only=True, source='type_legacy')
@@ -758,8 +767,8 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         slug_field='name',
         queryset=LevelType.objects.all()
     )
-    full_description = serializers.CharField(required=False, allow_blank=True)
-    outcome = serializers.CharField(required=False, allow_blank=True)
+    full_description = HtmlField(required=False, allow_blank=True)
+    outcome = HtmlField(required=False, allow_blank=True)
     expected_program_type = serializers.SlugRelatedField(
         required=False,
         allow_null=True,
@@ -997,7 +1006,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         return Course.objects.create(**validated_data)
 
 
-class CourseEditorSerializer(serializers.ModelSerializer):
+class CourseEditorSerializer(BaseModelSerializer):
     """Serializer for the ``CourseEditor`` model."""
     user = GroupUserSerializer(read_only=True)
     user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
@@ -1212,7 +1221,7 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
-class RankingSerializer(serializers.ModelSerializer):
+class RankingSerializer(BaseModelSerializer):
     """ Ranking model serializer """
     class Meta:
         model = Ranking
@@ -1221,7 +1230,7 @@ class RankingSerializer(serializers.ModelSerializer):
         )
 
 
-class DegreeDeadlineSerializer(serializers.ModelSerializer):
+class DegreeDeadlineSerializer(BaseModelSerializer):
     """ DegreeDeadline model serializer """
     class Meta:
         model = DegreeDeadline
@@ -1233,7 +1242,7 @@ class DegreeDeadlineSerializer(serializers.ModelSerializer):
         )
 
 
-class DegreeCostSerializer(serializers.ModelSerializer):
+class DegreeCostSerializer(BaseModelSerializer):
     """ DegreeCost model serializer """
     class Meta:
         model = DegreeCost
@@ -1243,7 +1252,7 @@ class DegreeCostSerializer(serializers.ModelSerializer):
         )
 
 
-class CurriculumSerializer(serializers.ModelSerializer):
+class CurriculumSerializer(BaseModelSerializer):
     """ Curriculum model serializer """
     courses = serializers.SerializerMethodField()
     programs = serializers.SerializerMethodField()
@@ -1337,13 +1346,13 @@ class CurriculumSerializer(serializers.ModelSerializer):
         ]
 
 
-class IconTextPairingSerializer(serializers.ModelSerializer):
+class IconTextPairingSerializer(BaseModelSerializer):
     class Meta:
         model = IconTextPairing
         fields = ('text', 'icon',)
 
 
-class DegreeSerializer(serializers.ModelSerializer):
+class DegreeSerializer(BaseModelSerializer):
     """ Degree model serializer """
     campus_image = serializers.ImageField()
     title_background_image = serializers.ImageField()
@@ -1366,7 +1375,7 @@ class DegreeSerializer(serializers.ModelSerializer):
         )
 
 
-class MinimalProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     """
     Basic program serializer
 
@@ -1563,7 +1572,7 @@ class ProgramSerializer(MinimalProgramSerializer):
         )
 
 
-class PathwaySerializer(serializers.ModelSerializer):
+class PathwaySerializer(BaseModelSerializer):
     """ Serializer for Pathway. """
     uuid = serializers.CharField()
     name = serializers.CharField()
@@ -1597,7 +1606,7 @@ class PathwaySerializer(serializers.ModelSerializer):
         )
 
 
-class ProgramTypeSerializer(serializers.ModelSerializer):
+class ProgramTypeSerializer(BaseModelSerializer):
     """ Serializer for the Program Types. """
     applicable_seat_types = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug')
     logo_image = StdImageSerializerField()
@@ -1611,7 +1620,7 @@ class ProgramTypeSerializer(serializers.ModelSerializer):
         fields = ('name', 'logo_image', 'applicable_seat_types', 'slug',)
 
 
-class AffiliateWindowSerializer(serializers.ModelSerializer):
+class AffiliateWindowSerializer(BaseModelSerializer):
     """ Serializer for Affiliate Window product feeds. """
 
     # We use a hardcoded value since it is determined by Affiliate Window's taxonomy.
@@ -2195,7 +2204,7 @@ class TypeaheadSearchSerializer(serializers.Serializer):
     programs = TypeaheadProgramSearchSerializer(many=True)
 
 
-class TopicSerializer(serializers.ModelSerializer):
+class TopicSerializer(BaseModelSerializer):
     """Serializer for the ``Topic`` model."""
 
     @classmethod
