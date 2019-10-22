@@ -17,7 +17,7 @@ from course_discovery.apps.course_metadata.models import Course, Organization, S
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, PartnerFactory
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.marketing_site.logger'
-MOCK_DRUPAL_REDIRECT_CSV_FILE = 'course_discovery/apps/course_metadata/data_loaders/tests/mock_redirect_csv.csv'
+MOCK_DRUPAL_REDIRECT_CSV_FILE = 'data/mock_redirect_csv.csv'
 
 
 class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):

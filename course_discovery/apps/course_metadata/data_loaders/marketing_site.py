@@ -6,6 +6,7 @@ import re
 from urllib.parse import parse_qs, urlencode, urlparse
 from uuid import UUID
 
+from django.contrib.staticfiles import finders
 from django.db import IntegrityError
 from django.utils.functional import cached_property
 from opaque_keys.edx.keys import CourseKey
@@ -16,7 +17,7 @@ from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 
 logger = logging.getLogger(__name__)
 
-DRUPAL_REDIRECT_CSV_FILE = 'course_discovery/apps/course_metadata/data_loaders/redirects.csv'
+DRUPAL_REDIRECT_CSV_FILE = 'data/redirects.csv'
 
 
 class AbstractMarketingSiteDataLoader(AbstractDataLoader):
@@ -259,7 +260,8 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         self.load_redirect_data()
 
     def load_redirect_data(self):
-        with open(DRUPAL_REDIRECT_CSV_FILE) as redirect_csv:
+        redirects_file = finders.find(DRUPAL_REDIRECT_CSV_FILE)
+        with open(redirects_file) as redirect_csv:
             reader = csv.DictReader(redirect_csv, fieldnames=('redirect_url', 'node', 'redirect_type'))
             # Order data so that we can pull it out via node ids
             for row in reader:
