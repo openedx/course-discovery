@@ -51,18 +51,6 @@ class AbstractDataLoaderTest(TestCase):
         dt = datetime.datetime.utcnow()
         self.assertEqual(AbstractDataLoader.parse_date(dt.isoformat()), dt)
 
-    def test_clean_html(self):
-        """ Verify the method removes unnecessary HTML attributes. """
-        data = (
-            ('', '',),
-            ('<p>Hello!</p>', 'Hello!'),
-            ('<em>Testing</em>', '<em>Testing</em>'),
-            ('Hello&amp;world&nbsp;!', 'Hello&world!')
-        )
-
-        for content, expected in data:
-            self.assertEqual(AbstractDataLoader.clean_html(content), expected)
-
 
 @ddt.ddt
 class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):

@@ -1,8 +1,6 @@
 import abc
 import re
 
-import html2text
-import markdown
 from dateutil.parser import parse
 from django.utils.functional import cached_property
 from edx_rest_api_client.client import EdxRestApiClient
@@ -22,7 +20,6 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     """
 
     PAGE_SIZE = 50
-    MARKDOWN_CLEANUP_REGEX = re.compile(r'^<p>(.*)</p>$')
 
     def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
                  is_threadsafe=False, **kwargs):
@@ -81,27 +78,6 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         """ Iterates over all string values, removing leading and trailing spaces,
         and replacing empty strings with None. """
         return {k: cls.clean_string(v) for k, v in data.items()}
-
-    @classmethod
-    def clean_html(cls, content):
-        """Cleans HTML from a string.
-
-        This method converts the HTML to a Markdown string (to remove styles, classes, and other unsupported
-        attributes), and converts the Markdown back to HTML.
-        """
-        cleaned = content.replace('&nbsp;', '')
-        html_converter = html2text.HTML2Text()
-        html_converter.wrap_links = False
-        html_converter.body_width = None
-        cleaned = html_converter.handle(cleaned).strip()
-        cleaned = markdown.markdown(cleaned)
-        cleaned = cls.MARKDOWN_CLEANUP_REGEX.sub(r'\1', cleaned)
-
-        # html2text does not handle ampersands properly.
-        # See https://github.com/Alir3z4/html2text/issues/109.
-        cleaned = cleaned.replace('&amp;', '&')
-
-        return cleaned
 
     @classmethod
     def parse_date(cls, date_string):

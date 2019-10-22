@@ -267,12 +267,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         return {
             'given_name': "Robert",
             'family_name': "Ford",
-            'bio': "The maze is not for him.",
+            'bio': "<p>The maze is not for him.</p>",
             'position': {
                 'title': "Park Director",
                 'organization': self.organization.id
             },
-            'major_works': 'Delores\nTeddy\nMaive',
+            'major_works': '<p>Delores<br />\nTeddy<br />\nMaive</p>',
             'urls_detailed': [
                 {
                     'id': '1',
@@ -319,12 +319,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         return {
             'given_name': "updated",
             'family_name': "name",
-            'bio': "updated bio",
+            'bio': "<p>updated bio</p>",
             'position': {
                 'title': "new title",
                 'organization': self.organization.id
             },
-            'major_works': 'new works',
+            'major_works': '<p>new works</p>',
             'urls_detailed': [
                 {
                     'id': '1',

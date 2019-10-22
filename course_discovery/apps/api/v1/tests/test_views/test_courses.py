@@ -1085,7 +1085,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # Edit; should only touch draft
         url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
-        updated_short_desc = 'New short desc'
+        updated_short_desc = '<p>New short desc</p>'
         data = {
             'short_description': updated_short_desc,
         }
@@ -1099,7 +1099,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertNotEqual(official_course.short_description, updated_short_desc)
 
         # Re-publish; should update official with new and old information
-        updated_full_desc = 'New long desc'
+        updated_full_desc = '<p>New long desc</p>'
         response = self.client.patch(url, {'full_description': updated_full_desc, 'draft': False}, format='json')
         self.assertEqual(response.status_code, 200)
 
@@ -1545,3 +1545,19 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertTrue(self.course.entitlements.exists())
         self.assertEqual(self.course.entitlements.first().mode.slug, Seat.VERIFIED)
         self.assertEqual(self.course.entitlements.first().price, 40)
+
+    @responses.activate
+    def test_html_stripped(self):
+        self.mock_access_token()
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.patch(url, {'full_description': '<p class="test">Desc</p>'}, format='json')
+        self.assertEqual(response.status_code, 200)
+        draft = Course.everything.get(uuid=self.course.uuid, draft=True)
+        self.assertEqual(draft.full_description, '<p>Desc</p>')
+
+    @responses.activate
+    def test_html_restricted(self):
+        self.mock_access_token()
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.patch(url, {'full_description': '<h1>Header</h1>'}, format='json')
+        self.assertContains(response, 'Invalid HTML received: h1 tag is not allowed', status_code=400)

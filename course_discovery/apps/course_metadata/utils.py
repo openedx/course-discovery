@@ -5,6 +5,8 @@ import uuid
 from collections import OrderedDict
 from urllib.parse import urljoin
 
+import html2text
+import markdown
 import requests
 from django.conf import settings
 from django.db import IntegrityError, transaction
@@ -719,3 +721,18 @@ def get_salesforce_util(partner):
         return SalesforceUtil(partner)
     except SalesforceConfiguration.DoesNotExist:
         return None
+
+
+def clean_html(content):
+    """Cleans HTML from a string.
+
+    This method converts the HTML to a Markdown string (to remove styles, classes, and other unsupported
+    attributes), and converts the Markdown back to HTML.
+    """
+    cleaned = content.replace('&nbsp;', '')
+    html_converter = html2text.HTML2Text(bodywidth=None)
+    html_converter.wrap_links = False
+    cleaned = html_converter.handle(cleaned).strip()
+    cleaned = markdown.markdown(cleaned)
+
+    return cleaned
