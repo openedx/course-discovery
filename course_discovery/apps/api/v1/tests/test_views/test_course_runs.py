@@ -158,7 +158,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertTrue(new_course_run.draft)
 
         new_seat = Seat.everything.get(course_run=new_course_run)
-        self.assertEqual(new_seat.type, 'audit')
+        self.assertEqual(new_seat.type.slug, Seat.AUDIT)
         self.assertEqual(new_seat.price, 0.00)
         self.assertTrue(new_seat.draft)
 
@@ -192,7 +192,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertTrue(new_course_run.draft)
 
         new_seat = Seat.everything.get(course_run=new_course_run)
-        self.assertEqual(new_seat.type, self.course_run_type.tracks.first().seat_type.slug)
+        self.assertEqual(new_seat.type, self.course_run_type.tracks.first().seat_type)
         self.assertEqual(new_seat.price, 0.00)
         self.assertTrue(new_seat.draft)
 
@@ -337,7 +337,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertTrue(new_course_run.draft)
 
         new_seat = Seat.everything.get(course_run=new_course_run)
-        self.assertEqual(new_seat.type, self.course_run_type.tracks.first().seat_type.slug)
+        self.assertEqual(new_seat.type, self.course_run_type.tracks.first().seat_type)
         self.assertEqual(float(new_seat.price), 77.32)
         self.assertTrue(new_seat.draft)
 
@@ -926,16 +926,16 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         num_seats = Seat.everything.count()
         if seat_type == 'verified':
             self.assertEqual(num_seats, 2)
-            audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')
+            audit_seat = Seat.everything.get(course_run=draft_course_run, type__slug='audit')
             self.assertEqual(audit_seat.price, 0.00)
             self.assertTrue(audit_seat.draft)
         else:
             self.assertEqual(num_seats, 1)
-        seat = Seat.everything.get(course_run=draft_course_run, type=seat_type)
+        seat = Seat.everything.get(course_run=draft_course_run, type__slug=seat_type)
         self.assertEqual(seat.price, price)
         # This is probably not a great way of verifying this with the last, it just so happens
         # that if there are two tracks (verified and audit), the verified track is last
-        self.assertEqual(seat.type, updated_run_type.tracks.last().seat_type.slug)  # pylint: disable=no-member
+        self.assertEqual(seat.type, updated_run_type.tracks.last().seat_type)  # pylint: disable=no-member
         self.assertTrue(seat.draft)
 
     @responses.activate

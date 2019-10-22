@@ -93,7 +93,7 @@ class SeatSignalsTests(TestCase):
 
         Seat.objects.create(
             course_run=self.course_run,
-            type=Seat.MASTERS,
+            type=factories.SeatTypeFactory.masters(),
             currency=self.currency
         )
 
@@ -106,7 +106,7 @@ class SeatSignalsTests(TestCase):
 
         created_seat = Seat.objects.create(
             course_run=self.course_run,
-            type=Seat.MASTERS,
+            type=factories.SeatTypeFactory.masters(),
             currency=self.currency
         )
 
@@ -114,8 +114,8 @@ class SeatSignalsTests(TestCase):
         expected_call_url = self.partner.lms_coursemode_api_url + 'courses/{}/'.format(course_run_key)
         expected_call_data = {
             'course_id': created_seat.course_run.key,
-            'mode_slug': created_seat.type,
-            'mode_display_name': created_seat.type.capitalize(),
+            'mode_slug': created_seat.type.slug,
+            'mode_display_name': created_seat.type.name,
             'currency': str(created_seat.currency.code) if created_seat.currency else '',
             'min_price': int(created_seat.price),
         }
@@ -137,7 +137,7 @@ class SeatSignalsTests(TestCase):
         with LogCapture(LOGGER_NAME) as log:
             created_seat = Seat.objects.create(
                 course_run=self.course_run,
-                type=Seat.MASTERS,
+                type=factories.SeatTypeFactory.masters(),
                 currency=self.currency
             )
 
@@ -148,7 +148,7 @@ class SeatSignalsTests(TestCase):
                     LOGGER_NAME,
                     'INFO',
                     'Creating [{}] track on LMS for [{}] while it already have the track.'.format(
-                        created_seat.type,
+                        created_seat.type.slug,
                         course_run_key
                     )
                 )
@@ -165,7 +165,7 @@ class SeatSignalsTests(TestCase):
         with LogCapture(LOGGER_NAME) as log:
             created_seat = Seat.objects.create(
                 course_run=self.course_run,
-                type=Seat.MASTERS,
+                type=factories.SeatTypeFactory.masters(),
                 currency=self.currency
             )
             log.check(
@@ -173,7 +173,7 @@ class SeatSignalsTests(TestCase):
                     LOGGER_NAME,
                     'ERROR',
                     'Failed to add [{}] course_mode to course_run [{}] in course_mode api to LMS.'.format(
-                        created_seat.type,
+                        created_seat.type.slug,
                         course_run_key
                     )
                 )
@@ -189,7 +189,7 @@ class SeatSignalsTests(TestCase):
         with LogCapture(LOGGER_NAME) as log:
             Seat.objects.create(
                 course_run=self.course_run,
-                type=Seat.MASTERS,
+                type=factories.SeatTypeFactory.masters(),
                 currency=self.currency
             )
 
@@ -215,7 +215,7 @@ class SeatSignalsTests(TestCase):
         with LogCapture(LOGGER_NAME) as log:
             Seat.objects.create(
                 course_run=self.course_run,
-                type=Seat.MASTERS,
+                type=factories.SeatTypeFactory.masters(),
                 currency=self.currency
             )
 
@@ -257,10 +257,12 @@ class CurriculumCourseMembershipTests(TestCase):
 
         for course_run in self.course_runs:
             for seat in course_run.seats.all():
-                self.assertNotEqual(seat.type, Seat.MASTERS)
+                self.assertNotEqual(seat.type.slug, Seat.MASTERS)
 
     @override_switch('masters_course_mode_enabled', active=True)
     def test_course_curriculum_membership_side_effect_flag_active(self):
+        masters = factories.SeatTypeFactory.masters()
+
         with mock.patch('course_discovery.apps.core.models.OAuthAPIClient'):
             CurriculumCourseMembership.objects.create(
                 course=self.course,
@@ -269,7 +271,7 @@ class CurriculumCourseMembershipTests(TestCase):
 
             for course_run in self.course_runs:
                 for seat in course_run.seats.all():
-                    self.assertEqual(seat.type, Seat.MASTERS)
+                    self.assertEqual(seat.type, masters)
 
     @override_switch('masters_course_mode_enabled', active=True)
     def test_course_curriculum_membership_side_effect_not_masters(self):
@@ -283,7 +285,7 @@ class CurriculumCourseMembershipTests(TestCase):
 
         for course_run in self.course_runs:
             for seat in course_run.seats.all():
-                self.assertNotEqual(seat.type, Seat.MASTERS)
+                self.assertNotEqual(seat.type.slug, Seat.MASTERS)
 
 
 @ddt.ddt

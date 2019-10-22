@@ -21,7 +21,7 @@ from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPICli
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, Seat, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory,
-    SeatFactory
+    SeatFactory, SeatTypeFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
@@ -80,9 +80,9 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
 
         # Set up an official that we then convert to a draft
         self.course_run = CourseRunFactory()
-        CourseEntitlementFactory(course=self.course_run.course, mode=SeatType.objects.get(slug='verified'))
-        SeatFactory(course_run=self.course_run, type='verified', sku=None)
-        SeatFactory(course_run=self.course_run, type='audit', sku=None)
+        CourseEntitlementFactory(course=self.course_run.course, mode=SeatTypeFactory.verified())
+        SeatFactory(course_run=self.course_run, type=SeatTypeFactory.verified(), sku=None)
+        SeatFactory(course_run=self.course_run, type=SeatTypeFactory.audit(), sku=None)
         self.course_run = ensure_draft_world(self.course_run).official_version
 
         # Now we're dealing with just official versions again
@@ -162,7 +162,7 @@ class TestSerializeSeatForEcommerceApi:
         assert actual['product_class'] == 'Seat'
 
     def test_serialize_seat_for_ecommerce_api_with_audit_seat(self):
-        seat = SeatFactory(type=Seat.AUDIT)
+        seat = SeatFactory(type=SeatTypeFactory.audit())
         actual = serialize_seat_for_ecommerce_api(seat)
         expected = {
             'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
@@ -184,7 +184,7 @@ class TestSerializeSeatForEcommerceApi:
 
     @pytest.mark.parametrize('seat_type', (Seat.VERIFIED, Seat.PROFESSIONAL))
     def test_serialize_seat_for_ecommerce_api_with_id_verification(self, seat_type):
-        seat = SeatFactory(type=seat_type)
+        seat = SeatFactory(type=SeatType.objects.get(slug=seat_type))
         actual = serialize_seat_for_ecommerce_api(seat)
         expected_attribute_values = [
             {
@@ -352,8 +352,8 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
     def test_ensure_draft_world_not_draft_course_run_given(self):
         course = CourseFactory()
         course_run = CourseRunFactory(course=course)
-        verified_seat = SeatFactory(type='verified', course_run=course_run)
-        audit_seat = SeatFactory(type='audit', course_run=course_run)
+        verified_seat = SeatFactory(type=SeatTypeFactory.verified(), course_run=course_run)
+        audit_seat = SeatFactory(type=SeatTypeFactory.audit(), course_run=course_run)
         course_run.seats.add(verified_seat, audit_seat)
 
         ensured_draft_course_run = utils.ensure_draft_world(course_run)
@@ -462,7 +462,7 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
         course = CourseFactory()
         run = CourseRunFactory(course=course, end=future, enrollment_end=None)
-        seat = SeatFactory(course_run=run, type=Seat.VERIFIED)
+        seat = SeatFactory(course_run=run, type=SeatTypeFactory.verified())
         ensured_draft_course = utils.ensure_draft_world(course)
 
         draft_entitlement = ensured_draft_course.entitlements.first()
@@ -516,6 +516,8 @@ class TestCreateMissingEntitlement(TestCase):
             for seat in seats:
                 if 'currency' in seat:
                     seat['currency'] = Currency.objects.get(code=seat['currency'])
+                if 'type' in seat:
+                    seat['type'] = SeatType.objects.get_or_create(slug=seat['type'])[0]
                 SeatFactory(**seat, course_run=run)
 
         self.assertFalse(course.entitlements.exists())  # sanity check
@@ -535,7 +537,7 @@ class TestCreateMissingEntitlement(TestCase):
         future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
         course = CourseFactory(draft=True)
         run = CourseRunFactory(course=course, end=future, enrollment_end=None, draft=True)
-        seat = SeatFactory(course_run=run, type=Seat.VERIFIED, draft=True)
+        seat = SeatFactory(course_run=run, type=SeatTypeFactory.verified(), draft=True)
 
         self.assertFalse(course.entitlements.exists())  # sanity check
         create_missing_entitlement(course)
@@ -571,7 +573,7 @@ class TestCreateMissingEntitlement(TestCase):
         usd = Currency.objects.get(code='USD')
         for date in dates:
             run = CourseRunFactory(course=course, end=now + datetime.timedelta(days=date), enrollment_end=None)
-            SeatFactory(course_run=run, type=Seat.VERIFIED, price=date_to_price(date), currency=usd)
+            SeatFactory(course_run=run, type=SeatTypeFactory.verified(), price=date_to_price(date), currency=usd)
 
         self.assertFalse(course.entitlements.exists())  # sanity check
         self.assertTrue(create_missing_entitlement(course))
@@ -585,7 +587,7 @@ class TestCreateMissingEntitlement(TestCase):
         future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
         course = CourseFactory()
         run = CourseRunFactory(course=course, end=future, enrollment_end=None)
-        SeatFactory(course_run=run, type=Seat.VERIFIED)
+        SeatFactory(course_run=run, type=SeatTypeFactory.verified())
 
         course.canonical_course_run = run
         course.save()

@@ -22,7 +22,7 @@ from course_discovery.apps.course_metadata.admin import PositionAdmin, ProgramEl
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.forms import PathwayAdminForm, ProgramAdminForm
-from course_discovery.apps.course_metadata.models import Person, Position, Program, ProgramType, Seat, SeatType
+from course_discovery.apps.course_metadata.models import Person, Position, Program, ProgramType
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -368,11 +368,11 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
 
     def test_queryset_method_returns_all_programs(self):
         """ Verify that all programs pass the filter. """
-        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
+        verified_seat_type = factories.SeatTypeFactory.verified()
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         program_filter = ProgramEligibilityFilter(None, {}, None, None)
         course_run = factories.CourseRunFactory()
-        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
+        factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
         one_click_purchase_eligible_program = factories.ProgramFactory(
             type=program_type,
             courses=[course_run.course],
@@ -387,11 +387,11 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
 
     def test_queryset_method_returns_eligible_programs(self):
         """ Verify that one click purchase eligible programs pass the filter. """
-        verified_seat_type, __ = SeatType.objects.get_or_create(slug=Seat.VERIFIED)
+        verified_seat_type = factories.SeatTypeFactory.verified()
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         program_filter = ProgramEligibilityFilter(None, {self.parameter_name: 1}, None, None)
         course_run = factories.CourseRunFactory(end=None, enrollment_end=None,)
-        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
+        factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
         one_click_purchase_eligible_program = factories.ProgramFactory(
             type=program_type,
             courses=[course_run.course],

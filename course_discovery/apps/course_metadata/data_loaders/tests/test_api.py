@@ -19,7 +19,7 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
@@ -447,10 +447,11 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         credit_run = CourseRunFactory(title_override='credit', key='credit/course/run')
         no_currency_run = CourseRunFactory(title_override='no currency', key='nocurrency/course/run')
 
-        SeatFactory(course_run=audit_run, type=Seat.PROFESSIONAL)
-        SeatFactory(course_run=verified_run, type=Seat.PROFESSIONAL)
-        SeatFactory(course_run=credit_run, type=Seat.PROFESSIONAL)
-        SeatFactory(course_run=no_currency_run, type=Seat.PROFESSIONAL)
+        professional_type = SeatTypeFactory.professional()
+        SeatFactory(course_run=audit_run, type=professional_type)
+        SeatFactory(course_run=verified_run, type=professional_type)
+        SeatFactory(course_run=credit_run, type=professional_type)
+        SeatFactory(course_run=no_currency_run, type=professional_type)
 
         bodies = mock_data.ECOMMERCE_API_BODIES
         url = self.api_url + 'courses/'
@@ -639,10 +640,11 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
                     credit_hours = att['value']
 
             bulk_sku = self.get_product_bulk_sku(certificate_type, course_run, mock_products)
-            seat = course_run.seats.get(type=certificate_type, credit_provider=credit_provider, currency=price_currency)
+            seat = course_run.seats.get(type__slug=certificate_type, credit_provider=credit_provider,
+                                        currency=price_currency)
 
             self.assertEqual(seat.course_run, course_run)
-            self.assertEqual(seat.type, certificate_type)
+            self.assertEqual(seat.type.slug, certificate_type)
             self.assertEqual(seat.price, price)
             self.assertEqual(seat.currency.code, price_currency)
             self.assertEqual(seat.credit_provider, credit_provider)
@@ -683,7 +685,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             bulk_sku = stock_record['partner_sku']
 
             mode_name = attributes['seat_type']
-            seat = course_run.seats.get(type=mode_name)
+            seat = course_run.seats.get(type__slug=mode_name)
 
             self.assertEqual(seat.course_run, course_run)
             self.assertEqual(seat.bulk_sku, bulk_sku)
