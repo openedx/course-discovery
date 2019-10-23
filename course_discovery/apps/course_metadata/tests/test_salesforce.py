@@ -49,7 +49,7 @@ class TestSalesforce(TestCase):
 
     def test_wrapper_salesforce_expired_session_calls_login(self):
         """
-        Tests the wrapper when a SalesforceExpiredSession exception is thrown every query.
+        Tests the wrapper when a SalesforceExpiredSession is thrown.
         The first exception thrown will trigger a re-login, the second will
         throw an exception as we don't want infinite retries.
         """
@@ -68,8 +68,33 @@ class TestSalesforce(TestCase):
                 # Any method that has the decorator
                 with self.assertRaises(SalesforceExpiredSession):
                     util.get_comments_for_course(course)
+                # 2 calls, one for initialization, one for login before exception
+                self.assertEqual(len(mock_salesforce.call_args_list), 2)
+
+    def test_wrapper_salesforce_os_error_calls_login(self):
+        """
+        Tests the wrapper when an OSError exception is thrown.
+        The first exception thrown will trigger a re-login, the second will
+        throw an exception as we don't want infinite retries.
+        """
+        course = CourseFactoryNoSignals(
+            partner=self.salesforce_config.partner,
+            salesforce_id='TestSalesforceId',
+            salesforce_case_id='TestSalesforceCaseId',
+        )
+
+        with mock.patch(self.salesforce_util_path + '._query', side_effect=OSError('Test Error')):
+            with mock.patch(self.salesforce_path) as mock_salesforce:
+                with mock.patch('course_discovery.apps.course_metadata.salesforce.logger') as mock_logger:
+                    util = SalesforceUtil(self.salesforce_config.partner)
+                    # Any method that has the decorator
+                    with self.assertRaises(OSError):
+                        util.get_comments_for_course(course)
                     # 2 calls, one for initialization, one for login before exception
-                    mock_salesforce.assert_num_calls(2)
+                    self.assertEqual(len(mock_salesforce.call_args_list), 2)
+                    mock_logger.warning.assert_called_with(
+                        'An OSError occurred while attempting to call get_comments_for_course'
+                    )
 
     def test_wrapper_salesforce_without_client_raises_not_configured_exception(self):
         """
@@ -399,7 +424,7 @@ class TestSalesforce(TestCase):
                 })
                 self.assertIsNotNone(course.salesforce_case_id)
 
-    def test_create_comment_for_course_case_aises_exceptions(self):
+    def test_create_comment_for_course_case_raises_exceptions(self):
         create_case_path = self.salesforce_util_path + '.create_case_for_course'
 
         course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_id='TestSalesforceId')

@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime, timezone
 
@@ -18,6 +19,8 @@ COURSE_SALESFORCE_FIELDS = {
 COURSE_RUN_SALESFORCE_FIELDS = {
     'course_run': ('start', 'end', 'status', 'title', 'go_live_date', 'key', 'has_ofac_restrictions'),
 }
+
+logger = logging.getLogger(__name__)
 
 
 def requires_salesforce_update(source_of_edit, instance):
@@ -60,6 +63,11 @@ def salesforce_request_wrapper(method):
                 try:
                     return method(self, *args, **kwargs)
                 except SalesforceExpiredSession:
+                    self.login()
+                    return method(self, *args, **kwargs)
+                # Need to catch OSError for the 'Connection aborted.' error when Salesforce reaps a connection
+                except OSError:
+                    logger.warning('An OSError occurred while attempting to call {}'.format(method.__name__))
                     self.login()
                     return method(self, *args, **kwargs)
             raise SalesforceNotConfiguredException(
