@@ -6,10 +6,12 @@ import time
 from decimal import Decimal
 from io import BytesIO
 
+import backoff
 import requests
 from django.core.files import File
 from django.core.management import CommandError
 from opaque_keys.edx.keys import CourseKey
+from slumber.exceptions import HttpClientError
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
@@ -124,6 +126,18 @@ class CoursesApiDataLoader(AbstractDataLoader):
         response = self._make_request(page)
         self._process_response(response)
 
+    def _fatal_code(ex):  # pylint: disable=no-self-argument
+        return ex.response.status_code != 429  # pylint: disable=no-member
+
+    # The courses endpoint has a 40 requests/minute rate limit 10/20/40 seconds puts us into the next minute
+    @backoff.on_exception(
+        backoff.expo,
+        factor=10,
+        jitter=None,
+        max_tries=3,
+        exception=HttpClientError,
+        giveup=_fatal_code,
+    )
     def _make_request(self, page):
         logger.info('Requesting course run page %d...', page)
         return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, username=self.username)
