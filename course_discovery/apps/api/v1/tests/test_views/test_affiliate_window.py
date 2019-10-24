@@ -137,7 +137,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         self.assertEqual(response.status_code, 403)
 
         catalog.viewers = [self.user]
-        with self.assertNumQueries(8):
+        with self.assertNumQueries(11):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
 
