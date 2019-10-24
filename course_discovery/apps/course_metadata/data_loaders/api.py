@@ -556,6 +556,15 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 seat_type=certificate_type, sku=sku
             )
             logger.warning(msg)
+            self.processing_failure_occurred = True
+            return
+        if course_run.type and not course_run.type.tracks.filter(seat_type=seat_type).exists():
+            logger.warning(
+                'Seat type {seat_type} is not compatible with course run type {run_type} for course run {key}'.format(
+                    seat_type=seat_type.slug, run_type=course_run.type.slug, key=course_run.key,
+                )
+            )
+            self.processing_failure_occurred = True
             return
 
         credit_provider = attributes.get('credit_provider')
@@ -688,6 +697,15 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 mode=mode_name, title=title, sku=sku
             )
             logger.warning(msg)
+            self.processing_failure_occurred = True
+            return None
+        if course.type and mode not in course.type.entitlement_types.all():
+            logger.warning(
+                'Seat type {seat_type} is not compatible with course type {course_type} for course {uuid}'.format(
+                    seat_type=mode.slug, course_type=course.type.slug, uuid=course_uuid,
+                )
+            )
+            self.processing_failure_occurred = True
             return None
 
         defaults = {

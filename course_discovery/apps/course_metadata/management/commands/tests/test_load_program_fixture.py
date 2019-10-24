@@ -234,14 +234,15 @@ class TestLoadProgramFixture(TestCase):
 
         # create existing verified seat with different pk than fixture and
         # a second seat type with the same pk but different values
-        SeatType.objects.create(id=99, name='Verified', slug='verified')
+        new_pk = self.seat_type_verified.id + 1
+        SeatType.objects.create(id=new_pk, name='Verified', slug='verified')
         SeatType.objects.create(id=self.seat_type_verified.id, name='Test', slug='test')
         self._call_load_program_fixture([str(self.program.uuid)])
 
         stored_program = Program.objects.get(uuid=self.program.uuid)
         stored_seat_type = stored_program.type.applicable_seat_types.first()
 
-        self.assertEqual(stored_seat_type.id, 99)
+        self.assertEqual(stored_seat_type.id, new_pk)
         self.assertEqual(stored_seat_type.name, self.seat_type_verified.name)
 
     @responses.activate

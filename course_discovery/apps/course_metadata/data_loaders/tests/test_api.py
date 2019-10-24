@@ -5,6 +5,7 @@ from decimal import Decimal
 import ddt
 import mock
 import responses
+from django.core.management import CommandError
 from django.test import TestCase
 from pytz import UTC
 
@@ -16,7 +17,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType
+    Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory
@@ -430,10 +431,14 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
 
     def mock_courses_api(self):
         # Create existing seats to be removed by ingest
-        audit_run = CourseRunFactory(title_override='audit', key='audit/course/run')
-        verified_run = CourseRunFactory(title_override='verified', key='verified/course/run')
-        credit_run = CourseRunFactory(title_override='credit', key='credit/course/run')
-        no_currency_run = CourseRunFactory(title_override='no currency', key='nocurrency/course/run')
+        audit_run_type = CourseRunType.objects.get(slug=CourseRunType.AUDIT)
+        credit_run_type = CourseRunType.objects.get(slug=CourseRunType.CREDIT_VERIFIED_AUDIT)
+        verified_run_type = CourseRunType.objects.get(slug=CourseRunType.VERIFIED_AUDIT)
+        audit_run = CourseRunFactory(title_override='audit', key='audit/course/run', type=audit_run_type)
+        verified_run = CourseRunFactory(title_override='verified', key='verified/course/run', type=verified_run_type)
+        credit_run = CourseRunFactory(title_override='credit', key='credit/course/run', type=credit_run_type)
+        no_currency_run = CourseRunFactory(title_override='no currency', key='nocurrency/course/run',
+                                           type=verified_run_type)
 
         professional_type = SeatTypeFactory.professional()
         SeatFactory(course_run=audit_run, type=professional_type)
@@ -454,7 +459,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
     def mock_products_api(self, alt_course=None, alt_currency=None, alt_mode=None, has_stockrecord=True,
                           valid_stockrecord=True, product_class=None):
         """ Return a new Course Entitlement and Enrollment Code to be added by ingest """
-        course = CourseFactory()
+        course = CourseFactory(type=CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT))
 
         # If product_class is given, make sure it's either entitlement or enrollment_code
         if product_class:
@@ -752,16 +757,48 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             )
             mock_logger.warning.assert_any_call(msg)
 
+    def test_invalid_seat_types_for_course_type(self):
+        self.mock_courses_api()
+
+        # Assign CourseType and CourseRunType values, which will conflict with the attempted verified seat type
+        course_run = CourseRun.objects.get(key='verified/course/run')
+        course_run.type = CourseRunType.objects.get(slug=CourseRunType.PROFESSIONAL)
+        course_run.save()
+        course = course_run.course
+        course.type = CourseType.objects.get(slug=CourseType.PROFESSIONAL)
+        course.save()
+
+        self.mock_products_api(alt_course=str(course.uuid))
+
+        with mock.patch(LOGGER_PATH) as mock_logger:
+            with self.assertRaises(CommandError):
+                self.loader.ingest()
+            mock_logger.warning.assert_any_call(
+                'Seat type verified is not compatible with course type professional for course {uuid}'.format(
+                    uuid=course.uuid
+                )
+            )
+            mock_logger.warning.assert_any_call(
+                'Seat type verified is not compatible with course run type professional for course run {key}'.format(
+                    key=course_run.key,
+                )
+            )
+
+        course.refresh_from_db()
+        course_run.refresh_from_db()
+        self.assertEqual(course.entitlements.count(), 0)
+        self.assertEqual(course_run.seats.count(), 0)
+
     @responses.activate
     @ddt.data(
-        ('a01354b1-c0de-4a6b-c5de-ab5c6d869e76', None, None, 'entitlement'),
-        ('a01354b1-c0de-4a6b-c5de-ab5c6d869e76', None, None, 'enrollment_code'),
-        (None, "NRC", None, 'enrollment_code'),
-        (None, None, "notamode", 'entitlement'),
-        (None, None, "notamode", 'enrollment_code')
+        ('a01354b1-c0de-4a6b-c5de-ab5c6d869e76', None, None, 'entitlement', False),
+        ('a01354b1-c0de-4a6b-c5de-ab5c6d869e76', None, None, 'enrollment_code', False),
+        (None, "NRC", None, 'enrollment_code', False),
+        (None, None, "notamode", 'entitlement', True),
+        (None, None, "notamode", 'enrollment_code', True)
     )
     @ddt.unpack
-    def test_ingest_fails(self, alt_course, alt_currency, alt_mode, product_class):
+    def test_ingest_fails(self, alt_course, alt_currency, alt_mode, product_class, raises):
         """ Verify the proper warnings are logged when data objects are not present. """
         self.mock_courses_api()
         self.mock_products_api(
@@ -771,7 +808,11 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
             product_class=product_class
         )
         with mock.patch(LOGGER_PATH) as mock_logger:
-            self.loader.ingest()
+            if raises:
+                with self.assertRaises(CommandError):
+                    self.loader.ingest()
+            else:
+                self.loader.ingest()
             msg = self.compose_warning_log(alt_course, alt_currency, alt_mode, product_class)
             mock_logger.warning.assert_any_call(msg)
 
