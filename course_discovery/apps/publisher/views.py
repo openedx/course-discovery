@@ -400,6 +400,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                 'history_object': history_object,
                 'has_course_run': self.object.course_runs.exists(),
                 'is_course_on_new_pub_fe': is_publisher_course_on_new_pub_fe(self.object),
+                'is_staff_user': self.request.user.is_staff,
             }
         )
 
