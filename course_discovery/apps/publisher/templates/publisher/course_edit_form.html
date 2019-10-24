@@ -160,50 +160,51 @@
                                         {% endif %}
                                     </div>
                                 </div>
-                                <div class="field-title">{% trans "URL SLUG" %} <strong>{% trans "(currently unused)" %}</strong></div>
-                                <div class="row">
-                                    <div class="col col-6 help-text">
-                                        <div class="row">
-                                            <ul class="tabs">
-                                                <li class="course-tabs active" data-tab="tab-practices">
-                                                    {% trans "Best Practices" %}
-                                                </li>
-                                                <li class="course-tabs" data-tab="tab-example">
-                                                    {% trans "Examples" %}
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div id="tab-practices" class="content active">
-                                            <ul>
-                                                <li>{% trans "The default URL slug is based on the course title. This URL slug can be changed, and learners who visit an older URL will be redirected to the current URL." %}</li>
-                                                <li>
-                                                    <strong>{% trans "What is a URL Slug?" %}</strong>
-                                                    <p>
-                                                    {% trans "In the example URL www.edx.org/course/math-101, the URL slug is “math-101.” Using URL slugs that are short and easily understandable helps learners find and remember course pages, and also drives higher rankings in search engine results" %}
-                                                    </p>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div id="tab-example" class="content">
-                                            <ul>
-                                                <li>a-course-url</li>
-                                                <li>this-is-a-title</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="col col-6">
-                                        <label class="field-label ">{{ form.url_slug.label_tag }}</label>
-                                        {{ form.url_slug }}
-                                        {% if form.url_slug.errors %}
-                                            <div class="field-message-content">
-                                                {{ form.url_slug.errors|escape }}
+                                {% if is_staff_user %}
+                                    <div class="field-title">{% trans "URL SLUG" %} <strong>{% trans "(currently unused)" %}</strong></div>
+                                    <div class="row">
+                                        <div class="col col-6 help-text">
+                                            <div class="row">
+                                                <ul class="tabs">
+                                                    <li class="course-tabs active" data-tab="tab-practices">
+                                                        {% trans "Best Practices" %}
+                                                    </li>
+                                                    <li class="course-tabs" data-tab="tab-example">
+                                                        {% trans "Examples" %}
+                                                    </li>
+                                                </ul>
                                             </div>
-                                        {% endif %}
+                                            <div id="tab-practices" class="content active">
+                                                <ul>
+                                                    <li>{% trans "The default URL slug is based on the course title. This URL slug can be changed, and learners who visit an older URL will be redirected to the current URL." %}</li>
+                                                    <li>
+                                                        <strong>{% trans "What is a URL Slug?" %}</strong>
+                                                        <p>
+                                                        {% trans "In the example URL www.edx.org/course/math-101, the URL slug is “math-101.” Using URL slugs that are short and easily understandable helps learners find and remember course pages, and also drives higher rankings in search engine results" %}
+                                                        </p>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div id="tab-example" class="content">
+                                                <ul>
+                                                    <li>a-course-url</li>
+                                                    <li>this-is-a-title</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col col-6">
+                                            <label class="field-label ">{{ form.url_slug.label_tag }}</label>
+                                            {{ form.url_slug }}
+                                            {% if form.url_slug.errors %}
+                                                <div class="field-message-content">
+                                                    {{ form.url_slug.errors|escape }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                </div>
+                                {% endif %}
                             </fieldset>
                         </div>
-
                         <div>
                         <div class="course-information">
                             <fieldset class="form-group grid-container grid-manual">
