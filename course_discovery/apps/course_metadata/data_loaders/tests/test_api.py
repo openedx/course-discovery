@@ -6,8 +6,10 @@ import ddt
 import mock
 import responses
 from django.core.management import CommandError
+from django.http.response import HttpResponse
 from django.test import TestCase
 from pytz import UTC
+from slumber.exceptions import HttpClientError
 
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
@@ -159,6 +161,16 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             content_type=JSON
         )
         return bodies
+
+    def test_fatal_code(self):
+        response_with_200 = HttpResponse(status=200)
+        response_with_429 = HttpResponse(status=429)
+        self.assertEqual(self.loader_class._fatal_code(  # pylint: disable=protected-access
+            HttpClientError(response=response_with_200)), True
+        )
+        self.assertEqual(self.loader_class._fatal_code(  # pylint: disable=protected-access
+            HttpClientError(response=response_with_429)), False
+        )
 
     def assert_course_run_loaded(self, body, partner_uses_publisher=True, draft=False, new_pub=False):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """

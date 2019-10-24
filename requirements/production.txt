@@ -4,6 +4,7 @@
 #
 #    pip-compile --output-file=requirements/production.txt requirements/production.in
 #
+backoff==1.8.1
 beautifulsoup4==4.8.1
 boto==2.49.0              # via django-ses
 certifi==2019.9.11
