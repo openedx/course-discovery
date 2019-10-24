@@ -1900,7 +1900,7 @@ class CourseSearchSerializer(HaystackSerializer):
         There are 2 course_run.all() calls in serializerMethodFields, so let's
         prefetch their objects to reduce the number of queries we have.
         """
-        prefetch_related_objects([instance.object], 'course_runs__seats')
+        prefetch_related_objects([instance.object], 'course_runs__seats__type')
         return super().to_representation(instance)
 
     def get_course_runs(self, result):
@@ -1981,7 +1981,7 @@ class CourseRunSearchSerializer(HaystackSerializer):
         return result.object.type_legacy
 
     def to_representation(self, instance):
-        prefetch_related_objects([instance.object], 'seats')
+        prefetch_related_objects([instance.object], 'seats__type')
         return super().to_representation(instance)
 
     class Meta:
