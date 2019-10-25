@@ -283,7 +283,8 @@ def ensure_draft_world(obj, course_type=None):
             )
 
         draft_course.save()
-        return draft_course
+        # must re-get from db to ensure related fields like course_runs are updated (refresh_from_db isn't enough)
+        return Course.everything.get(pk=draft_course.pk)
     else:
         raise Exception('Ensure draft world only accepts Courses and Course Runs.')
 

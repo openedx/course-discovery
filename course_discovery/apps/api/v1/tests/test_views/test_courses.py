@@ -1269,6 +1269,59 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         official_audit_seat = official_course_run.seats.get(type__slug='audit')
         self.assertEqual(official_audit_seat.price, 0.00)
 
+    @ddt.data(
+        # Honor happy path (it's ignored)
+        (False, ['honor', 'verified'], ['audit', 'honor', 'verified'], 'verified', None),
+
+        # Basic verified happy path
+        (False, ['audit', 'verified'], ['audit', 'verified'], 'verified', None),
+
+        # Test changing seat arrangement
+        (False, ['audit', 'verified', 'professional'], None, 'verified', 'Switching seat types'),
+        (True, ['audit', 'verified', 'professional'], ['audit', 'verified'], 'verified', None),
+
+        # Basic credit happy path test (it's ignored)
+        (False, ['audit', 'credit', 'verified'], ['audit', 'credit', 'verified'], 'verified', None),
+
+        # Test changing seat arrangement with credit in mix
+        (False, ['audit', 'credit', 'verified', 'professional'], None, 'verified', 'Switching seat types'),
+        (True, ['audit', 'credit', 'verified', 'professional'], ['audit', 'credit', 'verified'], 'verified', None),
+    )
+    @ddt.unpack
+    @responses.activate
+    def test_existing_seats_when_patching_entitlement(self, draft, starting_seats, final_seats, entitlement, error):
+        """
+        Make sure we allow or disallow switching entitlement types with different seat configs
+
+        This is mostly testing code that was put in place as a temporary measure to avoid breaking existing
+        credit and honor seats with Publisher.
+
+        Can probably delete this with DISCO-1399 (but maybe salvage for new world, since we still delete seats etc?)
+        """
+        # Make existing course & seats
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
+        course = CourseFactory(partner=self.partner, type=None, draft=draft)
+        CourseEntitlementFactory(course=course, draft=draft, mode=getattr(SeatTypeFactory, entitlement)())
+        run = CourseRunFactory(course=course, type=None, draft=draft, end=future, enrollment_end=None)
+        for seat_type in starting_seats:
+            SeatFactory(course_run=run, type=getattr(SeatTypeFactory, seat_type)(), draft=draft, price=0)
+
+        # Now patch it with new type
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        response = self.client.patch(url, {'entitlements': [{'mode': entitlement, 'price': 100}]}, format='json')
+        if error:
+            self.assertContains(response, error, status_code=400)
+        else:
+            self.assertEqual(response.status_code, 200, response.data)
+
+            # Test that we deleted any extra seats (only relevant for drafts)
+            run = CourseRun.everything.get(key=run.key, draft=True)
+            self.assertEqual(set(run.seats.values_list('type', flat=True)), set(final_seats))
+
+            # Test that only the matching seat type got its price updated
+            for seat in run.seats.all():
+                self.assertEqual(seat.price, 100 if seat.type.slug == entitlement else 0, seat.type.slug)
+
     # DISCO-1399: Remove in place of test_patch_updating_seats_using_type in test_course_runs.py
     @ddt.data(
         ('audit', 'audit', 0.00),
