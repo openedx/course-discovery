@@ -1442,15 +1442,15 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
-    def validate_seat_upgrade(self, seat_type):
+    def validate_seat_upgrade(self, seat_types):
         """
         If a course run has an official version, then ecom products have already been created and
         we only support changing mode from audit -> verified
         """
         if self.official_version:
             old_types = set(self.official_version.seats.values_list('type', flat=True))  # returns strings
-            new_types = {seat_type.slug}
-            if seat_type.slug in Seat.REQUIRES_AUDIT_SEAT:
+            new_types = {t.slug for t in seat_types}
+            if new_types & set(Seat.REQUIRES_AUDIT_SEAT):
                 new_types.add(Seat.AUDIT)
             if old_types - new_types:
                 raise ValidationError(_('Switching seat types after being reviewed is not supported. Please reach out '
@@ -1468,8 +1468,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
                 deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
         return deadline
 
-    def update_or_create_seat_helper(self, seat_type, price):
-        self.validate_seat_upgrade(seat_type)
+    def update_or_create_seat_helper(self, seat_type, price=0.00):
         deadline = self.get_seat_upgrade_deadline(seat_type)
 
         # Ideally we can remove this if statement if we stop creating Audit seats.
@@ -1480,7 +1479,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if seat_type.slug == Seat.AUDIT:
             price = 0.00
 
-        seat, __ = Seat.everything.update_or_create(
+        Seat.everything.update_or_create(
             course_run=self,
             type=seat_type,
             draft=True,
@@ -1489,7 +1488,6 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
                 'upgrade_deadline': deadline,
             },
         )
-        return seat
 
     def update_or_create_seats(self, run_type=None, price=0.00):
         """
@@ -1499,20 +1497,12 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         course run exists. After an official version of the course run exists, it only supports
         price changes or upgrades from Audit -> Verified.
         """
-        seats = []
+        ignore_types = set()  # an extra list of seat types to ignore / keep around
+
         # DISCO-1399: Shouldn't need the whole if/else anymore. Can also look into if it's necessary
         # to keep all of the helper functions (helper, validate, and upgrade deadline)
         if run_type:
-            seat_types = []
-            for track in run_type.tracks.exclude(seat_type=None):
-                seat_type = track.seat_type
-                seat_types.append(seat_type)
-                seat = self.update_or_create_seat_helper(seat_type, price)
-                seats.append(seat)
-            # Deleting seats here since they would be orphaned otherwise.
-            # One example of how this situation can happen is if a course team is switching between
-            # professional and verified before actually publishing their course run.
-            self.seats.exclude(type__in=seat_types).delete()
+            seat_types = {track.seat_type for track in run_type.tracks.exclude(seat_type=None)}
         else:
             course_entitlement = self.course.entitlements.first()  # pylint: disable=no-member
             audit_seat_type = SeatType.objects.get(slug=Seat.AUDIT)
@@ -1521,26 +1511,24 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
                 seat_type = course_entitlement.mode
                 price = course_entitlement.price
 
-            seat = self.update_or_create_seat_helper(seat_type, price)
-            seats.append(seat)
-            # We are deleting seats here since they would be orphaned otherwise.
-            # One example of how this situation can happen is if a course team is switching between
-            # professional and verified before actually publishing their course run.
-            if seat_type.slug in Seat.REQUIRES_AUDIT_SEAT or seat_type == audit_seat_type:
-                self.seats.exclude(type__in=[seat_type, audit_seat_type]).delete()
+            seat_types = {seat_type}
+            if seat_type.slug in Seat.REQUIRES_AUDIT_SEAT:
+                seat_types.add(audit_seat_type)
 
-                audit_seat, __ = Seat.everything.update_or_create(
-                    course_run=self,
-                    type=audit_seat_type,
-                    draft=True,
-                    defaults={
-                        'price': 0.00,
-                        'upgrade_deadline': None,
-                    },
-                )
-                seats.append(audit_seat)
-            else:
-                self.seats.exclude(type=seat_type).delete()
+            # Publisher does not yet handle credit/honor seats. But we don't want to delete them or change their price.
+            # So just save them from deletion but don't update. They'll be handled better in new CourseType flow.
+            ignore_types.update(SeatType.objects.filter(slug__in=[Seat.CREDIT, Seat.HONOR]))
+
+        allowed_types = seat_types | ignore_types
+        self.validate_seat_upgrade(allowed_types)
+
+        for seat_type in seat_types:
+            self.update_or_create_seat_helper(seat_type, price)
+
+        # Deleting seats here since they would be orphaned otherwise.
+        # One example of how this situation can happen is if a course team is switching between
+        # professional and verified before actually publishing their course run.
+        self.seats.exclude(type__in=allowed_types).delete()
 
     def update_or_create_official_version(self, create_ecom_products=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
