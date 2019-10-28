@@ -17,7 +17,9 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OA
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseEntitlement, CourseRun, Seat
+from course_discovery.apps.course_metadata.models import (
+    Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, Seat
+)
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseTypeFactory,
     OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
@@ -1575,10 +1577,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        response = self.client.options(url)
+        with self.assertNumQueries(45, threshold=0):
+            response = self.client.options(url)
         self.assertEqual(response.status_code, 200)
 
-        data = response.data['actions']['PUT']
+        data = response.json()['actions']['PUT']
         self.assertEqual(data['level_type']['choices'],
                          [{'display_name': self.course.level_type.name, 'value': self.course.level_type.name}])
         self.assertEqual(data['entitlements']['child']['children']['mode']['choices'],
@@ -1589,6 +1592,17 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(data['subjects']['child']['choices'],
                          [{'display_name': 'Subject1', 'value': 'subject1'}])
         self.assertNotIn('choices', data['partner'])  # we don't whitelist partner to show its choices
+
+        # Check that tracks come out alright
+        credit_type = CourseType.objects.get(slug=CourseType.CREDIT_VERIFIED_AUDIT)
+        credit_options = None
+        for options in data['type']['type_options']:
+            if options['uuid'] == str(credit_type.uuid):
+                credit_options = options
+                break
+        self.assertIsNotNone(credit_options)
+        self.assertEqual({t['mode']['slug'] for t in credit_options['tracks']},
+                         {'verified', 'credit', 'audit'})
 
     @responses.activate
     @ddt.data(True, False)
