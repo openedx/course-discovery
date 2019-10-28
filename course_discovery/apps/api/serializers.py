@@ -31,8 +31,9 @@ from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHt
 from course_discovery.apps.course_metadata.models import (
     FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType,
     CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline,
-    Endorsement, IconTextPairing, Image, LevelType, Organization, Pathway, Person, PersonAreaOfExpertise,
-    PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
+    Endorsement, IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise,
+    PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track,
+    Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -156,60 +157,6 @@ def get_utm_source_for_user(partner, user):
             utm_source = '{} {}'.format(utm_source, api_access_request['company_name'])
 
     return slugify(utm_source)
-
-
-class MetadataWithRelatedChoices(SimpleMetadata):
-    """ A version of the normal DRF metadata class that also returns choices for RelatedFields """
-
-    def determine_metadata(self, request, view):
-        self.view = view  # pylint: disable=attribute-defined-outside-init
-        return super().determine_metadata(request, view)
-
-    def get_field_info(self, field):
-        info = super().get_field_info(field)
-
-        in_whitelist = False
-        if hasattr(self.view, 'metadata_related_choices_whitelist'):
-            in_whitelist = field.field_name in self.view.metadata_related_choices_whitelist
-
-        # The normal metadata class excludes RelatedFields, but we want them! So we do the same thing the normal
-        # class does, but without the RelatedField check.
-        if in_whitelist and not info.get('read_only') and hasattr(field, 'choices'):
-            info['choices'] = [
-                {
-                    'value': choice_value,
-                    'display_name': choice_name,
-                }
-                for choice_value, choice_name in field.choices.items()
-            ]
-
-        return info
-
-
-class MetadataWithType(MetadataWithRelatedChoices):
-    """ A version of the MetadataWithRelatedChoices class that also includes logic for Course Types """
-
-    def create_type_options(self, info):
-        info['type_options'] = [{
-            'uuid': course_type.uuid,
-            'name': course_type.name,
-            'entitlement_types': [entitlement_type.slug for entitlement_type in course_type.entitlement_types.all()],
-            'course_run_types': [{
-                'uuid': course_run_type.uuid,
-                'name': course_run_type.name,
-            } for course_run_type in course_type.course_run_types.all()],
-        } for course_type in CourseType.objects.all()]
-        return info
-
-    def get_field_info(self, field):
-        info = super().get_field_info(field)
-
-        # This line is because a child serializer of Course (the ProgramSerializer) also has
-        # the type field, but we only want it to match with the CourseSerializer
-        if field.field_name == 'type' and isinstance(field.parent, self.view.get_serializer_class()):
-            return self.create_type_options(info)
-
-        return info
 
 
 class BaseModelSerializer(serializers.ModelSerializer):
@@ -567,6 +514,34 @@ class CorporateEndorsementSerializer(BaseModelSerializer):
     class Meta:
         model = CorporateEndorsement
         fields = ('corporation_name', 'statement', 'image', 'individual_endorsements',)
+
+
+class SeatTypeSerializer(BaseModelSerializer):
+    """Serializer for the ``SeatType`` model."""
+    class Meta:
+        model = SeatType
+        fields = ('name', 'slug')
+
+
+class ModeSerializer(BaseModelSerializer):
+    """Serializer for the ``Mode`` model."""
+    class Meta:
+        model = Mode
+        fields = ('name', 'slug', 'is_id_verified', 'is_credit_eligible', 'certificate_type', 'payee')
+
+
+class TrackSerializer(BaseModelSerializer):
+    """Serializer for the ``Track`` model."""
+    seat_type = SeatTypeSerializer(allow_null=True)
+    mode = ModeSerializer()
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return Track.objects.select_related('seat_type', 'mode')
+
+    class Meta:
+        model = Track
+        fields = ('seat_type', 'mode')
 
 
 class SeatSerializer(BaseModelSerializer):
@@ -2242,3 +2217,61 @@ class TopicSerializer(BaseModelSerializer):
     class Meta:
         model = Topic
         fields = ('name', 'subtitle', 'description', 'long_description', 'banner_image_url', 'slug', 'uuid')
+
+
+class MetadataWithRelatedChoices(SimpleMetadata):
+    """ A version of the normal DRF metadata class that also returns choices for RelatedFields """
+
+    def determine_metadata(self, request, view):
+        self.view = view  # pylint: disable=attribute-defined-outside-init
+        return super().determine_metadata(request, view)
+
+    def get_field_info(self, field):
+        info = super().get_field_info(field)
+
+        in_whitelist = False
+        if hasattr(self.view, 'metadata_related_choices_whitelist'):
+            in_whitelist = field.field_name in self.view.metadata_related_choices_whitelist
+
+        # The normal metadata class excludes RelatedFields, but we want them! So we do the same thing the normal
+        # class does, but without the RelatedField check.
+        if in_whitelist and not info.get('read_only') and hasattr(field, 'choices'):
+            info['choices'] = [
+                {
+                    'value': choice_value,
+                    'display_name': choice_name,
+                }
+                for choice_value, choice_name in field.choices.items()
+            ]
+
+        return info
+
+
+class MetadataWithType(MetadataWithRelatedChoices):
+    """ A version of the MetadataWithRelatedChoices class that also includes logic for Course Types """
+
+    def create_type_options(self, info):
+        info['type_options'] = [{
+            'uuid': course_type.uuid,
+            'name': course_type.name,
+            'entitlement_types': [entitlement_type.slug for entitlement_type in course_type.entitlement_types.all()],
+            'course_run_types': [{
+                'uuid': course_run_type.uuid,
+                'name': course_run_type.name,
+            } for course_run_type in course_type.course_run_types.all()],
+            'tracks': [
+                TrackSerializer(track).data for track
+                in TrackSerializer.prefetch_queryset().filter(courseruntype__coursetype=course_type).distinct()
+            ],
+        } for course_type in CourseType.objects.all()]
+        return info
+
+    def get_field_info(self, field):
+        info = super().get_field_info(field)
+
+        # This line is because a child serializer of Course (the ProgramSerializer) also has
+        # the type field, but we only want it to match with the CourseSerializer
+        if field.field_name == 'type' and isinstance(field.parent, self.view.get_serializer_class()):
+            return self.create_type_options(info)
+
+        return info
