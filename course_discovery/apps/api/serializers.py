@@ -942,6 +942,29 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
                   'short_description', 'type', 'url_slug',)
 
 
+class CourseEditorSerializer(serializers.ModelSerializer):
+    """Serializer for the ``CourseEditor`` model."""
+    user = GroupUserSerializer(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
+    course = serializers.SlugRelatedField(queryset=Course.objects.filter_drafts(), slug_field='uuid')
+
+    class Meta:
+        model = CourseEditor
+        fields = (
+            'id',
+            'user',
+            'user_id',
+            'course',
+        )
+
+    def create(self, validated_data):
+        course_editor = CourseEditor.objects.create(
+            user=validated_data['user_id'],
+            course=validated_data['course']
+        )
+        return course_editor
+
+
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
     level_type = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='name',
@@ -961,6 +984,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     url_slug = serializers.SlugField(read_only=True, source='active_url_slug')
     url_slug_history = serializers.SlugRelatedField(slug_field='url_slug', read_only=True, many=True)
     url_redirects = serializers.SlugRelatedField(slug_field='value', read_only=True, many=True)
+    course_run_statuses = serializers.ReadOnlyField()
+    editors = CourseEditorSerializer(many=True, read_only=True)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
@@ -997,7 +1022,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
-            'url_slug_history', 'url_redirects',
+            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1030,29 +1055,6 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
     def create(self, validated_data):
         return Course.objects.create(**validated_data)
-
-
-class CourseEditorSerializer(BaseModelSerializer):
-    """Serializer for the ``CourseEditor`` model."""
-    user = GroupUserSerializer(read_only=True)
-    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
-    course = serializers.SlugRelatedField(queryset=Course.objects.filter_drafts(), slug_field='uuid')
-
-    class Meta:
-        model = CourseEditor
-        fields = (
-            'id',
-            'user',
-            'user_id',
-            'course',
-        )
-
-    def create(self, validated_data):
-        course_editor = CourseEditor.objects.create(
-            user=validated_data['user_id'],
-            course=validated_data['course']
-        )
-        return course_editor
 
 
 class CourseWithProgramsSerializer(CourseSerializer):

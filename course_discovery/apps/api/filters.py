@@ -12,7 +12,7 @@ from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import NotFound, PermissionDenied
 
 from course_discovery.apps.api.utils import cast2int
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseRun, Organization, Person, Program, Subject, Topic
 )
@@ -131,10 +131,20 @@ class FilterSetMixin:
 class CourseFilter(filters.FilterSet):
     keys = CharListFilter(field_name='key', lookup_expr='in')
     uuids = UUIDListFilter()
+    course_run_statuses = CharListFilter(method='filter_by_course_run_statuses')
+    editors = CharListFilter(field_name='editors__user__pk', lookup_expr='in', distinct=True)
 
     class Meta:
         model = Course
         fields = ('keys', 'uuids',)
+
+    def filter_by_course_run_statuses(self, queryset, _, value):
+        statuses = value
+        if 'in_review' in statuses:
+            statuses = statuses.replace(
+                'in_review', '{},{}'.format(CourseRunStatus.LegalReview, CourseRunStatus.InternalReview)
+            )
+        return queryset.filter(course_runs__status__in=statuses.split(',')).distinct()
 
 
 class CourseRunFilter(FilterSetMixin, filters.FilterSet):

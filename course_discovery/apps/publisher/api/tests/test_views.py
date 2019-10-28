@@ -216,6 +216,42 @@ class OrganizationGroupUserViewTests(APITestCase):
         self.assertExpectedUsers(response)
 
 
+class OrganizationUserViewTests(APITestCase):
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory.create(username="test_user", password=USER_PASSWORD)
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+        self.internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
+        self.user.groups.add(self.internal_user_group)
+        self.expected_user = UserFactory()
+        self.organization_extension = factories.OrganizationExtensionFactory()
+
+    def query(self):
+        url = reverse('publisher:api:organization_users')
+        return self.client.get(path=url, content_type=JSON_CONTENT_TYPE)
+
+    def test_repsonse_for_staff_user(self):
+        self.organization_extension.organization.partner = self.site.partner
+        self.organization_extension.organization.save()
+        self.expected_user.groups.add(self.organization_extension.group)
+        self.user.is_staff = True
+        self.user.save()
+
+        response = self.query()
+        results = response.json().get('results')
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].get('full_name'), self.expected_user.full_name)
+
+    def test_response_for_non_staff_user(self):
+        self.expected_user.groups.add(self.organization_extension.group)
+        self.user.groups.add(self.organization_extension.group)
+
+        response = self.query()
+        results = response.json().get('results')
+        self.assertEqual(len(results), 2)
+
+
 class OrganizationUserRoleViewTests(APITestCase):
     def setUp(self):
         super().setUp()
