@@ -232,13 +232,13 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             entitlement_types = course.type.entitlement_types.all()
         else:
             entitlement_types = [SeatType.objects.get(slug=entitlement_type)]
-        price = request.data.get('price', 0.00)
+        prices = request.data.get('prices', {})
         for entitlement_type in entitlement_types:
             CourseEntitlement.objects.create(
                 course=course,
                 mode=entitlement_type,
                 partner=partner,
-                price=price,
+                price=prices.get(entitlement_type.slug, 0),
                 draft=True,
             )
 
@@ -251,7 +251,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # Note: We have to send the request object as well because it is used for its metadata
         # (like request.user and is set as part of the serializer context)
         if course_run_creation_fields:
-            course_run_creation_fields.update({'course': course.key, 'price': price})
+            course_run_creation_fields.update({'course': course.key, 'prices': prices})
             run_response = CourseRunViewSet().create_run_helper(course_run_creation_fields, request)
             if run_response.status_code != 201:
                 raise Exception(str(run_response.data))
@@ -318,11 +318,14 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         entitlements = []
         # New flow for courses using CourseType model
         # DISCO-1399: I think pretty much the whole 'else' can be removed.
-        price = data.get('price', 0.00)
+        prices = data.get('prices', {})
         if data.get('type'):
             course_type = CourseType.objects.get(uuid=data.get('type'))
             entitlement_types = course_type.entitlement_types.all()
             for entitlement_type in entitlement_types:
+                price = prices.get(entitlement_type.slug)
+                if price is None:
+                    continue
                 data = {'mode': entitlement_type.slug, 'price': price}
                 entitlements.append(self.update_entitlement(course, data, entitlement_type, partial=partial))
                 changed = changed or format(float(price), '.2f') != str(course.entitlements.first().price)
@@ -335,6 +338,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 changed = changed or (
                     format(float(entitlement_data['price']), '.2f') != str(course.entitlements.first().price)
                 )
+                prices[entitlement_data['mode']] = entitlement_data['price']
         if entitlements:
             course.entitlements.set(entitlements)
             # DISCO-1399: This whole if can be removed. Updating or creating seats
@@ -342,7 +346,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             if not course.type:
                 # If entitlements were updated, we also want to update seats
                 for course_run in course.active_course_runs:
-                    course_run.update_or_create_seats(course_run.type, price)
+                    course_run.update_or_create_seats(course_run.type, prices)
 
         # Save video if a new video source is provided
         if (video_data and video_data.get('src') and
