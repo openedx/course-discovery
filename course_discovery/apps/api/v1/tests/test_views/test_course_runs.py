@@ -328,7 +328,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'start': '2000-01-01T00:00:00Z',
             'end': '2001-01-01T00:00:00Z',
             'run_type': str(self.course_run_type.uuid),
-            'price': 77.32,
+            'prices': {self.course_run_type.tracks.first().seat_type.slug: 77.32},
         }, format='json')
 
         self.assertEqual(response.status_code, 201)
@@ -893,7 +893,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'number': 'test101',
             'org': OrganizationFactory(key='test-key').key,
             'type': str(original_course_type.uuid),
-            'price': 49,
+            'prices': {} if original_seat_type == 'audit' else {original_seat_type: 49},
             'course_run': {
                 'start': '2001-01-01T00:00:00Z',
                 'end': datetime.datetime.now() + datetime.timedelta(days=1),
@@ -915,7 +915,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         __, updated_run_type = self.create_course_and_run_types(seat_type)
         data = {
             'run_type': str(updated_run_type.uuid),
-            'price': price,
+            'prices': {seat_type: price},
         }
 
         # Update this course_run with the new info
@@ -951,7 +951,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'number': 'test101',
             'org': OrganizationFactory(key='test-key').key,
             'type': str(course_type.uuid),
-            'price': 49,
+            'prices': {Seat.VERIFIED: 49},
             'course_run': {
                 'start': '2001-01-01T00:00:00Z',
                 'end': datetime.datetime.now() + datetime.timedelta(days=-1),
@@ -982,7 +982,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         data = {
             'min_effort': 5,
             'run_type': str(run_type.uuid),
-            'price': 77,
+            'prices': {Seat.VERIFIED: 77},
         }
 
         # Update this course_run with the new info

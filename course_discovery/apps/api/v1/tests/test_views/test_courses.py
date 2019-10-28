@@ -567,7 +567,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.mock_access_token()
         course_data = {
             'mode': 'verified',
-            'price': 100,
+            'prices': {'verified': 100},
         }
         response = self.create_course(course_data)
 
@@ -601,7 +601,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ When creating a course, it should start as a draft. """
         self.mock_access_token()
         # DISCO-1399: Update to use a course type
-        response = self.create_course({'mode': 'verified', 'price': 77})
+        response = self.create_course({'mode': 'verified', 'prices': {'verified': 77}})
         self.assertEqual(response.status_code, 201)
 
         course = Course.everything.last()
@@ -652,7 +652,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             'number': 'test101',
             'org': self.org.key,
             'mode': 'verified',
-            'price': 77.77,
+            'prices': {'verified': 77.77},
             'course_run': {
                 'start': '2001-01-01T00:00:00Z',
                 'end': datetime.datetime.now() + datetime.timedelta(days=1),
@@ -665,7 +665,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         self.assertEqual(Seat.everything.count(), 2)
         verified_seat = Seat.everything.get(course_run=course_run, type='verified')
-        self.assertEqual(float(verified_seat.price), data['price'])
+        self.assertEqual(float(verified_seat.price), 77.77)
         audit_seat = Seat.everything.get(course_run=course_run, type='audit')
         self.assertEqual(audit_seat.price, 0.00)
         self.assertTrue(audit_seat.draft)
@@ -705,7 +705,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             'number': 'test101',
             'org': self.org.key,
             'type': str(self.course_type.uuid),
-            'price': 77,
+            'prices': {'verified': 77},
         }
         response = self.create_course(data, update=False)
 
@@ -718,7 +718,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(1, CourseEntitlement.everything.count())
         entitlement = CourseEntitlement.everything.last()
         self.assertEqual(self.course_type.entitlement_types.last(), entitlement.mode)  # pylint: disable=no-member
-        self.assertEqual(entitlement.price, data['price'])
+        self.assertEqual(entitlement.price, 77)
 
     def test_create_with_course_type_audit(self):
         self.mock_access_token()
@@ -938,7 +938,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             'title': 'Course title',
             'key': self.course.key,
             'type': str(self.course_type.uuid),
-            'price': '77.32',
+            'prices': {'verified': '77.32'},
         }
 
         response = self.client.patch(url, course_data, format='json')
@@ -1094,7 +1094,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         # DISCO-1399: Update to use course type
         data = {
             'mode': 'verified',
-            'price': 49,
+            'prices': {'verified': 49},
         }
         self.create_course_and_course_run(data)
 
@@ -1367,7 +1367,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.mock_access_token()
         data = {
             'mode': original_mode,
-            'price': 49,
+            'prices': {} if original_mode == 'audit' else {original_mode: 49},
         }
         self.create_course_and_course_run(data)
 

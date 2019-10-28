@@ -1477,28 +1477,21 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
                 deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
         return deadline
 
-    def update_or_create_seat_helper(self, seat_type, price=0.00):
-        deadline = self.get_seat_upgrade_deadline(seat_type)
-
-        # Ideally we can remove this if statement if we stop creating Audit seats.
-        # In the meantime, we want to guarantee that any audit seats will have a 0.00 price.
-        # In the CourseType flow, we only send in a single price for all of the tracks (for now),
-        # so it would be possible to accidentally set an Audit seat to have a nonzero price because
-        # there is a Verified seat with a price.
-        if seat_type.slug == Seat.AUDIT:
-            price = 0.00
+    def update_or_create_seat_helper(self, seat_type, prices):
+        defaults = {
+            'upgrade_deadline': self.get_seat_upgrade_deadline(seat_type),
+        }
+        if seat_type.slug in prices:
+            defaults['price'] = prices[seat_type.slug]
 
         Seat.everything.update_or_create(
             course_run=self,
             type=seat_type,
             draft=True,
-            defaults={
-                'price': price,
-                'upgrade_deadline': deadline,
-            },
+            defaults=defaults,
         )
 
-    def update_or_create_seats(self, run_type=None, price=0.00):
+    def update_or_create_seats(self, run_type=None, prices=None):
         """
         Updates or creates draft seats for a course run.
 
@@ -1507,6 +1500,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         price changes or upgrades from Audit -> Verified.
         """
         ignore_types = set()  # an extra list of seat types to ignore / keep around
+        prices = dict(prices or {})
 
         # DISCO-1399: Shouldn't need the whole if/else anymore. Can also look into if it's necessary
         # to keep all of the helper functions (helper, validate, and upgrade deadline)
@@ -1514,15 +1508,11 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             seat_types = {track.seat_type for track in run_type.tracks.exclude(seat_type=None)}
         else:
             course_entitlement = self.course.entitlements.first()  # pylint: disable=no-member
-            audit_seat_type = SeatType.objects.get(slug=Seat.AUDIT)
-            seat_type = audit_seat_type
+            seat_types = set()
             if course_entitlement:
-                seat_type = course_entitlement.mode
-                price = course_entitlement.price
-
-            seat_types = {seat_type}
-            if seat_type.slug in Seat.REQUIRES_AUDIT_SEAT:
-                seat_types.add(audit_seat_type)
+                seat_types.add(course_entitlement.mode)
+            if not course_entitlement or course_entitlement.mode.slug in Seat.REQUIRES_AUDIT_SEAT:
+                seat_types.add(SeatType.objects.get(slug=Seat.AUDIT))
 
             # Publisher does not yet handle credit/honor seats. But we don't want to delete them or change their price.
             # So just save them from deletion but don't update. They'll be handled better in new CourseType flow.
@@ -1532,7 +1522,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         self.validate_seat_upgrade(allowed_types)
 
         for seat_type in seat_types:
-            self.update_or_create_seat_helper(seat_type, price)
+            self.update_or_create_seat_helper(seat_type, prices)
 
         # Deleting seats here since they would be orphaned otherwise.
         # One example of how this situation can happen is if a course team is switching between
