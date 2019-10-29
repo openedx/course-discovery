@@ -1151,6 +1151,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     class Meta:
         unique_together = (
             ('key', 'draft'),
+            ('uuid', 'draft'),
         )
 
     def __init__(self, *args, **kwargs):
