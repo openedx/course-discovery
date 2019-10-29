@@ -5,7 +5,7 @@
 {% load static %}
 
 {% block title %}
-    {% if not is_course_on_new_pub_fe %}
+    {% if is_course_on_old_publisher %}
     {% trans "Edit Course" %}
     {% endif %}
 {% endblock title %}
@@ -19,7 +19,7 @@
 {% endblock %}
 
 {% block page_content %}
-    {% if not is_course_on_new_pub_fe %}
+    {% if is_course_on_old_publisher %}
     <div>
         <h1 class="hd-1 emphasized">{% trans "Edit Course" as tmsg %}{{ tmsg | force_escape }}</h1>
 

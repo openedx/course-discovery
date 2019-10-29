@@ -16,7 +16,7 @@ class PublisherContextProcessorTests(TestCase):
         request.user = UserFactory()
         expected = {
             'is_email_notification_enabled': is_email_notification_enabled(request.user),
-            'is_on_new_pub_fe': False,
+            'is_on_old_publisher': True,
             'publisher_url': None
         }
         self.assertDictEqual(publisher(request), expected)
