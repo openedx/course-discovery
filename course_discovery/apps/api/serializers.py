@@ -2258,12 +2258,15 @@ class MetadataWithType(MetadataWithRelatedChoices):
             'course_run_types': [{
                 'uuid': course_run_type.uuid,
                 'name': course_run_type.name,
+                'modes': [track.mode.slug for track in course_run_type.tracks.all()],
             } for course_run_type in course_type.course_run_types.all()],
             'tracks': [
                 TrackSerializer(track).data for track
                 in TrackSerializer.prefetch_queryset().filter(courseruntype__coursetype=course_type).distinct()
             ],
-        } for course_type in CourseType.objects.all()]
+        } for course_type in CourseType.objects.prefetch_related(
+            'course_run_types__tracks__mode', 'entitlement_types'
+        ).all()]
         return info
 
     def get_field_info(self, field):
