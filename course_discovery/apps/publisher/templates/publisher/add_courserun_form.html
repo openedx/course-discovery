@@ -8,7 +8,7 @@
 {% endblock title %}
 
 {% block page_content %}
-{% if not is_course_on_new_pub_fe %}
+{% if is_course_on_old_publisher %}
 <div xmlns="http://www.w3.org/1999/html">
         <h1 class="hd-1 emphasized">{% trans "New Course Run" as tmsg %}{{ tmsg | force_escape }}</h1>
         <div class="copy-base">

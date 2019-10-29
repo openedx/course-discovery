@@ -40,7 +40,7 @@ from course_discovery.apps.publisher.models import (
 )
 from course_discovery.apps.publisher.utils import (
     get_internal_users, has_role_for_course, is_internal_user, is_project_coordinator_user, is_publisher_admin,
-    is_publisher_course_on_new_pub_fe, make_bread_crumbs
+    is_publisher_course_on_old_publisher, make_bread_crumbs
 )
 from course_discovery.apps.publisher.wrappers import CourseRunWrapper
 
@@ -257,7 +257,7 @@ class CourseRunDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionM
         context['is_in_preview_review'] = course_run.is_in_preview_review
         context['is_seat_version'] = course_run.is_seat_version
         context['is_entitlement_version'] = course_run.is_entitlement_version
-        context['is_course_on_new_pub_fe'] = is_publisher_course_on_new_pub_fe(course_run.course)
+        context['is_course_on_old_publisher'] = is_publisher_course_on_old_publisher(course_run.course)
         return context
 
 
@@ -399,7 +399,7 @@ class CourseEditView(mixins.PublisherPermissionMixin, UpdateView):
                 'is_internal_user': is_internal_user(self.request.user),
                 'history_object': history_object,
                 'has_course_run': self.object.course_runs.exists(),
-                'is_course_on_new_pub_fe': is_publisher_course_on_new_pub_fe(self.object),
+                'is_course_on_old_publisher': is_publisher_course_on_old_publisher(self.object),
                 'is_staff_user': self.request.user.is_staff,
             }
         )
@@ -681,7 +681,7 @@ class CourseDetailView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMixi
         user = self.request.user
         course = self.object
 
-        context['is_course_on_new_pub_fe'] = is_publisher_course_on_new_pub_fe(course)
+        context['is_course_on_old_publisher'] = is_publisher_course_on_old_publisher(course)
         context['can_edit'] = mixins.check_course_organization_permission(
             user, course, OrganizationExtension.EDIT_COURSE
         ) and has_role_for_course(course, user)
@@ -954,7 +954,7 @@ class CreateCourseRunView(mixins.LoginRequiredMixin, mixins.PublisherUserRequire
             'seat_form': seat_form,
             'hide_seat_form': parent_course.uses_entitlements,
             'course_in_masters': course_in_masters,
-            'is_course_on_new_pub_fe': is_publisher_course_on_new_pub_fe(parent_course),
+            'is_course_on_old_publisher': is_publisher_course_on_old_publisher(parent_course),
         }
         return context
 
@@ -1038,7 +1038,7 @@ class CourseRunEditView(mixins.LoginRequiredMixin, mixins.PublisherPermissionMix
             'is_internal_user': mixins.check_roles_access(user),
             'is_project_coordinator': is_project_coordinator_user(user),
             'organizations': mixins.get_user_organizations(user),
-            'is_course_on_new_pub_fe': is_publisher_course_on_new_pub_fe(parent_course),
+            'is_course_on_old_publisher': is_publisher_course_on_old_publisher(parent_course),
         }
 
     def get_latest_course_run_seat(self, course_run):

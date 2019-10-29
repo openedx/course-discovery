@@ -19,7 +19,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
 )
-from course_discovery.apps.publisher.utils import is_course_on_new_pub_fe
+from course_discovery.apps.publisher.utils import is_course_on_old_publisher
 
 logger = logging.getLogger(__name__)
 
@@ -189,7 +189,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def update_course_run(self, official_run, draft_run, body):
         run = draft_run or official_run
-        new_pub_fe = is_course_on_new_pub_fe(run.course)
+        new_pub_fe = is_course_on_old_publisher(run.course)
 
         validated_data = self.format_course_run_data(body, new_pub_fe=new_pub_fe)
         self._update_instance(official_run, validated_data, suppress_publication=True)
@@ -198,7 +198,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Processed course run with UUID [%s].', run.uuid)
 
     def create_course_run(self, course, body):
-        new_pub_fe = is_course_on_new_pub_fe(course)
+        new_pub_fe = is_course_on_old_publisher(course)
         defaults = self.format_course_run_data(body, course=course, new_pub_fe=new_pub_fe)
 
         return CourseRun.objects.create(**defaults)

@@ -164,57 +164,57 @@ def user_orgs(user):
 
 
 def check_orgs_from_settings(method):
-    """Decorator for retrieving orgs on new pub fe from settings"""
+    """Decorator for retrieving orgs on old publisher from settings"""
     def wrapper(obj):
-        orgs_on_new_pub_fe = frozenset(filter(None, getattr(settings, 'ORGS_ON_NEW_PUB_FE', '').split(',')))
-        if not orgs_on_new_pub_fe:
+        orgs_on_old_publisher = frozenset(filter(None, getattr(settings, 'ORGS_ON_OLD_PUBLISHER', '').split(',')))
+        if not orgs_on_old_publisher:
             return False
 
-        return method(obj, orgs_on_new_pub_fe)
+        return method(obj, orgs_on_old_publisher)
 
     return wrapper
 
 
 @check_orgs_from_settings
-def is_on_new_pub_fe(user, orgs_on_new_pub_fe=None):
-    """Returns if all the user's organizations have been moved to new publisher frontend"""
+def is_on_old_publisher(user, orgs_on_old_publisher=None):
+    """Returns if any of the user's organizations are using old publisher"""
     if user.is_staff:
-        return False
+        return True
 
     orgs = user_orgs(user)
     for org in orgs:
-        if org.key not in orgs_on_new_pub_fe:
-            return False
+        if org.key in orgs_on_old_publisher:
+            return True
 
-    return True
+    return False
 
 
 @check_orgs_from_settings
-def is_course_on_new_pub_fe(course, orgs_on_new_pub_fe=None):
+def is_course_on_old_publisher(course, orgs_on_old_publisher=None):
     """
     Handles course_metadata courses, not publisher courses
-    Returns True if all the course's organizations have been moved to new publisher frontend
+    Returns True if any of the course's organizations are using old publisher
     """
     orgs = course.authoring_organizations.all()
     for org in orgs:
-        if org.key not in orgs_on_new_pub_fe:
-            return False
+        if org.key in orgs_on_old_publisher:
+            return True
 
-    return True
+    return False
 
 
 @check_orgs_from_settings
-def is_publisher_course_on_new_pub_fe(course, orgs_on_new_pub_fe=None):
+def is_publisher_course_on_old_publisher(course, orgs_on_old_publisher=None):
     """
     Handles publisher courses, not course_metadata courses
-    Returns True if all the course's organizations have been moved to new publisher frontend
+    Returns True if any of the course's organizations are using old publisher
     """
     orgs = course.organizations.all()
     for org in orgs:
-        if org.key not in orgs_on_new_pub_fe:
-            return False
+        if org.key in orgs_on_old_publisher:
+            return True
 
-    return True
+    return False
 
 
 def publisher_url(user):
