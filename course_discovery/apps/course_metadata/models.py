@@ -805,7 +805,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     @property
     def course_run_statuses(self):
-        statuses = self.course_runs.values_list('status', flat=True).distinct()
+        statuses = self.course_runs.filter(hidden=False).values_list('status', flat=True).distinct().order_by('status')
         return list(statuses)
 
     def update_marketing_redirects(self, published_runs=None):

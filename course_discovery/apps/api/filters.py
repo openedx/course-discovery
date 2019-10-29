@@ -144,7 +144,8 @@ class CourseFilter(filters.FilterSet):
             statuses = statuses.replace(
                 'in_review', '{},{}'.format(CourseRunStatus.LegalReview, CourseRunStatus.InternalReview)
             )
-        return queryset.filter(course_runs__status__in=statuses.split(',')).distinct()
+        return queryset.filter(
+            course_runs__status__in=statuses.split(','), course_runs__hidden=False).distinct()
 
 
 class CourseRunFilter(FilterSetMixin, filters.FilterSet):
