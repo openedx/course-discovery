@@ -167,7 +167,7 @@ def check_orgs_from_settings(method):
     """Decorator for retrieving orgs on old publisher from settings"""
     def wrapper(obj):
         orgs_on_old_publisher = frozenset(filter(None, getattr(settings, 'ORGS_ON_OLD_PUBLISHER', '').split(',')))
-        if not orgs_on_old_publisher:
+        if orgs_on_old_publisher:
             return False
 
         return method(obj, orgs_on_old_publisher)
