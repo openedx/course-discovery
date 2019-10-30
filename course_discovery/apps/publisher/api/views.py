@@ -79,9 +79,11 @@ class OrganizationUserView(ListAPIView):
         if user.is_staff:
             partner = self.request.site.partner
             organization_extensions = OrganizationExtension.objects.filter(organization__partner=partner)
-            return User.objects.filter(groups__organization_extension__in=organization_extensions).distinct()
+            return User.objects.filter(
+                groups__organization_extension__in=organization_extensions).distinct().order_by('full_name')
 
-        return User.objects.filter(groups__organization_extension__group__in=user.groups.all()).distinct()
+        return User.objects.filter(
+            groups__organization_extension__group__in=user.groups.all()).distinct().order_by('full_name')
 
 
 class UpdateCourseRunView(UpdateAPIView):
