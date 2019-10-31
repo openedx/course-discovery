@@ -661,7 +661,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     seats = SeatSerializer(required=False, many=True)
     key = serializers.CharField(required=False)
     title = serializers.CharField(required=False)
-    external_key = serializers.CharField(required=False)
+    external_key = serializers.CharField(required=False, allow_blank=True)
     short_description = HtmlField(required=False, allow_blank=True)
     start = serializers.DateTimeField(required=True)  # required so we can craft key number from it
     end = serializers.DateTimeField(required=True)  # required by studio
