@@ -236,7 +236,8 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         self.assertEqual(Course.objects.count(), 0)
         self.assertEqual(CourseRun.objects.count(), 0)
 
-        with self.settings(ORGS_ON_NEW_PUB_FE='MITx' if on_new_publisher else ''):
+        # Assume that while we are relying on ORGS_ON_OLD_PUBLISHER it will never be empty
+        with self.settings(ORGS_ON_OLD_PUBLISHER='MITx' if not on_new_publisher else 'OTHER'):
             self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
