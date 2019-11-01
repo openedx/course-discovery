@@ -78,8 +78,8 @@ class TestCourse(TestCase):
         course.image = None
         assert course.original_image_url is None
 
-    @ddt.data('additional_information', 'faq', 'full_description', 'learner_testimonials', 'outcome',
-              'prerequisites_raw', 'short_description', 'syllabus_raw')
+    @ddt.data('faq', 'full_description', 'learner_testimonials', 'outcome', 'prerequisites_raw', 'short_description',
+              'syllabus_raw')
     def test_html_fields_are_validated(self, field_name):
         course = factories.CourseFactory()
 
