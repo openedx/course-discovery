@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-21 17:04+0000\n"
+"POT-Creation-Date: 2019-10-29 21:23+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1232,10 +1232,6 @@ msgstr "Àdd thé çöürsé ïmägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
 msgstr "FÀQ Ⱡ'σяєм#"
-
-#: apps/course_metadata/models.py apps/publisher/models.py
-msgid "Course Has OFAC Restrictions"
-msgstr "Çöürsé Häs ÖFÀÇ Réstrïçtïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: apps/course_metadata/models.py
 msgid "Total number of learners who have enrolled in this course"

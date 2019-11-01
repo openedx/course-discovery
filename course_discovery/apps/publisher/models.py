@@ -99,8 +99,6 @@ class Course(TimeStampedModel, ChangedByMixin):
     video_link = models.URLField(default=None, null=True, blank=True, verbose_name=_('Video Link'))
     version = models.IntegerField(default=SEAT_VERSION, verbose_name='Workflow Version')
 
-    has_ofac_restrictions = models.BooleanField(default=False, verbose_name=_('Course Has OFAC Restrictions'))
-
     # temp fields for data migrations only.
     course_metadata_pk = models.PositiveIntegerField(null=True, blank=True, verbose_name=_('Course Metadata Course PK'))
     url_slug = AutoSlugField(populate_from='title', editable=True, slugify_function=uslugify, overwrite_on_add=False,

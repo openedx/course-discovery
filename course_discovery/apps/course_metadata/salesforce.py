@@ -14,7 +14,7 @@ ORGANIZATION_SALESFORCE_FIELDS = {
     'organization': ('name', 'key')
 }
 COURSE_SALESFORCE_FIELDS = {
-    'course': ('title', 'has_ofac_restrictions', 'key'),
+    'course': ('title', 'key'),
 }
 COURSE_RUN_SALESFORCE_FIELDS = {
     'course_run': ('start', 'end', 'status', 'title', 'go_live_date', 'key', 'has_ofac_restrictions'),
