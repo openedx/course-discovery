@@ -695,7 +695,11 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         related_name='course_topics',
     )
 
-    additional_information = NullHtmlField(verbose_name=_('Additional Information'))
+    # The 'additional_information' field holds HTML content, but we don't use a NullHtmlField for it, because we don't
+    # want to validate its content at all. This is filled in by administrators, not course teams, and may hold special
+    # HTML that isn't normally allowed.
+    additional_information = models.TextField(blank=True, null=True, default=None,
+                                              verbose_name=_('Additional Information'))
 
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
