@@ -4,12 +4,13 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
+# LTMC Latvijas Tiesnešu mācību centrs <ltmc.training@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2018-09-17 09:24+0000\n"
+"PO-Revision-Date: 2019-10-28 07:35+0000\n"
 "Last-Translator: LTMC Latvijas Tiesnešu mācību centrs <ltmc.training@gmail.com>\n"
 "Language-Team: Latvian (http://www.transifex.com/open-edx/edx-platform/language/lv/)\n"
 "MIME-Version: 1.0\n"
@@ -2442,7 +2443,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "OK"
-msgstr "OK"
+msgstr "Labi"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course"
