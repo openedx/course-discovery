@@ -739,7 +739,7 @@ class OrganizationExtension(TimeStampedModel):
     organization = models.OneToOneField(Organization, models.CASCADE, related_name='organization_extension')
     group = models.OneToOneField(Group, models.CASCADE, related_name='organization_extension')
 
-    auto_create_in_studio = models.BooleanField(
+    auto_create_in_studio = models.NullBooleanField(
         default=True,
         verbose_name=_('Automatically create a run in Studio'),
         help_text=_(
