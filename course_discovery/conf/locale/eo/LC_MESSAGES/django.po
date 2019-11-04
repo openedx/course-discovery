@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-08 17:52+0000\n"
+"POT-Creation-Date: 2019-11-08 20:17+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -52,8 +52,8 @@ msgstr ""
 "¢σηѕє¢тєтυя#"
 
 #: apps/api/serializers.py
-msgid "Key cannot be changed"
-msgstr "Kéý çännöt ßé çhängéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+msgid "Term cannot be changed"
+msgstr "Térm çännöt ßé çhängéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: apps/api/serializers.py
 msgid "Language in which the course is administered"
@@ -2691,20 +2691,6 @@ msgstr "Örgänïzätïön Rölé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α�
 #: apps/publisher/models.py
 msgid "Course Role"
 msgstr "Çöürsé Rölé Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: apps/publisher/models.py
-msgid "Automatically create a run in Studio"
-msgstr ""
-"Àütömätïçällý çréäté ä rün ïn Stüdïö Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυ#"
-
-#: apps/publisher/models.py
-msgid ""
-"When this flag is enabled, creation of a new course run in Publisher will "
-"also create a corresponding course run in Studio."
-msgstr ""
-"Whén thïs fläg ïs énäßléd, çréätïön öf ä néw çöürsé rün ïn Püßlïshér wïll "
-"älsö çréäté ä çörréspöndïng çöürsé rün ïn Stüdïö. Ⱡ'σяєм ιρ#"
 
 #: apps/publisher/models.py
 msgid "Submitted for Marketing Review"
