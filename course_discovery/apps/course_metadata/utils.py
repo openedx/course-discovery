@@ -19,7 +19,9 @@ from stdimage.utils import UploadTo
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
+from course_discovery.apps.course_metadata.exceptions import (
+    EcommerceSiteAPIClientException, MarketingSiteAPIClientException
+)
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
 from course_discovery.apps.publisher.utils import find_discovery_course
 
@@ -471,7 +473,12 @@ def push_to_ecommerce_for_course_run(course_run):
         'verification_deadline': serialize_datetime(course_run.end),
         'products': serialized_products,
     })
-    response.raise_for_status()
+
+    if 400 <= response.status_code < 600:
+        error = response.json().get('error')
+        if error:
+            raise EcommerceSiteAPIClientException({'error': error})
+        response.raise_for_status()
 
     # Now save the returned SKU numbers locally
     ecommerce_products = response.json().get('products', [])

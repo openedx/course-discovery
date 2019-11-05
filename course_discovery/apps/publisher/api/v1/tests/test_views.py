@@ -407,7 +407,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         assert len(responses.calls) == 5
         expected = {
             'discovery': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
-            'ecommerce': 'FAILED: ' + json.dumps(expected_error),
+            'ecommerce': 'FAILED: ' + str(expected_error),
             'studio': CourseRunViewSet.PUBLICATION_SUCCESS_STATUS,
         }
         assert response.data == expected

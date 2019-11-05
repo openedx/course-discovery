@@ -1,3 +1,7 @@
+class EcommerceSiteAPIClientException(Exception):
+    pass
+
+
 class MarketingSiteAPIClientException(Exception):
     pass
 

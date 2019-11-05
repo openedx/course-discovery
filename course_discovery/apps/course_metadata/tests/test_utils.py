@@ -17,7 +17,9 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata import utils
-from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
+from course_discovery.apps.course_metadata.exceptions import (
+    EcommerceSiteAPIClientException, MarketingSiteAPIClientException
+)
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, Seat, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory,
@@ -92,12 +94,12 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
         self.entitlement = self.course.entitlements.first()
         self.api_root = self.partner.ecommerce_api_url
 
-    def mock_publication(self, status=200):
+    def mock_publication(self, status=200, json=None):
         responses.add(
             responses.POST,
             urllib.parse.urljoin(self.api_root, 'publication/'),
             status=status,
-            json={
+            json=json if json else {
                 'name': self.course_run.title,
                 'message': None,
                 'products': [
@@ -139,6 +141,11 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
         self.mock_access_token()
         self.mock_publication(status=500)
         with self.assertRaises(requests.HTTPError):
+            utils.push_to_ecommerce_for_course_run(self.course_run)
+
+        responses.reset()
+        self.mock_publication(status=500, json={'error': 'Test error message'})
+        with self.assertRaises(EcommerceSiteAPIClientException):
             utils.push_to_ecommerce_for_course_run(self.course_run)
 
     def test_no_products(self):
