@@ -111,7 +111,7 @@ class Command(BaseCommand):
         if not course.type:
             matches[course] = course_type
 
-        course_run_types = course_type.course_run_types.all()
+        course_run_types = course_type.course_run_types.order_by('created')
 
         # Now, let's look at seat types too. If any of our CourseRunType children match a run, we'll take it.
         for run in course.course_runs.order_by('key'):  # ordered just for visible message reliability

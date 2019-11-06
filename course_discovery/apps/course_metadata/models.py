@@ -340,7 +340,9 @@ class CourseType(TimeStampedModel):
     name = models.CharField(max_length=64)
     slug = models.CharField(max_length=64, unique=True)
     entitlement_types = models.ManyToManyField(SeatType, blank=True)
-    course_run_types = models.ManyToManyField(CourseRunType)
+    course_run_types = SortedManyToManyField(
+        CourseRunType, help_text=_('Sets the order for displaying Course Run Types.')
+    )
 
     history = HistoricalRecords()
 
