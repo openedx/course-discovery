@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-08 14:05+0000\n"
+"POT-Creation-Date: 2019-11-11 01:12+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1079,6 +1079,48 @@ msgstr ""
 "Öné ör möré çöürsé rüns fäïléd tö püßlïsh. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+msgid "Remove all redirects to all courses"
+msgstr ""
+"Rémövé äll rédïréçts tö äll çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+msgid "Redirects to remove"
+msgstr "Rédïréçts tö rémövé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+msgid ""
+"Use arguments from the RemoveRedirectsConfig model instead of the command "
+"line."
+msgstr ""
+"Ûsé ärgüménts fröm thé RémövéRédïréçtsÇönfïg mödél ïnstéäd öf thé çömmänd "
+"lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+msgid "Invalid arguments"
+msgstr "Ìnvälïd ärgüménts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+#, python-brace-format
+msgid "Cannot remove active url_slug {url_slug}"
+msgstr ""
+"Çännöt rémövé äçtïvé ürl_slüg {url_slug} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тє#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+#, python-brace-format
+msgid "Path /course/{url_slug} not in use, nothing to delete"
+msgstr ""
+"Päth /çöürsé/{url_slug} nöt ïn üsé, nöthïng tö délété Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/remove_redirects_from_courses.py
+#, python-brace-format
+msgid "Path {url_path} not in use, nothing to delete"
+msgstr ""
+"Päth {url_path} nöt ïn üsé, nöthïng tö délété Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
 #: apps/course_metadata/management/commands/update_marketing_redirects.py
 msgid "One or more courses failed to redirect."
 msgstr ""
@@ -1789,6 +1831,14 @@ msgstr "Täg Ⱡ'σяєм#"
 #: apps/course_metadata/models.py
 msgid "Course UUIDs"
 msgstr "Çöürsé ÛÛÌDs Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/models.py
+msgid "Remove All Redirects"
+msgstr "Rémövé Àll Rédïréçts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
+msgid "Url Paths"
+msgstr "Ûrl Päths Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/course_metadata/salesforce.py
 msgid "Attempted to query Salesforce with no client for partner={}"

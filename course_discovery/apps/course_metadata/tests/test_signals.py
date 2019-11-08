@@ -17,7 +17,8 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     BackpopulateCourseTypeConfig, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership,
     DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig,
-    ProfileImageDownloadConfig, Program, ProgramType, Seat, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
+    ProfileImageDownloadConfig, Program, ProgramType, RemoveRedirectsConfig, Seat, SubjectTranslation,
+    TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
@@ -47,7 +48,7 @@ class TestCacheInvalidation:
             # Ignore models that aren't exposed by the API or are only used for testing.
             if model in [BackpopulateCourseTypeConfig, DataLoaderConfig, DeletePersonDupsConfig,
                          DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, SubjectTranslation,
-                         TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig]:
+                         TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue

@@ -288,7 +288,7 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
     @responses.activate
     @ddt.data(
         # several redirects, no new slugs
-        ('HarvardX+CS50x', ['/course/long/path', '/different-prefix/introduction-to-computer-science', 'node/254'], []),
+        ('HarvardX+CS50x', ['course/long/path', 'different-prefix/introduction-to-computer-science', 'node/254'], []),
         # duplicate redirects, one new slug
         ('HarvardX+PH207x', ['node/354'], ['health-numbers']),
         # no new redirects

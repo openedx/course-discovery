@@ -2734,3 +2734,11 @@ class MigrateCommentsToSalesforce(SingletonModel):
     """
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     orgs = SortedManyToManyField(Organization, blank=True)
+
+
+class RemoveRedirectsConfig(SingletonModel):
+    """
+    Configuration for management command remove_redirects_from_courses.
+    """
+    remove_all = models.BooleanField(default=False, verbose_name=_('Remove All Redirects'))
+    url_paths = models.TextField(default='', null=False, blank=True, verbose_name=_('Url Paths'))
