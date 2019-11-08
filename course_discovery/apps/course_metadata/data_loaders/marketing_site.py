@@ -297,6 +297,15 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
             logger.info('No course found for %s', course_key)
             return
 
+        # first add a redirect from the node URL itself
+        try:
+            obj, created = course.url_redirects.get_or_create(course=course, value='node/{}'.format(node_id),
+                                                              partner=course.partner)
+            if created:
+                course.url_redirects.add(obj)
+        except IntegrityError:
+            logger.warning('Integrity error attempting to add redirect node/%s to course %s', node_id, course_key)
+
         for redirect_row in node_redirects:
             redirect = redirect_row['redirect_url']
             matched = self.standard_course_url_regex.match(redirect)

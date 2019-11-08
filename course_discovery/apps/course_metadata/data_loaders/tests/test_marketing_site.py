@@ -3,6 +3,7 @@ import math
 from urllib.parse import parse_qs, urlparse
 from uuid import UUID
 
+import ddt
 import mock
 import responses
 from django.test import TestCase
@@ -261,6 +262,7 @@ class SponsorMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMix
             self.assert_sponsor_loaded(sponsor)
 
 
+@ddt.ddt
 class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
     loader_class = CourseMarketingSiteDataLoader
     mocked_data = mock_data.UNIQUE_MARKETING_SITE_API_COURSE_BODIES
@@ -284,38 +286,33 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
             mocked.set_active_url_slug('')  # force the active url slug to be the slugified title
 
     @responses.activate
-    def test_ingest(self):
+    @ddt.data(
+        # several redirects, no new slugs
+        ('HarvardX+CS50x', ['/course/long/path', '/different-prefix/introduction-to-computer-science', 'node/254'], []),
+        # duplicate redirects, one new slug
+        ('HarvardX+PH207x', ['node/354'], ['health-numbers']),
+        # no new redirects
+        ('HarvardX+CB22x', ['node/563'], []),
+    )
+    @ddt.unpack
+    def test_ingest(self, course_key, redirects, url_slugs):
         self.mock_login_response()
         self.setup_courses()
         self.mock_api()
 
-        original_active_slugs_by_course_key = {}
-        for test_course in Course.everything.all():
-            original_active_slugs_by_course_key[test_course.key] = test_course.active_url_slug
+        test_course = Course.everything.get(key=course_key)
+        original_slug = test_course.active_url_slug
 
         self.loader.ingest()
-
-        test_course_1 = Course.everything.get(key='HarvardX+CS50x')
-        test_course_2 = Course.everything.get(key='HarvardX+PH207x')
-        test_course_3 = Course.everything.get(key='HarvardX+CB22x')
-
-        active_url_slug_1 = test_course_1.active_url_slug
-        active_url_slug_2 = test_course_2.active_url_slug
-        active_url_slug_3 = test_course_3.active_url_slug
+        test_course.refresh_from_db()
 
         # active slugs should not be affected
-        self.assertEqual(active_url_slug_1, original_active_slugs_by_course_key[test_course_1.key])
-        self.assertEqual(active_url_slug_2, original_active_slugs_by_course_key[test_course_2.key])
-        self.assertEqual(active_url_slug_3, original_active_slugs_by_course_key[test_course_3.key])
+        self.assertEqual(test_course.active_url_slug, original_slug)
 
-        test_course_1_paths = list(map(lambda x: x.value, test_course_1.url_redirects.all()))
-
-        self.assertIn('/course/long/path', test_course_1_paths)
-        self.assertIn('/different-prefix/introduction-to-computer-science', test_course_1_paths)
-        self.assertEqual(test_course_1.url_redirects.count(), 2)
-
-        self.assertTrue(test_course_2.url_slug_history.filter(url_slug='health-numbers',
-                                                              is_active=False,
-                                                              is_active_on_draft=False).exists())
-        self.assertEqual(test_course_2.url_redirects.count(), 0)
-        self.assertEqual(test_course_3.url_redirects.count(), 0)
+        test_course_paths = list(map(lambda x: x.value, test_course.url_redirects.all()))
+        test_course_url_slugs = list(map(lambda x: x.url_slug, test_course.url_slug_history.all()))
+        for redirect in redirects:
+            self.assertIn(redirect, test_course_paths)
+        for slug in url_slugs:
+            self.assertIn(slug, test_course_url_slugs)
+        self.assertEqual(test_course.url_redirects.count(), len(redirects))
