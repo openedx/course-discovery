@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-08 20:19+0000\n"
+"POT-Creation-Date: 2019-11-13 19:30+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1143,6 +1143,65 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen. This key will be used in the course's course key."
+msgstr ""
+"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs öthér thän pérïöd, "
+"ündérsçöré ör hýphén. Thïs kéý wïll ßé üséd ïn thé çöürsé's çöürsé kéý. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
+"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
+" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт #"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Logo to be displayed on certificates. If this logo is the same as "
+"logo_image_url, copy and paste the same value to both fields."
+msgstr ""
+"Lögö tö ßé dïspläýéd ön çértïfïçätés. Ìf thïs lögö ïs thé sämé äs "
+"lögö_ïmägé_ürl, çöpý änd pästé thé sämé välüé tö ßöth fïélds. Ⱡ'σяє#"
+
+#: apps/course_metadata/models.py apps/course_metadata/models.py
+#: apps/course_metadata/models.py
+msgid ""
+"Pick a tag from the suggestions. To make a new tag, add a comma after the "
+"tag name."
+msgstr ""
+"Pïçk ä täg fröm thé süggéstïöns. Tö mäké ä néw täg, ädd ä çömmä äftér thé "
+"täg nämé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/course_metadata/models.py
+msgid "Automatically generate course run keys"
+msgstr ""
+"Àütömätïçällý généräté çöürsé rün kéýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"When this flag is enabled, the key of a new course run will be auto "
+"generated.  When this flag is disabled, the key can be manually set."
+msgstr ""
+"Whén thïs fläg ïs énäßléd, thé kéý öf ä néw çöürsé rün wïll ßé äütö "
+"générätéd.  Whén thïs fläg ïs dïsäßléd, thé kéý çän ßé mänüällý sét. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
+"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
+"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
+"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
+"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
+"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσя#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Please do not use any spaces or special characters other than period, "
+"underscore or hyphen in the key field."
+msgstr ""
+"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs öthér thän pérïöd, "
+"ündérsçöré ör hýphén ïn thé kéý fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/models.py
+msgid ""
 "Seat types that qualify for completion of programs of this type. Learners "
 "completing associated courses, but enrolled in other seat types, will NOT "
 "have their completion of the course counted toward the completion of the "
@@ -1205,71 +1264,20 @@ msgstr ""
 " ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
+msgid ""
+"Leave this blank to allow all orgs. Otherwise, specifies which orgs can see "
+"this course type in Publisher."
+msgstr ""
+"Léävé thïs ßlänk tö ällöw äll örgs. Öthérwïsé, spéçïfïés whïçh örgs çän séé "
+"thïs çöürsé týpé ïn Püßlïshér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт #"
+
+#: apps/course_metadata/models.py
 msgid "Subject model translations"
 msgstr "Süßjéçt mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/course_metadata/models.py
 msgid "Topic model translations"
 msgstr "Töpïç mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
-
-#: apps/course_metadata/models.py
-msgid ""
-"Please do not use any spaces or special characters other than period, "
-"underscore or hyphen. This key will be used in the course's course key."
-msgstr ""
-"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs öthér thän pérïöd, "
-"ündérsçöré ör hýphén. Thïs kéý wïll ßé üséd ïn thé çöürsé's çöürsé kéý. "
-"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ "
-"тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм,"
-" qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
-"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт #"
-
-#: apps/course_metadata/models.py
-msgid ""
-"Logo to be displayed on certificates. If this logo is the same as "
-"logo_image_url, copy and paste the same value to both fields."
-msgstr ""
-"Lögö tö ßé dïspläýéd ön çértïfïçätés. Ìf thïs lögö ïs thé sämé äs "
-"lögö_ïmägé_ürl, çöpý änd pästé thé sämé välüé tö ßöth fïélds. Ⱡ'σяє#"
-
-#: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py
-msgid ""
-"Pick a tag from the suggestions. To make a new tag, add a comma after the "
-"tag name."
-msgstr ""
-"Pïçk ä täg fröm thé süggéstïöns. Tö mäké ä néw täg, ädd ä çömmä äftér thé "
-"täg nämé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
-
-#: apps/course_metadata/models.py
-msgid "Automatically generate course run keys"
-msgstr ""
-"Àütömätïçällý généräté çöürsé rün kéýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя#"
-
-#: apps/course_metadata/models.py
-msgid ""
-"When this flag is enabled, the key of a new course run will be auto "
-"generated.  When this flag is disabled, the key can be manually set."
-msgstr ""
-"Whén thïs fläg ïs énäßléd, thé kéý öf ä néw çöürsé rün wïll ßé äütö "
-"générätéd.  Whén thïs fläg ïs dïsäßléd, thé kéý çän ßé mänüällý sét. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
-"ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσя#"
-
-#: apps/course_metadata/models.py
-msgid ""
-"Please do not use any spaces or special characters other than period, "
-"underscore or hyphen in the key field."
-msgstr ""
-"Pléäsé dö nöt üsé äný späçés ör spéçïäl çhäräçtérs öthér thän pérïöd, "
-"ündérsçöré ör hýphén ïn thé kéý fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/course_metadata/models.py
 msgid "A list of major works by this person. Must be valid HTML."
