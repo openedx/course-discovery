@@ -327,6 +327,8 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
                 continue
             # redirect path is not /course/something, so add the full path to url_redirects
             try:
+                # remove preceding '/' if present for standardization
+                redirect = redirect.lstrip('/')
                 obj, created = course.url_redirects.get_or_create(
                     course=course,
                     value=redirect,
