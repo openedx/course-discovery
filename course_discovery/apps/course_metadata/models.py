@@ -472,6 +472,14 @@ class Organization(CachedMixin, TimeStampedModel):
         blank=True,
         help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
     )
+    auto_generate_course_run_keys = models.BooleanField(
+        default=True,
+        verbose_name=_('Automatically generate course run keys'),
+        help_text=_(
+            "When this flag is enabled, the key of a new course run will be auto"
+            " generated.  When this flag is disabled, the key can be manually set."
+        )
+    )
 
     def clean(self):
         if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
