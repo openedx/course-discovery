@@ -153,6 +153,68 @@ class AbstractTitleDescriptionModel(TimeStampedModel):
         abstract = True
 
 
+class Organization(CachedMixin, TimeStampedModel):
+    """ Organization model. """
+    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
+    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
+    key = models.CharField(max_length=255, help_text=_('Please do not use any spaces or special characters other '
+                                                       'than period, underscore or hyphen. This key will be used '
+                                                       'in the course\'s course key.'))
+    name = models.CharField(max_length=255)
+    slug = AutoSlugField(populate_from='key', editable=False, slugify_function=uslugify)
+    description = models.TextField(null=True, blank=True)
+    homepage_url = models.URLField(max_length=255, null=True, blank=True)
+    logo_image_url = models.URLField(null=True, blank=True)
+    banner_image_url = models.URLField(null=True, blank=True)
+    certificate_logo_image_url = models.URLField(
+        null=True, blank=True, help_text=_('Logo to be displayed on certificates. If this logo is the same as '
+                                           'logo_image_url, copy and paste the same value to both fields.')
+    )
+    salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Publisher_Organization__c in Salesforce
+
+    tags = TaggableManager(
+        blank=True,
+        help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
+    )
+    auto_generate_course_run_keys = models.BooleanField(
+        default=True,
+        verbose_name=_('Automatically generate course run keys'),
+        help_text=_(
+            "When this flag is enabled, the key of a new course run will be auto"
+            " generated.  When this flag is disabled, the key can be manually set."
+        )
+    )
+
+    def clean(self):
+        if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
+            raise ValidationError(_('Please do not use any spaces or special characters other than period, '
+                                    'underscore or hyphen in the key field.'))
+
+    class Meta:
+        unique_together = (
+            ('partner', 'key'),
+            ('partner', 'uuid'),
+        )
+        ordering = ['created']
+
+    def __str__(self):
+        if self.name and self.name != self.key:
+            return '{key}: {name}'.format(key=self.key, name=self.name)
+        else:
+            return self.key
+
+    @property
+    def marketing_url(self):
+        if self.slug and self.partner:
+            return urljoin(self.partner.marketing_site_url_root, 'school/' + self.slug)
+
+        return None
+
+    @classmethod
+    def user_organizations(cls, user):
+        return cls.objects.filter(organization_extension__group__in=user.groups.all())
+
+
 class Image(AbstractMediaModel):
     """ Image model. """
     height = models.IntegerField(null=True, blank=True)
@@ -343,6 +405,9 @@ class CourseType(TimeStampedModel):
     course_run_types = SortedManyToManyField(
         CourseRunType, help_text=_('Sets the order for displaying Course Run Types.')
     )
+    white_listed_orgs = models.ManyToManyField(Organization, blank=True, help_text=_(
+        'Leave this blank to allow all orgs. Otherwise, specifies which orgs can see this course type in Publisher.'
+    ))
 
     history = HistoricalRecords()
 
@@ -447,68 +512,6 @@ class SyllabusItem(AbstractValueModel):
 
 class AdditionalPromoArea(AbstractTitleDescriptionModel):
     """ Additional Promo Area Model """
-
-
-class Organization(CachedMixin, TimeStampedModel):
-    """ Organization model. """
-    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
-    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
-    key = models.CharField(max_length=255, help_text=_('Please do not use any spaces or special characters other '
-                                                       'than period, underscore or hyphen. This key will be used '
-                                                       'in the course\'s course key.'))
-    name = models.CharField(max_length=255)
-    slug = AutoSlugField(populate_from='key', editable=False, slugify_function=uslugify)
-    description = models.TextField(null=True, blank=True)
-    homepage_url = models.URLField(max_length=255, null=True, blank=True)
-    logo_image_url = models.URLField(null=True, blank=True)
-    banner_image_url = models.URLField(null=True, blank=True)
-    certificate_logo_image_url = models.URLField(
-        null=True, blank=True, help_text=_('Logo to be displayed on certificates. If this logo is the same as '
-                                           'logo_image_url, copy and paste the same value to both fields.')
-    )
-    salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Publisher_Organization__c in Salesforce
-
-    tags = TaggableManager(
-        blank=True,
-        help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
-    )
-    auto_generate_course_run_keys = models.BooleanField(
-        default=True,
-        verbose_name=_('Automatically generate course run keys'),
-        help_text=_(
-            "When this flag is enabled, the key of a new course run will be auto"
-            " generated.  When this flag is disabled, the key can be manually set."
-        )
-    )
-
-    def clean(self):
-        if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
-            raise ValidationError(_('Please do not use any spaces or special characters other than period, '
-                                    'underscore or hyphen in the key field.'))
-
-    class Meta:
-        unique_together = (
-            ('partner', 'key'),
-            ('partner', 'uuid'),
-        )
-        ordering = ['created']
-
-    def __str__(self):
-        if self.name and self.name != self.key:
-            return '{key}: {name}'.format(key=self.key, name=self.name)
-        else:
-            return self.key
-
-    @property
-    def marketing_url(self):
-        if self.slug and self.partner:
-            return urljoin(self.partner.marketing_site_url_root, 'school/' + self.slug)
-
-        return None
-
-    @classmethod
-    def user_organizations(cls, user):
-        return cls.objects.filter(organization_extension__group__in=user.groups.all())
 
 
 class Person(TimeStampedModel):

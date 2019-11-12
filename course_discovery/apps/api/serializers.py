@@ -2219,6 +2219,7 @@ class MetadataWithRelatedChoices(SimpleMetadata):
 
     def determine_metadata(self, request, view):
         self.view = view  # pylint: disable=attribute-defined-outside-init
+        self.request = request  # pylint: disable=attribute-defined-outside-init
         return super().determine_metadata(request, view)
 
     def get_field_info(self, field):
@@ -2246,6 +2247,7 @@ class MetadataWithType(MetadataWithRelatedChoices):
     """ A version of the MetadataWithRelatedChoices class that also includes logic for Course Types """
 
     def create_type_options(self, info):
+        user = self.request.user
         info['type_options'] = [{
             'uuid': course_type.uuid,
             'name': course_type.name,
@@ -2260,8 +2262,9 @@ class MetadataWithType(MetadataWithRelatedChoices):
                 in TrackSerializer.prefetch_queryset().filter(courseruntype__coursetype=course_type).distinct()
             ],
         } for course_type in CourseType.objects.prefetch_related(
-            'course_run_types__tracks__mode', 'entitlement_types'
-        ).all()]
+            'course_run_types__tracks__mode', 'entitlement_types', 'white_listed_orgs'
+        ).all() if not course_type.white_listed_orgs.exists() or user.is_staff or
+            user.groups.filter(organization_extension__organization__in=course_type.white_listed_orgs.all()).exists()]
         return info
 
     def get_field_info(self, field):
