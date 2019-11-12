@@ -739,15 +739,6 @@ class OrganizationExtension(TimeStampedModel):
     organization = models.OneToOneField(Organization, models.CASCADE, related_name='organization_extension')
     group = models.OneToOneField(Group, models.CASCADE, related_name='organization_extension')
 
-    auto_create_in_studio = models.NullBooleanField(
-        default=True,
-        verbose_name=_('Automatically create a run in Studio'),
-        help_text=_(
-            "When this flag is enabled, creation of a new course run in Publisher"
-            " will also create a corresponding course run in Studio."
-        )
-    )
-
     history = HistoricalRecords()
 
     class Meta(TimeStampedModel.Meta):

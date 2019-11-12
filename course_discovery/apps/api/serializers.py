@@ -10,7 +10,6 @@ import pytz
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import Prefetch, prefetch_related_objects
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
@@ -299,7 +298,8 @@ class PositionSerializer(BaseModelSerializer):
 class MinimalOrganizationSerializer(BaseModelSerializer):
     class Meta:
         model = Organization
-        fields = ('uuid', 'key', 'name',)
+        fields = ('uuid', 'key', 'name', 'auto_generate_course_run_keys',)
+        read_only_fields = ('auto_generate_course_run_keys',)
 
 
 class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
@@ -659,7 +659,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     image = ImageField(read_only=True, source='image_url')
     marketing_url = serializers.SerializerMethodField()
     seats = SeatSerializer(required=False, many=True)
-    key = serializers.CharField(required=False)
+    key = serializers.CharField(required=False, read_only=True)
     title = serializers.CharField(required=False)
     external_key = serializers.CharField(required=False, allow_blank=True)
     short_description = HtmlField(required=False, allow_blank=True)
@@ -668,6 +668,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     type = serializers.CharField(read_only=True, source='type_legacy')
     run_type = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='uuid', source='type',
                                             queryset=CourseRunType.objects.all())
+    term = serializers.CharField(required=False, write_only=True)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -685,7 +686,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
-                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable',)
+                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term',)
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -704,31 +705,25 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 
         return marketing_url
 
-    def ensure_key(self, data):
+    def ensure_term(self, data):
         course = data['course']  # required
+        org, number = parse_course_key_fragment(course.key_for_reruns or course.key)
 
-        # There are two paths here - either the key was provided or start date was and we generate key from that.
-        # We prefer the start date path and only allow certain organizations to provide a key.
-
+        # Here we determine what value to use for the term section of the course run key.  If a key
+        # is provided in the body and the organization of the course has auto_generate_course_key
+        # turned on, we use that value, otherwise we calculate it using StudioAPI.
         allow_key_override = False
         for organization in course.authoring_organizations.all():
-            try:
-                # This flag is oddly named - it's because creating an instance in studio generated the key in old
-                # publisher. Nowadays, we always push to studio and allow overriding the key if that's what the org
-                # really wants.
-                if not organization.organization_extension.auto_create_in_studio:
-                    allow_key_override = True
-                    break
-            except ObjectDoesNotExist:
-                pass  # no organization extension
-
-        if allow_key_override and 'key' in data:
-            return
-
-        # Now, override whatever value for key was provided by looking at the start date
-        start = data['start']  # required
-        org, number = parse_course_key_fragment(course.key_for_reruns or course.key)
-        run = StudioAPI.calculate_course_run_key_run_value(number, start)
+            if not organization.auto_generate_course_run_keys:
+                allow_key_override = True
+                break
+        if allow_key_override and 'term' in data:
+            run = data['term']
+        else:
+            start = data['start']  # required
+            run = StudioAPI.calculate_course_run_key_run_value(number, start)
+        if 'term' in data:
+            data.pop('term')
         key = CourseLocator(org=org, course=number, run=run)
         data['key'] = str(key)
 
@@ -740,9 +735,9 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
             raise serializers.ValidationError({'start': _('Start date cannot be after the End date')})
 
         if not self.instance:  # if we're creating an object, we need to make sure to generate a key
-            self.ensure_key(attrs)
-        elif 'key' in attrs and self.instance.key != attrs['key']:
-            raise serializers.ValidationError({'key': _('Key cannot be changed')})
+            self.ensure_term(attrs)
+        elif 'term' in attrs and self.instance.key != attrs['term']:
+            raise serializers.ValidationError({'term': _('Term cannot be changed')})
 
         return super().validate(attrs)
 

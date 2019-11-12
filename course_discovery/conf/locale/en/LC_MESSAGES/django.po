@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-08 17:52+0000\n"
+"POT-Creation-Date: 2019-11-08 20:17+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -36,43 +36,43 @@ msgstr ""
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr ""
 
-#: apps/api/serializers.py:740 apps/publisher/forms.py:358
+#: apps/api/serializers.py:735 apps/publisher/forms.py:358
 msgid "Start date cannot be after the End date"
 msgstr ""
 
-#: apps/api/serializers.py:745
-msgid "Key cannot be changed"
+#: apps/api/serializers.py:740
+msgid "Term cannot be changed"
 msgstr ""
 
-#: apps/api/serializers.py:757
+#: apps/api/serializers.py:752
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:836
+#: apps/api/serializers.py:831
 msgid "Course cannot be changed for an existing course run"
 msgstr ""
 
-#: apps/api/serializers.py:841 apps/publisher/forms.py:360
+#: apps/api/serializers.py:836 apps/publisher/forms.py:360
 msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr ""
 
-#: apps/api/serializers.py:843
+#: apps/api/serializers.py:838
 msgid "Minimum effort and Maximum effort cannot be the same"
 msgstr ""
 
-#: apps/api/serializers.py:885
+#: apps/api/serializers.py:880
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1193
+#: apps/api/serializers.py:1188
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1518
+#: apps/api/serializers.py:1513
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1522
+#: apps/api/serializers.py:1517
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -1774,7 +1774,7 @@ msgstr ""
 msgid "Course Team"
 msgstr ""
 
-#: apps/publisher/choices.py:17 apps/publisher/models.py:780
+#: apps/publisher/choices.py:17 apps/publisher/models.py:771
 #: apps/publisher/wrappers.py:31
 msgid "Draft"
 msgstr ""
@@ -2177,49 +2177,39 @@ msgstr ""
 msgid "Course Role"
 msgstr ""
 
-#: apps/publisher/models.py:744
-msgid "Automatically create a run in Studio"
-msgstr ""
-
-#: apps/publisher/models.py:746
-msgid ""
-"When this flag is enabled, creation of a new course run in Publisher will "
-"also create a corresponding course run in Studio."
-msgstr ""
-
-#: apps/publisher/models.py:781
+#: apps/publisher/models.py:772
 msgid "Submitted for Marketing Review"
 msgstr ""
 
-#: apps/publisher/models.py:782
+#: apps/publisher/models.py:773
 msgid "Approved by Course Team"
 msgstr ""
 
-#: apps/publisher/models.py:783 apps/publisher/wrappers.py:33
+#: apps/publisher/models.py:774 apps/publisher/wrappers.py:33
 msgid "Awaiting Course Team Review"
 msgstr ""
 
-#: apps/publisher/models.py:786 apps/publisher/wrappers.py:36
+#: apps/publisher/models.py:777 apps/publisher/wrappers.py:36
 msgid "N/A"
 msgstr ""
 
-#: apps/publisher/models.py:787
+#: apps/publisher/models.py:778
 msgid "Awaiting Marketing Review"
 msgstr ""
 
-#: apps/publisher/models.py:788
+#: apps/publisher/models.py:779
 msgid "Approved by Marketing"
 msgstr ""
 
-#: apps/publisher/models.py:1044
+#: apps/publisher/models.py:1035
 msgid "Submitted for review"
 msgstr ""
 
-#: apps/publisher/models.py:1046
+#: apps/publisher/models.py:1037
 msgid "Preview Accepted"
 msgstr ""
 
-#: apps/publisher/models.py:1047
+#: apps/publisher/models.py:1038
 msgid "Preview Declined"
 msgstr ""
 

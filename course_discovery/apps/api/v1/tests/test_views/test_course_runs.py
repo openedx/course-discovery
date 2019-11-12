@@ -368,18 +368,18 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertEqual(Seat.everything.filter(course_run=new_course_run).count(), 0)
 
     @responses.activate
-    def test_create_with_key(self):
+    def test_create_with_term(self):
         """ Verify the endpoint supports creating a course_run when specifying a key (if allowed). """
         course = self.draft_course_run.course
         date_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
-        desired_key = 'course-v1:{}+HowdyDoing'.format(course.key_for_reruns)
+        desired_term = 'HowdyDoing'
         url = reverse('api:v1:course_run-list')
 
         data = {
             'course': course.key,
             'start': '2000-01-01T00:00:00Z',
             'end': '2001-01-01T00:00:00Z',
-            'key': desired_key,
+            'term': desired_term,
         }
 
         # If org doesn't specifically allow it, incoming key is ignored
@@ -391,12 +391,12 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         # Turn on this feature for this org, notice that we can now specify the course key we want
         org_ext = OrganizationExtensionFactory(organization=course.authoring_organizations.first())
-        org_ext.auto_create_in_studio = False  # badly named, but this controls whether we let org name their keys
-        org_ext.save()
-        self.mock_post_to_studio(desired_key, access_token=False, rerun_key=new_course_run.key)
+        org_ext.organization.auto_generate_course_run_keys = False
+        org_ext.organization.save()
+        self.mock_post_to_studio(desired_term, access_token=False, rerun_key=new_course_run.key)
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
-        new_course_run = CourseRun.everything.get(key=desired_key)
+        new_course_run = CourseRun.everything.get(key='course-v1:{}+{}'.format(course.key_for_reruns, desired_term))
         self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
 
     def test_create_if_in_org(self):
@@ -563,8 +563,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'Start date cannot be after the End date',
         ),
         (
-            {'key': 'course-v1:Blarg+Hello+Run'},
-            'Key cannot be changed',
+            {'term': 'BlargHello'},
+            'Term cannot be changed',
         ),
         (
             {'course': 'Test+Course'},

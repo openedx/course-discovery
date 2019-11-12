@@ -792,6 +792,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
             'expected_learning_items': cls.serialize_items(course.expected_learning_items.all(), 'value'),
             'course_key': course.key,
             'image': ImageField().to_representation(course_run.card_image_url),
+            'term': 'example-term',
         })
 
         # Remove fields found in CourseRunSerializer, but not in FlattenedCourseRunWithCourseSerializer.
@@ -1506,6 +1507,7 @@ class MinimalOrganizationSerializerTests(TestCase):
             'uuid': str(organization.uuid),
             'key': organization.key,
             'name': organization.name,
+            'auto_generate_course_run_keys': organization.auto_generate_course_run_keys,
         }
 
     def test_data(self):
