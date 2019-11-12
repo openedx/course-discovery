@@ -1,4 +1,5 @@
 import datetime
+import logging
 import random
 import string
 import uuid
@@ -24,6 +25,8 @@ from course_discovery.apps.course_metadata.exceptions import (
 )
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
 from course_discovery.apps.publisher.utils import find_discovery_course
+
+logger = logging.getLogger(__name__)
 
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
 
@@ -500,6 +503,56 @@ def push_to_ecommerce_for_course_run(course_run):
     return True
 
 
+def push_tracks_to_lms_for_course_run(course_run):
+    """
+    Notifies the LMS about this course run's entitlement modes.
+
+    Currently, this only actually does anything for entitlement modes without a seat. Other enrollment modes are
+    instead handled by Discovery pushing to E-Commerce, and the LMS then pulls that info in separately.
+
+    Eventually, we might want to consider handling all track types here and short-cutting that cycle by pushing
+    directly to LMS. But that's a future improvement.
+    """
+    run_type = course_run.type
+    if not run_type:  # only handle new-stye CourseRunType runs - older runs are handled in signals.py
+        return
+
+    tracks_without_seats = run_type.tracks.filter(seat_type=None)
+    if not tracks_without_seats:
+        return
+
+    partner = course_run.course.partner
+    if not partner.lms_api_client:
+        logger.info('LMS api client is not initiated. Cannot publish LMS tracks for [%s].', course_run.key)
+        return
+    if not partner.lms_coursemode_api_url:
+        logger.info('No LMS coursemode api url configured. Cannot publish LMS tracks for [%s].', course_run.key)
+        return
+
+    url = partner.lms_coursemode_api_url.rstrip('/') + '/courses/{}/'.format(course_run.key)
+    course_modes = {mode['mode_slug'] for mode in partner.lms_api_client.get(url).json()}
+
+    for track in tracks_without_seats:
+        if track.mode.slug in course_modes:
+            # We already have this mode on the LMS side!
+            continue
+
+        data = {
+            'course_id': course_run.key,
+            'mode_slug': track.mode.slug,
+            'mode_display_name': track.mode.name,
+            'currency': 'usd',
+            'min_price': 0,
+        }
+        response = partner.lms_api_client.post(url, json=data)
+
+        if response.ok:
+            logger.info('Successfully published [%s] LMS mode for [%s].', track.mode.slug, course_run.key)
+        else:
+            logger.warning('Failed publishing [%s] LMS mode for [%s]: %s', track.mode.slug, course_run.key,
+                           response.content.decode('utf-8'))
+
+
 @transaction.atomic
 def publish_to_course_metadata(partner, course_run, create_official=True, fail_on_url_slug=True):
     """
@@ -643,7 +696,7 @@ def publish_to_course_metadata(partner, course_run, create_official=True, fail_o
         # This will update or create the official version for the Course,
         # Course Run, Seats, and Entitlements. We are not creating ecom products in this
         # case because they are created separately as part of old publisher's publish button.
-        discovery_course_run.update_or_create_official_version(create_ecom_products=False)
+        discovery_course_run.update_or_create_official_version(notify_services=False)
 
 
 class MarketingSiteAPIClient:

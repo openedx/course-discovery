@@ -57,6 +57,11 @@ def add_masters_track_on_course(sender, instance, **kwargs):  # pylint: disable=
         us_currency = Currency.objects.get(code='USD')
 
         for course_run in instance.course_runs:
+            if course_run.type:
+                # We are in the middle of a transition to CourseRunType. If we have a type, we handle this elsewhere.
+                # See push_tracks_to_lms_for_course_run in utils.py.
+                continue
+
             Seat.objects.update_or_create(
                 course_run=course_run,
                 type=SeatType.objects.get(slug=Seat.MASTERS),
@@ -73,6 +78,11 @@ def publish_masters_track(sender, instance, **kwargs):  # pylint: disable=unused
     masters enrollment_mode created
     """
     seat = instance
+    if seat.course_run.type:
+        # We are in the middle of a transition to CourseRunType. If we have a type, pushing to LMS will be handled by
+        # push_tracks_to_lms_for_course_run.
+        return
+
     if seat.type.slug != Seat.MASTERS:
         logger.debug('Not going to publish non masters seat (type %s)', seat.type.slug)
         return

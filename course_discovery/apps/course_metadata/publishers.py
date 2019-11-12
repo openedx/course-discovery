@@ -312,6 +312,10 @@ class BaseMarketingSitePublisher:
             obj (CourseRun): string of the node id
             previous_obj (CourseRun): the old course run to redirect to
         """
+        if not obj.could_be_marketable or not previous_obj.could_be_marketable:
+            # We won't find them on the marketing site, so don't bother
+            return
+
         logger.info('Setting redirect from [%s] to [%s].', previous_obj.slug, obj.slug)
 
         node_id = self.node_id(obj)
