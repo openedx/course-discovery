@@ -19,6 +19,7 @@ from django.db import IntegrityError, transaction
 from django.test import TestCase
 from freezegun import freeze_time
 from taggit.models import Tag
+from testfixtures import LogCapture
 from waffle.testutils import override_switch
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
@@ -40,6 +41,7 @@ from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory, SeatTypeFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
+from course_discovery.apps.course_metadata.utils import logger as utils_logger
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -836,6 +838,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         (CourseRunStatus.Published, True, False, False),  # Published, seats, no marketing url
         (CourseRunStatus.Published, False, True, False),  # Published, no seats, marketing url
         (CourseRunStatus.Published, True, True, True),  # Published, seats, marketing url
+        (CourseRunStatus.Published, True, True, True),  # Published, seats, marketing url
     )
     @ddt.unpack
     def test_is_marketable(self, status, create_seats, create_marketing_url, expected):
@@ -846,6 +849,25 @@ class CourseRunTests(OAuth2Mixin, TestCase):
             factories.SeatFactory.create(course_run=course_run)
 
         self.assertEqual(course_run.is_marketable, expected)
+
+    @ddt.data(
+        (True, False, False),  # Draft, CourseRunType.is_marketable, expected
+        (True, True, False),
+        (False, False, False),
+        (False, True, True),
+    )
+    @ddt.unpack
+    def test_could_be_marketable(self, draft, type_is_marketable, expected):
+        course_run = factories.CourseRunFactory(status=CourseRunStatus.Published, draft=draft,
+                                                type__is_marketable=type_is_marketable)
+        factories.SeatFactory.create(course_run=course_run)
+        self.assertEqual(course_run.is_marketable, expected)
+        self.assertEqual(course_run.could_be_marketable, expected)
+
+        with mock.patch.object(CourseRunMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
+            with override_switch('publish_course_runs_to_marketing_site', True):
+                course_run.save()
+                self.assertEqual(mock_publish_obj.called, expected)
 
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
@@ -987,6 +1009,55 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
             self.course_run.delete()
             # We don't want to delete course run nodes when CourseRuns are deleted.
             assert not mock_delete_obj.called
+
+    def test_push_tracks_to_lms(self):
+        """
+        Verify that we notify the LMS about tracks without seats on a save() to reviewed
+        """
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        url = '{root}courses/{key}/'.format(root=self.partner.lms_coursemode_api_url, key=self.course_run.key)
+
+        # Mark course as draft
+        self.course_run.course.draft = True
+        self.course_run.course.save()
+
+        # Set up and save run
+        self.course_run.type = factories.CourseRunTypeFactory(
+            tracks=[
+                factories.TrackFactory(mode__slug='no-seat', seat_type=None),
+                factories.TrackFactory(mode__slug='has-seat'),
+            ],
+        )
+        self.course_run.draft = True
+        self.course_run.status = CourseRunStatus.Reviewed
+
+        responses.add(responses.GET, url, json=[], status=200)
+        responses.add(responses.POST, url, json={}, status=201)
+        with LogCapture(utils_logger.name) as log_capture:
+            self.course_run.save()
+            log_capture.check((utils_logger.name, 'INFO',
+                               'Successfully published [no-seat] LMS mode for [%s].' % self.course_run.key))
+
+        # Test that we don't re-publish modes
+        self.course_run.status = CourseRunStatus.Unpublished
+        self.course_run.save()
+        self.course_run.status = CourseRunStatus.Reviewed
+        responses.replace(responses.GET, url, json=[{'mode_slug': 'no-seat'}], status=200)
+        with LogCapture(utils_logger.name) as log_capture:
+            self.course_run.save()
+            log_capture.check()  # no messages at all, we skipped sending
+
+        # Test we report failures
+        self.course_run.status = CourseRunStatus.Unpublished
+        self.course_run.save()
+        self.course_run.status = CourseRunStatus.Reviewed
+        responses.replace(responses.GET, url, json=[], status=200)
+        responses.replace(responses.POST, url, body='Shrug', status=500)
+        with LogCapture(utils_logger.name) as log_capture:
+            self.course_run.save()
+            log_capture.check((utils_logger.name, 'WARNING',
+                               'Failed publishing [no-seat] LMS mode for [%s]: Shrug' % self.course_run.key))
 
     def test_verified_seat_upgrade_deadline_override(self):
         self.mock_access_token()

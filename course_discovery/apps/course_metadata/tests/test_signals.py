@@ -73,7 +73,7 @@ class SeatSignalsTests(TestCase):
     """ Tests for the signal to save seats model into database """
     def setUp(self):
         super().setUp()
-        self.course_runs = factories.CourseRunFactory.create_batch(3)
+        self.course_runs = factories.CourseRunFactory.create_batch(3, type=None)
         self.partner = factories.PartnerFactory()
         self.course = self.course_runs[0].course
         self.course.partner = self.partner

@@ -40,8 +40,8 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run, set_official_state,
-    uslugify
+    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run,
+    push_tracks_to_lms_for_course_run, set_official_state, uslugify
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -848,16 +848,16 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         # (done in Python rather than hitting self.active_course_runs to avoid a second db query)
         now = datetime.datetime.now(pytz.UTC)
         inactive_runs = {run for run in published_runs if run.has_enrollment_ended(now)}
-        active_runs = published_runs - inactive_runs
-        if not active_runs or not inactive_runs:
+        marketable_runs = {run for run in published_runs - inactive_runs if run.could_be_marketable}
+        if not marketable_runs or not inactive_runs:
             return False  # if there are no runs to redirect from or to, there's no point in continuing
 
         # Find the earliest active run, to which we will redirect any inactive runs
-        earliest_active_run = min(active_runs, key=attrgetter('start'))
+        earliest_marketable_run = min(marketable_runs, key=attrgetter('start'))
 
         publisher = CourseRunMarketingSitePublisher(self.partner)
         for run in inactive_runs:
-            publisher.add_url_redirect(earliest_active_run, run)
+            publisher.add_url_redirect(earliest_marketable_run, run)
             run.status = CourseRunStatus.Unpublished
             run.save()
             if run.draft_version:
@@ -1318,7 +1318,12 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     @property
     def marketing_url(self):
-        if self.slug:
+        # If the type isn't marketable, don't expose a marketing URL at all, to avoid confusion.
+        # This is very similar to self.could_be_marketable, but we don't use that because we
+        # still want draft runs to expose a marketing URL.
+        type_is_marketable = not self.type or self.type.is_marketable
+
+        if self.slug and type_is_marketable:
             path = 'course/{slug}'.format(slug=self.slug)
             return urljoin(self.course.partner.marketing_site_url_root, path)
 
@@ -1542,7 +1547,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         # professional and verified before actually publishing their course run.
         self.seats.exclude(type__in=allowed_types).delete()
 
-    def update_or_create_official_version(self, create_ecom_products=True):
+    def update_or_create_official_version(self, notify_services=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
         official_version = set_official_state(draft_version, CourseRun)
 
@@ -1555,9 +1560,10 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
         official_version.save()
 
-        # Push any product (seat, entitlement) changes to ecommerce as well
-        if create_ecom_products:
+        if notify_services:
+            # Push any track changes to ecommerce and the LMS as well
             push_to_ecommerce_for_course_run(official_version)
+            push_tracks_to_lms_for_course_run(official_version)
         return official_version
 
     def handle_status_change(self, send_emails):
@@ -1610,7 +1616,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         push_to_marketing = (not suppress_publication and
                              self.course.partner.has_marketing_site and
                              waffle.switch_is_active('publish_course_runs_to_marketing_site') and
-                             not self.draft)
+                             self.could_be_marketable)
 
         with transaction.atomic():
             if push_to_marketing:
@@ -1702,15 +1708,31 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
                 (not self.enrollment_start or self.enrollment_start <= now))
 
     @property
+    def could_be_marketable(self):
+        """
+        Checks if the course_run is possibly marketable.
+
+        A course run is considered possibly marketable if it would ever be put on
+        a marketing site (so things that would *never* be marketable are not).
+        """
+        if self.type and not self.type.is_marketable:
+            return False
+        return not self.draft
+
+    @property
     def is_marketable(self):
         """
         Checks if the course_run is currently marketable
 
         A course run is considered marketable if it's published, has seats, and
         a non-empty marketing url.
-        """
-        is_published = self.status == CourseRunStatus.Published
 
+        If you change this, also change the marketable() queries in query.py.
+        """
+        if not self.could_be_marketable:
+            return False
+
+        is_published = self.status == CourseRunStatus.Published
         return is_published and self.seats.exists() and bool(self.marketing_url)
 
 
