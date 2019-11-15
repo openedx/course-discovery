@@ -1751,7 +1751,7 @@ class Seat(DraftModelMixin, TimeStampedModel):
     ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL]
     REQUIRES_AUDIT_SEAT = [VERIFIED]
     # Seat types that we don't push to ecommerce -- they are either manually or never created as products
-    NON_PRODUCT_MODES = [CREDIT, MASTERS]
+    NON_PRODUCT_MODES = [MASTERS]
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.
     SEATS_WITH_PREREQUISITES = [CREDIT]
