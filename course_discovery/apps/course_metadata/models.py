@@ -372,6 +372,10 @@ class CourseRunType(TimeStampedModel):
     VERIFIED_AUDIT = 'verified-audit'
     PROFESSIONAL = 'professional'
     CREDIT_VERIFIED_AUDIT = 'credit-verified-audit'
+    HONOR = 'honor'
+    VERIFIED_HONOR = 'verified-honor'
+    VERIFIED_AUDIT_HONOR = 'verified-audit-honor'
+    EMPTY = 'empty'
 
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
@@ -397,6 +401,7 @@ class CourseType(TimeStampedModel):
     VERIFIED_AUDIT = 'verified-audit'
     PROFESSIONAL = 'professional'
     CREDIT_VERIFIED_AUDIT = 'credit-verified-audit'
+    EMPTY = 'empty'
 
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)

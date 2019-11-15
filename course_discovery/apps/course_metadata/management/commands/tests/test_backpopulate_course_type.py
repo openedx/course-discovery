@@ -52,7 +52,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.c2_audit_run = factories.CourseRunFactory(course=self.course2, type=None)
         self.c2_audit_seat = factories.SeatFactory(course_run=self.c2_audit_run, type=self.audit_seat_type)
 
-    def run_command(self, courses=None, orgs=None, commit=True, fails=None, log=None):
+    def run_command(self, courses=None, orgs=None, allow_for=None, commit=True, fails=None, log=None):
         command_args = ['--partner=' + self.partner.short_code]
         if commit:
             command_args.append('--commit')
@@ -62,6 +62,8 @@ class BackpopulateCourseTypeCommandTests(TestCase):
             command_args += ['--course=' + str(c.uuid) for c in courses]
         if orgs:
             command_args += ['--org=' + str(o.key) for o in orgs]
+        if allow_for:
+            command_args += ['--allow-for=' + type_slug_run_slug_tuple for type_slug_run_slug_tuple in allow_for]
 
         with LogCapture(logger.name) as log_capture:
             if fails:
@@ -101,6 +103,14 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         with self.assertRaises(CommandError) as cm:
             self.call_command('--partner=NotAPartner', course_arg)
         self.assertEqual(cm.exception.args[0], 'No courses found. Did you specify an argument?')
+
+        with self.assertRaises(CommandError) as cm:
+            self.call_command('--allow-for=NotACourseType:audit', partner_code, course_arg)
+        self.assertEqual(cm.exception.args[0], 'Supplied Course Type slug [NotACourseType] does not exist.')
+
+        with self.assertRaises(CommandError) as cm:
+            self.call_command('--allow-for=verified-audit:NotACourseRunType', partner_code, course_arg)
+        self.assertEqual(cm.exception.args[0], 'Supplied Course Run Type slug [NotACourseRunType] does not exist.')
 
     def test_args_from_database(self):
         config = BackpopulateCourseTypeConfig.get_solo()
@@ -145,23 +155,23 @@ class BackpopulateCourseTypeCommandTests(TestCase):
 
     def test_existing_type(self):
         # First, confirm we try and fail to find a valid match for runs when course has type but no runs can match it
-        empty_course_type = CourseType.objects.create(name='Empty')
+        empty_course_type = CourseType.objects.get(slug=CourseType.EMPTY)
         self.course.type = empty_course_type
         self.course.save()
         self.run_command(fails=self.course, log="Existing course type Empty for .* doesn't match its own entitlements")
 
         # Now set up the runs with types too -- but make sure we don't consider the course type a valid match yet
         self.entitlement.delete()
-        empty_run_type = CourseRunType.objects.create(name='Empty Run')
+        empty_run_type = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
         self.audit_run.type = empty_run_type
         self.audit_run.save()
         self.verified_run.type = empty_run_type
         self.verified_run.save()
-        self.run_command(fails=self.course, log="Existing run type Empty Run for .* doesn't match course type Empty")
+        self.run_command(fails=self.course, log="Existing run type Empty for .* doesn't match course type Empty")
 
         # Once the run type is valid for the course type, it should still require matching seats.
         empty_course_type.course_run_types.add(empty_run_type)
-        self.run_command(fails=self.course, log="Existing run type Empty Run for .* doesn't match its own seats")
+        self.run_command(fails=self.course, log="Existing run type Empty for .* doesn't match its own seats")
 
         # Now make the runs match the empty run types and everything should pass
         self.audit_seat.delete()
@@ -263,3 +273,43 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.assertEqual(self.c2_audit_run.type, self.audit_run_type)
         self.assertEqual(draft_course.type, audit_course_type)
         self.assertEqual(set(draft_course.course_runs.values_list('type', flat=True)), {self.audit_run_type.id})
+
+    def test_courses_with_honor_seats(self):
+        honor_seat_type = factories.SeatTypeFactory.honor()
+        honor_track = factories.TrackFactory(seat_type=honor_seat_type)
+        honor_run_type = factories.CourseRunTypeFactory(
+            name='Honor Only', slug=CourseRunType.HONOR, tracks=[honor_track]
+        )
+        # Tests that Honor Only will not match with Verified and Honor despite being a subset of that CourseRunType
+        honor_run = factories.CourseRunFactory(course=self.course, type=None, key='course-v1:Org1+Course1+H')
+        factories.SeatFactory(course_run=honor_run, type=honor_seat_type)
+
+        vh_run_type = factories.CourseRunTypeFactory(
+            name='Verified and Honor', slug=CourseRunType.VERIFIED_HONOR, tracks=[honor_track, self.verified_track]
+        )
+        vh_run = factories.CourseRunFactory(course=self.course, type=None, key='course-v1:Org1+Course1+VH')
+        factories.SeatFactory(course_run=vh_run, type=honor_seat_type)
+        factories.SeatFactory(course_run=vh_run, type=self.verified_seat_type)
+
+        allow_for = [
+            CourseType.VERIFIED_AUDIT + ':' + CourseRunType.HONOR,
+            CourseType.VERIFIED_AUDIT + ':' + CourseRunType.VERIFIED_HONOR
+        ]
+        self.run_command(allow_for=allow_for)
+        self.assertEqual(self.course.type, self.va_course_type)
+        honor_run.refresh_from_db()
+        self.assertEqual(honor_run.type, honor_run_type)
+        vh_run.refresh_from_db()
+        self.assertEqual(vh_run.type, vh_run_type)
+
+    def test_course_runs_with_no_seats(self):
+        print(CourseRunType.objects.all())
+        empty_run_type = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
+        empty_run = factories.CourseRunFactory(course=self.course, type=None, key='course-v1:Org1+Course1+H')
+        self.assertEqual(empty_run.seats.count(), 0)
+
+        allow_for = [CourseType.VERIFIED_AUDIT + ':' + CourseRunType.EMPTY]
+        self.run_command(allow_for=allow_for)
+        self.assertEqual(self.course.type, self.va_course_type)
+        empty_run.refresh_from_db()
+        self.assertEqual(empty_run.type, empty_run_type)

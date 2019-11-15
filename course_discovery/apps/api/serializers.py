@@ -2263,7 +2263,7 @@ class MetadataWithType(MetadataWithRelatedChoices):
             ],
         } for course_type in CourseType.objects.prefetch_related(
             'course_run_types__tracks__mode', 'entitlement_types', 'white_listed_orgs'
-        ).all() if not course_type.white_listed_orgs.exists() or user.is_staff or
+        ).exclude(slug=CourseType.EMPTY) if not course_type.white_listed_orgs.exists() or user.is_staff or
             user.groups.filter(organization_extension__organization__in=course_type.white_listed_orgs.all()).exists()]
         return info
 
