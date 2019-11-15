@@ -1683,6 +1683,8 @@ class CourseRunListViewTests(SiteMixin, TestCase):
         self.client.login(username=user.username, password=USER_PASSWORD)
 
         self.organization_extension = factories.OrganizationExtensionFactory()
+        self.partner.lms_url = 'http://127.0.0.1:8000'
+        self.partner.save()
 
         self.course_run_1.course.organizations.add(self.organization_extension.organization)
         self.course_run_2.course.organizations.add(self.organization_extension.organization)

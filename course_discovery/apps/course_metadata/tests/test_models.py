@@ -978,6 +978,8 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         """
         Verify that we notify the LMS about tracks without seats on a save() to reviewed
         """
+        self.partner.lms_url = 'http://127.0.0.1:8000'
+        self.partner.save()
         self.mock_access_token()
         self.mock_ecommerce_publication()
         url = '{root}courses/{key}/'.format(root=self.partner.lms_coursemode_api_url, key=self.course_run.key)

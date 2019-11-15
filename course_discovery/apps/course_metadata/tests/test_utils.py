@@ -125,6 +125,7 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
     @responses.activate
     def test_push(self):
         """ Happy path """
+        self.partner.lms_url = 'http://127.0.0.1:8000'
         self.mock_access_token()
         self.mock_publication()
         self.assertTrue(utils.push_to_ecommerce_for_course_run(self.course_run))
@@ -139,6 +140,7 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
         self.assertEqual(self.course.draft_version.entitlements.first().sku, 'ZZZZZZZZ')
 
     def test_status_failure(self):
+        self.partner.lms_url = 'http://127.0.0.1:8000'
         self.mock_access_token()
         self.mock_publication(status=500)
         with self.assertRaises(requests.HTTPError):

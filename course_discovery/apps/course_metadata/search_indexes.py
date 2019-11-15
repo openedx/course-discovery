@@ -117,7 +117,7 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
 
     def prepare_logo_image_urls(self, obj):
         orgs = obj.authoring_organizations.all()
-        return [org.logo_image_url for org in orgs]
+        return [org.logo_image.url if org.logo_image else None for org in orgs]
 
     def prepare_subjects(self, obj):
         return [subject.name for subject in obj.subjects.all()]

@@ -569,6 +569,7 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         lms_course_url = get_lms_course_url_for_archived(partner, '')
         self.assertIsNone(lms_course_url)
 
+        partner.lms_url = 'http://127.0.0.1:8000'
         lms_course_url = get_lms_course_url_for_archived(partner, course_key)
         expected_url = '{lms_url}/courses/{course_key}/course/'.format(lms_url=partner.lms_url, course_key=course_key)
         self.assertEqual(lms_course_url, expected_url)
@@ -1531,14 +1532,14 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
     def get_expected_data(cls, organization):
         expected = super().get_expected_data(organization)
         expected.update({
-            'certificate_logo_image_url': organization.certificate_logo_image_url,
+            'certificate_logo_image_url': organization.certificate_logo_image.url,
             'description': organization.description,
             'homepage_url': organization.homepage_url,
-            'logo_image_url': organization.logo_image_url,
+            'logo_image_url': organization.logo_image.url,
             'tags': [cls.TAG],
             'marketing_url': organization.marketing_url,
             'slug': organization.slug,
-            'banner_image_url': organization.banner_image_url,
+            'banner_image_url': organization.banner_image.url,
         })
 
         return expected
@@ -1997,7 +1998,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'published': course_run.status == CourseRunStatus.Published,
             'partner': course_run.course.partner.short_code,
             'program_types': course_run.program_types,
-            'logo_image_urls': [org.logo_image_url for org in course_run.authoring_organizations.all()],
+            'logo_image_urls': [org.logo_image.url for org in course_run.authoring_organizations.all()],
             'authoring_organization_uuids': get_uuids(course_run.authoring_organizations.all()),
             'subject_uuids': get_uuids(course_run.subjects.all()),
             'staff_uuids': get_uuids(course_run.staff.all()),
@@ -2261,10 +2262,6 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         Verify that `get_utm_source_for_user` returns default value if
         `Partner.lms_url` is not set in the database.
         """
-        # Remove lms_url from partner.
-        self.partner.lms_url = ''
-        self.partner.save()
-
         assert get_utm_source_for_user(self.partner, self.user) == self.user.username
 
     @responses.activate
@@ -2274,6 +2271,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         Verify that `get_utm_source_for_user` returns default value if
         LMS API does not return a valid response.
         """
+        self.partner.lms_url = 'http://127.0.0.1:8000'
         self.mock_api_access_request(self.partner.lms_url, self.user, status=400)
         assert get_utm_source_for_user(self.partner, self.user) == self.user.username
 
@@ -2283,6 +2281,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         """
         Verify that `get_utm_source_for_user` returns correct value.
         """
+        self.partner.lms_url = 'http://127.0.0.1:8000'
         company_name = 'Test Company'
         expected_utm_source = slugify('{} {}'.format(self.user.username, company_name))
 

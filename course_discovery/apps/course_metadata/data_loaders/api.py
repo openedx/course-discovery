@@ -29,68 +29,6 @@ from course_discovery.apps.publisher.utils import is_course_on_new_pub_fe
 logger = logging.getLogger(__name__)
 
 
-class OrganizationsApiDataLoader(AbstractDataLoader):
-    """ Loads organizations from the Organizations API. """
-    # TODO add this back in when loading from drupal is completely removed
-    # loaded_org_pks = set()
-
-    def ingest(self):
-        api_url = self.partner.organizations_api_url
-        count = None
-        page = 1
-
-        logger.info('Refreshing Organizations from %s...', api_url)
-
-        while page:
-            params = {'page': page, 'page_size': self.PAGE_SIZE}
-            response = self.api_client.get(self.api_url + '/organizations/', params=params).json()
-            count = response['count']
-            results = response['results']
-            logger.info('Retrieved %d organizations...', len(results))
-
-            if response['next']:
-                page += 1
-            else:
-                page = None
-            for body in results:
-                body = self.clean_strings(body)
-                self.update_organization(body)
-
-        logger.info('Retrieved %d organizations from %s.', count, api_url)
-
-        # TODO add this back in when loading from drupal is completely removed
-        # delete_orphans(Organization, exclude=self.loaded_org_pks)
-
-        logger.info('Removed orphan Organizations excluding those which were loaded via OrganizationsApiDataLoader')
-
-    def update_organization(self, body):
-        key = body['short_name']
-        logo = body['logo']
-        name = body['name']
-
-        defaults = {
-            'key': key,
-            'partner': self.partner,
-            'certificate_logo_image_url': logo,
-            'certificate_name': name
-        }
-
-        if not self.partner.has_marketing_site:
-            defaults.update({
-                'name': name,
-                'description': body['description'],
-                'logo_image_url': logo,
-            })
-
-        Organization.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
-
-        # TODO add this back in when loading from drupal is completely removed
-        # if org:
-        #     self.loaded_org_pks.add(org.pk)
-
-        logger.info('Processed organization "%s"', key)
-
-
 class CoursesApiDataLoader(AbstractDataLoader):
     """ Loads course runs from the Courses API. """
 

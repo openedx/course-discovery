@@ -62,3 +62,16 @@ class HtmlField(serializers.CharField):
         """ Cleans incoming HTML to strip some styling that word processors might inject when copying/pasting. """
         data = super().to_internal_value(data)
         return clean_html(data) if data else data
+
+
+class ImageUrlField(serializers.CharField):
+    def __init__(self, image_field=None, *args, **kwargs):
+        self.image_field = image_field
+        super(ImageUrlField, self).__init__(*args, **kwargs)
+
+    def to_representation(self, data):
+        if self.image_field:
+            image = getattr(data, self.image_field, None)
+            if image:
+                return image.url
+        return None

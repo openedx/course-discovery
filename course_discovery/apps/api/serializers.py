@@ -21,7 +21,7 @@ from rest_framework.fields import CreateOnlyDefault, DictField, UUIDField
 from rest_framework.metadata import SimpleMetadata
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
-from course_discovery.apps.api.fields import HtmlField, ImageField, StdImageSerializerField
+from course_discovery.apps.api.fields import HtmlField, ImageField, ImageUrlField, StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
@@ -305,6 +305,9 @@ class MinimalOrganizationSerializer(BaseModelSerializer):
 class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     """Serializer for the ``Organization`` model."""
     tags = TagListSerializerField()
+    certificate_logo_image_url = ImageUrlField(source='*', image_field='certificate_logo_image')
+    logo_image_url = ImageUrlField(source='*', image_field='logo_image')
+    banner_image_url = ImageUrlField(source='*', image_field='banner_image')
 
     @classmethod
     def prefetch_queryset(cls, partner):
