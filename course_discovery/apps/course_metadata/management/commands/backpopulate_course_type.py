@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 
 from course_discovery.apps.course_metadata.models import (
-    BackpopulateCourseTypeConfig, Course, CourseType, Seat, SeatType
+    BackpopulateCourseTypeConfig, Course, CourseRunType, CourseType, Seat, SeatType
 )
 
 logger = logging.getLogger(__name__)
@@ -50,6 +50,12 @@ class Command(BaseCommand):
             metavar=_('KEY'),
             action='append',
             help=_('Organization to backpopulate.'),
+            default=[],
+        )
+        parser.add_argument(
+            '--allow-for',
+            action='append',
+            help=_('CourseType/CourseRunType mismatches to allow. Specify like course-type-slug:run-type-slug.'),
             default=[],
         )
         parser.add_argument(
@@ -112,6 +118,15 @@ class Command(BaseCommand):
             matches[course] = course_type
 
         course_run_types = course_type.course_run_types.order_by('created')
+
+        if course_type.slug in self.mismatches:
+            # Using .order_by() here to reset the default ordering on these so we can eventually do the
+            # order by created. This has to do with what operations are allowed on a union'ed QuerySet and that
+            # our TimeStampedModels come with a default ordering.
+            unmatched_course_run_types = CourseRunType.objects.filter(
+                slug__in=self.mismatches[course_type.slug]
+            ).order_by()
+            course_run_types = course_run_types.order_by().union(unmatched_course_run_types).order_by('created')
 
         # Now, let's look at seat types too. If any of our CourseRunType children match a run, we'll take it.
         for run in course.course_runs.order_by('key'):  # ordered just for visible message reliability
@@ -182,6 +197,23 @@ class Command(BaseCommand):
 
         # just cache the audit seat type for use later
         self.audit_seat_type = SeatType.objects.get(slug=Seat.AUDIT)  # pylint: disable=attribute-defined-outside-init
+
+        self.mismatches = {}  # pylint: disable=attribute-defined-outside-init
+        if options['allow_for']:
+            for value in options['allow_for']:
+                course_type_slug, run_type_slug = value.split(':')
+                if not CourseRunType.objects.filter(slug=run_type_slug).exists():
+                    raise CommandError(_('Supplied Course Run Type slug [{rt_slug}] does not exist.').format(
+                        rt_slug=run_type_slug
+                    ))
+                if course_type_slug in self.mismatches:
+                    self.mismatches[course_type_slug].append(run_type_slug)
+                else:
+                    if not CourseType.objects.filter(slug=course_type_slug).exists():
+                        raise CommandError(_('Supplied Course Type slug [{ct_slug}] does not exist.').format(
+                            ct_slug=course_type_slug
+                        ))
+                    self.mismatches[course_type_slug] = [run_type_slug]
 
         # We look at both draft and official rows
         courses = Course.everything.filter(partner__short_code=options['partner']).filter(

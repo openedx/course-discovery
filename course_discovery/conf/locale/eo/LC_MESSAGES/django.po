@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-13 19:30+0000\n"
+"POT-Creation-Date: 2019-11-15 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -762,6 +762,14 @@ msgid "Organization to backpopulate."
 msgstr "Örgänïzätïön tö ßäçkpöpüläté. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py
+msgid ""
+"CourseType/CourseRunType mismatches to allow. Specify like course-type-"
+"slug:run-type-slug."
+msgstr ""
+"ÇöürséTýpé/ÇöürséRünTýpé mïsmätçhés tö ällöw. Spéçïfý lïké çöürsé-týpé-"
+"slüg:rün-týpé-slüg. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
 #: apps/course_metadata/management/commands/delete_person_dups.py
 msgid "Actually commit the changes to the database."
 msgstr ""
@@ -819,6 +827,20 @@ msgstr ""
 #: apps/course_metadata/management/commands/backpopulate_course_type.py
 msgid "You must specify --partner"
 msgstr "Ýöü müst spéçïfý --pärtnér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid "Supplied Course Run Type slug [{rt_slug}] does not exist."
+msgstr ""
+"Süpplïéd Çöürsé Rün Týpé slüg [{rt_slug}] döés nöt éxïst. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/management/commands/backpopulate_course_type.py
+#, python-brace-format
+msgid "Supplied Course Type slug [{ct_slug}] does not exist."
+msgstr ""
+"Süpplïéd Çöürsé Týpé slüg [{ct_slug}] döés nöt éxïst. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт"
+" αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py
 msgid "No courses found. Did you specify an argument?"

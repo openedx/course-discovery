@@ -43,6 +43,7 @@ class AffiliateWindowViewSet(viewsets.ViewSet):
             'course_run__course',
             'course_run__course__level_type',
             'course_run__course__partner',
+            'course_run__type',
         ).prefetch_related(
             'course_run__course__authoring_organizations',
             'course_run__course__subjects',
