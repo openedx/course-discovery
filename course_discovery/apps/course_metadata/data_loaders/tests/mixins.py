@@ -11,7 +11,7 @@ class DataLoaderTestMixin(OAuth2Mixin):
 
     def setUp(self):
         super(DataLoaderTestMixin, self).setUp()
-        self.partner = PartnerFactory()
+        self.partner = PartnerFactory(lms_url='http://127.0.0.1:8000')
         self.loader = self.loader_class(self.partner, self.api_url)
         self.mock_access_token()
 

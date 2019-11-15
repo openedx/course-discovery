@@ -6,10 +6,12 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
+import requests
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db import models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
@@ -160,8 +162,9 @@ class Organization(CachedMixin, TimeStampedModel):
                                                        'than period, underscore or hyphen. This key will be used '
                                                        'in the course\'s course key.'))
     name = models.CharField(max_length=255)
-    certificate_name = models.CharField(max_length=255, null=True, help_text=_('If populated, this field will '
-                                                                               'overwrite name in platform.'))
+    certificate_name = models.CharField(
+        max_length=255, null=True, blank=True, help_text=_('If populated, this field will overwrite name in platform.')
+    )
     slug = AutoSlugField(populate_from='key', editable=False, slugify_function=uslugify)
     description = models.TextField(null=True, blank=True)
     homepage_url = models.URLField(max_length=255, null=True, blank=True)
@@ -170,6 +173,23 @@ class Organization(CachedMixin, TimeStampedModel):
     certificate_logo_image_url = models.URLField(
         null=True, blank=True, help_text=_('Logo to be displayed on certificates. If this logo is the same as '
                                            'logo_image_url, copy and paste the same value to both fields.')
+    )
+    logo_image = models.ImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/logos'),
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(['png'])]
+    )
+    certificate_logo_image = models.ImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/certificate_logos'),
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(['png'])]
+    )
+    banner_image = models.ImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/banner_images'),
+        blank=True,
+        null=True,
     )
     salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Publisher_Organization__c in Salesforce
 
@@ -217,6 +237,34 @@ class Organization(CachedMixin, TimeStampedModel):
     @classmethod
     def user_organizations(cls, user):
         return cls.objects.filter(organization_extension__group__in=user.groups.all())
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        """
+        We cache the key here before saving the record so that we can hit the correct
+        endpoint in lms.
+        """
+        key = self._cache['key']
+        super(Organization, self).save(*args, **kwargs)
+        key = key or self.key
+        partner = self.partner
+        data = {
+            'name': self.certificate_name or self.name,
+            'short_name': self.key,
+            'description': self.description,
+        }
+        logo = self.certificate_logo_image
+        if logo:
+            base_url = getattr(settings, 'ORG_BASE_LOGO_URL', None)
+            logo_url = '{}{}'.format(base_url, logo) if base_url else logo.url
+            data['logo_url'] = logo_url
+        organizations_url = '{}organizations/{}/'.format(partner.organizations_api_url, key)
+        if partner.lms_api_client:
+            try:
+                partner.lms_api_client.put(organizations_url, json=data)
+            except requests.exceptions.ConnectionError as e:  # pylint: disable=broad-except
+                logger.error('[%s]: Unable to push organization [%s] to lms.', e, self.uuid)
+            except Exception as e:  # pylint: disable=broad-except
+                raise e
 
 
 class Image(AbstractMediaModel):

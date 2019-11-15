@@ -1,10 +1,6 @@
 import abc
-import re
 
 from dateutil.parser import parse
-from django.utils.functional import cached_property
-from edx_rest_api_client.client import OAuthAPIClient
-from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.models import Image, Video
 

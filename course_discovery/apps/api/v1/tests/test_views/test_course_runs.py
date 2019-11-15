@@ -42,6 +42,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.refresh_index()
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
+        self.partner.lms_url = 'http://127.0.0.1:8000'
         self.partner.save()
 
     def mock_patch_to_studio(self, key, access_token=True, status=200, body=None):
