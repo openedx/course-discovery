@@ -857,19 +857,18 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         raised to the course endpoint, but some errors just create a response.
         '''
         studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
-        responses.add(responses.POST, studio_url, status=400)
+        responses.add(responses.POST, studio_url, status=400, body=b'Nope')
         response = self.create_course_and_course_run()
         self.assertEqual(response.status_code, 400)
-        expected_error_message = ('Failed to set data: Failed to set course run data: '
-                                  'Client Error 400: {studio_url}'.format(studio_url=studio_url))
+        expected_error_message = 'Failed to set data: Failed to set course run data: Nope'
         self.assertEqual(response.data, expected_error_message)
 
     def test_create_with_api_exception(self):
         with mock.patch(
-            # We are using get_course_key because it is called prior to tryig to contact the
+            # We are using get_course_key because it is called prior to trying to contact the
             # e-commerce service and still gives the effect of an api exception.
             'course_discovery.apps.api.v1.views.courses.CourseViewSet.get_course_key',
-            side_effect=IntegrityError
+            side_effect=IntegrityError('Error')
         ):
             with LogCapture(course_logger.name) as log_capture:
                 response = self.create_course()
@@ -878,7 +877,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                     (
                         course_logger.name,
                         'ERROR',
-                        'An error occurred while setting Course or Course Run data.',
+                        'Failed to set data: Error',
                     )
                 )
 
@@ -1543,7 +1542,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         with mock.patch(
             'course_discovery.apps.api.v1.views.courses.CourseViewSet.update_entitlement_helper',
-            side_effect=IntegrityError
+            side_effect=IntegrityError('Nope')
         ):
             with LogCapture(course_logger.name) as log_capture:
                 response = self.client.patch(url, course_data, format='json')
@@ -1552,7 +1551,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                     (
                         course_logger.name,
                         'ERROR',
-                        'An error occurred while setting Course or Course Run data.',
+                        'Failed to set data: Nope',
                     )
                 )
 
@@ -1566,7 +1565,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                 (
                     course_logger.name,
                     'ERROR',
-                    'An error occurred while setting Course or Course Run data.',
+                    ("Failed to set data: {'type': [ErrorDetail(string='Object with "
+                     "uuid=00000000-0000-0000-0000-000000000000 does not exist.', code='does_not_exist')]}"),
                 )
             )
 
