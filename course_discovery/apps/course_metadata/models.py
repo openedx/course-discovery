@@ -231,9 +231,14 @@ class Video(AbstractMediaModel):
 
 class LevelType(AbstractNamedModel):
     """ LevelType model. """
+    sort_value = models.PositiveSmallIntegerField(default=0, db_index=True)
+
+    # This `order` field is the being replaced by `sort_value`.
+    # TODO: remove this field during the final stages of the rename rollout.
     order = models.PositiveSmallIntegerField(default=0, db_index=True)
 
     class Meta:
+        # TODO: In addition to the above TODO, replace 'order' with 'sort_value'.
         ordering = ('order',)
 
 
