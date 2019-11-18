@@ -50,9 +50,11 @@ def writable_request_wrapper(method):
         except (PermissionDenied, Http404):
             raise  # just pass these along
         except Exception as e:  # pylint: disable=broad-except
-            logger.exception(_('An error occurred while setting Course or Course Run data.'))
-            return Response(_('Failed to set data: {}').format(str(e)),
-                            status=status.HTTP_400_BAD_REQUEST)
+            print('MIKE', type(e), str(e), getattr(e, 'content', None))
+            content = e.content.decode('utf8') if hasattr(e, 'content') else str(e)
+            msg = _('Failed to set data: {}').format(content)
+            logger.exception(msg)
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
     return inner
 
 

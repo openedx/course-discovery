@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-15 20:35+0000\n"
+"POT-Creation-Date: 2019-11-19 15:18+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -92,90 +92,82 @@ msgstr ""
 msgid "You must include a course_uuid in your query parameters."
 msgstr ""
 
-#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:187
+#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:189
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr ""
 
-#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:198
+#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:200
 msgid "Incorrect data sent. "
-msgstr ""
-
-#: apps/api/v1/views/course_runs.py:38
-msgid "An error occurred while setting course run data."
 msgstr ""
 
 #: apps/api/v1/views/course_runs.py:39
 msgid "Failed to set course run data: {}"
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:302
+#: apps/api/v1/views/course_runs.py:303
 msgid "Can only update status, ofac restrictions, and ofac comment"
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:332
+#: apps/api/v1/views/course_runs.py:333
 msgid "Course run is in review. Editing disabled."
 msgstr ""
 
-#: apps/api/v1/views/course_runs.py:339
+#: apps/api/v1/views/course_runs.py:340
 msgid "Invalid param"
 msgstr ""
 
-#: apps/api/v1/views/courses.py:53
-msgid "An error occurred while setting Course or Course Run data."
-msgstr ""
-
-#: apps/api/v1/views/courses.py:54
+#: apps/api/v1/views/courses.py:55
 msgid "Failed to set data: {}"
 msgstr ""
 
-#: apps/api/v1/views/courses.py:189
+#: apps/api/v1/views/courses.py:191
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:192
+#: apps/api/v1/views/courses.py:194
 #, python-brace-format
 msgid "Entitlement Track [{entitlement_type}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:196
+#: apps/api/v1/views/courses.py:198
 #, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:214
+#: apps/api/v1/views/courses.py:216
 #, python-brace-format
 msgid "A course with key {key} already exists."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:220
+#: apps/api/v1/views/courses.py:222
 #, python-brace-format
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:266
+#: apps/api/v1/views/courses.py:268
 msgid "Entitlements must have a mode specified."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:270
+#: apps/api/v1/views/courses.py:272
 msgid "Entitlement mode {} not found."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:279
+#: apps/api/v1/views/courses.py:281
 #, python-brace-format
 msgid "Existing entitlement not found for course {0}."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:288
+#: apps/api/v1/views/courses.py:290
 msgid ""
 "Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:376
+#: apps/api/v1/views/courses.py:378
 #, python-brace-format
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "

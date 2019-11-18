@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-15 20:35+0000\n"
+"POT-Creation-Date: 2019-11-19 15:18+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -135,12 +135,6 @@ msgid "Incorrect data sent. "
 msgstr "Ìnçörréçt dätä sént.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/api/v1/views/course_runs.py
-msgid "An error occurred while setting course run data."
-msgstr ""
-"Àn érrör öççürréd whïlé séttïng çöürsé rün dätä. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/api/v1/views/course_runs.py
 msgid "Failed to set course run data: {}"
 msgstr ""
 "Fäïléd tö sét çöürsé rün dätä: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
@@ -160,12 +154,6 @@ msgstr ""
 #: apps/api/v1/views/course_runs.py
 msgid "Invalid param"
 msgstr "Ìnvälïd päräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
-
-#: apps/api/v1/views/courses.py
-msgid "An error occurred while setting Course or Course Run data."
-msgstr ""
-"Àn érrör öççürréd whïlé séttïng Çöürsé ör Çöürsé Rün dätä. Ⱡ'σяєм ιρѕυм "
-"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/api/v1/views/courses.py
 msgid "Failed to set data: {}"

@@ -43,12 +43,12 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.request.user = self.user
         self.partner.save()
 
-    def mock_patch_to_studio(self, key, access_token=True, status=200):
+    def mock_patch_to_studio(self, key, access_token=True, status=200, body=None):
         if access_token:
             self.mock_access_token()
         studio_url = '{root}/api/v1/course_runs/{key}/'.format(root=self.partner.studio_url.strip('/'), key=key)
-        responses.add(responses.PATCH, studio_url, status=status)
-        responses.add(responses.POST, '{url}images/'.format(url=studio_url), status=status)
+        responses.add(responses.PATCH, studio_url, status=status, body=body)
+        responses.add(responses.POST, '{url}images/'.format(url=studio_url), status=status, body=body)
 
     def mock_post_to_studio(self, key, access_token=True, rerun_key=None):
         if access_token:
@@ -640,11 +640,11 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     @responses.activate
     def test_studio_update_failure(self):
         """ Verify we bubble up error correctly if studio is giving us static. """
-        self.mock_patch_to_studio(self.draft_course_run.key, status=400)
+        self.mock_patch_to_studio(self.draft_course_run.key, status=400, body=b'Nope')
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
         response = self.client.patch(url, {'title': 'New Title'}, format='json')
-        self.assertContains(response, 'Failed to set course run data: Client Error 400', status_code=400)
+        self.assertContains(response, 'Failed to set course run data: Nope', status_code=400)
 
         self.draft_course_run.refresh_from_db()
         self.assertEqual(self.draft_course_run.title_override, None)  # prove we didn't touch the course run object
