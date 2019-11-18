@@ -113,6 +113,25 @@ Entity Relationship Diagram:
 
 .. image:: ../_static/course_discovery_types.png
 
+Update November 18, 2019:
+
+We are more broadly allowing mismatches between a Course's CourseType and its
+Course Runs' CourseRunType. A mismatch is defined as when a Course Run's
+CourseRunType is not one of the CourseRunTypes listed under the CourseType's
+Many to Many relationship with CourseRunType. We see the use case of this
+being a way to support Course Runs that do not fit the mold of a particular
+CourseType, despite most of the other Course Runs matching. One example would
+be having several Course Runs that all have Verified and Audit seats, but one
+Course Run having no seats. In the past, there would be no CourseType match
+because a Course Run having no seats does not exist within any CourseType. By
+allowing mismatches, this Course could have the Verified and Audit CourseType
+and the Course Run with no seats could have the Empty CourseRunType.
+
+It is worth noting that within edX, we are using mismatches as a way of
+supporting historical oddities in our system. We do not encourage using
+mismatches generally or as a best practice, but more as a way of dealing with
+oddities that do not require full CourseType support.
+
 
 Alternative Approaches Considered
 ---------------------------------
