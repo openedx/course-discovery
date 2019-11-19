@@ -355,7 +355,7 @@ class PrerequisiteAdmin(admin.ModelAdmin):
 
 @admin.register(LevelType)
 class LevelTypeAdmin(SortableAdminMixin, admin.ModelAdmin):
-    list_display = ('name', 'order')
+    list_display = ('name', 'sort_value')
     search_fields = ('name',)
 
 
