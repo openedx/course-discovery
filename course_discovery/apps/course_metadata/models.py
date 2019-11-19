@@ -231,15 +231,14 @@ class Video(AbstractMediaModel):
 
 class LevelType(AbstractNamedModel):
     """ LevelType model. """
+    # This field determines ordering by which level types are presented in the
+    # Publisher tool, by virtue of the order in which the level types are
+    # returned by the serializer, and in turn the OPTIONS requests against the
+    # course and courserun view sets.
     sort_value = models.PositiveSmallIntegerField(default=0, db_index=True)
 
-    # This `order` field is the being replaced by `sort_value`.
-    # TODO: remove this field during the final stages of the rename rollout.
-    order = models.PositiveSmallIntegerField(default=0, db_index=True)
-
     class Meta:
-        # TODO: In addition to the above TODO, replace 'order' with 'sort_value'.
-        ordering = ('order',)
+        ordering = ('sort_value',)
 
 
 class SeatType(TimeStampedModel):
