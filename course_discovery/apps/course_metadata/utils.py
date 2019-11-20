@@ -13,7 +13,6 @@ from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
-from opaque_keys.edx.locator import CourseLocator
 from slugify import slugify
 from stdimage.models import StdImageFieldFile
 from stdimage.utils import UploadTo
@@ -24,7 +23,7 @@ from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
-from course_discovery.apps.publisher.utils import find_discovery_course
+from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY, find_discovery_course
 
 logger = logging.getLogger(__name__)
 
@@ -367,7 +366,7 @@ def validate_course_number(course_number):
     Args:
         course_number: Course Number String
     """
-    if not CourseLocator.ALLOWED_ID_RE.match(course_number):
+    if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(course_number):
         raise ValueError(_('Special characters not allowed in Course Number.'))
 
 
