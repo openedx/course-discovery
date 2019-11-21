@@ -2,6 +2,7 @@
 import json
 import random
 from datetime import datetime, timedelta
+from unittest import skip
 
 import ddt
 import factory
@@ -3441,6 +3442,7 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
             course_run = CourseRun.objects.get(id=self.new_course_run.id)
             self.assertNotEqual(course_run.xseries_name, 'Test XSeries')
 
+    @skip('flaky')
     def test_update_course_run_with_seat(self):
         """ Verify that course run edit page create seat object also if not exists previously."""
         user = self.login_with_course_user_role(self.new_course_run)
