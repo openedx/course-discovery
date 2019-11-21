@@ -544,6 +544,18 @@ class TrackSerializer(BaseModelSerializer):
         fields = ('seat_type', 'mode')
 
 
+class CourseRunTypeSerializer(BaseModelSerializer):
+    """Serializer for the ``CourseRunType`` model."""
+    modes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseRunType
+        fields = ('uuid', 'name', 'is_marketable', 'modes')
+
+    def get_modes(self, obj):
+        return [track.mode.slug for track in obj.tracks.all()]
+
+
 class SeatSerializer(BaseModelSerializer):
     """Serializer for the ``Seat`` model."""
     type = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all().order_by('name'))
@@ -2252,11 +2264,10 @@ class MetadataWithType(MetadataWithRelatedChoices):
             'uuid': course_type.uuid,
             'name': course_type.name,
             'entitlement_types': [entitlement_type.slug for entitlement_type in course_type.entitlement_types.all()],
-            'course_run_types': [{
-                'uuid': course_run_type.uuid,
-                'name': course_run_type.name,
-                'modes': [track.mode.slug for track in course_run_type.tracks.all()],
-            } for course_run_type in course_type.course_run_types.all()],
+            'course_run_types': [
+                CourseRunTypeSerializer(course_run_type).data for course_run_type
+                in course_type.course_run_types.all()
+            ],
             'tracks': [
                 TrackSerializer(track).data for track
                 in TrackSerializer.prefetch_queryset().filter(courseruntype__coursetype=course_type).distinct()
