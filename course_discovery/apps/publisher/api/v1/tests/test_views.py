@@ -203,16 +203,16 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
             'course_run': discovery_course_run,
             'currency': currency,
         }
-        DiscoverySeat.objects.get(type__slug=DiscoverySeat.AUDIT, upgrade_deadline__isnull=True, **common_seat_kwargs)
+        DiscoverySeat.objects.get(type__slug=DiscoverySeat.AUDIT, _upgrade_deadline__isnull=True, **common_seat_kwargs)
         DiscoverySeat.objects.get(
             type__slug=DiscoverySeat.PROFESSIONAL,
-            upgrade_deadline__isnull=True,
+            _upgrade_deadline__isnull=True,
             price=professional_seat.price,
             **common_seat_kwargs
         )
         DiscoverySeat.objects.get(
             type__slug=DiscoverySeat.VERIFIED,
-            upgrade_deadline=verified_seat.upgrade_deadline,
+            _upgrade_deadline=verified_seat.upgrade_deadline,
             price=verified_seat.price,
             **common_seat_kwargs
         )
@@ -279,7 +279,7 @@ class CourseRunViewSetTests(OAuth2Mixin, APITestCase):
         discovery_course_run = CourseRun.objects.get(key=publisher_course_run.lms_course_id)
         DiscoverySeat.objects.get(
             type__slug=DiscoverySeat.VERIFIED,
-            upgrade_deadline=verified_seat.calculated_upgrade_deadline,
+            _upgrade_deadline=verified_seat.calculated_upgrade_deadline,
             price=verified_seat.price,
             course_run=discovery_course_run
         )

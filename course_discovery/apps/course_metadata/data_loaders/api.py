@@ -8,6 +8,7 @@ from io import BytesIO
 
 import backoff
 import requests
+from django.conf import settings
 from django.core.files import File
 from django.core.management import CommandError
 from opaque_keys.edx.keys import CourseKey
@@ -19,6 +20,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
 )
+from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run, subtract_deadline_delta
 from course_discovery.apps.publisher.utils import is_course_on_new_pub_fe
 
 logger = logging.getLogger(__name__)
@@ -192,8 +194,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
         new_pub_fe = is_course_on_new_pub_fe(run.course)
 
         validated_data = self.format_course_run_data(body, new_pub_fe=new_pub_fe)
+        end_has_updated = validated_data.get('end') != run.end
         self._update_instance(official_run, validated_data, suppress_publication=True)
         self._update_instance(draft_run, validated_data, suppress_publication=True)
+        if end_has_updated:
+            self._update_verified_deadline_for_course_run(official_run)
+            self._update_verified_deadline_for_course_run(draft_run)
+            has_upgrade_deadline_override = run.seats.filter(upgrade_deadline_override__isnull=False)
+            if not has_upgrade_deadline_override and official_run:
+                push_to_ecommerce_for_course_run(official_run)
 
         logger.info('Processed course run with UUID [%s].', run.uuid)
 
@@ -233,6 +242,14 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         course = official_course or draft_course
         logger.info('Processed course with key [%s].', course.key)
+
+    def _update_verified_deadline_for_course_run(self, course_run):
+        seats = course_run.seats.filter(type=Seat.VERIFIED) if course_run and course_run.end else []
+        for seat in seats:
+            seat.upgrade_deadline = subtract_deadline_delta(
+                seat.course_run.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS
+            )
+            seat.save()
 
     def _update_instance(self, instance, validated_data, **kwargs):
         if not instance:
