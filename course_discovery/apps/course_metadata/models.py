@@ -830,7 +830,14 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     @property
     def course_run_statuses(self):
-        statuses = self.course_runs.filter(hidden=False).values_list('status', flat=True).distinct().order_by('status')
+        """
+        Returns all unique course run status values inside this course.
+
+        Note that it skips hidden and archived courses - this list is typically used for presentational purposes.
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        runs = self.course_runs.exclude(hidden=True).exclude(status=CourseRunStatus.Unpublished, end__lt=now)
+        statuses = runs.values_list('status', flat=True).distinct().order_by('status')
         return list(statuses)
 
     def update_marketing_redirects(self, published_runs=None):
