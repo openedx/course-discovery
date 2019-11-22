@@ -330,6 +330,41 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(len(response2.data['results']), 1)
         self.assertEqual(response2.data['results'][0]['uuid'], str(course2.uuid))
 
+    def test_unsubmitted_status(self):
+        """ Verify we support composite status 'unsubmitted' (unpublished & unarchived). """
+        self.course.delete()
+        now = datetime.datetime.now(pytz.UTC)
+        no_end_run = ensure_draft_world(CourseRunFactory(status=CourseRunStatus.Unpublished, end=None))
+        _past_end_run = ensure_draft_world(CourseRunFactory(status=CourseRunStatus.Unpublished,
+                                                            end=now - datetime.timedelta(days=1)))
+        future_end_run = ensure_draft_world(CourseRunFactory(status=CourseRunStatus.Unpublished,
+                                                             end=now + datetime.timedelta(days=1)))
+
+        response = self.client.get(reverse('api:v1:course-list') + '?editable=1&course_run_statuses=unsubmitted')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 2)
+        self.assertEqual({c['uuid'] for c in response.data['results']},
+                         {str(run.course.uuid) for run in [future_end_run, no_end_run]})
+
+    def test_no_archived_statuses(self):
+        """ Verify that we skip archived statuses in a course serialization of statuses. """
+        now = datetime.datetime.now(pytz.UTC)
+        past_end_run = CourseRunFactory(course=self.course, status=CourseRunStatus.Unpublished,
+                                        end=now - datetime.timedelta(days=1))
+        _published_run = CourseRunFactory(course=self.course, status=CourseRunStatus.Published)
+
+        response = self.client.get(reverse('api:v1:course-list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['uuid'], str(self.course.uuid))
+        self.assertEqual(response.data['results'][0]['course_run_statuses'], ['published'])  # no 'unpublished' status
+
+        # Now test with no end date - we should see unarchived appear
+        past_end_run.end = None
+        past_end_run.save()
+        response = self.client.get(reverse('api:v1:course-list'))
+        self.assertEqual(response.data['results'][0]['course_run_statuses'], ['published', 'unpublished'])
+
     @ddt.data(
         ('get', False, False, True),
         ('options', False, False, True),
