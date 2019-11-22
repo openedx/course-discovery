@@ -41,7 +41,7 @@ from course_discovery.apps.course_metadata.publishers import (
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run,
-    push_tracks_to_lms_for_course_run, set_official_state, uslugify
+    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta, uslugify
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -1507,8 +1507,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             if seats:
                 deadline = seats[0].upgrade_deadline
             else:
-                deadline = self.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
-                deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
+                deadline = subtract_deadline_delta(self.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
         return deadline
 
     def update_or_create_seat_helper(self, seat_type, prices):
@@ -1786,7 +1785,8 @@ class Seat(DraftModelMixin, TimeStampedModel):
                              db_column='type')  # this avoids renaming the column to type_id
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
     currency = models.ForeignKey(Currency, models.CASCADE, default='USD')
-    upgrade_deadline = models.DateTimeField(null=True, blank=True)
+    _upgrade_deadline = models.DateTimeField(null=True, blank=True, db_column='upgrade_deadline')
+    upgrade_deadline_override = models.DateTimeField(null=True, blank=True)
     credit_provider = models.CharField(max_length=255, null=True, blank=True)
     credit_hours = models.IntegerField(null=True, blank=True)
     sku = models.CharField(max_length=128, null=True, blank=True)
@@ -1799,6 +1799,14 @@ class Seat(DraftModelMixin, TimeStampedModel):
             ('course_run', 'type', 'currency', 'credit_provider', 'draft')
         )
         ordering = ['created']
+
+    @property
+    def upgrade_deadline(self):
+        return self.upgrade_deadline_override or self._upgrade_deadline
+
+    @upgrade_deadline.setter
+    def upgrade_deadline(self, value):
+        self._upgrade_deadline = value
 
 
 class CourseEntitlement(DraftModelMixin, TimeStampedModel):

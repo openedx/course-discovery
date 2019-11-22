@@ -24,7 +24,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseFactory 
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory as DiscoveryCourseRunFactory
 from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PersonFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
-from course_discovery.apps.course_metadata.utils import ensure_draft_world
+from course_discovery.apps.course_metadata.utils import ensure_draft_world, subtract_deadline_delta
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.choices import (
     CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
@@ -589,8 +589,7 @@ class TestSeatModel:
         settings.PUBLISHER_UPGRADE_DEADLINE_DAYS = random.randint(1, 21)
         now = datetime.datetime.utcnow()
         seat = factories.SeatFactory(type=Seat.VERIFIED, upgrade_deadline=None, course_run__end=now)
-        expected = now - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
-        expected = expected.replace(hour=23, minute=59, second=59, microsecond=99999)
+        expected = subtract_deadline_delta(now, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
         assert seat.calculated_upgrade_deadline == expected
 
         seat = factories.SeatFactory(type=Seat.VERIFIED)
