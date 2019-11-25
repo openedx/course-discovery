@@ -1,4 +1,4 @@
-""" Creates or updates a Partner, including API and OIDC information """
+""" Creates or updates a Partner, including API information """
 
 import logging
 
@@ -86,28 +86,6 @@ class Command(BaseCommand):
                             default='',
                             help='Password used for accessing Partner marketing site data.')
 
-        # DEPRECATED, remove when the oidc_url_root field is removed from the Partner model.
-        parser.add_argument('--oidc-url-root',
-                            action='store',
-                            dest='oidc_url_root',
-                            type=str,
-                            default='',
-                            help='URL root used for Partner OIDC workflows.')
-        # DEPRECATED, remove when the oidc_key field is removed from the Partner model.
-        parser.add_argument('--oidc-key',
-                            action='store',
-                            dest='oidc_key',
-                            type=str,
-                            default='',
-                            help='Key used for Partner OIDC workflows.')
-        # DEPRECATED, remove when the oidc_secret field is removed from the Partner model.
-        parser.add_argument('--oidc-secret',
-                            action='store',
-                            dest='oidc_secret',
-                            type=str,
-                            default='',
-                            help='Key used for Partner OIDC workflows.')
-
     def handle(self, *args, **options):
         """ Creates or updates Site and Partner records. """
         partner_code = options.get('partner_code')
@@ -137,11 +115,6 @@ class Command(BaseCommand):
                 'marketing_site_url_root': options.get('marketing_site_url_root'),
                 'marketing_site_api_username': options.get('marketing_site_api_username'),
                 'marketing_site_api_password': options.get('marketing_site_api_password'),
-
-                # DEPRECATED, remove these values when the oidc_* fields are removed from the Partner model.
-                'oidc_url_root': options.get('oidc_url_root'),
-                'oidc_key': options.get('oidc_key'),
-                'oidc_secret': options.get('oidc_secret'),
             }
         )
         logger.info('Partner %s with code %s', 'created' if created else 'updated', partner_code)
