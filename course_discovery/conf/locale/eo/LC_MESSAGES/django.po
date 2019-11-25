@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-19 15:18+0000\n"
+"POT-Creation-Date: 2019-11-25 20:06+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -268,18 +268,6 @@ msgid "Important dates"
 msgstr "Ìmpörtänt dätés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/core/admin.py
-msgid "OpenID Connect"
-msgstr "ÖpénÌD Çönnéçt Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт#"
-
-#: apps/core/admin.py
-msgid ""
-"OpenID Connect is used for front-end authentication as well as getting "
-"access to the APIs."
-msgstr ""
-"ÖpénÌD Çönnéçt ïs üséd för frönt-énd äüthéntïçätïön äs wéll äs géttïng "
-"äççéss tö thé ÀPÌs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
-
-#: apps/core/admin.py
 msgid "API Configuration"
 msgstr "ÀPÌ Çönfïgürätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
@@ -396,18 +384,6 @@ msgstr "Märkétïng Sïté ÀPÌ Ûsérnämé Ⱡ'σяєм ιρѕυм ∂σłσ
 #: apps/core/models.py
 msgid "Marketing Site API Password"
 msgstr "Märkétïng Sïté ÀPÌ Pässwörd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
-
-#: apps/core/models.py
-msgid "OpenID Connect URL"
-msgstr "ÖpénÌD Çönnéçt ÛRL Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
-
-#: apps/core/models.py
-msgid "OpenID Connect Key"
-msgstr "ÖpénÌD Çönnéçt Kéý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
-
-#: apps/core/models.py
-msgid "OpenID Connect Secret"
-msgstr "ÖpénÌD Çönnéçt Séçrét Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/core/models.py apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
