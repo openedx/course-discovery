@@ -1,7 +1,9 @@
+import datetime
 import logging
 
+import pytz
 from django.contrib.auth import get_user_model
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.utils.translation import ugettext as _
 from django_filters import rest_framework as filters
 from drf_haystack.filters import HaystackFacetFilter
@@ -139,13 +141,24 @@ class CourseFilter(filters.FilterSet):
         fields = ('keys', 'uuids',)
 
     def filter_by_course_run_statuses(self, queryset, _, value):
-        statuses = value
-        if 'in_review' in statuses:
-            statuses = statuses.replace(
-                'in_review', '{},{}'.format(CourseRunStatus.LegalReview, CourseRunStatus.InternalReview)
-            )
-        return queryset.filter(
-            course_runs__status__in=statuses.split(','), course_runs__hidden=False).distinct()
+        statuses = set(value.split(','))
+        or_queries = []  # a list of Q() expressions to add to our filter as alternatives to status check
+
+        if 'in_review' in statuses:  # any of our review statuses
+            statuses.remove('in_review')
+            statuses.add(CourseRunStatus.LegalReview)
+            statuses.add(CourseRunStatus.InternalReview)
+        if 'unsubmitted' in statuses:  # unpublished and unarchived
+            statuses.remove('unsubmitted')
+            # "is not archived" logic stolen from CourseRun.has_ended
+            now = datetime.datetime.now(pytz.UTC)
+            or_queries.append(Q(course_runs__status=CourseRunStatus.Unpublished) & ~Q(course_runs__end__lt=now))
+
+        status_check = Q(course_runs__status__in=statuses)
+        for query in or_queries:
+            status_check |= query
+
+        return queryset.filter(status_check, course_runs__hidden=False).distinct()
 
 
 class CourseRunFilter(FilterSetMixin, filters.FilterSet):
