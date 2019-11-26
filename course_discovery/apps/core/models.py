@@ -85,11 +85,6 @@ class Partner(TimeStampedModel):
     marketing_site_api_password = models.CharField(max_length=255, null=True, blank=True,
                                                    verbose_name=_('Marketing Site API Password'))
 
-    # DEPRECATED --- safe to delete via migration
-    oidc_url_root = models.CharField(max_length=255, null=True, verbose_name='OpenID Connect URL')
-    oidc_key = models.CharField(max_length=255, null=True, verbose_name='OpenID Connect Key')
-    oidc_secret = models.CharField(max_length=255, null=True, verbose_name='OpenID Connect Secret')
-
     studio_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Studio URL'))
     publisher_url = models.URLField(
         max_length=255, null=True, blank=True, verbose_name=_('Publisher URL'),
