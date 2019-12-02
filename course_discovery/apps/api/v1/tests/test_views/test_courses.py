@@ -41,6 +41,10 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.org = OrganizationFactory(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)  # pylint: disable=no-member
 
+    def tearDown(self):
+        super(CourseViewSetTests, self).tearDown()
+        self.client.logout()
+
     def mock_ecommerce_publication(self):
         url = '{root}publication/'.format(root=self.course.partner.ecommerce_api_url)
         responses.add(responses.POST, url, json={}, status=200)
@@ -49,19 +53,19 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(56):
+        with self.assertNumQueries(37):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, self.serialize_course(self.course))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.serialize_course(self.course))
 
     def test_get_uuid(self):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(56, threshold=3):
+        with self.assertNumQueries(37):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, self.serialize_course(self.course))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.serialize_course(self.course))
 
     def test_get_exclude_deleted_programs(self):
         """ Verify the endpoint returns no deleted associated programs """
@@ -69,8 +73,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         with self.assertNumQueries(37):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data.get('programs'), [])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.get('programs'), [])
 
     def test_get_include_deleted_programs(self):
         """
@@ -80,13 +84,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_deleted_programs=1'
-        with self.assertNumQueries(62):
+        with self.assertNumQueries(40):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(
-                response.data,
-                self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
-            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data,
+            self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
+        )
 
     def test_get_include_hidden_course_runs(self):
         """
@@ -216,13 +220,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(51, threshold=2):
+        with self.assertNumQueries(25):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertListEqual(
-                response.data['results'],
-                self.serialize_course(Course.objects.all().order_by(Lower('key')), many=True)
-            )
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(
+            response.data['results'],
+            self.serialize_course(Course.objects.all().order_by(Lower('key')), many=True)
+        )
 
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
@@ -232,9 +236,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
-        with self.assertNumQueries(85, threshold=3):
+        # Known to be flaky prior to the addition of tearDown()
+        # and logout() code which is the same number of additional queries
+        with self.assertNumQueries(34):
             response = self.client.get(url)
-            self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
     def test_list_key_filter(self):
         """ Verify the endpoint returns a list of courses filtered by the specified keys. """
@@ -243,9 +249,9 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        with self.assertNumQueries(85):
+        with self.assertNumQueries(34):
             response = self.client.get(url)
-            self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
     def test_list_uuid_filter(self):
         """ Verify the endpoint returns a list of courses filtered by the specified uuid. """
@@ -254,9 +260,9 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(85):
+        with self.assertNumQueries(34):
             response = self.client.get(url)
-            self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
