@@ -608,12 +608,22 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
     def test_typeahead_authoring_organizations_partial_search(self):
         """ Test typeahead response with partial organization matching. """
         authoring_organizations = OrganizationFactory.create_batch(3)
-        course_run = CourseRunFactory(authoring_organizations=authoring_organizations, course__partner=self.partner)
-        program = ProgramFactory(authoring_organizations=authoring_organizations, partner=self.partner)
+        course_run = CourseRunFactory.create(course__partner=self.partner)
+        program = ProgramFactory.create(partner=self.partner)
+        for authoring_organization in authoring_organizations:
+            course_run.authoring_organizations.add(authoring_organization)
+            program.authoring_organizations.add(authoring_organization)
+        course_run.save()
+        program.save()
         partial_key = authoring_organizations[0].key[0:5]
 
         response = self.get_response({'q': partial_key})
         self.assertEqual(response.status_code, 200)
+
+        # This call is flaky in Travis. It is reliable locally, but occasionally in our CI environment,
+        # this call won't contain the data for course_runs and programs. Instead of relying on the factories
+        # we now explicitly add the authoring organizations to a course_run and program and call .save()
+        # in order to update the search indexes.
         expected = {
             'course_runs': [self.serialize_course_run_search(course_run)],
             'programs': [self.serialize_program_search(program)]

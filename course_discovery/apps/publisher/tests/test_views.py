@@ -1169,6 +1169,14 @@ class CourseRunDetailTests(SiteMixin, TestCase):
             self.user, self.course, self.course_run_state, 'publisher:api:change_course_run_state'
         )
 
+        for expected_role in expected_roles:
+            expected_role.get('user_list', []).sort(key=lambda u: u.id)
+        for role_widget in response.context['role_widgets']:
+            role_widget.get('user_list', []).sort(key=lambda u: u.id)
+
+        # This call is flaky in Travis. It is reliable locally, but occasionally in our CI environment,
+        # this call returns an array which is not guaranteed to have an order, we do some post-processing
+        # to sort those fields in place to test for equivalence.
         self.assertEqual(response.context['role_widgets'], expected_roles)
 
     def test_detail_page_approval_widget_with_non_internal_user(self):
@@ -3499,12 +3507,16 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
 
         # create some bogus seats for the course run & verify the seats exists
         __ = [self.new_course_run.seats.create(type=seat_type) for _ in range(10)]
+        self.new_course_run.refresh_from_db()
         self.assert_seats(self.new_course_run, 10, [seat_type] * 10)
 
         # Make course run save post request and verify the correct course seats.
         data = {'image': '', 'type': Seat.VERIFIED, 'price': 100.00}
         post_data = self._post_data(data, self.new_course, self.new_course_run)
         self.client.post(self.edit_page_url, post_data)
+        # This call is flaky in Travis. It is reliable locally, but occasionally in our CI environment,
+        # this call won't delete 8 of the 10 seats. The self.new_course_run.refresh_from_db() call should
+        # hopefully fix this by having an explicit update occur before sending the data along via POST.
         self.assert_seats(self.new_course_run, 2, [Seat.AUDIT, Seat.VERIFIED])
         self.assertEqual(self.new_course_run.paid_seats.first().price, 100.00)
 
@@ -3598,9 +3610,14 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         # state will be change if the course-run state is other than draft.
         self.new_course_run.course_run_state.name = CourseRunStateChoices.Review
         self.new_course_run.course_run_state.save()
+        self.new_course_run.refresh_from_db()
         self.assertEqual(self.new_course_run.course_run_state.name, CourseRunStateChoices.Review)
         response = self.client.post(self.edit_page_url, self.updated_dict)
 
+        # This call is flaky in Travis. It is reliable locally, but occasionally in our CI environment,
+        # this call won't redirect, and instead will return a 400. This can occur from any exception
+        # being thrown, as well as any invalid form data. The self.new_course_run.refresh_from_db() call should
+        # hopefully fix this by having an explicit update occur before sending the data along via POST.
         self.assertRedirects(
             response,
             expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
