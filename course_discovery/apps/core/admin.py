@@ -42,12 +42,6 @@ class PartnerAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('name', 'short_code', 'lms_url', 'lms_admin_url', 'studio_url', 'publisher_url', 'site')
         }),
-        # DEPRECATED, remove when oidc_* fields are removed.
-        (_('OpenID Connect'), {
-            'description': _(
-                'OpenID Connect is used for front-end authentication as well as getting access to the APIs.'),
-            'fields': ('oidc_url_root', 'oidc_key', 'oidc_secret',)
-        }),
         (_('API Configuration'), {
             'description': _('Configure the APIs that will be used to retrieve data.'),
             'fields': ('courses_api_url',

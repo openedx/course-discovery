@@ -262,7 +262,6 @@ AUTHENTICATION_BACKENDS = (
     'auth_backends.backends.EdXOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
-    'auth_backends.backends.EdXOpenIdConnect',
 )
 
 CORS_ALLOW_CREDENTIALS = True
@@ -279,16 +278,6 @@ ENABLE_AUTO_AUTH = False
 AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
 
 SOCIAL_AUTH_STRATEGY = 'auth_backends.strategies.EdxDjangoStrategy'
-
-# These OIDC variables are DEPRECATED.
-SOCIAL_AUTH_EDX_OIDC_KEY = 'discovery-key'
-SOCIAL_AUTH_EDX_OIDC_SECRET = 'discovery-secret'
-SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_LOGOUT_URL = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
-SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
-SOCIAL_AUTH_EDX_OIDC_PUBLIC_URL_ROOT = 'http://127.0.0.1:8000/oauth2'
-SOCIAL_AUTH_EDX_OIDC_ISSUER = 'http://127.0.0.1:8000/oauth2'
 
 # Set these to the correct values for your OAuth2 provider (e.g., devstack)
 SOCIAL_AUTH_EDX_OAUTH2_KEY = "discovery-sso-key"

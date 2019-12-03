@@ -384,6 +384,12 @@ def get_course_run_estimated_hours(course_run):
     return (effort / 2) * weeks_to_complete if effort and weeks_to_complete else 0
 
 
+def subtract_deadline_delta(end, delta):
+    deadline = end - datetime.timedelta(days=delta)
+    deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
+    return deadline
+
+
 def calculated_seat_upgrade_deadline(seat):
     """ Returns upgraded deadline calculated using edX business logic.
 
@@ -398,9 +404,7 @@ def calculated_seat_upgrade_deadline(seat):
         if not seat.course_run.end:
             return None
 
-        deadline = seat.course_run.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
-        deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
-        return deadline
+        return subtract_deadline_delta(seat.course_run.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
 
     return None
 

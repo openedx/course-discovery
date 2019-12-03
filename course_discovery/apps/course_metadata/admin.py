@@ -240,8 +240,9 @@ class ProgramTypeAdmin(admin.ModelAdmin):
 
 @admin.register(Seat)
 class SeatAdmin(admin.ModelAdmin):
-    list_display = ('course_run', 'type', 'draft')
+    list_display = ('course_run', 'type', 'draft', 'upgrade_deadline_override',)
     raw_id_fields = ('draft_version',)
+    readonly_fields = ('_upgrade_deadline',)
 
 
 @admin.register(SeatType)
