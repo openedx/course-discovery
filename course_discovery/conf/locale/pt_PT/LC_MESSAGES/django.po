@@ -4,20 +4,26 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
-# Abel Camacho <abelcama@gmail.com>, 2016
-# Abel Camacho <abelcama@gmail.com>, 2017,2019
+# Ana Correia <mamede99@yahoo.com>, 2016
+# Beatriz Sousa <beatriz.sousa@bridgelk.com>, 2018
+# BridgeLK <Info@bridgelk.com>, 2018
+# Cátia Lopes <catia.lopes@bridgelk.com>, 2018-2019
+# Manuela Silva <manuelarodsilva@gmail.com>, 2018
+# Manuela Silva <manuelarodsilva@gmail.com>, 2016
+# MS, 2016,2018
+# Rui Ribeiro <rui.ribeiro@fccn.pt>, 2018-2019
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-15 20:13+0000\n"
-"PO-Revision-Date: 2019-11-19 11:18+0000\n"
-"Last-Translator: Abel Camacho <abelcama@gmail.com>\n"
-"Language-Team: Basque (Spain) (http://www.transifex.com/open-edx/edx-platform/language/eu_ES/)\n"
+"PO-Revision-Date: 2019-11-20 10:09+0000\n"
+"Last-Translator: Rui Ribeiro <rui.ribeiro@fccn.pt>\n"
+"Language-Team: Portuguese (Portugal) (http://www.transifex.com/open-edx/edx-platform/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: eu_ES\n"
+"Language: pt_PT\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py
@@ -66,7 +72,7 @@ msgstr ""
 
 #: apps/catalogs/models.py
 msgid "Catalog name"
-msgstr "Katalogoaren izena"
+msgstr ""
 
 #: apps/catalogs/models.py
 msgid "Query to retrieve catalog contents"
@@ -74,15 +80,15 @@ msgstr ""
 
 #: apps/core/admin.py
 msgid "Personal info"
-msgstr "Norberaren informazioa"
+msgstr ""
 
 #: apps/core/admin.py
 msgid "Permissions"
-msgstr "Baimenak"
+msgstr ""
 
 #: apps/core/admin.py
 msgid "Important dates"
-msgstr "Data garrantzitsuak"
+msgstr ""
 
 #: apps/core/admin.py
 msgid "OpenID Connect"
@@ -125,7 +131,7 @@ msgstr ""
 
 #: apps/core/models.py
 msgid "Full Name"
-msgstr "Izen osoa"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Referral Tracking ID"
@@ -140,7 +146,7 @@ msgstr ""
 
 #: apps/core/models.py
 msgid "Short Code"
-msgstr "Kode laburra"
+msgstr ""
 
 #: apps/core/models.py
 msgid ""
@@ -195,19 +201,19 @@ msgstr ""
 #: apps/core/models.py apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_all.html
 msgid "Studio URL"
-msgstr "Studio-ren URLa"
+msgstr ""
 
 #: apps/core/models.py
 msgid "LMS URL"
-msgstr "LMS-aren URLa"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Partner"
-msgstr "Partaidea"
+msgstr ""
 
 #: apps/core/models.py
 msgid "Partners"
-msgstr "Partaideak"
+msgstr ""
 
 #: apps/course_metadata/admin.py
 #, python-brace-format
@@ -222,11 +228,11 @@ msgstr ""
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "Yes"
-msgstr "Bai"
+msgstr ""
 
 #: apps/course_metadata/admin.py apps/publisher/forms.py
 msgid "No"
-msgstr "Ez"
+msgstr ""
 
 #: apps/course_metadata/admin.py
 msgid "Included course runs"
@@ -234,7 +240,7 @@ msgstr ""
 
 #: apps/course_metadata/choices.py apps/publisher/choices.py
 msgid "Published"
-msgstr "Argitaratuta"
+msgstr ""
 
 #: apps/course_metadata/choices.py
 msgid "Unpublished"
@@ -263,7 +269,7 @@ msgstr ""
 
 #: apps/course_metadata/choices.py
 msgid "Deleted"
-msgstr "Ezabatuta"
+msgstr ""
 
 #: apps/course_metadata/forms.py
 msgid "Programs can only be activated if they have a banner image."
@@ -271,19 +277,19 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Facebook"
-msgstr "Facebook"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Twitter"
-msgstr "Twitter"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Blog"
-msgstr "Bloga"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Others"
-msgstr "Bestelako batzuk"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "UUID"
@@ -327,11 +333,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "People"
-msgstr "Jendea"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Add the course image"
-msgstr "Gehitu ikastaroaren irudia"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
@@ -385,37 +391,37 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Current"
-msgstr "Oraingoa"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Starting Soon"
-msgstr "Laster hasiko da"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "Upcoming"
-msgstr "Laster"
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Honor"
-msgstr "Portaera"
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Audit"
-msgstr "Entzulea"
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
 #: apps/publisher/models.py
 msgid "Verified"
-msgstr "Egiaztatuta"
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/models.py
 msgid "Professional"
-msgstr "Profesionala"
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
 #: apps/publisher/models.py
 msgid "Credit"
-msgstr "Kreditua"
+msgstr ""
 
 #: apps/course_metadata/models.py apps/publisher/forms.py
 #: apps/publisher/models.py
@@ -423,11 +429,11 @@ msgstr "Kreditua"
 #: apps/publisher/templates/publisher/course_revision_history.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "FAQ"
-msgstr "FAQ"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid "FAQs"
-msgstr "FAQ-ak"
+msgstr ""
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -505,11 +511,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 #: apps/publisher/templates/publisher/course_run_detail/_preview_accept_popup.html
 msgid "Cancel"
-msgstr "Utzi"
+msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Back to Program"
-msgstr "Itzuli programara"
+msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Save Course Run"
@@ -521,7 +527,7 @@ msgstr ""
 
 #: apps/course_metadata/views.py
 msgid "The program was changed successfully."
-msgstr "Programa ondo aldatu da."
+msgstr ""
 
 #: apps/publisher/api/serializers.py
 #, python-brace-format
@@ -558,20 +564,20 @@ msgstr ""
 #: apps/publisher/choices.py
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "Course Team"
-msgstr "Ikastaroko taldea"
+msgstr ""
 
 #: apps/publisher/choices.py apps/publisher/models.py
 #: apps/publisher/wrappers.py
 msgid "Draft"
-msgstr "Zirriborroa"
+msgstr ""
 
 #: apps/publisher/choices.py
 msgid "Review"
-msgstr "Berrikusi"
+msgstr ""
 
 #: apps/publisher/choices.py
 msgid "Approved"
-msgstr "Onartuta"
+msgstr ""
 
 #: apps/publisher/emails.py
 #, python-brace-format
@@ -630,7 +636,7 @@ msgstr ""
 
 #: apps/publisher/emails.py
 msgid "Course team"
-msgstr "Ikastaroko taldea"
+msgstr ""
 
 #: apps/publisher/emails.py
 msgid "Legal Team"
@@ -643,18 +649,18 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Remove Image"
-msgstr "Ezabatu irudia"
+msgstr ""
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Organization Name"
-msgstr "Erakundearen izena"
+msgstr ""
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Course Title"
-msgstr "Ikastaroaren izenburua"
+msgstr ""
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -664,19 +670,19 @@ msgstr "Ikastaroaren izenburua"
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Course Number"
-msgstr "Ikastaro-zenbakia"
+msgstr ""
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Short Description"
-msgstr "Deskribapen laburra"
+msgstr ""
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Long Description"
-msgstr "Deskribapen luzea"
+msgstr ""
 
 #: apps/publisher/forms.py apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -691,7 +697,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Primary"
-msgstr "Lehen hezkuntza"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Additional Subject (optional)"
@@ -700,7 +706,7 @@ msgstr ""
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Level"
-msgstr "Maila"
+msgstr ""
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_detail.html
@@ -732,19 +738,19 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Find Course"
-msgstr "Bilatu ikastaroa"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Course Start Date"
-msgstr "Ikastaroaren hasiera-data"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Course End Date"
-msgstr "Ikastaroaren amaiera-data"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Instructor"
-msgstr "Irakaslea"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Pacing"
@@ -752,7 +758,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Transcript Languages"
-msgstr "Transkripzio-hizkuntzak"
+msgstr ""
 
 #: apps/publisher/forms.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
@@ -783,7 +789,7 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Video Language"
-msgstr "Bideoaren hizkuntza"
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Start date cannot be after the End date"
@@ -841,11 +847,11 @@ msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Price is required."
-msgstr "Prezioa beharrezkoa da."
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "This field is required."
-msgstr "Eremu hau beharrezkoa da."
+msgstr ""
 
 #: apps/publisher/forms.py
 msgid "Invalid course key."
@@ -865,11 +871,11 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course title"
-msgstr "Ikastaroaren izenburua"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course number"
-msgstr "Ikastaro-zenbakia"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Brief Description"
@@ -878,15 +884,15 @@ msgstr ""
 #: apps/publisher/models.py
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Full Description"
-msgstr "Deskribapen osoa"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Partner Name"
-msgstr "Partaidearen izena"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level Type"
-msgstr "Maila-mota"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Expected Learnings"
@@ -901,7 +907,7 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Video Link"
-msgstr "Bideoaren esteka"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Course Metadata Course PK"
@@ -909,27 +915,27 @@ msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 1"
-msgstr "1 maila"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 2"
-msgstr "2. maila"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 3"
-msgstr "3. maila"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 4"
-msgstr "4. maila"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Level 5"
-msgstr "5. maila"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Content Language"
-msgstr "Edukiaren hizkuntza"
+msgstr ""
 
 #: apps/publisher/models.py
 msgid "Length of course, in number of weeks"
@@ -1004,15 +1010,15 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail/_edit_warning_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_edit_warning.html
 msgid "Edit"
-msgstr "Editatu"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "New Instructor"
-msgstr "Irakasle berria"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Click here to upload your image"
-msgstr "Sakatu honi zure irudia kargatzeko"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "The image dimensions must be less than 110 x 110"
@@ -1024,7 +1030,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "First Name"
-msgstr "Izena"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "required"
@@ -1032,14 +1038,14 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Last Name"
-msgstr "Abizena"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Title"
-msgstr "Izenburua"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html
@@ -1060,7 +1066,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Organization"
-msgstr "Erakundea"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Enter a different organization"
@@ -1081,7 +1087,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "optional"
-msgstr "aukerakoa"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Twitter URL"
@@ -1089,7 +1095,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Blog URL"
-msgstr "Blogareb URLa"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html
 msgid "Major Works"
@@ -1122,7 +1128,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Accept"
-msgstr "Onartu"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Accepted"
@@ -1131,7 +1137,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "Publish"
-msgstr "Argitaratu"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "Submitted for review"
@@ -1144,7 +1150,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_approval_widget.html
 #: apps/publisher/templates/publisher/seat_form.html
 msgid "Save"
-msgstr "Gorde"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "ABOUT PAGE PREVIEW"
@@ -1180,7 +1186,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "change"
-msgstr "Aldatu"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_approval_widget.html
 msgid "CHANGE"
@@ -1192,7 +1198,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Privacy Policy"
-msgstr "Pribatutasun-politika"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_footer.html
 msgid "Legal"
@@ -1212,7 +1218,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_header.html
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Account"
-msgstr "Kontua"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Account Navigation"
@@ -1224,7 +1230,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Help"
-msgstr "Laguntza"
+msgstr ""
 
 #: apps/publisher/templates/publisher/_header.html
 msgid "Email notifications"
@@ -1298,7 +1304,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Create New Course"
-msgstr "Sortu beste ikastaro bat"
+msgstr "Criar Curso"
 
 #: apps/publisher/templates/publisher/add_course_form.html
 #: apps/publisher/templates/publisher/course_edit_form.html
@@ -1421,7 +1427,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "New Course Run"
-msgstr ""
+msgstr "Criar Nova Edição de Curso"
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid ""
@@ -1503,7 +1509,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/add_courserun_form.html
 msgid "Create New Course Run"
-msgstr ""
+msgstr "Criar Edição do Curso"
 
 #: apps/publisher/templates/publisher/admin/add_user_form.html
 msgid ""
@@ -1536,11 +1542,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "Submit"
-msgstr "Bidali"
+msgstr ""
 
 #: apps/publisher/templates/publisher/comments/add_auth_comments.html
 msgid "Add comment"
-msgstr "Gehitu iruzkina"
+msgstr ""
 
 #: apps/publisher/templates/publisher/comments/comments_list.html
 msgid "Submitted by"
@@ -1549,7 +1555,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_detail.html
 #: apps/publisher/templates/publisher/course_run_detail/_widgets.html
 msgid "EDIT"
-msgstr "EDITATU"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_detail.html
 msgid "Course Team Admin"
@@ -1627,7 +1633,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Edit Course"
-msgstr "Editatu ikastaroa"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -1659,7 +1665,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "SHORT DESCRIPTION"
-msgstr "DESKRIBAPEN LABURRA"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "An effective short description:"
@@ -1818,7 +1824,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Learn more."
-msgstr "Ikasi gehiago."
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "Each course in a sequence must have a unique image."
@@ -1910,7 +1916,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid "LEVEL"
-msgstr "MAILA"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html
 msgid ""
@@ -2061,7 +2067,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_published.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Course Name"
-msgstr "Ikastaroaren izena"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_list.html
 msgid "Runs"
@@ -2092,7 +2098,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Show changes"
-msgstr "Erakutsi aldaketak"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_revision_history.html
 msgid "Expected Learning"
@@ -2197,7 +2203,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid "LANGUAGE(S)"
-msgstr ""
+msgstr "IDIOMA(S)"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html
 msgid ""
@@ -2339,7 +2345,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Staff"
-msgstr "Arduradunak"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "to"
@@ -2347,7 +2353,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Languages"
-msgstr "Hizkuntzak"
+msgstr "Idiomas"
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Video Transcript Languages"
@@ -2364,7 +2370,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Keywords"
-msgstr "Gako-hitzak"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_drupal.html
 msgid "Sponsors"
@@ -2468,11 +2474,11 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Transcripts"
-msgstr ""
+msgstr "Idioma: Transcrições"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Language: Video"
-msgstr ""
+msgstr "Idioma: Vídeo"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Course Run"
@@ -2480,7 +2486,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "New or Rerun?"
-msgstr ""
+msgstr "Criar ou Nova Edição?"
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Platform"
@@ -2525,11 +2531,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html
 msgid "Start Date"
-msgstr "Hasiera-data"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "End Date"
-msgstr "Amaiera-data"
+msgstr ""
 
 #: apps/publisher/templates/publisher/course_run_detail/_salesforce.html
 msgid "Verified Registration Expiration Date"
@@ -2564,12 +2570,12 @@ msgstr ""
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 msgid "All"
-msgstr "Guztiak"
+msgstr ""
 
 #. Translators: Studio is an edX tool for course creation.
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
 msgid "STUDIO"
-msgstr "STUDIO"
+msgstr ""
 
 #. Translators: CAT is an acronym for Course Administration Tool.
 #: apps/publisher/templates/publisher/course_run_detail/course_run_detail.html
@@ -2693,7 +2699,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
 msgid "Start"
-msgstr "Hasi"
+msgstr ""
 
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html
 #: apps/publisher/templates/publisher/dashboard/_published.html
@@ -3274,7 +3280,7 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "COURSE TEAM"
-msgstr "IKASTAROKO TALDEA"
+msgstr ""
 
 #: apps/publisher/views.py
 msgid "Send for Review"
@@ -3286,7 +3292,7 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "course team"
-msgstr "ikastaroko taldea"
+msgstr ""
 
 #: apps/publisher/views.py
 msgid "project coordinator"
@@ -3352,7 +3358,7 @@ msgstr ""
 
 #: apps/publisher/views.py
 msgid "course"
-msgstr "ikastaroa"
+msgstr ""
 
 #: apps/publisher/views.py
 msgid "marketing"
@@ -3397,11 +3403,11 @@ msgstr ""
 
 #: apps/publisher_comments/emails.py
 msgid "Comment added:"
-msgstr "Iruzkina gehitu da:"
+msgstr ""
 
 #: apps/publisher_comments/emails.py
 msgid "Comment updated:"
-msgstr "Iruzkina eguneratu da:"
+msgstr ""
 
 #. Translators: subject_desc will be choice from ('New comment added',
 #. 'Comment updated'),
@@ -3429,7 +3435,7 @@ msgstr ""
 
 #: apps/publisher_comments/models.py
 msgid "Default"
-msgstr "Berezkoa"
+msgstr ""
 
 #: apps/publisher_comments/models.py
 msgid "Decline Preview"
