@@ -2,7 +2,6 @@ import datetime
 import itertools
 import logging
 from collections import Counter, defaultdict
-from operator import attrgetter
 from urllib.parse import urljoin
 from uuid import uuid4
 
@@ -840,10 +839,9 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         statuses = runs.values_list('status', flat=True).distinct().order_by('status')
         return list(statuses)
 
-    def update_marketing_redirects(self, published_runs=None):
+    def unpublish_inactive_runs(self, published_runs=None):
         """
-        Find old course runs that are no longer active but still published.
-        These will be unpublished and linked to an active course run.
+        Find old course runs that are no longer active but still published, these will be unpublished.
 
         Designed to work on official runs.
 
@@ -851,7 +849,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             published_runs (iterable): optional optimization; pass published CourseRuns to avoid a lookup
 
         Returns:
-            True if any redirects were changed
+            True if any runs were unpublished
         """
         if not self.partner.has_marketing_site:
             return False
@@ -864,16 +862,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         # (done in Python rather than hitting self.active_course_runs to avoid a second db query)
         now = datetime.datetime.now(pytz.UTC)
         inactive_runs = {run for run in published_runs if run.has_enrollment_ended(now)}
-        marketable_runs = {run for run in published_runs - inactive_runs if run.could_be_marketable}
-        if not marketable_runs or not inactive_runs:
-            return False  # if there are no runs to redirect from or to, there's no point in continuing
+        if not inactive_runs:
+            return False  # if there are no inactive runs, there's no point in continuing
 
-        # Find the earliest active run, to which we will redirect any inactive runs
-        earliest_marketable_run = min(marketable_runs, key=attrgetter('start'))
-
-        publisher = CourseRunMarketingSitePublisher(self.partner)
         for run in inactive_runs:
-            publisher.add_url_redirect(earliest_marketable_run, run)
             run.status = CourseRunStatus.Unpublished
             run.save()
             if run.draft_version:
@@ -1671,8 +1663,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
                 run.status = CourseRunStatus.Published
                 run.save(send_emails=send_emails)
 
-        # It is likely that we are sunsetting an old run in favor of this new run, so update redirects just in case
-        self.course.update_marketing_redirects()
+        # It is likely that we are sunsetting an old run in favor of this new run, so unpublish old runs just in case
+        self.course.unpublish_inactive_runs()
 
         return True
 

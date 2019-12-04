@@ -1,8 +1,10 @@
 # pylint: disable=no-member
+import datetime
 import json
 from urllib.parse import quote
 
 import ddt
+import pytz
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.db import IntegrityError
@@ -911,9 +913,12 @@ class ChangeCourseRunStateViewTests(APITestCase):
         Verify that publisher user can publish course run.
         """
         # Needs to be a backing course metadata object for publish to work
+        future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
         discovery_run = DiscoveryCourseRunFactory(key=self.course_run.lms_course_id,
                                                   status=DiscoveryCourseRunStatus.Unpublished,
-                                                  announcement=None)
+                                                  announcement=None,
+                                                  end=future,
+                                                  enrollment_end=future,)
 
         course = self.course_run.course
         self.run_state.name = CourseRunStateChoices.Approved

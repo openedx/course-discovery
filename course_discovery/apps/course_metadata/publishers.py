@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.exceptions import (
     AliasCreateError, AliasDeleteError, FormRetrievalError, NodeCreateError, NodeDeleteError, NodeEditError,
-    NodeLookupError, RedirectCreateError
+    NodeLookupError
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient, uslugify
 
@@ -303,40 +303,6 @@ class BaseMarketingSitePublisher:
 
             if response.status_code != 200:
                 raise AliasCreateError
-
-    def add_url_redirect(self, obj, previous_obj):
-        """
-        Add a url redirect from the previous object to the new node_id
-
-        Arguments:
-            obj (CourseRun): string of the node id
-            previous_obj (CourseRun): the old course run to redirect to
-        """
-        if not obj.could_be_marketable or not previous_obj.could_be_marketable:
-            # We won't find them on the marketing site, so don't bother
-            return
-
-        logger.info('Setting redirect from [%s] to [%s].', previous_obj.slug, obj.slug)
-
-        node_id = self.node_id(obj)
-        previous_node_id = self.node_id(previous_obj)
-
-        headers = {
-            'content-type': 'application/x-www-form-urlencoded'
-        }
-
-        data = {
-            **self.form_inputs(self.redirect_add_url),
-            'form_id': 'redirect_edit_form',
-            'op': 'Save',
-            'source': 'node/{}'.format(previous_node_id),
-            'redirect': 'node/{}'.format(node_id),
-        }
-
-        response = self.client.api_session.post(self.redirect_add_url, headers=headers, data=data)
-
-        if response.status_code != 200:
-            raise RedirectCreateError
 
 
 class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):

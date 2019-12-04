@@ -936,7 +936,6 @@ class CourseRunStateTests(MarketingSitePublisherTestMixin):
         second.refresh_from_db()
         third.refresh_from_db()
 
-        assert responses.calls[-1].request.url.endswith('/admin/config/search/redirect/add')
         self.assertIsNotNone(primary.announcement)
         self.assertEqual(primary.status, CourseRunStatus.Published)
         self.assertEqual(second.status, CourseRunStatus.Published)  # doesn't change end=None runs
