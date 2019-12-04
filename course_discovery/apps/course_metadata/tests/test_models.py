@@ -160,127 +160,70 @@ class TestCourse(TestCase):
         self.assertEqual(sorted(out_of_order_runs, key=course.course_run_sort), expected_order)
 
 
-class TestCourseUpdateMarketingRedirects(MarketingSitePublisherTestMixin, TestCase):
+class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
         cls.course = factories.CourseFactory()
         cls.partner = cls.course.partner
         cls.past = datetime.datetime(2010, 1, 1, tzinfo=pytz.UTC)
+        cls.future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
         cls.base_args = {'course': cls.course, 'status': CourseRunStatus.Published}
-        cls.active = factories.CourseRunFactory(**cls.base_args, end=None, enrollment_end=None)
-        cls.inactive = factories.CourseRunFactory(**cls.base_args, end=cls.past)
+        cls.active = factories.CourseRunFactory(end=cls.future, enrollment_end=cls.future, **cls.base_args)
+        cls.inactive = factories.CourseRunFactory(end=cls.past, **cls.base_args)
         ensure_draft_world(Course.objects.get(pk=cls.course.pk))
         cls.api_root = cls.partner.marketing_site_url_root.rstrip('/')  # overwrite the mixin's version
 
-    def assertRedirect(self, published_runs=None, succeed=True, to_run=None, from_runs=None):
+    def assertUnpublish(self, published_runs=None, succeed=True):
         """
         Args:
-            published_runs: Runs to pass to the redirect call
-            succeed: Whether the redirect should return True or False
-            to_run: A CourseRun that all from_runs are redirected to
-            from_runs: An iterable of CourseRuns you expect to be redirected from
+            published_runs: Runs to pass to the unpublish call
+            succeed: Whether the unpublish should return True or False
         """
-        if to_run is None:
-            to_run = self.active
-        if from_runs is None:
-            from_runs = [self.inactive]
 
-        path = 'course_discovery.apps.course_metadata.models.CourseRunMarketingSitePublisher.add_url_redirect'
-        with mock.patch(path) as mock_redirect:
-            self.assertEqual(self.course.update_marketing_redirects(published_runs=published_runs), succeed)
+        self.assertEqual(self.course.unpublish_inactive_runs(published_runs=published_runs), succeed)
 
         if succeed:
-            self.assertEqual(mock_redirect.call_count, len(from_runs))
-            self.assertEqual({x[0][0] for x in mock_redirect.call_args_list}, {to_run})
-            self.assertEqual({x[0][1] for x in mock_redirect.call_args_list}, frozenset(from_runs))
+            self.active.refresh_from_db()
+            self.assertEqual(self.active.status, CourseRunStatus.Published)  # should have stayed the same
 
-            to_run.refresh_from_db()
-            self.assertEqual(to_run.status, CourseRunStatus.Published)  # should have stayed the same
-
-            for from_run in from_runs:
-                from_run.refresh_from_db()
-                self.assertEqual(from_run.status, CourseRunStatus.Unpublished)
-                if from_run.draft_version:
-                    self.assertEqual(from_run.draft_version.status, CourseRunStatus.Unpublished)
-        else:
-            self.assertEqual(mock_redirect.call_count, 0)
+            self.inactive.refresh_from_db()
+            self.assertEqual(self.inactive.status, CourseRunStatus.Unpublished)
+            if self.inactive.draft_version:
+                self.assertEqual(self.inactive.draft_version.status, CourseRunStatus.Unpublished)
 
     def test_simple_happy_path(self):
-        self.assertRedirect()
+        self.assertUnpublish()
 
     def test_no_marketing_site(self):
         # Without
         self.partner.marketing_site_url_root = None
         self.partner.save()
-        self.assertRedirect(succeed=False)
+        self.assertUnpublish(succeed=False)
 
         # Confirm that with will work
         self.partner.marketing_site_url_root = self.api_root
         self.partner.save()
-        self.assertRedirect()
-
-    def test_no_active_runs(self):
-        # No active runs returns False
-        self.active.status = CourseRunStatus.Unpublished
-        self.active.save()
-        self.assertRedirect(succeed=False)
-
-        # Confirm that with an active, it will redirect
-        self.active.status = CourseRunStatus.Published
-        self.active.save()
-        self.assertRedirect()
-
-    def test_no_inactive_runs(self):
-        # No inactive runs returns False
-        self.inactive.status = CourseRunStatus.Unpublished
-        self.inactive.save()
-        self.assertRedirect(succeed=False)
-
-        # Confirm that with an inactive, it will redirect
-        self.inactive.status = CourseRunStatus.Published
-        self.inactive.save()
-        self.assertRedirect()
+        self.assertUnpublish()
 
     def test_ignores_unpublished(self):
         factories.CourseRunFactory(course=self.course, status=CourseRunStatus.Unpublished, end=self.past)
         factories.CourseRunFactory(course=self.course, status=CourseRunStatus.Reviewed, end=self.past)
         factories.CourseRunFactory(course=self.course, status=CourseRunStatus.InternalReview, end=self.past)
         factories.CourseRunFactory(course=self.course, status=CourseRunStatus.LegalReview, end=self.past)
-        self.assertRedirect()
-
-    def test_multiple_redirects(self):
-        inactive2 = factories.CourseRunFactory(**self.base_args, end=self.past)
-        self.assertRedirect(from_runs={self.inactive, inactive2})
-
-    def test_earliest_active_run_is_target(self):
-        latest = self.active.start
-        earlier = latest - datetime.timedelta(days=1)
-        earliest = earlier - datetime.timedelta(days=1)
-        active2 = factories.CourseRunFactory(**self.base_args, end=None, enrollment_end=None, start=earlier)
-
-        # active2 is earliest
-        self.assertRedirect(to_run=active2)
-
-        # Swap which is earlier and confirm we change which we redirect to
-        self.inactive.status = CourseRunStatus.Published
-        self.inactive.save()
-        self.active.start = earliest
-        self.active.save()
-        self.assertRedirect(to_run=self.active)
+        self.assertUnpublish()
 
     def test_accepts_run_list(self):
-        inactive2 = factories.CourseRunFactory(**self.base_args, end=self.past)
-        self.assertRedirect(published_runs={self.active, inactive2}, from_runs={inactive2})
+        self.assertUnpublish(published_runs={self.active, self.inactive})
 
     def test_uses_earliest_of_end_or_enrollment_end(self):
         future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
-        no_end = factories.CourseRunFactory(**self.base_args, end=None, enrollment_end=self.past)
-        no_enrollment_end = factories.CourseRunFactory(**self.base_args, end=self.past, enrollment_end=None)
-        earlier_end = factories.CourseRunFactory(**self.base_args, end=self.past, enrollment_end=future)
-        earlier_enrollment_end = factories.CourseRunFactory(**self.base_args, end=future, enrollment_end=self.past)
+        _no_end = factories.CourseRunFactory(**self.base_args, end=None, enrollment_end=self.past)
+        _no_enrollment_end = factories.CourseRunFactory(**self.base_args, end=self.past, enrollment_end=None)
+        _earlier_end = factories.CourseRunFactory(**self.base_args, end=self.past, enrollment_end=future)
+        _earlier_enrollment_end = factories.CourseRunFactory(**self.base_args, end=future, enrollment_end=self.past)
         _in_future = factories.CourseRunFactory(**self.base_args, end=future, enrollment_end=future, start=future)
-        self.assertRedirect(from_runs={self.inactive, no_end, no_enrollment_end, earlier_end, earlier_enrollment_end})
+        self.assertUnpublish()
 
 
 class TestCourseEditor(TestCase):
@@ -754,7 +697,15 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     @ddt.unpack
     @mock.patch('course_discovery.apps.course_metadata.emails.send_email_for_reviewed')
     def test_reviewed_with_go_live_date(self, when, published, mock_email):
-        draft = factories.CourseRunFactory(draft=True, go_live_date=when, announcement=None)
+        draft = factories.CourseRunFactory(
+            draft=True,
+            go_live_date=when,
+            announcement=None,
+        )
+        end = when + datetime.timedelta(days=50) if when else None
+        if end:  # Both end and enrollment_end need to be in the future or else runs will be set to unpublished
+            draft.end = end
+            draft.enrollment_end = end
         draft.course.draft = True
         draft.course.save()
 
@@ -782,9 +733,15 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         self.assertEqual(draft.status, CourseRunStatus.Unpublished)
 
     def test_publish_affects_draft_version_too(self):
-        draft = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, announcement=None, draft=True)
-        official = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, announcement=None, draft=False,
-                                              course=draft.course, draft_version=draft)
+        end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
+        draft = factories.CourseRunFactory(
+            status=CourseRunStatus.Unpublished, announcement=None,
+            draft=True, end=end, enrollment_end=end,
+        )
+        official = factories.CourseRunFactory(
+            status=CourseRunStatus.Unpublished, announcement=None, draft=False,
+            course=draft.course, draft_version=draft, end=end, enrollment_end=end,
+        )
 
         self.assertTrue(official.publish())
         draft.refresh_from_db()

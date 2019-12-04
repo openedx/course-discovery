@@ -3,12 +3,12 @@ from django.core.management import CommandError
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.exceptions import RedirectCreateError
-from course_discovery.apps.course_metadata.management.commands.update_marketing_redirects import Command
+from course_discovery.apps.course_metadata.exceptions import UnpublishError
+from course_discovery.apps.course_metadata.management.commands.unpublish_inactive_runs import Command
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
 
 
-@mock.patch('course_discovery.apps.course_metadata.models.Course.update_marketing_redirects')
+@mock.patch('course_discovery.apps.course_metadata.models.Course.unpublish_inactive_runs')
 class PublishLiveCourseRunsTests(TestCase):
     def handle(self):
         Command().handle()
@@ -34,7 +34,7 @@ class PublishLiveCourseRunsTests(TestCase):
         CourseRunFactory(status=CourseRunStatus.Published)
         CourseRunFactory(status=CourseRunStatus.Published)
 
-        mock_redirect.side_effect = [RedirectCreateError, None]
+        mock_redirect.side_effect = [UnpublishError, None]
         with self.assertRaises(CommandError):
             self.handle()
 

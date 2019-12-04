@@ -47,5 +47,5 @@ class PersonToMarketingException(Exception):
         self.message = '{exception_msg} {suffix}'.format(exception_msg=message, suffix=suffix)
 
 
-class RedirectCreateError(MarketingSitePublisherException):
+class UnpublishError(MarketingSitePublisherException):
     pass

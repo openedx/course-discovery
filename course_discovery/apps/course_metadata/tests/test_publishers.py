@@ -10,7 +10,7 @@ from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.exceptions import (
     AliasCreateError, AliasDeleteError, FormRetrievalError, NodeCreateError, NodeDeleteError, NodeEditError,
-    NodeLookupError, RedirectCreateError
+    NodeLookupError
 )
 from course_discovery.apps.course_metadata.publishers import (
     BaseMarketingSitePublisher, CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -356,33 +356,6 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         expected = 'course/{slug}'.format(slug=self.obj.slug)
 
         assert actual == expected
-
-    @responses.activate
-    @ddt.data(200, 500)
-    def test_redirect_url(self, status):
-        """
-        Verify that the publisher attempts to create a new redirect url from
-        an old course run to the new course run and that appropriate
-        exceptions are raised for non-200 status codes.
-        """
-        previous_obj = CourseRunFactory()
-        self.mock_api_client()
-
-        # Need to mock the node retrievals that happen inside of the add_url_redirect method
-        lookup_value = getattr(self.obj, self.publisher.unique_field)
-        self.mock_node_retrieval(self.publisher.node_lookup_field, lookup_value)
-        lookup_value = getattr(previous_obj, self.publisher.unique_field)
-        self.mock_node_retrieval(self.publisher.node_lookup_field, lookup_value)
-
-        self.mock_get_redirect_form()
-        self.mock_add_redirect(status=status)
-
-        if status == 200:
-            self.publisher.add_url_redirect(self.obj, previous_obj)
-            self.assertEqual(responses.calls[-1].request.url, '{}/add'.format(self.publisher.redirect_api_base))
-        else:
-            with pytest.raises(RedirectCreateError):
-                self.publisher.add_url_redirect(self.obj, previous_obj)
 
 
 class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
