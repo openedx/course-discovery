@@ -105,7 +105,8 @@ oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 openapi-codec==1.3.2      # via django-rest-swagger
 packaging==19.2           # via pytest, sphinx
 paramiko==2.6.0           # via docker
-path.py==12.0.2           # via edx-i18n-tools
+path.py==12.4.0           # via edx-i18n-tools
+path==13.1.0              # via path.py
 pathlib2==2.3.5           # via pytest
 pbr==5.4.4                # via stevedore
 pillow==6.2.1
