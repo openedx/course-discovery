@@ -51,6 +51,7 @@ class ProgramEligibilityFilter(admin.SimpleListFilter):
 class SeatInline(admin.TabularInline):
     model = Seat
     extra = 1
+    readonly_fields = ('_upgrade_deadline',)
 
 
 class PositionInline(admin.TabularInline):
