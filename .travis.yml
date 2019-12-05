@@ -18,7 +18,7 @@ cache:
     - course_discovery/static/bower_components
 
 before_install:
-    - make travis_up
+    - travis_wait make travis_up
 
 matrix:
   include:
