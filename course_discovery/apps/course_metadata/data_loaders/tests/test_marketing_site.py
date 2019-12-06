@@ -15,7 +15,7 @@ from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import Course, Organization, Subject
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, PartnerFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 from course_discovery.apps.course_metadata.utils import clean_html
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.marketing_site.logger'
@@ -279,10 +279,9 @@ class CourseMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixi
     def setup_courses(self):
         # In our current world, we do not create courses from
         # marketing site data, but we need them for creating redirects.
-        partner = PartnerFactory()
         for course in self.mocked_data:
             title = course['field_course_course_title']['value']
-            mocked = CourseFactory(key=self.get_key_from_mocked_data(course), partner=partner, title=title)
+            mocked = CourseFactory(key=self.get_key_from_mocked_data(course), partner=self.partner, title=title)
             mocked.set_active_url_slug('')  # force the active url slug to be the slugified title
 
     @responses.activate
