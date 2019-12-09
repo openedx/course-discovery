@@ -402,11 +402,7 @@ def calculated_seat_upgrade_deadline(seat):
     return None
 
 
-def serialize_seat_for_ecommerce_api(seat):
-    # Avoid circular imports
-    from course_discovery.apps.course_metadata.models import Seat
-
-    slug = seat.type if isinstance(seat.type, str) else seat.type.slug
+def serialize_seat_for_ecommerce_api(seat, mode):
     return {
         'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
         'price': str(seat.price),
@@ -414,11 +410,11 @@ def serialize_seat_for_ecommerce_api(seat):
         'attribute_values': [
             {
                 'name': 'certificate_type',
-                'value': '' if slug == Seat.AUDIT else slug,
+                'value': mode.certificate_type,
             },
             {
                 'name': 'id_verification_required',
-                'value': slug in (Seat.VERIFIED, Seat.PROFESSIONAL),
+                'value': mode.is_id_verified,
             }
         ]
     }
@@ -442,22 +438,29 @@ def push_to_ecommerce_for_course_run(course_run):
     Args:
         course_run: Official version of a course_metadata CourseRun
     """
-    # Avoid circular imports
-    from course_discovery.apps.course_metadata.models import Seat
-
     course = course_run.course
     api = course.partner.lms_api_client
     if not api or not course.partner.ecommerce_api_url:
         return False
 
-    seats = course_run.seats.exclude(type__in=Seat.NON_PRODUCT_MODES)
-    entitlements = course.entitlements.all()  # no need to exclude - entitlements are always an ecommerce thing
+    entitlements = course.entitlements.all()
+
+    # Figure out which seats to send (skip ones that have no ecom products - like Masters - or are just misconfigured).
+    # This is dumb and does basically a O(n^2) inner join here to match seats to modes. I feel like the Django
+    # ORM has a better solution for this, but I couldn't find it easily. These lists are small anyway.
+    tracks = course_run.type.tracks.all()
+    seats_with_modes = []
+    for seat in course_run.seats.all():
+        for track in tracks:
+            if track.seat_type and seat.type == track.seat_type:
+                seats_with_modes.append((seat, track.mode))
+                break
 
     discovery_products = []
     serialized_products = []
-    if seats:
-        serialized_products.extend([serialize_seat_for_ecommerce_api(s) for s in seats])
-        discovery_products.extend(list(seats))
+    if seats_with_modes:
+        serialized_products.extend([serialize_seat_for_ecommerce_api(s[0], s[1]) for s in seats_with_modes])
+        discovery_products.extend([s[0] for s in seats_with_modes])
     if entitlements:
         serialized_products.extend([serialize_entitlement_for_ecommerce_api(e) for e in entitlements])
         discovery_products.extend(list(entitlements))
