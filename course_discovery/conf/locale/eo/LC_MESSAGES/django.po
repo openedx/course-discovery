@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-25 20:06+0000\n"
+"POT-Creation-Date: 2019-12-09 20:31+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -168,13 +168,6 @@ msgstr ""
 
 #: apps/api/v1/views/courses.py
 #, python-brace-format
-msgid "Entitlement Track [{entitlement_type}] does not exist. "
-msgstr ""
-"Éntïtlémént Träçk [{entitlement_type}] döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя "
-"ѕιт αмєт, ¢σηѕє¢тєтυя#"
-
-#: apps/api/v1/views/courses.py
-#, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
 msgstr ""
 "Çöürsé Týpé [{course_type}] döés nöt éxïst.  Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -195,23 +188,6 @@ msgid ""
 msgstr ""
 "Çöürsé çréätïön wäs ünsüççéssfül. Thé çöürsé ÛRL slüg ‘[{url_slug}]’ ïs "
 "älréädý ïn üsé. Pléäsé üpdäté thïs fïéld änd trý ägäïn. Ⱡ'σяєм ιρѕυ#"
-
-#: apps/api/v1/views/courses.py
-msgid "Entitlements must have a mode specified."
-msgstr ""
-"Éntïtléménts müst hävé ä mödé spéçïfïéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя#"
-
-#: apps/api/v1/views/courses.py
-msgid "Entitlement mode {} not found."
-msgstr "Éntïtlémént mödé {} nöt föünd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
-
-#: apps/api/v1/views/courses.py
-#, python-brace-format
-msgid "Existing entitlement not found for course {0}."
-msgstr ""
-"Éxïstïng éntïtlémént nöt föünd för çöürsé {0}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя α#"
 
 #: apps/api/v1/views/courses.py
 msgid ""

@@ -678,7 +678,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     start = serializers.DateTimeField(required=True)  # required so we can craft key number from it
     end = serializers.DateTimeField(required=True)  # required by studio
     type = serializers.CharField(read_only=True, source='type_legacy')
-    run_type = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='uuid', source='type',
+    run_type = serializers.SlugRelatedField(required=True, slug_field='uuid', source='type',
                                             queryset=CourseRunType.objects.all())
     term = serializers.CharField(required=False, write_only=True)
 
@@ -898,8 +898,7 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     entitlements = CourseEntitlementSerializer(required=False, many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
     image = ImageField(read_only=True, source='image_url')
-    type = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='uuid',
-                                        queryset=CourseType.objects.all())
+    type = serializers.SlugRelatedField(required=True, slug_field='uuid', queryset=CourseType.objects.all())
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
     url_slug = serializers.SerializerMethodField()
 

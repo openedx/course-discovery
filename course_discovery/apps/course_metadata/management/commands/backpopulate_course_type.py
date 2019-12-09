@@ -5,9 +5,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 
-from course_discovery.apps.course_metadata.models import (
-    BackpopulateCourseTypeConfig, Course, CourseRunType, CourseType, Seat, SeatType
-)
+from course_discovery.apps.course_metadata.models import BackpopulateCourseTypeConfig, Course, CourseRunType, CourseType
 
 logger = logging.getLogger(__name__)
 
@@ -87,12 +85,6 @@ class Command(BaseCommand):
     def do_entitlements_match(self, course, course_type):
         course_entitlement_modes = set(course.entitlements.values_list('mode', flat=True))
         type_entitlement_modes = set(course_type.entitlement_types.values_list('id', flat=True))
-
-        # Before we had CourseType, we allowed draft audit entitlements (which would never become official) to help
-        # Publisher treat the various enrollment types with the same code path. So if we see an audit entitlement,
-        # it's allowable as a legacy object.
-        if course.draft and not type_entitlement_modes and course_entitlement_modes == {self.audit_seat_type.id}:
-            course_entitlement_modes = set()
 
         # Allow old courses without entitlements by checking if it has any first
         mismatched_entitlements = course_entitlement_modes and course_entitlement_modes != type_entitlement_modes
@@ -194,9 +186,6 @@ class Command(BaseCommand):
         if options['partner'] is None:
             self.print_help('manage.py', 'backpopulate_course_type')
             raise CommandError(_('You must specify --partner'))
-
-        # just cache the audit seat type for use later
-        self.audit_seat_type = SeatType.objects.get(slug=Seat.AUDIT)  # pylint: disable=attribute-defined-outside-init
 
         self.mismatches = {}  # pylint: disable=attribute-defined-outside-init
         if options['allow_for']:

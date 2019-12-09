@@ -251,29 +251,6 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.assertEqual(self.course.type, self.va_course_type)
         self.assertEqual(self.course2.type, self.audit_course_type)
 
-    def test_draft_audit_entitlement(self):
-        # We are removing the Audit Course Type to test this working with a CourseType that has
-        # no entitlement types (simulated below)
-        CourseType.objects.get(slug=CourseType.AUDIT).delete()
-        draft_course = ensure_draft_world(Course.objects.get(pk=self.course2.pk))
-        self.course2.refresh_from_db()
-        self.assertEqual(draft_course.entitlements.first().mode.slug, Seat.AUDIT)  # made a draft audit entitlement
-        self.assertIsNone(self.course2.entitlements.first())  # but official is still empty
-
-        # Will fail without an audit-only CourseType
-        self.run_command(courses=[self.course2], fails=draft_course)  # self.course2 passes with V&A type
-
-        # Now make the missing audit-only CourseType and try again
-        audit_course_type = factories.CourseTypeFactory(name='Audit Only', entitlement_types=[],
-                                                        course_run_types=[self.audit_run_type])
-
-        self.run_command(courses=[self.course2])
-        draft_course.refresh_from_db()
-        self.assertEqual(self.course2.type, self.va_course_type)  # matched in first pass
-        self.assertEqual(self.c2_audit_run.type, self.audit_run_type)
-        self.assertEqual(draft_course.type, audit_course_type)
-        self.assertEqual(set(draft_course.course_runs.values_list('type', flat=True)), {self.audit_run_type.id})
-
     def test_courses_with_honor_seats(self):
         honor_seat_type = factories.SeatTypeFactory.honor()
         honor_track = factories.TrackFactory(seat_type=honor_seat_type)

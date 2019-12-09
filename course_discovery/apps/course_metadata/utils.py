@@ -224,7 +224,7 @@ def create_missing_entitlement(course):
     return False
 
 
-def ensure_draft_world(obj, course_type=None):
+def ensure_draft_world(obj):
     """
     Ensures the draft world exists for an object. The draft world is defined as all draft objects related to
     the incoming draft object. For now, this will create the draft Course, all draft Course Runs associated
@@ -239,7 +239,7 @@ def ensure_draft_world(obj, course_type=None):
     Returns:
         obj (Model object): The returned object will be the draft version on the input object.
     """
-    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat, SeatType
+    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat
     if obj.draft:
         return obj
     elif obj.draft_version:
@@ -276,15 +276,8 @@ def ensure_draft_world(obj, course_type=None):
         if original_course.entitlements.exists():
             for entitlement in original_course.entitlements.all():
                 set_draft_state(entitlement, CourseEntitlement, {'course': draft_course})
-        elif not create_missing_entitlement(draft_course) and not course_type:
-            mode = SeatType.objects.get(slug=Seat.AUDIT)
-            CourseEntitlement.objects.create(
-                course=draft_course,
-                mode=mode,
-                partner=draft_course.partner,
-                price=0.00,
-                draft=True,
-            )
+        else:
+            create_missing_entitlement(draft_course)
 
         draft_course.save()
         # must re-get from db to ensure related fields like course_runs are updated (refresh_from_db isn't enough)

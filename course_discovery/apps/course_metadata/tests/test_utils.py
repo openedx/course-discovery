@@ -477,17 +477,6 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         self.assertEqual(draft_entitlement.currency, seat.currency)
         self.assertEqual(draft_entitlement.mode.slug, Seat.VERIFIED)
 
-    def test_ensure_draft_world_creates_audit_course_entitlement_as_last_resort(self):
-        """
-        If the official course has no entitlement and odd seats, a draft audit entitlement should be created.
-        """
-        course = CourseFactory()
-        ensured_draft_course = utils.ensure_draft_world(course)
-
-        draft_entitlement = ensured_draft_course.entitlements.first()
-        self.assertEqual(draft_entitlement.price, 0.00)
-        self.assertEqual(draft_entitlement.mode.slug, Seat.AUDIT)
-
 
 @ddt.ddt
 class TestCreateMissingEntitlement(TestCase):

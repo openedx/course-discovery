@@ -454,6 +454,33 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         self.assert_run_and_course_updated(datum, draft_run, draft_exists, True, partner_uses_publisher)
         self.assert_run_and_course_updated(datum, official_run, official_exists, False, partner_uses_publisher)
 
+    def test_assigns_types(self):
+        """
+        Verify we set the special empty course and course run types when creating courses and runs.
+        And that we copy the type of the most recent run if it exists.
+        """
+        # First, confirm that we make new courses and runs with the empty type.
+        self.mock_api([mock_data.COURSES_API_BODY_ORIGINAL])
+        self.loader.ingest()
+
+        course_run = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_ORIGINAL['id'])
+        self.assertIsNotNone(course_run.type)
+        self.assertEqual(course_run.type.slug, CourseRunType.EMPTY)
+
+        course = course_run.course
+        self.assertIsNotNone(course.type)
+        self.assertEqual(course.type.slug, CourseType.EMPTY)
+
+        # Now confirm that we will copy the last run type if available.
+        course_run.type = CourseRunType.objects.get(slug=CourseRunType.VERIFIED_AUDIT)
+        course_run.save(suppress_publication=True)
+        responses.reset()
+        self.mock_api([mock_data.COURSES_API_BODY_SECOND])
+        self.loader.ingest()
+
+        course_run2 = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_SECOND['id'])
+        self.assertEqual(course_run2.type, course_run.type)
+
     def test_get_pacing_type_field_missing(self):
         """ Verify the method returns None if the API response does not include a pacing field. """
         self.assertIsNone(self.loader.get_pacing_type({}))

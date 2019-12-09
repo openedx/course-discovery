@@ -18,7 +18,8 @@ from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
+    Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType,
+    Video
 )
 from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run, subtract_deadline_delta
 from course_discovery.apps.publisher.utils import is_course_on_new_pub_fe
@@ -210,6 +211,14 @@ class CoursesApiDataLoader(AbstractDataLoader):
         new_pub_fe = is_course_on_new_pub_fe(course)
         defaults = self.format_course_run_data(body, course=course, new_pub_fe=new_pub_fe)
 
+        # Set type to be the same as the most recent run as a best guess.
+        # Else mark the run type as empty and RCM will upgrade if it can.
+        latest_run = course.course_runs.order_by('-created').first()
+        if latest_run and latest_run.type:
+            defaults['type'] = latest_run.type
+        else:
+            defaults['type'] = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
+
         return CourseRun.objects.create(**defaults)
 
     def get_or_create_course(self, body):
@@ -220,6 +229,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         # separators when constructing the create request
         defaults['key'] = course_key
         defaults['partner'] = self.partner
+        defaults['type'] = CourseType.objects.get(slug=CourseType.EMPTY)
 
         course, created = Course.objects.get_or_create(key__iexact=course_key, partner=self.partner, defaults=defaults)
 
