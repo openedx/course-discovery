@@ -292,7 +292,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
         node_redirects = self.redirects.get(node_id, [])
         course_key = self.find_course_key(data)
         try:
-            course = Course.objects.get(key__iexact=course_key)
+            course = Course.objects.get(key__iexact=course_key, partner=self.partner)
         except Course.DoesNotExist:
             logger.info('No course found for %s', course_key)
             return
