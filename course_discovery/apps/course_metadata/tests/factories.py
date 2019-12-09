@@ -447,6 +447,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     title = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
     uuid = factory.LazyFunction(uuid4)
     subtitle = FuzzyText()
+    marketing_hook = FuzzyText()
     type = factory.SubFactory(ProgramTypeFactory)
     status = ProgramStatus.Active
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda

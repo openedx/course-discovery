@@ -987,6 +987,7 @@ class MinimalProgramSerializerTests(TestCase):
             'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
             'degree': None,
             'curricula': [],
+            'marketing_hook': program.marketing_hook,
         }
 
     def test_data(self):
@@ -2169,6 +2170,7 @@ class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
     def get_expected_data(cls, program, request):
         expected = ProgramSerializerTests.get_expected_data(program, request)
         expected.update({'content_type': 'program'})
+        expected.update({'marketing_hook': program.marketing_hook})
         return expected
 
 

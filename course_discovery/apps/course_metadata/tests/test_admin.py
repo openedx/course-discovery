@@ -296,15 +296,16 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             actual += [_class for _class in element.get_attribute('class').split(' ') if _class.startswith('field-')]
 
         expected = [
-            'field-uuid', 'field-title', 'field-subtitle', 'field-status', 'field-type', 'field-partner',
-            'field-banner_image', 'field-banner_image_url', 'field-card_image_url', 'field-marketing_slug',
-            'field-overview', 'field-credit_redemption_overview', 'field-video', 'field-total_hours_of_effort',
-            'field-weeks_to_complete', 'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week',
-            'field-courses', 'field-order_courses_by_start_date', 'field-custom_course_runs_display',
-            'field-excluded_course_runs', 'field-authoring_organizations', 'field-credit_backing_organizations',
-            'field-one_click_purchase_enabled', 'field-hidden', 'field-corporate_endorsements', 'field-faq',
-            'field-individual_endorsements', 'field-job_outlook_items', 'field-expected_learning_items',
-            'field-instructor_ordering', 'field-enrollment_count', 'field-recent_enrollment_count',
+            'field-uuid', 'field-title', 'field-subtitle', 'field-marketing_hook',
+            'field-status', 'field-type', 'field-partner', 'field-banner_image', 'field-banner_image_url',
+            'field-card_image_url', 'field-marketing_slug', 'field-overview', 'field-credit_redemption_overview',
+            'field-video', 'field-total_hours_of_effort', 'field-weeks_to_complete', 'field-min_hours_effort_per_week',
+            'field-max_hours_effort_per_week', 'field-courses', 'field-order_courses_by_start_date',
+            'field-custom_course_runs_display', 'field-excluded_course_runs', 'field-authoring_organizations',
+            'field-credit_backing_organizations', 'field-one_click_purchase_enabled', 'field-hidden',
+            'field-corporate_endorsements', 'field-faq', 'field-individual_endorsements', 'field-job_outlook_items',
+            'field-expected_learning_items', 'field-instructor_ordering', 'field-enrollment_count',
+            'field-recent_enrollment_count',
         ]
         self.assertEqual(actual, expected)
 

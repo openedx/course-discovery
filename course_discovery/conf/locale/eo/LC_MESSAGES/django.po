@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-09 20:31+0000\n"
+"POT-Creation-Date: 2019-12-10 16:20+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1083,20 +1083,20 @@ msgstr ""
 "Päth {url_path} nöt ïn üsé, nöthïng tö délété Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
 
-#: apps/course_metadata/management/commands/update_marketing_redirects.py
+#: apps/course_metadata/management/commands/unpublish_inactive_runs.py
 msgid "One or more courses failed to redirect."
 msgstr ""
 "Öné ör möré çöürsés fäïléd tö rédïréçt. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
 
-#: apps/course_metadata/management/commands/update_marketing_redirects.py
+#: apps/course_metadata/management/commands/unpublish_inactive_runs.py
 #, python-brace-format
 msgid "Successfully redirected runs in course {key}"
 msgstr ""
 "Süççéssfüllý rédïréçtéd rüns ïn çöürsé {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
-#: apps/course_metadata/management/commands/update_marketing_redirects.py
+#: apps/course_metadata/management/commands/unpublish_inactive_runs.py
 #, python-brace-format
 msgid "Failed to redirect runs in course {key}"
 msgstr ""
@@ -1446,6 +1446,12 @@ msgid "A brief, descriptive subtitle for the Program."
 msgstr ""
 "À ßrïéf, désçrïptïvé süßtïtlé för thé Prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "A brief hook for the marketing website"
+msgstr ""
+"À ßrïéf höök för thé märkétïng wéßsïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
 
 #: apps/course_metadata/models.py
 msgid "The lifecycle status of this Program."
