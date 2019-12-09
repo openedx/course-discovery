@@ -17,7 +17,7 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OA
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRun, Seat, SeatType
+from course_discovery.apps.course_metadata.models import CourseRun, CourseRunType, Seat, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseFactory, CourseRunFactory, CourseRunTypeFactory, CourseTypeFactory, OrganizationFactory,
     PersonFactory, ProgramFactory, SeatFactory, TrackFactory
@@ -38,6 +38,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.draft_course_run = CourseRunFactory(course=self.draft_course, draft=True)
         self.draft_course_run.course.authoring_organizations.add(OrganizationFactory(key='course-id'))
         self.course_run_type = CourseRunTypeFactory(tracks=[TrackFactory()])
+        self.verified_type = CourseRunType.objects.get(slug=CourseRunType.VERIFIED_AUDIT)
         self.refresh_index()
         self.request = APIRequestFactory().get('/')
         self.request.user = self.user
@@ -128,42 +129,8 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert response.data == \
             self.serialize_course_run(self.course_run, extra_context={'include_unpublished_programs': True})
 
-    # DISCO-1399: Just swap this test out for test_create_minimum_using_type
     @responses.activate
     def test_create_minimum(self):
-        """ Verify the endpoint supports creating a course_run with the least info. """
-        course = self.draft_course_run.course
-        new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
-        self.mock_post_to_studio(new_key)
-        url = reverse('api:v1:course_run-list')
-
-        # Send nothing - expect complaints
-        response = self.client.post(url, {}, format='json')
-        self.assertEqual(response.status_code, 400)
-        self.assertDictEqual(response.data, {
-            'course': ['This field is required.'],
-        })
-
-        # Send minimum requested
-        response = self.client.post(url, {
-            'course': course.key,
-            'start': '2000-01-01T00:00:00Z',
-            'end': '2001-01-01T00:00:00Z',
-        }, format='json')
-        self.assertEqual(response.status_code, 201)
-        new_course_run = CourseRun.everything.get(key=new_key)
-        self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
-        self.assertEqual(new_course_run.pacing_type, 'instructor_paced')  # default we provide
-        self.assertEqual(str(new_course_run.end), '2001-01-01 00:00:00+00:00')  # spot check that input made it
-        self.assertTrue(new_course_run.draft)
-
-        new_seat = Seat.everything.get(course_run=new_course_run)
-        self.assertEqual(new_seat.type.slug, Seat.AUDIT)
-        self.assertEqual(new_seat.price, 0.00)
-        self.assertTrue(new_seat.draft)
-
-    @responses.activate
-    def test_create_minimum_using_type(self):
         """ Verify the endpoint supports creating a course_run with the least info. """
         course = self.draft_course_run.course
         new_key = 'course-v1:{}+1T2000'.format(course.key_for_reruns)
@@ -208,6 +175,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': course.key,
             'start': '2000-01-01T00:00:00Z',
             'end': '2001-01-01T00:00:00Z',
+            'run_type': str(self.course_run_type.uuid),
         }
 
         self.assertNotEqual(course.key, course.key_for_reruns)  # sanity check
@@ -248,6 +216,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': course.key,
             'start': '2000-01-01T00:00:00Z',
             'end': '2001-01-01T00:00:00Z',
+            'run_type': str(self.course_run_type.uuid),
             'rerun': rerun,
         }, format='json')
 
@@ -279,6 +248,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': course.key,
             'start': '2000-01-01T00:00:00Z',
             'end': '2001-01-01T00:00:00Z',
+            'run_type': str(self.course_run_type.uuid),
             'rerun': self.draft_course_run.key,
         }, format='json')
 
@@ -307,6 +277,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': course.key,
             'start': '2000-01-01T00:00:00Z',
             'end': '2001-01-01T00:00:00Z',
+            'run_type': str(self.course_run_type.uuid),
             'draft': draft,
         }, format='json')
 
@@ -379,6 +350,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': course.key,
             'start': '2000-01-01T00:00:00Z',
             'end': '2001-01-01T00:00:00Z',
+            'run_type': str(self.course_run_type.uuid),
             'term': desired_term,
         }
 
@@ -449,6 +421,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertDictEqual(response.data, {
             'start': ['This field is required.'],
             'end': ['This field is required.'],
+            'run_type': ['This field is required.'],
         })
 
     @responses.activate
@@ -469,6 +442,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
                 'course': course.key,
                 'start': '2000-01-01T00:00:00Z',
                 'end': '2001-01-01T00:00:00Z',
+                'run_type': str(self.course_run_type.uuid),
                 'rerun': self.draft_course_run.key,
             }, format='json')
         self.assertEqual(response.status_code, 201)
@@ -659,6 +633,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': self.draft_course_run.course.key,  # required, so we need for a put
             'start': self.draft_course_run.start,  # required, so we need for a put
             'end': self.draft_course_run.end,  # required, so we need for a put
+            'run_type': str(self.draft_course_run.type.uuid),  # required, so we need for a put
             'title': 'New Title',
         }, format='json')
         assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
@@ -678,6 +653,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': self.draft_course_run.course.key,  # required, so we need for a put
             'start': self.draft_course_run.start,  # required, so we need for a put
             'end': self.draft_course_run.end,  # required, so we need for a put
+            'run_type': str(self.draft_course_run.type.uuid),  # required, so we need for a put
         }, format='json')
         assert response.status_code == 403
 
@@ -698,6 +674,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': self.draft_course_run.course.key,  # required, so we need for a put
             'start': self.draft_course_run.start,  # required, so we need for a put
             'end': self.draft_course_run.end,  # required, so we need for a put
+            'run_type': str(self.draft_course_run.type.uuid),  # required, so we need for a put
         }, format='json')
         assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
         self.draft_course_run.refresh_from_db()
@@ -719,6 +696,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': self.draft_course_run.course.key,  # required, so we need for a put
             'start': self.draft_course_run.start,  # required, so we need for a put
             'end': self.draft_course_run.end,  # required, so we need for a put
+            'run_type': str(self.draft_course_run.type.uuid),  # required, so we need for a put
             'full_description': 'Some new description',  # required to cause a diff to update status
         }, format='json')
         assert response.status_code == 200, "Status {}: {}".format(response.status_code, response.content)
@@ -748,6 +726,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': self.draft_course_run.course.key,  # required, so we need for a put
             'start': self.draft_course_run.start + datetime.timedelta(days=1),  # required, so we need for a put
             'end': self.draft_course_run.end + datetime.timedelta(days=1),  # required, so we need for a put
+            'run_type': str(self.draft_course_run.type.uuid),  # required, so we need for a put
             'go_live_date': self.draft_course_run.go_live_date + datetime.timedelta(days=1),
             'min_effort': self.draft_course_run.min_effort + 1,
             'max_effort': self.draft_course_run.max_effort + 1,
@@ -791,6 +770,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             'course': self.draft_course_run.course.key,  # required, so we need for a put
             'start': self.draft_course_run.start,  # required, so we need for a put
             'end': self.draft_course_run.end,  # required, so we need for a put
+            'run_type': str(self.draft_course_run.type.uuid),  # required, so we need for a put
             'draft': False,
         }
         if 'non_exempt_data' in update_transaction.keys():

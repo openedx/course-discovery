@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-25 20:06+0000\n"
+"POT-Creation-Date: 2019-12-09 20:31+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -64,15 +64,15 @@ msgstr ""
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1200
+#: apps/api/serializers.py:1199
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1525
+#: apps/api/serializers.py:1524
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1529
+#: apps/api/serializers.py:1528
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -92,12 +92,12 @@ msgstr ""
 msgid "You must include a course_uuid in your query parameters."
 msgstr ""
 
-#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:188
+#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:184
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr ""
 
-#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:199
+#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:190
 msgid "Incorrect data sent. "
 msgstr ""
 
@@ -121,53 +121,35 @@ msgstr ""
 msgid "Failed to set data: {}"
 msgstr ""
 
-#: apps/api/v1/views/courses.py:190
+#: apps/api/v1/views/courses.py:186
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:193
-#, python-brace-format
-msgid "Entitlement Track [{entitlement_type}] does not exist. "
-msgstr ""
-
-#: apps/api/v1/views/courses.py:197
+#: apps/api/v1/views/courses.py:188
 #, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:215
+#: apps/api/v1/views/courses.py:203
 #, python-brace-format
 msgid "A course with key {key} already exists."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:221
+#: apps/api/v1/views/courses.py:209
 #, python-brace-format
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:267
-msgid "Entitlements must have a mode specified."
-msgstr ""
-
-#: apps/api/v1/views/courses.py:271
-msgid "Entitlement mode {} not found."
-msgstr ""
-
-#: apps/api/v1/views/courses.py:280
-#, python-brace-format
-msgid "Existing entitlement not found for course {0}."
-msgstr ""
-
-#: apps/api/v1/views/courses.py:289
+#: apps/api/v1/views/courses.py:262
 msgid ""
 "Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:377
+#: apps/api/v1/views/courses.py:339
 #, python-brace-format
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
@@ -300,72 +282,72 @@ msgstr ""
 msgid "Marketing Site API Password"
 msgstr ""
 
-#: apps/core/models.py:93 apps/publisher/forms.py:290
+#: apps/core/models.py:88 apps/publisher/forms.py:290
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:7
 msgid "Studio URL"
 msgstr ""
 
-#: apps/core/models.py:95
+#: apps/core/models.py:90
 msgid "Publisher URL"
 msgstr ""
 
-#: apps/core/models.py:96
+#: apps/core/models.py:91
 msgid ""
 "The base URL of your publisher service, if used. Example: https://publisher."
 "example.com/"
 msgstr ""
 
-#: apps/core/models.py:99
+#: apps/core/models.py:94
 msgid "LMS URL"
 msgstr ""
 
-#: apps/core/models.py:101
+#: apps/core/models.py:96
 msgid "LMS Admin URL"
 msgstr ""
 
-#: apps/core/models.py:102
+#: apps/core/models.py:97
 msgid ""
 "The public URL of your LMS Django admin. Example: https://lms-internal."
 "example.com/admin"
 msgstr ""
 
-#: apps/core/models.py:104
+#: apps/core/models.py:99
 msgid "Analytics API URL"
 msgstr ""
 
-#: apps/core/models.py:105
+#: apps/core/models.py:100
 msgid "Analytics Access Token"
 msgstr ""
 
-#: apps/core/models.py:113
+#: apps/core/models.py:108
 msgid "Partner"
 msgstr ""
 
-#: apps/core/models.py:114
+#: apps/core/models.py:109
 msgid "Partners"
 msgstr ""
 
-#: apps/core/models.py:181
+#: apps/core/models.py:176
 msgid "Salesforce Username"
 msgstr ""
 
-#: apps/core/models.py:185
+#: apps/core/models.py:180
 msgid "Salesforce Password"
 msgstr ""
 
-#: apps/core/models.py:190
+#: apps/core/models.py:185
 msgid "Salesforce Organization Id"
 msgstr ""
 
-#: apps/core/models.py:196
+#: apps/core/models.py:191
 msgid "Salesforce Security Token"
 msgstr ""
 
-#: apps/core/models.py:200
+#: apps/core/models.py:195
 msgid "Is a Salesforce Sandbox?"
 msgstr ""
 
-#: apps/core/models.py:206
+#: apps/core/models.py:201
 msgid "Case Record Type Id"
 msgstr ""
 
@@ -390,19 +372,19 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: apps/course_metadata/admin.py:186 apps/course_metadata/admin.py:378
+#: apps/course_metadata/admin.py:187 apps/course_metadata/admin.py:379
 msgid "Included course runs"
 msgstr ""
 
-#: apps/course_metadata/admin.py:385
+#: apps/course_metadata/admin.py:386
 msgid "Edit course run exclusions"
 msgstr ""
 
-#: apps/course_metadata/admin.py:387
+#: apps/course_metadata/admin.py:388
 msgid "(save and continue editing to create a link)"
 msgstr ""
 
-#: apps/course_metadata/admin.py:388
+#: apps/course_metadata/admin.py:389
 msgid "Edit link"
 msgstr ""
 
@@ -628,55 +610,55 @@ msgid ""
 "command line."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:103
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:97
 #, python-brace-format
 msgid ""
 "Existing course type {type} for {key} ({id}) doesn't match its own "
 "entitlements."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:136
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:130
 #, python-brace-format
 msgid ""
 "Existing run type {run_type} for {key} ({id}) doesn't match course type "
 "{type}.Skipping type."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:150
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:144
 #, python-brace-format
 msgid ""
 "Existing run type {run_type} for {key} ({id}) doesn't match its own seats."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:166
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:160
 #, python-brace-format
 msgid "Course {key} ({id}) matched type {type}"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:176
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:170
 #, python-brace-format
 msgid "Could not convert course {key} ({id}) to type {type}"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:196
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:190
 msgid "You must specify --partner"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:206
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:197
 #, python-brace-format
 msgid "Supplied Course Run Type slug [{rt_slug}] does not exist."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:213
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:204
 #, python-brace-format
 msgid "Supplied Course Type slug [{ct_slug}] does not exist."
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:224
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:215
 msgid "No courses found. Did you specify an argument?"
 msgstr ""
 
-#: apps/course_metadata/management/commands/backpopulate_course_type.py:235
+#: apps/course_metadata/management/commands/backpopulate_course_type.py:226
 #, python-brace-format
 msgid ""
 "Could not backpopulate a course type for the following courses: {course_keys}"
@@ -1689,7 +1671,7 @@ msgstr ""
 msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr ""
 
-#: apps/course_metadata/utils.py:370
+#: apps/course_metadata/utils.py:363
 msgid "Special characters not allowed in Course Number."
 msgstr ""
 

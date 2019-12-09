@@ -697,7 +697,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     )
     salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Course__c in Salesforce
     salesforce_case_id = models.CharField(max_length=255, null=True, blank=True)  # Case in Salesforce
-    type = models.ForeignKey(CourseType, models.CASCADE, null=True, blank=True)
+    type = models.ForeignKey(CourseType, models.CASCADE, null=True)  # while null IS True, it should always be set
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
@@ -1121,7 +1121,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         help_text=_(
             "'What You Will Learn' description for this particular course run. Leave this value blank to default "
             "to the parent course's Outcome attribute."))
-    type = models.ForeignKey(CourseRunType, models.CASCADE, null=True, blank=True)
+    type = models.ForeignKey(CourseRunType, models.CASCADE, null=True)  # while null IS True, it should always be set
 
     tags = TaggableManager(
         blank=True,
