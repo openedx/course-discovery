@@ -20,10 +20,10 @@ from course_discovery.apps.course_metadata import utils
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
-from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, Seat, SeatType
+from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, Seat, SeatType, Track
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory,
-    SeatFactory, SeatTypeFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, ModeFactory, OrganizationFactory,
+    ProgramFactory, SeatFactory, SeatTypeFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
@@ -81,7 +81,9 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
         super().setUp()
 
         # Set up an official that we then convert to a draft
-        self.course_run = CourseRunFactory()
+        audit_track = Track.objects.get(seat_type__slug=Seat.AUDIT)
+        verified_track = Track.objects.get(seat_type__slug=Seat.VERIFIED)
+        self.course_run = CourseRunFactory(type__tracks=[audit_track, verified_track])
         CourseEntitlementFactory(course=self.course_run.course, mode=SeatTypeFactory.verified())
         SeatFactory(course_run=self.course_run, type=SeatTypeFactory.verified(), sku=None)
         SeatFactory(course_run=self.course_run, type=SeatTypeFactory.audit(), sku=None)
@@ -160,17 +162,17 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
         self.assertFalse(utils.push_to_ecommerce_for_course_run(self.course_run))
 
 
-@pytest.mark.django_db
-class TestSerializeSeatForEcommerceApi:
-    def test_serialize_seat_for_ecommerce_api(self):
+@ddt.ddt
+class TestSerializeSeatForEcommerceApi(TestCase):
+    @ddt.data(
+        ('', False),
+        ('verified', True),
+    )
+    @ddt.unpack
+    def test_serialize_seat_for_ecommerce_api(self, certificate_type, is_id_verified):
         seat = SeatFactory()
-        actual = serialize_seat_for_ecommerce_api(seat)
-        assert actual['price'] == str(seat.price)
-        assert actual['product_class'] == 'Seat'
-
-    def test_serialize_seat_for_ecommerce_api_with_audit_seat(self):
-        seat = SeatFactory(type=SeatTypeFactory.audit())
-        actual = serialize_seat_for_ecommerce_api(seat)
+        mode = ModeFactory(certificate_type=certificate_type, is_id_verified=is_id_verified)
+        actual = serialize_seat_for_ecommerce_api(seat, mode)
         expected = {
             'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
             'price': str(seat.price),
@@ -178,32 +180,15 @@ class TestSerializeSeatForEcommerceApi:
             'attribute_values': [
                 {
                     'name': 'certificate_type',
-                    'value': '',
+                    'value': mode.certificate_type,
                 },
                 {
                     'name': 'id_verification_required',
-                    'value': False,
+                    'value': mode.is_id_verified,
                 }
             ]
         }
-
-        assert actual == expected
-
-    @pytest.mark.parametrize('seat_type', (Seat.VERIFIED, Seat.PROFESSIONAL))
-    def test_serialize_seat_for_ecommerce_api_with_id_verification(self, seat_type):
-        seat = SeatFactory(type=SeatType.objects.get(slug=seat_type))
-        actual = serialize_seat_for_ecommerce_api(seat)
-        expected_attribute_values = [
-            {
-                'name': 'certificate_type',
-                'value': seat_type,
-            },
-            {
-                'name': 'id_verification_required',
-                'value': True,
-            }
-        ]
-        assert actual['attribute_values'] == expected_attribute_values
+        self.assertEqual(actual, expected)
 
 
 @pytest.mark.django_db

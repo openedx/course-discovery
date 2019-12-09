@@ -3605,30 +3605,6 @@ class CourseRunEditViewTests(SiteMixin, TestCase):
         response = self.client.get(self.edit_page_url)
         self.assertEqual(response.status_code, 200)
 
-    def test_update_moves_state_to_draft(self):
-        """ Verify that in case of editing course-run state will change to draft."""
-        # state will be change if the course-run state is other than draft.
-        self.new_course_run.course_run_state.name = CourseRunStateChoices.Review
-        self.new_course_run.course_run_state.save()
-        self.new_course_run.refresh_from_db()
-        self.assertEqual(self.new_course_run.course_run_state.name, CourseRunStateChoices.Review)
-        response = self.client.post(self.edit_page_url, self.updated_dict)
-
-        # This call is flaky in Travis. It is reliable locally, but occasionally in our CI environment,
-        # this call won't redirect, and instead will return a 400. This can occur from any exception
-        # being thrown, as well as any invalid form data. The self.new_course_run.refresh_from_db() call should
-        # hopefully fix this by having an explicit update occur before sending the data along via POST.
-        self.assertRedirects(
-            response,
-            expected_url=reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.new_course_run.id}),
-            status_code=302,
-            target_status_code=200
-        )
-
-        course_run = CourseRun.objects.get(id=self.new_course_run.id)
-        # state change to draft again.
-        self.assertEqual(course_run.course_run_state.name, CourseRunStateChoices.Draft)
-
     def test_studio_instance_on_edit_page(self):
         """
         Verify that internal users can update course key from edit page.
