@@ -3,7 +3,6 @@ import logging
 
 import pytz
 from analyticsclient.client import Client
-from django.utils.functional import cached_property
 
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import CourseRun
@@ -15,11 +14,8 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
 
     API_TIMEOUT = 120  # time in seconds
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
-                 is_threadsafe=False, **kwargs):
-        super(AnalyticsAPIDataLoader, self).__init__(
-            partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
-        )
+    def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
+        super(AnalyticsAPIDataLoader, self).__init__(partner, api_url, max_workers, is_threadsafe)
 
         # uuid: {course, count, recent_count}
         self.course_dictionary = {}
@@ -31,9 +27,7 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
                 partner=partner.short_code)
             raise Exception(msg)
 
-    @cached_property
-    def api_client(self):
-
+    def analytics_api_client(self):
         analytics_api_client = Client(base_url=self.partner.analytics_url,
                                       auth_token=self.partner.analytics_token,
                                       timeout=self.API_TIMEOUT)
@@ -42,11 +36,10 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
 
     def ingest(self):
         """ Load data for all course runs. """
-
         now = datetime.datetime.now(pytz.UTC)
         # We don't need a high level of precision - looking for ~6months of data
         six_months_ago = now - datetime.timedelta(days=180)
-        course_summaries_response = self.api_client.course_summaries()
+        course_summaries_response = self.analytics_api_client().course_summaries()
         course_run_summaries = course_summaries_response.course_summaries(recent_date=six_months_ago,
                                                                           fields=['course_id',
                                                                                   'count',

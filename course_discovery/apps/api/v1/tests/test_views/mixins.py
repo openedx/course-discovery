@@ -132,7 +132,7 @@ class OAuth2Mixin:
     def mock_access_token(self):
         responses.add(
             responses.POST,
-            self.partner.oauth2_provider_url + '/access_token',
+            self.partner.lms_url + '/oauth2/access_token',
             body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
             status=200,
         )

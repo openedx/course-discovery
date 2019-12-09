@@ -18,7 +18,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
     AbstractDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
-from course_discovery.apps.course_metadata.data_loaders.tests.mixins import ApiClientTestMixin, DataLoaderTestMixin
+from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType
 )
@@ -57,7 +57,7 @@ class AbstractDataLoaderTest(TestCase):
 
 
 @ddt.ddt
-class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
+class OrganizationsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = OrganizationsApiDataLoader
 
     @property
@@ -98,7 +98,7 @@ class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, T
         self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(1)
+        self.assert_api_called(2)
 
         # Verify the Organizations were created correctly
         expected_num_orgs = len(api_data)
@@ -144,7 +144,7 @@ class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, T
 
 
 @ddt.ddt
-class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
+class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = CoursesApiDataLoader
 
     @property
@@ -242,7 +242,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(1)
+        self.assert_api_called(2)
 
         # Verify the CourseRuns were created correctly
         expected_num_course_runs = len(api_data)
@@ -268,7 +268,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(1)
+        self.assert_api_called(2)
 
         runs = CourseRun.objects.all()
         # Run with a verified entitlement, but no change in end date
@@ -522,7 +522,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
 
 
 @ddt.ddt
-class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
+class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = EcommerceApiDataLoader
 
     @property
@@ -800,7 +800,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
         self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(3)
+        self.assert_api_called(4)
 
         for datum in loaded_seat_data:
             self.assert_seats_loaded(datum, products_api_data)
@@ -937,7 +937,7 @@ class EcommerceApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestC
 
 
 @ddt.ddt
-class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCase):
+class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     loader_class = ProgramsApiDataLoader
 
     @property
@@ -1031,7 +1031,7 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
         self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(2)
+        self.assert_api_called(3)
 
         # Verify the Programs were created correctly
         self.assertEqual(Program.objects.count(), len(api_data))
@@ -1073,7 +1073,7 @@ class ProgramsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCa
 
         self.loader.ingest()
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(2)
+        self.assert_api_called(3)
 
         for program in programs:
             self.assert_program_loaded(program)
