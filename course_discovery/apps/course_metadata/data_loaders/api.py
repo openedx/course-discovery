@@ -40,7 +40,8 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
         logger.info('Refreshing Organizations from %s...', api_url)
 
         while page:
-            response = self.api_client.organizations().get(page=page, page_size=self.PAGE_SIZE)
+            params = {'page': page, 'page_size': self.PAGE_SIZE}
+            response = self.api_client.get(self.api_url + '/organizations/', params=params).json()
             count = response['count']
             results = response['results']
             logger.info('Retrieved %d organizations...', len(results))
@@ -143,7 +144,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
     )
     def _make_request(self, page):
         logger.info('Requesting course run page %d...', page)
-        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, username=self.username)
+        params = {'page': page, 'page_size': self.PAGE_SIZE}
+        return self.api_client.get(self.api_url + '/courses/', params=params).json()
 
     def _process_response(self, response):
         results = response['results']
@@ -338,11 +340,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
     LOADER_MAX_RETRY = 2
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
-                 is_threadsafe=False, **kwargs):
-        super(EcommerceApiDataLoader, self).__init__(
-            partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
-        )
+    def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False, **kwargs):
+        super(EcommerceApiDataLoader, self).__init__(partner, api_url, max_workers, is_threadsafe, **kwargs)
         self.initial_page = 1
         self.enrollment_skus = []
         self.entitlement_skus = []
@@ -483,13 +482,16 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             self.processing_failure_occurred = True
 
     def _request_course_runs(self, page):
-        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
+        params = {'page': page, 'page_size': self.PAGE_SIZE, 'include_products': True}
+        return self.api_client.get(self.api_url + '/courses/', params=params).json()
 
     def _request_entitlements(self, page):
-        return self.api_client.products().get(page=page, page_size=self.PAGE_SIZE, product_class='Course Entitlement')
+        params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Course Entitlement'}
+        return self.api_client.get(self.api_url + '/products/', params=params).json()
 
     def _request_enrollment_codes(self, page):
-        return self.api_client.products().get(page=page, page_size=self.PAGE_SIZE, product_class='Enrollment Code')
+        params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Enrollment Code'}
+        return self.api_client.get(self.api_url + '/products/', params=params).json()
 
     def _process_course_runs(self, response):
         results = response['results']
@@ -825,11 +827,8 @@ class ProgramsApiDataLoader(AbstractDataLoader):
     image_height = 480
     XSERIES = None
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
-                 is_threadsafe=False, **kwargs):
-        super(ProgramsApiDataLoader, self).__init__(
-            partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
-        )
+    def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
+        super(ProgramsApiDataLoader, self).__init__(partner, api_url, max_workers, is_threadsafe)
         self.XSERIES = ProgramType.objects.get(name='XSeries')
 
     def ingest(self):
@@ -840,7 +839,8 @@ class ProgramsApiDataLoader(AbstractDataLoader):
         logger.info('Refreshing programs from %s...', api_url)
 
         while page:
-            response = self.api_client.programs.get(page=page, page_size=self.PAGE_SIZE)
+            params = {'page': page, 'page_size': self.PAGE_SIZE}
+            response = self.api_client.get(self.api_url + '/programs/', params=params).json()
             count = response['count']
             results = response['results']
             logger.info('Retrieved %d programs...', len(results))

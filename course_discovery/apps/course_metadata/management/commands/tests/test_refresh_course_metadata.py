@@ -1,13 +1,13 @@
 import json
 
 import ddt
-import jwt
 import mock
 import responses
 from django.core.management import CommandError, call_command
 from django.test import TransactionTestCase
 from waffle.testutils import override_switch
 
+from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.core.tests.utils import mock_api_callback
 from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
@@ -24,11 +24,10 @@ from course_discovery.apps.course_metadata.models import Image, Video
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 JSON = 'application/json'
-ACCESS_TOKEN = str(jwt.encode({'preferred_username': 'bob'}, 'secret'), 'utf-8')
 
 
 @ddt.ddt
-class RefreshCourseMetadataCommandTests(TransactionTestCase):
+class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
     def setUp(self):
         super(RefreshCourseMetadataCommandTests, self).setUp()
         self.partner = PartnerFactory()
@@ -44,13 +43,12 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             (ProgramsApiDataLoader, partner.programs_api_url, None),
             (AnalyticsAPIDataLoader, partner.analytics_url, 1),
         ]
-        self.kwargs = {'username': 'bob'}
 
         # Courses must exist for the refresh_course_metadata command to use multiple threads. If there are no
         # courses, the command won't risk race conditions between threads trying to create the same course.
         CourseFactory(partner=self.partner)
 
-        self.mock_access_token_api()
+        self.mock_access_token()
 
     def mock_apis(self):
         self.mock_organizations_api()
@@ -58,23 +56,6 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
         self.mock_ecommerce_courses_api()
         self.mock_marketing_courses_api()
         self.mock_programs_api()
-
-    def mock_access_token_api(self, requests_mock=None):
-        body = {
-            'access_token': ACCESS_TOKEN,
-            'expires_in': 30
-        }
-        requests_mock = requests_mock or responses
-
-        url = self.partner.oauth2_provider_url.strip('/') + '/access_token'
-        requests_mock.add_callback(
-            responses.POST,
-            url,
-            callback=mock_api_callback(url, body, results_key=False),
-            content_type=JSON
-        )
-
-        return body
 
     def mock_organizations_api(self):
         bodies = mock_data.ORGANIZATIONS_API_BODIES
@@ -135,19 +116,16 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
     @mock.patch('course_discovery.apps.api.cache.set_api_timestamp')
     @mock.patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.set_api_timestamp')
     def test_refresh_course_metadata_serial(self, mock_set_api_timestamp, mock_receiver):
-        with responses.RequestsMock() as rsps:
-            self.mock_access_token_api(rsps)
-            self.mock_apis()
+        self.mock_apis()
 
-            with mock.patch('course_discovery.apps.course_metadata.management.commands.'
-                            'refresh_course_metadata.execute_loader', return_value=True) as mock_executor:
-                call_command('refresh_course_metadata')
+        with mock.patch('course_discovery.apps.course_metadata.management.commands.'
+                        'refresh_course_metadata.execute_loader', return_value=True) as mock_executor:
+            call_command('refresh_course_metadata')
 
-                # Set up expected calls
-                expected_calls = [mock.call(loader_class, self.partner, api_url,
-                                            ACCESS_TOKEN, 'JWT', max_workers or 7, False, **self.kwargs)
-                                  for loader_class, api_url, max_workers in self.pipeline]
-                mock_executor.assert_has_calls(expected_calls)
+            # Set up expected calls
+            expected_calls = [mock.call(loader_class, self.partner, api_url, max_workers or 7, False)
+                              for loader_class, api_url, max_workers in self.pipeline]
+            mock_executor.assert_has_calls(expected_calls)
 
         # Verify that the API cache is invalidated once, and that it isn't
         # being done by the signal receiver.
@@ -159,19 +137,16 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
     @override_switch('threaded_metadata_write', True)
     @override_switch('parallel_refresh_pipeline', True)
     def test_refresh_course_metadata_parallel(self, mock_set_api_timestamp, mock_receiver):
-        with responses.RequestsMock() as rsps:
-            self.mock_access_token_api(rsps)
-            self.mock_apis()
+        self.mock_apis()
 
-            with mock.patch('concurrent.futures.ProcessPoolExecutor.submit') as mock_executor:
-                call_command('refresh_course_metadata')
+        with mock.patch('concurrent.futures.ProcessPoolExecutor.submit') as mock_executor:
+            call_command('refresh_course_metadata')
 
-                # Set up expected calls
-                expected_calls = [mock.call(execute_parallel_loader, loader_class,
-                                            self.partner, api_url, ACCESS_TOKEN,
-                                            'JWT', max_workers or 7, True, **self.kwargs)
-                                  for loader_class, api_url, max_workers in self.pipeline]
-                mock_executor.assert_has_calls(expected_calls, any_order=True)
+            # Set up expected calls
+            expected_calls = [mock.call(execute_parallel_loader, loader_class,
+                                        self.partner, api_url, max_workers or 7, True)
+                              for loader_class, api_url, max_workers in self.pipeline]
+            mock_executor.assert_has_calls(expected_calls, any_order=True)
 
         # Verify that the API cache is invalidated once, and that it isn't
         # being done by the signal receiver.
@@ -184,39 +159,26 @@ class RefreshCourseMetadataCommandTests(TransactionTestCase):
             command_args = ['--partner_code=invalid']
             call_command('refresh_course_metadata', *command_args)
 
-    def test_refresh_course_metadata_errors_with_no_token(self):
-        """ Verify an exception is raised and an error is logged if an access token is not acquired. """
-        with mock.patch('edx_rest_api_client.client.EdxRestApiClient.get_oauth_access_token', side_effect=Exception):
-            logger = 'course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.logger'
-            with mock.patch(logger) as mock_logger:
-                with self.assertRaises(Exception):
-                    call_command('refresh_course_metadata')
-            expected_calls = [mock.call('No access token acquired through client_credential flow.')]
-            mock_logger.exception.assert_has_calls(expected_calls)
-
     def test_refresh_course_metadata_with_loader_exception(self):
         """ Verify execution continues if an individual data loader fails. """
-        with responses.RequestsMock() as rsps:
-            self.mock_access_token_api(rsps)
+        logger_target = 'course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.logger'
+        with mock.patch(logger_target) as mock_logger:
+            with self.assertRaisesMessage(CommandError, 'One or more of the data loaders above failed.'):
+                call_command('refresh_course_metadata')
 
-            logger_target = 'course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.logger'
-            with mock.patch(logger_target) as mock_logger:
-                with self.assertRaisesMessage(CommandError, 'One or more of the data loaders above failed.'):
-                    call_command('refresh_course_metadata')
-
-                loader_classes = (
-                    SubjectMarketingSiteDataLoader,
-                    SchoolMarketingSiteDataLoader,
-                    SponsorMarketingSiteDataLoader,
-                    CourseMarketingSiteDataLoader,
-                    OrganizationsApiDataLoader,
-                    CoursesApiDataLoader,
-                    EcommerceApiDataLoader,
-                    ProgramsApiDataLoader,
-                    AnalyticsAPIDataLoader,
-                )
-                expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
-                mock_logger.exception.assert_has_calls(expected_calls)
+            loader_classes = (
+                SubjectMarketingSiteDataLoader,
+                SchoolMarketingSiteDataLoader,
+                SponsorMarketingSiteDataLoader,
+                CourseMarketingSiteDataLoader,
+                OrganizationsApiDataLoader,
+                CoursesApiDataLoader,
+                EcommerceApiDataLoader,
+                ProgramsApiDataLoader,
+                AnalyticsAPIDataLoader,
+            )
+            expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
+            mock_logger.exception.assert_has_calls(expected_calls)
 
     @mock.patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.delete_orphans')
     def test_deletes_orphans(self, mock_delete_orphans):

@@ -8,7 +8,6 @@ from uuid import UUID
 
 from django.contrib.staticfiles import finders
 from django.db import IntegrityError
-from django.utils.functional import cached_property
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
@@ -21,20 +20,15 @@ DRUPAL_REDIRECT_CSV_FILE = 'data/redirects.csv'
 
 
 class AbstractMarketingSiteDataLoader(AbstractDataLoader):
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
-                 is_threadsafe=False, **kwargs):
-        super(AbstractMarketingSiteDataLoader, self).__init__(
-            partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
-        )
+    def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
+        super(AbstractMarketingSiteDataLoader, self).__init__(partner, api_url, max_workers, is_threadsafe)
 
         if not (self.partner.marketing_site_api_username and self.partner.marketing_site_api_password):
             msg = 'Marketing Site API credentials are not properly configured for Partner [{partner}]!'.format(
                 partner=partner.short_code)
             raise Exception(msg)
 
-    @cached_property
-    def api_client(self):
-
+    def marketing_api_client(self):
         marketing_site_api_client = MarketingSiteAPIClient(
             self.partner.marketing_site_api_username,
             self.partner.marketing_site_api_password,
@@ -85,7 +79,7 @@ class AbstractMarketingSiteDataLoader(AbstractDataLoader):
         qs = urlencode(kwargs)
         url = '{root}/node.json?{qs}'.format(root=self.api_url, qs=qs)
 
-        return self.api_client.get(url)
+        return self.marketing_api_client().get(url)
 
     def _check_status_code(self, response):
         """Check the status code on a response from the marketing site."""

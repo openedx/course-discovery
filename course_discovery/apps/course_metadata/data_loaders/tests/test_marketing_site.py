@@ -122,7 +122,7 @@ class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
     def test_api_client_login_failure(self):
         self.mock_login_response(failure=True)
         with self.assertRaises(Exception):
-            self.loader.api_client  # pylint: disable=pointless-statement
+            self.loader.marketing_api_client()
 
     def test_constructor_without_credentials(self):
         """ Verify the constructor raises an exception if the Partner has no marketing site credentials set. """

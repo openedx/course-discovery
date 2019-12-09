@@ -3,7 +3,7 @@ import re
 
 from dateutil.parser import parse
 from django.utils.functional import cached_property
-from edx_rest_api_client.client import EdxRestApiClient
+from edx_rest_api_client.client import OAuthAPIClient
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.models import Image, Video
@@ -15,51 +15,25 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     Attributes:
         api_url (str): URL of the API from which data is loaded
         partner (Partner): Partner which owns the data for this data loader
-        access_token (str): OAuth2 access token
         PAGE_SIZE (int): Number of items to load per API call
     """
 
     PAGE_SIZE = 50
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
-                 is_threadsafe=False, **kwargs):
+    def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
         """
         Arguments:
             partner (Partner): Partner which owns the APIs and data being loaded
             api_url (str): URL of the API from which data is loaded
-            access_token (str): OAuth2 access token
-            token_type (str): The type of access token passed in (e.g. Bearer, JWT)
             max_workers (int): Number of worker threads to use when traversing paginated responses.
             is_threadsafe (bool): True if multiple threads can be used to write data.
         """
-        if token_type:
-            token_type = token_type.lower()
-
-        self.access_token = access_token
-        self.token_type = token_type
         self.partner = partner
         self.api_url = api_url.strip('/')
+        self.api_client = self.partner.lms_api_client
 
         self.max_workers = max_workers
         self.is_threadsafe = is_threadsafe
-        self.username = kwargs.get('username')
-
-    @cached_property
-    def api_client(self):
-        """
-        Returns an authenticated API client ready to call the API from which data is loaded.
-
-        Returns:
-            EdxRestApiClient
-        """
-        kwargs = {}
-
-        if self.token_type == 'jwt':
-            kwargs['jwt'] = self.access_token
-        else:
-            kwargs['oauth_access_token'] = self.access_token
-
-        return EdxRestApiClient(self.api_url, **kwargs)
 
     @abc.abstractmethod
     def ingest(self):  # pragma: no cover
