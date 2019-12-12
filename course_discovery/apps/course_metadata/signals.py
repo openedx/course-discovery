@@ -231,6 +231,13 @@ def ensure_external_key_uniquness__course_run(sender, instance, **kwargs):  # py
     """
     if not instance.external_key:
         return
+    # This is for the intermediate time between the official course run being created through
+    # utils.py set_official_state and before the Course reference is updated to the official course.
+    # See course_metadata/models.py under the CourseRun model inside of the update_or_create_official_version
+    # function for when the official run is created and when several lines later, the official course
+    # is added to it.
+    if not instance.draft and instance.course.draft:
+        return
     if instance.id:
         old_course_run = CourseRun.everything.get(pk=instance.pk)
         if instance.external_key == old_course_run.external_key and instance.course == old_course_run.course:

@@ -749,14 +749,19 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.draft_course_1 = factories.CourseFactory(
+            draft=True,
+            key='course-id/draft-course-1/test',
+            title='draft-course-1'
+        )
         cls.draft_course_run_1 = factories.CourseRunFactory(
-            course=cls.course_1,
+            course=cls.draft_course_1,
             draft=True,
             external_key='external-key-drafttest'
         )
 
     def test_draft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(81, threshold=0):
+        with self.assertNumQueries(80, threshold=0):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=True,
@@ -775,7 +780,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                 )
 
     def test_nondraft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(81, threshold=0):
+        with self.assertNumQueries(80, threshold=0):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
@@ -783,7 +788,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
             )
 
     def test_collision_does_not_include_drafts(self):
-        with self.assertNumQueries(81, threshold=0):
+        with self.assertNumQueries(80, threshold=0):
             course_run = factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
@@ -797,6 +802,13 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                     draft=False,
                     external_key='external-key-drafttest'
                 )
+
+    def test_update_or_create_official_version(self):
+        # This test implicitly checks that a collision does not happen
+        # and that the external_key is properly copied over to the official version
+        self.draft_course_run_1.update_or_create_official_version()
+        official_run = self.draft_course_run_1.official_version
+        self.assertEqual(self.draft_course_run_1.external_key, official_run.external_key)
 
 
 class SalesforceTests(TestCase):

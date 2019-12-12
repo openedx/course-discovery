@@ -1565,6 +1565,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         official_version.slug = self.slug
         official_version.course = official_course
 
+        # During this save, the pre_save hook `ensure_external_key_uniquness__course_run` in signals.py
+        # is run. We rely on there being a save of the official version after the call to set_official_state
+        # and the setting of the official_course.
         official_version.save()
 
         if notify_services:
