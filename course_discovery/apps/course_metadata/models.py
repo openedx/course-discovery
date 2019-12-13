@@ -394,6 +394,11 @@ class CourseRunType(TimeStampedModel):
     def __str__(self):
         return self.name
 
+    @property
+    def empty(self):
+        """ Empty types are special - they are the default type used when we don't know a real type """
+        return self.slug == self.EMPTY
+
 
 class CourseType(TimeStampedModel):
     """
@@ -424,6 +429,11 @@ class CourseType(TimeStampedModel):
 
     def __str__(self):
         return self.name
+
+    @property
+    def empty(self):
+        """ Empty types are special - they are the default type used when we don't know a real type """
+        return self.slug == self.EMPTY
 
 
 class Subject(TranslatableModel, TimeStampedModel):
