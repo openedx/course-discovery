@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from slumber.exceptions import SlumberBaseException
 
-from course_discovery.apps.course_metadata.utils import publish_to_course_metadata, push_to_ecommerce_for_course_run
+from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run
 from course_discovery.apps.publisher.models import CourseRun
 from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 
@@ -32,7 +32,7 @@ class CourseRunViewSet(viewsets.GenericViewSet):
 
         publication_status = {
             'studio': self.publish_to_studio(partner, course_run),
-            'discovery': self.publish_to_discovery(partner, course_run),
+            'discovery': self.publish_to_discovery(),
             # Publish to ecommerce last because it needs the just-created UUID from discovery
             'ecommerce': self.publish_to_ecommerce(course_run),
         }
@@ -82,6 +82,5 @@ class CourseRunViewSet(viewsets.GenericViewSet):
             logger.exception('Failed to publish course run [%d] to E-Commerce!', course_run.pk)
             return 'FAILED: ' + str(ex)
 
-    def publish_to_discovery(self, partner, course_run):
-        publish_to_course_metadata(partner, course_run)
+    def publish_to_discovery(self):
         return self.PUBLICATION_SUCCESS_STATUS

@@ -8,18 +8,15 @@ from django.db.models.signals import m2m_changed, post_delete, post_save, pre_de
 from django.dispatch import receiver
 
 from course_discovery.apps.api.cache import api_change_receiver
-from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program, Seat,
-    SeatType
+    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
     populate_official_with_existing_draft, requires_salesforce_update
 )
 from course_discovery.apps.course_metadata.utils import get_salesforce_util
-from course_discovery.apps.course_metadata.waffle import masters_course_mode_enabled
 
 logger = logging.getLogger(__name__)
 
@@ -38,77 +35,6 @@ def delete_program(sender, instance, **kwargs):  # pylint: disable=unused-argume
 
 def is_program_masters(program):
     return program and program.type.slug == MASTERS_PROGRAM_TYPE_SLUG
-
-
-@receiver(post_save, sender=CurriculumCourseMembership)
-def add_masters_track_on_course(sender, instance, **kwargs):  # pylint: disable=unused-argument
-    """
-    When this waffle flag is enabled we save a "masters" seat type into the included course_runs of
-    the related course
-    """
-
-    if masters_course_mode_enabled():
-        program = instance.curriculum.program
-
-        if not is_program_masters(program):
-            logger.debug('This is a course related only to non-masters program. No need to create Masters seat')
-            return
-
-        us_currency = Currency.objects.get(code='USD')
-
-        for course_run in instance.course_runs:
-            if course_run.type:
-                # We are in the middle of a transition to CourseRunType. If we have a type, we handle this elsewhere.
-                # See push_tracks_to_lms_for_course_run in utils.py.
-                continue
-
-            Seat.objects.update_or_create(
-                course_run=course_run,
-                type=SeatType.objects.get(slug=Seat.MASTERS),
-                currency=us_currency,
-            )
-
-
-@receiver(post_save, sender=Seat)
-def publish_masters_track(sender, instance, **kwargs):  # pylint: disable=unused-argument
-    """
-    We should only publish the Masters track of the seat in the course_run,
-    if the course_run is part of a Program of Masters type. Publish means we will
-    call the commerce api on LMS to make sure LMS course_run object have the
-    masters enrollment_mode created
-    """
-    seat = instance
-    if seat.course_run.type:
-        # We are in the middle of a transition to CourseRunType. If we have a type, pushing to LMS will be handled by
-        # push_tracks_to_lms_for_course_run.
-        return
-
-    if seat.type.slug != Seat.MASTERS:
-        logger.debug('Not going to publish non masters seat (type %s)', seat.type.slug)
-        return
-
-    if not masters_course_mode_enabled():
-        logger.debug('Masters course mode waffle flag is not enabled')
-        return
-
-    partner = seat.course_run.course.partner
-
-    if not partner.lms_api_client:
-        logger.info(
-            'LMS api client is not initiated. Cannot publish [%s] track for [%s] course_run',
-            seat.type.slug,
-            seat.course_run.key,
-        )
-        return
-
-    if not partner.lms_coursemode_api_url:
-        logger.info(
-            'No lms coursemode api url configured. Masters seat for course_run [%s] not published',
-            seat.course_run.key
-        )
-        return
-
-    _create_masters_track_on_lms_if_necessary(seat, partner)
 
 
 @receiver(pre_save, sender=Curriculum)
@@ -163,51 +89,6 @@ def _find_in_programs(existing_programs, target_curriculum=None, target_program=
     return _find_in_programs(child_programs, target_curriculum=target_curriculum, target_program=target_program)
 
 
-def _create_masters_track_on_lms_if_necessary(seat, partner):
-    """
-    Given a seat, the partner object, this helper method will call the course mode api to
-    create the masters track to a course run, if the masters track isn't already created
-    """
-    course_run_key = seat.course_run.key
-    url = partner.lms_coursemode_api_url.rstrip('/') + '/courses/{}/'.format(course_run_key)
-    get_response = partner.lms_api_client.get(url)
-    if _seat_type_exists(get_response.json(), Seat.MASTERS):
-        logger.info('Creating [{}] track on LMS for [{}] while it already have the track.'.format(
-            seat.type.slug,
-            course_run_key,
-        ))
-        return
-
-    data = {
-        'course_id': seat.course_run.key,
-        'mode_slug': seat.type.slug,
-        'mode_display_name': seat.type.name,
-        'currency': str(seat.currency.code) if seat.currency else '',
-        'min_price': int(seat.price),
-    }
-
-    response = partner.lms_api_client.post(url, json=data)
-
-    if response.ok:
-        logger.info('Successfully published [%s] seat data for [%s].', seat.type.slug, course_run_key)
-    else:
-        logger.exception(
-            'Failed to add [%s] course_mode to course_run [%s] in course_mode api to LMS.',
-            seat.type.slug,
-            course_run_key
-        )
-
-
-def _seat_type_exists(course_modes, seat_type):
-    """
-    Check if a seat of the specified seat_type already exist within the list passed in.
-    """
-    for course_mode in course_modes:
-        if course_mode['mode_slug'] == seat_type:
-            return True
-    return False
-
-
 # Invalidate API cache when any model in the course_metadata app is saved or
 # deleted. Given how interconnected our data is and how infrequently our models
 # change (data loading aside), this is a clean and simple way to ensure correctness
@@ -218,7 +99,7 @@ for model in apps.get_app_config('course_metadata').get_models():
 
 
 @receiver(pre_save, sender=CourseRun)
-def ensure_external_key_uniquness__course_run(sender, instance, **kwargs):  # pylint: disable=unused-argument
+def ensure_external_key_uniqueness__course_run(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
     Pre-save hook to validate that when a course run is saved, that its external_key is
     unique.
@@ -252,7 +133,7 @@ def ensure_external_key_uniquness__course_run(sender, instance, **kwargs):  # py
 
 
 @receiver(pre_save, sender=CurriculumCourseMembership)
-def ensure_external_key_uniquness__curriculum_course_membership(sender, instance, **kwargs):  # pylint: disable=unused-argument
+def ensure_external_key_uniqueness__curriculum_course_membership(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
     Pre-save hook to validate that if a curriculum_course_membership is created or modified, the
     external_keys for the course are unique within the linked curriculum/program
@@ -262,7 +143,7 @@ def ensure_external_key_uniquness__curriculum_course_membership(sender, instance
 
 
 @receiver(pre_save, sender=Curriculum)
-def ensure_external_key_uniquness__curriculum(sender, instance, **kwargs):  # pylint: disable=unused-argument
+def ensure_external_key_uniqueness__curriculum(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
     Pre-save hook to validate that if a curriculum is created or becomes associated with a different
     program, the curriculum's external_keys are/remain unique

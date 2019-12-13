@@ -3,14 +3,13 @@ import logging
 import random
 import string
 import uuid
-from collections import OrderedDict
 from urllib.parse import urljoin
 
 import html2text
 import markdown
 import requests
 from django.conf import settings
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from slugify import slugify
@@ -23,7 +22,7 @@ from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
-from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY, find_discovery_course
+from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -513,9 +512,6 @@ def push_tracks_to_lms_for_course_run(course_run):
     directly to LMS. But that's a future improvement.
     """
     run_type = course_run.type
-    if not run_type:  # only handle new-stye CourseRunType runs - older runs are handled in signals.py
-        return
-
     tracks_without_seats = run_type.tracks.filter(seat_type=None)
     if not tracks_without_seats:
         return
@@ -550,152 +546,6 @@ def push_tracks_to_lms_for_course_run(course_run):
         else:
             logger.warning('Failed publishing [%s] LMS mode for [%s]: %s', track.mode.slug, course_run.key,
                            response.content.decode('utf-8'))
-
-
-@transaction.atomic
-def publish_to_course_metadata(partner, course_run, create_official=True, fail_on_url_slug=True):
-    """
-        Args:
-            partner: Partner object associated with the course_run being published
-            course_run: The instance of Publisher.CourseRun being published
-            create_official: Default true. If false, will only create draft version
-            fail_on_url_slug: Default true. If false, will replace any duplicated slugs with the default instead of
-                              failing.
-    """
-    from course_discovery.apps.course_metadata.models import (
-        Course, CourseEntitlement, CourseRun, ProgramType, Seat, SeatType, Video
-    )
-
-    publisher_course = course_run.course
-
-    video = None
-    if publisher_course.video_link:
-        video, __ = Video.objects.get_or_create(src=publisher_course.video_link)
-
-    defaults = {
-        'title': publisher_course.title,
-        'short_description': publisher_course.short_description,
-        'full_description': publisher_course.full_description,
-        'level_type': publisher_course.level_type,
-        'video': video,
-        'outcome': publisher_course.expected_learnings,
-        'prerequisites_raw': publisher_course.prerequisites,
-        'syllabus_raw': publisher_course.syllabus,
-        'additional_information': publisher_course.additional_information,
-        'faq': publisher_course.faq,
-        'learner_testimonials': publisher_course.learner_testimonial,
-    }
-
-    discovery_course = find_discovery_course(course_run)
-    course_key = discovery_course.key if discovery_course else publisher_course.key
-
-    if discovery_course:
-        defaults['uuid'] = discovery_course.uuid  # just sanity ensure that UUIDs will match
-        # Let's ensure the draft version of everything exists. If it doesn't, we will just create it below.
-        ensure_draft_world(discovery_course)
-
-    discovery_course, created = Course.everything.update_or_create(
-        partner=partner, key=course_key, draft=True, defaults=defaults
-    )
-    # If we are publishing from the Publisher app, image is required and should fail if not provided.
-    if create_official or publisher_course.image:
-        discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
-    discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
-
-    subjects = [subject for subject in [
-        publisher_course.primary_subject,
-        publisher_course.secondary_subject,
-        publisher_course.tertiary_subject
-    ] if subject]
-    subjects = list(OrderedDict.fromkeys(subjects))
-    discovery_course.subjects.clear()
-    discovery_course.subjects.add(*subjects)
-
-    expected_program_type, program_name = ProgramType.get_program_type_data(course_run, ProgramType)
-
-    defaults = {
-        'start': course_run.start_date_temporary,
-        'end': course_run.end_date_temporary,
-        'pacing_type': course_run.pacing_type_temporary,
-        'title_override': course_run.title_override,
-        'min_effort': course_run.min_effort,
-        'max_effort': course_run.max_effort,
-        'language': course_run.language,
-        'weeks_to_complete': course_run.length,
-        'has_ofac_restrictions': course_run.has_ofac_restrictions,
-        'external_key': course_run.external_key,
-        'expected_program_name': program_name or '',
-        'expected_program_type': expected_program_type,
-        'course': discovery_course,
-    }
-
-    discovery_official_course_run = CourseRun.objects.filter(key=course_run.lms_course_id).first()
-    if discovery_official_course_run:
-        # Just sanity ensure that UUIDs will match (might be mismatched from prior or current bugs)
-        defaults['uuid'] = discovery_official_course_run.uuid
-
-    discovery_course_run, __ = CourseRun.everything.update_or_create(
-        key=course_run.lms_course_id, draft=True, defaults=defaults
-    )
-    discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
-    discovery_course_run.staff.clear()
-    discovery_course_run.staff.add(*course_run.staff.all())
-
-    if discovery_official_course_run and not discovery_official_course_run.draft_version:
-        # Ensure that draft and official are linked. They might be mismatched from prior or current bugs.
-        discovery_official_course_run.draft_version = discovery_course_run
-        discovery_official_course_run.save(suppress_publication=True)
-
-    for entitlement in publisher_course.entitlements.all():
-        CourseEntitlement.everything.update_or_create(
-            course=discovery_course,
-            draft=True,
-            defaults={
-                'mode': SeatType.objects.get(slug=entitlement.mode),
-                'partner': partner,
-                'price': entitlement.price,
-                'currency': entitlement.currency,
-            }
-        )
-
-    try:
-        discovery_course.set_active_url_slug(publisher_course.url_slug)
-    except IntegrityError:
-        if fail_on_url_slug:
-            raise
-
-    for seat in course_run.seats.exclude(type=Seat.CREDIT).order_by('created'):
-        Seat.everything.update_or_create(
-            course_run=discovery_course_run,
-            type=SeatType.objects.get(slug=seat.type),
-            currency=seat.currency,
-            draft=True,
-            defaults={
-                'price': seat.price,
-                'upgrade_deadline': seat.calculated_upgrade_deadline,
-            }
-        )
-        if seat.masters_track:
-            Seat.everything.update_or_create(
-                course_run=discovery_course_run,
-                type=SeatType.objects.get(slug=Seat.MASTERS),
-                currency=seat.currency,
-                draft=True,
-                defaults={
-                    'price': seat.price,
-                    'upgrade_deadline': seat.calculated_upgrade_deadline,
-                }
-            )
-
-    if created:
-        discovery_course.canonical_course_run = discovery_course_run
-        discovery_course.save()
-
-    if create_official:
-        # This will update or create the official version for the Course,
-        # Course Run, Seats, and Entitlements. We are not creating ecom products in this
-        # case because they are created separately as part of old publisher's publish button.
-        discovery_course_run.update_or_create_official_version(notify_services=False)
 
 
 class MarketingSiteAPIClient:

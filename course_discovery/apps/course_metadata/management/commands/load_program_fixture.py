@@ -13,13 +13,12 @@ from edx_rest_api_client import client as rest_client
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import (
-    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Program, ProgramType, Seat,
-    SeatType
+    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Program, ProgramType, SeatType
 )
 from course_discovery.apps.course_metadata.signals import (
-    add_masters_track_on_course, check_curriculum_for_cycles, check_curriculum_program_membership_for_cycles,
-    ensure_external_key_uniquness__course_run, ensure_external_key_uniquness__curriculum,
-    ensure_external_key_uniquness__curriculum_course_membership, publish_masters_track
+    check_curriculum_for_cycles, check_curriculum_program_membership_for_cycles,
+    ensure_external_key_uniqueness__course_run, ensure_external_key_uniqueness__curriculum,
+    ensure_external_key_uniqueness__curriculum_course_membership
 )
 
 logger = logging.getLogger(__name__)
@@ -28,32 +27,17 @@ logger = logging.getLogger(__name__)
 @contextmanager
 def disconnect_program_signals():
     """
-    Context manager to be used for temporarily disconnecting the following post_save
-    signals for the creation of masters tracks
-    - add_masters_track_on_course
-    - publish_masters_track
-
-    and the following pre_save signals for verifying external course keys
+    Context manager to be used for temporarily disconnecting the following
+    pre_save signals for verifying external course keys:
     - check_curriculum_for_cycles
     - check_curriculum_program_membership_for_cycles
-    - ensure_external_key_uniquness__course_run
-    - ensure_external_key_uniquness__curriculum
-    - ensure_external_key_uniquness__curriculum_course_membership
+    - ensure_external_key_uniqueness__course_run
+    - ensure_external_key_uniqueness__curriculum
+    - ensure_external_key_uniqueness__curriculum_course_membership
     """
-    post_save = db.models.signals.post_save
     pre_save = db.models.signals.pre_save
 
     signals_list = [
-        {
-            'action': post_save,
-            'signal': add_masters_track_on_course,
-            'sender': CurriculumCourseMembership,
-        },
-        {
-            'action': post_save,
-            'signal': publish_masters_track,
-            'sender': Seat,
-        },
         {
             'action': pre_save,
             'signal': check_curriculum_for_cycles,
@@ -66,17 +50,17 @@ def disconnect_program_signals():
         },
         {
             'action': pre_save,
-            'signal': ensure_external_key_uniquness__course_run,
+            'signal': ensure_external_key_uniqueness__course_run,
             'sender': CourseRun,
         },
         {
             'action': pre_save,
-            'signal': ensure_external_key_uniquness__curriculum,
+            'signal': ensure_external_key_uniqueness__curriculum,
             'sender': Curriculum,
         },
         {
             'action': pre_save,
-            'signal': ensure_external_key_uniquness__curriculum_course_membership,
+            'signal': ensure_external_key_uniqueness__curriculum_course_membership,
             'sender': CurriculumCourseMembership,
         },
     ]

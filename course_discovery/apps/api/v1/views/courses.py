@@ -168,12 +168,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         Create a Course, Course Entitlement, and Entitlement.
         """
         course_run_creation_fields = request.data.pop('course_run', None)
-        course_type = request.data.get('type')
         course_creation_fields = {
             'title': request.data.get('title'),
             'number': request.data.get('number'),
             'org': request.data.get('org'),
-            'type': course_type,
+            'type': request.data.get('type'),
         }
         url_slug = request.data.get('url_slug', '')
 
@@ -183,8 +182,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             error_message += ''.join([_('Missing value for: [{name}]. ').format(name=name) for name in missing_values])
         if not Organization.objects.filter(key=course_creation_fields['org']).exists():
             error_message += _('Organization [{org}] does not exist. ').format(org=course_creation_fields['org'])
-        if course_type and not CourseType.objects.filter(uuid=course_type).exists():
-            error_message += _('Course Type [{course_type}] does not exist. ').format(course_type=course_type)
+        if not CourseType.objects.filter(uuid=course_creation_fields['type']).exists():
+            error_message += _('Course Type [{course_type}] does not exist. ').format(
+                course_type=course_creation_fields['type'])
         if error_message:
             return Response((_('Incorrect data sent. ') + error_message).strip(), status=status.HTTP_400_BAD_REQUEST)
 
@@ -275,16 +275,12 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 draft=True,
             ), True)
 
-    # DISCO-1399: You might be able to removew the too-many-statements disable since it should get rid
-    # of a number of if statements since we don't need to check for `if data.get('type')`
     @writable_request_wrapper
-    def update_course(self, data, partial=False):  # pylint: disable=too-many-statements
+    def update_course(self, data, partial=False):
         """ Updates an existing course from incoming data. """
         changed = False
         # Sending draft=False means the course data is live and updates should be pushed out immediately
         draft = data.pop('draft', True)
-        # DISCO-1399: entitlements should stop being sent so no need to pop them off
-        data.pop('entitlements', [])
         image_data = data.pop('image', None)
         video_data = data.pop('video', None)
         url_slug = data.pop('url_slug', '')
