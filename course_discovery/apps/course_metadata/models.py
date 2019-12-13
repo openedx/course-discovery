@@ -183,6 +183,9 @@ class Organization(CachedMixin, TimeStampedModel):
             " generated.  When this flag is disabled, the key can be manually set."
         )
     )
+    # Do not record the slug field in the history table because AutoSlugField is not compatible with
+    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
+    history = HistoricalRecords(excluded_fields=['slug'])
 
     def clean(self):
         if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
