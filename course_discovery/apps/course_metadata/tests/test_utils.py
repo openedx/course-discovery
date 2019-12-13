@@ -28,9 +28,8 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, create_missing_entitlement, ensure_draft_world,
-    publish_to_course_metadata, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
+    serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
 )
-from course_discovery.apps.publisher.tests.factories import CourseRunFactory as PublisherCourseRunFactory
 
 
 @ddt.ddt
@@ -578,44 +577,6 @@ class TestCreateMissingEntitlement(TestCase):
 
         self.assertEqual(mock_push.call_count, 1)
         self.assertEqual(mock_push.call_args[0][0], run)
-
-
-# This is also tested through Publisher's api/v1/tests/test_views.py
-class TestPublishToCourseMetadata(TestCase):
-    def test_no_draft_row(self):
-        """ Test that re-publishing when there's already an official row but no draft row yet works fine. """
-        cm_run = CourseRunFactory()
-        pub_run = PublisherCourseRunFactory(lms_course_id=cm_run.key)
-        publish_to_course_metadata(cm_run.course.partner, pub_run)
-
-        cm_run.refresh_from_db()
-        cm_run_draft = CourseRun.everything.get(key=cm_run.key, draft=True)
-
-        self.assertEqual(cm_run.draft_version, cm_run_draft)
-        self.assertEqual(cm_run.uuid, cm_run_draft.uuid)
-
-    def test_unlinked_draft_row(self):
-        """
-        Test that re-publishing when there's already a draft row but not linked to the official row.
-
-        Specifically, they have a different UUID and are not linked via draft_version.
-        This might happen from historical bugs in the migrate script / old publisher / studio loader.
-        """
-        cm_run = CourseRunFactory()
-        cm_run_draft = ensure_draft_world(cm_run)
-        cm_run.draft_version = None
-        cm_run.save()
-        cm_run_draft.uuid = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-        cm_run_draft.save()
-        pub_run = PublisherCourseRunFactory(lms_course_id=cm_run.key)
-        publish_to_course_metadata(cm_run.course.partner, pub_run)
-
-        cm_run.refresh_from_db()
-        cm_run_draft.refresh_from_db()
-
-        self.assertEqual(cm_run.draft_version, cm_run_draft)
-        self.assertEqual(cm_run.uuid, cm_run_draft.uuid)
-        self.assertNotEqual(cm_run_draft.uuid, 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
 
 
 @ddt.ddt

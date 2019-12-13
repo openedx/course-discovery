@@ -1345,7 +1345,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         # If the type isn't marketable, don't expose a marketing URL at all, to avoid confusion.
         # This is very similar to self.could_be_marketable, but we don't use that because we
         # still want draft runs to expose a marketing URL.
-        type_is_marketable = not self.type or self.type.is_marketable
+        type_is_marketable = self.type.is_marketable
 
         if self.slug and type_is_marketable:
             path = 'course/{slug}'.format(slug=self.slug)
@@ -1540,27 +1540,10 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         course run exists. After an official version of the course run exists, it only supports
         price changes or upgrades from Audit -> Verified.
         """
-        ignore_types = set()  # an extra list of seat types to ignore / keep around
         prices = dict(prices or {})
+        seat_types = {track.seat_type for track in run_type.tracks.exclude(seat_type=None)}
 
-        # DISCO-1399: Shouldn't need the whole if/else anymore. Can also look into if it's necessary
-        # to keep all of the helper functions (helper, validate, and upgrade deadline)
-        if run_type:
-            seat_types = {track.seat_type for track in run_type.tracks.exclude(seat_type=None)}
-        else:
-            course_entitlement = self.course.entitlements.first()  # pylint: disable=no-member
-            seat_types = set()
-            if course_entitlement:
-                seat_types.add(course_entitlement.mode)
-            if not course_entitlement or course_entitlement.mode.slug in Seat.REQUIRES_AUDIT_SEAT:
-                seat_types.add(SeatType.objects.get(slug=Seat.AUDIT))
-
-            # Publisher does not yet handle credit/honor seats. But we don't want to delete them or change their price.
-            # So just save them from deletion but don't update. They'll be handled better in new CourseType flow.
-            ignore_types.update(SeatType.objects.filter(slug__in=[Seat.CREDIT, Seat.HONOR]))
-
-        allowed_types = seat_types | ignore_types
-        self.validate_seat_upgrade(allowed_types)
+        self.validate_seat_upgrade(seat_types)
 
         for seat_type in seat_types:
             self.update_or_create_seat_helper(seat_type, prices)
@@ -1568,7 +1551,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         # Deleting seats here since they would be orphaned otherwise.
         # One example of how this situation can happen is if a course team is switching between
         # professional and verified before actually publishing their course run.
-        self.seats.exclude(type__in=allowed_types).delete()
+        self.seats.exclude(type__in=seat_types).delete()
 
     def update_or_create_official_version(self, notify_services=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
@@ -1581,7 +1564,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         official_version.slug = self.slug
         official_version.course = official_course
 
-        # During this save, the pre_save hook `ensure_external_key_uniquness__course_run` in signals.py
+        # During this save, the pre_save hook `ensure_external_key_uniqueness__course_run` in signals.py
         # is run. We rely on there being a save of the official version after the call to set_official_state
         # and the setting of the official_course.
         official_version.save()
@@ -1741,7 +1724,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         A course run is considered possibly marketable if it would ever be put on
         a marketing site (so things that would *never* be marketable are not).
         """
-        if self.type and not self.type.is_marketable:
+        if not self.type.is_marketable:
             return False
         return not self.draft
 

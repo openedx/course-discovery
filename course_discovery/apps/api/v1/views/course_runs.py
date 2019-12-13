@@ -280,7 +280,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         course_run = serializer.save(**save_kwargs)
 
-        if course_run.type and course_run in course_run.course.active_course_runs:
+        if course_run in course_run.course.active_course_runs:
             course_run.update_or_create_seats(course_run.type, prices)
 
         self.push_to_studio(request, course_run, create=False)

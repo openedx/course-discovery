@@ -921,7 +921,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_update_success_with_course_type_audit(self):
-        # self.maxDiff = None
         self.mock_access_token()
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
