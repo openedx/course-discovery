@@ -11,12 +11,14 @@ import requests
 from django.conf import settings
 from django.core.files import File
 from django.core.management import CommandError
+from django.db.models import Q
 from opaque_keys.edx.keys import CourseKey
 from slumber.exceptions import HttpClientError
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
+from course_discovery.apps.course_metadata.data_loaders.course_type import calculate_course_type
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType,
     Video
@@ -441,6 +443,15 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                     self.enrollment_code_count,
                     self.partner.ecommerce_api_url)
 
+        # Try to upgrade empty run types to real ones, now that we have seats from ecommerce
+        empty_course_type = CourseType.objects.get(slug=CourseType.EMPTY)
+        empty_course_run_type = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
+        has_empty_type = (Q(type=empty_course_type, course_runs__seats__isnull=False) |
+                          Q(course_runs__type=empty_course_run_type, course_runs__seats__isnull=False))
+        for course in Course.everything.filter(has_empty_type).distinct().iterator():
+            if not calculate_course_type(course, commit=True):
+                self.processing_failure_occurred = True
+
         if (self.course_run_count != course_runs['count'] or
                 self.entitlement_count != entitlements['count'] or
                 self.enrollment_code_count != enrollment_codes['count']):  # pragma: no cover
@@ -603,7 +614,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             logger.warning(msg)
             self.processing_failure_occurred = True
             return
-        if course_run.type and not course_run.type.tracks.filter(seat_type=seat_type).exists():
+        if not course_run.type.empty and not course_run.type.tracks.filter(seat_type=seat_type).exists():
             logger.warning(
                 'Seat type {seat_type} is not compatible with course run type {run_type} for course run {key}'.format(
                     seat_type=seat_type.slug, run_type=course_run.type.slug, key=course_run.key,
@@ -744,7 +755,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             logger.warning(msg)
             self.processing_failure_occurred = True
             return None
-        if course.type and mode not in course.type.entitlement_types.all():
+        if not course.type.empty and mode not in course.type.entitlement_types.all():
             logger.warning(
                 'Seat type {seat_type} is not compatible with course type {course_type} for course {uuid}'.format(
                     seat_type=mode.slug, course_type=course.type.slug, uuid=course_uuid,

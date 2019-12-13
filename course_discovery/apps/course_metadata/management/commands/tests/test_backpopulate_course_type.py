@@ -4,7 +4,7 @@ from django.core.management import CommandError, call_command
 from django.test import TestCase
 from testfixtures import LogCapture, StringComparison
 
-from course_discovery.apps.course_metadata.management.commands.backpopulate_course_type import logger
+from course_discovery.apps.course_metadata.data_loaders.course_type import logger
 from course_discovery.apps.course_metadata.models import (
     BackpopulateCourseTypeConfig, Course, CourseRunType, CourseType, Mode, Seat, Track
 )
@@ -27,20 +27,25 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.verified_mode = Mode.objects.get(slug=Seat.VERIFIED)
         self.audit_track = Track.objects.get(seat_type=self.audit_seat_type, mode=self.audit_mode)
         self.verified_track = Track.objects.get(seat_type=self.verified_seat_type, mode=self.verified_mode)
+        self.empty_run_type = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
         self.audit_run_type = CourseRunType.objects.get(slug=CourseRunType.AUDIT)
         self.va_run_type = CourseRunType.objects.get(slug=CourseRunType.VERIFIED_AUDIT)
+        self.empty_course_type = CourseType.objects.get(slug=CourseType.EMPTY)
         self.va_course_type = CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT)
         self.audit_course_type = CourseType.objects.get(slug=CourseType.AUDIT)
 
         # Now create some courses and orgs that will be found to match the above, in the simple happy path case.
         self.org = factories.OrganizationFactory(partner=self.partner, key='Org1')
-        self.course = factories.CourseFactory(partner=self.partner, authoring_organizations=[self.org], type=None,
+        self.course = factories.CourseFactory(partner=self.partner, authoring_organizations=[self.org],
+                                              type=self.empty_course_type,
                                               key='{org}+Course1'.format(org=self.org.key))
         self.entitlement = factories.CourseEntitlementFactory(partner=self.partner, course=self.course,
                                                               mode=self.verified_seat_type)
-        self.audit_run = factories.CourseRunFactory(course=self.course, type=None, key='course-v1:Org1+Course1+A')
+        self.audit_run = factories.CourseRunFactory(course=self.course, type=self.empty_run_type,
+                                                    key='course-v1:Org1+Course1+A')
         self.audit_seat = factories.SeatFactory(course_run=self.audit_run, type=self.audit_seat_type)
-        self.verified_run = factories.CourseRunFactory(course=self.course, type=None, key='course-v1:Org1+Course1+V')
+        self.verified_run = factories.CourseRunFactory(course=self.course, type=self.empty_run_type,
+                                                       key='course-v1:Org1+Course1+V')
         self.verified_seat = factories.SeatFactory(course_run=self.verified_run, type=self.verified_seat_type)
         self.verified_audit_seat = factories.SeatFactory(course_run=self.verified_run, type=self.audit_seat_type)
 
@@ -48,8 +53,9 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.org2 = factories.OrganizationFactory(partner=self.partner, key='Org2')
         self.org3 = factories.OrganizationFactory(partner=self.partner, key='Org3')
         self.course2 = factories.CourseFactory(partner=self.partner, authoring_organizations=[self.org2, self.org3],
-                                               type=None, key='{org}+Course1'.format(org=self.org2.key))
-        self.c2_audit_run = factories.CourseRunFactory(course=self.course2, type=None)
+                                               type=self.empty_course_type,
+                                               key='{org}+Course1'.format(org=self.org2.key))
+        self.c2_audit_run = factories.CourseRunFactory(course=self.course2, type=self.empty_run_type)
         self.c2_audit_seat = factories.SeatFactory(course_run=self.c2_audit_run, type=self.audit_seat_type)
 
     def run_command(self, courses=None, orgs=None, allow_for=None, commit=True, fails=None, log=None):
@@ -141,11 +147,11 @@ class BackpopulateCourseTypeCommandTests(TestCase):
 
     def test_non_committal_run(self):
         self.run_command(commit=False)
-        self.assertIsNone(self.course.type)
+        self.assertTrue(self.course.type.empty)
 
         # Sanity check that it would set the type with commit=True
         self.run_command()
-        self.assertIsNotNone(self.course.type)
+        self.assertFalse(self.course.type.empty)
 
     def test_normal_run(self):
         self.run_command(log='Course .* matched type Verified and Audit')
@@ -155,37 +161,37 @@ class BackpopulateCourseTypeCommandTests(TestCase):
 
     def test_existing_type(self):
         # First, confirm we try and fail to find a valid match for runs when course has type but no runs can match it
-        empty_course_type = CourseType.objects.get(slug=CourseType.EMPTY)
-        self.course.type = empty_course_type
+        prof_course_type = CourseType.objects.get(slug=CourseType.PROFESSIONAL)
+        self.course.type = prof_course_type
         self.course.save()
-        self.run_command(fails=self.course, log="Existing course type Empty for .* doesn't match its own entitlements")
+        self.run_command(fails=self.course,
+                         log="Existing course type Professional Only for .* doesn't match its own entitlements")
 
         # Now set up the runs with types too -- but make sure we don't consider the course type a valid match yet
         self.entitlement.delete()
-        empty_run_type = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
-        self.audit_run.type = empty_run_type
+        audit_run_type = CourseRunType.objects.get(slug=CourseRunType.AUDIT)
+        self.audit_run.type = audit_run_type
         self.audit_run.save()
-        self.verified_run.type = empty_run_type
+        self.verified_run.type = audit_run_type
         self.verified_run.save()
-        self.run_command(fails=self.course, log="Existing run type Empty for .* doesn't match course type Empty")
+        self.run_command(fails=self.course,
+                         log="Existing run type Audit Only for .* doesn't match course type Professional Only")
 
         # Once the run type is valid for the course type, it should still require matching seats.
-        empty_course_type.course_run_types.add(empty_run_type)
-        self.run_command(fails=self.course, log="Existing run type Empty for .* doesn't match its own seats")
+        prof_course_type.course_run_types.add(audit_run_type)
+        self.run_command(fails=self.course, log="Existing run type Audit Only for .* doesn't match its own seats")
 
-        # Now make the runs match the empty run types and everything should pass
-        self.audit_seat.delete()
+        # Now make the runs match the audit only run types and everything should pass
         self.verified_seat.delete()
-        self.verified_audit_seat.delete()
         pre_course_modified = self.course.modified
         pre_audit_modified = self.audit_run.modified
         pre_verified_modified = self.verified_run.modified
         self.run_command()
-        self.assertEqual(self.course.type, empty_course_type)
+        self.assertEqual(self.course.type, prof_course_type)
         self.assertEqual(self.course.modified, pre_course_modified)
-        self.assertEqual(self.audit_run.type, empty_run_type)
+        self.assertEqual(self.audit_run.type, audit_run_type)
         self.assertEqual(self.audit_run.modified, pre_audit_modified)
-        self.assertEqual(self.verified_run.type, empty_run_type)
+        self.assertEqual(self.verified_run.type, audit_run_type)
         self.assertEqual(self.verified_run.modified, pre_verified_modified)
 
     def test_affects_drafts_too(self):
@@ -214,7 +220,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.assertEqual(self.course.type, self.va_course_type)
 
         # Now sanity check that we *would* have matched
-        self.course.type = None
+        self.course.type = self.empty_course_type
         self.course.save()
         self.va_course_type.delete()
         self.run_command()
@@ -224,7 +230,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         """ Test that a single run that doesn't match its parent course type will prevent a course match. """
         self.audit_seat.delete()
         self.run_command(fails=self.course)
-        self.assertIsNone(self.course.type)
+        self.assertTrue(self.course.type.empty)
 
         # Now sanity check that we *would* have matched without seatless run
         self.audit_run.delete()
@@ -233,7 +239,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
 
     def test_by_org(self):
         self.run_command(orgs=[self.org2])
-        self.assertIsNone(self.course.type)
+        self.assertTrue(self.course.type.empty)
         self.assertEqual(self.course2.type, self.audit_course_type)
 
     def test_by_multiple_orgs(self):
@@ -258,13 +264,15 @@ class BackpopulateCourseTypeCommandTests(TestCase):
             name='Honor Only', slug=CourseRunType.HONOR, tracks=[honor_track]
         )
         # Tests that Honor Only will not match with Verified and Honor despite being a subset of that CourseRunType
-        honor_run = factories.CourseRunFactory(course=self.course, type=None, key='course-v1:Org1+Course1+H')
+        honor_run = factories.CourseRunFactory(course=self.course, type=self.empty_run_type,
+                                               key='course-v1:Org1+Course1+H')
         factories.SeatFactory(course_run=honor_run, type=honor_seat_type)
 
         vh_run_type = factories.CourseRunTypeFactory(
             name='Verified and Honor', slug=CourseRunType.VERIFIED_HONOR, tracks=[honor_track, self.verified_track]
         )
-        vh_run = factories.CourseRunFactory(course=self.course, type=None, key='course-v1:Org1+Course1+VH')
+        vh_run = factories.CourseRunFactory(course=self.course, type=self.empty_run_type,
+                                            key='course-v1:Org1+Course1+VH')
         factories.SeatFactory(course_run=vh_run, type=honor_seat_type)
         factories.SeatFactory(course_run=vh_run, type=self.verified_seat_type)
 
@@ -282,7 +290,8 @@ class BackpopulateCourseTypeCommandTests(TestCase):
     def test_course_runs_with_no_seats(self):
         print(CourseRunType.objects.all())
         empty_run_type = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
-        empty_run = factories.CourseRunFactory(course=self.course, type=None, key='course-v1:Org1+Course1+H')
+        empty_run = factories.CourseRunFactory(course=self.course, type=self.empty_run_type,
+                                               key='course-v1:Org1+Course1+H')
         self.assertEqual(empty_run.seats.count(), 0)
 
         allow_for = [CourseType.VERIFIED_AUDIT + ':' + CourseRunType.EMPTY]

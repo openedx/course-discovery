@@ -935,6 +935,54 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         """ Verify the method returns the correct certificate type"""
         self.assertEqual(self.loader.get_certificate_type(product), expected_certificate_type)
 
+    @responses.activate
+    def test_upgrade_empty_types(self):
+        """ Verify that we try to fill in any empty course or run types after loading seats. """
+        self.mock_courses_api()
+        self.mock_products_api()
+
+        # Set everything to empty, so we can upgrade them
+        empty_type = CourseType.objects.get(slug=CourseType.EMPTY)
+        Course.everything.update(type=empty_type)
+        empty_run_type = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
+        CourseRun.everything.update(type=empty_run_type)
+
+        # However, make sure we notice when a run is set, but the course is empty.
+        credit_run = CourseRun.objects.get(key='credit/course/run')
+        credit_run.type = CourseRunType.objects.get(slug=CourseRunType.CREDIT_VERIFIED_AUDIT)
+        credit_run.save()
+
+        # And also make sure we notice when a run is empty even though the course is not.
+        # Also set it to the wrong type, to test that we fail when we can't find a match
+        audit_run = CourseRun.objects.get(key='audit/course/run')
+        audit_run.course.type = CourseType.objects.get(slug=CourseType.PROFESSIONAL)
+        audit_run.course.save()
+
+        with self.assertRaises(CommandError):
+            self.loader.ingest()
+
+        # Audit will have failed to match and nothing should have changed
+        audit_run = CourseRun.objects.get(key='audit/course/run')
+        self.assertEqual(audit_run.type.slug, CourseRunType.EMPTY)
+        self.assertEqual(audit_run.course.type.slug, CourseType.PROFESSIONAL)
+
+        verified_run = CourseRun.objects.get(key='verified/course/run')
+        self.assertEqual(verified_run.type.slug, CourseRunType.VERIFIED_AUDIT)
+        self.assertEqual(verified_run.course.type.slug, CourseType.VERIFIED_AUDIT)
+
+        credit_run = CourseRun.objects.get(key='credit/course/run')
+        self.assertEqual(credit_run.type.slug, CourseType.CREDIT_VERIFIED_AUDIT)
+        self.assertEqual(credit_run.course.type.slug, CourseType.CREDIT_VERIFIED_AUDIT)
+
+        # Let's fix audit's type and try again.
+        audit_run.course.type = empty_type
+        audit_run.course.save()
+        self.loader.ingest()
+
+        audit_run = CourseRun.objects.get(key='audit/course/run')
+        self.assertEqual(audit_run.type.slug, CourseType.AUDIT)
+        self.assertEqual(audit_run.course.type.slug, CourseType.AUDIT)
+
 
 @ddt.ddt
 class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
