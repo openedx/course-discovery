@@ -160,6 +160,8 @@ class Organization(CachedMixin, TimeStampedModel):
                                                        'than period, underscore or hyphen. This key will be used '
                                                        'in the course\'s course key.'))
     name = models.CharField(max_length=255)
+    certificate_name = models.CharField(max_length=255, null=True, help_text=_('If populated, this field will '
+                                                                               'overwrite name in platform.'))
     slug = AutoSlugField(populate_from='key', editable=False, slugify_function=uslugify)
     description = models.TextField(null=True, blank=True)
     homepage_url = models.URLField(max_length=255, null=True, blank=True)
