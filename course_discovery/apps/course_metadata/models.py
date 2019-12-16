@@ -875,8 +875,11 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         # (done in Python rather than hitting self.active_course_runs to avoid a second db query)
         now = datetime.datetime.now(pytz.UTC)
         inactive_runs = {run for run in published_runs if run.has_enrollment_ended(now)}
-        if not inactive_runs:
-            return False  # if there are no inactive runs, there's no point in continuing
+        marketable_runs = {run for run in published_runs - inactive_runs if run.could_be_marketable}
+        if not marketable_runs or not inactive_runs:
+            # if there are no inactive runs, there's no point in continuing - and ensure that we always have at least
+            # one marketable run around by not unpublishing if we would get rid of all of them
+            return False
 
         for run in inactive_runs:
             run.status = CourseRunStatus.Unpublished
