@@ -2810,3 +2810,7 @@ class RemoveRedirectsConfig(SingletonModel):
     """
     remove_all = models.BooleanField(default=False, verbose_name=_('Remove All Redirects'))
     url_paths = models.TextField(default='', null=False, blank=True, verbose_name=_('Url Paths'))
+
+
+class BulkModifyProgramHookConfig(SingletonModel):
+    program_hooks = models.TextField(blank=True, null=True)

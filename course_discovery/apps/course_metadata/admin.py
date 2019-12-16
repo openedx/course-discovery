@@ -479,5 +479,5 @@ class DegreeAdmin(admin.ModelAdmin):
 for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
               DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCommentsToSalesforce,
               MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, PersonAreaOfExpertise,
-              TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig):
+              TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig, BulkModifyProgramHookConfig):
     admin.site.register(model)
