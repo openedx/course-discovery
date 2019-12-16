@@ -61,6 +61,12 @@ class Command(BaseCommand):
                             type=str,
                             default='',
                             help='API endpoint for accessing Partner program data.')
+        parser.add_argument('--lms-url',
+                            action='store',
+                            dest='lms_url',
+                            type=str,
+                            default='',
+                            help='API endpoint for accessing lms.')
         parser.add_argument('--marketing-site-api-url',
                             action='store',
                             dest='marketing_site_api_url',
@@ -111,6 +117,7 @@ class Command(BaseCommand):
                 'ecommerce_api_url': options.get('ecommerce_api_url'),
                 'organizations_api_url': options.get('organizations_api_url'),
                 'programs_api_url': options.get('programs_api_url'),
+                'lms_url': options.get('lms_url'),
                 'marketing_site_api_url': options.get('marketing_site_api_url'),
                 'marketing_site_url_root': options.get('marketing_site_url_root'),
                 'marketing_site_api_username': options.get('marketing_site_api_username'),
