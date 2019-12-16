@@ -1,12 +1,11 @@
 import logging
-from operator import attrgetter
 
 from django.core.management import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.exceptions import UnpublishError
-from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import CourseRun
 
 logger = logging.getLogger(__name__)
 
@@ -39,10 +38,6 @@ class Command(BaseCommand):
         if current_runs:
             success = self.update_course(current_course, current_runs) and success
 
-        # Special temporary logic (added after we accidentally dropped a bunch of courses that had no active runs).
-        # Should be safe to leave in for a while, but hopefully has no purpose shortly.
-        self.revive_accidentally_unpublished_courses()
-
         if not success:
             raise CommandError(_('One or more courses failed to unpublish.'))
 
@@ -55,25 +50,3 @@ class Command(BaseCommand):
         except UnpublishError:
             logger.exception(_('Failed to unpublish runs in course {key}').format(key=course.key))
             return False
-
-    @staticmethod
-    def revive_accidentally_unpublished_courses():
-        unpublished_courses = Course.objects.exclude(course_runs__status=CourseRunStatus.Published)
-        unpublished_runs = CourseRun.objects.filter(status=CourseRunStatus.Unpublished, announcement__isnull=False,
-                                                    course__in=unpublished_courses)
-
-        # Group by course
-        course_to_runs = {}
-        for run in unpublished_runs:
-            course_runs = course_to_runs.setdefault(run.course_id, [])
-            course_runs.append(run)
-
-        # Now republish the latest run in each course
-        for runs in course_to_runs.values():
-            latest_run = sorted(runs, key=attrgetter('start'))[-1]
-
-            latest_run.status = CourseRunStatus.Published
-            latest_run.save(send_emails=False)
-            if latest_run.draft_version:
-                latest_run.draft_version.status = CourseRunStatus.Published
-                latest_run.draft_version.save(send_emails=False)
