@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-13 19:50+0000\n"
+"POT-Creation-Date: 2019-12-16 15:42+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1084,24 +1084,24 @@ msgstr ""
 "¢σηѕє¢тєтυя#"
 
 #: apps/course_metadata/management/commands/unpublish_inactive_runs.py
-msgid "One or more courses failed to redirect."
+msgid "One or more courses failed to unpublish."
 msgstr ""
-"Öné ör möré çöürsés fäïléd tö rédïréçt. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"Öné ör möré çöürsés fäïléd tö ünpüßlïsh. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя#"
 
 #: apps/course_metadata/management/commands/unpublish_inactive_runs.py
 #, python-brace-format
-msgid "Successfully redirected runs in course {key}"
+msgid "Successfully unpublished runs in course {key}"
 msgstr ""
-"Süççéssfüllý rédïréçtéd rüns ïn çöürsé {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"Süççéssfüllý ünpüßlïshéd rüns ïn çöürsé {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/management/commands/unpublish_inactive_runs.py
 #, python-brace-format
-msgid "Failed to redirect runs in course {key}"
+msgid "Failed to unpublish runs in course {key}"
 msgstr ""
-"Fäïléd tö rédïréçt rüns ïn çöürsé {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυ#"
+"Fäïléd tö ünpüßlïsh rüns ïn çöürsé {key} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя#"
 
 #: apps/course_metadata/models.py
 msgid ""

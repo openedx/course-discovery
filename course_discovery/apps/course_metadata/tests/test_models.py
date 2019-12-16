@@ -225,6 +225,13 @@ class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCa
         _in_future = factories.CourseRunFactory(**self.base_args, end=future, enrollment_end=future, start=future)
         self.assertUnpublish()
 
+    def test_leaves_at_least_one_run_published(self):
+        """ Verifies that we refuse to unpublish all runs in a course if there are no marketable runs. """
+        self.active.end = self.past
+        self.active.enrollment_end = self.past
+        self.active.save()
+        self.assertUnpublish(succeed=False)  # fails if no marketable runs at all
+
 
 class TestCourseEditor(TestCase):
     """ Tests for the CourseEditor module. """
