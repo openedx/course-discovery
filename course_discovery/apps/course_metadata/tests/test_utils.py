@@ -591,6 +591,12 @@ class CleanHtmlTests(TestCase):
         ('<a href="https://example.com/">Link</a>', '<p><a href="https://example.com/">Link</a></p>'),
         ('<ul><li>1</li><li>2</li></ul>', '<ul>\n<li>1</li>\n<li>2</li>\n</ul>'),
 
+        # Make sure our diacritics are handled nicely
+        # pylint: disable=line-too-long
+        ('These are our at risk characters áàãäéêèíîóôœòöúùü', '<p>These are our at risk characters áàãäéêèíîóôœòöúùü</p>'),
+        # pylint: disable=line-too-long
+        ('These are our at risk characters &#xE1;&#xE0;&#xE3;&#xE4;&#xE9;&#xEA;&#xE8;&#xED;&#xEE;&#xF3;&#xF4;&#x153;&#xF2;&#xF6;&#xFA;&#xF9;&#xFC;', '<p>These are our at risk characters áàãäéêèíîóôœòöúùü</p>'),
+
         # Make sure we treat incoming text as HTML, not markdown
         ('Bare Text\nSame Para\n\nNew Para', '<p>Bare Text Same Para New Para</p>'),
 
