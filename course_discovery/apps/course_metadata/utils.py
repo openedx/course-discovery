@@ -8,6 +8,7 @@ from urllib.parse import urljoin
 import html2text
 import markdown
 import requests
+from bs4 import BeautifulSoup
 from django.conf import settings
 from django.db import transaction
 from django.utils.functional import cached_property
@@ -639,7 +640,10 @@ def clean_html(content):
     This method converts the HTML to a Markdown string (to remove styles, classes, and other unsupported
     attributes), and converts the Markdown back to HTML.
     """
-    cleaned = content.replace('&nbsp;', '')
+    cleaned = content.replace('&nbsp;', '')  # Keeping the removal of nbsps for historical consistency
+    cleaned = str(BeautifulSoup(cleaned, 'lxml'))
+    # Need to re-replace the · middot with the entity so that html2text can transform it to * for <ul> in markdown
+    cleaned = cleaned.replace('·', '&middot;')
     html_converter = html2text.HTML2Text(bodywidth=None)
     html_converter.wrap_links = False
     cleaned = html_converter.handle(cleaned).strip()
