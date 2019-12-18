@@ -329,9 +329,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         if url_slug:
             validators.validate_slug(url_slug)
-            all_course_historical_slugs = CourseUrlSlug.objects.filter(url_slug=url_slug, partner=course.partner)
-            all_course_historical_slugs_excluding_present = all_course_historical_slugs.exclude(
-                course__uuid=course.uuid)
+            all_course_historical_slugs_excluding_present = CourseUrlSlug.objects.filter(
+                url_slug=url_slug, partner=course.partner).exclude(course__uuid=course.uuid)
             if all_course_historical_slugs_excluding_present.exists():
                 raise Exception(
                     _('Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. '

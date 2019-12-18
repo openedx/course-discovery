@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-18 15:05+0000\n"
+"POT-Creation-Date: 2019-12-18 19:02+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1003,11 +1003,11 @@ msgid "Additional Information"
 msgstr ""
 
 #: apps/course_metadata/models.py:1069
-msgid "Restricted"
+msgid "Blocked"
 msgstr ""
 
 #: apps/course_metadata/models.py:1070
-msgid "Not restricted"
+msgid "Unrestricted"
 msgstr ""
 
 #: apps/course_metadata/models.py:1083 apps/publisher/models.py:361
