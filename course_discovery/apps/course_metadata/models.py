@@ -1066,8 +1066,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     """ CourseRun model. """
     OFAC_RESTRICTION_CHOICES = (
         ('', '--'),
-        (True, _('Restricted')),
-        (False, _('Not restricted')),
+        (True, _('Blocked')),
+        (False, _('Unrestricted')),
     )
 
     uuid = models.UUIDField(default=uuid4, verbose_name=_('UUID'))
