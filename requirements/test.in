@@ -6,7 +6,6 @@ edx-lint
 factory-boy
 freezegun
 isort
-lxml
 mock
 pycodestyle
 pytest

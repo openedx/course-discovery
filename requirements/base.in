@@ -44,6 +44,7 @@ edx-opaque-keys
 edx-rest-api-client
 elasticsearch
 html2text
+lxml
 jsonfield
 markdown
 pillow
