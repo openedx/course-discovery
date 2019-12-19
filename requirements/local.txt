@@ -51,7 +51,7 @@ django-taggit-serializer==0.1.7
 django-taggit==1.2.0
 django-waffle==0.18.0
 django-webpack-loader==0.6.0
-django==1.11.26
+django==1.11.27
 djangorestframework-csv==2.1.0
 djangorestframework-jwt==1.11.0
 djangorestframework-xml==1.4.0
