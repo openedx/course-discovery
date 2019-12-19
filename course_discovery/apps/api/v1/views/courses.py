@@ -285,9 +285,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         video_data = data.pop('video', None)
         url_slug = data.pop('url_slug', '')
 
-        # DISCO-1399: Remove this line once the FAP side of DISCO-1399 is completed
-        data.pop('entitlements', None)
-
         # Get and validate object serializer
         course = self.get_object()
         course = ensure_draft_world(course)  # always work on drafts
