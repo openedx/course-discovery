@@ -24,7 +24,6 @@ from course_discovery.apps.course_metadata.models import (
     Video
 )
 from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run, subtract_deadline_delta
-from course_discovery.apps.publisher.utils import is_course_on_new_pub_fe
 
 logger = logging.getLogger(__name__)
 
@@ -198,9 +197,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
     def update_course_run(self, official_run, draft_run, body):
         run = draft_run or official_run
-        new_pub_fe = is_course_on_new_pub_fe(run.course)
 
-        validated_data = self.format_course_run_data(body, new_pub_fe=new_pub_fe)
+        validated_data = self.format_course_run_data(body)
         end_has_updated = validated_data.get('end') != run.end
         self._update_instance(official_run, validated_data, suppress_publication=True)
         self._update_instance(draft_run, validated_data, suppress_publication=True)
@@ -214,8 +212,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Processed course run with UUID [%s].', run.uuid)
 
     def create_course_run(self, course, body):
-        new_pub_fe = is_course_on_new_pub_fe(course)
-        defaults = self.format_course_run_data(body, course=course, new_pub_fe=new_pub_fe)
+        defaults = self.format_course_run_data(body, course=course)
 
         # Set type to be the same as the most recent run as a best guess.
         # Else mark the run type as empty and RCM will upgrade if it can.
@@ -276,7 +273,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         instance.save(**kwargs)
 
-    def format_course_run_data(self, body, course=None, new_pub_fe=False):
+    def format_course_run_data(self, body, course=None):
         defaults = {
             'key': body['id'],
             'start': self.parse_date(body['start']),
@@ -286,10 +283,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'hidden': body.get('hidden', False),
             'license': body.get('license') or '',  # license cannot be None
             'title_override': body['name'],  # we support Studio edits, even though Publisher also owns titles
+            'pacing_type': self.get_pacing_type(body)
         }
-
-        if not self.partner.uses_publisher or new_pub_fe:
-            defaults['pacing_type'] = self.get_pacing_type(body)
 
         if not self.partner.uses_publisher:
             defaults.update({
