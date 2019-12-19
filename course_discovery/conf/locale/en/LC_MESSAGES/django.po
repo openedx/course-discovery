@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-18 19:02+0000\n"
+"POT-Creation-Date: 2019-12-19 18:13+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -149,7 +149,7 @@ msgid ""
 "reach out to your project coordinator for additional help if necessary."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:334
+#: apps/api/v1/views/courses.py:333
 #, python-brace-format
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
@@ -735,66 +735,6 @@ msgstr ""
 msgid "You must specify at least one person"
 msgstr ""
 
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:20
-msgid ""
-"Based on the configuration object, goes through all of the courses for an "
-"Organization and takes all of the Course Metadata Courses, Course Metadata "
-"Course Runs, and Publisher Comments, and writes them to Salesforce."
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:30
-msgid ""
-"No organizations were defined. Please add organizations to the "
-"MigrateCommentsToSalesforce model."
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:32
-msgid "No organizations were defined."
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:35
-msgid ""
-"No partner was defined. Please add a partner to the "
-"MigrateCommentsToSalesforce model."
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:36
-msgid "No partner was defined."
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:40
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:41
-msgid "Salesforce configuration for {} does not exist"
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:43
-msgid "Executing for Organization: {}"
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:47
-msgid "Found {} courses for {}"
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:51
-msgid "Creating Salesforce Case for Course: {}"
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:58
-msgid "Creating Salesforce Course_Run__c for Course Run: {}"
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:66
-msgid "No PublisherCourseRun found for {}."
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:100
-msgid "Inserted {} comments for {}"
-msgstr ""
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py:102
-msgid "No PublisherCourses found for {}"
-msgstr ""
-
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:23
 #, python-brace-format
 msgid "Publishing course run {key}"
@@ -847,16 +787,16 @@ msgstr ""
 msgid "Path {url_path} not in use, nothing to delete"
 msgstr ""
 
-#: apps/course_metadata/management/commands/unpublish_inactive_runs.py:45
+#: apps/course_metadata/management/commands/unpublish_inactive_runs.py:42
 msgid "One or more courses failed to unpublish."
 msgstr ""
 
-#: apps/course_metadata/management/commands/unpublish_inactive_runs.py:51
+#: apps/course_metadata/management/commands/unpublish_inactive_runs.py:48
 #, python-brace-format
 msgid "Successfully unpublished runs in course {key}"
 msgstr ""
 
-#: apps/course_metadata/management/commands/unpublish_inactive_runs.py:54
+#: apps/course_metadata/management/commands/unpublish_inactive_runs.py:51
 #, python-brace-format
 msgid "Failed to unpublish runs in course {key}"
 msgstr ""
@@ -1643,7 +1583,7 @@ msgstr ""
 msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr ""
 
-#: apps/course_metadata/utils.py:362
+#: apps/course_metadata/utils.py:363
 msgid "Special characters not allowed in Course Number."
 msgstr ""
 

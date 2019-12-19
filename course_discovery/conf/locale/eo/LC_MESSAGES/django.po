@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-18 19:02+0000\n"
+"POT-Creation-Date: 2019-12-19 18:13+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -879,86 +879,6 @@ msgid "You must specify at least one person"
 msgstr ""
 "Ýöü müst spéçïfý ät léäst öné pérsön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid ""
-"Based on the configuration object, goes through all of the courses for an "
-"Organization and takes all of the Course Metadata Courses, Course Metadata "
-"Course Runs, and Publisher Comments, and writes them to Salesforce."
-msgstr ""
-"Bäséd ön thé çönfïgürätïön ößjéçt, göés thröügh äll öf thé çöürsés för än "
-"Örgänïzätïön änd täkés äll öf thé Çöürsé Métädätä Çöürsés, Çöürsé Métädätä "
-"Çöürsé Rüns, änd Püßlïshér Çömménts, änd wrïtés thém tö Sälésförçé. Ⱡ'σяєм "
-"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя "
-"ιη¢ι∂ι∂υηт υт łαвσяє єт ∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ "
-"ησѕтяυ∂ єχєя¢ιтαтιση υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ "
-"¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
-"¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυ#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid ""
-"No organizations were defined. Please add organizations to the "
-"MigrateCommentsToSalesforce model."
-msgstr ""
-"Nö örgänïzätïöns wéré défïnéd. Pléäsé ädd örgänïzätïöns tö thé "
-"MïgrätéÇömméntsTöSälésförçé mödél. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid "No organizations were defined."
-msgstr "Nö örgänïzätïöns wéré défïnéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid ""
-"No partner was defined. Please add a partner to the "
-"MigrateCommentsToSalesforce model."
-msgstr ""
-"Nö pärtnér wäs défïnéd. Pléäsé ädd ä pärtnér tö thé "
-"MïgrätéÇömméntsTöSälésförçé mödél. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid "No partner was defined."
-msgstr "Nö pärtnér wäs défïnéd. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid "Salesforce configuration for {} does not exist"
-msgstr ""
-"Sälésförçé çönfïgürätïön för {} döés nöt éxïst Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid "Executing for Organization: {}"
-msgstr "Éxéçütïng för Örgänïzätïön: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid "Found {} courses for {}"
-msgstr "Föünd {} çöürsés för {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid "Creating Salesforce Case for Course: {}"
-msgstr ""
-"Çréätïng Sälésförçé Çäsé för Çöürsé: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
-"¢σηѕє¢тєтυя#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid "Creating Salesforce Course_Run__c for Course Run: {}"
-msgstr ""
-"Çréätïng Sälésförçé Çöürsé_Rün__ç för Çöürsé Rün: {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
-"αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid "No PublisherCourseRun found for {}."
-msgstr ""
-"Nö PüßlïshérÇöürséRün föünd för {}. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid "Inserted {} comments for {}"
-msgstr "Ìnsértéd {} çömménts för {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє#"
-
-#: apps/course_metadata/management/commands/migrate_comments_to_salesforce.py
-msgid "No PublisherCourses found for {}"
-msgstr ""
-"Nö PüßlïshérÇöürsés föünd för {} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py
 #, python-brace-format
