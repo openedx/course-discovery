@@ -19,9 +19,8 @@ from course_discovery.apps.publisher.mixins import (
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
-    find_discovery_course, get_internal_users, has_role_for_course, is_course_on_new_pub_fe,
-    is_email_notification_enabled, is_internal_user, is_on_new_pub_fe, is_project_coordinator_user, is_publisher_admin,
-    is_publisher_course_on_new_pub_fe, is_publisher_user, make_bread_crumbs, parse_datetime_field
+    find_discovery_course, get_internal_users, has_role_for_course, is_email_notification_enabled, is_internal_user,
+    is_project_coordinator_user, is_publisher_admin, is_publisher_user, make_bread_crumbs, parse_datetime_field
 )
 
 
@@ -245,89 +244,3 @@ class PublisherUtilsTests(TestCase):
         assert find_discovery_course(pub_run2) == cm_run2.course
         assert find_discovery_course(pub_run_no_id) == cm_run2.course  # Most recent sibling run's course
         assert find_discovery_course(pub_run_no_siblings) is None
-
-    def test_is_on_new_pub_fe(self):
-        def staff_user_always_false(user):
-            user.is_staff = True
-            self.assertFalse(is_on_new_pub_fe(user))
-            user.is_staff = False
-
-        # When no ORGS_ON_OLD_PUBLISHER list present
-        self.assertFalse(is_on_new_pub_fe(self.user))
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER=self.organization_extension.organization.key):
-            # When ORGS_ON_OLD_PUBLISHER list present and user has no orgs
-            self.assertTrue(is_on_new_pub_fe(self.user))
-            staff_user_always_false(self.user)
-
-        self.user.groups.add(self.organization_extension.group)
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER=self.organization_extension.organization.key):
-            # When ORGS_ON_OLD_PUBLISHER list present and user belongs to an org in the list
-            self.assertFalse(is_on_new_pub_fe(self.user))
-            staff_user_always_false(self.user)
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER='example-key'):
-            # When ORGS_ON_NEW_PUB_FE list present and user belongs to org not in the list
-            self.assertTrue(is_on_new_pub_fe(self.user))
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER=self.organization_extension.organization.key):
-            org_ext = factories.OrganizationExtensionFactory()
-            self.user.groups.add(self.organization_extension.group)
-            self.user.groups.add(org_ext.group)
-            # When ORGS_ON_OLD_PUBLISHER list present and user belongs to orgs both on and off the list
-            self.assertFalse(is_on_new_pub_fe(self.user))
-
-    def test_is_course_is_on_new_pub_fe(self):
-        org = self.organization_extension.organization
-        course = cm_factories.CourseFactory()
-
-        # When no ORGS_ON_OLD_PUBLISHER list present
-        self.assertFalse(is_course_on_new_pub_fe(course))
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER=org.key):
-            # When ORGS_ON_OLD_PUBLISHER list present and course has no orgs
-            self.assertTrue(is_course_on_new_pub_fe(course))
-
-        course.authoring_organizations.add(org)
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER=org.key):
-            # When ORGS_ON_OLD_PUBLISHER list present and course is authored by an org in the list
-            self.assertFalse(is_course_on_new_pub_fe(course))
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER='example-key'):
-            # When ORGS_ON_OLD_PUBLISHER list present and course is authored by an org not in the list
-            self.assertTrue(is_course_on_new_pub_fe(course))
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER=org.key):
-            org2 = cm_factories.OrganizationFactory()
-            course.authoring_organizations.add(org2)
-            # When ORGS_ON_OLD_PUBLISHER list present and course is authored by orgs both on and off the list
-            self.assertFalse(is_course_on_new_pub_fe(course))
-
-    def test_publisher_course_on_new_pub_fe(self):
-        org = self.organization_extension.organization
-        course = factories.CourseFactory()
-
-        # When no ORGS_ON_OLD_PUBLISHER list present
-        self.assertFalse(is_publisher_course_on_new_pub_fe(course))
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER=org.key):
-            # When ORGS_ON_OLD_PUBLISHER list present and course has no orgs
-            self.assertTrue(is_publisher_course_on_new_pub_fe(course))
-
-        course.organizations.add(org)
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER=org.key):
-            # When ORGS_ON_OLD_PUBLISHER list present and course is authored by an org in the list
-            self.assertFalse(is_publisher_course_on_new_pub_fe(course))
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER='example-key'):
-            # When ORGS_ON_OLD_PUBLISHER list present and course is authored by an org not in the list
-            self.assertTrue(is_publisher_course_on_new_pub_fe(course))
-
-        with self.settings(ORGS_ON_OLD_PUBLISHER=org.key):
-            org2 = cm_factories.OrganizationFactory()
-            course.organizations.add(org2)
-            # When ORGS_ON_OLD_PUBLISHER list present and course is authored by orgs both on and off the list
-            self.assertFalse(is_publisher_course_on_new_pub_fe(course))
