@@ -22,7 +22,6 @@ from course_discovery.apps.publisher.api.serializers import (
     CourseRevisionSerializer, CourseRunSerializer, CourseRunStateSerializer, CourseStateSerializer,
     CourseUserRoleSerializer, GroupUserSerializer, OrganizationUserRoleSerializer
 )
-from course_discovery.apps.publisher.forms import CourseForm
 from course_discovery.apps.publisher.models import (
     Course, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension, OrganizationUserRole,
     PublisherUser
@@ -124,9 +123,11 @@ class RevertCourseRevisionView(APIView):
         history_object = get_object_or_404(historicalcourse, pk=history_id)
         course = get_object_or_404(Course, id=history_object.id)
         try:
-            for field in CourseForm().fields:
-                if field not in ['team_admin', 'organization', 'add_new_run', 'url_slug']:
-                    setattr(course, field, getattr(history_object, field))
+            for field in ('title', 'number', 'short_description', 'full_description', 'expected_learnings',
+                          'primary_subject', 'secondary_subject', 'tertiary_subject', 'prerequisites', 'image',
+                          'level_type', 'is_seo_review', 'syllabus', 'learner_testimonial', 'faq', 'video_link',
+                          'additional_information'):
+                setattr(course, field, getattr(history_object, field))
 
             course.changed_by = self.request.user
             course.save()

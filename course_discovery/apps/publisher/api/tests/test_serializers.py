@@ -1,8 +1,6 @@
 """Tests API Serializers."""
 import mock
-from django.core import mail
 from django.test import RequestFactory, TestCase
-from opaque_keys.edx.keys import CourseKey
 from rest_framework.exceptions import ValidationError
 from waffle.testutils import override_switch
 
@@ -59,18 +57,6 @@ class CourseUserRoleSerializerTests(SiteMixin, TestCase):
         serializer = self.serializer_class(self.course_user_role, context={'request': self.request})
         course_role = serializer.update(self.course_user_role, {'user': new_user})
         self.assertEqual(course_role.user, new_user)
-        self.assertEqual(len(mail.outbox), 1)
-
-    def test_update_with_error(self):
-        """
-        Test that whole transaction roll backed if error in email sending.
-        """
-        new_user = UserFactory()
-        serializer = self.serializer_class(self.course_user_role, context={'request': self.request})
-        with mock.patch('django.core.mail.message.EmailMessage.send', side_effect=TypeError):
-            with self.assertRaises(Exception):
-                course_role = serializer.update(self.course_user_role, {'user': new_user})
-                self.assertNotEqual(course_role.user, new_user)
 
 
 class GroupUserSerializerTests(TestCase):
@@ -215,22 +201,6 @@ class CourseRunSerializerTests(TestCase):
             serializer.update(self.course_run, {'preview_url': 'invalid_url'})
             self.assertFalse(self.course_run.preview_url)
 
-    @override_switch('enable_publisher_email_notifications', True)
-    def test_transaction_roll_back_with_error_on_email(self):
-        """
-        Verify that transaction is roll backed if error occurred during email sending.
-        """
-        serializer = self.serializer_class(self.course_run)
-        self.assertEqual(self.course_run.course_run_state.owner_role, PublisherUserRole.Publisher)
-
-        with self.assertRaises(Exception):
-            serializer.update(self.course_run, {'preview_url': 'https://example.com/abc/course'})
-
-        self.course_run = CourseRun.objects.get(id=self.course_run.id)
-        self.assertFalse(self.course_run.preview_url)
-        # Verify that owner role not changed.
-        self.assertEqual(self.course_run.course_run_state.owner_role, PublisherUserRole.Publisher)
-
 
 class CourseRevisionSerializerTests(TestCase):
     def test_course_revision_serializer(self):
@@ -334,7 +304,6 @@ class CourseStateSerializerTests(SiteMixin, TestCase):
             serializer.update(self.course_state, data)
 
 
-@override_switch('enable_publisher_email_notifications', True)
 class CourseRunStateSerializerTests(SiteMixin, TestCase):
     serializer_class = CourseRunStateSerializer
 
@@ -379,24 +348,8 @@ class CourseRunStateSerializerTests(SiteMixin, TestCase):
         serializer.update(self.run_state, data)
 
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Review)
-        self.assertEqual(len(mail.outbox), 1)
-
-        course_key = CourseKey.from_string(self.course_run.lms_course_id)
-        subject = 'Review requested: {course_name} {run_name}'.format(
-            course_name=self.course_run.course.title,
-            run_name=course_key.run
-        )
-        self.assertIn(subject, str(mail.outbox[0].subject))
-
         self.assertFalse(self.run_state.preview_accepted)
         serializer.update(self.run_state, {'preview_accepted': True})
-
-        self.assertEqual(len(mail.outbox), 2)
-        subject = 'Publication requested: {course_name} {run_name}'.format(
-            course_name=self.course_run.course.title,
-            run_name=course_key.run
-        )
-        self.assertIn(subject, str(mail.outbox[1].subject))
 
     def test_update_with_error(self):
         """
@@ -407,7 +360,6 @@ class CourseRunStateSerializerTests(SiteMixin, TestCase):
 
         with self.assertRaises(ValidationError):
             serializer.update(self.run_state, data)
-            self.assertEqual(len(mail.outbox), 1)
 
     def test_update_with_transaction_roll_back(self):
         """
@@ -424,4 +376,3 @@ class CourseRunStateSerializerTests(SiteMixin, TestCase):
             serializer.update(self.run_state, {'preview_accepted': True})
 
             self.assertFalse(CourseRun.objects.get(id=self.course_run.id).preview_url)
-            self.assertEqual(len(mail.outbox), 0)

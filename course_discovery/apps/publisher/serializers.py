@@ -2,7 +2,6 @@
 Publisher courses serializers.
 """
 from django.core.exceptions import ObjectDoesNotExist
-from django.urls import reverse
 from django.utils.translation import ugettext as _
 from rest_framework import serializers
 
@@ -29,7 +28,7 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
     def get_course_title(self, course):
         return {
             'title': course.title,
-            'url': reverse('publisher:publisher_course_detail', kwargs={'pk': course.id}),
+            'url': None,
         }
 
     def get_organization_name(self, course):
@@ -60,14 +59,10 @@ class CourseSerializer(serializers.Serializer):  # pylint: disable=abstract-meth
     def get_last_state_change(self, course):
         return serialize_datetime(course.course_state.owner_role_modified)
 
-    def get_edit_url(self, course):
-        courses_edit_url = None
-        if self.can_edit_course(course, self.context['user']):
-            courses_edit_url = reverse('publisher:publisher_courses_edit', kwargs={'pk': course.id})
-
+    def get_edit_url(self, _course):
         return {
             'title': _('Edit'),
-            'url': courses_edit_url
+            'url': None,
         }
 
     @classmethod

@@ -1,11 +1,9 @@
 import logging
 from urllib.parse import urljoin
 
-import waffle
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -27,7 +25,6 @@ from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, calculated_seat_upgrade_deadline, uslugify
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.publisher import emails
 from course_discovery.apps.publisher.choices import (
     CourseRunStateChoices, CourseStateChoices, InternalUserRole, PublisherUserRole
 )
@@ -116,10 +113,6 @@ class Course(TimeStampedModel, ChangedByMixin):
         Returns a bool indicating whether or not this Course has been configured to use entitlement products.
         """
         return self.version == self.ENTITLEMENT_VERSION
-
-    @property
-    def post_back_url(self):
-        return reverse('publisher:publisher_courses_edit', kwargs={'pk': self.id})
 
     class Meta(TimeStampedModel.Meta):
         permissions = (
@@ -377,10 +370,6 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
         return '{course}: {start_date}'.format(course=self.course.title, start_date=self.start)
 
     @property
-    def post_back_url(self):
-        return reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.id})
-
-    @property
     def created_by(self):
         history_user = self.history.order_by('history_date').first().history_user  # pylint: disable=no-member
         if history_user:
@@ -471,9 +460,6 @@ class CourseRun(TimeStampedModel, ChangedByMixin):
     def paid_seats(self):
         """ Return course run paid seats """
         return self.seats.filter(type__in=Seat.PAID_SEATS)
-
-    def get_absolute_url(self):
-        return reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.id})
 
     @cached_property
     def discovery_counterpart_latest_by_start_date(self):
@@ -812,11 +798,10 @@ class CourseState(TimeStampedModel, ChangedByMixin):
         # TODO: send email etc.
         pass
 
-    def change_state(self, state, user, site=None):
+    def change_state(self, state, user, site=None):  # pylint: disable=unused-argument
         """
         Change course workflow state and ownership also send emails if required.
         """
-        is_notifications_enabled = waffle.switch_is_active('enable_publisher_email_notifications')
         if state == CourseStateChoices.Draft:
             self.draft()
         elif state == CourseStateChoices.Review:
@@ -826,22 +811,14 @@ class CourseState(TimeStampedModel, ChangedByMixin):
                 self.marketing_reviewed = True
             elif user_role.role == PublisherUserRole.CourseTeam:
                 self.change_owner_role(PublisherUserRole.MarketingReviewer)
-                if is_notifications_enabled:
-                    emails.send_email_for_seo_review(self.course, site)
 
             self.review()
-
-            if is_notifications_enabled:
-                emails.send_email_for_send_for_review(self.course, user, site)
 
         elif state == CourseStateChoices.Approved:
             user_role = self.course.course_user_roles.get(user=user)
             self.approved_by_role = user_role.role
             self.marketing_reviewed = True
             self.approved()
-
-            if is_notifications_enabled:
-                emails.send_email_for_mark_as_reviewed(self.course, user, site)
 
         self.save()
 
@@ -941,18 +918,14 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
         pass
 
     @transition(field=name, source=CourseRunStateChoices.Approved, target=CourseRunStateChoices.Published)
-    def published(self, site):
+    def published(self, site):  # pylint: disable=unused-argument
         # Grab some variables, bailing if anything doesn't make sense
         publisher_run = self.course_run
         discovery_run = publisher_run and publisher_run.discovery_course_run
         if not discovery_run:
             return
 
-        discovery_run.publish(send_emails=False)  # disable new-style emails, we'll send our own below
-
-        # Notify course team
-        if waffle.switch_is_active('enable_publisher_email_notifications'):
-            emails.send_course_run_published_email(self.course_run, site)
+        discovery_run.publish()
 
     def change_state(self, state, user, site=None):
         """
@@ -969,19 +942,11 @@ class CourseRunState(TimeStampedModel, ChangedByMixin):
 
             self.review()
 
-            if waffle.switch_is_active('enable_publisher_email_notifications'):
-                emails.send_email_for_send_for_review_course_run(self.course_run, user, site)
-
         elif state == CourseRunStateChoices.Approved:
             user_role = self.course_run.course.course_user_roles.get(user=user)
             self.approved_by_role = user_role.role
             self.change_owner_role(PublisherUserRole.CourseTeam)
             self.approved()
-
-            if waffle.switch_is_active('enable_publisher_email_notifications'):
-                emails.send_email_for_mark_as_reviewed_course_run(self.course_run, user, site)
-                emails.send_email_to_publisher(self.course_run, user, site)
-                emails.send_email_preview_page_is_available(self.course_run, site)
 
         elif state == CourseRunStateChoices.Published:
             self.published(site)

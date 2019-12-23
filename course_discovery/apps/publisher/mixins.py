@@ -1,14 +1,11 @@
 from functools import wraps
 from urllib import parse
 
-from dal import autocomplete
 from django.contrib.auth.decorators import login_required
-from django.db.models.functions import Lower
 from django.http import HttpResponseForbidden, HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.utils.decorators import method_decorator
 
 from course_discovery.apps.core.models import User
-from course_discovery.apps.course_metadata.models import Organization
 from course_discovery.apps.publisher.choices import PublisherUserRole
 from course_discovery.apps.publisher.models import Course, CourseUserRole, Seat
 from course_discovery.apps.publisher.utils import is_internal_user, is_publisher_admin, is_publisher_user
@@ -140,42 +137,6 @@ class PublisherUserRequiredMixin:
     @method_decorator(publisher_user_required)
     def dispatch(self, request, *args, **kwargs):
         return super(PublisherUserRequiredMixin, self).dispatch(request, *args, **kwargs)
-
-
-class LanguageModelSelect2Multiple(autocomplete.ModelSelect2Multiple):
-    """
-    QuerySet support for LanguageTag choices.
-
-    django.autocomplete queryset expects id field to filter choices but LanguageTag
-    does not have id field in it. It has code as primary key instead of id.
-    """
-
-    def filter_choices_to_render(self, selected_choices):
-        self.choices.queryset = self.choices.queryset.filter(
-            code__in=[c for c in selected_choices if c]
-        )
-
-
-def get_user_organizations(user):
-    """
-    Get organizations for user.
-
-    Args:
-        user (Object): User object
-    Returns:
-        Organization (QuerySet): returns Organization objects queryset
-    """
-    organizations = Organization.objects.filter(
-        organization_extension__organization_id__isnull=False
-    ).order_by(Lower('key'))
-
-    if not check_roles_access(user):
-        # If not internal user return only those organizations which belongs to user.
-        organizations = organizations.filter(
-            organization_extension__group__in=user.groups.all()
-        ).order_by(Lower('key'))
-
-    return organizations
 
 
 def add_course_role(course, organization_extension, role):

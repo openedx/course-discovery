@@ -6,14 +6,11 @@ from urllib.parse import quote
 import ddt
 import pytz
 from django.contrib.auth.models import Group
-from django.core import mail
 from django.db import IntegrityError
 from django.urls import reverse
 from guardian.shortcuts import assign_perm
-from mock import mock, patch
-from opaque_keys.edx.keys import CourseKey
+from mock import patch
 from testfixtures import LogCapture
-from waffle.testutils import override_switch
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
@@ -142,7 +139,6 @@ class CourseRoleAssignmentViewTests(APITestCase):
         }
         self.assertDictEqual(response.data, expected)
         self.assertEqual(self.internal_user, self.course.course_user_roles.get(role=user_course_role.role).user)
-        self.assertEqual(len(mail.outbox), 1)
 
 
 class OrganizationGroupUserViewTests(APITestCase):
@@ -332,7 +328,6 @@ class OrganizationUserRoleViewTests(APITestCase):
         self.assertExpectedRoles(response)
 
 
-@override_switch('enable_publisher_email_notifications', True)
 class UpdateCourseRunViewTests(APITestCase):
 
     def setUp(self):
@@ -354,7 +349,6 @@ class UpdateCourseRunViewTests(APITestCase):
             user=self.user
         )
 
-        factories.UserAttributeFactory(user=self.user, enable_email_notification=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def test_update_course_key_with_errors(self):
@@ -415,11 +409,6 @@ class UpdateCourseRunViewTests(APITestCase):
         # By default `lms_course_id` and `changed_by` are None
         self.assert_course_key_and_changed_by()
 
-        # create course team role for email
-        factories.CourseUserRoleFactory(
-            course=self.course_run.course, role=PublisherUserRole.CourseTeam, user=self.user
-        )
-
         lms_course_id = 'course-v1:edxTest+TC12+2050Q1'
         response = self.client.patch(
             self.update_course_run_url,
@@ -431,33 +420,12 @@ class UpdateCourseRunViewTests(APITestCase):
         # Verify that `lms_course_id` and `changed_by` are not None
         self.assert_course_key_and_changed_by(lms_course_id=lms_course_id, changed_by=self.user)
 
-        course_key = CourseKey.from_string(lms_course_id)
-        # Assert email sent
-        self.assert_email_sent(
-            reverse('publisher:publisher_course_run_detail', kwargs={'pk': self.course_run.id}),
-            'Studio URL created: {title} {run}'.format(title=self.course_run.course.title, run=course_key.run),
-            'has created a Studio URL'
-        )
-
     def assert_course_key_and_changed_by(self, lms_course_id=None, changed_by=None):
         """ Helper method to assert course key and changed_by. """
         self.course_run = CourseRun.objects.get(id=self.course_run.id)
 
         self.assertEqual(self.course_run.lms_course_id, lms_course_id)
         self.assertEqual(self.course_run.changed_by, changed_by)
-
-    def assert_email_sent(self, object_path, subject, expected_body):
-        """
-        Helper method to assert sent email data.
-        """
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([self.user.email], mail.outbox[0].to)
-        self.assertEqual(str(mail.outbox[0].subject), subject)
-
-        body = mail.outbox[0].body.strip()
-        self.assertIn(expected_body, body)
-        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=object_path)
-        self.assertIn(page_url, body)
 
     def test_update_preview_url(self):
         """Verify the user can update course preview url."""
@@ -467,7 +435,7 @@ class UpdateCourseRunViewTests(APITestCase):
         factories.CourseUserRoleFactory(
             course=self.course_run.course, role=PublisherUserRole.Publisher
         )
-        course_team_role = factories.CourseUserRoleFactory(
+        factories.CourseUserRoleFactory(
             course=self.course_run.course, role=PublisherUserRole.CourseTeam
         )
         person = PersonFactory()
@@ -479,15 +447,6 @@ class UpdateCourseRunViewTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         course_run = CourseRun.objects.get(id=self.course_run.id)
         self.assertTrue(course_run.preview_url.endswith('/new-course-preview'))
-
-        course_key = CourseKey.from_string(course_run.lms_course_id)
-        subject = 'Review requested: Preview for {course_name} {run_number}'.format(
-            course_name=self.course_run.course.title,
-            run_number=course_key.run
-        )
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([course_team_role.user.email], mail.outbox[0].to)
-        self.assertEqual(str(mail.outbox[0].subject), subject)
 
     def test_update_with_invalid_preview_url(self):
         """Verify that user can't update course preview url if url has invalid format."""
@@ -502,29 +461,6 @@ class UpdateCourseRunViewTests(APITestCase):
             data=json.dumps({'preview_url': preview_url}),
             content_type=JSON_CONTENT_TYPE
         )
-
-    def test_update_preview_url_with_notification_disabled(self):
-        """
-        Verify that no email sent on update course preview url if
-        notification disabled by user.
-        """
-        self.course_run.lms_course_id = 'course-v1:testX+TC167+2018T1'
-        self.course_run.save()
-        factories.CourseRunStateFactory.create(course_run=self.course_run, owner_role=PublisherUserRole.Publisher)
-        course_team_role = factories.CourseUserRoleFactory(
-            course=self.course_run.course, role=PublisherUserRole.CourseTeam
-        )
-        factories.UserAttributeFactory(user=course_team_role.user, enable_email_notification=False)
-        person = PersonFactory()
-        DiscoveryCourseRunFactory(key=self.course_run.lms_course_id, staff=[person])
-
-        preview_url = 'https://example.com/abc/new-course-preview'
-        response = self._make_request(preview_url)
-
-        self.assertEqual(response.status_code, 200)
-        course_run = CourseRun.objects.get(id=self.course_run.id)
-        self.assertTrue(course_run.preview_url.endswith('/new-course-preview'))
-        self.assertEqual(len(mail.outbox), 0)
 
 
 class CourseRevisionDetailViewTests(APITestCase):
@@ -581,7 +517,6 @@ class CourseRevisionDetailViewTests(APITestCase):
         return self.client.get(path=course_revision_path)
 
 
-@override_switch('enable_publisher_email_notifications', True)
 class ChangeCourseStateViewTests(APITestCase):
 
     def setUp(self):
@@ -596,7 +531,6 @@ class ChangeCourseStateViewTests(APITestCase):
 
         self.organization_extension = factories.OrganizationExtensionFactory()
         self.course.organizations.add(self.organization_extension.organization)
-        factories.UserAttributeFactory(user=self.user, enable_email_notification=True)
 
         self.change_state_url = reverse('publisher:api:change_course_state', kwargs={'pk': self.course_state.id})
 
@@ -631,11 +565,7 @@ class ChangeCourseStateViewTests(APITestCase):
         # Verify that course is marked as reviewed by marketing.
         self.assertTrue(self.course_state.marketing_reviewed)
 
-        subject = 'Review requested: {title}'.format(title=self.course.title)
-        self._assert_email_sent(course_team_user, subject)
-
-    @mock.patch('course_discovery.apps.publisher.emails.send_email_for_seo_review')
-    def test_change_course_state_with_course_team(self, mocked_seo_review_email):
+    def test_change_course_state_with_course_team(self):
         """ Verify that if course team admin can change course workflow state,
         owner role will be changed to `MarketingReviewer`.
         """
@@ -667,21 +597,6 @@ class ChangeCourseStateViewTests(APITestCase):
         self.assertEqual(self.course_state.name, CourseStateChoices.Review)
         self.assertEqual(self.course_state.owner_role, PublisherUserRole.MarketingReviewer)
         self.assertGreater(self.course_state.owner_role_modified, old_owner_role_modified)
-
-        subject = 'Review requested: {title}'.format(title=self.course.title)
-        self._assert_email_sent(marketing_user, subject)
-        self.assertTrue(mocked_seo_review_email.called)
-
-    def _assert_email_sent(self, user, subject):
-        """Helper method to assert sent email data."""
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([user.email], mail.outbox[0].to)
-        self.assertEqual(str(mail.outbox[0].subject), subject)
-
-        body = mail.outbox[0].body.strip()
-        object_path = reverse('publisher:publisher_course_detail', kwargs={'pk': self.course.id})
-        page_url = 'https://{host}{path}'.format(host=self.site.domain.strip('/'), path=object_path)
-        self.assertIn(page_url, body)
 
     def test_change_course_state_with_error(self):
         """
@@ -733,11 +648,7 @@ class ChangeCourseStateViewTests(APITestCase):
 
         self.assertEqual(self.course_state.name, CourseStateChoices.Approved)
 
-        subject = 'Review complete: {title}'.format(title=self.course.title)
-        self._assert_email_sent(course_team_user, subject)
 
-
-@override_switch('enable_publisher_email_notifications', True)
 class ChangeCourseRunStateViewTests(APITestCase):
 
     def setUp(self):
@@ -812,8 +723,6 @@ class ChangeCourseRunStateViewTests(APITestCase):
         self.assertEqual(course_run_state.name, CourseRunStateChoices.Review)
         self.assertEqual(course_run_state.owner_role, PublisherUserRole.CourseTeam)
 
-        self.assertEqual(len(mail.outbox), 1)
-
     def _assign_role(self, course, role, user):
         """ Method to assign course-user-role."""
         factories.CourseUserRoleFactory(
@@ -846,11 +755,9 @@ class ChangeCourseRunStateViewTests(APITestCase):
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
         self.assertEqual(self.run_state.owner_role, PublisherUserRole.CourseTeam)
 
-        self.assertEqual(len(mail.outbox), 3)
-
     def test_mark_as_reviewed_by_pc(self):
         """
-        Verify that project coordinator can approve the changes and email not sent to course team.
+        Verify that project coordinator can approve the changes.
         """
         self.run_state.name = CourseRunStateChoices.Review
         self.run_state.owner_role = PublisherUserRole.ProjectCoordinator
@@ -873,8 +780,6 @@ class ChangeCourseRunStateViewTests(APITestCase):
 
         self.assertEqual(self.run_state.name, CourseRunStateChoices.Approved)
         self.assertEqual(self.run_state.owner_role, PublisherUserRole.CourseTeam)
-
-        self.assertEqual(len(mail.outbox), 2)
 
     def test_preview_accepted(self):
         """
@@ -904,9 +809,6 @@ class ChangeCourseRunStateViewTests(APITestCase):
 
         self.assertTrue(self.run_state.preview_accepted)
         self.assertEqual(self.run_state.owner_role, PublisherUserRole.Publisher)
-
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([course.publisher.email, course.project_coordinator.email], mail.outbox[0].bcc)
 
     def test_course_published(self):
         """
@@ -942,17 +844,6 @@ class ChangeCourseRunStateViewTests(APITestCase):
 
         self.run_state = CourseRunState.objects.get(course_run=self.course_run)
         self.assertTrue(self.run_state.is_published)
-
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual([course.course_team_admin.email], mail.outbox[0].to)
-
-        course_key = CourseKey.from_string(self.course_run.lms_course_id)
-        expected_subject = 'Publication complete: About page for {course_name} {run_number}'.format(
-            course_name=course.title,
-            run_number=course_key.run
-        )
-        self.assertEqual(str(mail.outbox[0].subject), expected_subject)
-        self.assertIn('has been published', mail.outbox[0].body.strip())
 
 
 class RevertCourseByRevisionTests(APITestCase):

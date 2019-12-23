@@ -1,5 +1,3 @@
-from bs4 import BeautifulSoup
-from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from stdimage.validators import BaseSizeValidator
@@ -55,19 +53,3 @@ class ImageMultiSizeValidator(ImageSizeValidator):
         'Invalid image size. The recommended image size is %(preferred)s. '
         'Older courses also support image sizes of %(supported)s.'
     )
-
-
-def validate_text_count(max_length):
-    """
-    Custom validator to count the text area characters without html tags.
-    """
-    def innerfn(raw_html):
-        cleantext = BeautifulSoup(raw_html, 'html.parser').get_text(strip=True)
-        if len(cleantext) > max_length:
-            raise forms.ValidationError(
-                _('Ensure this value has at most {allowed_char} characters (it has {current_char}).').format(
-                    allowed_char=max_length,
-                    current_char=len(cleantext)
-                )
-            )
-    return innerfn

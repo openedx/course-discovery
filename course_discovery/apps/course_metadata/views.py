@@ -12,10 +12,6 @@ class QueryPreviewView(TemplateView):
     template_name = 'demo/query_preview.html'
 
 
-class SearchDemoView(TemplateView):
-    template_name = 'demo/search.html'
-
-
 # pylint: disable=attribute-defined-outside-init
 class CourseRunSelectionAdmin(UpdateView):
     """ Create Course View."""
