@@ -1,26 +1,19 @@
 """ Tests publisher.utils"""
-from datetime import datetime
-
 import ddt
 from django.contrib.auth.models import Group
 from django.test import RequestFactory, TestCase
-from django.urls import reverse
 from guardian.shortcuts import assign_perm
 from mock import Mock
 
 from course_discovery.apps.core.tests.factories import UserFactory
-from course_discovery.apps.course_metadata.tests import factories as cm_factories
-from course_discovery.apps.publisher.constants import (
-    ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, REVIEWER_GROUP_NAME
-)
+from course_discovery.apps.publisher.constants import ADMIN_GROUP_NAME, INTERNAL_USER_GROUP_NAME, REVIEWER_GROUP_NAME
 from course_discovery.apps.publisher.mixins import (
     check_course_organization_permission, check_roles_access, publisher_user_required
 )
 from course_discovery.apps.publisher.models import OrganizationExtension
 from course_discovery.apps.publisher.tests import factories
 from course_discovery.apps.publisher.utils import (
-    find_discovery_course, get_internal_users, has_role_for_course, is_email_notification_enabled, is_internal_user,
-    is_project_coordinator_user, is_publisher_admin, is_publisher_user, make_bread_crumbs, parse_datetime_field
+    has_role_for_course, is_email_notification_enabled, is_internal_user, is_publisher_admin, is_publisher_user
 )
 
 
@@ -80,24 +73,6 @@ class PublisherUtilsTests(TestCase):
         internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
         self.user.groups.add(internal_user_group)
         self.assertTrue(is_internal_user(self.user))
-
-    def test_get_internal_user(self):
-        """ Verify the function returns all internal users. """
-        internal_user_group = Group.objects.get(name=INTERNAL_USER_GROUP_NAME)
-        self.assertEqual(get_internal_users(), [])
-
-        self.user.groups.add(internal_user_group)
-        self.assertEqual(get_internal_users(), [self.user])
-
-    def test_is_project_coordinator_user(self):
-        """
-        Verify the function returns a boolean indicating if the user is a member of the project coordinator group.
-        """
-        self.assertFalse(is_project_coordinator_user(self.user))
-
-        project_coordinator_group = Group.objects.get(name=PROJECT_COORDINATOR_GROUP_NAME)
-        self.user.groups.add(project_coordinator_group)
-        self.assertTrue(is_project_coordinator_user(self.user))
 
     def test_check_roles_access_with_admin(self):
         """ Verify the function returns True if user is in an admin group, otherwise False. """
@@ -192,14 +167,6 @@ class PublisherUtilsTests(TestCase):
         decorated_func(request, self.user)
         self.assertTrue(func.called)
 
-    def test_make_bread_crumbs(self):
-        """ Verify the function parses the list of tuples and returns a list of corresponding dicts."""
-        links = [(reverse('publisher:publisher_courses_new'), 'Courses'), (None, 'Testing')]
-        self.assertEqual(
-            [{'url': '/publisher/courses/new/', 'slug': 'Courses'}, {'url': None, 'slug': 'Testing'}],
-            make_bread_crumbs(links)
-        )
-
     def test_has_role_for_course(self):
         """
         Verify the function returns a boolean indicating if the user has a role for course.
@@ -208,39 +175,3 @@ class PublisherUtilsTests(TestCase):
         self.assertFalse(has_role_for_course(self.course, self.user))
         factories.CourseUserRoleFactory(course=self.course, user=self.user)
         self.assertTrue(has_role_for_course(self.course, self.user))
-
-    @ddt.data(
-        'april 20, 2017',
-        'aug 20 2019',
-        '2020 may 20',
-        '09 04 2018',
-        'jan 20 2020'
-    )
-    def test_parse_datetime_field(self, date):
-        """ Verify that function return datetime after parsing different possible date format. """
-        parsed_date = parse_datetime_field(date)
-        self.assertTrue(isinstance(parsed_date, datetime))
-
-    @ddt.data(
-        None,
-        'jan 20 20203'
-        'invalid-date-string'
-        'jan 20'
-    )
-    def test_parse_datetime_field_with_invalid_date_format(self, invalid_date):
-        """ Verify that function return None if date string does not match any possible date format. """
-        parsed_date = parse_datetime_field(invalid_date)
-        self.assertIsNone(parsed_date)
-
-    def test_find_discovery_course(self):
-        cm_run1 = cm_factories.CourseRunFactory(course__partner=self.course.partner)
-        cm_run2 = cm_factories.CourseRunFactory(course__partner=self.course.partner)
-        pub_run1 = factories.CourseRunFactory(course=self.course, lms_course_id=cm_run1.key)
-        pub_run2 = factories.CourseRunFactory(course=self.course, lms_course_id=cm_run2.key)
-        pub_run_no_id = factories.CourseRunFactory(course=self.course)
-        pub_run_no_siblings = factories.CourseRunFactory()
-
-        assert find_discovery_course(pub_run1) == cm_run1.course
-        assert find_discovery_course(pub_run2) == cm_run2.course
-        assert find_discovery_course(pub_run_no_id) == cm_run2.course  # Most recent sibling run's course
-        assert find_discovery_course(pub_run_no_siblings) is None

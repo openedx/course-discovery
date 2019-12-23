@@ -177,22 +177,6 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         response = self.query('instructor first')
         self._assert_response(response, 1)
 
-    def test_instructor_position_in_label(self):
-        """ Verify that instructor label contains position of instructor if it exists."""
-        position_title = 'professor'
-
-        response = self.query('ins')
-
-        self.assertContains(response, '<p>{position} at {organization}</p>'.format(
-            position=position_title,
-            organization=self.organizations[0].name))
-
-    def test_instructor_image_in_label(self):
-        """ Verify that instructor label contains profile image url."""
-        response = self.query('ins')
-        self.assertContains(response, self.instructors[0].get_profile_image_url)
-        self.assertContains(response, self.instructors[1].get_profile_image_url)
-
     def _assert_response(self, response, expected_length):
         """ Assert autocomplete response. """
         assert response.status_code == 200
@@ -243,10 +227,7 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         self.client.logout()
         self.client.login(username=admin_user.username, password=USER_PASSWORD)
 
-        response = self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins'),
-            HTTP_REFERER=reverse('admin:publisher_courserun_add')
-        )
+        response = self.client.get(reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins'))
         assert response.status_code == 200
         data = json.loads(response.content.decode('utf-8'))
         expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]

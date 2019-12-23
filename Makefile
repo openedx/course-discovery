@@ -15,7 +15,6 @@ help: ## Display this help message
 static: ## Gather all static assets for production
 	$(NODE_BIN)/webpack --config webpack.config.js --display-error-details --progress --optimize-minimize
 	python manage.py collectstatic -v 0 --noinput
-	python manage.py compress -v0 --force
 
 static.dev:
 	$(NODE_BIN)/webpack --config webpack.config.js --display-error-details --progress

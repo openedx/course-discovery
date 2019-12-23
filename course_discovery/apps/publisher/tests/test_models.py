@@ -5,15 +5,12 @@ import random
 import ddt
 import pytest
 import responses
-from django.core import mail
 from django.db import IntegrityError
 from django.test import TestCase
-from django.urls import reverse
 from django_fsm import TransitionNotAllowed
 from factory.fuzzy import FuzzyDateTime
 from guardian.shortcuts import assign_perm
 from pytz import UTC
-from waffle.testutils import override_switch
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -50,12 +47,6 @@ class CourseRunTests(TestCase):
             '{title}: {date}'.format(
                 title=self.course_run.course.title, date=self.course_run.start_date_temporary
             )
-        )
-
-    def test_post_back_url(self):
-        self.assertEqual(
-            self.course_run.post_back_url,
-            reverse('publisher:publisher_course_runs_edit', kwargs={'pk': self.course_run.id})
         )
 
     def test_created_by(self):
@@ -184,11 +175,6 @@ class CourseRunTests(TestCase):
         credit_seat.save()
 
         self.assertTrue(self.course_run.has_valid_seats)
-
-    def test_get_absolute_url(self):
-        course_run = factories.CourseRunFactory()
-        expected = reverse('publisher:publisher_course_run_detail', kwargs={'pk': course_run.id})
-        assert course_run.get_absolute_url() == expected
 
     def test_discovery_counterpart_success(self):
         """
@@ -398,12 +384,6 @@ class CourseTests(TestCase):
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the course title. """
         self.assertEqual(str(self.course), self.course.title)
-
-    def test_post_back_url(self):
-        self.assertEqual(
-            self.course.post_back_url,
-            reverse('publisher:publisher_courses_edit', kwargs={'pk': self.course.id})
-        )
 
     def test_assign_permission_organization_extension(self):
         """ Verify that permission can be assigned using the organization extension. """
@@ -901,7 +881,6 @@ class CourseRunStateTests(MarketingSitePublisherTestMixin):
         self.assertEqual(self.course_run_state.name, state)
 
     @responses.activate
-    @override_switch('enable_publisher_email_notifications', True)
     def test_published(self):
         person = PersonFactory()
         org = OrganizationFactory()
@@ -940,13 +919,6 @@ class CourseRunStateTests(MarketingSitePublisherTestMixin):
         self.assertEqual(primary.status, CourseRunStatus.Published)
         self.assertEqual(second.status, CourseRunStatus.Published)  # doesn't change end=None runs
         self.assertEqual(third.status, CourseRunStatus.Unpublished)  # does change archived runs
-
-        # Check email was sent (only one - from old publisher, not new publisher flow)
-        assert len(mail.outbox) == 1
-        message = mail.outbox[0]
-        self.assertTrue(message.subject.startswith('Publication complete: '))
-        self.assertEqual(message.to, [self.user.email])
-        self.assertEqual(message.cc, [pc.email])
 
     def test_with_invalid_parent_course_state(self):
         """

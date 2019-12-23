@@ -1,7 +1,6 @@
 """Publisher API Serializers"""
 import re
 
-import waffle
 from django.apps import apps
 from django.db import transaction
 from django.utils import timezone
@@ -14,10 +13,6 @@ from rest_framework import serializers
 from course_discovery.apps.core.models import User
 from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
 from course_discovery.apps.publisher.choices import PublisherUserRole
-from course_discovery.apps.publisher.emails import (
-    send_change_role_assignment_email, send_email_for_studio_instance_created, send_email_preview_accepted,
-    send_email_preview_page_is_available
-)
 from course_discovery.apps.publisher.models import (
     CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationUserRole
 )
@@ -52,16 +47,6 @@ class CourseUserRoleSerializer(serializers.ModelSerializer):
             validated_values.update({'changed_by': request.user})
 
         return validated_values
-
-    @transaction.atomic
-    def update(self, instance, validated_data):
-        former_user = instance.user
-        instance = super(CourseUserRoleSerializer, self).update(instance, validated_data)
-        if not instance.role == PublisherUserRole.CourseTeam:
-            request = self.context['request']
-            send_change_role_assignment_email(instance, former_user, request.site)
-
-        return instance
 
 
 class GroupUserSerializer(serializers.ModelSerializer):
@@ -170,18 +155,10 @@ class CourseRunSerializer(serializers.ModelSerializer):
             self.update_preview_url(preview_url, lms_course_id or instance.lms_course_id)
 
         instance = super(CourseRunSerializer, self).update(instance, validated_data)
-        request = self.context['request']
 
         if preview_url:
             # Change ownership to CourseTeam.
             instance.course_run_state.change_owner_role(PublisherUserRole.CourseTeam)
-
-        if waffle.switch_is_active('enable_publisher_email_notifications'):
-            if preview_url:
-                send_email_preview_page_is_available(instance, site=request.site)
-
-            elif lms_course_id:
-                send_email_for_studio_instance_created(instance, site=request.site)
 
         return instance
 
@@ -290,8 +267,5 @@ class CourseRunStateSerializer(serializers.ModelSerializer):
             instance.owner_role = PublisherUserRole.Publisher
             instance.owner_role_modified = timezone.now()
             instance.save()
-
-            if waffle.switch_is_active('enable_publisher_email_notifications'):
-                send_email_preview_accepted(instance.course_run, request.site)
 
         return instance

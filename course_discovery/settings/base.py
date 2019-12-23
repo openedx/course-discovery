@@ -234,7 +234,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
                 'course_discovery.apps.core.context_processors.core',
-                'course_discovery.apps.publisher.context_processors.publisher',
             ),
             'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
         }

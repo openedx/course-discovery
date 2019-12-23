@@ -6,38 +6,8 @@ from rest_framework.reverse import reverse
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.publisher.tests import JSON_CONTENT_TYPE
-from course_discovery.apps.publisher.tests.factories import CourseRunFactory
-from course_discovery.apps.publisher_comments.forms import CommentsForm
 from course_discovery.apps.publisher_comments.models import Comments
 from course_discovery.apps.publisher_comments.tests.factories import CommentFactory
-
-
-class PostCommentTests(SiteMixin, TestCase):
-
-    def generate_data(self, obj):
-        """Generate data for the form."""
-        f = CommentsForm(obj)
-        data = {
-            'name': 'Tester',
-            'email': 'tester@example.com',
-            'comment': 'Test comment'
-        }
-        data.update(f.initial)
-        return data
-
-    def test_successful_post(self):
-        """Posting data to the comment post endpoint creates a comment."""
-        path = reverse('comments-post-comment')
-        self.assertEqual(Comments.objects.count(), 0)
-        course_run = CourseRunFactory()
-        generated_data = self.generate_data(course_run)
-        self.client.post(path, data=generated_data)
-
-        self.assertEqual(Comments.objects.count(), 1)
-        comment = Comments.objects.first()
-        self.assertEqual(comment.user_name, generated_data['name'])
-        self.assertEqual(comment.comment, generated_data['comment'])
-        self.assertEqual(comment.user_email, generated_data['email'])
 
 
 class UpdateCommentTests(SiteMixin, TestCase):
