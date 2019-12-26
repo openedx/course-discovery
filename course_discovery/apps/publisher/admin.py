@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from guardian.admin import GuardedModelAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
@@ -10,21 +9,10 @@ from course_discovery.apps.publisher.constants import (
     INTERNAL_USER_GROUP_NAME, PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME,
     REVIEWER_GROUP_NAME
 )
-from course_discovery.apps.publisher.forms import (
-    CourseRunAdminForm, CourseRunStateAdminForm, CourseStateAdminForm, OrganizationExtensionForm,
-    PublisherUserCreationForm, UserAttributesAdminForm
-)
+from course_discovery.apps.publisher.forms import OrganizationExtensionForm, UserAttributesAdminForm
 from course_discovery.apps.publisher.models import (
-    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, OrganizationExtension,
-    OrganizationUserRole, PublisherUser, Seat, UserAttributes
+    CourseUserRole, OrganizationExtension, OrganizationUserRole, UserAttributes
 )
-
-
-@admin.register(CourseUserRole)
-class CourseUserRoleAdmin(SimpleHistoryAdmin):
-    raw_id_fields = ('changed_by', 'course', 'user',)
-    list_display = ['role', 'course', 'user']
-    search_fields = ['course__title']
 
 
 @admin.register(OrganizationExtension)
@@ -87,75 +75,3 @@ class OrganizationUserRoleAdmin(SimpleHistoryAdmin):
         group = Group.objects.get(name=self.role_groups_dict.get(obj.role))
         if group not in obj.user.groups.all():
             obj.user.groups.add(*(group, Group.objects.get(name=INTERNAL_USER_GROUP_NAME)))
-
-
-@admin.register(CourseState)
-class CourseStateAdmin(SimpleHistoryAdmin):
-    form = CourseStateAdminForm
-    raw_id_fields = ('changed_by',)
-    list_display = ['id', 'name', 'approved_by_role', 'owner_role', 'course', 'marketing_reviewed']
-    search_fields = ['id', 'course__title']
-    list_filter = ('name',)
-
-
-@admin.register(CourseRunState)
-class CourseRunStateAdmin(SimpleHistoryAdmin):
-    form = CourseRunStateAdminForm
-    raw_id_fields = ('changed_by',)
-    list_display = ['id', 'name', 'approved_by_role', 'owner_role',
-                    'course_run', 'owner_role_modified', 'preview_accepted']
-    list_filter = ('name',)
-    search_fields = ['id', 'course_run__course__title']
-    ordering = ['id']
-
-
-@admin.register(Course)
-class CourseAdmin(SimpleHistoryAdmin):
-    raw_id_fields = ('changed_by',)
-    list_display = ['title', 'number']
-    search_fields = ['title', 'number']
-
-
-@admin.register(CourseRun)
-class CourseRunAdmin(SimpleHistoryAdmin):
-    form = CourseRunAdminForm
-    raw_id_fields = ('changed_by',)
-    list_display = ['course_name', 'lms_course_id', 'external_key', 'start', 'end']
-    search_fields = ['id', 'lms_course_id', 'course__title', 'external_key']
-
-    def course_name(self, obj):
-        return obj.course.title
-
-
-@admin.register(Seat)
-class SeatAdmin(SimpleHistoryAdmin):
-    raw_id_fields = ('changed_by',)
-    list_display = ['course_run', 'type']
-    search_fields = ['course_run__course__title', 'type']
-
-
-@admin.register(CourseEntitlement)
-class CourseEntitlementAdmin(SimpleHistoryAdmin):
-    list_display = ['course', 'get_course_number', 'mode']
-
-    def get_course_number(self, obj):
-        return obj.course.number
-    get_course_number.short_description = 'Course number'
-
-    raw_id_fields = ['course']
-    search_fields = ['course__title', 'course__number']
-
-
-@admin.register(PublisherUser)
-class PublisherUserAdmin(UserAdmin):
-    add_form_template = 'publisher/admin/add_user_form.html'
-    add_fieldsets = (
-        (None, {'fields': ('username', 'groups',)}),
-    )
-    add_form = PublisherUserCreationForm
-
-    def get_queryset(self, request):
-        """
-        Return only those users which belongs to any group.
-        """
-        return self.model.objects.filter(groups__in=Group.objects.all()).distinct()
