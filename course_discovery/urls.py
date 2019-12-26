@@ -43,11 +43,6 @@ urlpatterns = oauth2_urlpatterns + [
     url(r'^health/$', core_views.health, name='health'),
     url('^$', QueryPreviewView.as_view()),
     url(r'^publisher/', include('course_discovery.apps.publisher.urls', namespace='publisher')),
-    url(
-        r'^publisher/comments/', include(
-            'course_discovery.apps.publisher_comments.urls', namespace='publisher_comments'
-        )
-    ),
     url(r'^language-tags/', include('course_discovery.apps.ietf_language_tags.urls', namespace='language_tags')),
     url(r'^comments/', include('django_comments.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),

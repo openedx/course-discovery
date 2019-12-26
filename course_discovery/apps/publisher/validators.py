@@ -1,5 +1,4 @@
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
 from stdimage.validators import BaseSizeValidator
 
 
@@ -12,7 +11,7 @@ class ImageSizeValidator(BaseSizeValidator):
     def compare(self, img_size, limit_size):  # pylint: disable=arguments-differ
         return img_size[0] != limit_size[0] or img_size[1] != limit_size[1]
 
-    message = _(
+    message = (
         'The image you uploaded is of incorrect resolution. '
         'Course image files must be %(with)s x %(height)s pixels in size.'
     )
@@ -49,7 +48,7 @@ class ImageMultiSizeValidator(ImageSizeValidator):
             }
             raise ValidationError(self.message, code=self.code, params=params)
 
-    message = _(
+    message = (
         'Invalid image size. The recommended image size is %(preferred)s. '
         'Older courses also support image sizes of %(supported)s.'
     )

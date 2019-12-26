@@ -22,6 +22,7 @@ from rest_framework.metadata import SimpleMetadata
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from course_discovery.apps.api.fields import HtmlField, ImageField, StdImageSerializerField
+from course_discovery.apps.api.utils import StudioAPI
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
@@ -38,7 +39,6 @@ from course_discovery.apps.course_metadata.utils import get_course_run_estimated
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import GroupUserSerializer
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
-from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 
 User = get_user_model()
 
