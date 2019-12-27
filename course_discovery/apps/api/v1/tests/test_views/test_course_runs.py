@@ -529,7 +529,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.client.force_authenticate(user)
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.draft_course_run.key})
         response = self.client.patch(url, {}, format='json')
-        assert response.status_code == 404
+        assert response.status_code == 403
 
     @ddt.data(
         (
@@ -598,7 +598,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         # Not an editor, not allowed to patch
         response = self.client.patch(url, {}, format='json')
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
         # Add as editor
         org_ext = OrganizationExtensionFactory(
@@ -1183,6 +1183,15 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
                                  key=lambda course_run: course_run['key'])
         self.assertEqual(response.status_code, 200)
         self.assertEqual(actual_sorted, expected_sorted)
+
+    @responses.activate
+    def test_editable_list_is_denied_as_normal_user(self):
+        """ Verify that GET with editable=1 can't be reached by a normal unprivileged user. """
+        self.user.is_staff = False
+        self.user.save()
+
+        response = self.client.get(reverse('api:v1:course_run-list') + '?editable=1')
+        self.assertEqual(response.status_code, 403)
 
     def test_editable_get_gives_drafts(self):
         draft = CourseRunFactory(

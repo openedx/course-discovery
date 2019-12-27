@@ -34,6 +34,7 @@ from course_discovery.apps.course_metadata.models import (
 from course_discovery.apps.course_metadata.utils import (
     create_missing_entitlement, ensure_draft_world, validate_course_number
 )
+from course_discovery.apps.publisher.utils import is_publisher_user
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +106,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         if edit_mode and q:
             raise EditableAndQUnsupported()
+
+        if edit_mode and (not self.request.user.is_staff and not is_publisher_user(self.request.user)):
+            raise PermissionDenied
 
         if edit_mode:
             # Start with either draft versions or real versions of the courses
