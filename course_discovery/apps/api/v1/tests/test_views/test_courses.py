@@ -426,12 +426,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             CourseEditorFactory(user=self.user, course=self.course)
 
         response = getattr(self.client, method)(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}))
-
-        if not allowed:
-            self.assertEqual(response.status_code, 404)
-        else:
-            # We'll probably fail because we didn't include the right data - but at least we'll have gotten in
-            self.assertNotEqual(response.status_code, 404)
+        # We'll probably fail with 400 because we didn't include the right data - but at least confirm we got in
+        self.assertEqual(response.status_code not in [403, 404], allowed, response.status_code)
 
     def test_editable_list_gives_drafts(self):
         draft = CourseFactory(partner=self.partner, uuid=self.course.uuid, key=self.course.key, draft=True)
@@ -469,6 +465,15 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.client.get(reverse('api:v1:course-list') + '?editable=1')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['results'], self.serialize_course([self.course], many=True))
+
+    @responses.activate
+    def test_editable_list_is_denied_as_normal_user(self):
+        """ Verify that GET with editable=1 can't be reached by a normal unprivileged user. """
+        self.user.is_staff = False
+        self.user.save()
+
+        response = self.client.get(reverse('api:v1:course-list') + '?editable=1')
+        self.assertEqual(response.status_code, 403)
 
     def test_editable_get_gives_drafts(self):
         draft = CourseFactory(partner=self.partner, uuid=self.course.uuid, key=self.course.key, draft=True)
@@ -525,12 +530,12 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.course.save()
 
         # Try without being in the organization nor an editor
-        self.assertEqual(self.client.patch(url).status_code, 404)
+        self.assertEqual(self.client.patch(url).status_code, 403)
 
         # Add to authoring org, and we should be let in
         org_ext = OrganizationExtensionFactory(organization=self.org)
         self.user.groups.add(org_ext.group)
-        self.assertNotEqual(self.client.patch(url).status_code, 404)
+        self.assertNotEqual(self.client.patch(url).status_code, 403)
 
         # Now add a random other user as an editor to the course, so that we will no longer be granted access.
         editor = UserFactory()
@@ -540,11 +545,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # But if the editor is no longer valid (even though they exist), we're back to having access.
         editor.groups.remove(org_ext.group)
-        self.assertNotEqual(self.client.patch(url).status_code, 404)
+        self.assertNotEqual(self.client.patch(url).status_code, 403)
 
         # And finally, for a sanity check, confirm we have access when we become an editor also
         CourseEditorFactory(user=self.user, course=self.course)
-        self.assertNotEqual(self.client.patch(url).status_code, 404)
+        self.assertNotEqual(self.client.patch(url).status_code, 403)
 
     def test_delete_not_allowed(self):
         """ Verify we don't allow deleting a course from the API. """
