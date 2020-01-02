@@ -564,7 +564,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
     def update_seats(self, body):
         course_run_key = body['id']
-        logger.info('Processing seats for course with key [%s].', course_run_key)
         try:
             course_run = CourseRun.objects.get(key__iexact=course_run_key)
         except CourseRun.DoesNotExist:
@@ -580,12 +579,15 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         # Remove seats which no longer exist for that course run
         certificate_types = [self.get_certificate_type(product) for product in body['products']
                              if product['structure'] == 'child']
-        logger.info(
-            'Removing seats for course with key [%s] except [%s].',
-            course_run_key,
-            ', '.join(certificate_types)
-        )
-        course_run.seats.exclude(type__slug__in=certificate_types).delete()
+
+        seats_to_remove = course_run.seats.exclude(type__slug__in=certificate_types)
+        if seats_to_remove.count() > 0:
+            logger.info(
+                'Removing seats [%s] for course run with key [%s].',
+                ', '.join(s.type.slug for s in seats_to_remove),
+                course_run_key,
+            )
+        seats_to_remove.delete()
 
     def update_seat(self, course_run, product_body):
         stock_record = product_body['stockrecords'][0]
@@ -605,9 +607,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         try:
             seat_type = SeatType.objects.get(slug=certificate_type)
         except SeatType.DoesNotExist:
-            msg = 'Could not find seat type {seat_type} while loading seat with sku {sku}'.format(
-                seat_type=certificate_type, sku=sku
-            )
+            msg = ('Could not find seat type {seat_type} while loading seat with sku {sku} for course run with key '
+                   '{key}'.format(seat_type=certificate_type, sku=sku, key=course_run.key))
             logger.warning(msg)
             self.processing_failure_occurred = True
             return
@@ -633,14 +634,15 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'credit_hours': credit_hours,
         }
 
-        course_run.seats.update_or_create(
+        _, created = course_run.seats.update_or_create(
             type=seat_type,
             credit_provider=credit_provider,
             currency=currency,
             defaults=defaults
         )
 
-        logger.info('Processed seat for course with key [%s] and sku [%s].', course_run.key, sku)
+        if created:
+            logger.info('Created seat for course with key [%s] and sku [%s].', course_run.key, sku)
 
     def validate_stockrecord(self, stockrecords, title, product_class):
         """
