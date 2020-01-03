@@ -77,7 +77,7 @@ class CourseAdmin(admin.ModelAdmin):
     ordering = ('key', 'title',)
     readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count',)
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
-    raw_id_fields = ('draft_version',)
+    raw_id_fields = ('canonical_course_run', 'draft_version',)
 
 
 @admin.register(CourseEditor)

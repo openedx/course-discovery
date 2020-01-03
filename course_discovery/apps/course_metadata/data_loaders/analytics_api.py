@@ -77,23 +77,12 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
         course_run.enrollment_count = course_run_count
         course_run.recent_enrollment_count = course_run_recent_count
         course_run.save(suppress_publication=True)
-        logger.info('Updating course run: {course_run_key}'.format(course_run_key=course_run_key))
 
-        logger.info('Updating course dictionary for course uuid: {course_uuid}'.format(course_uuid=course.uuid))
         # Add course run total to course total in dictionary
         if course.uuid in self.course_dictionary:
-            logger.info('incrementing count from {old_count} to {new_count}'.format(
-                old_count=self.course_dictionary[course.uuid]['count'],
-                new_count=self.course_dictionary[course.uuid]['count'] + course_run_count))
-            logger.info('incrementing recent count from {old_count} to {new_count}'.format(
-                old_count=self.course_dictionary[course.uuid]['recent_count'],
-                new_count=self.course_dictionary[course.uuid]['recent_count'] + course_run_recent_count
-            ))
             self.course_dictionary[course.uuid]['count'] += course_run_count
             self.course_dictionary[course.uuid]['recent_count'] += course_run_recent_count
         else:
-            logger.info('setting course count to {count}'.format(count=course_run_count))
-            logger.info('setting recent count to {count}'.format(count=course_run_recent_count))
             self.course_dictionary[course.uuid] = {'course': course,
                                                    'count': course_run_count,
                                                    'recent_count': course_run_recent_count}
@@ -103,24 +92,14 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
         course.enrollment_count = count
         course.recent_enrollment_count = recent_count
         course.save()
-        logger.info('Updating course: {course_uuid}'.format(course_uuid=course.uuid))
 
-        logger.info('Updating program dictionary for course uuid: {course_uuid}'.format(course_uuid=course.uuid))
         # Add course count to program dictionary for all programs
         for program in course.programs.all():
             # add course total to program total in dictionary
             if program.uuid in self.program_dictionary:
-                logger.info('incrementing from {old_count} to {new_count}'.format(
-                    old_count=self.program_dictionary[program.uuid]['count'],
-                    new_count=self.program_dictionary[program.uuid]['count'] + count))
-                logger.info('incrementing from {old_count} to {new_count}'.format(
-                    old_count=self.program_dictionary[program.uuid]['recent_count'],
-                    new_count=self.program_dictionary[program.uuid]['recent_count'] + recent_count))
                 self.program_dictionary[program.uuid]['count'] += count
                 self.program_dictionary[program.uuid]['recent_count'] += recent_count
             else:
-                logger.info('setting count to {count}'.format(count=count))
-                logger.info('setting recent count to {count}'.format(count=recent_count))
                 self.program_dictionary[program.uuid] = {'program': program,
                                                          'count': count,
                                                          'recent_count': recent_count}

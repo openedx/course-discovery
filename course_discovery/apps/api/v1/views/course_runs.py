@@ -23,6 +23,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
+from course_discovery.apps.publisher.utils import is_publisher_user
 
 log = logging.getLogger(__name__)
 
@@ -79,6 +80,9 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         if edit_mode and q:
             raise EditableAndQUnsupported()
+
+        if edit_mode and (not self.request.user.is_staff and not is_publisher_user(self.request.user)):
+            raise PermissionDenied
 
         if edit_mode:
             queryset = CourseRun.objects.filter_drafts()
