@@ -449,11 +449,14 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         audit_run_type = CourseRunType.objects.get(slug=CourseRunType.AUDIT)
         credit_run_type = CourseRunType.objects.get(slug=CourseRunType.CREDIT_VERIFIED_AUDIT)
         verified_run_type = CourseRunType.objects.get(slug=CourseRunType.VERIFIED_AUDIT)
-        audit_run = CourseRunFactory(title_override='audit', key='audit/course/run', type=audit_run_type)
-        verified_run = CourseRunFactory(title_override='verified', key='verified/course/run', type=verified_run_type)
-        credit_run = CourseRunFactory(title_override='credit', key='credit/course/run', type=credit_run_type)
+        audit_run = CourseRunFactory(title_override='audit', key='audit/course/run', type=audit_run_type,
+                                     course__partner=self.partner)
+        verified_run = CourseRunFactory(title_override='verified', key='verified/course/run', type=verified_run_type,
+                                        course__partner=self.partner)
+        credit_run = CourseRunFactory(title_override='credit', key='credit/course/run', type=credit_run_type,
+                                      course__partner=self.partner)
         no_currency_run = CourseRunFactory(title_override='no currency', key='nocurrency/course/run',
-                                           type=verified_run_type)
+                                           type=verified_run_type, course__partner=self.partner)
 
         professional_type = SeatTypeFactory.professional()
         SeatFactory(course_run=audit_run, type=professional_type)
@@ -474,7 +477,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     def mock_products_api(self, alt_course=None, alt_currency=None, alt_mode=None, has_stockrecord=True,
                           valid_stockrecord=True, product_class=None):
         """ Return a new Course Entitlement and Enrollment Code to be added by ingest """
-        course = CourseFactory(type=CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT))
+        course = CourseFactory(type=CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT), partner=self.partner)
 
         # If product_class is given, make sure it's either entitlement or enrollment_code
         if product_class:
