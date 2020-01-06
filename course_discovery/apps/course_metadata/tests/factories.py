@@ -336,9 +336,9 @@ class OrganizationFactory(SalesforceRecordFactory):
     name = FuzzyText()
     description = FuzzyText()
     homepage_url = FuzzyURL()
-    logo_image_url = FuzzyURL()
-    banner_image_url = FuzzyURL()
-    certificate_logo_image_url = FuzzyURL()
+    logo_image = FuzzyText()
+    banner_image = FuzzyText()
+    certificate_logo_image = FuzzyText()
     partner = factory.SubFactory(PartnerFactory)
 
     class Meta:

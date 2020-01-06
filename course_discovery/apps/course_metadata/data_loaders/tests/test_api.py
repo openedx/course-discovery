@@ -15,7 +15,7 @@ from slumber.exceptions import HttpClientError
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    AbstractDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
+    AbstractDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
@@ -54,93 +54,6 @@ class AbstractDataLoaderTest(TestCase):
         # Parse datetime strings
         dt = datetime.datetime.utcnow()
         self.assertEqual(AbstractDataLoader.parse_date(dt.isoformat()), dt)
-
-
-@ddt.ddt
-class OrganizationsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
-    loader_class = OrganizationsApiDataLoader
-
-    @property
-    def api_url(self):
-        return self.partner.organizations_api_url
-
-    def mock_api(self):
-        bodies = mock_data.ORGANIZATIONS_API_BODIES
-        url = self.api_url + 'organizations/'
-        responses.add_callback(
-            responses.GET,
-            url,
-            callback=mock_api_callback(url, bodies),
-            content_type=JSON
-        )
-        return bodies
-
-    def assert_organization_loaded(self, body, partner_has_marketing_site=True):
-        """ Assert an Organization corresponding to the specified data body was properly loaded into the database. """
-        organization = Organization.objects.get(key=AbstractDataLoader.clean_string(body['short_name']))
-        if not partner_has_marketing_site:
-            self.assertEqual(organization.name, AbstractDataLoader.clean_string(body['name']))
-            self.assertEqual(organization.description, AbstractDataLoader.clean_string(body['description']))
-            self.assertEqual(organization.logo_image_url, AbstractDataLoader.clean_string(body['logo']))
-            self.assertEqual(organization.certificate_logo_image_url, AbstractDataLoader.clean_string(body['logo']))
-
-    @responses.activate
-    @ddt.data(True, False)
-    def test_ingest(self, partner_has_marketing_site):
-        """ Verify the method ingests data from the Organizations API. """
-        api_data = self.mock_api()
-        if not partner_has_marketing_site:
-            self.partner.marketing_site_url_root = None
-            self.partner.save()
-
-        self.assertEqual(Organization.objects.count(), 0)
-
-        self.loader.ingest()
-
-        # Verify the API was called with the correct authorization header
-        self.assert_api_called(2)
-
-        # Verify the Organizations were created correctly
-        expected_num_orgs = len(api_data)
-        self.assertEqual(Organization.objects.count(), expected_num_orgs)
-
-        for datum in api_data:
-            self.assert_organization_loaded(datum, partner_has_marketing_site)
-
-        # Verify multiple calls to ingest data do NOT result in data integrity errors.
-        self.loader.ingest()
-
-    @responses.activate
-    def test_ingest_respects_partner(self):
-        """
-        Existing organizations with the same key but linked to different partners
-        shouldn't cause organization data loading to fail.
-        """
-        api_data = self.mock_api()
-        key = api_data[1]['short_name']
-
-        OrganizationFactory(key=key, partner=self.partner)
-        OrganizationFactory(key=key)
-
-        assert Organization.objects.count() == 2
-
-        self.loader.ingest()
-
-        assert Organization.objects.count() == len(api_data) + 1
-
-    # TODO add this back in when loading from drupal is completely removed
-    # def test_delete_orphans_is_called(self):
-    #     """Verify ingest is calling delete_orphans"""
-    #     self.mock_api()
-    #     with mock.patch('course_discovery.apps.course_metadata.data_loaders.api.delete_orphans')
-    #         as mock_delete_orphan:
-    #         self.loader.ingest()
-    #         excluded = set()
-    #         organizations = Organization.objects.all()
-    #         for org in organizations:
-    #             excluded.add(org.pk)
-    #
-    #         mock_delete_orphan.assert_called_with(Organization, exclude=excluded)
 
 
 @ddt.ddt
@@ -242,7 +155,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(2)
+        self.assert_api_called(4)
 
         # Verify the CourseRuns were created correctly
         expected_num_course_runs = len(api_data)
@@ -268,7 +181,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(2)
+        self.assert_api_called(4)
 
         runs = CourseRun.objects.all()
         # Run with a verified entitlement, but no change in end date
@@ -1081,7 +994,7 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.loader.ingest()
 
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(3)
+        self.assert_api_called(6)
 
         # Verify the Programs were created correctly
         self.assertEqual(Program.objects.count(), len(api_data))
@@ -1123,7 +1036,7 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         self.loader.ingest()
         # Verify the API was called with the correct authorization header
-        self.assert_api_called(3)
+        self.assert_api_called(6)
 
         for program in programs:
             self.assert_program_loaded(program)

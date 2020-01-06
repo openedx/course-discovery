@@ -27,7 +27,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         self.log_handler.reset()
 
         self.user = UserFactory.create()
-        self.partner = PartnerFactory.create()
+        self.partner = PartnerFactory.create(lms_url='http://127.0.0.1:8000')
         self.lms = lms.LMSAPIClient(self.partner.site)
         self.response = {
             'id': 1,

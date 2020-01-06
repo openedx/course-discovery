@@ -54,7 +54,7 @@ class PartnerFactory(factory.DjangoModelFactory):
     marketing_site_api_password = factory.Faker('password')
     analytics_url = factory.Faker('url')
     analytics_token = factory.Faker('sha256')
-    lms_url = "http://127.0.0.1:8000"
+    lms_url = ''
     lms_admin_url = '{root}/admin'.format(root=FuzzyUrlRoot().fuzz())
     site = factory.SubFactory(SiteFactory)
     studio_url = factory.Faker('url')

@@ -65,6 +65,8 @@ BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://edx.devstack.lms:18000/oauth2"
 
 ENABLE_PUBLISHER = True
 
+ORG_BASE_LOGO_URL = "http://discovery:18381/media/"
+
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):

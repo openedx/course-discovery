@@ -13,11 +13,10 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
+    CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    CourseMarketingSiteDataLoader, SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader,
-    SubjectMarketingSiteDataLoader
+    CourseMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
 )
 from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig, Image, Video
 
@@ -123,12 +122,7 @@ class Command(BaseCommand):
             pipeline = (
                 (
                     (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                    (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                    (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
                     (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                ),
-                (
-                    (OrganizationsApiDataLoader, partner.organizations_api_url, max_workers),
                 ),
                 (
                     (CoursesApiDataLoader, partner.courses_api_url, max_workers),

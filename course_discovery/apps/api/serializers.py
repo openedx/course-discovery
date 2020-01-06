@@ -305,6 +305,27 @@ class MinimalOrganizationSerializer(BaseModelSerializer):
 class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     """Serializer for the ``Organization`` model."""
     tags = TagListSerializerField()
+    certificate_logo_image_url = serializers.SerializerMethodField()
+    logo_image_url = serializers.SerializerMethodField()
+    banner_image_url = serializers.SerializerMethodField()
+
+    def get_certificate_logo_image_url(self, obj):
+        image = getattr(obj, 'certificate_logo_image', None)
+        if image:
+            return image.url
+        return None
+
+    def get_logo_image_url(self, obj):
+        image = getattr(obj, 'logo_image', None)
+        if image:
+            return image.url
+        return None
+
+    def get_banner_image_url(self, obj):
+        image = getattr(obj, 'banner_image', None)
+        if image:
+            return image.url
+        return None
 
     @classmethod
     def prefetch_queryset(cls, partner):
