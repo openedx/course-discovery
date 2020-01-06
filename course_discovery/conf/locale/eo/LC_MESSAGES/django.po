@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-19 18:13+0000\n"
+"POT-Creation-Date: 2020-01-08 15:54+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -982,14 +982,6 @@ msgid "If populated, this field will overwrite name in platform."
 msgstr ""
 "Ìf pöpülätéd, thïs fïéld wïll övérwrïté nämé ïn plätförm. Ⱡ'σяєм ιρѕυм ∂σłσя"
 " ѕιт αмєт, ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/models.py
-msgid ""
-"Logo to be displayed on certificates. If this logo is the same as "
-"logo_image_url, copy and paste the same value to both fields."
-msgstr ""
-"Lögö tö ßé dïspläýéd ön çértïfïçätés. Ìf thïs lögö ïs thé sämé äs "
-"lögö_ïmägé_ürl, çöpý änd pästé thé sämé välüé tö ßöth fïélds. Ⱡ'σяє#"
 
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py
