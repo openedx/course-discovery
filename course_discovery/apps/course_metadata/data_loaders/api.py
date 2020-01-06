@@ -383,8 +383,9 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         empty_course_run_type = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
         has_empty_type = (Q(type=empty_course_type, course_runs__seats__isnull=False) |
                           Q(course_runs__type=empty_course_run_type, course_runs__seats__isnull=False))
-        for course in Course.everything.filter(has_empty_type).distinct().iterator():
+        for course in Course.everything.filter(has_empty_type, partner=self.partner).distinct().iterator():
             if not calculate_course_type(course, commit=True):
+                logger.warning('Calculating course type failure occurred for [%s].', course)
                 self.processing_failure_occurred = True
 
         if (self.course_run_count != course_runs['count'] or
