@@ -1872,7 +1872,8 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                     key=course.sponsoring_organizations.first().key,
                     name=course.sponsoring_organizations.first().name,
                 )
-            ]
+            ],
+            'estimated_hours': 0
         }
 
         serializer = self.serialize_course(course, request)
@@ -1918,7 +1919,8 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                     key=course.sponsoring_organizations.first().key,
                     name=course.sponsoring_organizations.first().name,
                 )
-            ]
+            ],
+            'estimated_hours': 0,
         }
 
 

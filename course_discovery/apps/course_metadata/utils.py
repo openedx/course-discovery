@@ -374,7 +374,7 @@ def get_course_run_estimated_hours(course_run):
     max_effort = course_run.max_effort or 0
     weeks_to_complete = course_run.weeks_to_complete or 0
     effort = min_effort + max_effort
-    return (effort / 2) * weeks_to_complete if effort and weeks_to_complete else 0
+    return (effort // 2) * weeks_to_complete if effort and weeks_to_complete else 0
 
 
 def subtract_deadline_delta(end, delta):

@@ -1955,6 +1955,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'subjects',
             'languages',
             'organizations',
+            'estimated_hours',
         )
 
 

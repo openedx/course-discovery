@@ -5,6 +5,7 @@ from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Degree, Person, Position, Program
+from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 
 BASE_SEARCH_INDEX_FIELDS = (
     'aggregation_key',
@@ -150,6 +151,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     enrollment_end = indexes.DateTimeField(model_attr='course_runs__enrollment_end', null=True)
     availability = indexes.CharField(model_attr='course_runs__availability')
     first_enrollable_paid_seat_price = indexes.IntegerField(null=True)
+    estimated_hours = indexes.IntegerField()
     subject_uuids = indexes.MultiValueField()
 
     course_runs = indexes.MultiValueField()
@@ -179,6 +181,13 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_first_enrollable_paid_seat_price(self, obj):
         return obj.first_enrollable_paid_seat_price
+
+    def prepare_estimated_hours(self, obj):
+        default_estimated_hours = 0
+        for course_run in obj.course_runs.all():
+            if course_run.availability == 'Current':
+                return get_course_run_estimated_hours(course_run)
+        return default_estimated_hours
 
     def prepare_seat_types(self, obj):
         seat_types = [seat.slug for course_run in obj.course_runs.all() for seat in course_run.seat_types]
