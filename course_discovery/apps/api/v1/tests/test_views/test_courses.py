@@ -765,7 +765,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.mock_access_token()
         response = self.create_course({'number': 'Fake101'})
         self.assertEqual(response.status_code, 400)
-        expected_error_message = 'Failed to set data: A course with key {key} already exists.'
+        expected_error_message = 'Failed to set data: A course with key [{key}] already exists.'
         self.assertEqual(response.data, expected_error_message.format(key=self.course.key))
 
     def test_create_fails_with_missing_field(self):

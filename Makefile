@@ -69,15 +69,17 @@ migrate: ## Apply database migrations
 html_coverage: ## Generate and view HTML coverage report
 	coverage html && open htmlcov/index.html
 
-extract_translations: ## Extract strings to be translated, outputting .mo files
+extract_translations: ## Extract strings to be translated, outputting .po and .mo files
 	# NOTE: We need PYTHONPATH defined to avoid ImportError(s) on Travis CI.
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d django
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d djangojs
+	cd course_discovery && i18n_tool dummy
+	python manage.py compilemessages
 
 dummy_translations: ## Generate dummy translation (.po) files
 	cd course_discovery && i18n_tool dummy
 
-compile_translations: ## Compile translation files, outputting .po files for each supported language
+compile_translations: ## Compile translation files, outputting .mo files for each supported language
 	python manage.py compilemessages
 
 fake_translations: extract_translations dummy_translations compile_translations ## Generate and compile dummy translation files
