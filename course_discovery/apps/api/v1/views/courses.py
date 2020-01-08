@@ -203,7 +203,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         # Confirm that this course doesn't already exist in an official non-draft form
         if Course.objects.filter(partner=partner, key=course_creation_fields['key']).exists():
-            raise Exception(_('A course with key {key} already exists.').format(key=course_creation_fields['key']))
+            raise Exception(_('A course with key [{key}] already exists.').format(key=course_creation_fields['key']))
 
         # if a manually entered url_slug, ensure it's not already taken (auto-generated are guaranteed uniqueness)
         if url_slug:
