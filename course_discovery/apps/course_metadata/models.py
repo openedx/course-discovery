@@ -168,12 +168,6 @@ class Organization(CachedMixin, TimeStampedModel):
     slug = AutoSlugField(populate_from='key', editable=False, slugify_function=uslugify)
     description = models.TextField(null=True, blank=True)
     homepage_url = models.URLField(max_length=255, null=True, blank=True)
-    logo_image_url = models.URLField(null=True, blank=True)
-    banner_image_url = models.URLField(null=True, blank=True)
-    certificate_logo_image_url = models.URLField(
-        null=True, blank=True, help_text=_('Logo to be displayed on certificates. If this logo is the same as '
-                                           'logo_image_url, copy and paste the same value to both fields.')
-    )
     logo_image = models.ImageField(
         upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/logos'),
         blank=True,
