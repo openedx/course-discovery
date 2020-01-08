@@ -73,8 +73,8 @@ extract_translations: ## Extract strings to be translated, outputting .po and .m
 	# NOTE: We need PYTHONPATH defined to avoid ImportError(s) on Travis CI.
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d django
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d djangojs
-	cd course_discovery && i18n_tool dummy
-	python manage.py compilemessages
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" i18n_tool dummy
+	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py compilemessages
 
 dummy_translations: ## Generate dummy translation (.po) files
 	cd course_discovery && i18n_tool dummy
