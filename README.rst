@@ -28,10 +28,6 @@ Contributions are welcome. Please read `How To Contribute <https://github.com/ed
 Development
 -----------
 
-Is the build failing because translations are out of date?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Run ``make check_translations_up_to_date`` and check in the generated *.mo & *.po files to your PR.
-
 Using elasticsearch locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 To use elasticsearch locally, and to update your index after adding new data that you want elasticsearch to access
