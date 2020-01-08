@@ -420,7 +420,7 @@ def serialize_seat_for_ecommerce_api(seat, mode):
     }
 
 
-def serialize_entitlement_for_ecommerce_api(entitlement):
+def serialize_entitlement_for_ecommerce_api(entitlement, mode):
     return {
         'price': str(entitlement.price),
         'product_class': 'Course Entitlement',
@@ -429,6 +429,10 @@ def serialize_entitlement_for_ecommerce_api(entitlement):
                 'name': 'certificate_type',
                 'value': entitlement.mode if isinstance(entitlement.mode, str) else entitlement.mode.slug,
             },
+            {
+                'name': 'id_verification_required',
+                'value': mode.is_id_verified,
+            }
         ],
     }
 
@@ -443,17 +447,21 @@ def push_to_ecommerce_for_course_run(course_run):
     if not api or not course.partner.ecommerce_api_url:
         return False
 
-    entitlements = course.entitlements.all()
-
     # Figure out which seats to send (skip ones that have no ecom products - like Masters - or are just misconfigured).
     # This is dumb and does basically a O(n^2) inner join here to match seats to modes. I feel like the Django
     # ORM has a better solution for this, but I couldn't find it easily. These lists are small anyway.
     tracks = course_run.type.tracks.all()
     seats_with_modes = []
+    entitlements_with_modes = []
     for seat in course_run.seats.all():
         for track in tracks:
             if track.seat_type and seat.type == track.seat_type:
                 seats_with_modes.append((seat, track.mode))
+                break
+    for entitlement in course.entitlements.all():
+        for track in tracks:
+            if track.seat_type and entitlement.mode == track.seat_type:
+                entitlements_with_modes.append((entitlement, track.mode))
                 break
 
     discovery_products = []
@@ -461,13 +469,16 @@ def push_to_ecommerce_for_course_run(course_run):
     if seats_with_modes:
         serialized_products.extend([serialize_seat_for_ecommerce_api(s[0], s[1]) for s in seats_with_modes])
         discovery_products.extend([s[0] for s in seats_with_modes])
-    if entitlements:
-        serialized_products.extend([serialize_entitlement_for_ecommerce_api(e) for e in entitlements])
-        discovery_products.extend(list(entitlements))
+    if entitlements_with_modes:
+        serialized_products.extend(
+            [serialize_entitlement_for_ecommerce_api(e[0], e[1]) for e in entitlements_with_modes]
+        )
+        discovery_products.extend([e[0] for e in entitlements_with_modes])
     if not serialized_products:
         return False  # nothing to do
 
     url = urljoin(course.partner.ecommerce_api_url, 'publication/')
+
     response = api.post(url, json={
         'id': course_run.key,
         'uuid': str(course.uuid),

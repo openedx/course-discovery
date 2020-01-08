@@ -193,10 +193,11 @@ class TestSerializeSeatForEcommerceApi(TestCase):
 
 
 @pytest.mark.django_db
-class TestSerializeEntitlementForEcommerceApi:
+class TestSerializeEntitlementForEcommerceApi(TestCase):
     def test_serialize_entitlement_for_ecommerce_api(self):
         entitlement = CourseEntitlementFactory()
-        actual = serialize_entitlement_for_ecommerce_api(entitlement)
+        mode = ModeFactory(certificate_type='professional', is_id_verified=True)
+        actual = serialize_entitlement_for_ecommerce_api(entitlement, mode)
         expected = {
             'price': str(entitlement.price),
             'product_class': 'Course Entitlement',
@@ -204,6 +205,10 @@ class TestSerializeEntitlementForEcommerceApi:
                 {
                     'name': 'certificate_type',
                     'value': entitlement.mode.slug,
+                },
+                {
+                    'name': 'id_verification_required',
+                    'value': mode.is_id_verified,
                 },
             ]
         }
