@@ -338,7 +338,8 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(weeks=4))
         course_run_keys = [course_run.key for course_run in [archived, current, starting_soon, upcoming]]
 
-        response = self.get_response({"ordering": ordering})
+        with self.assertNumQueries(12):
+            response = self.get_response({"ordering": ordering})
         assert response.status_code == 200
         assert response.data['objects']['count'] == 4
 
@@ -435,7 +436,8 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
         data = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
         expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
-        response = self.client.post(self.path, data=data, format='json')
+        with self.assertNumQueries(6):
+            response = self.client.post(self.path, data=data, format='json')
         assert response.json() == expected
 
     def test_get(self):
