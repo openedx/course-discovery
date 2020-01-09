@@ -255,9 +255,9 @@ class Organization(CachedMixin, TimeStampedModel):
         if partner.lms_api_client:
             try:
                 partner.lms_api_client.put(organizations_url, json=data)
-            except requests.exceptions.ConnectionError as e:  # pylint: disable=broad-except
+            except requests.exceptions.ConnectionError as e:
                 logger.error('[%s]: Unable to push organization [%s] to lms.', e, self.uuid)
-            except Exception as e:  # pylint: disable=broad-except
+            except Exception as e:
                 raise e
 
 
