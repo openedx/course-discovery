@@ -159,6 +159,15 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     languages = indexes.MultiValueField()
     seat_types = indexes.MultiValueField()
 
+    def read_queryset(self, using=None):
+        # Pre-fetch all fields required by the CourseSearchSerializer. Unfortunately, there's
+        # no way to specify at query time which queryset to use during loading in order to customize
+        # it for the serializer being used
+        qset = super(CourseIndex, self).read_queryset(using=using)
+        return qset.prefetch_related(
+            'course_runs__seats__type'
+        )
+
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
 
@@ -233,6 +242,16 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     license = indexes.MultiValueField(model_attr='license', faceted=True)
     has_enrollable_seats = indexes.BooleanField(model_attr='has_enrollable_seats', null=False)
     is_current_and_still_upgradeable = indexes.BooleanField(null=False)
+
+    def read_queryset(self, using=None):
+        # Pre-fetch all fields required by the CourseRunSearchSerializer. Unfortunately, there's
+        # no way to specify at query time which queryset to use during loading in order to customize
+        # it for the serializer being used
+        qset = super(CourseRunIndex, self).read_queryset(using=using)
+
+        return qset.prefetch_related(
+            'seats__type',
+        )
 
     def prepare_aggregation_key(self, obj):
         # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.

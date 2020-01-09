@@ -164,9 +164,9 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         (list_path, serializers.CourseRunSearchSerializer,
          ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 8),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 27),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 24),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 28),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 25),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -338,7 +338,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(weeks=4))
         course_run_keys = [course_run.key for course_run in [archived, current, starting_soon, upcoming]]
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(9):
             response = self.get_response({"ordering": ordering})
         assert response.status_code == 200
         assert response.data['objects']['count'] == 4
