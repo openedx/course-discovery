@@ -18,9 +18,6 @@ make requirements.js
 # Ensure documentation can be compiled
 make docs
 
-# Check if translation files are up-to-date
-make validate_translations
-
 # Compile assets and run validation
 make clean_static
 make static

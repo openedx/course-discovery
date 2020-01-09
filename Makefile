@@ -1,9 +1,9 @@
 .DEFAULT_GOAL := test
 NODE_BIN=$(CURDIR)/node_modules/.bin
 
-.PHONY: accept clean clean_static compile_translations detect_changed_source_translations dummy_translations extract_translations \
-	fake_translations help html_coverage migrate open-devstack production-requirements pull_translations quality requirements.js \
-	requirements start-devstack static stop-devstack test validate check_translations_up_to_date docs  static.dev static.watch
+.PHONY: accept clean clean_static detect_changed_source_translations extract_translations \
+	help html_coverage migrate open-devstack production-requirements pull_translations quality requirements.js \
+	requirements start-devstack static stop-devstack test docs static.dev static.watch
 
 include .travis/docker.mk
 
@@ -69,6 +69,7 @@ migrate: ## Apply database migrations
 html_coverage: ## Generate and view HTML coverage report
 	coverage html && open htmlcov/index.html
 
+# This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 extract_translations: ## Extract strings to be translated, outputting .po and .mo files
 	# NOTE: We need PYTHONPATH defined to avoid ImportError(s) on Travis CI.
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d django
@@ -76,18 +77,12 @@ extract_translations: ## Extract strings to be translated, outputting .po and .m
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" i18n_tool dummy
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py compilemessages
 
-dummy_translations: ## Generate dummy translation (.po) files
-	cd course_discovery && i18n_tool dummy
-
-compile_translations: ## Compile translation files, outputting .mo files for each supported language
-	python manage.py compilemessages
-
-fake_translations: extract_translations dummy_translations compile_translations ## Generate and compile dummy translation files
-
+# This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 pull_translations: ## Pull translations from Transifex
 	tx pull -af --mode reviewed --minimum-perc=1
 
-push_translations: ## push source translation files (.po) from Transifex
+# This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
+push_translations: ## Push source translation files (.po) to Transifex
 	tx push -s
 
 start-devstack: ## Run a local development copy of the server
@@ -103,13 +98,9 @@ open-devstack: ## Open a shell on the server started by start-devstack
 accept: ## Run acceptance tests
 	nosetests --with-ignore-docstrings -v acceptance_tests
 
+# This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 detect_changed_source_translations: ## Check if translation files are up-to-date
 	cd course_discovery && i18n_tool changed
-
-validate_translations: ## Check if translation files are valid
-	cd course_discovery && i18n_tool validate -v -ca
-
-check_translations_up_to_date: fake_translations detect_changed_source_translations ## Install fake translations and check if translation files are up-to-date
 
 docs:
 	cd docs && make html
