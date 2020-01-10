@@ -758,6 +758,30 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         self.assertEqual(official.status, CourseRunStatus.Published)
         self.assertIsNotNone(official.announcement)
 
+    def test_publish_adds_slug_to_course(self):
+        to_publish = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, draft=False)
+        current_active_course_slug = to_publish.course.active_url_slug
+        to_publish.publish()
+        all_slugs_as_list = [slug_obj.url_slug for slug_obj in to_publish.course.url_slug_history.all()]
+        self.assertIn(to_publish.slug, all_slugs_as_list)
+        self.assertEqual(to_publish.course.active_url_slug, current_active_course_slug)
+
+    def test_publish_does_not_add_duplicate_slugs(self):
+        course = factories.CourseFactory(draft=False)
+        to_publish = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, draft=False, course=course)
+        course.set_active_url_slug(to_publish.slug)
+        to_publish.publish()
+        self.assertEqual(course.active_url_slug, to_publish.slug)
+        self.assertEqual(course.url_slug_history.count(), 2)
+
+    def test_publish_errors_if_slug_exists_on_other_course(self):
+        course1 = factories.CourseFactory(draft=False)
+        course2 = factories.CourseFactory(draft=False, partner=course1.partner)
+        to_publish = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, draft=False, course=course1)
+        course2.set_active_url_slug(to_publish.slug)
+        with self.assertRaises(IntegrityError):
+            to_publish.publish()
+
     @ddt.data(
         (None, None, True),  # No enrollment start or end
         (

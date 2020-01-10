@@ -1712,6 +1712,13 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         # It is likely that we are sunsetting an old run in favor of this new run, so unpublish old runs just in case
         self.course.unpublish_inactive_runs()
 
+        # Add a redirect from the course run URL to the canonical course URL if one doesn't already exist
+        existing_slug = CourseUrlSlug.objects.filter(url_slug=self.slug,
+                                                     partner=self.course.partner).first()
+        if existing_slug and existing_slug.course.uuid == self.course.uuid:
+            return True
+        self.course.url_slug_history.create(url_slug=self.slug, partner=self.course.partner, course=self.course)
+
         return True
 
     def push_to_marketing_site(self, previous_obj):
@@ -2843,3 +2850,8 @@ class RemoveRedirectsConfig(SingletonModel):
 
 class BulkModifyProgramHookConfig(SingletonModel):
     program_hooks = models.TextField(blank=True, null=True)
+
+
+class BackfillCourseRunSlugsConfig(SingletonModel):
+    all = models.BooleanField(default=False, verbose_name=_('Add redirects from all published course url slugs'))
+    uuids = models.TextField(default='', null=False, blank=True, verbose_name=_('Course uuids'))

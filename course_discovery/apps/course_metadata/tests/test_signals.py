@@ -11,10 +11,10 @@ from factory import DjangoModelFactory
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
-    BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, CourseRun, Curriculum, CurriculumProgramMembership,
-    DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig,
-    ProfileImageDownloadConfig, Program, RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig,
-    TopicTranslation
+    BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, CourseRun, Curriculum,
+    CurriculumProgramMembership, DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
+    MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, Program, RemoveRedirectsConfig,
+    SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
@@ -45,7 +45,7 @@ class TestCacheInvalidation:
             if model in [BackpopulateCourseTypeConfig, DataLoaderConfig, DeletePersonDupsConfig,
                          DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, SubjectTranslation,
                          TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
-                         BulkModifyProgramHookConfig, ]:
+                         BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue
