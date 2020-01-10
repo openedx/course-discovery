@@ -1,5 +1,6 @@
 import datetime
 
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.http import StreamingHttpResponse
 from dry_rest_permissions.generics import DRYPermissions
@@ -10,9 +11,10 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.renderers import CourseRunCSVRenderer
-from course_discovery.apps.api.v1.views import User
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import CourseRun
+
+User = get_user_model()
 
 
 # pylint: disable=useless-super-delegation
