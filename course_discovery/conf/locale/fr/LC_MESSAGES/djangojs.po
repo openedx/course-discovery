@@ -11,13 +11,14 @@
 # Pierre TASSEL <pierre.tassel@outlook.fr>, 2016
 # Richard Moch <richard.moch@gmail.com>, 2016
 # said machwate <machwate@gmail.com>, 2018
+# Sébastien Vigneau <sebastien.vigneau@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-13 19:50+0000\n"
-"PO-Revision-Date: 2019-03-27 16:30+0000\n"
-"Last-Translator: willyedoo <willyedoo@gmail.com>\n"
+"POT-Creation-Date: 2020-01-08 20:53+0000\n"
+"PO-Revision-Date: 2019-12-26 11:51+0000\n"
+"Last-Translator: Sébastien Vigneau <sebastien.vigneau@gmail.com>\n"
 "Language-Team: French (http://www.transifex.com/open-edx/edx-platform/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
