@@ -408,7 +408,6 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
             'MicroMasters',
             'Professional Certificate',
             'Masters',
-            'MicroBachelors',
         }
 
         if obj.type.name in types_to_publish:
