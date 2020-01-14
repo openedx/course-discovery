@@ -1010,7 +1010,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         query = 'title:Some random title'
         url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
 
-        with self.assertNumQueries(50, threshold=2):
+        with self.assertNumQueries(39, threshold=2):
             response = self.client.get(url)
 
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])

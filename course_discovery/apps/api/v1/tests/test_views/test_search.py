@@ -160,13 +160,13 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 
     @ddt.data(
         (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 10),
+         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 8),
         (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 10),
+         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 8),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 47),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 24),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 49),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 25),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -180,22 +180,22 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 
         with self.assertNumQueries(expected_queries, threshold=1):  # travis sometimes adds a query
             response = self.get_response('software', path=path)
-            assert response.status_code == 200
-            response_data = response.data
+        assert response.status_code == 200
+        response_data = response.data
 
-            # Validate the search results
-            expected = {
-                'count': 1,
-                'results': [
-                    self.serialize_course_run_search(course_run, serializer=serializer)
-                ]
-            }
-            self.assertDictContainsSubset(expected, response_data)
+        # Validate the search results
+        expected = {
+            'count': 1,
+            'results': [
+                self.serialize_course_run_search(course_run, serializer=serializer)
+            ]
+        }
+        self.assertDictContainsSubset(expected, response_data)
 
-            # Check that the program is indeed the active one.
-            for key in result_location_keys:
-                response_data = response_data[key]
-            assert response_data == active_program.type.name
+        # Check that the program is indeed the active one.
+        for key in result_location_keys:
+            response_data = response_data[key]
+        assert response_data == active_program.type.name
 
     @ddt.data(
         ([{'title': 'Software Testing', 'excluded': True}], 6),
@@ -338,7 +338,8 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(weeks=4))
         course_run_keys = [course_run.key for course_run in [archived, current, starting_soon, upcoming]]
 
-        response = self.get_response({"ordering": ordering})
+        with self.assertNumQueries(9):
+            response = self.get_response({"ordering": ordering})
         assert response.status_code == 200
         assert response.data['objects']['count'] == 4
 
@@ -435,7 +436,8 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
         data = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
         expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
-        response = self.client.post(self.path, data=data, format='json')
+        with self.assertNumQueries(6):
+            response = self.client.post(self.path, data=data, format='json')
         assert response.json() == expected
 
     def test_get(self):
