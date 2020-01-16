@@ -218,6 +218,8 @@ def update_or_create_salesforce_course_run(instance, created, **kwargs):  # pyli
 def _build_external_key_sets(course_runs):
     """
     Helper function to extract two sets of ids from a list of course runs for use in filtering
+    However, the external_keys with null or empty string values are not included in the
+    returned external_key_set.
 
     Parameters:
         - course runs: a collection of course runs
@@ -228,7 +230,8 @@ def _build_external_key_sets(course_runs):
     external_key_set = set()
     course_run_ids = set()
     for course_run in course_runs:
-        external_key_set.add(course_run.external_key)
+        if course_run.external_key:
+            external_key_set.add(course_run.external_key)
         if course_run.id:
             course_run_ids.add(course_run.id)
 
