@@ -358,6 +358,39 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
         curriculum_4.refresh_from_db()
         self.assertEqual(curriculum_4.program, new_program)
 
+    @ddt.data(
+        None,
+        '',
+    )
+    def test_external_course_key_null_or_empty(self, external_key_to_test):
+        course_run_1a = CourseRun.objects.get(key='course-run-id/course-1a/test')
+        course_run_1a.external_key = external_key_to_test
+        course_run_1a.save()
+
+        # Same course test
+        copy_course_run_1a = factories.CourseRunFactory(
+            course=self.course_1,
+            external_key=external_key_to_test,
+        )
+        self.assertEqual(course_run_1a.external_key, copy_course_run_1a.external_key)
+
+        # Same curriculum test but different courses
+        new_course_run = factories.CourseRunFactory(
+            external_key=external_key_to_test
+        )
+        new_course = new_course_run.course
+        factories.CurriculumCourseMembershipFactory(
+            course=new_course,
+            curriculum=self.curriculum_1,
+        )
+        self.assertEqual(course_run_1a.external_key, new_course_run.external_key)
+
+        # Same programs but different curriculum test
+        _, curriculum_4 = self._create_single_course_curriculum(external_key_to_test, 'curriculum_4')
+        curriculum_4.program = self.program_1
+        curriculum_4.save()
+        curriculum_4.refresh_from_db()
+
 
 class ExternalCourseKeyMultipleCollisionTests(ExternalCourseKeyTestDataMixin, TestCase):
 
