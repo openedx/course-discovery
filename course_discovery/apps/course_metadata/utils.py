@@ -634,6 +634,27 @@ def get_salesforce_util(partner):
         return None
 
 
+class HTML2TextWithLangSpans(html2text.HTML2Text):
+    # pylint: disable=abstract-method
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.in_lang_span = False
+
+    def handle_tag(self, tag, attrs, start):
+        super().handle_tag(tag, attrs, start)
+        if tag == 'span':
+            if attrs:
+                attr_dict = dict(attrs)
+                if start and 'lang' in attr_dict:
+                    self.outtextf(u'<span lang="{}">'.format(attr_dict['lang']))
+                    self.in_lang_span = True
+            if not start:
+                if self.in_lang_span:
+                    self.outtextf('</span>')
+                self.in_lang_span = False
+
+
 def clean_html(content):
     """Cleans HTML from a string.
 
@@ -644,7 +665,7 @@ def clean_html(content):
     cleaned = str(BeautifulSoup(cleaned, 'lxml'))
     # Need to re-replace the · middot with the entity so that html2text can transform it to * for <ul> in markdown
     cleaned = cleaned.replace('·', '&middot;')
-    html_converter = html2text.HTML2Text(bodywidth=None)
+    html_converter = HTML2TextWithLangSpans(bodywidth=None)
     html_converter.wrap_links = False
     cleaned = html_converter.handle(cleaned).strip()
     cleaned = markdown.markdown(cleaned)
