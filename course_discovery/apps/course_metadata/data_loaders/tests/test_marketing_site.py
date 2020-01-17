@@ -1,21 +1,17 @@
 import json
 import math
 from urllib.parse import parse_qs, urlparse
-from uuid import UUID
 
 import ddt
 import mock
 import responses
 from django.test import TestCase
 
-from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    CourseMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
-)
+from course_discovery.apps.course_metadata.data_loaders.marketing_site import CourseMarketingSiteDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
-from course_discovery.apps.course_metadata.models import Course, Subject
+from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
-from course_discovery.apps.course_metadata.utils import clean_html
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.marketing_site.logger'
 MOCK_DRUPAL_REDIRECT_CSV_FILE = 'data/mock_redirect_csv.csv'
@@ -128,58 +124,6 @@ class AbstractMarketingSiteDataLoaderTestMixin(DataLoaderTestMixin):
         self.partner.marketing_site_api_username = None
         with self.assertRaises(Exception):
             self.loader_class(self.partner, self.api_url)  # pylint: disable=not-callable
-
-
-class SubjectMarketingSiteDataLoaderTests(AbstractMarketingSiteDataLoaderTestMixin, TestCase):
-    loader_class = SubjectMarketingSiteDataLoader
-    mocked_data = mock_data.MARKETING_SITE_API_SUBJECT_BODIES
-
-    def assert_subject_loaded(self, data):
-        slug = data['field_subject_url_slug']
-        subject = Subject.objects.get(slug=slug, partner=self.partner)
-        expected_values = {
-            'uuid': UUID(data['uuid']),
-            'name': data['title'],
-            'description': clean_html(data['body']['value']),
-            'subtitle': clean_html(data['field_subject_subtitle']['value']),
-            'card_image_url': data['field_subject_card_image']['url'],
-            'banner_image_url': data['field_xseries_banner_image']['url'],
-        }
-
-        for field, value in expected_values.items():
-            self.assertEqual(getattr(subject, field), value)
-
-    @responses.activate
-    def test_ingest_create(self):
-        self.mock_login_response()
-        api_data = self.mock_api()
-
-        self.loader.ingest()
-
-        for datum in api_data:
-            self.assert_subject_loaded(datum)
-
-    @responses.activate
-    def test_ingest_update(self):
-        self.mock_login_response()
-        api_data = self.mock_api()
-        for data in api_data:
-            subject_data = {
-                'uuid': UUID(data['uuid']),
-                'name': data['title'],
-                'description': clean_html(data['body']['value']),
-                'subtitle': clean_html(data['field_subject_subtitle']['value']),
-                'card_image_url': data['field_subject_card_image']['url'],
-                'banner_image_url': data['field_xseries_banner_image']['url'],
-            }
-            slug = data['field_subject_url_slug']
-
-            Subject.objects.create(slug=slug, partner=self.partner, **subject_data)
-
-        self.loader.ingest()
-
-        for datum in api_data:
-            self.assert_subject_loaded(datum)
 
 
 @ddt.ddt
