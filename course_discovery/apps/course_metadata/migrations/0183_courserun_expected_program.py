@@ -4,32 +4,11 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 import django.db.models.deletion
 
-from course_discovery.apps.course_metadata.models import ProgramType
-
-
-def migrate_expected_programs_from_pub_cm(apps, schema_editor):
-    cm_course_run = apps.get_model('course_metadata', 'CourseRun')
-    pub_course_run_model = apps.get_model('publisher', 'CourseRun')
-    cm_program_type = apps.get_model('course_metadata', 'ProgramType')
-
-    for course_run in pub_course_run_model.objects.all():
-        expected_program_type, name = ProgramType.get_program_type_data(course_run, cm_program_type)
-
-        if course_run.lms_course_id:
-            cm_course_run.everything.filter(
-                key=course_run.lms_course_id,
-            ).update(
-                expected_program_name=(name or ''),
-                expected_program_type=expected_program_type,
-            )
-
 
 class Migration(migrations.Migration):
 
     dependencies = [
         ('course_metadata', '0182_tagcourseuuidsconfig'),
-        # Must be added to support the RunPython migration
-        ('publisher', '0077_external-key')
     ]
 
     operations = [
@@ -53,8 +32,4 @@ class Migration(migrations.Migration):
             name='expected_program_type',
             field=models.ForeignKey(blank=True, db_constraint=False, default=None, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='+', to='course_metadata.ProgramType'),
         ),
-        migrations.RunPython(
-            migrate_expected_programs_from_pub_cm,
-            migrations.RunPython.noop
-        )
     ]

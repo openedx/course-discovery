@@ -48,10 +48,6 @@ class SerializationMixin:
     def serialize_minimal_course_run(self, run, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.MinimalCourseRunSerializer, run, many, format, extra_context)
 
-    def serialize_minimal_publisher_course_run(self, run, many=False, format=None, extra_context=None):
-        return self._serialize_object(serializers.MinimalPublisherCourseRunSerializer, run, many, format,
-                                      extra_context)
-
     def serialize_course_run_search(self, run, serializer=None):
         obj = self._get_search_result(CourseRun, key=run.key)
         return self._serialize_object(serializer or serializers.CourseRunSearchSerializer, obj)

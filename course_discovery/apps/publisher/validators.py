@@ -21,6 +21,7 @@ class ImageMultiSizeValidator(ImageSizeValidator):
     """
     ImageField Size validator that takes in a list of sizes to validate
     Will pass validation if the image is of one of the specified size
+    NOTE: This is not used in the current models. But it was used in model migrations
     """
     def __init__(self, supported_sizes, **kwargs):  # pylint: disable=super-init-not-called
         self.supported_sizes = supported_sizes

@@ -38,7 +38,6 @@ from course_discovery.apps.course_metadata.models import (
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import GroupUserSerializer
-from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 
 User = get_user_model()
 
@@ -671,21 +670,6 @@ class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
 
     def get_number_of_courses(self, obj):
         return obj.courses.count()
-
-
-class MinimalPublisherCourseRunSerializer(TimestampModelSerializer):
-    course = serializers.SerializerMethodField()
-    title = serializers.SerializerMethodField()
-
-    class Meta:
-        model = PublisherCourseRun
-        fields = ('lms_course_id', 'course', 'title', 'start', 'end', 'pacing_type',)
-
-    def get_course(self, obj):
-        return obj.course.key
-
-    def get_title(self, obj):
-        return obj.title_override or obj.course.title
 
 
 class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):

@@ -8,8 +8,6 @@ from course_discovery.apps.course_metadata.models import (
     CourseRun, DeletePersonDupsConfig, Endorsement, Person, PersonSocialNetwork, Position, Program
 )
 from course_discovery.apps.course_metadata.tests import factories
-from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
-from course_discovery.apps.publisher.tests import factories as publisher_factories
 
 
 class DeletePersonDupsCommandTests(TestCase):
@@ -35,13 +33,6 @@ class DeletePersonDupsCommandTests(TestCase):
         ])
         self.program = factories.ProgramFactory(courses=[self.course], instructor_ordering=[
             self.person, self.instructor1, self.instructor2, self.instructor3,
-        ])
-        self.publisher_course = publisher_factories.CourseFactory()
-        self.publisher_courserun1 = publisher_factories.CourseRunFactory(course=self.publisher_course, staff=[
-            self.person, self.instructor1, self.instructor2, self.instructor3,
-        ])
-        self.publisher_courserun2 = publisher_factories.CourseRunFactory(course=self.publisher_course, staff=[
-            self.instructor1, self.instructor2, self.instructor3, self.person,
         ])
 
     def run_command(self, people=None, commit=True):
@@ -124,35 +115,21 @@ class DeletePersonDupsCommandTests(TestCase):
         self.assertListEqual(list(Program.objects.get(id=self.program.id).instructor_ordering.all()), [
             self.target, self.instructor1, self.instructor2, self.instructor3,
         ])
-        self.assertListEqual(list(PublisherCourseRun.objects.get(id=self.publisher_courserun1.id).staff.all()), [
-            self.target, self.instructor1, self.instructor2, self.instructor3,
-        ])
-        self.assertListEqual(list(PublisherCourseRun.objects.get(id=self.publisher_courserun2.id).staff.all()), [
-            self.instructor1, self.instructor2, self.instructor3, self.target,
-        ])
 
     def test_target_already_present(self):
         # pylint: disable=no-member
         # Change everything to include target. We expect that target's place isn't altered.
         self.courserun1.staff.set(list(self.courserun1.staff.all()) + [self.target])
         self.courserun2.staff.set(list(self.courserun2.staff.all()) + [self.target])
-        self.publisher_courserun1.staff.set(list(self.publisher_courserun1.staff.all()) + [self.target])
-        # This one is reversed, because target would normally be on end anyway. So put it first instead.
-        self.publisher_courserun2.staff.set([self.target] + list(self.publisher_courserun2.staff.all()))
         self.program.instructor_ordering.set(list(self.program.instructor_ordering.all()) + [self.target])
 
         expected = [self.instructor1, self.instructor2, self.instructor3, self.target]
-        expected_first = [self.target, self.instructor1, self.instructor2, self.instructor3]
 
         self.run_command()
 
         self.assertListEqual(list(CourseRun.objects.get(id=self.courserun1.id).staff.all()), expected)
         self.assertListEqual(list(CourseRun.objects.get(id=self.courserun2.id).staff.all()), expected)
         self.assertListEqual(list(Program.objects.get(id=self.program.id).instructor_ordering.all()), expected)
-        self.assertListEqual(list(PublisherCourseRun.objects.get(id=self.publisher_courserun1.id).staff.all()),
-                             expected)
-        self.assertListEqual(list(PublisherCourseRun.objects.get(id=self.publisher_courserun2.id).staff.all()),
-                             expected_first)
 
     def test_multiple_people(self):
         self.run_command(people=[(self.person, self.target), (self.instructor1, self.instructor2)])
@@ -174,12 +151,6 @@ class DeletePersonDupsCommandTests(TestCase):
         ])
         self.assertListEqual(list(Program.objects.get(id=self.program.id).instructor_ordering.all()), [
             self.target, self.instructor2, self.instructor3,
-        ])
-        self.assertListEqual(list(PublisherCourseRun.objects.get(id=self.publisher_courserun1.id).staff.all()), [
-            self.target, self.instructor2, self.instructor3,
-        ])
-        self.assertListEqual(list(PublisherCourseRun.objects.get(id=self.publisher_courserun2.id).staff.all()), [
-            self.instructor2, self.instructor3, self.target,
         ])
 
     def test_args_from_database(self):

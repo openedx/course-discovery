@@ -554,8 +554,6 @@ DEFAULT_PARTNER_ID = None
 # edx-django-sites-extensions will fallback to this site if we cannot identify the site from the hostname.
 SITE_ID = 1
 
-COMMENTS_APP = 'course_discovery.apps.publisher_comments'
-
 TAGGIT_CASE_INSENSITIVE = True
 
 # django-solo configuration (https://github.com/lazybird/django-solo#settings)

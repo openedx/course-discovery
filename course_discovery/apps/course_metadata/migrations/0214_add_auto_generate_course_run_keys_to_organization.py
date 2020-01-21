@@ -5,15 +5,6 @@ from __future__ import unicode_literals
 from django.db import migrations, models
 
 
-def populate_auto_generate_course_run_keys(apps, schema_editor):
-    OrganizationExtension = apps.get_model('publisher', 'OrganizationExtension')
-    org_extensions_with_no_auto_create = OrganizationExtension.objects.filter(auto_create_in_studio=False)
-    for org_ext in org_extensions_with_no_auto_create:
-        org = org_ext.organization
-        org.auto_generate_course_run_keys = False
-        org.save()
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -26,5 +17,4 @@ class Migration(migrations.Migration):
             name='auto_generate_course_run_keys',
             field=models.BooleanField(default=True, help_text='When this flag is enabled, the key of a new course run will be auto generated.  When this flag is disabled, the key can be manually set.', verbose_name='Automatically generate course run keys'),
         ),
-        migrations.RunPython(populate_auto_generate_course_run_keys, migrations.RunPython.noop),
     ]

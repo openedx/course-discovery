@@ -10,7 +10,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory
 )
-from course_discovery.apps.publisher.tests import factories
+from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
 
 @pytest.mark.django_db
@@ -112,7 +112,6 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = UserFactory(is_staff=True)
-        cls.courses = factories.CourseFactory.create_batch(3, title='Some random course title')
 
         first_instructor = PersonFactory(given_name="First", family_name="Instructor")
         second_instructor = PersonFactory(given_name="Second", family_name="Instructor")
@@ -124,10 +123,8 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         for instructor in cls.instructors:
             PositionFactory(organization=cls.organizations[0], title="professor", person=instructor)
 
-        cls.course_runs = [factories.CourseRunFactory(course=course) for course in cls.courses]
-
         for organization in cls.organizations:
-            cls.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
+            cls.organization_extensions.append(OrganizationExtensionFactory(organization=organization))
 
         disco_course = CourseFactory(authoring_organizations=[cls.organizations[0]])
         disco_course2 = CourseFactory(authoring_organizations=[cls.organizations[1]])
