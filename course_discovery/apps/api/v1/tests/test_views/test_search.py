@@ -711,7 +711,6 @@ class AutoCompletePersonTests(mixins.APITestCase):
         super(AutoCompletePersonTests, self).setUp()
         self.user = UserFactory(is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.courses = publisher_factories.CourseFactory.create_batch(3, title='Some random course title')
 
         first_instructor = PersonFactory(given_name="First", family_name="Instructor")
         second_instructor = PersonFactory(given_name="Second", family_name="Instructor")
@@ -722,8 +721,6 @@ class AutoCompletePersonTests(mixins.APITestCase):
 
         for instructor in self.instructors:
             PositionFactory(organization=self.organizations[0], title="professor", person=instructor)
-
-        self.course_runs = [publisher_factories.CourseRunFactory(course=course) for course in self.courses]
 
         for organization in self.organizations:
             org_ex = publisher_factories.OrganizationExtensionFactory(organization=organization)

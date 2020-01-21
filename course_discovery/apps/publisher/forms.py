@@ -3,7 +3,8 @@ import logging
 from dal import autocomplete
 from django import forms
 
-from course_discovery.apps.publisher.models import OrganizationExtension, OrganizationUserRole, User
+from course_discovery.apps.core.models import User
+from course_discovery.apps.publisher.models import OrganizationExtension, OrganizationUserRole
 
 logger = logging.getLogger(__name__)
 

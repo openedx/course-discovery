@@ -87,7 +87,6 @@ class Command(BaseCommand):
             ' {}: {}\n'.format(_('Endorsements'), pinfo.person.endorsement_set.count()) +
             ' {}: {}\n'.format(_('Programs'), pinfo.person.program_set.count()) +
             ' {}: {}\n'.format(_('Course Runs'), pinfo.person.courses_staffed.count()) +
-            ' {}: {}\n'.format(_('Publisher Course Runs'), pinfo.person.publisher_course_runs_staffed.count()) +
             ' {}: {} ({})\n'.format(_('Target'), pinfo.target.full_name, pinfo.target.uuid)
         )
         if not commit:
@@ -120,13 +119,6 @@ class Command(BaseCommand):
                 continue
             new_staff = [filter_person(staff) for staff in course_run.staff.all()]
             course_run.staff.set(new_staff)
-
-        # Update publisher course runs
-        for publisher_course_run in pinfo.person.publisher_course_runs_staffed.all():
-            if pinfo.target in publisher_course_run.staff.all():
-                continue
-            new_staff = [filter_person(staff) for staff in publisher_course_run.staff.all()]
-            publisher_course_run.staff.set(new_staff)
 
         # And finally, actually delete the person
         pinfo.person.delete()
