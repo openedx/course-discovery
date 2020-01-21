@@ -47,7 +47,7 @@
 # Pedro Guimarães Martins <pedrogmartins7@gmail.com>, 2014
 # PETIT Yannick <yannick.petit@gmail.com>, 2013
 # Pierre-Emmanuel Colas <transiflex@atnock.fr>, 2015
-# Pierre Mailhot <pierre.mailhot@gmail.com>, 2016-2018
+# Pierre Mailhot <pierre.mailhot@gmail.com>, 2016-2018,2020
 # qcappart <quentin.c@swing.be>, 2014
 # Ramarohetra Malalatiana <mtiana8@gmail.com>, 2014
 # Régis Millet <regmillet@ct2c.fr>, 2015
@@ -69,7 +69,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-01-08 20:53+0000\n"
-"PO-Revision-Date: 2020-01-08 21:20+0000\n"
+"PO-Revision-Date: 2020-01-13 00:04+0000\n"
 "Last-Translator: Pierre Mailhot <pierre.mailhot@gmail.com>\n"
 "Language-Team: French (Canada) (http://www.transifex.com/open-edx/edx-platform/language/fr_CA/)\n"
 "MIME-Version: 1.0\n"
@@ -103,7 +103,7 @@ msgstr "La date de début ne peut être après la date de fin"
 
 #: apps/api/serializers.py:773
 msgid "Term cannot be changed"
-msgstr ""
+msgstr "Le terme ne peut pas être modifié"
 
 #: apps/api/serializers.py:785
 msgid "Language in which the course is administered"
@@ -111,7 +111,7 @@ msgstr "La langue dans laquelle le cours est administré"
 
 #: apps/api/serializers.py:864
 msgid "Course cannot be changed for an existing course run"
-msgstr ""
+msgstr "Le cours ne peut pas être modifié pour un cours existant"
 
 #: apps/api/serializers.py:869 apps/publisher/forms.py:360
 msgid "Minimum effort cannot be greater than Maximum effort"
@@ -119,7 +119,7 @@ msgstr "L'effort minimum ne peut pas être supérieur à l'effort maximal"
 
 #: apps/api/serializers.py:871
 msgid "Minimum effort and Maximum effort cannot be the same"
-msgstr ""
+msgstr "L'effort minimum et l'effort maximum ne peuvent pas être les mêmes"
 
 #: apps/api/serializers.py:913
 msgid "Dictionary mapping course run IDs to boolean values"
@@ -143,24 +143,24 @@ msgstr "Langages dans lesquels sont offerts des transcriptions pour les instance
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
 "All other fields were successfully saved in Studio."
-msgstr ""
+msgstr "Une erreur s'est produite lors de la définition de l'image de l'instance du cours pour [{key}] dans Studio. Tous les autres champs ont été correctement enregistrés dans Studio."
 
 #: apps/api/v1/exceptions.py:13
 msgid "Specifying both editable=1 and a q parameter is not supported."
-msgstr ""
+msgstr "La spécification de editable = 1 et d'un paramètre q n'est pas supportée."
 
 #: apps/api/v1/views/comments.py:34
 msgid "You must include a course_uuid in your query parameters."
-msgstr ""
+msgstr "Vous devez inclure un course_uuid dans vos paramètres de recherche."
 
 #: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:186
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
-msgstr ""
+msgstr "Valeur manquante pour : [{name}]. "
 
 #: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:193
 msgid "Incorrect data sent. "
-msgstr ""
+msgstr "Données incorrectes envoyées."
 
 #: apps/api/v1/views/course_runs.py:40
 msgid "Failed to set course run data: {}"
@@ -172,11 +172,11 @@ msgstr ""
 
 #: apps/api/v1/views/course_runs.py:337
 msgid "Course run is in review. Editing disabled."
-msgstr ""
+msgstr "L'instance de cours est en cours de révision. Modification désactivée."
 
 #: apps/api/v1/views/course_runs.py:344
 msgid "Invalid param"
-msgstr ""
+msgstr "Paramètre invalide"
 
 #: apps/api/v1/views/courses.py:54
 msgid "Failed to set data: {}"
@@ -185,7 +185,7 @@ msgstr ""
 #: apps/api/v1/views/courses.py:188
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
-msgstr ""
+msgstr "L'organisation [{org}] n'existe pas."
 
 #: apps/api/v1/views/courses.py:190
 #, python-brace-format
@@ -231,7 +231,7 @@ msgstr "Requête pour récupérer le contenu du catalogue"
 
 #: apps/catalogs/models.py:17
 msgid "Include archived courses"
-msgstr ""
+msgstr "Inclure les cours archivés"
 
 #: apps/core/admin.py:17
 msgid "Personal info"
@@ -265,7 +265,7 @@ msgstr "Configurez les URLs du site de marketing qui seront utilisées pour réc
 
 #: apps/core/admin.py:58
 msgid "Analytics Configuration"
-msgstr ""
+msgstr "Configuration des Analytiques"
 
 #: apps/core/admin.py:59
 msgid ""
@@ -351,7 +351,7 @@ msgstr "URL de Studio"
 
 #: apps/core/models.py:90
 msgid "Publisher URL"
-msgstr ""
+msgstr "URL de Publisher"
 
 #: apps/core/models.py:91
 msgid ""
@@ -379,7 +379,7 @@ msgstr ""
 
 #: apps/core/models.py:100
 msgid "Analytics Access Token"
-msgstr ""
+msgstr "Jeton d'accès Analytiques"
 
 #: apps/core/models.py:108
 msgid "Partner"
@@ -391,23 +391,23 @@ msgstr "Partenaires"
 
 #: apps/core/models.py:176
 msgid "Salesforce Username"
-msgstr ""
+msgstr "Nom d'utilisateur Salesforce"
 
 #: apps/core/models.py:180
 msgid "Salesforce Password"
-msgstr ""
+msgstr "Mot de passe Salesforce"
 
 #: apps/core/models.py:185
 msgid "Salesforce Organization Id"
-msgstr ""
+msgstr "ID d'organisation Salesforce"
 
 #: apps/core/models.py:191
 msgid "Salesforce Security Token"
-msgstr ""
+msgstr "Jeton de sécurité Salesforce"
 
 #: apps/core/models.py:195
 msgid "Is a Salesforce Sandbox?"
-msgstr ""
+msgstr "Est-ce un carré de sable Salesforce ?"
 
 #: apps/core/models.py:201
 msgid "Case Record Type Id"
@@ -448,7 +448,7 @@ msgstr ""
 
 #: apps/course_metadata/admin.py:389
 msgid "Edit link"
-msgstr ""
+msgstr "Éditer le lien"
 
 #: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:31
 msgid "Unpublished"
@@ -456,11 +456,11 @@ msgstr "Non publié"
 
 #: apps/course_metadata/choices.py:7
 msgid "Awaiting Review from Legal"
-msgstr ""
+msgstr "En attente de révision par le service juridique"
 
 #: apps/course_metadata/choices.py:8
 msgid "Awaiting Internal Review"
-msgstr ""
+msgstr "En attente de révision interne"
 
 #: apps/course_metadata/choices.py:9
 #: apps/publisher/templates/publisher/_approval_widget.html:83
@@ -593,7 +593,7 @@ msgstr ""
 
 #: apps/course_metadata/emails.py:165
 msgid "legal team"
-msgstr ""
+msgstr "équipe juridique"
 
 #: apps/course_metadata/emails.py:201 apps/publisher/views.py:251
 #: apps/publisher/views.py:254
@@ -608,7 +608,7 @@ msgstr "Revue juridique demandée : {title}"
 #: apps/course_metadata/emails.py:223
 #, python-brace-format
 msgid "Review requested: {key} - {title}"
-msgstr ""
+msgstr "Révision demandée : {key} - {title}"
 
 #: apps/course_metadata/emails.py:235 apps/publisher/emails.py:159
 #, python-brace-format
@@ -618,17 +618,17 @@ msgstr "Revue complètée : {title}"
 #: apps/course_metadata/emails.py:251
 #, python-brace-format
 msgid "Published: {title}"
-msgstr ""
+msgstr "Publié : {title}"
 
 #: apps/course_metadata/emails.py:255
 #, python-brace-format
 msgid "Published: {key} - {title}"
-msgstr ""
+msgstr "Publié : {key} - {title}"
 
 #: apps/course_metadata/emails.py:270
 #, python-brace-format
 msgid "Comment added: {title}"
-msgstr ""
+msgstr "Commentaire ajouté : {title}"
 
 #: apps/course_metadata/forms.py:62
 msgid "Programs can only be activated if they have a banner image."
@@ -658,12 +658,12 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:15
 msgid "CODE"
-msgstr ""
+msgstr "CODE"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:16
 #: apps/course_metadata/management/commands/delete_person_dups.py:33
 msgid "Short code for a partner."
-msgstr ""
+msgstr "Code court pour un partenaire."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:20
 #: apps/course_metadata/models.py:160 apps/course_metadata/models.py:430
@@ -681,7 +681,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:27
 msgid "KEY"
-msgstr ""
+msgstr "CLÉ"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:29
 msgid "Organization to backpopulate."
@@ -706,7 +706,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:64
 msgid "You must specify --partner"
-msgstr ""
+msgstr "Vous devez spécifier --partner"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:71
 #, python-brace-format
@@ -735,7 +735,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:26
 msgid "PERSON"
-msgstr ""
+msgstr "PERSONNE"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:28
 msgid "People to delete, in UUID:TARGET_UUID form."
@@ -743,7 +743,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:32
 msgid "PARTNER"
-msgstr ""
+msgstr "PARTENAIRE"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:43
 msgid ""
@@ -761,7 +761,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Deleting"
-msgstr ""
+msgstr "Suppression en cours"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Would delete"
@@ -774,15 +774,15 @@ msgstr "Nom"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:87
 msgid "Endorsements"
-msgstr ""
+msgstr "Approbations"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:88
 msgid "Programs"
-msgstr ""
+msgstr "Programmes"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:89
 msgid "Course Runs"
-msgstr ""
+msgstr "Sessions de cours"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:90
 msgid "Publisher Course Runs"
@@ -790,7 +790,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:91
 msgid "Target"
-msgstr ""
+msgstr "Cible"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:137
 msgid "You must specify --partner-code"
@@ -835,7 +835,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:32
 msgid "Invalid arguments"
-msgstr ""
+msgstr "Arguments invalides"
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:56
 #, python-brace-format
@@ -919,7 +919,7 @@ msgstr "Laissez ce champ vide pour que la valeur soit générée automatiquement
 
 #: apps/course_metadata/models.py:364
 msgid "This mode requires ID verification."
-msgstr ""
+msgstr "Ce mode nécessite une vérification d'identité."
 
 #: apps/course_metadata/models.py:367
 msgid "Completion can grant credit toward an organization’s degree."
@@ -957,7 +957,7 @@ msgstr "Traductions du modèle de sujet"
 
 #: apps/course_metadata/models.py:603
 msgid "A list of major works by this person. Must be valid HTML."
-msgstr ""
+msgstr "Une liste des œuvres majeures de cette personne. Doit être du code HTML valide."
 
 #: apps/course_metadata/models.py:611
 msgid "People"
@@ -999,15 +999,15 @@ msgstr "Format du numéro de cours i.e CS002x, BIO1.1x, BIO1.2x"
 #: apps/publisher/models.py:74
 #: apps/publisher/templates/publisher/course_detail.html:229
 msgid "Additional Information"
-msgstr ""
+msgstr "Information additionnelle"
 
 #: apps/course_metadata/models.py:1111
 msgid "Blocked"
-msgstr ""
+msgstr "Bloqué"
 
 #: apps/course_metadata/models.py:1112
 msgid "Unrestricted"
-msgstr ""
+msgstr "Libre"
 
 #: apps/course_metadata/models.py:1125 apps/publisher/models.py:361
 msgid ""
@@ -1063,7 +1063,7 @@ msgstr "La description de 'ce que vous allez apprendre' pour cette instance de c
 
 #: apps/course_metadata/models.py:1195 apps/publisher/forms.py:298
 msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
-msgstr ""
+msgstr "Ajoutez le texte de restriction OFAC à la section FAQ du site de Marketing"
 
 #: apps/course_metadata/models.py:1507
 msgid "Archived"
@@ -1160,15 +1160,15 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2301
 msgid "The actual rank number"
-msgstr ""
+msgstr "Le numéro de rang réel"
 
 #: apps/course_metadata/models.py:2302
 msgid "What does the rank number mean"
-msgstr ""
+msgstr "Que signifie le numéro de rang"
 
 #: apps/course_metadata/models.py:2303
 msgid "From where the rank is obtained"
-msgstr ""
+msgstr "D'où le rang est obtenu"
 
 #: apps/course_metadata/models.py:2315
 msgid "Callback URL to partner application flow"
@@ -1248,55 +1248,55 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2459
 msgid "Bell"
-msgstr ""
+msgstr "Cloche"
 
 #: apps/course_metadata/models.py:2460
 msgid "Certificate"
-msgstr ""
+msgstr "Attestation"
 
 #: apps/course_metadata/models.py:2461
 msgid "Checkmark"
-msgstr ""
+msgstr "Coche"
 
 #: apps/course_metadata/models.py:2462
 msgid "Clock"
-msgstr ""
+msgstr "Horloge"
 
 #: apps/course_metadata/models.py:2463
 msgid "Desktop"
-msgstr ""
+msgstr "Bureau"
 
 #: apps/course_metadata/models.py:2464
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 #: apps/course_metadata/models.py:2465
 msgid "Sitemap"
-msgstr ""
+msgstr "Plan du site"
 
 #: apps/course_metadata/models.py:2466
 msgid "User"
-msgstr ""
+msgstr "Utilisateur"
 
 #: apps/course_metadata/models.py:2467
 msgid "Dollar"
-msgstr ""
+msgstr "Dollar"
 
 #: apps/course_metadata/models.py:2468
 msgid "Book"
-msgstr ""
+msgstr "Livre"
 
 #: apps/course_metadata/models.py:2469
 msgid "Mortar Board"
-msgstr ""
+msgstr "Mortier"
 
 #: apps/course_metadata/models.py:2470
 msgid "Star"
-msgstr ""
+msgstr "Étoile"
 
 #: apps/course_metadata/models.py:2471
 msgid "Trophy"
-msgstr ""
+msgstr "Trophée"
 
 #: apps/course_metadata/models.py:2475
 msgid "Icon FA class"
@@ -1324,7 +1324,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2528
 msgid "Describes what the cost is for (e.g. Tuition)"
-msgstr ""
+msgstr "Décrit le coût (par exemple, les frais de scolarité)"
 
 #: apps/course_metadata/models.py:2532
 msgid "String-based field stating how much the cost is (e.g. $1000)."
@@ -1343,7 +1343,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2634
 msgid "Organization name"
-msgstr ""
+msgstr "Nom de l'organisation"
 
 #: apps/course_metadata/models.py:2656
 msgid "These programs are for a different partner than the pathway itself: {}"
@@ -1389,7 +1389,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2824
 msgid "Tag"
-msgstr ""
+msgstr "Étiquette"
 
 #: apps/course_metadata/models.py:2825
 msgid "Course UUIDs"
@@ -1524,7 +1524,7 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:11
 #, python-format
 msgid "View this About page. %(preview_url)s"
-msgstr ""
+msgstr "Affichez cette page À propos. %(preview_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:15
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:25
@@ -2174,7 +2174,7 @@ msgstr "Cliquez ici pour téléverser votre image"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:16
 msgid "The image dimensions must be 110×110"
-msgstr ""
+msgstr "Les dimensions de l'image doivent être de 110 × 110"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:18
 msgid "The image size must be less than 256KB"
@@ -2219,7 +2219,7 @@ msgstr ""
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:67
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:51
 msgid "Social Links"
-msgstr ""
+msgstr "Liens des médias sociaux"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:68
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:76
@@ -2229,7 +2229,7 @@ msgstr "optionnel"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:72
 msgid "Add new social link"
-msgstr ""
+msgstr "Ajouter un nouveau lien social"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:75
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:56
@@ -2243,11 +2243,11 @@ msgstr ""
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:83
 #: apps/publisher/templates/publisher/course_run_detail/_instructor_profile.html:63
 msgid "Areas of Expertise"
-msgstr ""
+msgstr "Domaines d'expertise"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:88
 msgid "Add new area of expertise"
-msgstr ""
+msgstr "Ajouter un nouveau domaine d'expertise"
 
 #: apps/publisher/templates/publisher/_add_instructor_popup.html:94
 msgid "Add Staff Member"
@@ -2335,7 +2335,7 @@ msgstr "Légal"
 msgid ""
 "EdX, Open edX, Publisher, and the edX and Open edX logos are registered "
 "trademarks or trademarks of {link_start}edX Inc.{link_end}"
-msgstr ""
+msgstr "EdX, Open edX, Publisher, and the edX and Open edX logos are registered trademarks or trademarks of {link_start}edX Inc.{link_end}"
 
 #: apps/publisher/templates/publisher/_footer.html:38
 #: apps/publisher/templates/publisher/_footer.html:39
@@ -2837,7 +2837,7 @@ msgstr ""
 
 #: apps/publisher/templates/publisher/course_edit_form.html:164
 msgid "(currently unused)"
-msgstr ""
+msgstr "(actuellement inutilisé)"
 
 #: apps/publisher/templates/publisher/course_edit_form.html:179
 msgid ""
@@ -2891,7 +2891,7 @@ msgstr "Le premier MOOC à enseigner la psychologie positive. Apprenez les princ
 
 #: apps/publisher/templates/publisher/course_edit_form.html:246
 msgid "Recommended 255 character limit, including spaces."
-msgstr ""
+msgstr "Limite de 255 caractères recommandée, espaces compris."
 
 #: apps/publisher/templates/publisher/course_edit_form.html:250
 msgid "LONG DESCRIPTION"
@@ -2965,7 +2965,7 @@ msgstr "Enseigné par des instructeurs ayant des dizaines d'années d'expérienc
 #: apps/publisher/templates/publisher/course_edit_form.html:511
 #: apps/publisher/templates/publisher/course_edit_form.html:625
 msgid "Recommended 2500 character limit, including spaces."
-msgstr ""
+msgstr "Limite de 2500 caractères recommandée, espaces compris."
 
 #: apps/publisher/templates/publisher/course_edit_form.html:296
 msgid "WHAT YOU WILL LEARN"
@@ -3050,7 +3050,7 @@ msgstr "PRÉREQUIS"
 
 #: apps/publisher/templates/publisher/course_edit_form.html:418
 msgid "Recommended maximum 1000 characters."
-msgstr ""
+msgstr "1000 caractères maximum recommandés."
 
 #: apps/publisher/templates/publisher/course_edit_form.html:419
 msgid ""
@@ -3072,7 +3072,7 @@ msgstr "Algèbre de base"
 
 #: apps/publisher/templates/publisher/course_edit_form.html:435
 msgid "Recommended 1000 character limit, including spaces."
-msgstr ""
+msgstr "Limite de 1 000 caractères recommandée, espaces compris."
 
 #: apps/publisher/templates/publisher/course_edit_form.html:439
 msgid "SYLLABUS"
@@ -3250,11 +3250,11 @@ msgstr "“Cours brillant! C'est certainement la meilleure introduction à l'él
 
 #: apps/publisher/templates/publisher/course_edit_form.html:608
 msgid "Recommended 500 character limit, including spaces."
-msgstr ""
+msgstr "Limite de 500 caractères recommandée, espaces compris."
 
 #: apps/publisher/templates/publisher/course_edit_form.html:615
 msgid "Any additional information to be provided to learners."
-msgstr ""
+msgstr "Toute information supplémentaire à fournir aux apprenants."
 
 #: apps/publisher/templates/publisher/course_edit_form.html:637
 msgid ""
@@ -3323,7 +3323,7 @@ msgstr "Modifier la session de cours"
 msgid ""
 "{span_start}* All required fields must be complete before this course run "
 "can be sent for review.{span_end}"
-msgstr ""
+msgstr "{span_start}* Tous les champs obligatoires doivent être complets avant que ce cours puisse être envoyé pour révision.{span_end}"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html:32
 #, python-brace-format
@@ -3331,7 +3331,7 @@ msgid ""
 "{strong_start}Note:{strong_end} If you edit course information after edX "
 "marketing has reviewed the course, you have to send the course to edX "
 "marketing for review again."
-msgstr ""
+msgstr "{strong_start}Note :{strong_end} Si vous modifiez les informations sur les cours après que le marketing EDUlib ait révisé le cours, vous devez renvoyer le cours au marketing EDUlib pour révision."
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html:48
 msgid "Note that times use UTC."
@@ -3369,7 +3369,7 @@ msgstr "Si ce cours fait partie d'un programme, sélectionnez le type de program
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html:218
 msgid "INSTITUTION COURSE ID"
-msgstr ""
+msgstr "ID D'INSTITUTION DU COURS"
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html:221
 msgid ""
@@ -3390,7 +3390,7 @@ msgstr "L'instructeur principal ou les instructeurs pour le cours."
 msgid ""
 "The order that instructors are entered here is the same order they will be "
 "displayed on course pages."
-msgstr ""
+msgstr "L'ordre dans lequel les instructeurs sont entrés ici est le même ordre dans lequel ils seront affichés sur les pages de cours."
 
 #: apps/publisher/templates/publisher/course_run/edit_run_form.html:236
 msgid ""
@@ -3479,7 +3479,7 @@ msgstr "Prix du crédit"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:65
 msgid "Institution Course ID"
-msgstr ""
+msgstr "ID d'institution du cours"
 
 #: apps/publisher/templates/publisher/course_run_detail/_all.html:74
 msgid "Course Staff"
@@ -3879,7 +3879,7 @@ msgstr "Statut"
 #: apps/publisher/templates/publisher/dashboard/_in_progress.html:30
 #: apps/publisher/templates/publisher/dashboard/_studio_requests.html:24
 msgid "Modified"
-msgstr ""
+msgstr "Modifié"
 
 #: apps/publisher/templates/publisher/dashboard/_in_preview.html:39
 msgid "Approved since "
@@ -4204,7 +4204,7 @@ msgstr ""
 msgid ""
 "{link_start}{preview_url}{link_middle}View this About page on "
 "edx.org.{link_end}"
-msgstr ""
+msgstr "{link_start}{preview_url}{link_middle} Affichez cette page À propos sur cours.edulib.org. {link_end}"
 
 #: apps/publisher/templates/publisher/email/course_run/published.txt:10
 #, python-format
