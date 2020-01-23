@@ -1,5 +1,6 @@
 from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin, messages
+from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -116,10 +117,20 @@ class CourseRunTypeAdmin(admin.ModelAdmin):
     search_fields = ['uuid', 'name']
 
 
+class CourseTypeAdminForm(ModelForm):
+    class Meta:
+        model = CourseType
+        fields = '__all__'
+        widgets = {
+            'white_listed_orgs': CheckboxSelectMultiple
+        }
+
+
 @admin.register(CourseType)
 class CourseTypeAdmin(admin.ModelAdmin):
     list_display = ['uuid', 'name']
     search_fields = ['uuid', 'name']
+    form = CourseTypeAdminForm
 
 
 @admin.register(CourseRun)
