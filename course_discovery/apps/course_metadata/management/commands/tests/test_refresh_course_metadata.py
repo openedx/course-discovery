@@ -14,7 +14,6 @@ from course_discovery.apps.course_metadata.data_loaders.analytics_api import Ana
 from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
 )
-from course_discovery.apps.course_metadata.data_loaders.marketing_site import CourseMarketingSiteDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.management.commands.refresh_course_metadata import execute_parallel_loader
 from course_discovery.apps.course_metadata.models import Image, Video
@@ -30,7 +29,6 @@ class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
         self.partner = PartnerFactory()
         partner = self.partner
         self.pipeline = [
-            (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, None),
             (CoursesApiDataLoader, partner.courses_api_url, None),
             (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
             (ProgramsApiDataLoader, partner.programs_api_url, None),
@@ -160,7 +158,6 @@ class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
                 call_command('refresh_course_metadata')
 
             loader_classes = (
-                CourseMarketingSiteDataLoader,
                 CoursesApiDataLoader,
                 EcommerceApiDataLoader,
                 ProgramsApiDataLoader,
