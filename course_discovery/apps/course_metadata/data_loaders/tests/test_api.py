@@ -369,6 +369,33 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.assert_run_and_course_updated(datum, draft_run, draft_exists, True, partner_uses_publisher)
         self.assert_run_and_course_updated(datum, official_run, official_exists, False, partner_uses_publisher)
 
+    @responses.activate
+    def test_ingest_studio_made_run_with_existing_draft_course(self):
+        """
+        Verify that we correctly stitch up a course run freshly made in Studio but with existing Publisher content.
+        """
+        datum = mock_data.COURSES_API_BODY_ORIGINAL
+        self.mock_api([datum])
+
+        course_key = '{org}+{number}'.format(org=datum['org'], number=datum['number'])
+        Course.objects.create(partner=self.partner, key=course_key, title='Title', draft=True)
+
+        self.loader.ingest()
+
+        # We expect an official version of the course to be created (which points to the draft) and both a draft version
+        # and official version of the course run to be created.
+
+        draft_course = Course.everything.get(partner=self.partner, key=course_key, draft=True)
+        official_course = Course.everything.get(partner=self.partner, key=course_key, draft=False)
+        self.assertEqual(official_course.draft_version, draft_course)
+        self.assertEqual(draft_course.course_runs.count(), 1)
+        self.assertEqual(official_course.course_runs.count(), 1)
+
+        draft_run = draft_course.course_runs.first()
+        official_run = official_course.course_runs.first()
+        self.assertNotEqual(draft_run, official_run)
+        self.assertEqual(official_run.draft_version, draft_run)
+
     def test_assigns_types(self):
         """
         Verify we set the special empty course and course run types when creating courses and runs.
