@@ -160,7 +160,14 @@ class CoursesApiDataLoader(AbstractDataLoader):
         else:
             defaults['type'] = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
 
-        return CourseRun.objects.create(**defaults)
+        # Course will always be an official version. But if it _does_ have a draft version, the run should too.
+        if course.draft_version:
+            # Start with draft version and then make official (since our utility functions expect that flow)
+            defaults['course'] = course.draft_version
+            draft_run = CourseRun.objects.create(**defaults, draft=True)
+            return draft_run.update_or_create_official_version(notify_services=False)
+        else:
+            return CourseRun.objects.create(**defaults)
 
     def get_or_create_course(self, body):
         course_run_key = CourseKey.from_string(body['id'])
@@ -171,6 +178,9 @@ class CoursesApiDataLoader(AbstractDataLoader):
         defaults['key'] = course_key
         defaults['partner'] = self.partner
         defaults['type'] = CourseType.objects.get(slug=CourseType.EMPTY)
+
+        draft_version = Course.everything.filter(key__iexact=course_key, partner=self.partner, draft=True).first()
+        defaults['draft_version'] = draft_version
 
         course, created = Course.objects.get_or_create(key__iexact=course_key, partner=self.partner, defaults=defaults)
 

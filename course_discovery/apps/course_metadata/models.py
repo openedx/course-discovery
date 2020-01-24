@@ -826,16 +826,11 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         """ Official rows just return whatever slug is active, draft rows will first look for an associated active
          slug and, if they fail to find one, take the slug associated with the official course that has
          is_active_on_draft: True."""
-        if not self.draft:
-            return self.url_slug_history.get(is_active=True).url_slug
-        else:
-            try:
-                return self.url_slug_history.get(is_active=True).url_slug
-            except ObjectDoesNotExist:
-                # current draft url slug has already been published at least once, so get it from the official course
-                if self.official_version:
-                    return self.official_version.url_slug_history.get(is_active_on_draft=True).url_slug
-                return None
+        active_url = self.url_slug_history.filter(is_active=True).first()
+        if not active_url and self.draft and self.official_version:
+            # current draft url slug has already been published at least once, so get it from the official course
+            active_url = self.official_version.url_slug_history.filter(is_active_on_draft=True).first()
+        return getattr(active_url, 'url_slug', None)
 
     def course_run_sort(self, course_run):
         """
