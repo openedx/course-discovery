@@ -1598,7 +1598,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
-            'enrollment_count', 'recent_enrollment_count', 'topics',
+            'enrollment_count', 'recent_enrollment_count', 'topics', 'credit_value',
         )
 
 

@@ -1041,6 +1041,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'enrollment_count': 0,
             'recent_enrollment_count': 0,
             'topics': [topic.name for topic in program.topics],
+            'credit_value': program.credit_value,
         })
         return expected
 

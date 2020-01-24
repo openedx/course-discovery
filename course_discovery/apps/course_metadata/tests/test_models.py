@@ -1955,6 +1955,19 @@ class ProgramTests(TestCase):
             program.delete()
             assert mock_delete_obj.called
 
+    def test_credit_value(self):
+        """
+        Verify that we can set the credit_value field on a program
+        """
+        course_run = factories.CourseRunFactory()
+        program = factories.ProgramFactory(courses=[course_run.course])
+        program.credit_value = 1
+        program.clean()
+        program.save()
+
+        program_from_db = Program.objects.get(uuid=program.uuid)
+        self.assertEqual(1, program_from_db.credit_value)
+
 
 class PathwayTests(TestCase):
     """ Tests of the Pathway model."""
