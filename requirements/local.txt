@@ -68,7 +68,7 @@ dry-rest-permissions==0.1.10
 edx-analytics-data-api-client==0.15.3
 edx-auth-backends==2.0.2
 edx-ccx-keys==1.0.0
-edx-django-release-util==0.3.3
+edx-django-release-util==0.3.5
 edx-django-sites-extensions==2.4.2
 edx-django-utils==2.0.2
 edx-drf-extensions==2.4.5
