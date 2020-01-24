@@ -10,7 +10,7 @@ from rest_framework.test import APITestCase as RestAPITestCase
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
-from course_discovery.apps.course_metadata.models import CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -40,6 +40,10 @@ class SerializationMixin:
 
     def serialize_course(self, course, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.CourseWithProgramsSerializer, course, many, format, extra_context)
+
+    def serialize_course_search(self, course, serializer=None):
+        obj = self._get_search_result(Course, key=course.key)
+        return self._serialize_object(serializer or serializers.CourseSearchSerializer, obj)
 
     def serialize_course_run(self, run, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.CourseRunWithProgramsSerializer, run, many, format, extra_context)

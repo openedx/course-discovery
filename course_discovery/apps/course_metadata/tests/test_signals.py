@@ -1,3 +1,4 @@
+import datetime
 from re import escape
 
 import ddt
@@ -7,6 +8,7 @@ from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from factory import DjangoModelFactory
+from pytz import UTC
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.course_metadata.algolia_proxy_models import (
@@ -207,6 +209,8 @@ class ExternalCourseKeyTestMixin:
                 course=course,
                 key='course-run-id/' + course_run_name + '/test',
                 external_key='ext-key-' + course_run_name,
+                end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+                enrollment_end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
             )
         return course
 
@@ -579,7 +583,9 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=True,
-                external_key='external-key-drafttest'
+                external_key='external-key-drafttest',
+                end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+                enrollment_end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
             )
 
     def test_draft_collides_with_nondraft(self):
@@ -598,7 +604,9 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
-                external_key='external-key-drafttest'
+                external_key='external-key-drafttest',
+                end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+                enrollment_end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
             )
 
     def test_collision_does_not_include_drafts(self):
@@ -606,7 +614,9 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
             course_run = factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
-                external_key='external-key-drafttest'
+                external_key='external-key-drafttest',
+                end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+                enrollment_end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
             )
         message = _duplicate_external_key_message([course_run])  # Not draft_course_run_1
         with self.assertNumQueries(11, threshold=0):
@@ -614,7 +624,9 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                 factories.CourseRunFactory(
                     course=self.course_1,
                     draft=False,
-                    external_key='external-key-drafttest'
+                    external_key='external-key-drafttest',
+                    end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+                    enrollment_end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
                 )
 
     def test_update_or_create_official_version(self):
