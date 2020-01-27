@@ -66,7 +66,7 @@ class DraftModelMixin(models.Model):
     """
     draft = models.BooleanField(default=False, help_text='Is this a draft version?')
     draft_version = models.OneToOneField('self', models.SET_NULL, null=True, blank=True,
-                                         related_name='_official_version', limit_choices_to={'draft': True})
+                                         related_name='_official_version', limit_choices_to={'draft': True}, on_delete=models.CASCADE)
 
     everything = models.Manager()
     objects = DraftManager()
