@@ -1970,7 +1970,6 @@ class Program(PkSearchableMixin, TimeStampedModel):
                     'displayed on program pages. Instructors in this list should appear before all others associated '
                     'with this programs courses runs.')
     )
-
     credit_backing_organizations = SortedManyToManyField(
         Organization, blank=True, related_name='credit_backed_programs'
     )
@@ -1997,6 +1996,10 @@ class Program(PkSearchableMixin, TimeStampedModel):
         null=True, blank=True, default=0, help_text=_(
             'Total number of learners who have enrolled in courses in this program in the last 6 months'
         )
+    )
+    credit_value = models.PositiveSmallIntegerField(
+        blank=True, default=0, help_text=_(
+            'Number of credits a learner will earn upon successful completion of the program')
     )
     objects = ProgramQuerySet.as_manager()
 
