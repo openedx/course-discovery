@@ -96,10 +96,6 @@ class Migration(migrations.Migration):
             model_name='coursestate',
             name='course',
         ),
-        migrations.AlterUniqueTogether(
-            name='courseuserrole',
-            unique_together=set([]),
-        ),
         migrations.RemoveField(
             model_name='courseuserrole',
             name='changed_by',
