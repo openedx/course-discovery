@@ -15,7 +15,6 @@ from course_discovery.apps.course_metadata.data_loaders.analytics_api import Ana
 from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
 )
-from course_discovery.apps.course_metadata.data_loaders.marketing_site import CourseMarketingSiteDataLoader
 from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig, Image, Video
 
 logger = logging.getLogger(__name__)
@@ -118,9 +117,6 @@ class Command(BaseCommand):
             )
 
             pipeline = (
-                (
-                    (CourseMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                ),
                 (
                     (CoursesApiDataLoader, partner.courses_api_url, max_workers),
                 ),
