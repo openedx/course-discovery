@@ -1476,6 +1476,7 @@ class NestedProgramSerializerTests(TestCase):
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
             'type': program.type.name,
+            'type_slug': program.type.slug,
             'title': program.title,
             'number_of_courses': program.courses.count(),
         }

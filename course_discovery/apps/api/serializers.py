@@ -655,6 +655,7 @@ class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     of courses in the program.
     """
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    type_slug = serializers.SerializerMethodField()
     number_of_courses = serializers.SerializerMethodField()
 
     @classmethod
@@ -665,11 +666,14 @@ class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
 
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'type', 'marketing_slug', 'marketing_url', 'number_of_courses',)
-        read_only_fields = ('uuid', 'marketing_url', 'number_of_courses',)
+        fields = ('uuid', 'title', 'type', 'type_slug', 'marketing_slug', 'marketing_url', 'number_of_courses',)
+        read_only_fields = ('uuid', 'marketing_url', 'number_of_courses', 'type_slug')
 
     def get_number_of_courses(self, obj):
         return obj.courses.count()
+
+    def get_type_slug(self, obj):
+        return obj.type.slug
 
 
 class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
