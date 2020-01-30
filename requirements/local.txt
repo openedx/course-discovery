@@ -31,7 +31,7 @@ django-choices==1.7.1
 django-compressor==2.4
 django-contrib-comments==1.9.2
 django-cors-headers==2.5.3
-django-debug-toolbar==1.11
+django-debug-toolbar==2.2
 django-elasticsearch-debug-toolbar==2.0.0
 django-extensions==2.2.6
 django-filter==2.2.0
