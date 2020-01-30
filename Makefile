@@ -47,6 +47,8 @@ upgrade:
 	pip-compile --upgrade -o requirements/local.txt requirements/local.in
 	pip-compile --upgrade -o requirements/production.txt requirements/production.in
 	chmod a+rw requirements/*.txt
+	# Let tox control the Django version for tests
+	sed '/^[dD]jango==/d' requirements/local.txt > requirements/tox.txt
 
 test: clean ## Run tests and generate coverage report
 	## The node_modules .bin directory is added to ensure we have access to Geckodriver.
