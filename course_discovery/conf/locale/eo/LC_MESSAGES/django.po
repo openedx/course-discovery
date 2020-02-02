@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-26 20:35+0000\n"
+"POT-Creation-Date: 2020-02-02 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -843,10 +843,6 @@ msgstr "Prögräms Ⱡ'σяєм ιρѕυм ∂#"
 #: apps/course_metadata/management/commands/delete_person_dups.py
 msgid "Course Runs"
 msgstr "Çöürsé Rüns Ⱡ'σяєм ιρѕυм ∂σłσя #"
-
-#: apps/course_metadata/management/commands/delete_person_dups.py
-msgid "Publisher Course Runs"
-msgstr "Püßlïshér Çöürsé Rüns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py
 msgid "Target"
