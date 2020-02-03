@@ -269,7 +269,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             data = {'mode': entitlement_type.slug, 'price': price}
             serializer = CourseEntitlementSerializer(entitlement, data=data, partial=partial)
             serializer.is_valid(raise_exception=True)
-            return serializer.save(), entitlement.price != price
+            return serializer.save(), entitlement.price != float(price)
         else:
             return (CourseEntitlement.objects.create(
                 course=course,
