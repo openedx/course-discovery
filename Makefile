@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := test
+.DEFAULT_GOAL := help
 NODE_BIN=$(CURDIR)/node_modules/.bin
 
 .PHONY: accept clean clean_static detect_changed_source_translations extract_translations \

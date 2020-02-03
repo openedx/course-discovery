@@ -24,7 +24,6 @@ from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
-from stdimage.utils import UploadToAutoSlug
 from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
@@ -309,7 +308,7 @@ class ProgramType(TimeStampedModel):
                               'of the course counted toward the completion of the program.'),
     )
     logo_image = StdImageField(
-        upload_to=UploadToAutoSlug(populate_from='name', path='media/program_types/logo_images'),
+        upload_to=UploadToFieldNamePath(populate_from='name', path='media/program_types/logo_images/'),
         blank=True,
         null=True,
         variations={

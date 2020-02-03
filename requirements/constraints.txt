@@ -4,9 +4,6 @@ django<1.12
 # FIXME: these need Django 2
 django-guardian<2
 
-# FIXME: 4.x dropped UploadToAutoSlug, we need to port to django-dynamic-filenames
-django-stdimage<4
-
 # FIXME: 1.x is an ancient version that we should upgrade off of
 elasticsearch<2
 
