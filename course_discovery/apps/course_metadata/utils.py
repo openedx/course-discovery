@@ -13,9 +13,9 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
+from dynamic_filenames import FilePattern
 from slugify import slugify
 from stdimage.models import StdImageFieldFile
-from stdimage.utils import UploadTo
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
@@ -286,18 +286,23 @@ def ensure_draft_world(obj):
         raise Exception('Ensure draft world only accepts Courses and Course Runs.')
 
 
-class UploadToFieldNamePath(UploadTo):
+class UploadToFieldNamePath(FilePattern):
     """
     This is a utility to create file path for uploads based on instance field value
     """
+    filename_pattern = '{path}{name}{ext}'
+
     def __init__(self, populate_from, **kwargs):
         self.populate_from = populate_from
-        super(UploadToFieldNamePath, self).__init__(populate_from, **kwargs)
+        kwargs['populate_from'] = populate_from
+        if kwargs['path'] and not kwargs['path'].endswith('/'):
+            kwargs['path'] += '/'
+        super(UploadToFieldNamePath, self).__init__(**kwargs)
 
     def __call__(self, instance, filename):
         field_value = getattr(instance, self.populate_from)
         # Update name with Random string of 12 character at the end example '-ba123cd89e97'
-        self.kwargs.update({
+        self.override_values.update({
             'name': str(field_value) + str(uuid.uuid4())[23:]
         })
         return super(UploadToFieldNamePath, self).__call__(instance, filename)

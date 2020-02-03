@@ -7,6 +7,7 @@ django-choices
 django-compressor
 django-contrib-comments
 django-cors-headers
+django-dynamic-filenames
 django-extensions
 django-filter
 django-fsm
