@@ -45,7 +45,7 @@ edx-rest-api-client
 elasticsearch
 html2text
 lxml
-jsonfield2
+jsonfield
 markdown
 pillow
 pycountry
