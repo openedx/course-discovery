@@ -227,8 +227,11 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         response = self.client.get(reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins'))
         assert response.status_code == 200
         data = json.loads(response.content.decode('utf-8'))
-        expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
-        assert data.get('results') == expected_results
+        expected_results = [{'id': str(instructor.id), 'text': str(instructor), 'selected_text': str(instructor)}
+                            for instructor in self.instructors]
+
+        assert (sorted(data.get('results'), key=lambda x: sorted(x.keys())) ==
+                sorted(expected_results, key=lambda x: sorted(x.keys())))
 
     def _set_user_is_staff_and_login(self, is_staff=True):
         self.client.logout()
