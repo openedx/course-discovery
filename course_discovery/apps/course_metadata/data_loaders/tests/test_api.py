@@ -9,6 +9,7 @@ import responses
 from django.core.management import CommandError
 from django.http.response import HttpResponse
 from django.test import TestCase
+from edx_django_utils.cache import TieredCache
 from pytz import UTC
 from slumber.exceptions import HttpClientError
 
@@ -142,6 +143,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     @ddt.unpack
     def test_ingest(self, partner_uses_publisher, on_new_publisher):
         """ Verify the method ingests data from the Courses API. """
+        TieredCache.dangerous_clear_all_tiers()
         api_data = self.mock_api()
         if not partner_uses_publisher:
             self.partner.publisher_url = None
@@ -171,6 +173,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     @mock.patch('course_discovery.apps.course_metadata.data_loaders.api.push_to_ecommerce_for_course_run')
     def test_ingest_verified_deadline(self, mock_push_to_ecomm):
         """ Verify the method ingests data from the Courses API. """
+        TieredCache.dangerous_clear_all_tiers()
         api_data = self.mock_api()
 
         self.assertEqual(Course.objects.count(), 0)
@@ -1018,6 +1021,7 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     @responses.activate
     def test_ingest(self):
         """ Verify the method ingests data from the Organizations API. """
+        TieredCache.dangerous_clear_all_tiers()
         api_data = self.mock_api()
         self.assertEqual(Program.objects.count(), 0)
 
@@ -1052,6 +1056,7 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
     @responses.activate
     def test_ingest_with_existing_banner_image(self):
+        TieredCache.dangerous_clear_all_tiers()
         programs = self.mock_api()
 
         for program_data in programs:
