@@ -614,6 +614,7 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'expected_program_type': course_run.expected_program_type,
             'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price,
             'ofac_comment': course_run.ofac_comment,
+            'estimated_hours': 0
         })
         return expected
 

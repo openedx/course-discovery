@@ -792,6 +792,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         slug_field='slug',
         queryset=ProgramType.objects.all()
     )
+    estimated_hours = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -811,13 +812,16 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
-            'course_uuid',
+            'course_uuid', 'estimated_hours',
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
         return []
+
+    def get_estimated_hours(self, obj):
+        return get_course_run_estimated_hours(obj)
 
     def to_internal_value(self, data):
         # Allow incoming writes to just specify a list of slugs for staff
