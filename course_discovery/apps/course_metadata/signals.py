@@ -8,6 +8,7 @@ from django.db.models.signals import m2m_changed, post_delete, post_save, pre_de
 from django.dispatch import receiver
 
 from course_discovery.apps.api.cache import api_change_receiver
+from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program
@@ -202,7 +203,11 @@ def authoring_organizations_changed(sender, instance, action, **kwargs):  # pyli
 
 @receiver(post_save, sender=CourseRun)
 def update_or_create_salesforce_course_run(instance, created, **kwargs):  # pylint: disable=unused-argument
-    partner = instance.course.partner
+    try:
+        partner = instance.course.partner
+    except (Course.DoesNotExist, Partner.DoesNotExist):
+        # exit early in the unusual event that we can't look up the appropriate partner
+        return
     util = get_salesforce_util(partner)
     if util:
         if instance.draft:
