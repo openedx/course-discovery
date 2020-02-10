@@ -2,7 +2,6 @@
 django<1.12
 
 # FIXME: these need Django 2
-django-debug-toolbar<2
 django-guardian<2
 
 # FIXME: 4.x dropped UploadToAutoSlug, we need to port to django-dynamic-filenames
