@@ -2,7 +2,7 @@
 # edX translation file
 # Copyright (C) 2018 edX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# 
+#
 # Translators:
 # Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018
 # Akif Vohra <akifvohra@gmail.com>, 2017
@@ -487,7 +487,7 @@ msgstr "Bestehender Kurslauftyp {run_type} für {key} ({id}) stimmt nicht mit de
 #, python-brace-format
 msgid ""
 "Existing run type {run_type} for {key} ({id}) doesn't match its own seats."
-msgstr "Bestehender Kurslauftyp {type} für {key} ({id}) stimmt nicht mit den Angaben überein."
+msgstr "Bestehender Kurslauftyp {run_type} für {key} ({id}) stimmt nicht mit den Angaben überein."
 
 #: apps/course_metadata/data_loaders/course_type.py:91
 #, python-brace-format
