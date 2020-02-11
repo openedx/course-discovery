@@ -1,5 +1,6 @@
 backoff
 beautifulsoup4
+celery
 django
 django-admin-sortable2
 django-autocomplete-light
@@ -46,11 +47,13 @@ elasticsearch
 html2text
 lxml
 jsonfield2
+kombu
 markdown
 pillow
 pycountry
 python-dateutil
 pytz
+redis
 requests
 simple-salesforce
 unicode-slugify

@@ -13,6 +13,7 @@ from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program
 )
+from course_discovery.apps.course_metadata.producers import producer, task_queue
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
     populate_official_with_existing_draft, requires_salesforce_update
@@ -309,3 +310,20 @@ def check_course_runs_within_course_for_duplicate_external_key(course, specific_
         if external_key == specific_course_run.external_key and course_run != specific_course_run:
             message = _duplicate_external_key_message([course_run])
             raise ValidationError(message)
+
+
+@receiver(post_save, sender=Program)
+def send_program_save_message(sender, instance, **kwargs):     # pylint: disable=unused-argument
+    """
+    Produce a message that a save has occured on the Program model.
+    """
+    # produce message
+    producer.publish(
+    {'hello': 'world'},
+    retry=True,
+    exchange=task_queue.exchange,
+    routing_key=task_queue.routing_key,
+    declare=[task_queue],  # declares exchange, queue and binds.
+)
+
+
