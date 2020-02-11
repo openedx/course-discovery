@@ -319,11 +319,9 @@ def send_program_save_message(sender, instance, **kwargs):     # pylint: disable
     """
     # produce message
     producer.publish(
-    {'hello': 'world'},
-    retry=True,
-    exchange=task_queue.exchange,
-    routing_key=task_queue.routing_key,
-    declare=[task_queue],  # declares exchange, queue and binds.
-)
-
-
+        {'hello': 'world'},
+        retry=True,
+        exchange=task_queue.exchange,
+        routing_key=task_queue.routing_key,
+        declare=[task_queue],  # declares exchange, queue and binds.
+    )
