@@ -13,7 +13,14 @@ from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program
 )
-from course_discovery.apps.course_metadata.producers import producer, task_queue
+from course_discovery.apps.course_metadata.producers import (
+    producer,
+    program_create_task_queue,
+    program_delete_task_queue,
+    program_exchange,
+    program_update_task_queue,
+    ProgramMessageSerializer,
+)
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
     populate_official_with_existing_draft, requires_salesforce_update
@@ -317,11 +324,36 @@ def send_program_save_message(sender, instance, **kwargs):     # pylint: disable
     """
     Produce a message that a save has occured on the Program model.
     """
-    # produce message
+
+    payload = ProgramMessageSerializer(instance).data
+
+    if instance.created:
+        task_queue = program_create_task_queue
+    else:
+        task_queue = program_update_task_queue
+
     producer.publish(
-        {'hello': 'world'},
+        payload,
         retry=True,
-        exchange=task_queue.exchange,
+        exchange=program_exchange,
+        routing_key=task_queue.routing_key,
+        declare=[task_queue],  # declares exchange, queue and binds.
+    )
+
+@receiver(post_delete, sender=Program)
+def send_program_delete_message(sender, instance, **kwargs):     # pylint: disable=unused-argument
+    """
+    Produce a message that a save has occured on the Program model.
+    """
+
+    payload = ProgramMessageSerializer(instance).data
+
+    task_queue = program_delete_task_queue
+
+    producer.publish(
+        payload,
+        retry=True,
+        exchange=program_exchange,
         routing_key=task_queue.routing_key,
         declare=[task_queue],  # declares exchange, queue and binds.
     )
