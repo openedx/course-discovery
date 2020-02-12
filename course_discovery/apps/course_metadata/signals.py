@@ -13,14 +13,7 @@ from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program
 )
-from course_discovery.apps.course_metadata.producers import (
-    producer,
-    program_create_task_queue,
-    program_delete_task_queue,
-    program_exchange,
-    program_update_task_queue,
-    ProgramMessageSerializer,
-)
+import course_discovery.apps.course_metadata.producers as producers 
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
     populate_official_with_existing_draft, requires_salesforce_update
@@ -324,18 +317,15 @@ def send_program_save_message(sender, instance, **kwargs):     # pylint: disable
     """
     Produce a message that a save has occured on the Program model.
     """
-
-    payload = ProgramMessageSerializer(instance).data
-
+    payload = producers.ProgramMessageSerializer(instance).data
     if kwargs['created']:
-        task_queue = program_create_task_queue
+        task_queue = producers.program_create_task_queue
     else:
-        task_queue = program_update_task_queue
-
-    producer.publish(
+        task_queue = producers.program_update_task_queue
+    producers.producer.publish(
         payload,
         retry=True,
-        exchange=program_exchange,
+        exchange=producers.catalog_exchange,
         routing_key=task_queue.routing_key,
         declare=[task_queue],  # declares exchange, queue and binds.
     )
@@ -344,16 +334,84 @@ def send_program_save_message(sender, instance, **kwargs):     # pylint: disable
 @receiver(post_delete, sender=Program)
 def send_program_delete_message(sender, instance, **kwargs):     # pylint: disable=unused-argument
     """
-    Produce a message that a save has occured on the Program model.
+    Produce a message that a delete has occured on the Program model.
     """
     payload = {'uuid': instance.uuid}
-
-    task_queue = program_delete_task_queue
-
-    producer.publish(
+    task_queue = producers.program_delete_task_queue
+    producers.producer.publish(
         payload,
         retry=True,
-        exchange=program_exchange,
+        exchange=producers.catalog_exchange,
+        routing_key=task_queue.routing_key,
+        declare=[task_queue],  # declares exchange, queue and binds.
+    )
+
+
+@receiver(post_save, sender=Course)
+def send_course_save_message(sender, instance, **kwargs):     # pylint: disable=unused-argument
+    """
+    Produce a message that a save has occured on the Course model.
+    """
+    payload = producers.CourseMessageSerializer(instance).data
+    if kwargs['created']:
+        task_queue = producers.course_create_task_queue
+    else:
+        task_queue = producers.course_update_task_queue
+    producers.producer.publish(
+        payload,
+        retry=True,
+        exchange=producers.catalog_exchange,
+        routing_key=task_queue.routing_key,
+        declare=[task_queue],  # declares exchange, queue and binds.
+    )
+
+
+@receiver(post_delete, sender=Course)
+def send_course_delete_message(sender, instance, **kwargs):     # pylint: disable=unused-argument
+    """
+    Produce a message that a delete has occured on the Course model.
+    """
+    payload = {'key': instance.key}
+    task_queue = producers.course_delete_task_queue
+    producers.producer.publish(
+        payload,
+        retry=True,
+        exchange=producers.catalog_exchange,
+        routing_key=task_queue.routing_key,
+        declare=[task_queue],  # declares exchange, queue and binds.
+    )
+
+
+@receiver(post_save, sender=CourseRun)
+def send_courserun_save_message(sender, instance, **kwargs):     # pylint: disable=unused-argument
+    """
+    Produce a message that a save has occured on the CourseRun model.
+    """
+    payload = producers.CourseRunMessageSerializer(instance).data
+    if kwargs['created']:
+        task_queue = producers.courserun_create_task_queue
+    else:
+        task_queue = producers.courserun_update_task_queue
+    producers.producer.publish(
+        payload,
+        retry=True,
+        exchange=producers.catalog_exchange,
+        routing_key=task_queue.routing_key,
+        declare=[task_queue],  # declares exchange, queue and binds.
+    )
+
+
+@receiver(post_delete, sender=CourseRun)
+def send_courserun_delete_message(sender, instance, **kwargs):     # pylint: disable=unused-argument
+    """
+    Produce a message that a delete has occured on the CourseRun model.
+    """
+    payload = {'key': instance.key}
+    task_queue = producers.courserun_delete_task_queue
+    producers.producer.publish(
+        payload,
+        retry=True,
+        exchange=producers.catalog_exchange,
         routing_key=task_queue.routing_key,
         declare=[task_queue],  # declares exchange, queue and binds.
     )

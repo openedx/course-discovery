@@ -630,6 +630,7 @@ MEDIA_STORAGE_BACKEND = {
 }
 
 EDX_CATALOG_EXCHANGE = os.environ.get('EDX_CATALOG_EXCHANGE', 'catalog')
+
 EDX_PROGRAM_CREATE_ROUTING_KEY = '{}.program.create'.format(EDX_CATALOG_EXCHANGE)
 EDX_PROGRAM_UPDATE_ROUTING_KEY = '{}.program.update'.format(EDX_CATALOG_EXCHANGE)
 EDX_PROGRAM_DELETE_ROUTING_KEY = '{}.program.delete'.format(EDX_CATALOG_EXCHANGE)
@@ -638,3 +639,18 @@ EDX_PROGRAM_CREATE_QUEUE_NAME = 'program_create_queue'
 EDX_PROGRAM_UPDATE_QUEUE_NAME = 'program_update_queue'
 EDX_PROGRAM_DELETE_QUEUE_NAME = 'program_delete_queue'
 
+EDX_COURSE_CREATE_ROUTING_KEY = '{}.course.create'.format(EDX_CATALOG_EXCHANGE)
+EDX_COURSE_UPDATE_ROUTING_KEY = '{}.course.update'.format(EDX_CATALOG_EXCHANGE)
+EDX_COURSE_DELETE_ROUTING_KEY = '{}.course.delete'.format(EDX_CATALOG_EXCHANGE)
+
+EDX_COURSE_CREATE_QUEUE_NAME = 'course_create_queue'
+EDX_COURSE_UPDATE_QUEUE_NAME = 'course_update_queue'
+EDX_COURSE_DELETE_QUEUE_NAME = 'course_delete_queue'
+
+EDX_COURSERUN_CREATE_ROUTING_KEY = '{}.courserun.create'.format(EDX_CATALOG_EXCHANGE)
+EDX_COURSERUN_UPDATE_ROUTING_KEY = '{}.courserun.update'.format(EDX_CATALOG_EXCHANGE)
+EDX_COURSERUN_DELETE_ROUTING_KEY = '{}.courserun.delete'.format(EDX_CATALOG_EXCHANGE)
+
+EDX_COURSERUN_CREATE_QUEUE_NAME = 'courserun_create_queue'
+EDX_COURSERUN_UPDATE_QUEUE_NAME = 'courserun_update_queue'
+EDX_COURSERUN_DELETE_QUEUE_NAME = 'courserun_delete_queue'

@@ -2,25 +2,58 @@
 from kombu import Connection, Exchange, Queue
 from rest_framework import serializers
 
-from course_discovery.apps.course_metadata.models import Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
 from django.conf import settings
 
-program_exchange = Exchange(settings.EDX_CATALOG_EXCHANGE, type='direct')
+catalog_exchange = Exchange(settings.EDX_CATALOG_EXCHANGE, type='direct')
+
 program_create_task_queue = Queue(
     settings.EDX_PROGRAM_CREATE_QUEUE_NAME,
-    program_exchange,
+    catalog_exchange,
     routing_key=settings.EDX_PROGRAM_CREATE_ROUTING_KEY
 )
 program_update_task_queue = Queue(
     settings.EDX_PROGRAM_UPDATE_QUEUE_NAME,
-    program_exchange,
+    catalog_exchange,
     routing_key=settings.EDX_PROGRAM_UPDATE_ROUTING_KEY
 )
 program_delete_task_queue = Queue(
     settings.EDX_PROGRAM_DELETE_QUEUE_NAME,
-    program_exchange,
+    catalog_exchange,
     routing_key=settings.EDX_PROGRAM_DELETE_ROUTING_KEY
+)
+
+course_create_task_queue = Queue(
+    settings.EDX_COURSE_CREATE_QUEUE_NAME,
+    catalog_exchange,
+    routing_key=settings.EDX_COURSE_CREATE_ROUTING_KEY
+)
+course_update_task_queue = Queue(
+    settings.EDX_COURSE_UPDATE_QUEUE_NAME,
+    catalog_exchange,
+    routing_key=settings.EDX_COURSE_UPDATE_ROUTING_KEY
+)
+course_delete_task_queue = Queue(
+    settings.EDX_COURSE_DELETE_QUEUE_NAME,
+    catalog_exchange,
+    routing_key=settings.EDX_COURSE_DELETE_ROUTING_KEY
+)
+
+courserun_create_task_queue = Queue(
+    settings.EDX_COURSERUN_CREATE_QUEUE_NAME,
+    catalog_exchange,
+    routing_key=settings.EDX_COURSERUN_CREATE_ROUTING_KEY
+)
+courserun_update_task_queue = Queue(
+    settings.EDX_COURSERUN_UPDATE_QUEUE_NAME,
+    catalog_exchange,
+    routing_key=settings.EDX_COURSERUN_UPDATE_ROUTING_KEY
+)
+courserun_delete_task_queue = Queue(
+    settings.EDX_COURSERUN_DELETE_QUEUE_NAME,
+    catalog_exchange,
+    routing_key=settings.EDX_COURSERUN_DELETE_ROUTING_KEY
 )
 
 
@@ -48,6 +81,21 @@ class ProgramMessageSerializer(serializers.ModelSerializer):
             'instructor_ordering', 'credit_backing_organizations',
             'corporate_endorsements', 'job_outlook_items', 'individual_endorsements',
         )
+
+
+class CourseMessageSerializer(serializers.ModelSerializer):
+    # Need to add serializer tests here like above
+    class Meta:
+        model = Course
+        fields = '__all__'
+
+
+class CourseRunMessageSerializer(serializers.ModelSerializer):
+    # Need to add serializer tests here like above
+    class Meta:
+        model = CourseRun
+        fields = '__all__'
+
 
 # TODO - make this read from a setting
 connection = Connection('redis://:password@redis:6379/10')
