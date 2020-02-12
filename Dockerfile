@@ -1,4 +1,4 @@
-FROM ubuntu:xenial as app
+FROM ubuntu:xenial as openedx
 
 RUN apt update && \
   apt install -y git-core language-pack-en python3.5 python3-pip python3.5-dev \
@@ -30,6 +30,6 @@ RUN ./node_modules/.bin/bower install --allow-root --production
 EXPOSE 8381
 CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c /edx/app/discovery/course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
 
-FROM app as newrelic
+FROM openedx as edx.org
 RUN pip install newrelic
 CMD newrelic-admin run-program gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c /edx/app/discovery/course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
