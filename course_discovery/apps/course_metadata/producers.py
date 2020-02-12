@@ -24,13 +24,12 @@ program_delete_task_queue = Queue(
 )
 
 
-
 class ProgramMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = '__all__'
 
 # TODO - make this read from a setting
-connection = Connection('redis://:password@redis:6379/0')
+connection = Connection('redis://:password@redis:6379/10')
 producer = connection.Producer()
 
