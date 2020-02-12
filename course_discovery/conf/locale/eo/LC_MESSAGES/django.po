@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-02 20:35+0000\n"
+"POT-Creation-Date: 2020-02-12 15:46+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -152,8 +152,8 @@ msgstr ""
 "¢σηѕє¢тєтυя #"
 
 #: apps/api/v1/views/course_runs.py
-msgid "Invalid param"
-msgstr "Ìnvälïd päräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+msgid "Invalid parameter"
+msgstr "Ìnvälïd pärämétér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
 
 #: apps/api/v1/views/courses.py
 msgid "Failed to set data: {}"
