@@ -341,7 +341,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         for key in request.data.keys():
             if key in CourseRun.INTERNAL_REVIEW_FIELDS:
                 return Response(
-                    _('Invalid param'),
+                    _('Invalid parameter'),
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
