@@ -327,7 +327,7 @@ def send_program_save_message(sender, instance, **kwargs):     # pylint: disable
 
     payload = ProgramMessageSerializer(instance).data
 
-    if instance.created:
+    if kwargs['created']:
         task_queue = program_create_task_queue
     else:
         task_queue = program_update_task_queue
@@ -340,13 +340,13 @@ def send_program_save_message(sender, instance, **kwargs):     # pylint: disable
         declare=[task_queue],  # declares exchange, queue and binds.
     )
 
+
 @receiver(post_delete, sender=Program)
 def send_program_delete_message(sender, instance, **kwargs):     # pylint: disable=unused-argument
     """
     Produce a message that a save has occured on the Program model.
     """
-
-    payload = ProgramMessageSerializer(instance).data
+    payload = {'uuid': instance.uuid}
 
     task_queue = program_delete_task_queue
 
