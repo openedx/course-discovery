@@ -22,6 +22,12 @@ SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
 JWT_AUTH.update({
     # Must match public signing key used in LMS.
+    'JWT_ISSUERS':
+        [{
+            "AUDIENCE": "lms-key",
+            "ISSUER": "http://local.philanthropyu.org:18000/oauth2", 
+            "SECRET_KEY": "lms-secret"
+        }],
     'JWT_PUBLIC_SIGNING_JWK_SET': (
         '{"keys": [{"kid": "devstack_key", "e": "AQAB", "kty": "RSA", "n": "smKFSYowG6nNUAdeqH1jQQnH1PmIHphzBmwJ5vRf1vu'
         '48BUI5VcVtUWIPqzRK_LDSlZYh9D0YFL0ZTxIrlb6Tn3Xz7pYvpIAeYuQv3_H5p8tbz7Fb8r63c1828wXPITVTv8f7oxx5W3lFFgpFAyYMmROC'
