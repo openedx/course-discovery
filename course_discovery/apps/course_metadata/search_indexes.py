@@ -222,6 +222,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     language = indexes.CharField(null=True, faceted=True)
     transcript_languages = indexes.MultiValueField(faceted=True)
     pacing_type = indexes.CharField(model_attr='pacing_type', null=True, faceted=True)
+    is_marketable = indexes.BooleanField(model_attr='type__is_marketable', faceted=True)
     marketing_url = indexes.CharField(null=True)
     slug = indexes.CharField(model_attr='slug', null=True)
     seat_types = indexes.MultiValueField(model_attr='seat_types__slug', null=True, faceted=True)
