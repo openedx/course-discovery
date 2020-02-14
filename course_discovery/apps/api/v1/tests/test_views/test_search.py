@@ -290,6 +290,15 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         data = response.json()
         assert data['objects']['results'] == [self.serialize_course_run_search(visible_run)]
 
+    def test_non_marketable_runs_excluded(self):
+        """Search results should not include non-marketable runs."""
+        marketable_run = CourseRunFactory(course__partner=self.partner, type__is_marketable=True)
+        CourseRunFactory(course__partner=self.partner, type__is_marketable=False)
+
+        response = self.get_response()
+        data = response.json()
+        self.assertListEqual(data['objects']['results'], [self.serialize_course_run_search(marketable_run)])
+
     def test_results_filtered_by_default_partner(self):
         """ Verify the search results only include items related to the default partner if no partner is
         specified on the request. If a partner is included, the data should be filtered to the requested partner. """
