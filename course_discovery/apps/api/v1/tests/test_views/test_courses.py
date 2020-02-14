@@ -603,7 +603,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
             status=200,
         )
-        # pylint: disable=no-member
         studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
         responses.add(responses.POST, studio_url, status=200)
         key = 'course-v1:{org}+{number}+1T2001'.format(org=course_data['org'], number=course_data['number'])
@@ -842,7 +841,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         from Studio. Other errors (PermissionDenied, ValidationError, Http404) are all caught and
         raised to the course endpoint, but some errors just create a response.
         '''
-        # pylint: disable=no-member
         studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
         responses.add(responses.POST, studio_url, status=400, body=b'Nope')
         response = self.create_course_and_course_run()

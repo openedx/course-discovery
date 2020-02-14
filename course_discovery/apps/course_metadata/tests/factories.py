@@ -145,6 +145,7 @@ class CourseRunTypeFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     name = FuzzyText()
     slug = FuzzyText()
+    is_marketable = True
 
     class Meta:
         model = CourseRunType
