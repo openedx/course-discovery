@@ -1,0 +1,5 @@
+# Forks and other dependencies not yet on PyPI
+
+# Forked to get Django 2.2 support from unreleased master branch from social-app-django repo.
+# This can be removed once an official social-auth-app-django Pypi release with Django 2.2 support is available in the future.
+git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django

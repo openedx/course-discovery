@@ -103,7 +103,7 @@ A new OAuth 2.0 client can be created at ``http://localhost:18000/admin/oauth2_p
     8. Select :guilabel:`Authorization code` as the authorization grant type.
     9. Click :guilabel:`Save`.
 
-You can create a new OAuth 2.0 application on the LMS at ``/admin/oauth2_provider/application/`:
+You can create a new OAuth 2.0 application on the LMS at ``/admin/oauth2_provider/application/``:
 
     1. Click the ``Add Application`` button.
     2. Leave the user field blank.
