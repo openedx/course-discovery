@@ -5,6 +5,7 @@ import threading
 import time
 from decimal import Decimal
 from io import BytesIO
+from json import JSONDecodeError
 
 import backoff
 import requests
@@ -86,10 +87,27 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def _make_request(self, page):
         logger.info('Requesting course run page %d...', page)
         params = {'page': page, 'page_size': self.PAGE_SIZE}
-        return self.api_client.get(self.api_url + '/courses/', params=params).json()
+        response = self.api_client.get(self.api_url + '/courses/', params=params)
+        try:
+            return response.json()
+        except JSONDecodeError:
+            logger.exception('JSONDecodeError was encountered on page {page} when hitting the LMS Courses API.'.format(
+                page=page
+            ))
+            logger.info('Response had status code: [{code}]. Response had data: {data}'.format(
+                code=response.status_code, data=response.data
+            ))
+            raise JSONDecodeError
 
     def _process_response(self, response):
-        results = response['results']
+        try:
+            results = response['results']
+        except KeyError:
+            logger.exception('KeyError was encountered when hitting the LMS Courses API.')
+            logger.info('Response had status code: [{code}]. Response had data: {data}'.format(
+                code=response.status_code, data=response.data
+            ))
+            raise KeyError
         logger.info('Retrieved %d course runs...', len(results))
 
         for body in results:
