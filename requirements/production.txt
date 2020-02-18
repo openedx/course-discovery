@@ -4,7 +4,6 @@
 #
 #    pip-compile --output-file=requirements/production.txt requirements/production.in
 #
-git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django
 backoff==1.10.0
 beautifulsoup4==4.8.2
 boto==2.49.0              # via django-ses
@@ -40,7 +39,7 @@ django-storages==1.8
 django-taggit-autosuggest==0.3.8
 django-taggit-serializer==0.1.7
 django-taggit==1.2.0
-django-waffle==0.19.0
+django-waffle==0.20.0
 django-webpack-loader==0.6.0
 django==1.11.28
 djangorestframework-csv==2.1.0
@@ -56,7 +55,7 @@ edx-auth-backends==3.0.2
 edx-ccx-keys==1.0.0
 edx-django-release-util==0.3.6
 edx-django-sites-extensions==2.4.3
-edx-django-utils==2.0.4
+edx-django-utils==3.0
 edx-drf-extensions==2.4.6
 edx-opaque-keys==2.0.1
 edx-rest-api-client==3.0.2
@@ -105,6 +104,7 @@ simple-salesforce==0.74.3
 simplejson==3.17.0        # via django-rest-swagger
 six==1.14.0               # via cryptography, django-appconf, django-autocomplete-light, django-choices, django-compressor, django-contrib-comments, django-extensions, django-parler, django-simple-history, django-taggit-serializer, django-waffle, djangorestframework-csv, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-opaque-keys, libsass, progressbar2, pyjwkest, pyopenssl, python-dateutil, python-memcached, python-utils, social-auth-core, stevedore, unicode-slugify
 slumber==0.7.1            # via edx-rest-api-client
+git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django
 social-auth-core==3.2.0   # via edx-auth-backends
 soupsieve==1.9.5          # via beautifulsoup4
 stevedore==1.32.0         # via edx-opaque-keys
