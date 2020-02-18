@@ -104,9 +104,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
             results = response['results']
         except KeyError:
             logger.exception('KeyError was encountered when hitting the LMS Courses API.')
-            logger.info('Response had status code: [{code}]. Response had data: {data}'.format(
-                code=response.status_code, data=response.data
-            ))
+            # At this point, response is just a dictionary
+            logger.info('Response had data: {data}'.format(data=response))
             raise KeyError
         logger.info('Retrieved %d course runs...', len(results))
 
