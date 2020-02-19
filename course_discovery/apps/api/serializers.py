@@ -1410,6 +1410,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    type_slug = serializers.SerializerMethodField()
     degree = DegreeSerializer()
     curricula = CurriculumSerializer(many=True)
 
@@ -1433,11 +1434,14 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image', 'hidden',
-            'courses', 'authoring_organizations', 'card_image_url', 'is_program_eligible_for_one_click_purchase',
-            'degree', 'curricula', 'marketing_hook',
+            'uuid', 'title', 'subtitle', 'type', 'type_slug', 'status', 'marketing_slug', 'marketing_url',
+            'banner_image', 'hidden', 'courses', 'authoring_organizations', 'card_image_url',
+            'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
+
+    def get_type_slug(self, obj):
+        return obj.type.slug
 
     def get_courses(self, program):
         course_runs = list(program.course_runs)
