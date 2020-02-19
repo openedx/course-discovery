@@ -3,7 +3,6 @@
 import json
 
 import responses
-from django.conf import settings
 from haystack.query import SearchQuerySet
 from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase as RestAPITestCase

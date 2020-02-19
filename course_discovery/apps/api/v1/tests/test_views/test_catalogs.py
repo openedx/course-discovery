@@ -6,7 +6,6 @@ from io import StringIO
 import ddt
 import pytest
 import pytz
-import responses
 from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 
