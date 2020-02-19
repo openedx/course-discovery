@@ -114,12 +114,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.client.logout()
         self.assert_catalog_created(HTTP_AUTHORIZATION=generate_jwt_header_for_user(self.user))
 
-    @responses.activate
-    def test_create_with_oauth2_authentication(self):
-        self.client.logout()
-        self.mock_user_info_response(self.user)
-        self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
-
     def test_create_with_new_user(self):
         """ Verify that new users are created if the list of viewers includes the usernames of non-existent users. """
         new_viewer_username = 'new-guy'
