@@ -971,6 +971,7 @@ class MinimalProgramSerializerTests(TestCase):
             'title': program.title,
             'subtitle': program.subtitle,
             'type': program.type.name,
+            'type_slug': program.type.slug,
             'status': program.status,
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
