@@ -5,7 +5,6 @@ import threading
 import time
 from decimal import Decimal
 from io import BytesIO
-from json import JSONDecodeError
 
 import backoff
 import requests
@@ -90,14 +89,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
         response = self.api_client.get(self.api_url + '/courses/', params=params)
         try:
             return response.json()
-        except JSONDecodeError:
+        # The actual error is a JSONDecodeError, but it is a subclass of ValueError so we are just going to catch that
+        except ValueError as e:
             logger.exception('JSONDecodeError was encountered on page {page} when hitting the LMS Courses API.'.format(
                 page=page
             ))
             logger.info('Response had status code: [{code}]. Response had data: {data}'.format(
                 code=response.status_code, data=response.data
             ))
-            raise JSONDecodeError
+            raise e
 
     def _process_response(self, response):
         try:
