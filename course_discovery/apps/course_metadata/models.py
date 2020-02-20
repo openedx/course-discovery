@@ -1160,7 +1160,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     video_translation_languages = models.ManyToManyField(
         LanguageTag, blank=True, related_name='+')
-    slug = AutoSlugField(max_length=255, populate_from='title', slugify_function=uslugify, db_index=True,
+    slug = AutoSlugField(max_length=255, populate_from=['title', 'key'], slugify_function=uslugify, db_index=True,
                          editable=True)
     hidden = models.BooleanField(default=False)
     mobile_available = models.BooleanField(default=False)
