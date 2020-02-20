@@ -6,7 +6,6 @@ from io import StringIO
 import ddt
 import pytest
 import pytz
-import responses
 from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 
@@ -113,12 +112,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         """ Verify the endpoint creates a new catalog when the client is authenticated via JWT authentication. """
         self.client.logout()
         self.assert_catalog_created(HTTP_AUTHORIZATION=generate_jwt_header_for_user(self.user))
-
-    @responses.activate
-    def test_create_with_oauth2_authentication(self):
-        self.client.logout()
-        self.mock_user_info_response(self.user)
-        self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
 
     def test_create_with_new_user(self):
         """ Verify that new users are created if the list of viewers includes the usernames of non-existent users. """
