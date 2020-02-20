@@ -13,6 +13,7 @@ from django.core.files import File
 from django.core.management import CommandError
 from django.db.models import Q
 from opaque_keys.edx.keys import CourseKey
+from simplejson.errors import JSONDecodeError
 from slumber.exceptions import HttpClientError
 
 from course_discovery.apps.core.models import Currency
@@ -89,15 +90,14 @@ class CoursesApiDataLoader(AbstractDataLoader):
         response = self.api_client.get(self.api_url + '/courses/', params=params)
         try:
             return response.json()
-        # The actual error is a JSONDecodeError, but it is a subclass of ValueError so we are just going to catch that
-        except ValueError as e:
+        except JSONDecodeError:
             logger.exception('JSONDecodeError was encountered on page {page} when hitting the LMS Courses API.'.format(
                 page=page
             ))
             logger.info('Response had status code: [{code}]. Response had data: {data}'.format(
                 code=response.status_code, data=response.data
             ))
-            raise e
+            raise
 
     def _process_response(self, response):
         try:
@@ -106,7 +106,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             logger.exception('KeyError was encountered when hitting the LMS Courses API.')
             # At this point, response is just a dictionary
             logger.info('Response had data: {data}'.format(data=response))
-            raise KeyError
+            raise
         logger.info('Retrieved %d course runs...', len(results))
 
         for body in results:
