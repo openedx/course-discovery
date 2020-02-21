@@ -91,19 +91,23 @@ class CoursesApiDataLoader(AbstractDataLoader):
         try:
             return response.json()
         except JSONDecodeError:
-            logger.exception('JSONDecodeError was encountered on page {page} when hitting the LMS Courses API.'.format(
+            logger.warning('JSONDecodeError was encountered on page {page} when hitting the LMS Courses API.'.format(
                 page=page
             ))
-            logger.info('Response had status code: [{code}]. Response had data: {data}'.format(
-                code=response.status_code, data=response.data
-            ))
+            logger.info(
+                '\nResponse had status code: [{code}].\n\n'
+                'Response had content: {content}\n\n'
+                'Response had text: {text}\n'.format(
+                    code=response.status_code, content=response.content, text=response.text
+                )
+            )
             raise
 
     def _process_response(self, response):
         try:
             results = response['results']
         except KeyError:
-            logger.exception('KeyError was encountered when hitting the LMS Courses API.')
+            logger.warning('KeyError was encountered when hitting the LMS Courses API.')
             # At this point, response is just a dictionary
             logger.info('Response had data: {data}'.format(data=response))
             raise
