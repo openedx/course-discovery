@@ -1530,6 +1530,15 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
         organization.tags.add(self.TAG)
         return organization
 
+
+    # understand how serializer tests are set up and written
+
+    # def return_organizations_in_order
+        # testing the prefetch queryset 
+        # create my test data
+        # prefetch dataset
+        # make sure it returns in the expected order
+
     @classmethod
     def get_expected_data(cls, organization):
         expected = super().get_expected_data(organization)
@@ -1545,7 +1554,6 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
         })
 
         return expected
-
 
 @ddt.ddt
 class CourseEntitlementSerializerTests(TestCase):
