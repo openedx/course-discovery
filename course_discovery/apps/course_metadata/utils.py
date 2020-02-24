@@ -91,6 +91,9 @@ def set_official_state(obj, model, attrs=None):
         for field in model._meta.get_fields():
             if field.many_to_many and not field.auto_created:
                 getattr(official_obj, field.name).clear()
+                # TEMPORARY - log stack trace when subjects are cleared and not re-filled, see Jira DISCO-1593
+                if field.name == "subjects" and draft_version.subjects.count() == 0:
+                    logger.error('Adding empty subject list to published course', stack_info=True)
                 getattr(official_obj, field.name).add(*list(getattr(draft_version, field.name).all()))
 
     else:

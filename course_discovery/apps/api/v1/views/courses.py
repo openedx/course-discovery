@@ -279,6 +279,16 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 draft=True,
             ), True)
 
+    def log_request_subjects_and_prices(self, data, course):  # pragma: no cover
+        req_subjects = ', '.join(data.get('subjects', []))
+        current_subjects = ', '.join(list(map(lambda s: s.slug, course.subjects.all())))
+        prices = data.get('prices', {})
+        logger.info(
+            'UPDATE to course uuid - {uuid}, req subjects - [{req_subjects}], request prices - {prices}, '
+            'current subjects - [{current_subjects}]'.format(uuid=data.get('uuid'), req_subjects=req_subjects,
+                                                             prices=prices, current_subjects=current_subjects)
+        )
+
     @writable_request_wrapper
     def update_course(self, data, partial=False):
         """ Updates an existing course from incoming data. """
@@ -294,6 +304,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         course = ensure_draft_world(course)  # always work on drafts
         serializer = self.get_serializer(course, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
+
+        # TEMPORARY - log incoming request (subject and prices) for all course updates, see Jira DISCO-1593
+        self.log_request_subjects_and_prices(data, course)
 
         # First, update course entitlements
         if data.get('type') or data.get('prices'):
