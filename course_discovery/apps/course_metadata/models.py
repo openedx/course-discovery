@@ -321,6 +321,8 @@ class ProgramType(TimeStampedModel):
     )
     slug = AutoSlugField(populate_from='name', editable=True, unique=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
+    coaching_supported = models.BooleanField(default=False)
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
