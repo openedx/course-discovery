@@ -28,9 +28,9 @@ from course_discovery.apps.api.serializers import (
     MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
     OrganizationSerializer, PathwaySerializer, PersonSearchModelSerializer, PersonSearchSerializer, PersonSerializer,
     PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer, ProgramSearchSerializer,
-    ProgramSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer,
-    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
-    get_lms_course_url_for_archived, get_utm_source_for_user
+    ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer,
+    SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
+    VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -971,7 +971,7 @@ class MinimalProgramSerializerTests(TestCase):
             'title': program.title,
             'subtitle': program.subtitle,
             'type': program.type.name,
-            'type_slug': program.type.slug,
+            'type_attrs': ProgramTypeAttrsSerializer(program.type).data,
             'status': program.status,
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
@@ -1325,10 +1325,12 @@ class ProgramTypeSerializerTests(TestCase):
         image_field._context = {'request': request}  # pylint: disable=protected-access
 
         return {
+            'uuid': str(program_type.uuid),
             'name': program_type.name,
             'logo_image': image_field.to_representation(program_type.logo_image),
             'applicable_seat_types': [seat_type.slug for seat_type in program_type.applicable_seat_types.all()],
             'slug': program_type.slug,
+            'coaching_supported': program_type.coaching_supported
         }
 
     def test_data(self):
@@ -1478,7 +1480,7 @@ class NestedProgramSerializerTests(TestCase):
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
             'type': program.type.name,
-            'type_slug': program.type.slug,
+            'type_attrs': ProgramTypeAttrsSerializer(program.type).data,
             'title': program.title,
             'number_of_courses': program.courses.count(),
         }
