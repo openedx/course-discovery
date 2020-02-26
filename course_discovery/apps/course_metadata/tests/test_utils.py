@@ -640,7 +640,7 @@ class CleanHtmlTests(TestCase):
 <p>Ordered item3 with <em>italics</em> , <strong>bold</strong> , <em>underline</em> , ~~strikethrough~~ , <strong><em>~~_all</em>~~_</strong></p>
 </li>
 </ol>
-<p><img alt="" src="file:////Users/myuser/Library/Group%20Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image001.png" /></p>"""),
+<p><img src='file:////Users/myuser/Library/Group%20Containers/UBF8T346G9.Office/TemporaryItems/msohtmlclip/clip_image001.png' width='276' height='208' /></p>"""),
     )
     @ddt.unpack
     def test_clean_html(self, content, expected):
