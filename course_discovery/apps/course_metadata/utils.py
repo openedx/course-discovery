@@ -648,6 +648,7 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.in_lang_span = False
+        self.images_with_size = True
 
     def handle_tag(self, tag, attrs, start):
         super().handle_tag(tag, attrs, start)
