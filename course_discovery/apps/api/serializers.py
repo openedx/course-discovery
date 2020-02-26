@@ -1107,62 +1107,9 @@ class CourseWithProgramsSerializer(CourseSerializer):
         )
 
     def get_advertised_course_run_uuid(self, course):
-        def get_verified_upgrade_deadline_for_course_run(course_run):
-            verified_seat_upgrade_deadline = None
-
-            for seat in course_run.seats.all():
-                if seat.type.slug == Seat.VERIFIED:
-                    verified_seat_upgrade_deadline = seat.upgrade_deadline
-                    break
-
-            return verified_seat_upgrade_deadline
-
-        def is_upgradeable(course_run):
-            upgrade_deadline = get_verified_upgrade_deadline_for_course_run(course_run)
-            today_midnight = datetime.datetime.now(pytz.UTC).replace(hour=0, minute=0, second=0, microsecond=0)
-
-            if upgrade_deadline:
-                return upgrade_deadline >= today_midnight
-
-            return True
-
-        def user_has_time_to_finish_course(course_run):
-            # Users have time to finish course if purchasing verified cert
-            two_weeks_from_now = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=14)
-            two_weeks_from_now = two_weeks_from_now.replace(hour=0, minute=0, second=0, microsecond=0)
-
-            try:
-                return course_run.end >= two_weeks_from_now
-            except TypeError:
-                return True
-
-        def has_started(course_run):
-            return datetime.datetime.now(pytz.UTC) >= course_run.start
-
-        tier_one = []
-        tier_two = []
-        tier_three = []
-
-        marketable_course_runs = [course_run for course_run in course.course_runs.all() if course_run.is_marketable]
-
-        for course_run in marketable_course_runs:
-            if has_started(course_run) and is_upgradeable(course_run) and user_has_time_to_finish_course(course_run):
-                tier_one.append(course_run)
-            elif not has_started(course_run) and is_upgradeable(course_run):
-                tier_two.append(course_run)
-            else:
-                tier_three.append(course_run)
-
-        advertised_course_run_uuid = None
-
-        if tier_one:
-            advertised_course_run_uuid = sorted(tier_one, key=attrgetter('start'), reverse=True)[0].uuid
-        elif tier_two:
-            advertised_course_run_uuid = sorted(tier_two, key=attrgetter('start'))[0].uuid
-        elif tier_three:
-            advertised_course_run_uuid = sorted(tier_three, key=attrgetter('start'), reverse=True)[0].uuid
-
-        return advertised_course_run_uuid
+        if course.advertised_course_run:
+            return course.advertised_course_run.uuid
+        return None
 
     def get_course_run_keys(self, course):
         return [course_run.key for course_run in course.course_runs.all()]
