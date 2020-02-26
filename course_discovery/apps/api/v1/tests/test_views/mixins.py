@@ -3,6 +3,7 @@
 import json
 
 import responses
+from django.conf import settings
 from haystack.query import SearchQuerySet
 from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase as RestAPITestCase
@@ -102,6 +103,28 @@ class TypeaheadSerializationMixin:
 
 
 class OAuth2Mixin:
+    def generate_oauth2_token_header(self, user):
+        """ Generates a Bearer authorization header to simulate OAuth2 authentication. """
+        return 'Bearer {token}'.format(token=user.username)
+
+    def mock_user_info_response(self, user, status=200):
+        """ Mock the user info endpoint response of the OAuth2 provider. """
+
+        data = {
+            'family_name': user.last_name,
+            'preferred_username': user.username,
+            'given_name': user.first_name,
+            'email': user.email,
+        }
+
+        responses.add(
+            responses.GET,
+            settings.EDX_DRF_EXTENSIONS['OAUTH2_USER_INFO_URL'],
+            body=json.dumps(data),
+            content_type='application/json',
+            status=status
+        )
+
     def mock_access_token(self):
         responses.add(
             responses.POST,
