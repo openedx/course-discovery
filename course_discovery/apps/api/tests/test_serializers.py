@@ -1520,7 +1520,6 @@ class MinimalOrganizationSerializerTests(TestCase):
         expected = self.get_expected_data(organization)
         self.assertDictEqual(serializer.data, expected)
 
-
 class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
     TAG = 'test-tag'
     serializer_class = OrganizationSerializer
@@ -1529,15 +1528,6 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
         organization = super().create_organization()
         organization.tags.add(self.TAG)
         return organization
-
-
-    # understand how serializer tests are set up and written
-
-    # def return_organizations_in_order
-        # testing the prefetch queryset 
-        # create my test data
-        # prefetch dataset
-        # make sure it returns in the expected order
 
     @classmethod
     def get_expected_data(cls, organization):
