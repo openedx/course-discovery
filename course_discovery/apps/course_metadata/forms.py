@@ -139,6 +139,7 @@ class CourseAdminForm(forms.ModelForm):
     class Meta:
         model = Course
         fields = '__all__'
+        exclude = ('slug', 'url_slug', )
         widgets = {
             'canonical_course_run': autocomplete.ModelSelect2(
                 url='admin_metadata:course-run-autocomplete',

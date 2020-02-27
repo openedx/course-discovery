@@ -42,6 +42,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseRunFacto
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.utils import logger as utils_logger
+from course_discovery.apps.course_metadata.utils import uslugify
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -520,16 +521,18 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         self.assertIsNone(self.course_run.marketing_url)
 
     def test_slug_defined_on_create(self):
-        """ Verify the slug is created on first save from the title. """
+        """ Verify the slug is created on first save from the title and key. """
         course_run = CourseRunFactory(title='Test Title')
-        self.assertEqual(course_run.slug, 'test-title')
+        slug_key = uslugify(course_run.key)
+        self.assertEqual(course_run.slug, 'test-title-{slug_key}'.format(slug_key=slug_key))
 
     def test_empty_slug_defined_on_save(self):
         """ Verify the slug is defined on save if it wasn't set already. """
         self.course_run.slug = ''
         self.course_run.title = 'Test Title'
         self.course_run.save()
-        self.assertEqual(self.course_run.slug, 'test-title')
+        slug_key = uslugify(self.course_run.key)
+        self.assertEqual(self.course_run.slug, 'test-title-{slug_key}'.format(slug_key=slug_key))
 
     def test_program_types(self):
         """ Verify the property retrieves program types correctly based on programs. """
@@ -866,7 +869,8 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        self.course_run = factories.CourseRunFactory()
+        subject = factories.SubjectFactory()
+        self.course_run = factories.CourseRunFactory(course__subjects=[subject])
         self.partner = self.course_run.course.partner
 
     def mock_ecommerce_publication(self):
@@ -1026,8 +1030,8 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         responses.add(responses.POST, url, json={}, status=201)
         with LogCapture(utils_logger.name) as log_capture:
             self.course_run.save()
-            log_capture.check((utils_logger.name, 'INFO',
-                               'Successfully published [no-seat] LMS mode for [%s].' % self.course_run.key))
+            log_capture.check_present((utils_logger.name, 'INFO',
+                                      'Successfully published [no-seat] LMS mode for [%s].' % self.course_run.key))
 
         # Test that we don't re-publish modes
         self.course_run.status = CourseRunStatus.Unpublished
@@ -1046,8 +1050,8 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         responses.replace(responses.POST, url, body='Shrug', status=500)
         with LogCapture(utils_logger.name) as log_capture:
             self.course_run.save()
-            log_capture.check((utils_logger.name, 'WARNING',
-                               'Failed publishing [no-seat] LMS mode for [%s]: Shrug' % self.course_run.key))
+            log_capture.check_present((utils_logger.name, 'WARNING',
+                                      'Failed publishing [no-seat] LMS mode for [%s]: Shrug' % self.course_run.key))
 
     def test_verified_seat_upgrade_deadline_override(self):
         self.mock_access_token()

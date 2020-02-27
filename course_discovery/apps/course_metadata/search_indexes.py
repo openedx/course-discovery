@@ -40,6 +40,10 @@ TITLE_FIELD_BOOST = 25.0
 ORG_FIELD_BOOST = TITLE_FIELD_BOOST
 
 
+def filter_visible_runs(course_runs):
+    return course_runs.exclude(type__is_marketable=False)
+
+
 class OrganizationsMixin:
     def format_organization(self, organization):
         return '{key}: {name}'.format(key=organization.key, name=organization.name)
@@ -172,7 +176,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         return 'course:{}'.format(obj.key)
 
     def prepare_course_runs(self, obj):
-        return [course_run.key for course_run in obj.course_runs.all()]
+        return [course_run.key for course_run in filter_visible_runs(obj.course_runs)]
 
     def prepare_expected_learning_items(self, obj):
         return [item.value for item in obj.expected_learning_items.all()]
@@ -181,7 +185,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         return [prerequisite.name for prerequisite in obj.prerequisites.all()]
 
     def prepare_org(self, obj):
-        course_run = obj.course_runs.all().first()
+        course_run = filter_visible_runs(obj.course_runs).first()
         if course_run:
             return CourseKey.from_string(course_run.key).org
         return None
@@ -190,7 +194,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         return obj.first_enrollable_paid_seat_price
 
     def prepare_seat_types(self, obj):
-        seat_types = [seat.slug for course_run in obj.course_runs.all() for seat in course_run.seat_types]
+        seat_types = [seat.slug for run in filter_visible_runs(obj.course_runs) for seat in run.seat_types]
         return list(set(seat_types))
 
     def prepare_subject_uuids(self, obj):
@@ -198,7 +202,8 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_languages(self, obj):
         return {
-            self._prepare_language(course_run.language) for course_run in obj.course_runs.all() if course_run.language
+            self._prepare_language(course_run.language) for course_run in filter_visible_runs(obj.course_runs)
+            if course_run.language
         }
 
 
@@ -252,6 +257,9 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
         return qset.prefetch_related(
             'seats__type',
         )
+
+    def index_queryset(self, using=None):
+        return filter_visible_runs(super().index_queryset(using=using))
 
     def prepare_aggregation_key(self, obj):
         # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.

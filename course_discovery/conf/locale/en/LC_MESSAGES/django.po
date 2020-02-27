@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-02 20:35+0000\n"
+"POT-Creation-Date: 2020-02-12 15:46+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -48,31 +48,31 @@ msgstr ""
 msgid "Language in which the course is administered"
 msgstr ""
 
-#: apps/api/serializers.py:852
+#: apps/api/serializers.py:856
 msgid "Course cannot be changed for an existing course run"
 msgstr ""
 
-#: apps/api/serializers.py:857
+#: apps/api/serializers.py:861
 msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr ""
 
-#: apps/api/serializers.py:859
+#: apps/api/serializers.py:863
 msgid "Minimum effort and Maximum effort cannot be the same"
 msgstr ""
 
-#: apps/api/serializers.py:901
+#: apps/api/serializers.py:905
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1208
+#: apps/api/serializers.py:1212
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr ""
 
-#: apps/api/serializers.py:1533
+#: apps/api/serializers.py:1537
 msgid "Languages that course runs in this program are offered in."
 msgstr ""
 
-#: apps/api/serializers.py:1537
+#: apps/api/serializers.py:1541
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr ""
@@ -114,7 +114,7 @@ msgid "Course run is in review. Editing disabled."
 msgstr ""
 
 #: apps/api/v1/views/course_runs.py:344
-msgid "Invalid param"
+msgid "Invalid parameter"
 msgstr ""
 
 #: apps/api/v1/views/courses.py:54

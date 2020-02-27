@@ -7,6 +7,7 @@ django-choices
 django-compressor
 django-contrib-comments
 django-cors-headers
+django-dynamic-filenames
 django-extensions
 django-filter
 django-fsm
@@ -45,7 +46,7 @@ edx-rest-api-client
 elasticsearch
 html2text
 lxml
-jsonfield
+jsonfield2
 markdown
 pillow
 pycountry

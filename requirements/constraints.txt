@@ -2,11 +2,7 @@
 django<1.12
 
 # FIXME: these need Django 2
-django-debug-toolbar<2
 django-guardian<2
-
-# FIXME: 4.x dropped UploadToAutoSlug, we need to port to django-dynamic-filenames
-django-stdimage<4
 
 # FIXME: 1.x is an ancient version that we should upgrade off of
 elasticsearch<2
@@ -22,5 +18,8 @@ transifex-client<0.13
 # FIXME: 3+ require schemes in CORS_ORIGIN_WHITELIST URLs - remember to update configuration when you remove this
 django-cors-headers<3
 
-# FIXME: 3.2 changed the 'id' field in responses from a number to a string - need to validate if that's a safe change
-django-autocomplete-light<3.2
+# jsonfield2 3.1.0 drops support for python 3.5
+jsonfield2<3.1.0
+
+# django-storages version 1.9 drops support for boto storage backend.
+django-storages<1.9

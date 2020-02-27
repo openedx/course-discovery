@@ -1379,7 +1379,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             with LogCapture(course_logger.name) as log_capture:
                 response = self.client.patch(url, course_data, format='json')
                 self.assertEqual(response.status_code, 400)
-                log_capture.check(
+                log_capture.check_present(
                     (
                         course_logger.name,
                         'ERROR',

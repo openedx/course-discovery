@@ -24,7 +24,6 @@ from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
-from stdimage.utils import UploadToAutoSlug
 from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
@@ -309,7 +308,7 @@ class ProgramType(TimeStampedModel):
                               'of the course counted toward the completion of the program.'),
     )
     logo_image = StdImageField(
-        upload_to=UploadToAutoSlug(populate_from='name', path='media/program_types/logo_images'),
+        upload_to=UploadToFieldNamePath(populate_from='name', path='media/program_types/logo_images/'),
         blank=True,
         null=True,
         variations={
@@ -322,6 +321,8 @@ class ProgramType(TimeStampedModel):
     )
     slug = AutoSlugField(populate_from='name', editable=True, unique=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
+    coaching_supported = models.BooleanField(default=False)
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
@@ -1161,7 +1162,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     video_translation_languages = models.ManyToManyField(
         LanguageTag, blank=True, related_name='+')
-    slug = AutoSlugField(max_length=255, populate_from='title', slugify_function=uslugify, db_index=True,
+    slug = AutoSlugField(max_length=255, populate_from=['title', 'key'], slugify_function=uslugify, db_index=True,
                          editable=True)
     hidden = models.BooleanField(default=False)
     mobile_available = models.BooleanField(default=False)

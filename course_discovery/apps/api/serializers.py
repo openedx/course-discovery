@@ -648,6 +648,28 @@ class CatalogSerializer(BaseModelSerializer):
         fields = ('id', 'name', 'query', 'courses_count', 'viewers')
 
 
+class ProgramTypeSerializer(BaseModelSerializer):
+    """ Serializer for the Program Types. """
+    applicable_seat_types = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug')
+    logo_image = StdImageSerializerField()
+
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.prefetch_related('applicable_seat_types')
+
+    class Meta:
+        model = ProgramType
+        fields = ('uuid', 'name', 'logo_image', 'applicable_seat_types', 'slug', 'coaching_supported')
+
+
+class ProgramTypeAttrsSerializer(BaseModelSerializer):
+    """ Serializer for the Program Type Attributes. """
+
+    class Meta:
+        model = ProgramType
+        fields = ('uuid', 'slug', 'coaching_supported')
+
+
 class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     """
     Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
@@ -655,7 +677,7 @@ class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     of courses in the program.
     """
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
-    type_slug = serializers.SerializerMethodField()
+    type_attrs = ProgramTypeAttrsSerializer(source='type')
     number_of_courses = serializers.SerializerMethodField()
 
     @classmethod
@@ -666,14 +688,11 @@ class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
 
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'type', 'type_slug', 'marketing_slug', 'marketing_url', 'number_of_courses',)
-        read_only_fields = ('uuid', 'marketing_url', 'number_of_courses', 'type_slug')
+        fields = ('uuid', 'title', 'type', 'type_attrs', 'marketing_slug', 'marketing_url', 'number_of_courses',)
+        read_only_fields = ('uuid', 'marketing_url', 'number_of_courses', 'type_attrs')
 
     def get_number_of_courses(self, obj):
         return obj.courses.count()
-
-    def get_type_slug(self, obj):
-        return obj.type.slug
 
 
 class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
@@ -792,6 +811,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         slug_field='slug',
         queryset=ProgramType.objects.all()
     )
+    estimated_hours = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -811,13 +831,16 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
-            'course_uuid',
+            'course_uuid', 'estimated_hours',
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
         return []
+
+    def get_estimated_hours(self, obj):
+        return get_course_run_estimated_hours(obj)
 
     def to_internal_value(self, data):
         # Allow incoming writes to just specify a list of slugs for staff
@@ -1406,6 +1429,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    type_attrs = ProgramTypeAttrsSerializer(source='type')
     degree = DegreeSerializer()
     curricula = CurriculumSerializer(many=True)
 
@@ -1429,9 +1453,9 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image', 'hidden',
-            'courses', 'authoring_organizations', 'card_image_url', 'is_program_eligible_for_one_click_purchase',
-            'degree', 'curricula', 'marketing_hook',
+            'uuid', 'title', 'subtitle', 'type', 'type_attrs', 'status', 'marketing_slug', 'marketing_url',
+            'banner_image', 'hidden', 'courses', 'authoring_organizations', 'card_image_url',
+            'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
@@ -1622,20 +1646,6 @@ class PathwaySerializer(BaseModelSerializer):
             'destination_url',
             'pathway_type',
         )
-
-
-class ProgramTypeSerializer(BaseModelSerializer):
-    """ Serializer for the Program Types. """
-    applicable_seat_types = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug')
-    logo_image = StdImageSerializerField()
-
-    @classmethod
-    def prefetch_queryset(cls, queryset):
-        return queryset.prefetch_related('applicable_seat_types')
-
-    class Meta:
-        model = ProgramType
-        fields = ('name', 'logo_image', 'applicable_seat_types', 'slug',)
 
 
 class AffiliateWindowSerializer(BaseModelSerializer):

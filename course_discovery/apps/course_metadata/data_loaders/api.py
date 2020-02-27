@@ -13,6 +13,7 @@ from django.core.files import File
 from django.core.management import CommandError
 from django.db.models import Q
 from opaque_keys.edx.keys import CourseKey
+from simplejson.errors import JSONDecodeError
 from slumber.exceptions import HttpClientError
 
 from course_discovery.apps.core.models import Currency
@@ -86,10 +87,30 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def _make_request(self, page):
         logger.info('Requesting course run page %d...', page)
         params = {'page': page, 'page_size': self.PAGE_SIZE}
-        return self.api_client.get(self.api_url + '/courses/', params=params).json()
+        response = self.api_client.get(self.api_url + '/courses/', params=params)
+        try:
+            return response.json()
+        except JSONDecodeError:
+            logger.warning('JSONDecodeError was encountered on page {page} when hitting the LMS Courses API.'.format(
+                page=page
+            ))
+            logger.info(
+                '\nResponse had status code: [{code}].\n\n'
+                'Response had content: {content}\n\n'
+                'Response had text: {text}\n'.format(
+                    code=response.status_code, content=response.content, text=response.text
+                )
+            )
+            raise
 
     def _process_response(self, response):
-        results = response['results']
+        try:
+            results = response['results']
+        except KeyError:
+            logger.warning('KeyError was encountered when hitting the LMS Courses API.')
+            # At this point, response is just a dictionary
+            logger.info('Response had data: {data}'.format(data=response))
+            raise
         logger.info('Retrieved %d course runs...', len(results))
 
         for body in results:
