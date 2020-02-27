@@ -1520,6 +1520,7 @@ class MinimalOrganizationSerializerTests(TestCase):
         expected = self.get_expected_data(organization)
         self.assertDictEqual(serializer.data, expected)
 
+
 class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
     TAG = 'test-tag'
     serializer_class = OrganizationSerializer
@@ -1544,6 +1545,7 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
         })
 
         return expected
+
 
 @ddt.ddt
 class CourseEntitlementSerializerTests(TestCase):
