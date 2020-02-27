@@ -614,7 +614,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         org2 = OrganizationFactory(key='org2', partner=self.partner)
         org3 = OrganizationFactory(key='org3', partner=self.partner)
 
-        course = CourseFactory(partner=self.partner, title='Mult Org Course', key='edX+6688', type=self.audit_type, authoring_organizations=[org1, org2, org3])
+        course = CourseFactory(partner=self.partner,
+                               title='Mult Org Course',
+                               key='edX+6688',
+                               type=self.audit_type,
+                               authoring_organizations=[org1, org2, org3])
 
         self.mock_access_token()
 

@@ -137,9 +137,8 @@ class AdminTests(SiteMixin, TestCase):
 
         orgs_dropdown_text = html.find(class_='field-authoring_organizations').get_text()
 
-        self.assertTrue(orgs_dropdown_text.index('org2') < orgs_dropdown_text.index('org3'))
-        self.assertTrue(orgs_dropdown_text.index('org3') < orgs_dropdown_text.index('org1'))
-
+        self.assertLess(orgs_dropdown_text.index('org2'), orgs_dropdown_text.index('org3'))
+        self.assertLess(orgs_dropdown_text.index('org3'), orgs_dropdown_text.index('org1'))
 
     def test_page_with_post_new_course_run(self):
         """ Verify that course selection page with posting the data. """
