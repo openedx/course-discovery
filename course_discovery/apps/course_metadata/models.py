@@ -1164,7 +1164,11 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         LanguageTag, blank=True, related_name='+')
     slug = AutoSlugField(max_length=255, populate_from=['title', 'key'], slugify_function=uslugify, db_index=True,
                          editable=True)
-    hidden = models.BooleanField(default=False)
+    hidden = models.BooleanField(
+        default=False,
+        help_text=_('Whether this run should be hidden from API responses.  Do not edit here - this value will be '
+                    'overwritten by the "Course Visibility In Catalog" field in Studio via Refresh Course Metadata.')
+    )
     mobile_available = models.BooleanField(default=False)
     course_overridden = models.BooleanField(
         default=False,
