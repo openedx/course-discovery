@@ -3,7 +3,9 @@
 
 nick: ctlg
 openedx-release: {ref: master}
-owner: jmyatt
+owner:
+  type: team
+  team: edx/course-discovery-admins
 oeps:
     oep-2: true
     oep-7: true
