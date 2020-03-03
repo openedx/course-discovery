@@ -29,7 +29,6 @@ django-waffle
 django-webpack-loader
 djangorestframework
 djangorestframework-csv
-djangorestframework-jwt
 djangorestframework-xml
 drf-dynamic-fields
 drf-extensions

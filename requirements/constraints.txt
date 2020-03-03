@@ -23,3 +23,9 @@ jsonfield2<3.1.0
 
 # django-storages version 1.9 drops support for boto storage backend.
 django-storages<1.9
+
+# Not properly supporting latest version of drf-jwt
+drf-jwt<1.15.0
+
+# Not properly supporting latest version of edx-rest-api-client
+edx-rest-api-client==4.0.1
