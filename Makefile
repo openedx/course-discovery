@@ -42,13 +42,15 @@ production-requirements: ## Install Python and JS requirements for production
 	$(NODE_BIN)/bower install --allow-root --production
 
 upgrade:
-	pip install -q pip-tools
+	pip install -q -r requirements/pip_tools.txt
+	pip-compile --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in
 	pip-compile --upgrade -o requirements/docs.txt requirements/docs.in
 	pip-compile --upgrade -o requirements/local.txt requirements/local.in
 	pip-compile --upgrade -o requirements/production.txt requirements/production.in
 	# Let tox control the Django version for tests
 	grep -e "^django==" requirements/local.txt > requirements/django.txt
 	sed -i.tmp '/^[dD]jango==/d' requirements/local.txt
+	rm -rf requirements/local.txt.tmp
 	chmod a+rw requirements/*.txt
 
 test: clean ## Run tests and generate coverage report
