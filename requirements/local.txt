@@ -4,6 +4,8 @@
 #
 #    pip-compile --output-file=requirements/local.txt requirements/local.in
 #
+algoliasearch-django==1.7.1  # via -r requirements/base.in
+algoliasearch==1.20.0     # via algoliasearch-django
 alabaster==0.7.12         # via sphinx
 apipkg==1.5               # via execnet
 astroid==2.3.3            # via pylint, pylint-celery
