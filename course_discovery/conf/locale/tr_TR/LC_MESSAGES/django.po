@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-02-12 15:46+0000\n"
-"PO-Revision-Date: 2020-02-14 12:12+0000\n"
+"PO-Revision-Date: 2020-02-19 10:55+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
@@ -48,7 +48,7 @@ msgstr "Başlangıç tarihi Bitiş tarihinden sonra olamaz"
 
 #: apps/api/serializers.py:761
 msgid "Term cannot be changed"
-msgstr ""
+msgstr "Süre değiştirilemez"
 
 #: apps/api/serializers.py:773
 msgid "Language in which the course is administered"
@@ -101,7 +101,7 @@ msgstr ""
 #: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:186
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
-msgstr ""
+msgstr "[{name}] için kayıp değer."
 
 #: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:193
 msgid "Incorrect data sent. "
@@ -117,7 +117,7 @@ msgstr ""
 
 #: apps/api/v1/views/course_runs.py:337
 msgid "Course run is in review. Editing disabled."
-msgstr ""
+msgstr "Ders yayını incelemede. Düzenleme devre dışı bırakıldı."
 
 #: apps/api/v1/views/course_runs.py:344
 msgid "Invalid parameter"
@@ -176,7 +176,7 @@ msgstr "Katalog içeriğini almak için sorgula"
 
 #: apps/catalogs/models.py:17
 msgid "Include archived courses"
-msgstr ""
+msgstr "Arşivlenmiş dersleri dahil et"
 
 #: apps/core/admin.py:17
 msgid "Personal info"
@@ -343,7 +343,7 @@ msgstr "Salesforce Parola"
 
 #: apps/core/models.py:185
 msgid "Salesforce Organization Id"
-msgstr ""
+msgstr "Salesforce Kurum Kimliği"
 
 #: apps/core/models.py:191
 msgid "Salesforce Security Token"
@@ -535,7 +535,7 @@ msgstr "Hukuki görüş talep edildi: {title}"
 #: apps/course_metadata/emails.py:223
 #, python-brace-format
 msgid "Review requested: {key} - {title}"
-msgstr ""
+msgstr "İnceleme istendi: {key} - {title}"
 
 #: apps/course_metadata/emails.py:235
 #, python-brace-format
@@ -585,7 +585,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:15
 msgid "CODE"
-msgstr ""
+msgstr "KOD"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:16
 #: apps/course_metadata/management/commands/delete_person_dups.py:33
@@ -1264,7 +1264,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2639
 msgid "Organization name"
-msgstr ""
+msgstr "Kurum adı"
 
 #: apps/course_metadata/models.py:2661
 msgid "These programs are for a different partner than the pathway itself: {}"
@@ -1413,7 +1413,7 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:11
 #, python-format
 msgid "View this About page. %(preview_url)s"
-msgstr ""
+msgstr "Bu Hakkında sayfasını göster. %(preview_url)s"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:15
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:25
@@ -1532,7 +1532,7 @@ msgstr ""
 
 #: apps/course_metadata/utils.py:363
 msgid "Special characters not allowed in Course Number."
-msgstr ""
+msgstr "Özel karakterler Ders Numarası içinde kullanılamaz."
 
 #: apps/course_metadata/validators.py:30
 #, python-brace-format

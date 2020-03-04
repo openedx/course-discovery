@@ -648,6 +648,28 @@ class CatalogSerializer(BaseModelSerializer):
         fields = ('id', 'name', 'query', 'courses_count', 'viewers')
 
 
+class ProgramTypeSerializer(BaseModelSerializer):
+    """ Serializer for the Program Types. """
+    applicable_seat_types = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug')
+    logo_image = StdImageSerializerField()
+
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.prefetch_related('applicable_seat_types')
+
+    class Meta:
+        model = ProgramType
+        fields = ('uuid', 'name', 'logo_image', 'applicable_seat_types', 'slug', 'coaching_supported')
+
+
+class ProgramTypeAttrsSerializer(BaseModelSerializer):
+    """ Serializer for the Program Type Attributes. """
+
+    class Meta:
+        model = ProgramType
+        fields = ('uuid', 'slug', 'coaching_supported')
+
+
 class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     """
     Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
@@ -655,7 +677,7 @@ class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     of courses in the program.
     """
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
-    type_slug = serializers.SerializerMethodField()
+    type_attrs = ProgramTypeAttrsSerializer(source='type')
     number_of_courses = serializers.SerializerMethodField()
 
     @classmethod
@@ -666,14 +688,11 @@ class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
 
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'type', 'type_slug', 'marketing_slug', 'marketing_url', 'number_of_courses',)
-        read_only_fields = ('uuid', 'marketing_url', 'number_of_courses', 'type_slug')
+        fields = ('uuid', 'title', 'type', 'type_attrs', 'marketing_slug', 'marketing_url', 'number_of_courses',)
+        read_only_fields = ('uuid', 'marketing_url', 'number_of_courses', 'type_attrs')
 
     def get_number_of_courses(self, obj):
         return obj.courses.count()
-
-    def get_type_slug(self, obj):
-        return obj.type.slug
 
 
 class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
@@ -1088,62 +1107,9 @@ class CourseWithProgramsSerializer(CourseSerializer):
         )
 
     def get_advertised_course_run_uuid(self, course):
-        def get_verified_upgrade_deadline_for_course_run(course_run):
-            verified_seat_upgrade_deadline = None
-
-            for seat in course_run.seats.all():
-                if seat.type.slug == Seat.VERIFIED:
-                    verified_seat_upgrade_deadline = seat.upgrade_deadline
-                    break
-
-            return verified_seat_upgrade_deadline
-
-        def is_upgradeable(course_run):
-            upgrade_deadline = get_verified_upgrade_deadline_for_course_run(course_run)
-            today_midnight = datetime.datetime.now(pytz.UTC).replace(hour=0, minute=0, second=0, microsecond=0)
-
-            if upgrade_deadline:
-                return upgrade_deadline >= today_midnight
-
-            return True
-
-        def user_has_time_to_finish_course(course_run):
-            # Users have time to finish course if purchasing verified cert
-            two_weeks_from_now = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=14)
-            two_weeks_from_now = two_weeks_from_now.replace(hour=0, minute=0, second=0, microsecond=0)
-
-            try:
-                return course_run.end >= two_weeks_from_now
-            except TypeError:
-                return True
-
-        def has_started(course_run):
-            return datetime.datetime.now(pytz.UTC) >= course_run.start
-
-        tier_one = []
-        tier_two = []
-        tier_three = []
-
-        marketable_course_runs = [course_run for course_run in course.course_runs.all() if course_run.is_marketable]
-
-        for course_run in marketable_course_runs:
-            if has_started(course_run) and is_upgradeable(course_run) and user_has_time_to_finish_course(course_run):
-                tier_one.append(course_run)
-            elif not has_started(course_run) and is_upgradeable(course_run):
-                tier_two.append(course_run)
-            else:
-                tier_three.append(course_run)
-
-        advertised_course_run_uuid = None
-
-        if tier_one:
-            advertised_course_run_uuid = sorted(tier_one, key=attrgetter('start'), reverse=True)[0].uuid
-        elif tier_two:
-            advertised_course_run_uuid = sorted(tier_two, key=attrgetter('start'))[0].uuid
-        elif tier_three:
-            advertised_course_run_uuid = sorted(tier_three, key=attrgetter('start'), reverse=True)[0].uuid
-
-        return advertised_course_run_uuid
+        if course.advertised_course_run:
+            return course.advertised_course_run.uuid
+        return None
 
     def get_course_run_keys(self, course):
         return [course_run.key for course_run in course.course_runs.all()]
@@ -1410,7 +1376,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
-    type_slug = serializers.SerializerMethodField()
+    type_attrs = ProgramTypeAttrsSerializer(source='type')
     degree = DegreeSerializer()
     curricula = CurriculumSerializer(many=True)
 
@@ -1434,14 +1400,11 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'subtitle', 'type', 'type_slug', 'status', 'marketing_slug', 'marketing_url',
+            'uuid', 'title', 'subtitle', 'type', 'type_attrs', 'status', 'marketing_slug', 'marketing_url',
             'banner_image', 'hidden', 'courses', 'authoring_organizations', 'card_image_url',
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
-
-    def get_type_slug(self, obj):
-        return obj.type.slug
 
     def get_courses(self, program):
         course_runs = list(program.course_runs)
@@ -1630,20 +1593,6 @@ class PathwaySerializer(BaseModelSerializer):
             'destination_url',
             'pathway_type',
         )
-
-
-class ProgramTypeSerializer(BaseModelSerializer):
-    """ Serializer for the Program Types. """
-    applicable_seat_types = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug')
-    logo_image = StdImageSerializerField()
-
-    @classmethod
-    def prefetch_queryset(cls, queryset):
-        return queryset.prefetch_related('applicable_seat_types')
-
-    class Meta:
-        model = ProgramType
-        fields = ('name', 'logo_image', 'applicable_seat_types', 'slug',)
 
 
 class AffiliateWindowSerializer(BaseModelSerializer):

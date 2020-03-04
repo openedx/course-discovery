@@ -63,7 +63,13 @@ THIRD_PARTY_APPS = [
     'corsheaders',
     'adminsortable2',
     'xss_utils',
+    'algoliasearch_django',
 ]
+
+ALGOLIA = {
+    'APPLICATION_ID': '',
+    'API_KEY': '',
+}
 
 PROJECT_APPS = [
     'course_discovery.apps.core',

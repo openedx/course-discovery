@@ -9,6 +9,7 @@ from django.test import TestCase
 from factory import DjangoModelFactory
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
+from course_discovery.apps.course_metadata.algolia_proxy_models import AlgoliaProxyCourse, AlgoliaProxyProgram
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, CourseRun, Curriculum,
@@ -45,7 +46,8 @@ class TestCacheInvalidation:
             if model in [BackpopulateCourseTypeConfig, DataLoaderConfig, DeletePersonDupsConfig,
                          DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, SubjectTranslation,
                          TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
-                         BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig]:
+                         BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
+                         AlgoliaProxyProgram, ]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue
@@ -571,7 +573,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
         )
 
     def test_draft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(80, threshold=0):
+        with self.assertNumQueries(77, threshold=0):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=True,
@@ -590,7 +592,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                 )
 
     def test_nondraft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(80, threshold=0):
+        with self.assertNumQueries(77, threshold=0):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
@@ -598,7 +600,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
             )
 
     def test_collision_does_not_include_drafts(self):
-        with self.assertNumQueries(80, threshold=0):
+        with self.assertNumQueries(77, threshold=0):
             course_run = factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,

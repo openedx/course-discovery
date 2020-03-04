@@ -4,6 +4,8 @@
 #
 #    pip-compile --output-file=requirements/production.txt requirements/production.in
 #
+algoliasearch-django==1.7.1  # via -r requirements/base.in
+algoliasearch==1.20.0     # via algoliasearch-django
 backoff==1.10.0
 beautifulsoup4==4.8.2
 boto==2.49.0              # via django-ses
