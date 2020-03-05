@@ -1,3 +1,6 @@
+import datetime
+
+import pytz
 from django.utils.translation import activate
 
 from course_discovery.apps.course_metadata.models import Course, Program
@@ -64,6 +67,19 @@ class AlgoliaProxyCourse(Course):
 
     def should_index(self):
         return len(self.owners()) > 0 and self.active_url_slug and self.partner.name == 'edX'
+
+    def availability_rank(self):
+        today_midnight = datetime.datetime.now(pytz.UTC).replace(hour=0, minute=0, second=0, microsecond=0)
+        if self.advertised_course_run:
+            if self.advertised_course_run.is_current_and_still_upgradeable():
+                return 1
+            paid_seat_enrollment_end = self.advertised_course_run.get_paid_seat_enrollment_end()
+            if paid_seat_enrollment_end and paid_seat_enrollment_end > today_midnight:
+                return 2
+            if datetime.datetime.now(pytz.UTC) >= self.advertised_course_run.start:
+                return 3
+            return self.advertised_course_run.start.timestamp()
+        return None  # Algolia will deprioritize entries where a ranked field is empty
 
 
 class AlgoliaProxyProgram(Program):
