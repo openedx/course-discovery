@@ -609,6 +609,39 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=key), status=200)
         return self.create_course(course_data, update)
 
+    def test_multiple_authoring_orgs_get_pulled_in_order(self):
+        org1 = OrganizationFactory(key='org1', partner=self.partner)
+        org2 = OrganizationFactory(key='org2', partner=self.partner)
+        org3 = OrganizationFactory(key='org3', partner=self.partner)
+
+        course = CourseFactory(partner=self.partner,
+                               title='Mult Org Course',
+                               key='edX+6688',
+                               type=self.audit_type,
+                               authoring_organizations=[org1, org2, org3])
+
+        self.mock_access_token()
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.key})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.data['owners'][0]['key'], 'org1')
+        self.assertEqual(response.data['owners'][1]['key'], 'org2')
+        self.assertEqual(response.data['owners'][2]['key'], 'org3')
+
+        course.authoring_organizations.clear()
+        for org in [org2, org3, org1]:
+            course.authoring_organizations.add(org)
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.key})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.data['owners'][0]['key'], 'org2')
+        self.assertEqual(response.data['owners'][1]['key'], 'org3')
+        self.assertEqual(response.data['owners'][2]['key'], 'org1')
+
     def test_create_makes_draft(self):
         """ When creating a course, it should start as a draft. """
         self.mock_access_token()
@@ -1350,7 +1383,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             with LogCapture(course_logger.name) as log_capture:
                 response = self.client.patch(url, course_data, format='json')
                 self.assertEqual(response.status_code, 400)
-                log_capture.check(
+                log_capture.check_present(
                     (
                         course_logger.name,
                         'ERROR',
@@ -1380,7 +1413,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        with self.assertNumQueries(36, threshold=0):
+        with self.assertNumQueries(35, threshold=0):
             response = self.client.options(url)
         self.assertEqual(response.status_code, 200)
 

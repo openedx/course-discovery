@@ -119,6 +119,27 @@ class AdminTests(SiteMixin, TestCase):
         for run in self.course_runs:
             self.assertContains(response, run.key)
 
+    def test_updating_order_of_authoring_orgs(self):
+        org1 = factories.OrganizationFactory(key='org1')
+        org2 = factories.OrganizationFactory(key='org2')
+        org3 = factories.OrganizationFactory(key='org3')
+
+        course = factories.CourseFactory(authoring_organizations=[org1, org2, org3])
+
+        new_ordering = (',').join(map(lambda org: str(org.id), [org2, org3, org1]))
+        params = {'authoring_organizations': new_ordering}
+
+        post_url = reverse('admin:course_metadata_course_change', args=(course.id,))
+        response = self.client.post(post_url, params)
+        self.assertEqual(response.status_code, 200)
+
+        html = BeautifulSoup(response.content)
+
+        orgs_dropdown_text = html.find(class_='field-authoring_organizations').get_text()
+
+        self.assertLess(orgs_dropdown_text.index('org2'), orgs_dropdown_text.index('org3'))
+        self.assertLess(orgs_dropdown_text.index('org3'), orgs_dropdown_text.index('org1'))
+
     def test_page_with_post_new_course_run(self):
         """ Verify that course selection page with posting the data. """
 

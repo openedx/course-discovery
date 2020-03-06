@@ -869,7 +869,8 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
 
     def setUp(self):
         super().setUp()
-        self.course_run = factories.CourseRunFactory()
+        subject = factories.SubjectFactory()
+        self.course_run = factories.CourseRunFactory(course__subjects=[subject])
         self.partner = self.course_run.course.partner
 
     def mock_ecommerce_publication(self):
@@ -1029,8 +1030,8 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         responses.add(responses.POST, url, json={}, status=201)
         with LogCapture(utils_logger.name) as log_capture:
             self.course_run.save()
-            log_capture.check((utils_logger.name, 'INFO',
-                               'Successfully published [no-seat] LMS mode for [%s].' % self.course_run.key))
+            log_capture.check_present((utils_logger.name, 'INFO',
+                                      'Successfully published [no-seat] LMS mode for [%s].' % self.course_run.key))
 
         # Test that we don't re-publish modes
         self.course_run.status = CourseRunStatus.Unpublished
@@ -1049,8 +1050,8 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         responses.replace(responses.POST, url, body='Shrug', status=500)
         with LogCapture(utils_logger.name) as log_capture:
             self.course_run.save()
-            log_capture.check((utils_logger.name, 'WARNING',
-                               'Failed publishing [no-seat] LMS mode for [%s]: Shrug' % self.course_run.key))
+            log_capture.check_present((utils_logger.name, 'WARNING',
+                                      'Failed publishing [no-seat] LMS mode for [%s]: Shrug' % self.course_run.key))
 
     def test_verified_seat_upgrade_deadline_override(self):
         self.mock_access_token()
