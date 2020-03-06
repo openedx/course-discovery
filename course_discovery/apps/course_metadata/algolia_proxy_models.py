@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import activate
 
 from course_discovery.apps.course_metadata.models import Course, Program
@@ -63,7 +64,8 @@ class AlgoliaProxyCourse(Course):
         return get_owners(self)
 
     def should_index(self):
-        return len(self.owners()) > 0 and self.active_url_slug and self.partner.name == 'edX'
+        matches_site = self.partner.site.id == settings.SITE_ID
+        return len(self.owners()) > 0 and self.active_url_slug and matches_site
 
 
 class AlgoliaProxyProgram(Program):
@@ -100,4 +102,5 @@ class AlgoliaProxyProgram(Program):
 
     def should_index(self):
         # marketing_url and program_type should never be null, but include as a sanity check
-        return len(self.owners()) > 0 and self.marketing_url and self.program_type() and self.partner.name == 'edX'
+        matches_site = self.partner.site.id == settings.SITE_ID
+        return len(self.owners()) > 0 and self.marketing_url and self.program_type() and matches_site
