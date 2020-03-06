@@ -4,9 +4,22 @@ from course_discovery.apps.course_metadata.models import Course, Program
 
 
 def get_active_language(course):
-    if course.advertised_course_run:
+    if course.advertised_course_run and course.advertised_course_run.language:
         return course.advertised_course_run.language.name
     return None
+
+
+def logo_image(owner):
+    image = getattr(owner, 'logo_image', None)
+    if image:
+        return image.url
+    return None
+
+
+def get_owners(entry):
+    all_owners = [{'key': o.key, 'logoImageUrl': logo_image(o), 'name': o.name}
+                  for o in entry.authoring_organizations.all()]
+    return list(filter(lambda owner: owner['logoImageUrl'] is not None, all_owners))
 
 
 class AlgoliaProxyCourse(Course):
@@ -28,8 +41,8 @@ class AlgoliaProxyCourse(Course):
     def availability(self):
         return getattr(self.advertised_course_run, 'availability', None)
 
-    def partner_name(self):
-        return self.partner.name
+    def partner_names(self):
+        return [org['name'] for org in get_owners(self)]
 
     def level_type_name(self):
         return getattr(self.level_type, 'name', None)
@@ -47,14 +60,10 @@ class AlgoliaProxyCourse(Course):
         return None
 
     def owners(self):
-        def logo_image(owner):
-            image = getattr(owner, 'logo_image', None)
-            if image:
-                return image.url
-            return None
+        return get_owners(self)
 
-        return [{'key': o.key, 'logoImageUrl': getattr(logo_image(o), 'url', None)} for o in
-                self.authoring_organizations.all()]
+    def should_index(self):
+        return len(self.owners()) > 0 and self.active_url_slug and self.partner.name == 'edX'
 
 
 class AlgoliaProxyProgram(Program):
@@ -66,8 +75,8 @@ class AlgoliaProxyProgram(Program):
         activate('en')
         return [subject.name for subject in self.subjects]
 
-    def partner_name(self):
-        return self.partner.name
+    def partner_names(self):
+        return [org['name'] for org in get_owners(self)]
 
     def levels(self):
         return list(dict.fromkeys([getattr(course.level_type, 'name', None) for course in self.courses.all()]))
@@ -79,17 +88,16 @@ class AlgoliaProxyProgram(Program):
         return [item.value for item in self.expected_learning_items.all()]
 
     def owners(self):
-        def logo_image(owner):
-            image = getattr(owner, 'logo_image', None)
-            if image:
-                return image.url
-            return None
-
-        return [{'key': o.key, 'logoImageUrl': getattr(logo_image(o), 'url', None)} for o in
-                self.authoring_organizations.all()]
+        return get_owners(self)
 
     def course_titles(self):
         return [course.title for course in self.courses.all()]
 
     def program_type(self):
-        return self.type.slug
+        if self.type:
+            return self.type.slug
+        return None
+
+    def should_index(self):
+        # marketing_url and program_type should never be null, but include as a sanity check
+        return len(self.owners()) > 0 and self.marketing_url and self.program_type() and self.partner.name == 'edX'
