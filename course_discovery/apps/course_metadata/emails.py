@@ -82,7 +82,7 @@ def send_email(template_name, subject, to_users, recipient_name,
     org = course.authoring_organizations.first()
     project_coordinator = project_coordinator or get_project_coordinator(org)
     if not project_coordinator:
-        log_missing_project_coordinator(course_run.course.key, org, template_name)
+        log_missing_project_coordinator(course.key, org, template_name)
         return
 
     publisher_url = partner.publisher_url
