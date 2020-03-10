@@ -1006,37 +1006,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     @cached_property
     def advertised_course_run(self):
-        def get_verified_upgrade_deadline_for_course_run(course_run):
-            verified_seat_upgrade_deadline = None
-
-            for seat in course_run.seats.all():
-                if seat.type.slug == Seat.VERIFIED:
-                    verified_seat_upgrade_deadline = seat.upgrade_deadline
-                    break
-
-            return verified_seat_upgrade_deadline
-
-        def is_upgradeable(course_run):
-            upgrade_deadline = get_verified_upgrade_deadline_for_course_run(course_run)
-            today_midnight = datetime.datetime.now(pytz.UTC).replace(hour=0, minute=0, second=0, microsecond=0)
-
-            if upgrade_deadline:
-                return upgrade_deadline >= today_midnight
-
-            return True
-
-        def user_has_time_to_finish_course(course_run):
-            # Users have time to finish course if purchasing verified cert
-            two_weeks_from_now = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=14)
-            two_weeks_from_now = two_weeks_from_now.replace(hour=0, minute=0, second=0, microsecond=0)
-
-            try:
-                return course_run.end >= two_weeks_from_now
-            except TypeError:
-                return True
-
-        def has_started(course_run):
-            return datetime.datetime.now(pytz.UTC) >= course_run.start
+        now = datetime.datetime.now(pytz.UTC)
 
         tier_one = []
         tier_two = []
@@ -1045,9 +1015,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         marketable_course_runs = [course_run for course_run in self.course_runs.all() if course_run.is_marketable]
 
         for course_run in marketable_course_runs:
-            if has_started(course_run) and is_upgradeable(course_run) and user_has_time_to_finish_course(course_run):
+            course_run_started = (not course_run.start) or (course_run.start and course_run.start < now)
+            if course_run.is_current_and_still_upgradeable():
                 tier_one.append(course_run)
-            elif not has_started(course_run) and is_upgradeable(course_run):
+            elif not course_run_started and course_run.is_upgradeable():
                 tier_two.append(course_run)
             else:
                 tier_three.append(course_run)
@@ -1367,9 +1338,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         after_start = (not self.start) or (self.start and self.start < now)
         ends_in_more_than_two_weeks = (not self.end) or (self.end.date() and now.date() <= self.end.date() - two_weeks)
         if after_start and ends_in_more_than_two_weeks:
-            paid_seat_enrollment_end = self.get_paid_seat_enrollment_end()
-            if paid_seat_enrollment_end and now < paid_seat_enrollment_end:
-                return True
+            return self.is_upgradeable()
         return False
 
     def get_paid_seat_enrollment_end(self):
@@ -1395,6 +1364,11 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             deadline = seat.upgrade_deadline
 
         return deadline
+
+    def is_upgradeable(self):
+        upgrade_deadline = self.get_paid_seat_enrollment_end()
+        upgradeable = bool(upgrade_deadline) and (datetime.datetime.now(pytz.UTC) < upgrade_deadline)
+        return upgradeable
 
     def enrollable_seats(self, types=None):
         """
