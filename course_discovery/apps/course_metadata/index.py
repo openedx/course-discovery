@@ -40,8 +40,8 @@ class ProgramIndex(AlgoliaIndex):
     fields = search_fields + facet_fields + result_fields
     settings = {
         'searchableAttributes': [
-            'unordered(title)',
-            'subtitle',
+            'unordered(title)',  # AG best practice: position of the search term within the title doesn't matter
+            'unordered(subtitle)',
             'overview',
             'expected_learning_items_values',
             'partner'
