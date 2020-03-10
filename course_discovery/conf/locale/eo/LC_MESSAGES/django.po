@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-12 15:46+0000\n"
+"POT-Creation-Date: 2020-03-08 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -708,7 +708,7 @@ msgstr "Shört çödé för ä pärtnér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕ
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
@@ -1203,6 +1203,21 @@ msgid ""
 msgstr ""
 "Tötäl nümßér öf léärnérs whö hävé énrölléd ïn thïs çöürsé rün ïn thé läst 6 "
 "mönths Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Whether this run should be hidden from API responses.  Do not edit here - "
+"this value will be overwritten by the \"Course Visibility In Catalog\" field"
+" in Studio via Refresh Course Metadata."
+msgstr ""
+"Whéthér thïs rün shöüld ßé hïddén fröm ÀPÌ réspönsés.  Dö nöt édït héré - "
+"thïs välüé wïll ßé övérwrïttén ßý thé \"Çöürsé Vïsïßïlïtý Ìn Çätälög\" fïéld"
+" ïn Stüdïö vïä Réfrésh Çöürsé Métädätä. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α∂ιριѕι¢ιηg єłιт, ѕє∂ ∂σ єιυѕмσ∂ тємρσя ιη¢ι∂ι∂υηт υт łαвσяє єт "
+"∂σłσяє мαgηα αłιqυα. υт єηιм α∂ мιηιм νєηιαм, qυιѕ ησѕтяυ∂ єχєя¢ιтαтιση "
+"υłłαм¢σ łαвσяιѕ ηιѕι υт αłιqυιρ єχ єα ¢σммσ∂σ ¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє "
+"∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє ¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα"
+" ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт ηση ρяσι∂#"
 
 #: apps/course_metadata/models.py
 msgid "Indicates whether the course relation has been manually overridden."

@@ -329,7 +329,8 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             course=self.course,
             start=self.YESTERDAY,
             end=self.TWO_WEEKS_FROM_TODAY,
-            status=CourseRunStatus.Published
+            status=CourseRunStatus.Published,
+            enrollment_end=self.TWO_WEEKS_FROM_TODAY,
         )
 
         self.create_upgradeable_seat_for_course_run(expected_advertised_course_run)
@@ -338,7 +339,8 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             course=self.course,
             start=self.YESTERDAY,
             end=self.TWO_WEEKS_FROM_TODAY,
-            status=CourseRunStatus.Published
+            status=CourseRunStatus.Published,
+            enrollment_end=self.TWO_WEEKS_FROM_TODAY,
         )
 
         self.create_not_upgradeable_seat_for_course_run(not_upgradeable_course_run)
@@ -347,7 +349,8 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             course=self.course,
             start=self.YESTERDAY,
             end=self.TWO_WEEKS_FROM_TODAY,
-            status=CourseRunStatus.Unpublished
+            status=CourseRunStatus.Unpublished,
+            enrollment_end=self.TWO_WEEKS_FROM_TODAY,
         )
 
         self.create_upgradeable_seat_for_course_run(not_marketable_course_run)
@@ -357,7 +360,8 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
                 course=self.course,
                 start=start_days[i],
                 end=end_days[i],
-                status=CourseRunStatus.Published
+                status=CourseRunStatus.Published,
+                enrollment_end=end_days[i],
             )
             self.create_upgradeable_seat_for_course_run(cr)
 
@@ -380,7 +384,9 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         expected_advertised_course_run = CourseRunFactory(
             course=self.course,
             start=self.TOMORROW,
-            status=CourseRunStatus.Published
+            status=CourseRunStatus.Published,
+            enrollment_end=None,
+            end=None
         )
 
         self.create_upgradeable_seat_for_course_run(expected_advertised_course_run)
@@ -390,6 +396,7 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             start=self.TOMORROW,
             end=datetime.datetime.now(UTC) + datetime.timedelta(days=30),
             status=CourseRunStatus.Published,
+            enrollment_end=datetime.datetime.now(UTC) + datetime.timedelta(days=30),
         )
 
         self.create_not_upgradeable_seat_for_course_run(not_upgradeable_course_run)
@@ -398,7 +405,8 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             course=self.course,
             start=self.YESTERDAY,
             end=self.TWO_WEEKS_FROM_TODAY,
-            status=CourseRunStatus.Unpublished
+            status=CourseRunStatus.Unpublished,
+            enrollment_end=self.TWO_WEEKS_FROM_TODAY,
         )
 
         self.create_upgradeable_seat_for_course_run(not_marketable_course_run)
@@ -409,6 +417,7 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
                 start=start_days[i],
                 end=end_days[i],
                 status=CourseRunStatus.Published,
+                enrollment_end=end_days[i]
             )
             self.create_upgradeable_seat_for_course_run(cr)
 

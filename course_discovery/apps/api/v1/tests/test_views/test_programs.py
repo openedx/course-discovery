@@ -123,7 +123,7 @@ class TestProgramViewSet(SerializationMixin):
         # 36 queries to get program without a curriculum and no courses
         # +2 for curriculum details (related courses, related programs)
         # +8 for course details on 1 or more courses across all sibling curricula
-        with django_assert_num_queries(47):
+        with django_assert_num_queries(46):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 

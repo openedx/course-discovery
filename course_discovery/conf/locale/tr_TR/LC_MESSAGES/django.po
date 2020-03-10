@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-02-12 15:46+0000\n"
-"PO-Revision-Date: 2020-02-19 10:55+0000\n"
+"PO-Revision-Date: 2020-03-03 11:46+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
@@ -64,7 +64,7 @@ msgstr "Minimum çaba maksimum çabadan büyük olamaz"
 
 #: apps/api/serializers.py:863
 msgid "Minimum effort and Maximum effort cannot be the same"
-msgstr ""
+msgstr "Minimum çaba ve Maksimum çaba aynı olamaz"
 
 #: apps/api/serializers.py:905
 msgid "Dictionary mapping course run IDs to boolean values"
@@ -398,7 +398,7 @@ msgstr "Yayından çıkarıldı"
 
 #: apps/course_metadata/choices.py:7
 msgid "Awaiting Review from Legal"
-msgstr ""
+msgstr "Hukuk Birimi'nden İnceleme Bekleniyor"
 
 #: apps/course_metadata/choices.py:8
 msgid "Awaiting Internal Review"
