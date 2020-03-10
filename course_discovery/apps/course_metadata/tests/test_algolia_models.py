@@ -82,6 +82,24 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         return course
 
+    def create_upgradeable_course_starting_soon(self):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        upgradeable_course_run = CourseRunFactory(
+            course=course,
+            start=self.TOMORROW,
+            end=self.IN_FIFTEEN_DAYS,
+            enrollment_end=self.IN_FIFTEEN_DAYS,
+            status=CourseRunStatus.Published
+        )
+
+        SeatFactory(
+            course_run=upgradeable_course_run,
+            type=SeatTypeFactory.verified(),
+            upgrade_deadline=self.IN_FIFTEEN_DAYS,
+            price=10
+        )
+        return course
+
     def create_current_non_upgradeable_course(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
@@ -118,22 +136,37 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         return course
 
-    def test_should_index(self):
+    def create_course_with_basic_active_course_run(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+
+        course_run = CourseRunFactory(
+            course=course,
+            start=self.YESTERDAY,
+            end=self.YESTERDAY,
+            status=CourseRunStatus.Published
+        )
+        SeatFactory(
+            course_run=course_run,
+            type=SeatTypeFactory.audit(),
+        )
+        return course
+
+    def test_should_index(self):
+        course = self.create_course_with_basic_active_course_run()
         course.authoring_organizations.add(OrganizationFactory())
         assert course.should_index()
 
     def test_do_not_index_if_no_owners(self):
-        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        course = self.create_course_with_basic_active_course_run()
         assert not course.should_index()
 
     def test_do_not_index_if_owner_missing_logo(self):
-        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        course = self.create_course_with_basic_active_course_run()
         course.authoring_organizations.add(OrganizationFactory(logo_image=None))
         assert not course.should_index()
 
     def test_do_not_index_if_no_url_slug(self):
-        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        course = self.create_course_with_basic_active_course_run()
         course.authoring_organizations.add(OrganizationFactory())
         for url_slug in course.url_slug_history.all():
             url_slug.is_active = False
@@ -141,14 +174,23 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert not course.should_index()
 
     def test_do_not_index_if_partner_not_edx(self):
-        course = AlgoliaProxyCourseFactory(partner=PartnerFactory())
+        course = self.create_course_with_basic_active_course_run()
+        course.partner = PartnerFactory()
+        course.authoring_organizations.add(OrganizationFactory())
+        assert not course.should_index()
+
+    def test_do_not_index_if_no_active_course_run(self):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
         course.authoring_organizations.add(OrganizationFactory())
         assert not course.should_index()
 
     def test_current_and_upgradeable_beats_just_upgradeable(self):
         course_1 = self.create_current_upgradeable_course()
         course_2 = self.create_upgradeable_course_ending_soon()
+        course_3 = self.create_upgradeable_course_starting_soon()
         assert course_1.availability_rank() < course_2.availability_rank()
+        assert course_1.availability_rank() < course_3.availability_rank()
+        assert course_2.availability_rank() == course_3.availability_rank()
 
     def test_upgradeable_beats_just_current(self):
         course_1 = self.create_upgradeable_course_ending_soon()
@@ -166,19 +208,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert course_1.availability_rank() < course_2.availability_rank()
 
     def test_active_course_run_beats_no_active_course_run(self):
-        course_1 = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
-
-        course_run = CourseRunFactory(
-            course=course_1,
-            start=self.YESTERDAY,
-            end=self.YESTERDAY,
-            status=CourseRunStatus.Published
-        )
-        SeatFactory(
-            course_run=course_run,
-            type=SeatTypeFactory.audit(),
-        )
-
+        course_1 = self.create_course_with_basic_active_course_run()
         course_2 = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
         CourseRunFactory(
             course=course_2,
