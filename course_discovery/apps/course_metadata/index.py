@@ -36,7 +36,8 @@ class ProgramIndex(AlgoliaIndex):
                      ('expected_learning_items_values', 'expected_learning_items'))
     facet_fields = (('status', 'availability'), ('subject_names', 'subjects'), ('levels', 'level'),
                     ('active_languages', 'language'), 'card_image_url')
-    result_fields = ('course_titles', 'marketing_url', 'program_type', 'owners', ('uuid', 'objectID'))
+    result_fields = ('course_titles', 'marketing_url', 'program_type', 'owners', ('uuid', 'objectID'),
+                     'recent_enrollment_count')
     fields = search_fields + facet_fields + result_fields
     settings = {
         'searchableAttributes': [
@@ -46,6 +47,8 @@ class ProgramIndex(AlgoliaIndex):
             'expected_learning_items_values',
             'partner'
         ],
-        'attributesForFaceting': ['partner', 'subject', 'level', 'language', 'availability']}
+        'attributesForFaceting': ['partner', 'subject', 'level', 'language', 'availability'],
+        'customRanking': ['desc(recent_enrollment_count)']
+    }
     index_name = 'program'
     should_index = 'should_index'
