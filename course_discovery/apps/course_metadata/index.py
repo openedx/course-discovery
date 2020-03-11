@@ -12,7 +12,7 @@ class CourseIndex(AlgoliaIndex):
     facet_fields = ('availability', ('subject_names', 'subjects'), ('level_type_name', 'level'),
                     ('active_run_language', 'language'),)
     result_fields = ('active_run_key', 'active_run_start', 'active_run_type', 'active_url_slug', 'image_src', 'owners',
-                     'program_types', ('uuid', 'objectID'), 'availability_rank')
+                     'program_types', ('uuid', 'objectID'), 'availability_rank', 'recent_enrollment_count')
     fields = search_fields + facet_fields + result_fields
     settings = {
         # searchableAttributes ordered by highest value
@@ -24,7 +24,7 @@ class CourseIndex(AlgoliaIndex):
             'partner'
         ],
         'attributesForFaceting': ['partner', 'subject', 'level', 'language', 'availability'],
-        'customRanking': ['asc(availability_rank)']
+        'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'course'
     should_index = 'should_index'
