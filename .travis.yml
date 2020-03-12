@@ -38,10 +38,7 @@ matrix:
 
       install:
         - docker exec -t discovery bash -c 'sed -i "s|http://archive|http://us.archive|g" /etc/apt/sources.list' # US mirrors for speed
-        - docker exec -t discovery bash -c 'apt update && apt install -y --no-install-recommends firefox gettext wget xvfb'
-        - docker exec -t discovery bash -c 'apt install -y --no-install-recommends libstartup-notification0' # no longer installed by firefox, but needed for deb file below
-        # Remove firefox but leave its dependencies, and then download and install a working version of firefox (newer versions break some tests that we should eventually fix correctly).
-        - docker exec -t discovery bash -c 'sudo dpkg -r --force-all firefox && TEMP_DEB="$(mktemp)" && wget -O "$TEMP_DEB" https://s3.amazonaws.com/vagrant.testeng.edx.org/firefox_61.0.1%2Bbuild1-0ubuntu0.16.04.1_amd64.deb && dpkg -i "$TEMP_DEB"'
+        - docker exec -t discovery bash -c 'apt update && apt install -y --no-install-recommends firefox gettext xvfb'
         - docker exec -t discovery bash -c 'sed -i "s/course_discovery.settings.devstack/course_discovery.settings.test/" /edx/app/discovery/discovery_env'
         - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make requirements'
 
