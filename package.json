@@ -25,6 +25,6 @@
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-jscs": "4.0.0",
-    "geckodriver": "1.6.0"
+    "geckodriver": "1.19.1"
   }
 }
