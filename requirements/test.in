@@ -17,3 +17,4 @@ pytest-xdist
 responses
 selenium
 testfixtures
+tox
