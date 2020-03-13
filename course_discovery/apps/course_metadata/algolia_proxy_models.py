@@ -26,41 +26,31 @@ def get_owners(entry):
 
 
 class AlgoliaProxyCourse(Course):
+
     class Meta:
         proxy = True
 
-    def active_run_language(self):
-        return get_active_language(self)
+    def active_languages(self):
+        return [get_active_language(self)]
 
-    def active_run_key(self):
-        return getattr(self.advertised_course_run, 'key', None)
 
-    def active_run_start(self):
-        return getattr(self.advertised_course_run, 'start', None)
-
-    def active_run_type(self):
-        return getattr(self.advertised_course_run, 'type', None)
 
     def availability(self):
-        return getattr(self.advertised_course_run, 'availability', None)
+        return
 
     def partner_names(self):
         return [org['name'] for org in get_owners(self)]
 
-    def level_type_name(self):
-        return getattr(self.level_type, 'name', None)
 
     def subject_names(self):
         activate('en')
-        return [subject.name for subject in self.subjects.all()]
+
 
     def program_types(self):
         return [program.type.name for program in self.programs.all()]
 
-    def image_src(self):
-        if self.image:
-            return getattr(self.image, 'url', None)
-        return None
+    def card_image_url(self):
+        pass
 
     def owners(self):
         return get_owners(self)
@@ -71,7 +61,95 @@ class AlgoliaProxyCourse(Course):
                 self.partner.name == 'edX' and
                 bool(self.advertised_course_run))
 
+
+
+class AlgoliaProxyProgram(Program):
+
+    class Meta:
+        proxy = True
+
+    def availability_level(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return self.status.capitalize()
+        status = getattr(self.advertised_course_run, 'availability', None)
+        if status:
+            return status.capitalize()
+        return None
+
+    def primary_description(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return self.overview
+        return self.short_description
+
+    def secondary_description(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return ','.join([item.value for item in self.expected_learning_items.all()])
+        return self.full_description
+
+    def tertiary_description(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return self.subtitle
+        return self.outcome
+
+    def card_image_url(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return self.card_image_url
+        if self.image:
+            return getattr(self.image, 'url', None)
+        return None
+
+    def subject_names(self):
+        activate('en')
+        if isinstance(self, AlgoliaProxyProgram):
+            return [subject.name for subject in self.subjects]
+        return [subject.name for subject in self.subjects.all()]
+
+    def partner_names(self):
+        return [org['name'] for org in get_owners(self)]
+
+    def levels(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return list(dict.fromkeys([getattr(course.level_type, 'name', None) for course in self.courses.all()]))
+        return [getattr(self.level_type, 'name', None)]
+
+    def active_languages(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return [get_active_language(course) for course in self.courses.all()]
+        return [get_active_language(self)]
+
+    def owners(self):
+        return get_owners(self)
+
+    def course_titles(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return [course.title for course in self.courses.all()]
+        return None
+
+    def program_types(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            if self.type:
+                return [self.type.slug]
+            return None
+        return [program.type.name for program in self.programs.all()]
+
+    def active_run_key(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return None
+        return getattr(self.advertised_course_run, 'key', None)
+
+    def active_run_start(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return None
+        return getattr(self.advertised_course_run, 'start', None)
+
+    def active_run_type(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return None
+        return getattr(self.advertised_course_run, 'type', None)
+
     def availability_rank(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return None
         today_midnight = datetime.datetime.now(pytz.UTC).replace(hour=0, minute=0, second=0, microsecond=0)
         if self.advertised_course_run:
             if self.advertised_course_run.is_current_and_still_upgradeable():
@@ -84,39 +162,24 @@ class AlgoliaProxyCourse(Course):
             return self.advertised_course_run.start.timestamp()
         return None  # Algolia will deprioritize entries where a ranked field is empty
 
+    def objectID(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return 'program-{u}'.format(u=self.uuid)
+        return 'course-{u}'.format(u=self.uuid)
 
-class AlgoliaProxyProgram(Program):
-
-    class Meta:
-        proxy = True
-
-    def subject_names(self):
-        activate('en')
-        return [subject.name for subject in self.subjects]
-
-    def partner_names(self):
-        return [org['name'] for org in get_owners(self)]
-
-    def levels(self):
-        return list(dict.fromkeys([getattr(course.level_type, 'name', None) for course in self.courses.all()]))
-
-    def active_languages(self):
-        return [get_active_language(course) for course in self.courses.all()]
-
-    def expected_learning_items_values(self):
-        return [item.value for item in self.expected_learning_items.all()]
-
-    def owners(self):
-        return get_owners(self)
-
-    def course_titles(self):
-        return [course.title for course in self.courses.all()]
-
-    def program_type(self):
-        if self.type:
-            return self.type.slug
-        return None
+    def product_type(self):
+        if isinstance(self, AlgoliaProxyProgram):
+            return 'Program'
+        return 'Course'
 
     def should_index(self):
+        if self['type'] == "pgm":
+            program_obj = AlgoliaProxyProgram.objects.get(id=self['id'])
         # marketing_url and program_type should never be null, but include as a sanity check
-        return len(self.owners()) > 0 and self.marketing_url and self.program_type() and self.partner.name == 'edX'
+            return len(program_obj.owners()) > 0 and program_obj.marketing_url and program_obj.program_types() and program_obj.partner.name == 'edX'
+        course_obj = AlgoliaProxyCourse.objects.get(id=self['id'])
+        return (len(course_obj.owners()) > 0 and
+                course_obj.active_url_slug and
+                course_obj.partner.name == 'edX' and
+                bool(course_obj.advertised_course_run))
+

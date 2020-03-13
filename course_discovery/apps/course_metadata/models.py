@@ -818,7 +818,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     def marketing_url(self):
         url = None
         if self.partner.marketing_site_url_root:
-            path = 'course/{slug}'.format(slug=self.slug)
+            path = 'course/{slug}'.format(slug=self.active_url_slug)
             url = urljoin(self.partner.marketing_site_url_root, path)
 
         return url
