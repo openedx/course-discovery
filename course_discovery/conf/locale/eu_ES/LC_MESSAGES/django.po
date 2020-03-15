@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-02-12 15:46+0000\n"
-"PO-Revision-Date: 2020-02-20 13:20+0000\n"
+"PO-Revision-Date: 2020-03-10 07:31+0000\n"
 "Last-Translator: Abel Camacho <abelcama@gmail.com>\n"
 "Language-Team: Basque (Spain) (http://www.transifex.com/open-edx/edx-platform/language/eu_ES/)\n"
 "MIME-Version: 1.0\n"
@@ -41,11 +41,11 @@ msgstr ""
 
 #: apps/api/serializers.py:756
 msgid "Start date cannot be after the End date"
-msgstr ""
+msgstr "Hasiera-data ezin da izan amaiera-data baino beranduagokoa."
 
 #: apps/api/serializers.py:761
 msgid "Term cannot be changed"
-msgstr ""
+msgstr "Epea ezin da aldatu"
 
 #: apps/api/serializers.py:773
 msgid "Language in which the course is administered"
@@ -102,7 +102,7 @@ msgstr "Balorea falta da ondokoarentzat: [{name}]. "
 
 #: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:193
 msgid "Incorrect data sent. "
-msgstr ""
+msgstr "Datu okerrak bidali dira."
 
 #: apps/api/v1/views/course_runs.py:40
 msgid "Failed to set course run data: {}"
@@ -383,7 +383,7 @@ msgstr ""
 
 #: apps/course_metadata/admin.py:399
 msgid "(save and continue editing to create a link)"
-msgstr ""
+msgstr "(gorde eta jarraitu editatzen esteka sortzeko)"
 
 #: apps/course_metadata/admin.py:400
 msgid "Edit link"
@@ -414,13 +414,13 @@ msgstr "Argitaratuta"
 #. similar to a normal university course.
 #: apps/course_metadata/choices.py:25
 msgid "Instructor-paced"
-msgstr ""
+msgstr "Irakasleak erabakitako erritmoa"
 
 #. Translators: Self-paced refers to course runs that operate on the student's
 #. schedule.
 #: apps/course_metadata/choices.py:27
 msgid "Self-paced"
-msgstr ""
+msgstr "Nor bere erritmora"
 
 #: apps/course_metadata/choices.py:32
 msgid "Active"
@@ -542,17 +542,17 @@ msgstr ""
 #: apps/course_metadata/emails.py:251
 #, python-brace-format
 msgid "Published: {title}"
-msgstr ""
+msgstr "Argitaratuta: {title}"
 
 #: apps/course_metadata/emails.py:255
 #, python-brace-format
 msgid "Published: {key} - {title}"
-msgstr ""
+msgstr "Argitaratuta: {key} - {title}"
 
 #: apps/course_metadata/emails.py:270
 #, python-brace-format
 msgid "Comment added: {title}"
-msgstr ""
+msgstr "Iruzkina gehitu da: {title}"
 
 #: apps/course_metadata/forms.py:62
 msgid "Programs can only be activated if they have a banner image."
@@ -582,7 +582,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:15
 msgid "CODE"
-msgstr ""
+msgstr "KODEA"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:16
 #: apps/course_metadata/management/commands/delete_person_dups.py:33
@@ -911,7 +911,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:780
 msgid "Additional Information"
-msgstr ""
+msgstr "Bestelako informazioa"
 
 #: apps/course_metadata/models.py:1106
 msgid "Blocked"
@@ -979,7 +979,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1502
 msgid "Archived"
-msgstr ""
+msgstr "Artxibatuta"
 
 #: apps/course_metadata/models.py:1504
 msgid "Current"
