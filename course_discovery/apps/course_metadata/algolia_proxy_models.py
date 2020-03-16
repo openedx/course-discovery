@@ -66,7 +66,10 @@ class AlgoliaProxyCourse(Course):
         return get_owners(self)
 
     def should_index(self):
-        return len(self.owners()) > 0 and self.active_url_slug and self.partner.name == 'edX'
+        return (len(self.owners()) > 0 and
+                self.active_url_slug and
+                self.partner.name == 'edX' and
+                bool(self.advertised_course_run))
 
     def availability_rank(self):
         today_midnight = datetime.datetime.now(pytz.UTC).replace(hour=0, minute=0, second=0, microsecond=0)
