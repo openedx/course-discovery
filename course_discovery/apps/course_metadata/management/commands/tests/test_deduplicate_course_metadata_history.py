@@ -15,12 +15,13 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
     """
     def setUp(self):
         super().setUp()
-        self.courserun1 = factories.CourseRunFactory()
-        self.courserun2 = factories.CourseRunFactory()
+        self.courserun1 = factories.CourseRunFactory(draft=False)
+        self.courserun2 = factories.CourseRunFactory(draft=False)
+        self.courserun3 = factories.CourseRunFactory(draft=True)
 
-        # At this point, there are 4 total history records: two creates and two updates.
-        # The CourseRunFactory is apparently responsible for an update in addition to a
-        # create.
+        # At this point, there are 6 total history records: three creates and
+        # three updates.  The CourseRunFactory is apparently responsible for an
+        # update in addition to a create.
 
     def run_command(self, model_identifier):
         call_command('deduplicate_course_metadata_history', model_identifier)
@@ -32,28 +33,33 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
         """
         # Induce a few history records:
         # - 2 updates for courserun1
-        # - 3 updates for courserun2
+        # - 0 updates for courserun2
+        # - 3 updates for courserun3
         self.courserun1.save()
-        self.courserun2.save()
+        self.courserun3.save()
         self.courserun1.save()
-        self.courserun2.save()
-        factories.CourseRunFactory()  # Toss in a third create to mix things up.
-        self.courserun2.save()
+        self.courserun3.save()
+        factories.CourseRunFactory()  # Toss in a fourth create to mix things up.
+        self.courserun3.save()
 
         courserun1_count_initial = len(CourseRun.history.filter(id=self.courserun1.id).all())  # pylint: disable=no-member
         courserun2_count_initial = len(CourseRun.history.filter(id=self.courserun2.id).all())  # pylint: disable=no-member
+        courserun3_count_initial = len(CourseRun.history.filter(id=self.courserun3.id).all())  # pylint: disable=no-member
 
         # Ensure that there are multiple history records for each course run.  For each
         # course run, there should be 2 (baseline) + the amount we added at the
         # beginning of this test.
-        self.assertEqual(courserun1_count_initial, 4)
-        self.assertEqual(courserun2_count_initial, 5)
+        self.assertEqual(courserun1_count_initial, 2 + 2)
+        self.assertEqual(courserun2_count_initial, 2 + 0)
+        self.assertEqual(courserun3_count_initial, 2 + 3)
 
         self.run_command('course_metadata.CourseRun')
 
         courserun1_count_final = len(CourseRun.history.filter(id=self.courserun1.id).all())  # pylint: disable=no-member
         courserun2_count_final = len(CourseRun.history.filter(id=self.courserun2.id).all())  # pylint: disable=no-member
+        courserun3_count_final = len(CourseRun.history.filter(id=self.courserun3.id).all())  # pylint: disable=no-member
 
-        # Ensure that the only history records left are the two original creates.
+        # Ensure that the only history records left are the 3 original creates.
         self.assertEqual(courserun1_count_final, 1)
         self.assertEqual(courserun2_count_final, 1)
+        self.assertEqual(courserun3_count_final, 1)
