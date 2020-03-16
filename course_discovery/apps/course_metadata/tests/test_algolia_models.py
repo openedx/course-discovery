@@ -154,16 +154,16 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
     def test_should_index(self):
         course = self.create_course_with_basic_active_course_run()
         course.authoring_organizations.add(OrganizationFactory())
-        assert course.should_index()
+        assert course.should_index
 
     def test_do_not_index_if_no_owners(self):
         course = self.create_course_with_basic_active_course_run()
-        assert not course.should_index()
+        assert not course.should_index
 
     def test_do_not_index_if_owner_missing_logo(self):
         course = self.create_course_with_basic_active_course_run()
         course.authoring_organizations.add(OrganizationFactory(logo_image=None))
-        assert not course.should_index()
+        assert not course.should_index
 
     def test_do_not_index_if_no_url_slug(self):
         course = self.create_course_with_basic_active_course_run()
@@ -171,41 +171,41 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         for url_slug in course.url_slug_history.all():
             url_slug.is_active = False
             url_slug.save()
-        assert not course.should_index()
+        assert not course.should_index
 
     def test_do_not_index_if_partner_not_edx(self):
         course = self.create_course_with_basic_active_course_run()
         course.partner = PartnerFactory()
         course.authoring_organizations.add(OrganizationFactory())
-        assert not course.should_index()
+        assert not course.should_index
 
     def test_do_not_index_if_no_active_course_run(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
         course.authoring_organizations.add(OrganizationFactory())
-        assert not course.should_index()
+        assert not course.should_index
 
     def test_current_and_upgradeable_beats_just_upgradeable(self):
         course_1 = self.create_current_upgradeable_course()
         course_2 = self.create_upgradeable_course_ending_soon()
         course_3 = self.create_upgradeable_course_starting_soon()
-        assert course_1.availability_rank() < course_2.availability_rank()
-        assert course_1.availability_rank() < course_3.availability_rank()
-        assert course_2.availability_rank() == course_3.availability_rank()
+        assert course_1.availability_rank < course_2.availability_rank
+        assert course_1.availability_rank < course_3.availability_rank
+        assert course_2.availability_rank == course_3.availability_rank
 
     def test_upgradeable_beats_just_current(self):
         course_1 = self.create_upgradeable_course_ending_soon()
         course_2 = self.create_current_non_upgradeable_course()
-        assert course_1.availability_rank() < course_2.availability_rank()
+        assert course_1.availability_rank < course_2.availability_rank
 
     def test_current_non_upgradeable_beats_upcoming_non_upgradeable(self):
         course_1 = self.create_current_non_upgradeable_course()
         course_2 = self.create_upcoming_non_upgradeable_course()
-        assert course_1.availability_rank() < course_2.availability_rank()
+        assert course_1.availability_rank < course_2.availability_rank
 
     def test_earliest_upcoming_wins(self):
         course_1 = self.create_upcoming_non_upgradeable_course()
         course_2 = self.create_upcoming_non_upgradeable_course(additional_days=1)
-        assert course_1.availability_rank() < course_2.availability_rank()
+        assert course_1.availability_rank < course_2.availability_rank
 
     def test_active_course_run_beats_no_active_course_run(self):
         course_1 = self.create_course_with_basic_active_course_run()
@@ -217,8 +217,8 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             enrollment_end=self.YESTERDAY,
             status=CourseRunStatus.Published
         )
-        assert course_1.availability_rank()
-        assert not course_2.availability_rank()
+        assert course_1.availability_rank
+        assert not course_2.availability_rank
 
 
 @pytest.mark.django_db
@@ -227,18 +227,18 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     def test_should_index(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
         program.authoring_organizations.add(OrganizationFactory())
-        assert program.should_index()
+        assert program.should_index
 
     def test_do_not_index_if_no_owners(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        assert not program.should_index()
+        assert not program.should_index
 
     def test_do_not_index_if_owner_missing_logo(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
         program.authoring_organizations.add(OrganizationFactory(logo_image=None))
-        assert not program.should_index()
+        assert not program.should_index
 
     def test_do_not_index_if_partner_not_edx(self):
         program = AlgoliaProxyProgramFactory(partner=PartnerFactory())
         program.authoring_organizations.add(OrganizationFactory())
-        assert not program.should_index()
+        assert not program.should_index

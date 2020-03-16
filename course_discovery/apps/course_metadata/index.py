@@ -2,50 +2,42 @@
 from algoliasearch_django import AlgoliaIndex
 from algoliasearch_django.decorators import register
 
-from course_discovery.apps.course_metadata.algolia_proxy_models import AlgoliaProxyCourse, AlgoliaProxyProgram
+from course_discovery.apps.course_metadata.algolia_proxy_models import (
+    AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram
+)
 
 
-@register(AlgoliaProxyCourse)
-class CourseIndex(AlgoliaIndex):
-    search_fields = ('full_description', 'outcome', ('partner_names', 'partner'), 'short_description', 'title',)
-    # partner is also a facet field, but we already declared it above
-    facet_fields = ('availability', ('subject_names', 'subjects'), ('level_type_name', 'level'),
-                    ('active_run_language', 'language'),)
-    result_fields = ('active_run_key', 'active_run_start', 'active_run_type', 'active_url_slug', 'image_src', 'owners',
-                     'program_types', ('uuid', 'objectID'), 'availability_rank', 'recent_enrollment_count')
-    fields = search_fields + facet_fields + result_fields
+@register(AlgoliaProxyProduct)
+class ProductIndex(AlgoliaIndex):
+    search_fields = (('partner_names', 'partner'), ('product_title', 'title'), 'primary_description',
+                     'secondary_description', 'tertiary_description')
+    facet_fields = (('availability_level', 'availability'), ('subject_names', 'subjects'), ('levels', 'level'),
+                    ('active_languages', 'language'), ('product_type', 'product'))
+    ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
+    result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
+                     ('product_uuid', 'uuid'), 'active_run_key', 'active_run_start', 'active_run_type', 'owners',
+                     'program_types')
+    # Algolia needs this
+    object_id_field = (('custom_object_id', 'objectID'), )
+    fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     settings = {
-        # searchableAttributes ordered by highest value
         'searchableAttributes': [
             'unordered(title)',  # AG best practice: position of the search term within the title doesn't matter
-            'short_description',
-            'full_description',
-            'outcome',
+            'primary_description',
+            'secondary_description',
+            'tertiary_description',
             'partner'
         ],
-        'attributesForFaceting': ['partner', 'subject', 'level', 'language', 'availability'],
+        'attributesForFaceting': ['partner', 'subject', 'level', 'language', 'availability', 'product'],
         'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
-    index_name = 'course'
+    index_name = 'product'
     should_index = 'should_index'
 
-
-@register(AlgoliaProxyProgram)
-class ProgramIndex(AlgoliaIndex):
-    search_fields = (('partner_names', 'partner'), 'title', 'subtitle', 'overview',
-                     ('expected_learning_items_values', 'expected_learning_items'))
-    facet_fields = (('status', 'availability'), ('subject_names', 'subjects'), ('levels', 'level'),
-                    ('active_languages', 'language'), 'card_image_url')
-    result_fields = ('course_titles', 'marketing_url', 'program_type', 'owners', ('uuid', 'objectID'))
-    fields = search_fields + facet_fields + result_fields
-    settings = {
-        'searchableAttributes': [
-            'unordered(title)',  # AG best practice: position of the search term within the title doesn't matter
-            'unordered(subtitle)',
-            'overview',
-            'expected_learning_items_values',
-            'partner'
-        ],
-        'attributesForFaceting': ['partner', 'subject', 'level', 'language', 'availability']}
-    index_name = 'program'
-    should_index = 'should_index'
+    # Bit of a hack: Override get_queryset to return all wrapped versions of all courses and programs rather than an
+    # actual queryset to get around the fact that courses and programs have different fields and therefore cannot be
+    # combined in a union of querysets.
+    def get_queryset(self):
+        qs1 = [AlgoliaProxyProduct(course) for course in AlgoliaProxyCourse.objects.all()]
+        qs2 = [AlgoliaProxyProduct(program) for program in AlgoliaProxyProgram.objects.all()]
+        return qs1 + qs2
