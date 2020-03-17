@@ -33,6 +33,7 @@ matrix:
           - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make clean_static'
           - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make static'
           - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make quality'
+          - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make check_keywords'
 
     - env: COMMAND=test:unittests
 
