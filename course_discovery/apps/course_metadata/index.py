@@ -16,16 +16,16 @@ class ProductIndex(AlgoliaIndex):
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
                      ('product_uuid', 'uuid'), 'active_run_key', 'active_run_start', 'active_run_type', 'owners',
-                     'program_types')
+                     'program_types', 'course_titles')
     # Algolia needs this
     object_id_field = (('custom_object_id', 'objectID'), )
     fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     settings = {
         'searchableAttributes': [
-            'unordered(title)',  # AG best practice: position of the search term within the title doesn't matter
-            'primary_description',
-            'secondary_description',
-            'tertiary_description',
+            'unordered(title)',  # AG best practice: position of the search term in plain text fields doesn't matter
+            'unordered(primary_description)',
+            'unordered(secondary_description)',
+            'unordered(tertiary_description)',
             'partner'
         ],
         'attributesForFaceting': ['partner', 'subject', 'level', 'language', 'availability', 'product'],
@@ -37,7 +37,7 @@ class ProductIndex(AlgoliaIndex):
     # Bit of a hack: Override get_queryset to return all wrapped versions of all courses and programs rather than an
     # actual queryset to get around the fact that courses and programs have different fields and therefore cannot be
     # combined in a union of querysets.
-    def get_queryset(self):
+    def get_queryset(self):  # pragma: no cover
         qs1 = [AlgoliaProxyProduct(course) for course in AlgoliaProxyCourse.objects.all()]
         qs2 = [AlgoliaProxyProduct(program) for program in AlgoliaProxyProgram.objects.all()]
         return qs1 + qs2

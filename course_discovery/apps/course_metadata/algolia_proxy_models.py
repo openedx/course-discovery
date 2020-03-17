@@ -42,7 +42,7 @@ def delegate_attributes(cls):
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count']
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'active_run_key',
-                     'active_run_start', 'active_run_type', 'owners', 'program_types']
+                     'active_run_start', 'active_run_type', 'owners', 'program_types', 'course_titles']
     object_id_field = ['custom_object_id', ]
     fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
