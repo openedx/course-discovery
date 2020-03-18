@@ -126,5 +126,5 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         permissions = (
             ('view_catalog', 'Can view catalog'),
         )
-        default_permissions = ()
+        default_permissions = ('add', 'change', 'delete',)
 
