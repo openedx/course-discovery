@@ -11,7 +11,7 @@ from course_discovery.apps.course_metadata.algolia_proxy_models import (
 class ProductIndex(AlgoliaIndex):
     search_fields = (('partner_names', 'partner'), ('product_title', 'title'), 'primary_description',
                      'secondary_description', 'tertiary_description')
-    facet_fields = (('availability_level', 'availability'), ('subject_names', 'subjects'), ('levels', 'level'),
+    facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
