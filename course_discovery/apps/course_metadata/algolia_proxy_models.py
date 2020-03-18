@@ -257,7 +257,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def program_types(self):
         if self.type:
-            return [self.type.slug]
+            return [self.type.name]
         return None
 
     @property
@@ -270,5 +270,5 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         return (len(self.owners) > 0 and
                 self.marketing_url and
                 self.program_types and
-                self.availability_level != "Unpublished" and
+                self.availability_level == "Active" and
                 self.partner.name == 'edX')
