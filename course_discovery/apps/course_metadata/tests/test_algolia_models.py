@@ -11,6 +11,7 @@ from conftest import TEST_DOMAIN
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 from course_discovery.apps.course_metadata.algolia_proxy_models import AlgoliaProxyCourse, AlgoliaProxyProgram
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRunStatus
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory
@@ -242,3 +243,20 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program = AlgoliaProxyProgramFactory(partner=PartnerFactory())
         program.authoring_organizations.add(OrganizationFactory())
         assert not program.should_index
+
+    def test_do_not_index_if_not_active(self):
+        unpublished_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner,
+                                                         status=ProgramStatus.Unpublished)
+        unpublished_program.authoring_organizations.add(OrganizationFactory())
+
+        retired_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner,
+                                                     status=ProgramStatus.Retired)
+        retired_program.authoring_organizations.add(OrganizationFactory())
+
+        deleted_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner,
+                                                     status=ProgramStatus.Deleted)
+        deleted_program.authoring_organizations.add(OrganizationFactory())
+
+        assert not unpublished_program.should_index
+        assert not retired_program.should_index
+        assert not deleted_program.should_index
