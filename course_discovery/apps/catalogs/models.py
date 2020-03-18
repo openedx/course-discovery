@@ -12,6 +12,7 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun
 
 class Catalog(ModelPermissionsMixin, TimeStampedModel):
     VIEW_PERMISSION = 'view_catalog'
+
     name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Catalog name'))
     query = models.TextField(null=False, blank=False, help_text=_('Query to retrieve catalog contents'))
     include_archived = models.BooleanField(default=False, help_text=_('Include archived courses'))
@@ -125,3 +126,5 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         permissions = (
             ('view_catalog', 'Can view catalog'),
         )
+        default_permissions = ('add', 'change', 'delete',)
+

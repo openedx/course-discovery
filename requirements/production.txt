@@ -28,7 +28,7 @@ django-dynamic-filenames==1.1.4  # via -r requirements/base.in
 django-extensions==2.2.8  # via -r requirements/base.in
 django-filter==2.2.0      # via -r requirements/base.in
 django-fsm==2.7.0         # via -r requirements/base.in
-django-guardian==1.5.1    # via -c requirements/constraints.txt, -r requirements/base.in
+django-guardian==2.0.0    # via -c requirements/constraints.txt, -r requirements/base.in
 django-haystack==2.8.1    # via -r requirements/base.in, drf-haystack
 django-libsass==0.8       # via -r requirements/base.in
 django-parler==2.0.1      # via -r requirements/base.in
