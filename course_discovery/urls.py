@@ -21,7 +21,9 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-from django.views.i18n import javascript_catalog
+from django.views.i18n import JavaScriptCatalog
+
+
 
 from course_discovery.apps.api.views import SwaggerSchemaView
 from course_discovery.apps.core import views as core_views
@@ -46,7 +48,7 @@ urlpatterns = oauth2_urlpatterns + [
     url(r'^language-tags/', include('course_discovery.apps.ietf_language_tags.urls', namespace='language_tags')),
     url(r'^comments/', include('django_comments.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^jsi18n/$', javascript_catalog, name='javascript-catalog'),
+    url(r'^jsi18n/$', JavaScriptCatalog, name='javascript-catalog'),
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
 ]
 
