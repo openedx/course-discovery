@@ -1,8 +1,8 @@
 # Stay on an LTS release
 django<2.3
 
-# FIXME: 1.x is an ancient version that we should upgrade off of
-elasticsearch<2
+# ES major version is standardized across Open edX
+elasticsearch<6
 
 # FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
 transifex-client<0.13

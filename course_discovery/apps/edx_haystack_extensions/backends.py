@@ -82,11 +82,9 @@ class ConfigurableElasticBackend(ElasticsearchSearchBackend):
             index_analyzer (str): name of the index_analyzer (should be defined in the /_settings attribute)
             search_analyzer (str): name of the search_analyzer (should be defined in the /_settings attribute)
         """
-        # The generic analyzer is used for both if index_analyzer and search_analyzer are not specified
-        mapping[field].pop('analyzer')
         mapping[field].update({
-            'index_analyzer': index_analyzer,
-            'search_analyzer': search_analyzer
+            'analyzer': index_analyzer,
+            'search_analyzer': search_analyzer,
         })
 
     def build_schema(self, fields):

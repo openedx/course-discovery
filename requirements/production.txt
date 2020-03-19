@@ -62,7 +62,7 @@ edx-django-utils==3.2.0   # via -r requirements/base.in, edx-drf-extensions, edx
 edx-drf-extensions==5.0.2  # via -r requirements/base.in
 edx-opaque-keys==2.0.2    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
 edx-rest-api-client==5.1.0  # via -r requirements/base.in
-elasticsearch==1.9.0      # via -c requirements/constraints.txt, -r requirements/base.in
+elasticsearch==5.5.3      # via -c requirements/constraints.txt, -r requirements/base.in
 future==0.18.2            # via django-ses, pyjwkest
 gevent==1.5.0             # via -r requirements/production.in
 greenlet==0.4.15          # via gevent

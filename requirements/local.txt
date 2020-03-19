@@ -82,7 +82,7 @@ edx-lint==1.4.1           # via -r requirements/test.in
 edx-opaque-keys==2.0.2    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
 edx-rest-api-client==5.1.0  # via -r requirements/base.in
 edx-sphinx-theme==1.5.0   # via -r requirements/docs.in
-elasticsearch==1.9.0      # via -c requirements/constraints.txt, -r requirements/base.in
+elasticsearch==5.5.3      # via -c requirements/constraints.txt, -r requirements/base.in
 execnet==1.7.1            # via pytest-xdist
 factory-boy==2.12.0       # via -r requirements/test.in
 faker==4.0.3              # via factory-boy
