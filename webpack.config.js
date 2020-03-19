@@ -5,9 +5,6 @@ var BundleTracker = require('webpack-bundle-tracker'),
     loaders = [
         {
             loader: 'css-loader',
-            options: {
-                minimize: true
-            }
         },
         {
             loader: 'sass-loader',
