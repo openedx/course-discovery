@@ -12,11 +12,11 @@ class ProductIndex(AlgoliaIndex):
     search_fields = (('partner_names', 'partner'), ('product_title', 'title'), 'primary_description',
                      'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
-                    ('active_languages', 'language'), ('product_type', 'product'))
+                    ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
                      ('product_uuid', 'uuid'), 'active_run_key', 'active_run_start', 'active_run_type', 'owners',
-                     'program_types', 'course_titles')
+                     'course_titles')
     # Algolia needs this
     object_id_field = (('custom_object_id', 'objectID'), )
     fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
@@ -28,7 +28,7 @@ class ProductIndex(AlgoliaIndex):
             'unordered(tertiary_description)',
             'partner'
         ],
-        'attributesForFaceting': ['partner', 'subject', 'level', 'language', 'availability', 'product'],
+        'attributesForFaceting': ['partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type'],
         'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'product'
