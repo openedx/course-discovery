@@ -4,7 +4,7 @@ import pytz
 from django.db import models
 from django.utils.translation import activate
 
-from course_discovery.apps.course_metadata.models import Course, Program
+from course_discovery.apps.course_metadata.models import Course, Program, ProgramType
 
 
 # Utility methods used by both courses and programs
@@ -40,7 +40,7 @@ def delegate_attributes(cls):
     search_fields = ['partner_names', 'product_title', 'primary_description', 'secondary_description',
                      'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages']
-    ranking_fields = ['availability_rank', 'product_recent_enrollment_count']
+    ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'is_prof_cert_program']
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'active_run_key',
                      'active_run_start', 'active_run_type', 'owners', 'program_types', 'course_titles']
     object_id_field = ['custom_object_id', ]
@@ -173,6 +173,10 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return get_owners(self)
 
     @property
+    def is_prof_cert_program(self):
+        return False
+
+    @property
     def should_index(self):
         return (len(self.owners) > 0 and
                 self.active_url_slug and
@@ -263,6 +267,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def availability_level(self):
         return self.status.capitalize()
+
+    @property
+    def is_prof_cert_program(self):
+        return self.type and self.type.slug == ProgramType.PROFESSIONAL_CERTIFICATE
 
     @property
     def should_index(self):
