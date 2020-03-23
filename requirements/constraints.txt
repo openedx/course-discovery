@@ -29,3 +29,6 @@ drf-jwt<1.15.0
 
 # Not properly supporting latest version of edx-rest-api-client
 edx-rest-api-client==4.0.1
+
+# pytest > 5.3 causes weird issues with pytest-xdist
+pytest < 5.4

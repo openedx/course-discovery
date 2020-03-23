@@ -73,14 +73,14 @@ dry-rest-permissions==0.1.10  # via -r requirements/base.in
 edx-analytics-data-api-client==0.15.5  # via -r requirements/base.in
 edx-auth-backends==3.0.2  # via -r requirements/base.in
 edx-ccx-keys==1.0.1       # via -r requirements/base.in
+<<<<<<< HEAD
 edx-django-release-util==0.4.1  # via -r requirements/base.in
 edx-django-sites-extensions==2.4.3  # via -r requirements/base.in
 edx-django-utils==3.0     # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client
-<<<<<<< HEAD
 edx-drf-extensions==5.0.2  # via -r requirements/base.in
-=======
-edx-drf-extensions==4.0.3  # via -r requirements/base.in
->>>>>>> Added Travis workers
+edx-django-release-util==0.4.0  # via -r requirements/base.in
+edx-django-sites-extensions==2.4.3  # via -r requirements/base.in
+edx-django-utils==3.0     # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client
 edx-i18n-tools==0.5.0     # via -r requirements/local.in
 edx-lint==1.4.1           # via -r requirements/test.in
 edx-opaque-keys==2.0.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
@@ -97,7 +97,7 @@ html2text==2020.1.16      # via -r requirements/base.in
 idna==2.9                 # via requests
 imagesize==1.2.0          # via sphinx
 importlib-metadata==1.5.0  # via importlib-resources, jsonschema, path, pluggy, pytest, tox, virtualenv
-importlib-resources==1.3.1  # via virtualenv
+importlib-resources==1.4.0  # via virtualenv
 isort==4.3.21             # via -r requirements/test.in, pylint
 itypes==1.1.0             # via coreapi
 jinja2==2.11.1            # via coreschema, sphinx
@@ -148,7 +148,7 @@ pytest-django==3.8.0      # via -r requirements/test.in, pytest-django-ordering
 pytest-forked==1.1.3      # via pytest-xdist
 pytest-responses==0.4.0   # via -r requirements/test.in
 pytest-xdist==1.31.0      # via -r requirements/test.in
-pytest==5.4.1             # via -r requirements/test.in, pytest-cov, pytest-django, pytest-django-ordering, pytest-forked, pytest-responses, pytest-xdist
+pytest==5.3.5             # via -c requirements/constraints.txt, -r requirements/test.in, pytest-cov, pytest-django, pytest-django-ordering, pytest-forked, pytest-responses, pytest-xdist
 python-dateutil==2.8.1    # via -r requirements/base.in, drf-haystack, edx-drf-extensions, faker, freezegun
 python-utils==2.4.0       # via progressbar2
 python3-openid==3.1.0     # via social-auth-core
@@ -165,10 +165,14 @@ semantic-version==2.8.4   # via edx-drf-extensions
 simple-salesforce==1.0.0  # via -r requirements/base.in
 simplejson==3.17.0        # via django-rest-swagger
 <<<<<<< HEAD
+<<<<<<< HEAD
 six==1.14.0               # via astroid, bcrypt, cryptography, django-appconf, django-autocomplete-light, django-choices, django-compressor, django-contrib-comments, django-extensions, django-parler, django-simple-history, django-taggit-serializer, django-waffle, djangorestframework-csv, docker, docker-compose, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, freezegun, jsonschema, libsass, mock, packaging, pathlib2, progressbar2, pyjwkest, pynacl, pyrsistent, pytest-xdist, python-dateutil, python-utils, responses, social-auth-app-django, social-auth-core, stevedore, transifex-client, unicode-slugify, websocket-client
 =======
 six==1.14.0               # via astroid, bcrypt, cryptography, django-appconf, django-autocomplete-light, django-choices, django-compressor, django-contrib-comments, django-extensions, django-parler, django-simple-history, django-taggit-serializer, django-waffle, djangorestframework-csv, docker, docker-compose, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, freezegun, jsonschema, libsass, mock, packaging, pathlib2, progressbar2, pyjwkest, pynacl, pyopenssl, pyrsistent, pytest-xdist, python-dateutil, python-utils, responses, social-auth-app-django, social-auth-core, stevedore, tox, transifex-client, unicode-slugify, virtualenv, websocket-client
 >>>>>>> Added Travis workers
+=======
+six==1.14.0               # via astroid, bcrypt, cryptography, django-appconf, django-autocomplete-light, django-choices, django-compressor, django-contrib-comments, django-extensions, django-parler, django-simple-history, django-taggit-serializer, django-waffle, djangorestframework-csv, docker, docker-compose, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, freezegun, jsonschema, libsass, mock, packaging, pathlib2, progressbar2, pyjwkest, pynacl, pyrsistent, pytest-xdist, python-dateutil, python-utils, responses, social-auth-app-django, social-auth-core, stevedore, tox, transifex-client, unicode-slugify, virtualenv, websocket-client
+>>>>>>> Pin pytest and make upgrade.
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==2.0.0    # via sphinx
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in, edx-auth-backends
@@ -195,12 +199,9 @@ unicodecsv==0.14.1        # via djangorestframework-csv
 unidecode==1.1.1          # via social-auth-core, unicode-slugify
 uritemplate==3.0.1        # via coreapi
 urllib3==1.25.8           # via elasticsearch, requests, selenium, transifex-client
-<<<<<<< HEAD
 wcwidth==0.1.9            # via pytest
-=======
-virtualenv==20.0.10       # via tox
-wcwidth==0.1.8            # via pytest
->>>>>>> Added Travis workers
+virtualenv==20.0.13       # via tox
+wcwidth==0.1.9            # via pytest
 websocket-client==0.57.0  # via docker, docker-compose
 wrapt==1.11.2             # via astroid
 xss-utils==0.1.2          # via -r requirements/base.in
