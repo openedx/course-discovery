@@ -25,14 +25,14 @@ class User(GuardianUserMixin, AbstractUser):
 
         Assumes user has authenticated at least once with edX Open ID Connect.
         """
-        social_auth = self.social_auth.first()
+        social_auth = self.social_auth.first()  # pylint: disable=no-member
 
         if social_auth:
             return social_auth.access_token
 
         return None
 
-    class Meta(object):
+    class Meta:
         get_latest_by = 'date_joined'
 
     def get_full_name(self):
@@ -59,7 +59,7 @@ class Currency(models.Model):
     def __str__(self):
         return '{code} - {name}'.format(code=self.code, name=self.name)
 
-    class Meta(object):
+    class Meta:
         verbose_name_plural = 'Currencies'
 
 
@@ -84,11 +84,6 @@ class Partner(TimeStampedModel):
                                                    verbose_name=_('Marketing Site API Username'))
     marketing_site_api_password = models.CharField(max_length=255, null=True, blank=True,
                                                    verbose_name=_('Marketing Site API Password'))
-
-    # DEPRECATED---we now use the BACKEND_SERVICE_EDX_OAUTH2_* system-wide variables found in base.py.
-    oidc_url_root = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect URL'))
-    oidc_key = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Key'))
-    oidc_secret = models.CharField(max_length=255, null=True, verbose_name=_('OpenID Connect Secret'))
 
     studio_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Studio URL'))
     publisher_url = models.URLField(

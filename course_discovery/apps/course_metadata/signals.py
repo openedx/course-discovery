@@ -4,21 +4,20 @@ import waffle
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
+from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
 from course_discovery.apps.api.cache import api_change_receiver
-from course_discovery.apps.core.models import Currency
+from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program, Seat
+    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
     populate_official_with_existing_draft, requires_salesforce_update
 )
 from course_discovery.apps.course_metadata.utils import get_salesforce_util
-from course_discovery.apps.course_metadata.waffle import masters_course_mode_enabled
 
 logger = logging.getLogger(__name__)
 
@@ -39,67 +38,6 @@ def is_program_masters(program):
     return program and program.type.slug == MASTERS_PROGRAM_TYPE_SLUG
 
 
-@receiver(post_save, sender=CurriculumCourseMembership)
-def add_masters_track_on_course(sender, instance, **kwargs):  # pylint: disable=unused-argument
-    """
-    When this waffle flag is enabled we save a "masters" seat type into the included course_runs of
-    the related course
-    """
-
-    if masters_course_mode_enabled():
-        program = instance.curriculum.program
-
-        if not is_program_masters(program):
-            logger.debug('This is a course related only to non-masters program. No need to create Masters seat')
-            return
-
-        us_currency = Currency.objects.get(code='USD')
-
-        for course_run in instance.course_runs:
-            Seat.objects.update_or_create(
-                course_run=course_run,
-                type=Seat.MASTERS,
-                currency=us_currency,
-            )
-
-
-@receiver(post_save, sender=Seat)
-def publish_masters_track(sender, instance, **kwargs):  # pylint: disable=unused-argument
-    """
-    We should only publish the Masters track of the seat in the course_run,
-    if the course_run is part of a Program of Masters type. Publish means we will
-    call the commerce api on LMS to make sure LMS course_run object have the
-    masters enrollment_mode created
-    """
-    seat = instance
-    if seat.type != Seat.MASTERS:
-        logger.debug('Not going to publish non masters seats')
-        return
-
-    if not masters_course_mode_enabled():
-        logger.debug('Masters course mode waffle flag is not enabled')
-        return
-
-    partner = seat.course_run.course.partner
-
-    if not partner.lms_api_client:
-        logger.info(
-            'LMS api client is not initiated. Cannot publish [%s] track for [%s] course_run',
-            seat.type,
-            seat.course_run.key,
-        )
-        return
-
-    if not partner.lms_coursemode_api_url:
-        logger.info(
-            'No lms coursemode api url configured. Masters seat for course_run [%s] not published',
-            seat.course_run.key
-        )
-        return
-
-    _create_masters_track_on_lms_if_necessary(seat, partner)
-
-
 @receiver(pre_save, sender=Curriculum)
 def check_curriculum_for_cycles(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
@@ -117,7 +55,7 @@ def check_curriculum_for_cycles(sender, instance, **kwargs):  # pylint: disable=
 
 
 @receiver(pre_save, sender=CurriculumProgramMembership)
-def check_curriculum_program_membership_for_cycles(sender, instance, **kwargs):  # pylint: disable=unused-argument
+def check_curriculum_program_membership_for_cycles(sender, instance, **kwargs):
     """
     Check for circular references in program structure before saving.
     """
@@ -152,51 +90,6 @@ def _find_in_programs(existing_programs, target_curriculum=None, target_program=
     return _find_in_programs(child_programs, target_curriculum=target_curriculum, target_program=target_program)
 
 
-def _create_masters_track_on_lms_if_necessary(seat, partner):
-    """
-    Given a seat, the partner object, this helper method will call the course mode api to
-    create the masters track to a course run, if the masters track isn't already created
-    """
-    course_run_key = seat.course_run.key
-    url = partner.lms_coursemode_api_url.rstrip('/') + '/courses/{}/'.format(course_run_key)
-    get_response = partner.lms_api_client.get(url)
-    if _seat_type_exists(get_response.json(), Seat.MASTERS):
-        logger.info('Creating [{}] track on LMS for [{}] while it already have the track.'.format(
-            seat.type,
-            course_run_key,
-        ))
-        return
-
-    data = {
-        'course_id': seat.course_run.key,
-        'mode_slug': seat.type,
-        'mode_display_name': seat.type.capitalize(),
-        'currency': str(seat.currency.code) if seat.currency else '',
-        'min_price': int(seat.price),
-    }
-
-    response = partner.lms_api_client.post(url, json=data)
-
-    if response.ok:
-        logger.info('Successfully published [%s] seat data for [%s].', seat.type, course_run_key)
-    else:
-        logger.exception(
-            'Failed to add [%s] course_mode to course_run [%s] in course_mode api to LMS.',
-            seat.type,
-            course_run_key
-        )
-
-
-def _seat_type_exists(course_modes, seat_type):
-    """
-    Check if a seat of the specified seat_type already exist within the list passed in.
-    """
-    for course_mode in course_modes:
-        if course_mode['mode_slug'] == seat_type:
-            return True
-    return False
-
-
 # Invalidate API cache when any model in the course_metadata app is saved or
 # deleted. Given how interconnected our data is and how infrequently our models
 # change (data loading aside), this is a clean and simple way to ensure correctness
@@ -207,7 +100,7 @@ for model in apps.get_app_config('course_metadata').get_models():
 
 
 @receiver(pre_save, sender=CourseRun)
-def ensure_external_key_uniquness__course_run(sender, instance, **kwargs):  # pylint: disable=unused-argument
+def ensure_external_key_uniqueness__course_run(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
     Pre-save hook to validate that when a course run is saved, that its external_key is
     unique.
@@ -219,6 +112,13 @@ def ensure_external_key_uniquness__course_run(sender, instance, **kwargs):  # py
     is unique within course runs in the course
     """
     if not instance.external_key:
+        return
+    # This is for the intermediate time between the official course run being created through
+    # utils.py set_official_state and before the Course reference is updated to the official course.
+    # See course_metadata/models.py under the CourseRun model inside of the update_or_create_official_version
+    # function for when the official run is created and when several lines later, the official course
+    # is added to it.
+    if not instance.draft and instance.course.draft:
         return
     if instance.id:
         old_course_run = CourseRun.everything.get(pk=instance.pk)
@@ -234,7 +134,7 @@ def ensure_external_key_uniquness__course_run(sender, instance, **kwargs):  # py
 
 
 @receiver(pre_save, sender=CurriculumCourseMembership)
-def ensure_external_key_uniquness__curriculum_course_membership(sender, instance, **kwargs):  # pylint: disable=unused-argument
+def ensure_external_key_uniqueness__curriculum_course_membership(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
     Pre-save hook to validate that if a curriculum_course_membership is created or modified, the
     external_keys for the course are unique within the linked curriculum/program
@@ -244,7 +144,7 @@ def ensure_external_key_uniquness__curriculum_course_membership(sender, instance
 
 
 @receiver(pre_save, sender=Curriculum)
-def ensure_external_key_uniquness__curriculum(sender, instance, **kwargs):  # pylint: disable=unused-argument
+def ensure_external_key_uniqueness__curriculum(sender, instance, **kwargs):  # pylint: disable=unused-argument
     """
     Pre-save hook to validate that if a curriculum is created or becomes associated with a different
     program, the curriculum's external_keys are/remain unique
@@ -268,7 +168,8 @@ def update_or_create_salesforce_organization(instance, created, **kwargs):  # py
     partner = instance.partner
     util = get_salesforce_util(partner)
     if util:
-        util.create_publisher_organization(instance)
+        if not instance.salesforce_id:
+            util.create_publisher_organization(instance)
         if not created and requires_salesforce_update('organization', instance):
             util.update_publisher_organization(instance)
 
@@ -277,20 +178,36 @@ def update_or_create_salesforce_organization(instance, created, **kwargs):  # py
 def update_or_create_salesforce_course(instance, created, **kwargs):  # pylint: disable=unused-argument
     partner = instance.partner
     util = get_salesforce_util(partner)
-    if util:
-        if instance.draft:
-            util.create_course(instance)
-        elif not created and not instance.draft:
-            created_in_salseforce = False
-            if not instance.salesforce_id and instance.draft_version:
-                created_in_salseforce = populate_official_with_existing_draft(instance, util)
-            if not created_in_salseforce and requires_salesforce_update('course', instance):
+    # Only bother to create the course if there's a util, and the auth orgs are already set up
+    if util and instance.authoring_organizations.first():
+        if not created and not instance.draft:
+            created_in_salesforce = False
+            # Only populate the Official instance if the draft information is ready to go (has auth orgs set)
+            if (not instance.salesforce_id and
+                    instance.draft_version and
+                    instance.draft_version.authoring_organizations.first()):
+                created_in_salesforce = populate_official_with_existing_draft(instance, util)
+            if not created_in_salesforce and requires_salesforce_update('course', instance):
                 util.update_course(instance)
+
+
+@receiver(m2m_changed, sender=Course.authoring_organizations.through)
+def authoring_organizations_changed(sender, instance, action, **kwargs):  # pylint: disable=unused-argument
+    # Only do this after an auth org has been added, the salesforce_id isn't set and it's a draft (new)
+    if action == 'post_add' and not instance.salesforce_id and instance.draft:
+        partner = instance.partner
+        util = get_salesforce_util(partner)
+        if util:
+            util.create_course(instance)
 
 
 @receiver(post_save, sender=CourseRun)
 def update_or_create_salesforce_course_run(instance, created, **kwargs):  # pylint: disable=unused-argument
-    partner = instance.course.partner
+    try:
+        partner = instance.course.partner
+    except (Course.DoesNotExist, Partner.DoesNotExist):
+        # exit early in the unusual event that we can't look up the appropriate partner
+        return
     util = get_salesforce_util(partner)
     if util:
         if instance.draft:
@@ -306,6 +223,8 @@ def update_or_create_salesforce_course_run(instance, created, **kwargs):  # pyli
 def _build_external_key_sets(course_runs):
     """
     Helper function to extract two sets of ids from a list of course runs for use in filtering
+    However, the external_keys with null or empty string values are not included in the
+    returned external_key_set.
 
     Parameters:
         - course runs: a collection of course runs
@@ -316,7 +235,8 @@ def _build_external_key_sets(course_runs):
     external_key_set = set()
     course_run_ids = set()
     for course_run in course_runs:
-        external_key_set.add(course_run.external_key)
+        if course_run.external_key:
+            external_key_set.add(course_run.external_key)
         if course_run.id:
             course_run_ids.add(course_run.id)
 

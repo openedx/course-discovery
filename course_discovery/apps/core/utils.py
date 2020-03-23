@@ -12,7 +12,7 @@ def serialize_datetime(d):
     return d.strftime('%Y-%m-%dT%H:%M:%SZ') if d else None
 
 
-class ElasticsearchUtils(object):
+class ElasticsearchUtils:
     @classmethod
     def create_alias_and_index(cls, es_connection, alias):
         logger.info('Making sure alias [%s] exists...', alias)
@@ -83,26 +83,31 @@ def get_all_related_field_names(model):
         list[str]
     """
     fields = model._meta._get_fields(forward=False)  # pylint: disable=protected-access
-    names = set([field.name for field in fields])
+    names = {field.name for field in fields}
     return list(names)
 
 
-def delete_orphans(model):
+def delete_orphans(model, exclude=None):
     """
     Deletes all instances of the given model with no relationships to other models.
 
     Args:
         model (Model): Model whose instances should be deleted
+        exclude: ID's of records to exclude from deletion
 
     Returns:
         None
     """
     field_names = get_all_related_field_names(model)
     kwargs = {'{0}__isnull'.format(field_name): True for field_name in field_names}
-    model.objects.filter(**kwargs).delete()
+    query = model.objects.filter(**kwargs)
+    if exclude:
+        query = query.exclude(pk__in=exclude)
+
+    query.delete()
 
 
-class SearchQuerySetWrapper(object):
+class SearchQuerySetWrapper:
     """
     Decorates a SearchQuerySet object using a generator for efficient iteration
     """
@@ -112,7 +117,7 @@ class SearchQuerySetWrapper(object):
 
     def __getattr__(self, item):
         try:
-            super().__getattr__(item)
+            return super().__getattr__(item)
         except AttributeError:
             # If the attribute is not found on this class,
             # proxy the request to the SearchQuerySet.

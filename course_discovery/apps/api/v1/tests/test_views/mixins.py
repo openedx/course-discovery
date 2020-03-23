@@ -3,7 +3,6 @@
 import json
 
 import responses
-from django.conf import settings
 from haystack.query import SearchQuerySet
 from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase as RestAPITestCase
@@ -47,10 +46,6 @@ class SerializationMixin:
 
     def serialize_minimal_course_run(self, run, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.MinimalCourseRunSerializer, run, many, format, extra_context)
-
-    def serialize_minimal_publisher_course_run(self, run, many=False, format=None, extra_context=None):
-        return self._serialize_object(serializers.MinimalPublisherCourseRunSerializer, run, many, format,
-                                      extra_context)
 
     def serialize_course_run_search(self, run, serializer=None):
         obj = self._get_search_result(CourseRun, key=run.key)
@@ -106,33 +101,11 @@ class TypeaheadSerializationMixin:
         return serializers.TypeaheadProgramSearchSerializer(obj).data
 
 
-class OAuth2Mixin(object):
-    def generate_oauth2_token_header(self, user):
-        """ Generates a Bearer authorization header to simulate OAuth2 authentication. """
-        return 'Bearer {token}'.format(token=user.username)
-
-    def mock_user_info_response(self, user, status=200):
-        """ Mock the user info endpoint response of the OAuth2 provider. """
-
-        data = {
-            'family_name': user.last_name,
-            'preferred_username': user.username,
-            'given_name': user.first_name,
-            'email': user.email,
-        }
-
-        responses.add(
-            responses.GET,
-            settings.EDX_DRF_EXTENSIONS['OAUTH2_USER_INFO_URL'],
-            body=json.dumps(data),
-            content_type='application/json',
-            status=status
-        )
-
+class OAuth2Mixin:
     def mock_access_token(self):
         responses.add(
             responses.POST,
-            self.partner.oauth2_provider_url + '/access_token',
+            self.partner.lms_url + '/oauth2/access_token',
             body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
             status=200,
         )
@@ -200,17 +173,17 @@ class FuzzyInt(int):
         return obj
 
     def __eq__(self, other):
-        return (self.value - self.threshold) <= other <= (self.value + self.threshold)
+        return (self.value - self.threshold) <= other <= (self.value + self.threshold)  # pylint: disable=no-member
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __str__(self):
-        return 'FuzzyInt(value={}, threshold={})'.format(self.value, self.threshold)
+        return 'FuzzyInt(value={}, threshold={})'.format(self.value, self.threshold)  # pylint: disable=no-member
 
 
 class APITestCase(SiteMixin, RestAPITestCase):
-    def assertNumQueries(self, num, func=None, *args, **kwargs):
+    def assertNumQueries(self, num, func=None, *args, **kwargs):  # pylint: disable=keyword-arg-before-vararg
         """
         Overridden method to allow a number of queries within a constant range, rather than
         an exact amount of queries.  This allows us to make changes to views and models that

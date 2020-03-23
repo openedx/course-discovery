@@ -1,7 +1,7 @@
 """ Constants for the core app. """
 
 
-class Status(object):
+class Status:
     """Health statuses."""
     OK = u"OK"
     UNAVAILABLE = u"UNAVAILABLE"

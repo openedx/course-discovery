@@ -8,4 +8,4 @@ class PublisherAppConfig(AppConfig):
     def ready(self):
         super().ready()
         # noinspection PyUnresolvedReferences
-        import course_discovery.apps.publisher.signals  # pylint: disable=unused-variable
+        import course_discovery.apps.publisher.signals  # pylint: disable=import-outside-toplevel,unused-import

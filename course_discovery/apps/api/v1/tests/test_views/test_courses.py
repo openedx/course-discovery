@@ -18,7 +18,7 @@ from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseEntitlement, CourseRun, Seat, SeatType
+    Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory,
@@ -36,9 +36,15 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.user = UserFactory(is_staff=True)
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.course = CourseFactory(partner=self.partner, title='Fake Test', key='edX+Fake101')
+        self.audit_type = CourseType.objects.get(slug=CourseType.AUDIT)
+        self.verified_type = CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT)
+        self.course = CourseFactory(partner=self.partner, title='Fake Test', key='edX+Fake101', type=self.audit_type)
         self.org = OrganizationFactory(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)  # pylint: disable=no-member
+
+    def tearDown(self):
+        super(CourseViewSetTests, self).tearDown()
+        self.client.logout()
 
     def mock_ecommerce_publication(self):
         url = '{root}publication/'.format(root=self.course.partner.ecommerce_api_url)
@@ -48,28 +54,28 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(45):
+        with self.assertNumQueries(37):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, self.serialize_course(self.course))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.serialize_course(self.course))
 
     def test_get_uuid(self):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(43, threshold=3):
+        with self.assertNumQueries(37):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data, self.serialize_course(self.course))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.serialize_course(self.course))
 
     def test_get_exclude_deleted_programs(self):
         """ Verify the endpoint returns no deleted associated programs """
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        with self.assertNumQueries(31):
+        with self.assertNumQueries(37):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.data.get('programs'), [])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.get('programs'), [])
 
     def test_get_include_deleted_programs(self):
         """
@@ -79,13 +85,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_deleted_programs=1'
-        with self.assertNumQueries(51):
+        with self.assertNumQueries(40):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(
-                response.data,
-                self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
-            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.data,
+            self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
+        )
 
     def test_get_include_hidden_course_runs(self):
         """
@@ -215,13 +221,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(40, threshold=2):
+        with self.assertNumQueries(25):
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertListEqual(
-                response.data['results'],
-                self.serialize_course(Course.objects.all().order_by(Lower('key')), many=True)
-            )
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(
+            response.data['results'],
+            self.serialize_course(Course.objects.all().order_by(Lower('key')), many=True)
+        )
 
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
@@ -231,9 +237,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
-        with self.assertNumQueries(55, threshold=3):
+        # Known to be flaky prior to the addition of tearDown()
+        # and logout() code which is the same number of additional queries
+        with self.assertNumQueries(34):
             response = self.client.get(url)
-            self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
     def test_list_key_filter(self):
         """ Verify the endpoint returns a list of courses filtered by the specified keys. """
@@ -242,9 +250,9 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        with self.assertNumQueries(54):
+        with self.assertNumQueries(34):
             response = self.client.get(url)
-            self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
     def test_list_uuid_filter(self):
         """ Verify the endpoint returns a list of courses filtered by the specified uuid. """
@@ -253,9 +261,9 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(56):
+        with self.assertNumQueries(34):
             response = self.client.get(url)
-            self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
+        self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
     def test_list_exclude_utm(self):
         """ Verify the endpoint returns marketing URLs without UTM parameters. """
@@ -307,6 +315,62 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data['results']), 1)
         self.assertEqual(response.data['results'][0]['uuid'], str(self.course.uuid))
+
+    def test_list_course_run_statuses(self):
+        """ Verify the endpoint returns a list of courses by course run status """
+        url = reverse('api:v1:course-list') + '?editable=1&course_run_statuses=unpublished'
+        CourseRunFactory(status=CourseRunStatus.Unpublished, course=self.course)
+        ensure_draft_world(self.course)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['uuid'], str(self.course.uuid))
+
+        course2 = CourseFactory()
+        url2 = reverse('api:v1:course-list') + '?editable=1&course_run_statuses=in_review'
+        CourseRunFactory(status=CourseRunStatus.LegalReview, course=course2)
+        ensure_draft_world(course2)
+
+        response2 = self.client.get(url2)
+        self.assertEqual(response2.status_code, 200)
+        self.assertEqual(len(response2.data['results']), 1)
+        self.assertEqual(response2.data['results'][0]['uuid'], str(course2.uuid))
+
+    def test_unsubmitted_status(self):
+        """ Verify we support composite status 'unsubmitted' (unpublished & unarchived). """
+        self.course.delete()
+        now = datetime.datetime.now(pytz.UTC)
+        no_end_run = ensure_draft_world(CourseRunFactory(status=CourseRunStatus.Unpublished, end=None))
+        _past_end_run = ensure_draft_world(CourseRunFactory(status=CourseRunStatus.Unpublished,
+                                                            end=now - datetime.timedelta(days=1)))
+        future_end_run = ensure_draft_world(CourseRunFactory(status=CourseRunStatus.Unpublished,
+                                                             end=now + datetime.timedelta(days=1)))
+
+        response = self.client.get(reverse('api:v1:course-list') + '?editable=1&course_run_statuses=unsubmitted')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 2)
+        self.assertEqual({c['uuid'] for c in response.data['results']},
+                         {str(run.course.uuid) for run in [future_end_run, no_end_run]})
+
+    def test_no_archived_statuses(self):
+        """ Verify that we skip archived statuses in a course serialization of statuses. """
+        now = datetime.datetime.now(pytz.UTC)
+        past_end_run = CourseRunFactory(course=self.course, status=CourseRunStatus.Unpublished,
+                                        end=now - datetime.timedelta(days=1))
+        _published_run = CourseRunFactory(course=self.course, status=CourseRunStatus.Published)
+
+        response = self.client.get(reverse('api:v1:course-list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 1)
+        self.assertEqual(response.data['results'][0]['uuid'], str(self.course.uuid))
+        self.assertEqual(response.data['results'][0]['course_run_statuses'], ['published'])  # no 'unpublished' status
+
+        # Now test with no end date - we should see unarchived appear
+        past_end_run.end = None
+        past_end_run.save()
+        response = self.client.get(reverse('api:v1:course-list'))
+        self.assertEqual(response.data['results'][0]['course_run_statuses'], ['published', 'unpublished'])
 
     @ddt.data(
         ('get', False, False, True),
@@ -362,12 +426,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             CourseEditorFactory(user=self.user, course=self.course)
 
         response = getattr(self.client, method)(reverse('api:v1:course-detail', kwargs={'key': self.course.uuid}))
-
-        if not allowed:
-            self.assertEqual(response.status_code, 404)
-        else:
-            # We'll probably fail because we didn't include the right data - but at least we'll have gotten in
-            self.assertNotEqual(response.status_code, 404)
+        # We'll probably fail with 400 because we didn't include the right data - but at least confirm we got in
+        self.assertEqual(response.status_code not in [403, 404], allowed, response.status_code)
 
     def test_editable_list_gives_drafts(self):
         draft = CourseFactory(partner=self.partner, uuid=self.course.uuid, key=self.course.key, draft=True)
@@ -405,6 +465,15 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.client.get(reverse('api:v1:course-list') + '?editable=1')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['results'], self.serialize_course([self.course], many=True))
+
+    @responses.activate
+    def test_editable_list_is_denied_as_normal_user(self):
+        """ Verify that GET with editable=1 can't be reached by a normal unprivileged user. """
+        self.user.is_staff = False
+        self.user.save()
+
+        response = self.client.get(reverse('api:v1:course-list') + '?editable=1')
+        self.assertEqual(response.status_code, 403)
 
     def test_editable_get_gives_drafts(self):
         draft = CourseFactory(partner=self.partner, uuid=self.course.uuid, key=self.course.key, draft=True)
@@ -461,12 +530,12 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.course.save()
 
         # Try without being in the organization nor an editor
-        self.assertEqual(self.client.patch(url).status_code, 404)
+        self.assertEqual(self.client.patch(url).status_code, 403)
 
         # Add to authoring org, and we should be let in
         org_ext = OrganizationExtensionFactory(organization=self.org)
         self.user.groups.add(org_ext.group)
-        self.assertNotEqual(self.client.patch(url).status_code, 404)
+        self.assertNotEqual(self.client.patch(url).status_code, 403)
 
         # Now add a random other user as an editor to the course, so that we will no longer be granted access.
         editor = UserFactory()
@@ -476,11 +545,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # But if the editor is no longer valid (even though they exist), we're back to having access.
         editor.groups.remove(org_ext.group)
-        self.assertNotEqual(self.client.patch(url).status_code, 404)
+        self.assertNotEqual(self.client.patch(url).status_code, 403)
 
         # And finally, for a sanity check, confirm we have access when we become an editor also
         CourseEditorFactory(user=self.user, course=self.course)
-        self.assertNotEqual(self.client.patch(url).status_code, 404)
+        self.assertNotEqual(self.client.patch(url).status_code, 403)
 
     def test_delete_not_allowed(self):
         """ Verify we don't allow deleting a course from the API. """
@@ -504,7 +573,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                 'title': 'Course title',
                 'number': 'test101',
                 'org': self.org.key,
-                'mode': 'audit',
+                'type': str(self.audit_type.uuid),
             }
             course_data.update(data or {})
         else:
@@ -514,11 +583,14 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def create_course_and_course_run(self, data=None, update=True):
         if update:
             course_data = {
+                'title': 'Course title',
                 'number': 'test101',
                 'org': self.org.key,
+                'type': str(self.audit_type.uuid),
                 'course_run': {
                     'start': '2001-01-01T00:00:00Z',
                     'end': datetime.datetime.now() + datetime.timedelta(days=1),
+                    'run_type': str(CourseRunType.objects.get(slug=CourseRunType.AUDIT).uuid),
                 }
             }
             course_data.update(data or {})
@@ -531,50 +603,49 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
             status=200,
         )
-        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))  # pylint: disable=no-member
         responses.add(responses.POST, studio_url, status=200)
         key = 'course-v1:{org}+{number}+1T2001'.format(org=course_data['org'], number=course_data['number'])
         responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=key), status=200)
         return self.create_course(course_data, update)
 
-    @responses.activate
-    def test_create_with_authentication_verified_mode(self):
+    def test_multiple_authoring_orgs_get_pulled_in_order(self):
+        org1 = OrganizationFactory(key='org1', partner=self.partner)
+        org2 = OrganizationFactory(key='org2', partner=self.partner)
+        org3 = OrganizationFactory(key='org3', partner=self.partner)
+
+        course = CourseFactory(partner=self.partner,
+                               title='Mult Org Course',
+                               key='edX+6688',
+                               type=self.audit_type,
+                               authoring_organizations=[org1, org2, org3])
+
         self.mock_access_token()
-        course_data = {
-            'mode': 'verified',
-            'price': 100,
-        }
-        response = self.create_course(course_data)
 
-        course = Course.everything.last()
-        self.assertDictEqual(response.data, self.serialize_course(course))
-        self.assertEqual(response.status_code, 201)
-        expected_course_key = '{org}+{number}'.format(org=self.org.key, number='test101')
-        self.assertEqual(course.key, expected_course_key)
-        self.assertEqual(course.title, 'Course title')
-        self.assertListEqual(list(course.authoring_organizations.all()), [self.org])
-        self.assertEqual(1, CourseEntitlement.everything.count())  # pylint: disable=no-member
+        url = reverse('api:v1:course-detail', kwargs={'key': course.key})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
 
-    def test_create_with_authentication_audit_mode(self):
-        """
-        When creating with audit mode, no entitlement should be created.
-        """
-        self.mock_access_token()
-        response = self.create_course()
+        self.assertEqual(response.data['owners'][0]['key'], 'org1')
+        self.assertEqual(response.data['owners'][1]['key'], 'org2')
+        self.assertEqual(response.data['owners'][2]['key'], 'org3')
 
-        course = Course.everything.last()
-        self.assertDictEqual(response.data, self.serialize_course(course))
-        self.assertEqual(response.status_code, 201)
-        expected_course_key = '{org}+{number}'.format(org=self.org.key, number='test101')
-        self.assertEqual(course.key, expected_course_key)
-        self.assertEqual(course.title, 'Course title')
-        self.assertListEqual(list(course.authoring_organizations.all()), [self.org])
-        self.assertEqual(0, CourseEntitlement.objects.count())
+        course.authoring_organizations.clear()
+        for org in [org2, org3, org1]:
+            course.authoring_organizations.add(org)
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.key})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(response.data['owners'][0]['key'], 'org2')
+        self.assertEqual(response.data['owners'][1]['key'], 'org3')
+        self.assertEqual(response.data['owners'][2]['key'], 'org1')
 
     def test_create_makes_draft(self):
         """ When creating a course, it should start as a draft. """
         self.mock_access_token()
-        response = self.create_course({'mode': 'verified', 'price': 77})
+        response = self.create_course({'type': str(self.verified_type.uuid), 'prices': {'verified': 77}})
         self.assertEqual(response.status_code, 201)
 
         course = Course.everything.last()
@@ -584,7 +655,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def test_create_makes_editor(self):
         """ When creating a course, it should set the current user as the only editor for that course. """
         self.mock_access_token()
-        response = self.create_course({'mode': 'verified'})
+        response = self.create_course()
         self.assertEqual(response.status_code, 201)
 
         course = Course.everything.last()
@@ -602,15 +673,15 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         course = Course.everything.last()
         self.assertTrue(course.draft)
-        self.assertTrue(course.entitlements.first().draft)
+        self.assertIsNone(course.entitlements.first())
         course_run = CourseRun.everything.last()
         self.assertTrue(course_run.draft)
         self.assertEqual(course_run.course, course)
 
         # Creating with mode = 'audit' should also create an audit seat
-        self.assertEqual(1, Seat.everything.count())  # pylint: disable=no-member
+        self.assertEqual(1, Seat.everything.count())
         seat = course_run.seats.first()
-        self.assertEqual(seat.type, Seat.AUDIT)
+        self.assertEqual(seat.type.slug, Seat.AUDIT)
         self.assertEqual(seat.price, 0.00)
 
     def test_create_with_course_run_makes_verified_seat(self):
@@ -622,11 +693,12 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         data = {
             'number': 'test101',
             'org': self.org.key,
-            'mode': 'verified',
-            'price': 77.77,
+            'type': str(CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT).uuid),
+            'prices': {'verified': 77.77},
             'course_run': {
                 'start': '2001-01-01T00:00:00Z',
                 'end': datetime.datetime.now() + datetime.timedelta(days=1),
+                'run_type': str(CourseRunType.objects.get(slug=CourseRunType.VERIFIED_AUDIT).uuid),
             }
         }
         response = self.create_course_and_course_run(data)
@@ -634,10 +706,10 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         course_run = CourseRun.everything.last()
 
-        self.assertEqual(Seat.everything.count(), 2)  # pylint: disable=no-member
-        verified_seat = Seat.everything.get(course_run=course_run, type='verified')  # pylint: disable=no-member
-        self.assertEqual(float(verified_seat.price), data['price'])
-        audit_seat = Seat.everything.get(course_run=course_run, type='audit')  # pylint: disable=no-member
+        self.assertEqual(Seat.everything.count(), 2)
+        verified_seat = Seat.everything.get(course_run=course_run, type='verified')
+        self.assertEqual(float(verified_seat.price), 77.77)
+        audit_seat = Seat.everything.get(course_run=course_run, type='audit')
         self.assertEqual(audit_seat.price, 0.00)
         self.assertTrue(audit_seat.draft)
 
@@ -646,35 +718,75 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.create_course()
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'course-title')
+        course.refresh_from_db()
+        self.assertEqual(course.active_url_slug, 'course-title')
 
     def test_create_saves_manual_url_slug(self):
         self.mock_access_token()
         response = self.create_course({'url_slug': 'manual'})
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'manual')
+        self.assertEqual(course.active_url_slug, 'manual')
 
     def test_create_increments_auto_url_slug(self):
         self.mock_access_token()
         response = self.create_course()
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'course-title')
+        self.assertEqual(course.active_url_slug, 'course-title')
 
         response = self.create_course({'number': 'a123'})
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'course-title-2')
+        self.assertEqual(course.active_url_slug, 'course-title-2')
+
+    def test_create_with_course_type_verified(self):
+        self.mock_access_token()
+        data = {
+            'title': 'Test Course',
+            'number': 'test101',
+            'org': self.org.key,
+            'type': str(self.verified_type.uuid),
+            'prices': {'verified': 77},
+        }
+        response = self.create_course(data, update=False)
+
+        course = Course.everything.last()
+        self.assertDictEqual(response.data, self.serialize_course(course))
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(course.title, data['title'])
+        self.assertEqual(course.type, self.verified_type)
+
+        self.assertEqual(1, CourseEntitlement.everything.count())
+        entitlement = course.entitlements.last()
+        self.assertEqual(entitlement.mode.slug, Seat.VERIFIED)
+        self.assertEqual(entitlement.price, 77)
+
+    def test_create_with_course_type_audit(self):
+        self.mock_access_token()
+        data = {
+            'title': 'Test Course',
+            'number': 'test101',
+            'org': self.org.key,
+            'type': str(self.audit_type.uuid),
+        }
+        response = self.create_course(data, update=False)
+
+        course = Course.everything.last()
+        self.assertDictEqual(response.data, self.serialize_course(course))
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(course.title, data['title'])
+        self.assertEqual(course.type, self.audit_type)
+        self.assertEqual(0, CourseEntitlement.everything.count())
 
     def test_create_fails_if_manual_slug_exists(self):
         self.mock_access_token()
         response = self.create_course()
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'course-title')
+        self.assertEqual(course.active_url_slug, 'course-title')
 
-        response = self.create_course({'url_slug': 'course-title'})
+        response = self.create_course({'url_slug': 'course-title', 'number': 'a123'})
         self.assertEqual(response.status_code, 400)
         expected_error_message = 'Failed to set data: Course creation was unsuccessful. ' \
                                  'The course URL slug ‘[course-title]’ is already in use. ' \
@@ -686,7 +798,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.mock_access_token()
         response = self.create_course({'number': 'Fake101'})
         self.assertEqual(response.status_code, 400)
-        expected_error_message = 'Failed to set data: A course with key {key} already exists.'
+        expected_error_message = 'Failed to set data: A course with key [{key}] already exists.'
         self.assertEqual(response.data, expected_error_message.format(key=self.course.key))
 
     def test_create_fails_with_missing_field(self):
@@ -694,7 +806,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             {
                 'title': 'Course title',
                 'org': self.org.key,
-                'mode': 'audit',
+                'type': str(self.audit_type.uuid),
             },
             update=False
         )
@@ -705,13 +817,19 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def test_create_fails_with_nonexistent_org(self):
         response = self.create_course({'org': 'fake org'})
         self.assertEqual(response.status_code, 400)
-        expected_error_message = 'Incorrect data sent. Organization does not exist.'
+        expected_error_message = 'Incorrect data sent. Organization [fake org] does not exist.'
         self.assertEqual(response.data, expected_error_message)
 
-    def test_create_fails_with_nonexistent_mode(self):
-        response = self.create_course({'mode': 'fake mode'})
+    def test_create_fails_with_nonexistent_course_type(self):
+        data = {
+            'title': 'Test Course',
+            'number': 'test101',
+            'org': self.org.key,
+            'type': '00000000-0000-0000-0000-000000000000',
+        }
+        response = self.create_course(data, update=False)
         self.assertEqual(response.status_code, 400)
-        expected_error_message = 'Incorrect data sent. Entitlement Track does not exist.'
+        expected_error_message = 'Incorrect data sent. Course Type [' + data['type'] + '] does not exist.'
         self.assertEqual(response.data, expected_error_message)
 
     def test_create_fails_invalid_course_number(self):
@@ -722,25 +840,30 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @ddt.data(
         (
-            {'title': 'Course title', 'number': 'test101', 'org': 'fake org', 'mode': 'fake mode'},
-            'Incorrect data sent. Organization does not exist. Entitlement Track does not exist.'
+            {'title': 'Course title', 'number': 'test101', 'org': 'fake org',
+             'type': '00000000-0000-0000-0000-000000000000'},
+            'Incorrect data sent. Organization [fake org] does not exist. '
+            'Course Type [00000000-0000-0000-0000-000000000000] does not exist.'
         ),
         (
-            {'title': 'Course title', 'org': 'edX', 'mode': 'fake mode'},
-            'Incorrect data sent. Missing value for: [number]. Entitlement Track does not exist.'
+            {'title': 'Course title', 'org': 'edX', 'type': '00000000-0000-0000-0000-000000000000'},
+            'Incorrect data sent. Missing value for: [number]. '
+            'Course Type [00000000-0000-0000-0000-000000000000] does not exist.'
         ),
         (
-            {'title': 'Course title', 'org': 'fake org', 'mode': 'audit'},
-            'Incorrect data sent. Missing value for: [number]. Organization does not exist.'
+            {'title': 'Course title', 'org': 'fake org', 'type': 'audit'},
+            'Incorrect data sent. Missing value for: [number]. Organization [fake org] does not exist.'
         ),
         (
-            {'number': 'test101', 'org': 'fake org', 'mode': 'fake mode'},
-            'Incorrect data sent. Missing value for: [title]. Organization does not exist. '
-            'Entitlement Track does not exist.'
+            {'number': 'test101', 'org': 'fake org', 'type': '00000000-0000-0000-0000-000000000000'},
+            'Incorrect data sent. Missing value for: [title]. Organization [fake org] does not exist. '
+            'Course Type [00000000-0000-0000-0000-000000000000] does not exist.'
         ),
     )
     @ddt.unpack
     def test_create_fails_with_multiple_errors(self, course_data, expected_error_message):
+        if course_data.get('type') == 'audit':
+            course_data['type'] = str(self.audit_type.uuid)
         response = self.create_course(course_data, update=False)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, expected_error_message)
@@ -751,20 +874,19 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         from Studio. Other errors (PermissionDenied, ValidationError, Http404) are all caught and
         raised to the course endpoint, but some errors just create a response.
         '''
-        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
-        responses.add(responses.POST, studio_url, status=400)
+        studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))  # pylint: disable=no-member
+        responses.add(responses.POST, studio_url, status=400, body=b'Nope')
         response = self.create_course_and_course_run()
         self.assertEqual(response.status_code, 400)
-        expected_error_message = ('Failed to set data: Failed to set course run data: '
-                                  'Client Error 400: {studio_url}'.format(studio_url=studio_url))
+        expected_error_message = 'Failed to set data: Failed to set course run data: Nope'
         self.assertEqual(response.data, expected_error_message)
 
     def test_create_with_api_exception(self):
         with mock.patch(
-            # We are using get_course_key because it is called prior to tryig to contact the
+            # We are using get_course_key because it is called prior to trying to contact the
             # e-commerce service and still gives the effect of an api exception.
             'course_discovery.apps.api.v1.views.courses.CourseViewSet.get_course_key',
-            side_effect=IntegrityError
+            side_effect=IntegrityError('Error')
         ):
             with LogCapture(course_logger.name) as log_capture:
                 response = self.create_course()
@@ -773,7 +895,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                     (
                         course_logger.name,
                         'ERROR',
-                        'An error occurred while setting Course or Course Run data.',
+                        'Failed to set data: Error',
                     )
                 )
 
@@ -791,21 +913,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     @responses.activate
     def test_update_success(self, method):
         self.mock_access_token()
-        entitlement = CourseEntitlementFactory(course=self.course)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
             'title': 'Course title',
             'url_slug': 'manual',
             'partner': self.partner.id,
             'key': self.course.key,
-            'entitlements': [
-                {
-                    'mode': entitlement.mode.slug,
-                    'price': 1000,
-                    'sku': entitlement.sku,
-                    'expires': None,
-                },
-            ],
+            'type': str(self.audit_type.uuid),
             # The API is expecting the image to be base64 encoded. We are simulating that here.
             'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
                      '42YAAAAASUVORK5CYII=',
@@ -817,12 +931,53 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
         self.assertEqual(course.title, 'Course title')
-        self.assertEqual(course.url_slug, 'manual')
-        self.assertEqual(course.entitlements.first().price, 1000)
+        self.assertEqual(course.active_url_slug, 'manual')
         self.assertDictEqual(response.data, self.serialize_course(course))
 
-    def test_update_defaults_url_slug_if_removed(self):
+    @responses.activate
+    def test_update_success_with_course_type_verified(self):
         self.mock_access_token()
+        verified_mode = SeatTypeFactory.verified()
+        CourseEntitlementFactory(course=self.course, mode=verified_mode)
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        course_data = {
+            'title': 'Course title',
+            'key': self.course.key,
+            'type': str(self.verified_type.uuid),
+            'prices': {'verified': '77.32'},
+        }
+
+        response = self.client.patch(url, course_data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        self.assertDictEqual(response.data, self.serialize_course(course))
+        self.assertEqual(course.title, 'Course title')
+        entitlement = course.entitlements.first()
+        self.assertEqual(float(entitlement.price), 77.32)
+        self.assertEqual(entitlement.mode.slug, Seat.VERIFIED)
+
+    @responses.activate
+    def test_update_success_with_course_type_audit(self):
+        self.mock_access_token()
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        course_data = {
+            'title': 'Course title',
+            'key': self.course.key,
+            'type': str(self.audit_type.uuid),
+        }
+
+        response = self.client.patch(url, course_data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        self.assertDictEqual(response.data, self.serialize_course(course))
+        self.assertEqual(course.title, 'Course title')
+        self.assertEqual(0, course.entitlements.count())
+
+    def test_update_keeps_url_slug_if_removed_from_form(self):
+        self.mock_access_token()
+        self.course.set_active_url_slug('fake-test')
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
             'url_slug': ''
@@ -830,7 +985,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         response = self.client.patch(url, course_data, format='json')
         self.assertEqual(response.status_code, 200)
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
-        self.assertEqual(course.url_slug, 'fake-test')
+        self.assertEqual(course.active_url_slug, 'fake-test')
 
     @responses.activate
     def test_update_operates_on_drafts(self):
@@ -850,6 +1005,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertFalse(self.course.draft)
         self.assertFalse(self.course.entitlements.first().draft)
         self.assertEqual(self.course.title, 'Fake Test')
+        self.assertDictEqual(response.data, self.serialize_course(course))
 
     @responses.activate
     def test_patch_resets_run_status(self):
@@ -908,29 +1064,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(official_course_run.status, CourseRunStatus.Reviewed)
 
     @responses.activate
-    def test_update_creates_draft_audit_entitlement_if_none_exists(self):
-        """
-        When an official version has no entitlements, it could be an audit course so we can create
-        a draft audit entitlement. This happens as part of the call to ensure_draft_world.
-        """
-        self.mock_access_token()
-        self.assertFalse(CourseEntitlement.everything.filter(course=self.course).exists())  # pylint: disable=no-member
-
-        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        response = self.client.patch(url, {'entitlements': [{}]}, format='json')
-        self.assertEqual(response.status_code, 200)
-
-        course = Course.everything.get(uuid=self.course.uuid, draft=True)
-        entitlement = course.entitlements.first()
-        self.assertTrue(entitlement.draft)
-        self.assertEqual(entitlement.mode.slug, Seat.AUDIT)
-        self.assertEqual(entitlement.price, 0.00)
-
-        self.course.refresh_from_db()
-        self.assertFalse(self.course.draft)
-        self.assertFalse(self.course.entitlements.exists())
-
-    @responses.activate
     def test_patch_published(self):
         """
         Verify that draft rows can be updated and re-published with draft=False. This should also
@@ -939,8 +1072,10 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.mock_access_token()
         self.mock_ecommerce_publication()
         data = {
-            'mode': 'verified',
-            'price': 49,
+            'type': str(CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT).uuid),
+            'prices': {
+                'verified': 40,
+            },
         }
         self.create_course_and_course_run(data)
 
@@ -954,7 +1089,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # Edit; should only touch draft
         url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
-        updated_short_desc = 'New short desc'
+        updated_short_desc = '<p>New short desc</p>'
         data = {
             'short_description': updated_short_desc,
         }
@@ -968,7 +1103,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertNotEqual(official_course.short_description, updated_short_desc)
 
         # Re-publish; should update official with new and old information
-        updated_full_desc = 'New long desc'
+        updated_full_desc = '<p>New long desc</p>'
         response = self.client.patch(url, {'full_description': updated_full_desc, 'draft': False}, format='json')
         self.assertEqual(response.status_code, 200)
 
@@ -979,18 +1114,90 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(draft_course.full_description, updated_full_desc)
         self.assertEqual(official_course.full_description, updated_full_desc)
 
-        entitlement = draft_course.entitlements.first()
-        updated_entitlement = {
-            'mode': entitlement.mode.slug,
-            'price': 1000,
-        }
-        response = self.client.patch(url, {'entitlements': [updated_entitlement], 'draft': False}, format='json')
+        response = self.client.patch(url, {'prices': {'verified': 1000}, 'draft': False}, format='json')
         self.assertEqual(response.status_code, 200)
 
         draft_course.refresh_from_db()
         official_course.refresh_from_db()
-        self.assertEqual(draft_course.entitlements.first().price, updated_entitlement['price'])
-        self.assertEqual(official_course.entitlements.first().price, updated_entitlement['price'])
+        self.assertEqual(draft_course.entitlements.first().price, 1000)
+        self.assertEqual(official_course.entitlements.first().price, 1000)
+
+    def test_patch_publish_saves_old_url_in_history(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.status = CourseRunStatus.Published
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        self.assertEqual(official_course.active_url_slug, 'course-title')
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+
+        response = self.client.patch(url, {'url_slug': 'manual', 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+
+        self.assertEqual(official_course.active_url_slug, 'manual')
+        url_history = official_course.url_slug_history.all().values('url_slug')
+        url_history_strings = [history_item['url_slug'] for history_item in url_history]
+        self.assertIn('course-title', url_history_strings)
+
+    def test_unpublished_url_slugs_not_added_to_history(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.status = CourseRunStatus.Published
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        self.assertEqual(official_course.active_url_slug, 'course-title')
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+
+        # add new slug to draft but don't publish
+        response = self.client.patch(url, {'url_slug': 'unpublished', 'draft': True}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        self.assertEqual(draft_course.active_url_slug, 'unpublished')
+        self.assertEqual(official_course.active_url_slug, 'course-title')
+        url_history = official_course.url_slug_history.all().values('url_slug')
+        url_history_strings = [history_item['url_slug'] for history_item in url_history]
+        self.assertNotIn('manual', url_history_strings)
+
+        # add new slug and publish at the same time
+        response = self.client.patch(url, {'url_slug': 'published', 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+        official_course.refresh_from_db()
+        self.assertEqual(official_course.active_url_slug, 'published')
+        self.assertEqual(official_course.url_slug_history.count(), 2)
+
+        # unpublished slug not in history, previously published slug is
+        url_history = official_course.url_slug_history.all().values('url_slug')
+        url_history_strings = [history_item['url_slug'] for history_item in url_history]
+        self.assertNotIn('unpublished', url_history_strings)
+        self.assertIn('course-title', url_history_strings)
+
+        # unpublished slug is now available to other courses
+        self.create_course({'url_slug': 'unpublished', 'number': 'a123'})
+        new_course = Course.everything.last()
+        self.assertEqual(new_course.active_url_slug, 'unpublished')
 
     @responses.activate
     def test_patch_published_switch_audit_to_verified(self):
@@ -1013,99 +1220,27 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
         draft_course = official_course.draft_version
 
-        # We only expect the draft course to have an entitlement since we don't create official Audit entitlements
-        self.assertEqual(CourseEntitlement.everything.count(), 1)  # pylint: disable=no-member
-        self.assertEqual(draft_course.entitlements.first().mode.slug, 'audit')
-        self.assertTrue(draft_course.entitlements.first().draft)
-        self.assertIsNone(official_course.entitlements.first())
-
-        # We expect the draft course run and the official course run to now both have audit Seats
-        official_course_run = CourseRun.objects.get(key=draft_course_run.key)
-        draft_course_run = official_course_run.draft_version
-        self.assertEqual(Seat.everything.count(), 2)  # pylint: disable=no-member
-        self.assertEqual(draft_course_run.seats.first().type, 'audit')
-        self.assertTrue(draft_course_run.seats.first().draft)
-        self.assertEqual(official_course_run.seats.first().type, 'audit')
-        self.assertFalse(official_course_run.seats.first().draft)
+        self.assertEqual(CourseEntitlement.everything.count(), 0)
 
         # Republish with a verified slug
         url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
-        updated_entitlement = {
-            'mode': SeatType.objects.get(slug='verified').slug,
-            'price': 1000,
+        updates = {
+            'type': str(CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT).uuid),
+            'prices': {
+                'verified': 1000,
+            },
+            'draft': False,
         }
-        response = self.client.patch(url, {'entitlements': [updated_entitlement], 'draft': False}, format='json')
+        response = self.client.patch(url, updates, format='json')
         self.assertEqual(response.status_code, 200)
 
         draft_course.refresh_from_db()
         official_course.refresh_from_db()
-        self.assertEqual(CourseEntitlement.everything.count(), 2)  # pylint: disable=no-member
-        self.assertEqual(draft_course.entitlements.first().price, updated_entitlement['price'])
-        self.assertEqual(draft_course.entitlements.first().mode.slug, updated_entitlement['mode'])
-        self.assertEqual(official_course.entitlements.first().price, updated_entitlement['price'])
-        self.assertEqual(official_course.entitlements.first().mode.slug, updated_entitlement['mode'])
-
-        draft_course_run.refresh_from_db()
-        official_course_run.refresh_from_db()
-        # Verified means there should be both an Audit seat and Verified seat
-        self.assertEqual(Seat.everything.count(), 4)  # pylint: disable=no-member
-        draft_verified_seat = Seat.everything.get(course_run=draft_course_run, type='verified')  # pylint: disable=no-member
-        self.assertEqual(float(draft_verified_seat.price), updated_entitlement['price'])
-        draft_audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')  # pylint: disable=no-member
-        self.assertEqual(draft_audit_seat.price, 0.00)
-
-        official_verified_seat = Seat.everything.get(course_run=official_course_run, type='verified')  # pylint: disable=no-member
-        self.assertEqual(float(official_verified_seat.price), updated_entitlement['price'])
-        official_audit_seat = Seat.everything.get(course_run=official_course_run, type='audit')  # pylint: disable=no-member
-        self.assertEqual(official_audit_seat.price, 0.00)
-
-    @ddt.data(
-        ('audit', 'audit', 0.00),
-        ('audit', 'verified', 77),
-        ('audit', 'professional', 132),
-        ('verified', 'audit', 0.00),
-        ('verified', 'verified', 77),
-        ('verified', 'professional', 132),
-        ('professional', 'audit', 0.00),
-        ('professional', 'verified', 77),
-        ('professional', 'professional', 132),
-    )
-    @ddt.unpack
-    @responses.activate
-    def test_patch_updating_entitlements_also_updates_seats(self, original_mode, mode, price):
-        """
-        Verify that draft rows can be updated and re-published with draft=False. This should also
-        update and publish the official version.
-        """
-        self.mock_access_token()
-        data = {
-            'mode': original_mode,
-            'price': 49,
-        }
-        self.create_course_and_course_run(data)
-
-        draft_course = Course.everything.last()
-        draft_course_run = CourseRun.everything.last()
-
-        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
-        updated_entitlement = {
-            'mode': mode,
-            'price': price,
-        }
-        response = self.client.patch(url, {'entitlements': [updated_entitlement], 'draft': False}, format='json')
-        self.assertEqual(response.status_code, 200)
-
-        num_seats = Seat.everything.count()  # pylint: disable=no-member
-        if mode == 'verified':
-            self.assertEqual(num_seats, 2)
-            audit_seat = Seat.everything.get(course_run=draft_course_run, type='audit')  # pylint: disable=no-member
-            self.assertEqual(audit_seat.price, 0.00)
-            self.assertTrue(audit_seat.draft)
-        else:
-            self.assertEqual(num_seats, 1)
-        seat = Seat.everything.get(course_run=draft_course_run, type=mode)  # pylint: disable=no-member
-        self.assertEqual(seat.price, price)
-        self.assertTrue(seat.draft)
+        self.assertEqual(CourseEntitlement.everything.count(), 2)
+        self.assertEqual(draft_course.entitlements.first().price, 1000)
+        self.assertEqual(draft_course.entitlements.first().mode.slug, Seat.VERIFIED)
+        self.assertEqual(official_course.entitlements.first().price, 1000)
+        self.assertEqual(official_course.entitlements.first().mode.slug, Seat.VERIFIED)
 
     @responses.activate
     def test_patch_creates_draft_entitlement_if_possible(self):
@@ -1117,7 +1252,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.mock_access_token()
         future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
         run = CourseRunFactory(course=self.course, end=future, enrollment_end=None)
-        seat = SeatFactory(course_run=run, type=Seat.VERIFIED)
+        seat = SeatFactory(course_run=run, type=SeatTypeFactory.verified())
         self.assertFalse(Course.everything.filter(uuid=self.course.uuid, draft=True).exists())  # sanity check
         self.assertIsNone(self.course.entitlements.first())
 
@@ -1137,38 +1272,28 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         # The official version of the course should still not have any entitlements
         self.assertIsNone(self.course.entitlements.first())
 
-    @ddt.data(
-        (
-            {'entitlements': [{'price': 5}]},
-            'Entitlements must have a mode specified.',
-        ),
-        (
-            {'entitlements': [{'mode': 'NOPE'}]},
-            'Entitlement mode NOPE not found.'
-        ),
-        (
-            {'entitlements': [{'mode': 'mode2'}]},
-            'Switching entitlement modes after being reviewed is not supported. Please reach out to your '
-            'project coordinator for additional help if necessary.'
-        ),
-    )
     @ddt.unpack
-    def test_update_fails_with_multiple_errors(self, course_data, expected_error_message):
-        course = CourseFactory(partner=self.partner, key='Org/Course/Number')
-        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
-        mode1 = SeatTypeFactory(name='Mode1')
-        SeatTypeFactory(name='Mode2')
-        CourseEntitlementFactory(course=course, mode=mode1, sku=None)
-        response = self.client.patch(url, course_data, format='json')
+    def test_cannot_change_type_after_review(self):
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.patch(url, {
+            'type': str(CourseType.objects.get(slug=CourseType.PROFESSIONAL).uuid),
+            'prices': {
+                Seat.PROFESSIONAL: 1000,
+            },
+        }, format='json')
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, expected_error_message)
+        self.assertEqual(
+            response.data,
+            'Switching entitlement types after being reviewed is not supported. Please reach out to your ' +
+            'project coordinator for additional help if necessary.'
+        )
 
     def test_update_fails_if_manual_slug_exists(self):
         self.mock_access_token()
         response = self.create_course()
         self.assertEqual(response.status_code, 201)
         course = Course.everything.last()
-        self.assertEqual(course.url_slug, 'course-title')
+        self.assertEqual(course.active_url_slug, 'course-title')
 
         course_data = {'url_slug': 'course-title'}
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
@@ -1179,43 +1304,120 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                                  'Please update this field and try again.'
         self.assertEqual(response.data, expected_error_message)
 
+    def test_update_fails_if_manual_slug_in_other_course_history(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.status = CourseRunStatus.Published
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        self.assertEqual(official_course.active_url_slug, 'course-title')
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+
+        response = self.client.patch(url, {'url_slug': 'manual', 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        # at this point history of the created course should contain 'course-title'
+        course_data = {'url_slug': 'course-title'}
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        response = self.client.patch(url, course_data, format='json')
+        self.assertEqual(response.status_code, 400)
+        expected_error_message = 'Failed to set data: Course edit was unsuccessful. ' \
+                                 'The course URL slug ‘[course-title]’ is already in use. ' \
+                                 'Please update this field and try again.'
+        self.assertEqual(response.data, expected_error_message)
+
+    def test_update_succeeds_if_reusing_previous_slug_on_same_course(self):
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.status = CourseRunStatus.Published
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        self.assertEqual(official_course.active_url_slug, 'course-title')
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+
+        response = self.client.patch(url, {'url_slug': 'manual', 'draft': False}, format='json')
+        self.assertEqual(response.status_code, 200)
+        draft_course.refresh_from_db()
+        self.assertEqual(draft_course.active_url_slug, 'manual')
+
+        # at this point history of the created course should contain 'course-title'
+        course_data = {'url_slug': 'course-title'}
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+        response = self.client.patch(url, course_data, format='json')
+        self.assertEqual(response.status_code, 200)
+        draft_course.refresh_from_db()
+        self.assertEqual(draft_course.active_url_slug, 'course-title')
+
     def test_update_with_api_exception(self):
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
             'title': 'Course title',
-            'entitlements': [
-                {
-                    'price': 1000,
-                },
-            ],
+            'type': str(self.verified_type.uuid),
+            'prices': {
+                'verified': 1000,
+            },
         }
 
         with mock.patch(
             'course_discovery.apps.api.v1.views.courses.CourseViewSet.update_entitlement',
-            side_effect=IntegrityError
+            side_effect=IntegrityError('Nope')
         ):
             with LogCapture(course_logger.name) as log_capture:
                 response = self.client.patch(url, course_data, format='json')
                 self.assertEqual(response.status_code, 400)
-                log_capture.check(
+                log_capture.check_present(
                     (
                         course_logger.name,
                         'ERROR',
-                        'An error occurred while setting Course or Course Run data.',
+                        'Failed to set data: Nope',
                     )
                 )
+
+    def test_update_fails_with_nonexistent_course_type(self):
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+
+        with LogCapture(course_logger.name) as log_capture:
+            response = self.client.patch(url, {'type': '00000000-0000-0000-0000-000000000000'}, format='json')
+            self.assertEqual(response.status_code, 400)
+            log_capture.check(
+                (
+                    course_logger.name,
+                    'ERROR',
+                    ("Failed to set data: {'type': [ErrorDetail(string='Object with "
+                     "uuid=00000000-0000-0000-0000-000000000000 does not exist.', code='does_not_exist')]}"),
+                )
+            )
 
     @responses.activate
     def test_options(self):
         self.mock_access_token()
         SubjectFactory(name='Subject1')
-        CourseEntitlementFactory(course=self.course, mode=SeatType.objects.get(slug='verified'))
+        CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        response = self.client.options(url)
+        with self.assertNumQueries(35, threshold=0):
+            response = self.client.options(url)
         self.assertEqual(response.status_code, 200)
 
-        data = response.data['actions']['PUT']
+        data = response.json()['actions']['PUT']
         self.assertEqual(data['level_type']['choices'],
                          [{'display_name': self.course.level_type.name, 'value': self.course.level_type.name}])
         self.assertEqual(data['entitlements']['child']['children']['mode']['choices'],
@@ -1227,6 +1429,17 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                          [{'display_name': 'Subject1', 'value': 'subject1'}])
         self.assertNotIn('choices', data['partner'])  # we don't whitelist partner to show its choices
 
+        # Check that tracks come out alright
+        credit_type = CourseType.objects.get(slug=CourseType.CREDIT_VERIFIED_AUDIT)
+        credit_options = None
+        for options in data['type']['type_options']:
+            if options['uuid'] == str(credit_type.uuid):
+                credit_options = options
+                break
+        self.assertIsNotNone(credit_options)
+        self.assertEqual({t['mode']['slug'] for t in credit_options['tracks']},
+                         {'verified', 'credit', 'audit'})
+
     @responses.activate
     @ddt.data(True, False)
     def test_retrieve_will_create_entitlement(self, has_entitlement):
@@ -1236,9 +1449,9 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertFalse(self.course.entitlements.exists())  # sanity check
 
         run = CourseRunFactory(course=self.course)
-        SeatFactory(type=Seat.VERIFIED, course_run=run, price=40)
+        SeatFactory(type=SeatTypeFactory.verified(), course_run=run, price=40)
         if has_entitlement:
-            CourseEntitlementFactory(course=self.course, price=40, mode=SeatType.objects.get(slug=Seat.VERIFIED))
+            CourseEntitlementFactory(course=self.course, price=40, mode=SeatTypeFactory.verified())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
@@ -1256,3 +1469,19 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertTrue(self.course.entitlements.exists())
         self.assertEqual(self.course.entitlements.first().mode.slug, Seat.VERIFIED)
         self.assertEqual(self.course.entitlements.first().price, 40)
+
+    @responses.activate
+    def test_html_stripped(self):
+        self.mock_access_token()
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.patch(url, {'full_description': '<p class="test">Desc</p>'}, format='json')
+        self.assertEqual(response.status_code, 200)
+        draft = Course.everything.get(uuid=self.course.uuid, draft=True)
+        self.assertEqual(draft.full_description, '<p>Desc</p>')
+
+    @responses.activate
+    def test_html_restricted(self):
+        self.mock_access_token()
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.patch(url, {'full_description': '<h1>Header</h1>'}, format='json')
+        self.assertContains(response, 'Invalid HTML received: h1 tag is not allowed', status_code=400)

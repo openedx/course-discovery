@@ -73,16 +73,14 @@ Internationalization
 
 All user-facing strings should be marked for translation. edX runs this application in English, but our open source users may choose to use another language. Marking strings for translation ensures our users have this choice. Refer to edX's `i18n guidelines`_ for more details.
 
-.. _i18n guidelines: http://edx.readthedocs.io/projects/edx-developer-guide/en/latest/conventions/internationalization/index.html
+.. _i18n guidelines: https://edx.readthedocs.io/projects/edx-developer-guide/en/latest/internationalization/i18n.html
 
 Updating Translated Strings
 +++++++++++++++++++++++++++
 
-Like most edX projects, Discovery uses Transifex to translate content. Most of the translation process is automated. Transifex pulls new strings from this repo on a daily basis. Translated strings are merged back into the repo every week.
+Like most edX projects, Discovery uses Transifex to translate content. At edX, the translation process is automated. Every week, changes to source code strings are extracted as translations, which are merged back to the repo and pushed to edX's Transifex resources. Translated strings are also merged back into the repo every week.
 
-If you change or introduce new strings, run ``make fake_translations`` to extract all strings marked for translation, generate fake translations in the Esperanto (eo) language directory, and compile the translations. You can trigger the display of the translations by setting your browser's language to Esperanto (eo), and navigating to a page on the site. Instead of plain English strings, you should see specially-accented English strings that look like this:
-
-    Thé Fütüré øf Ønlïné Édüçätïøn Ⱡσяєм ι# Før änýøné, änýwhéré, änýtïmé Ⱡσяєм #
+Open Source contributors can use ``make extract_translations`` to extract source file string changes, ``make push_translations`` to push changes to Transifex (assuming credentials are available), and ``make pull_translations`` to pull translations from Transifex.
 
 OAuth2
 ------
@@ -105,7 +103,7 @@ A new OAuth 2.0 client can be created at ``http://localhost:18000/admin/oauth2_p
     8. Select :guilabel:`Authorization code` as the authorization grant type.
     9. Click :guilabel:`Save`.
 
-You can create a new OAuth 2.0 application on the LMS at ``/admin/oauth2_provider/application/`:
+You can create a new OAuth 2.0 application on the LMS at ``/admin/oauth2_provider/application/``:
 
     1. Click the ``Add Application`` button.
     2. Leave the user field blank.

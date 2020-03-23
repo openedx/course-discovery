@@ -10,7 +10,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory
 )
-from course_discovery.apps.publisher.tests import factories
+from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
 
 @pytest.mark.django_db
@@ -112,7 +112,6 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.user = UserFactory(is_staff=True)
-        cls.courses = factories.CourseFactory.create_batch(3, title='Some random course title')
 
         first_instructor = PersonFactory(given_name="First", family_name="Instructor")
         second_instructor = PersonFactory(given_name="Second", family_name="Instructor")
@@ -124,10 +123,8 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         for instructor in cls.instructors:
             PositionFactory(organization=cls.organizations[0], title="professor", person=instructor)
 
-        cls.course_runs = [factories.CourseRunFactory(course=course) for course in cls.courses]
-
         for organization in cls.organizations:
-            cls.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
+            cls.organization_extensions.append(OrganizationExtensionFactory(organization=organization))
 
         disco_course = CourseFactory(authoring_organizations=[cls.organizations[0]])
         disco_course2 = CourseFactory(authoring_organizations=[cls.organizations[1]])
@@ -176,22 +173,6 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         """ Verify instructor autocomplete allows last name first. """
         response = self.query('instructor first')
         self._assert_response(response, 1)
-
-    def test_instructor_position_in_label(self):
-        """ Verify that instructor label contains position of instructor if it exists."""
-        position_title = 'professor'
-
-        response = self.query('ins')
-
-        self.assertContains(response, '<p>{position} at {organization}</p>'.format(
-            position=position_title,
-            organization=self.organizations[0].name))
-
-    def test_instructor_image_in_label(self):
-        """ Verify that instructor label contains profile image url."""
-        response = self.query('ins')
-        self.assertContains(response, self.instructors[0].get_profile_image_url)
-        self.assertContains(response, self.instructors[1].get_profile_image_url)
 
     def _assert_response(self, response, expected_length):
         """ Assert autocomplete response. """
@@ -243,14 +224,14 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         self.client.logout()
         self.client.login(username=admin_user.username, password=USER_PASSWORD)
 
-        response = self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins'),
-            HTTP_REFERER=reverse('admin:publisher_courserun_add')
-        )
+        response = self.client.get(reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins'))
         assert response.status_code == 200
         data = json.loads(response.content.decode('utf-8'))
-        expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
-        assert data.get('results') == expected_results
+        expected_results = [{'id': str(instructor.id), 'text': str(instructor), 'selected_text': str(instructor)}
+                            for instructor in self.instructors]
+
+        assert (sorted(data.get('results'), key=lambda x: sorted(x.keys())) ==
+                sorted(expected_results, key=lambda x: sorted(x.keys())))
 
     def _set_user_is_staff_and_login(self, is_staff=True):
         self.client.logout()

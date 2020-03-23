@@ -1,4 +1,5 @@
 import ddt
+from django.contrib.auth.models import ContentType, Permission
 from django.test import TestCase
 
 from course_discovery.apps.catalogs.models import Catalog
@@ -97,3 +98,9 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
         with self.assertRaises(TypeError) as context:
             self.catalog.viewers = viewers
         self.assertEqual(context.exception.args[0], 'Viewers must be a non-string iterable containing User objects.')
+
+    @ddt.data('add_catalog', 'change_catalog', 'view_catalog', 'delete_catalog')
+    def test_catalogs_permissions(self, perm):
+        """ Validate that model has the all four permissions. """
+        cont_type = ContentType.objects.get(app_label='catalogs', model='catalog')
+        self.assertTrue(Permission.objects.get(content_type=cont_type, codename=perm))

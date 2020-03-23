@@ -2,39 +2,34 @@ import concurrent.futures
 import itertools
 import logging
 
-import jwt
 import waffle
 from django.apps import apps
 from django.core.management import BaseCommand, CommandError
 from django.db import connection
 from django.db.models.signals import post_delete, post_save
-from edx_rest_api_client.client import EdxRestApiClient
 
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    CoursesApiDataLoader, EcommerceApiDataLoader, OrganizationsApiDataLoader, ProgramsApiDataLoader
-)
-from course_discovery.apps.course_metadata.data_loaders.marketing_site import (
-    SchoolMarketingSiteDataLoader, SponsorMarketingSiteDataLoader, SubjectMarketingSiteDataLoader
+    CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig, Image, Video
 
 logger = logging.getLogger(__name__)
 
 
-def execute_loader(loader_class, *loader_args, **loader_kwargs):
+def execute_loader(loader_class, *loader_args):
     try:
-        loader_class(*loader_args, **loader_kwargs).ingest()
+        loader_class(*loader_args).ingest()
         return True
     except Exception:  # pylint: disable=broad-except
         logger.exception('%s failed!', loader_class.__name__)
         return False
 
 
-def execute_parallel_loader(loader_class, *loader_args, **loader_kwargs):
+def execute_parallel_loader(loader_class, *loader_args):
     """
     ProcessPoolExecutor uses the multiprocessing module. Multiprocessing forks processes,
     causing connection objects to be copied across processes. The key goal when running
@@ -50,7 +45,7 @@ def execute_parallel_loader(loader_class, *loader_args, **loader_kwargs):
     """
     connection.close()
 
-    return execute_loader(loader_class, *loader_args, **loader_kwargs)
+    return execute_loader(loader_class, *loader_args)
 
 
 class Command(BaseCommand):
@@ -61,25 +56,6 @@ class Command(BaseCommand):
             '--partner_code',
             help='The short code for a specific partner to refresh.'
         )
-
-    def get_access_token(self, partner, token_type):
-        """
-        Obtain an access token from the LMS for general API access.
-        """
-        logger.info('Retrieving access token for partner [%s]', partner.short_code)
-
-        access_token_url = '{root}/access_token'.format(root=partner.oauth2_provider_url)
-        try:
-            access_token, __ = EdxRestApiClient.get_oauth_access_token(
-                access_token_url, partner.oauth2_client_id, partner.oauth2_client_secret, token_type
-            )
-        except Exception:
-            logger.exception('No access token acquired through client_credential flow.')
-            raise
-
-        username = jwt.decode(access_token, verify=False)['preferred_username']
-        kwargs = {'username': username} if username else {}
-        return access_token, kwargs
 
     def handle(self, *args, **options):
         # We only want to invalidate the API response cache once data loading
@@ -102,7 +78,6 @@ class Command(BaseCommand):
             raise CommandError('No partners available!')
 
         success = True
-        token_type = 'JWT'
         for partner in partners:
 
             # The Linux kernel implements copy-on-write when fork() is called to create a new
@@ -143,14 +118,6 @@ class Command(BaseCommand):
 
             pipeline = (
                 (
-                    (SubjectMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                    (SchoolMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                    (SponsorMarketingSiteDataLoader, partner.marketing_site_url_root, max_workers),
-                ),
-                (
-                    (OrganizationsApiDataLoader, partner.organizations_api_url, max_workers),
-                ),
-                (
                     (CoursesApiDataLoader, partner.courses_api_url, max_workers),
                 ),
                 (
@@ -165,10 +132,6 @@ class Command(BaseCommand):
             if waffle.switch_is_active('parallel_refresh_pipeline'):
                 futures = []
                 for stage in pipeline:
-                    # Retrieve a new access token for each stage of the pipeline, so that the access token
-                    # won't timeout between long data loads via the APIs used.
-                    access_token, kwargs = self.get_access_token(partner, token_type)
-
                     with concurrent.futures.ProcessPoolExecutor() as executor:
                         for loader_class, api_url, max_workers in stage:
                             if api_url:
@@ -178,32 +141,22 @@ class Command(BaseCommand):
                                     loader_class,
                                     partner,
                                     api_url,
-                                    access_token,
-                                    token_type,
                                     max_workers,
                                     is_threadsafe,
-                                    **kwargs,
                                 ))
 
                 success = success and all(f.result() for f in futures)
             else:
                 # Flatten pipeline and run serially.
                 for loader_class, api_url, max_workers in itertools.chain(*(stage for stage in pipeline)):
-                    # Retrieve a new access token for each flattened stage of the pipeline, so that the access token
-                    # won't timeout between long data loads via the APIs used.
-                    access_token, kwargs = self.get_access_token(partner, token_type)
-
                     if api_url:
                         logger.info('Executing Loader [{}]'.format(api_url))
                         success = execute_loader(
                             loader_class,
                             partner,
                             api_url,
-                            access_token,
-                            token_type,
                             max_workers,
                             is_threadsafe,
-                            **kwargs,
                         ) and success
 
             # TODO Cleanup CourseRun overrides equivalent to the Course values.

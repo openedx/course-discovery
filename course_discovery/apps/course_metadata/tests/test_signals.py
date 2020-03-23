@@ -1,4 +1,3 @@
-import uuid
 from re import escape
 
 import ddt
@@ -8,16 +7,17 @@ from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from factory import DjangoModelFactory
-from testfixtures import LogCapture
-from waffle.testutils import override_switch
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
-from course_discovery.apps.core.models import Currency
+from course_discovery.apps.course_metadata.algolia_proxy_models import (
+    AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram
+)
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
-    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, DataLoaderConfig,
-    DeletePersonDupsConfig, DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig,
-    Program, ProgramType, Seat, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
+    BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, CourseRun, Curriculum,
+    CurriculumProgramMembership, DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
+    MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, Program, RemoveRedirectsConfig,
+    SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
@@ -34,7 +34,9 @@ class TestCacheInvalidation:
         are saved or deleted.
         """
         factory_map = {}
-        for factorylike in factories.__dict__.values():
+        for key, factorylike in factories.__dict__.items():
+            if 'NoSignals' in key:
+                continue
             if isinstance(factorylike, type) and issubclass(factorylike, DjangoModelFactory):
                 if getattr(factorylike, '_meta', None) and factorylike._meta.model:
                     factory_map[factorylike._meta.model] = factorylike
@@ -43,9 +45,11 @@ class TestCacheInvalidation:
         # connecting to. We want to test each of them.
         for model in apps.get_app_config('course_metadata').get_models():
             # Ignore models that aren't exposed by the API or are only used for testing.
-            if model in [DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
-                         MigratePublisherToCourseMetadataConfig, SubjectTranslation, TopicTranslation,
-                         ProfileImageDownloadConfig, TagCourseUuidsConfig]:
+            if model in [BackpopulateCourseTypeConfig, DataLoaderConfig, DeletePersonDupsConfig,
+                         DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, SubjectTranslation,
+                         TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
+                         BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
+                         AlgoliaProxyProgram, AlgoliaProxyProduct]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue
@@ -64,224 +68,6 @@ class TestCacheInvalidation:
 
             assert mock_set_api_timestamp.called
             mock_set_api_timestamp.reset_mock()
-
-
-class SeatSignalsTests(TestCase):
-    """ Tests for the signal to save seats model into database """
-    def setUp(self):
-        super().setUp()
-        self.course_runs = factories.CourseRunFactory.create_batch(3)
-        self.partner = factories.PartnerFactory()
-        self.course = self.course_runs[0].course
-        self.course.partner = self.partner
-        self.course_run = self.course_runs[0]
-        self.program_type = ProgramType.objects.get(slug='masters')
-        self.degree = factories.DegreeFactory(courses=[self.course], type=self.program_type, partner=self.partner)
-        self.currency = Currency.objects.get(code='USD')
-        self.curriculum = Curriculum.objects.create(program=self.degree, uuid=uuid.uuid4())
-        self.curriculum_course = factories.CurriculumCourseMembershipFactory(
-            curriculum=self.curriculum,
-            course=self.course
-        )
-
-    @override_switch('masters_course_mode_enabled', active=False)
-    @mock.patch('course_discovery.apps.core.models.OAuthAPIClient')
-    def test_seat_post_save_waffle_inactive(self, mock_client_init):
-        mock_client = mock_client_init.return_value
-
-        Seat.objects.create(
-            course_run=self.course_run,
-            type=Seat.MASTERS,
-            currency=self.currency
-        )
-
-        self.assertFalse(mock_client.get.called)
-
-    @override_switch('masters_course_mode_enabled', active=True)
-    @mock.patch('course_discovery.apps.core.models.OAuthAPIClient')
-    def test_seat_post_save_waffle_flag_active(self, mock_client_init):
-        mock_client = mock_client_init.return_value
-
-        created_seat = Seat.objects.create(
-            course_run=self.course_run,
-            type=Seat.MASTERS,
-            currency=self.currency
-        )
-
-        course_run_key = self.course_run.key
-        expected_call_url = self.partner.lms_coursemode_api_url + 'courses/{}/'.format(course_run_key)
-        expected_call_data = {
-            'course_id': created_seat.course_run.key,
-            'mode_slug': created_seat.type,
-            'mode_display_name': created_seat.type.capitalize(),
-            'currency': str(created_seat.currency.code) if created_seat.currency else '',
-            'min_price': int(created_seat.price),
-        }
-
-        mock_client.post.assert_called_with(expected_call_url, json=expected_call_data)
-
-    @override_switch('masters_course_mode_enabled', active=True)
-    @mock.patch('course_discovery.apps.core.models.OAuthAPIClient')
-    def test_seat_already_exists_waffle_flag_active(self, mock_client_init):
-        mock_client = mock_client_init.return_value
-        course_run_key = self.course_run.key
-        mock_client.get.return_value.json.return_value = [
-            {
-                'course_id': course_run_key,
-                'mode_slug': Seat.MASTERS
-            }
-        ]
-
-        with LogCapture(LOGGER_NAME) as log:
-            created_seat = Seat.objects.create(
-                course_run=self.course_run,
-                type=Seat.MASTERS,
-                currency=self.currency
-            )
-
-            self.assertTrue(mock_client.get.called)
-            self.assertFalse(mock_client.post.called)
-            log.check(
-                (
-                    LOGGER_NAME,
-                    'INFO',
-                    'Creating [{}] track on LMS for [{}] while it already have the track.'.format(
-                        created_seat.type,
-                        course_run_key
-                    )
-                )
-            )
-
-    @override_switch('masters_course_mode_enabled', active=True)
-    @mock.patch('course_discovery.apps.core.models.OAuthAPIClient')
-    def test_seat_post_save_waffle_flag_active_bad_response(self, mock_client_init):
-        mock_client = mock_client_init.return_value
-        course_run_key = self.course_run.key
-        mock_client.get.return_value.data = []
-        mock_client.post.return_value.ok = False
-
-        with LogCapture(LOGGER_NAME) as log:
-            created_seat = Seat.objects.create(
-                course_run=self.course_run,
-                type=Seat.MASTERS,
-                currency=self.currency
-            )
-            log.check(
-                (
-                    LOGGER_NAME,
-                    'ERROR',
-                    'Failed to add [{}] course_mode to course_run [{}] in course_mode api to LMS.'.format(
-                        created_seat.type,
-                        course_run_key
-                    )
-                )
-            )
-
-    @override_switch('masters_course_mode_enabled', active=True)
-    @mock.patch('course_discovery.apps.core.models.OAuthAPIClient')
-    def test_seat_post_save_empty_lms_url(self, mock_client_init):
-        mock_client = mock_client_init.return_value
-        self.partner.lms_url = ''
-        self.partner.save()
-
-        with LogCapture(LOGGER_NAME) as log:
-            Seat.objects.create(
-                course_run=self.course_run,
-                type=Seat.MASTERS,
-                currency=self.currency
-            )
-
-            self.assertFalse(mock_client.get.called)
-            log.check(
-                (
-                    LOGGER_NAME,
-                    'INFO',
-                    'LMS api client is not initiated. Cannot publish [{}] track for [{}] course_run'.format(
-                        Seat.MASTERS,
-                        self.course_run.key
-                    )
-                )
-            )
-
-    @override_switch('masters_course_mode_enabled', active=True)
-    @mock.patch('course_discovery.apps.core.models.OAuthAPIClient')
-    def test_seat_post_save_empty_coursemode_api_url(self, mock_client_init):
-        mock_client = mock_client_init.return_value
-        self.partner.lms_coursemode_api_url = ''
-        self.partner.save()
-
-        with LogCapture(LOGGER_NAME) as log:
-            Seat.objects.create(
-                course_run=self.course_run,
-                type=Seat.MASTERS,
-                currency=self.currency
-            )
-
-            self.assertFalse(mock_client.get.called)
-            log.check(
-                (
-                    LOGGER_NAME,
-                    'INFO',
-                    'No lms coursemode api url configured. Masters seat for course_run [{}] not published'.format(
-                        self.course_run.key
-                    ),
-                )
-            )
-
-
-class CurriculumCourseMembershipTests(TestCase):
-    """ Tests of the CurriculumCourseMembership model """
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.course_runs = factories.CourseRunFactory.create_batch(3)
-        cls.course = cls.course_runs[0].course
-        cls.program_type = ProgramType.objects.get(slug='masters')
-        cls.partner = factories.PartnerFactory()
-        cls.degree = factories.DegreeFactory(courses=[cls.course], type=cls.program_type, partner=cls.partner)
-        cls.curriculum = Curriculum.objects.create(program=cls.degree, uuid=uuid.uuid4())
-
-    def setUp(self):
-        super().setUp()
-        self.program_type.refresh_from_db()
-
-    @override_switch('masters_course_mode_enabled', active=False)
-    def test_course_curriculum_membership_side_effect_flag_inactive(self):
-
-        CurriculumCourseMembership.objects.create(
-            course=self.course,
-            curriculum=self.curriculum
-        )
-
-        for course_run in self.course_runs:
-            for seat in course_run.seats.all():
-                self.assertNotEqual(seat.type, Seat.MASTERS)
-
-    @override_switch('masters_course_mode_enabled', active=True)
-    def test_course_curriculum_membership_side_effect_flag_active(self):
-        with mock.patch('course_discovery.apps.core.models.OAuthAPIClient'):
-            CurriculumCourseMembership.objects.create(
-                course=self.course,
-                curriculum=self.curriculum
-            )
-
-            for course_run in self.course_runs:
-                for seat in course_run.seats.all():
-                    self.assertEqual(seat.type, Seat.MASTERS)
-
-    @override_switch('masters_course_mode_enabled', active=True)
-    def test_course_curriculum_membership_side_effect_not_masters(self):
-        self.program_type.slug = 'not_masters'
-        self.program_type.save()
-
-        CurriculumCourseMembership.objects.create(
-            course=self.course,
-            curriculum=self.curriculum
-        )
-
-        for course_run in self.course_runs:
-            for seat in course_run.seats.all():
-                self.assertNotEqual(seat.type, Seat.MASTERS)
 
 
 @ddt.ddt
@@ -344,7 +130,7 @@ class ProgramStructureValidationTests(TestCase):
 
         if is_circular_ref:
             expected_error = 'Circular ref error.  Curriculum already contains program {}'.format(program)
-            with self.assertRaisesRegex(ValidationError, escape(expected_error)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(expected_error)):
                 curriculum.save()
         else:
             curriculum.save()
@@ -368,7 +154,7 @@ class ProgramStructureValidationTests(TestCase):
 
         if is_circular_ref:
             expected_error = self.curriculum_program_membership_error(program, curriculum)
-            with self.assertRaisesRegex(ValidationError, escape(expected_error)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(expected_error)):
                 CurriculumProgramMembership.objects.create(
                     program=program,
                     curriculum=curriculum,
@@ -392,13 +178,13 @@ class ProgramStructureValidationTests(TestCase):
 
         if is_circular_ref:
             expected_error = self.curriculum_program_membership_error(new_program, self.curriculum_4)
-            with self.assertRaisesRegex(ValidationError, escape(expected_error)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(expected_error)):
                 membership.save()
         else:
             membership.save()
 
 
-class ExternalCourseKeyTestMixin(object):
+class ExternalCourseKeyTestMixin:
 
     @staticmethod
     def _add_courses_to_curriculum(curriculum, *courses):
@@ -496,8 +282,8 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
         copied_course_run = CourseRun.objects.get(key=copy_key)
         message = _duplicate_external_key_message([copied_course_run])
         # This number may seem high but only 2 are select statements caused by the external key signal
-        with self.assertNumQueries(8):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+        with self.assertNumQueries(12, threshold=0):
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=self.course_2,
                     external_key=copied_course_run.external_key,
@@ -514,7 +300,7 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
         course_run = CourseRun.objects.get(key='course-run-id/course-2a/test')
         # This number may seem high but only 3 are select statements caused by the external key signal
         with self.assertNumQueries(9):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 course_run.external_key = copied_course_run.external_key
                 course_run.save()
 
@@ -530,7 +316,7 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
         course_run_1a = CourseRun.objects.get(key='course-run-id/course-1a/test')
         message = _duplicate_external_key_message([course_run_1a])
         with self.assertNumQueries(2):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CurriculumCourseMembershipFactory(
                     course=new_course,
                     curriculum=self.curriculums[curriculum_id],
@@ -552,7 +338,7 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
         course_run_1a = CourseRun.objects.get(key='course-run-id/course-1a/test')
         message = _duplicate_external_key_message([course_run_1a])
         with self.assertNumQueries(2):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 curriculum_course_membership.curriculum = self.curriculums[curriculum_id]
                 curriculum_course_membership.save()
 
@@ -561,7 +347,6 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
         I can't think of any case that would cause the exception on creating a curriculum
         but I will keep this blank test here for enumeration's sake
         """
-        pass
 
     def test_modify_curriculum(self):
         course_run_1a = CourseRun.objects.get(key='course-run-id/course-1a/test')
@@ -571,11 +356,44 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
         )
         message = _duplicate_external_key_message([course_run_1a])
         with self.assertNumQueries(5):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 curriculum_4.program = self.program_1
                 curriculum_4.save()
         curriculum_4.refresh_from_db()
         self.assertEqual(curriculum_4.program, new_program)
+
+    @ddt.data(
+        None,
+        '',
+    )
+    def test_external_course_key_null_or_empty(self, external_key_to_test):
+        course_run_1a = CourseRun.objects.get(key='course-run-id/course-1a/test')
+        course_run_1a.external_key = external_key_to_test
+        course_run_1a.save()
+
+        # Same course test
+        copy_course_run_1a = factories.CourseRunFactory(
+            course=self.course_1,
+            external_key=external_key_to_test,
+        )
+        self.assertEqual(course_run_1a.external_key, copy_course_run_1a.external_key)
+
+        # Same curriculum test but different courses
+        new_course_run = factories.CourseRunFactory(
+            external_key=external_key_to_test
+        )
+        new_course = new_course_run.course
+        factories.CurriculumCourseMembershipFactory(
+            course=new_course,
+            curriculum=self.curriculum_1,
+        )
+        self.assertEqual(course_run_1a.external_key, new_course_run.external_key)
+
+        # Same programs but different curriculum test
+        _, curriculum_4 = self._create_single_course_curriculum(external_key_to_test, 'curriculum_4')
+        curriculum_4.program = self.program_1
+        curriculum_4.save()
+        curriculum_4.refresh_from_db()
 
 
 class ExternalCourseKeyMultipleCollisionTests(ExternalCourseKeyTestDataMixin, TestCase):
@@ -599,13 +417,13 @@ class ExternalCourseKeyMultipleCollisionTests(ExternalCourseKeyTestDataMixin, Te
     def test_multiple_collisions__curriculum_course_membership(self):
         message = _duplicate_external_key_message([self.course_run_1a, self.course_run_2b])
         with self.assertNumQueries(2):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 self._add_courses_to_curriculum(self.curriculum_2, self.course)
 
     def test_multiple_collisions__curriculum(self):
         message = _duplicate_external_key_message([self.course_run_2b, self.course_run_3c])
         with self.assertNumQueries(5):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 self.curriculum.program = self.program_2
                 self.curriculum.save()
 
@@ -620,8 +438,8 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
         course = self._create_course_and_runs()
         course_run = course.course_runs.first()
         message = _duplicate_external_key_message([course_run])
-        with self.assertNumQueries(7):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+        with self.assertNumQueries(11, threshold=0):
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=course,
                     external_key=course_run.external_key
@@ -633,15 +451,15 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
         course_run_1b = course.course_runs.get(external_key='ext-key-course-1b')
         message = _duplicate_external_key_message([course_run_1a])
         with self.assertNumQueries(6):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 course_run_1b.external_key = 'ext-key-course-1a'
                 course_run_1b.save()
 
     def test_create_course_run__curriculum_only(self):
         course_run, _ = self._create_single_course_curriculum('colliding-key', 'curriculum_1')
         message = _duplicate_external_key_message([course_run])
-        with self.assertNumQueries(7):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+        with self.assertNumQueries(11, threshold=0):
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=course_run.course,
                     external_key='colliding-key'
@@ -655,7 +473,7 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
         )
         message = _duplicate_external_key_message([course_run_1a])
         with self.assertNumQueries(6):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 course_run_1b.external_key = 'colliding-key'
                 course_run_1b.save()
 
@@ -666,7 +484,7 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
         )
         message = _duplicate_external_key_message([course_run_1])
         with self.assertNumQueries(2):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CurriculumCourseMembershipFactory(
                     course=course_run_2.course,
                     curriculum=curriculum_1,
@@ -678,7 +496,7 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
         curriculum_course_membership_2 = course_run_2.course.curriculum_course_membership.first()
         message = _duplicate_external_key_message([course_run_1])
         with self.assertNumQueries(2):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 curriculum_course_membership_2.curriculum = curriculum_1
                 curriculum_course_membership_2.save()
 
@@ -704,7 +522,7 @@ class ExternalCourseKeyDBTests(TestCase, ExternalCourseKeyTestMixin):
         course_run_ca = CourseRun.objects.get(external_key='ext-key-course-ca')
         message = _duplicate_external_key_message([course_run_ca])
         with self.assertNumQueries(FuzzyInt(6, 1)):  # 3 Selects
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 course_run.external_key = course_run_ca.external_key
                 course_run.save()
 
@@ -727,7 +545,7 @@ class ExternalCourseKeyDBTests(TestCase, ExternalCourseKeyTestMixin):
         course_run_ba = CourseRun.objects.get(external_key='ext-key-course-ba')
         message = _duplicate_external_key_message([course_run_ba])
         with self.assertNumQueries(FuzzyInt(6, 1)):  # 3 Selects
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 course_run.external_key = course_run_ba.external_key
                 course_run.save()
 
@@ -745,14 +563,19 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.draft_course_1 = factories.CourseFactory(
+            draft=True,
+            key='course-id/draft-course-1/test',
+            title='draft-course-1'
+        )
         cls.draft_course_run_1 = factories.CourseRunFactory(
-            course=cls.course_1,
+            course=cls.draft_course_1,
             draft=True,
             external_key='external-key-drafttest'
         )
 
     def test_draft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(FuzzyInt(77, 2)):
+        with self.assertNumQueries(77, threshold=0):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=True,
@@ -762,8 +585,8 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
     def test_draft_collides_with_nondraft(self):
         course_run_1a = self.course_1.course_runs.get(external_key='ext-key-course-1a')
         message = _duplicate_external_key_message([course_run_1a])
-        with self.assertNumQueries(FuzzyInt(8, 2)):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+        with self.assertNumQueries(12, threshold=0):
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=self.course_1,
                     draft=True,
@@ -771,7 +594,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                 )
 
     def test_nondraft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(FuzzyInt(77, 2)):
+        with self.assertNumQueries(77, threshold=0):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
@@ -779,20 +602,27 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
             )
 
     def test_collision_does_not_include_drafts(self):
-        with self.assertNumQueries(FuzzyInt(77, 2)):
+        with self.assertNumQueries(77, threshold=0):
             course_run = factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
                 external_key='external-key-drafttest'
             )
         message = _duplicate_external_key_message([course_run])  # Not draft_course_run_1
-        with self.assertNumQueries(FuzzyInt(7, 2)):
-            with self.assertRaisesRegex(ValidationError, escape(message)):  # pylint: disable=deprecated-method
+        with self.assertNumQueries(11, threshold=0):
+            with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=self.course_1,
                     draft=False,
                     external_key='external-key-drafttest'
                 )
+
+    def test_update_or_create_official_version(self):
+        # This test implicitly checks that a collision does not happen
+        # and that the external_key is properly copied over to the official version
+        self.draft_course_run_1.update_or_create_official_version()
+        official_run = self.draft_course_run_1.official_version
+        self.assertEqual(self.draft_course_run_1.external_key, official_run.external_key)
 
 
 class SalesforceTests(TestCase):
@@ -801,56 +631,64 @@ class SalesforceTests(TestCase):
         self.salesforce_util_path = 'course_discovery.apps.course_metadata.utils.SalesforceUtil'
 
     def test_update_or_create_salesforce_organization(self):
-        #  we mock the __init__ method in SalesforceUtil to ignore login functionality
-        with mock.patch(self.salesforce_util_path + '.__init__', return_value=None):
-            with mock.patch(self.salesforce_util_path + '.create_publisher_organization') as mock_create_method:
-                with mock.patch(self.salesforce_util_path + '.update_publisher_organization') as mock_update_method:
-                    organization = factories.OrganizationFactory()
+        with mock.patch(self.salesforce_util_path) as mock_salesforce_util:
+            organization = factories.OrganizationFactory()
 
-                    mock_create_method.assert_called()
-                    mock_update_method.assert_not_called()
+            mock_salesforce_util().create_publisher_organization.assert_called()
+            mock_salesforce_util().update_publisher_organization.assert_not_called()
 
-                    organization.name = 'changed'
-                    organization.save()
+            organization.name = 'changed'
+            organization.save()
 
-                    mock_update_method.assert_called()
+            mock_salesforce_util().update_publisher_organization.assert_called()
 
     def test_update_or_create_salesforce_course(self):
-        #  we mock the __init__ method in SalesforceUtil to ignore login functionality
-        with mock.patch(self.salesforce_util_path + '.__init__', return_value=None):
-            with mock.patch(self.salesforce_util_path + '.create_course') as mock_create_method:
-                with mock.patch(self.salesforce_util_path + '.update_course') as mock_update_method:
-                    course = factories.CourseFactory(draft=True)
+        with mock.patch(self.salesforce_util_path) as mock_salesforce_util:
+            # Does not update for non-drafts
+            course = factories.CourseFactory(draft=True)
 
-                    mock_create_method.assert_called()
-                    mock_update_method.assert_not_called()
+            mock_salesforce_util().create_course.assert_not_called()
+            mock_salesforce_util().update_course.assert_not_called()
 
-                    course.save()
+            course.save()
 
-                    # This shows that an update to a draft does not hit the salesforce update method
-                    mock_update_method.assert_not_called()
+            # This shows that an update to a draft does not hit the salesforce update method
+            mock_salesforce_util().update_course.assert_not_called()
+            organization = factories.OrganizationFactory()
+            course.authoring_organizations.add(organization)
 
-                    course.draft = False
-                    course.title = 'changed'
-                    course.save()
+            course.draft = False
+            course.title = 'changed'
+            course.save()
 
-                    self.assertEqual(1, mock_update_method.call_count)
+            self.assertEqual(1, mock_salesforce_util().update_course.call_count)
 
     def test_update_or_create_salesforce_course_run(self):
-        #  we mock the __init__ method in SalesforceUtil to ignore login functionality
-        with mock.patch(self.salesforce_util_path + '.__init__', return_value=None):
-            #  we mock out create_course and update_course to avoid recursion errors
-            with mock.patch(self.salesforce_util_path + '.create_course'):
-                with mock.patch(self.salesforce_util_path + '.update_course'):
-                    with mock.patch(self.salesforce_util_path + '.create_course_run') as mock_create_method:
-                        with mock.patch(self.salesforce_util_path + '.update_course_run') as mock_update_method:
-                            course_run = factories.CourseRunFactory(draft=True, status=CourseRunStatus.Published)
+        with mock.patch(self.salesforce_util_path) as mock_salesforce_util:
+            course_run = factories.CourseRunFactory(draft=True, status=CourseRunStatus.Published)
 
-                            mock_create_method.assert_called()
-                            mock_update_method.assert_not_called()
+            mock_salesforce_util().create_course_run.assert_called()
+            mock_salesforce_util().update_course_run.assert_not_called()
 
-                            course_run.draft = False
-                            course_run.status = CourseRunStatus.Unpublished
-                            course_run.save()
+            course_run.draft = False
+            course_run.status = CourseRunStatus.Unpublished
+            course_run.save()
 
-                            mock_update_method.assert_called()
+            mock_salesforce_util().update_course_run.assert_called()
+
+    def test_authoring_organizations_changed(self):
+        with mock.patch(self.salesforce_util_path) as mock_salesforce_util:
+            # Does not update for non-draftstest_comments.py
+            organization = factories.OrganizationFactory()
+            course = factories.CourseFactory(draft=False)
+
+            course.authoring_organizations.add(organization)
+            mock_salesforce_util().create_course.assert_not_called()
+
+            # Updates for drafts when an auth org is added (new) courses
+            organization = factories.OrganizationFactory()
+
+            course = factories.CourseFactory(draft=True)
+
+            course.authoring_organizations.add(organization)
+            mock_salesforce_util().create_course.assert_called()

@@ -1,4 +1,4 @@
-# pylint: disable=abstract-method,no-member
+# pylint: disable=abstract-method
 import datetime
 import json
 from collections import OrderedDict
@@ -10,8 +10,7 @@ import pytz
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.query import Prefetch, prefetch_related_objects
+from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from drf_dynamic_fields import DynamicFieldsMixin
@@ -22,22 +21,23 @@ from rest_framework.fields import CreateOnlyDefault, DictField, UUIDField
 from rest_framework.metadata import SimpleMetadata
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
-from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
+from course_discovery.apps.api.fields import HtmlField, ImageField, StdImageSerializerField
+from course_discovery.apps.api.utils import StudioAPI
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun, Curriculum,
-    CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline, Endorsement,
-    IconTextPairing, Image, LevelType, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork,
-    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Video
+    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType,
+    CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline,
+    Endorsement, IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise,
+    PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track,
+    Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import GroupUserSerializer
-from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
-from course_discovery.apps.publisher.studio_api_utils import StudioAPI
 
 User = get_user_model()
 
@@ -54,6 +54,7 @@ PREFETCH_FIELDS = {
         'language',
         'seats',
         'seats__currency',
+        'seats__type',
         'staff',
         'staff__position',
         'staff__position__organization',
@@ -65,6 +66,7 @@ PREFETCH_FIELDS = {
         'authoring_organizations__tags',
         'course_runs',
         'expected_learning_items',
+        'url_slug_history',
         'level_type',
         'prerequisites',
         'programs',
@@ -155,35 +157,15 @@ def get_utm_source_for_user(partner, user):
     return slugify(utm_source)
 
 
-class MetadataWithRelatedChoices(SimpleMetadata):
-    """ A version of the normal DRF metadata class that also returns choices for RelatedFields """
+class BaseModelSerializer(serializers.ModelSerializer):
+    """ Base ModelSerializer class for any generic overrides we want """
 
-    def determine_metadata(self, request, view):
-        self.view = view  # pylint: disable=attribute-defined-outside-init
-        return super().determine_metadata(request, view)
-
-    def get_field_info(self, field):
-        info = super().get_field_info(field)
-
-        in_whitelist = False
-        if hasattr(self.view, 'metadata_related_choices_whitelist'):
-            in_whitelist = field.field_name in self.view.metadata_related_choices_whitelist
-
-        # The normal metadata class excludes RelatedFields, but we want them! So we do the same thing the normal
-        # class does, but without the RelatedField check.
-        if in_whitelist and not info.get('read_only') and hasattr(field, 'choices'):
-            info['choices'] = [
-                {
-                    'value': choice_value,
-                    'display_name': choice_name,
-                }
-                for choice_value, choice_name in field.choices.items()
-            ]
-
-        return info
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.serializer_field_mapping[MetadataHtmlField] = HtmlField
 
 
-class TimestampModelSerializer(serializers.ModelSerializer):
+class TimestampModelSerializer(BaseModelSerializer):
     """Serializer for timestamped models."""
     modified = serializers.DateTimeField(required=False)
 
@@ -193,7 +175,6 @@ class CommentSerializer(serializers.Serializer):
     Serializer for retrieving comments from Salesforce.
     This is required by DRF despite being empty.
     """
-    pass
 
 
 class ContentTypeSerializer(serializers.Serializer):
@@ -203,21 +184,21 @@ class ContentTypeSerializer(serializers.Serializer):
     def get_content_type(self, obj):
         return obj._meta.model_name
 
-    class Meta(object):
+    class Meta:
         fields = ('content_type',)
 
 
-class NamedModelSerializer(serializers.ModelSerializer):
+class NamedModelSerializer(BaseModelSerializer):
     """Serializer for models inheriting from ``AbstractNamedModel``."""
     name = serializers.CharField()
 
-    class Meta(object):
+    class Meta:
         fields = ('name',)
 
 
-class TitleDescriptionSerializer(serializers.ModelSerializer):
+class TitleDescriptionSerializer(BaseModelSerializer):
     """Serializer for models inheriting from ``AbstractTitleDescription``."""
-    class Meta(object):
+    class Meta:
         fields = ('title', 'description',)
 
 
@@ -227,22 +208,22 @@ class AdditionalPromoAreaSerializer(TitleDescriptionSerializer):
         model = AdditionalPromoArea
 
 
-class FAQSerializer(serializers.ModelSerializer):
+class FAQSerializer(BaseModelSerializer):
     """Serializer for the ``FAQ`` model."""
 
-    class Meta(object):
+    class Meta:
         model = FAQ
         fields = ('question', 'answer',)
 
 
-class SubjectSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
     """Serializer for the ``Subject`` model."""
 
     @classmethod
     def prefetch_queryset(cls):
         return Subject.objects.all().prefetch_related('translations')
 
-    class Meta(object):
+    class Meta:
         model = Subject
         fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug', 'uuid')
 
@@ -259,7 +240,7 @@ class PrerequisiteSerializer(NamedModelSerializer):
         model = Prerequisite
 
 
-class MediaSerializer(serializers.ModelSerializer):
+class MediaSerializer(BaseModelSerializer):
     """Serializer for models inheriting from ``AbstractMediaModel``."""
     src = serializers.CharField()
     description = serializers.CharField()
@@ -270,7 +251,7 @@ class ImageSerializer(MediaSerializer):
     height = serializers.IntegerField()
     width = serializers.IntegerField()
 
-    class Meta(object):
+    class Meta:
         model = Image
         fields = ('src', 'description', 'height', 'width')
 
@@ -279,12 +260,12 @@ class VideoSerializer(MediaSerializer):
     """Serializer for the ``Video`` model."""
     image = ImageSerializer()
 
-    class Meta(object):
+    class Meta:
         model = Video
         fields = ('src', 'description', 'image',)
 
 
-class PositionSerializer(serializers.ModelSerializer):
+class PositionSerializer(BaseModelSerializer):
     """Serializer for the ``Position`` model."""
     organization_marketing_url = serializers.SerializerMethodField()
     organization_uuid = serializers.SerializerMethodField()
@@ -292,7 +273,7 @@ class PositionSerializer(serializers.ModelSerializer):
     organization = serializers.PrimaryKeyRelatedField(allow_null=True, write_only=True, required=False,
                                                       queryset=Organization.objects.all().order_by('key'))
 
-    class Meta(object):
+    class Meta:
         model = Position
         fields = (
             'title', 'organization_name', 'organization', 'organization_id', 'organization_override',
@@ -305,21 +286,45 @@ class PositionSerializer(serializers.ModelSerializer):
     def get_organization_marketing_url(self, obj):
         if obj.organization:
             return obj.organization.marketing_url
+        return None
 
     def get_organization_uuid(self, obj):
         if obj.organization:
             return obj.organization.uuid
+        return None
 
 
-class MinimalOrganizationSerializer(serializers.ModelSerializer):
+class MinimalOrganizationSerializer(BaseModelSerializer):
     class Meta:
         model = Organization
-        fields = ('uuid', 'key', 'name',)
+        fields = ('uuid', 'key', 'name', 'auto_generate_course_run_keys',)
+        read_only_fields = ('auto_generate_course_run_keys',)
 
 
 class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     """Serializer for the ``Organization`` model."""
     tags = TagListSerializerField()
+    certificate_logo_image_url = serializers.SerializerMethodField()
+    logo_image_url = serializers.SerializerMethodField()
+    banner_image_url = serializers.SerializerMethodField()
+
+    def get_certificate_logo_image_url(self, obj):
+        image = getattr(obj, 'certificate_logo_image', None)
+        if image:
+            return image.url
+        return None
+
+    def get_logo_image_url(self, obj):
+        image = getattr(obj, 'logo_image', None)
+        if image:
+            return image.url
+        return None
+
+    def get_banner_image_url(self, obj):
+        image = getattr(obj, 'banner_image', None)
+        if image:
+            return image.url
+        return None
 
     @classmethod
     def prefetch_queryset(cls, partner):
@@ -333,11 +338,13 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
             'tags',
             'logo_image_url',
             'marketing_url',
+            'slug',
             'banner_image_url',
         )
+        read_only_fields = ('slug',)
 
 
-class MinimalPersonSerializer(serializers.ModelSerializer):
+class MinimalPersonSerializer(BaseModelSerializer):
     """
     Minimal serializer for the ``Person`` model.
     """
@@ -360,7 +367,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
             'position__organization__partner',
         )
 
-    class Meta(object):
+    class Meta:
         model = Person
         fields = (
             'uuid', 'salutation', 'given_name', 'family_name', 'bio', 'slug', 'position', 'areas_of_expertise',
@@ -381,6 +388,7 @@ class MinimalPersonSerializer(serializers.ModelSerializer):
 
         if social_networks:
             return social_networks[0].url
+        return None
 
     def get_profile_image_url(self, obj):
         return obj.get_profile_image_url
@@ -499,7 +507,7 @@ class PersonSerializer(MinimalPersonSerializer):
         return instance
 
 
-class EndorsementSerializer(serializers.ModelSerializer):
+class EndorsementSerializer(BaseModelSerializer):
     """Serializer for the ``Endorsement`` model."""
     endorser = MinimalPersonSerializer()
 
@@ -507,12 +515,12 @@ class EndorsementSerializer(serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return Endorsement.objects.all().select_related('endorser')
 
-    class Meta(object):
+    class Meta:
         model = Endorsement
         fields = ('endorser', 'quote',)
 
 
-class CorporateEndorsementSerializer(serializers.ModelSerializer):
+class CorporateEndorsementSerializer(BaseModelSerializer):
     """Serializer for the ``CorporateEndorsement`` model."""
     image = ImageSerializer()
     individual_endorsements = EndorsementSerializer(many=True)
@@ -523,16 +531,54 @@ class CorporateEndorsementSerializer(serializers.ModelSerializer):
             Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
         )
 
-    class Meta(object):
+    class Meta:
         model = CorporateEndorsement
         fields = ('corporation_name', 'statement', 'image', 'individual_endorsements',)
 
 
-class SeatSerializer(serializers.ModelSerializer):
+class SeatTypeSerializer(BaseModelSerializer):
+    """Serializer for the ``SeatType`` model."""
+    class Meta:
+        model = SeatType
+        fields = ('name', 'slug')
+
+
+class ModeSerializer(BaseModelSerializer):
+    """Serializer for the ``Mode`` model."""
+    class Meta:
+        model = Mode
+        fields = ('name', 'slug', 'is_id_verified', 'is_credit_eligible', 'certificate_type', 'payee')
+
+
+class TrackSerializer(BaseModelSerializer):
+    """Serializer for the ``Track`` model."""
+    seat_type = SeatTypeSerializer(allow_null=True)
+    mode = ModeSerializer()
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return Track.objects.select_related('seat_type', 'mode')
+
+    class Meta:
+        model = Track
+        fields = ('seat_type', 'mode')
+
+
+class CourseRunTypeSerializer(BaseModelSerializer):
+    """Serializer for the ``CourseRunType`` model."""
+    modes = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CourseRunType
+        fields = ('uuid', 'name', 'is_marketable', 'modes')
+
+    def get_modes(self, obj):
+        return [track.mode.slug for track in obj.tracks.all()]
+
+
+class SeatSerializer(BaseModelSerializer):
     """Serializer for the ``Seat`` model."""
-    type = serializers.ChoiceField(
-        choices=[name for name, __ in Seat.SEAT_TYPE_CHOICES]
-    )
+    type = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all().order_by('name'))
     price = serializers.DecimalField(
         decimal_places=Seat.PRICE_FIELD_CONFIG['decimal_places'],
         max_digits=Seat.PRICE_FIELD_CONFIG['max_digits'],
@@ -547,14 +593,14 @@ class SeatSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return Seat.everything.all().select_related('currency')
+        return Seat.everything.all().select_related('currency', 'type')
 
-    class Meta(object):
+    class Meta:
         model = Seat
         fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours', 'sku', 'bulk_sku')
 
 
-class CourseEntitlementSerializer(serializers.ModelSerializer):
+class CourseEntitlementSerializer(BaseModelSerializer):
     """Serializer for the ``CourseEntitlement`` model."""
     price = serializers.DecimalField(
         decimal_places=CourseEntitlement.PRICE_FIELD_CONFIG['decimal_places'],
@@ -570,7 +616,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
     def prefetch_queryset(cls):
         return CourseEntitlement.everything.all().select_related('currency', 'mode')
 
-    class Meta(object):
+    class Meta:
         model = CourseEntitlement
         fields = ('mode', 'price', 'currency', 'sku', 'expires')
 
@@ -579,7 +625,7 @@ class CourseEntitlementSerializer(serializers.ModelSerializer):
         return None
 
 
-class CatalogSerializer(serializers.ModelSerializer):
+class CatalogSerializer(BaseModelSerializer):
     """Serializer for the ``Catalog`` model."""
     courses_count = serializers.IntegerField(read_only=True, help_text=_('Number of courses contained in this catalog'))
     viewers = serializers.SlugRelatedField(slug_field='username', queryset=User.objects.all(), many=True,
@@ -597,18 +643,41 @@ class CatalogSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-    class Meta(object):
+    class Meta:
         model = Catalog
         fields = ('id', 'name', 'query', 'courses_count', 'viewers')
 
 
-class NestedProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+class ProgramTypeSerializer(BaseModelSerializer):
+    """ Serializer for the Program Types. """
+    applicable_seat_types = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug')
+    logo_image = StdImageSerializerField()
+
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.prefetch_related('applicable_seat_types')
+
+    class Meta:
+        model = ProgramType
+        fields = ('uuid', 'name', 'logo_image', 'applicable_seat_types', 'slug', 'coaching_supported')
+
+
+class ProgramTypeAttrsSerializer(BaseModelSerializer):
+    """ Serializer for the Program Type Attributes. """
+
+    class Meta:
+        model = ProgramType
+        fields = ('uuid', 'slug', 'coaching_supported')
+
+
+class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     """
     Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
     the basic details of the Program and none of the details about its related entities, aside from the number
     of courses in the program.
     """
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    type_attrs = ProgramTypeAttrsSerializer(source='type')
     number_of_courses = serializers.SerializerMethodField()
 
     @classmethod
@@ -619,38 +688,27 @@ class NestedProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
 
     class Meta:
         model = Program
-        fields = ('uuid', 'title', 'type', 'marketing_slug', 'marketing_url', 'number_of_courses',)
-        read_only_fields = ('uuid', 'marketing_url', 'number_of_courses',)
+        fields = ('uuid', 'title', 'type', 'type_attrs', 'marketing_slug', 'marketing_url', 'number_of_courses',)
+        read_only_fields = ('uuid', 'marketing_url', 'number_of_courses', 'type_attrs')
 
     def get_number_of_courses(self, obj):
         return obj.courses.count()
-
-
-class MinimalPublisherCourseRunSerializer(TimestampModelSerializer):
-    course = serializers.SerializerMethodField()
-    title = serializers.SerializerMethodField()
-
-    class Meta:
-        model = PublisherCourseRun
-        fields = ('lms_course_id', 'course', 'title', 'start', 'end', 'pacing_type',)
-
-    def get_course(self, obj):
-        return obj.course.key
-
-    def get_title(self, obj):
-        return obj.title_override or obj.course.title
 
 
 class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     image = ImageField(read_only=True, source='image_url')
     marketing_url = serializers.SerializerMethodField()
     seats = SeatSerializer(required=False, many=True)
-    key = serializers.CharField(required=False)
+    key = serializers.CharField(required=False, read_only=True)
     title = serializers.CharField(required=False)
-    external_key = serializers.CharField(required=False)
-    short_description = serializers.CharField(required=False, allow_blank=True)
+    external_key = serializers.CharField(required=False, allow_blank=True)
+    short_description = HtmlField(required=False, allow_blank=True)
     start = serializers.DateTimeField(required=True)  # required so we can craft key number from it
     end = serializers.DateTimeField(required=True)  # required by studio
+    type = serializers.CharField(read_only=True, source='type_legacy')
+    run_type = serializers.SlugRelatedField(required=True, slug_field='uuid', source='type',
+                                            queryset=CourseRunType.objects.all())
+    term = serializers.CharField(required=False, write_only=True)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -658,7 +716,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
-        return queryset.select_related('course').prefetch_related(
+        return queryset.select_related('course', 'type').prefetch_related(
             '_official_version',
             'course__partner',
             Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
@@ -668,7 +726,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
-                  'pacing_type', 'type', 'status', 'is_enrollable', 'is_marketable',)
+                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term',)
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -687,31 +745,25 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 
         return marketing_url
 
-    def ensure_key(self, data):
+    def ensure_term(self, data):
         course = data['course']  # required
+        org, number = parse_course_key_fragment(course.key_for_reruns or course.key)
 
-        # There are two paths here - either the key was provided or start date was and we generate key from that.
-        # We prefer the start date path and only allow certain organizations to provide a key.
-
+        # Here we determine what value to use for the term section of the course run key.  If a key
+        # is provided in the body and the organization of the course has auto_generate_course_key
+        # turned on, we use that value, otherwise we calculate it using StudioAPI.
         allow_key_override = False
         for organization in course.authoring_organizations.all():
-            try:
-                # This flag is oddly named - it's because creating an instance in studio generated the key in old
-                # publisher. Nowadays, we always push to studio and allow overriding the key if that's what the org
-                # really wants.
-                if not organization.organization_extension.auto_create_in_studio:
-                    allow_key_override = True
-                    break
-            except ObjectDoesNotExist:
-                pass  # no organization extension
-
-        if allow_key_override and 'key' in data:
-            return
-
-        # Now, override whatever value for key was provided by looking at the start date
-        start = data['start']  # required
-        org, number = parse_course_key_fragment(course.key_for_reruns or course.key)
-        run = StudioAPI.calculate_course_run_key_run_value(number, start)
+            if not organization.auto_generate_course_run_keys:
+                allow_key_override = True
+                break
+        if allow_key_override and 'term' in data:
+            run = data['term']
+        else:
+            start = data['start']  # required
+            run = StudioAPI.calculate_course_run_key_run_value(number, start)
+        if 'term' in data:
+            data.pop('term')
         key = CourseLocator(org=org, course=number, run=run)
         data['key'] = str(key)
 
@@ -723,9 +775,9 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
             raise serializers.ValidationError({'start': _('Start date cannot be after the End date')})
 
         if not self.instance:  # if we're creating an object, we need to make sure to generate a key
-            self.ensure_key(attrs)
-        elif 'key' in attrs and self.instance.key != attrs['key']:
-            raise serializers.ValidationError({'key': _('Key cannot be changed')})
+            self.ensure_term(attrs)
+        elif 'term' in attrs and self.instance.key != attrs['term']:
+            raise serializers.ValidationError({'term': _('Term cannot be changed')})
 
         return super().validate(attrs)
 
@@ -733,6 +785,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
 class CourseRunSerializer(MinimalCourseRunSerializer):
     """Serializer for the ``CourseRun`` model."""
     course = serializers.SlugRelatedField(required=True, slug_field='key', queryset=Course.objects.filter_drafts())
+    course_uuid = serializers.ReadOnlyField(source='course.uuid', default=None)
     content_language = serializers.SlugRelatedField(
         required=False, allow_null=True, slug_field='code', source='language',
         queryset=LanguageTag.objects.all().order_by('name'),
@@ -750,14 +803,15 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         slug_field='name',
         queryset=LevelType.objects.all()
     )
-    full_description = serializers.CharField(required=False, allow_blank=True)
-    outcome = serializers.CharField(required=False, allow_blank=True)
+    full_description = HtmlField(required=False, allow_blank=True)
+    outcome = HtmlField(required=False, allow_blank=True)
     expected_program_type = serializers.SlugRelatedField(
         required=False,
         allow_null=True,
         slug_field='slug',
         queryset=ProgramType.objects.all()
     )
+    estimated_hours = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -776,13 +830,17 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
-            'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name'
+            'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
+            'course_uuid', 'estimated_hours',
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
         return []
+
+    def get_estimated_hours(self, obj):
+        return get_course_run_estimated_hours(obj)
 
     def to_internal_value(self, data):
         # Allow incoming writes to just specify a list of slugs for staff
@@ -809,13 +867,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         # Handle writing nested video data separately
         if 'get_video' in validated_data:
             self.update_video(instance, validated_data.pop('get_video'))
-
-        # Write all other attributes to the instance
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
-        instance.save()
-        return instance
+        return super().update(instance, validated_data)
 
     def validate(self, attrs):
         course = attrs.get('course', None)
@@ -878,7 +930,9 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     entitlements = CourseEntitlementSerializer(required=False, many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
     image = ImageField(read_only=True, source='image_url')
+    type = serializers.SlugRelatedField(required=True, slug_field='uuid', queryset=CourseType.objects.all())
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
+    url_slug = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -886,16 +940,42 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
 
-        return queryset.select_related('partner').prefetch_related(
+        return queryset.select_related('partner', 'type').prefetch_related(
             'authoring_organizations',
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
             Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
         )
 
+    def get_url_slug(self, obj):  # pylint: disable=unused-argument
+        return None  # this has been removed from the MinimalCourseSerializer, set to None to not break APIs
+
     class Meta:
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
-                  'short_description', 'url_slug', )
+                  'short_description', 'type', 'url_slug',)
+
+
+class CourseEditorSerializer(serializers.ModelSerializer):
+    """Serializer for the ``CourseEditor`` model."""
+    user = GroupUserSerializer(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
+    course = serializers.SlugRelatedField(queryset=Course.objects.filter_drafts(), slug_field='uuid')
+
+    class Meta:
+        model = CourseEditor
+        fields = (
+            'id',
+            'user',
+            'user_id',
+            'course',
+        )
+
+    def create(self, validated_data):
+        course_editor = CourseEditor.objects.create(
+            user=validated_data['user_id'],
+            course=validated_data['course']
+        )
+        return course_editor
 
 
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
@@ -914,6 +994,11 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     original_image = ImageField(read_only=True, source='original_image_url')
     extra_description = AdditionalPromoAreaSerializer(required=False)
     topics = TagListSerializerField(required=False)
+    url_slug = serializers.SlugField(read_only=True, source='active_url_slug')
+    url_slug_history = serializers.SlugRelatedField(slug_field='url_slug', read_only=True, many=True)
+    url_redirects = serializers.SlugRelatedField(slug_field='value', read_only=True, many=True)
+    course_run_statuses = serializers.ReadOnlyField()
+    editors = CourseEditorSerializer(many=True, read_only=True)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
@@ -929,11 +1014,14 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'extra_description',
             '_official_version',
             'canonical_course_run',
+            'type',
         ).prefetch_related(
             'expected_learning_items',
             'prerequisites',
             'subjects',
             'topics',
+            'url_slug_history',
+            'url_redirects',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
@@ -946,7 +1034,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
-            'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns',
+            'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
+            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -981,31 +1070,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         return Course.objects.create(**validated_data)
 
 
-class CourseEditorSerializer(serializers.ModelSerializer):
-    """Serializer for the ``CourseEditor`` model."""
-    user = GroupUserSerializer(read_only=True)
-    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
-    course = serializers.SlugRelatedField(queryset=Course.objects.filter_drafts(), slug_field='uuid')
-
-    class Meta:
-        model = CourseEditor
-        fields = (
-            'id',
-            'user',
-            'user_id',
-            'course',
-        )
-
-    def create(self, validated_data):
-        course_editor = CourseEditor.objects.create(
-            user=validated_data['user_id'],
-            course=validated_data['course']
-        )
-        return course_editor
-
-
 class CourseWithProgramsSerializer(CourseSerializer):
     """A ``CourseSerializer`` which includes programs."""
+    advertised_course_run_uuid = serializers.SerializerMethodField()
     course_run_keys = serializers.SerializerMethodField()
     course_runs = serializers.SerializerMethodField()
     programs = NestedProgramSerializer(read_only=True, many=True)
@@ -1024,11 +1091,13 @@ class CourseWithProgramsSerializer(CourseSerializer):
             'video__image',
             'partner',
             'canonical_course_run',
+            'type',
         ).prefetch_related(
             '_official_version',
             'expected_learning_items',
             'prerequisites',
             'topics',
+            'url_slug_history',
             Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset()),
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
@@ -1036,6 +1105,11 @@ class CourseWithProgramsSerializer(CourseSerializer):
             Prefetch('programs', queryset=NestedProgramSerializer.prefetch_queryset(queryset=programs)),
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
         )
+
+    def get_advertised_course_run_uuid(self, course):
+        if course.advertised_course_run:
+            return course.advertised_course_run.uuid
+        return None
 
     def get_course_run_keys(self, course):
         return [course_run.key for course_run in course.course_runs.all()]
@@ -1059,6 +1133,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
             'programs',
             'course_run_keys',
             'editable',
+            'advertised_course_run_uuid'
         )
 
 
@@ -1082,6 +1157,7 @@ class CatalogCourseSerializer(CourseSerializer):
             'expected_learning_items',
             'prerequisites',
             'subjects',
+            'url_slug_history',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
@@ -1133,7 +1209,7 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
-class RankingSerializer(serializers.ModelSerializer):
+class RankingSerializer(BaseModelSerializer):
     """ Ranking model serializer """
     class Meta:
         model = Ranking
@@ -1142,7 +1218,7 @@ class RankingSerializer(serializers.ModelSerializer):
         )
 
 
-class DegreeDeadlineSerializer(serializers.ModelSerializer):
+class DegreeDeadlineSerializer(BaseModelSerializer):
     """ DegreeDeadline model serializer """
     class Meta:
         model = DegreeDeadline
@@ -1154,7 +1230,7 @@ class DegreeDeadlineSerializer(serializers.ModelSerializer):
         )
 
 
-class DegreeCostSerializer(serializers.ModelSerializer):
+class DegreeCostSerializer(BaseModelSerializer):
     """ DegreeCost model serializer """
     class Meta:
         model = DegreeCost
@@ -1164,7 +1240,7 @@ class DegreeCostSerializer(serializers.ModelSerializer):
         )
 
 
-class CurriculumSerializer(serializers.ModelSerializer):
+class CurriculumSerializer(BaseModelSerializer):
     """ Curriculum model serializer """
     courses = serializers.SerializerMethodField()
     programs = serializers.SerializerMethodField()
@@ -1209,16 +1285,19 @@ class CurriculumSerializer(serializers.ModelSerializer):
         Prefetch all member courses and related objects for this curriculum
         """
         if not hasattr(self, '_prefetched_memberships'):
-            queryset = CurriculumCourseMembership.objects.filter(curriculum=curriculum).prefetch_related(
+            queryset = CurriculumCourseMembership.objects.filter(curriculum=curriculum).select_related(
+                'course__partner', 'course__type'
+            ).prefetch_related(
                 'course',
                 'course__course_runs',
                 'course__course_runs__seats',
+                'course__course_runs__seats__type',
+                'course__course_runs__type',
                 'course__entitlements',
                 'course__authoring_organizations',
-                'course__partner',
                 'course_run_exclusions',
             )
-            self._prefetched_memberships = [membership for membership in queryset]  # pylint: disable=attribute-defined-outside-init
+            self._prefetched_memberships = list(queryset)  # pylint: disable=attribute-defined-outside-init
 
     def prefetch_program_memberships(self, curriculum):
         """
@@ -1237,7 +1316,7 @@ class CurriculumSerializer(serializers.ModelSerializer):
                 'program__degree',
                 Prefetch('program__courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
             )
-            self._prefetched_program_memberships = [membership for membership in queryset]  # pylint: disable=attribute-defined-outside-init
+            self._prefetched_program_memberships = list(queryset)  # pylint: disable=attribute-defined-outside-init
 
     def prefetched_programs(self, curriculum):
         self.prefetch_program_memberships(curriculum)
@@ -1255,13 +1334,13 @@ class CurriculumSerializer(serializers.ModelSerializer):
         ]
 
 
-class IconTextPairingSerializer(serializers.ModelSerializer):
+class IconTextPairingSerializer(BaseModelSerializer):
     class Meta:
         model = IconTextPairing
         fields = ('text', 'icon',)
 
 
-class DegreeSerializer(serializers.ModelSerializer):
+class DegreeSerializer(BaseModelSerializer):
     """ Degree model serializer """
     campus_image = serializers.ImageField()
     title_background_image = serializers.ImageField()
@@ -1284,7 +1363,7 @@ class DegreeSerializer(serializers.ModelSerializer):
         )
 
 
-class MinimalProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
+class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     """
     Basic program serializer
 
@@ -1297,6 +1376,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    type_attrs = ProgramTypeAttrsSerializer(source='type')
     degree = DegreeSerializer()
     curricula = CurriculumSerializer(many=True)
 
@@ -1320,9 +1400,9 @@ class MinimalProgramSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image', 'hidden',
-            'courses', 'authoring_organizations', 'card_image_url', 'is_program_eligible_for_one_click_purchase',
-            'degree', 'curricula'
+            'uuid', 'title', 'subtitle', 'type', 'type_attrs', 'status', 'marketing_slug', 'marketing_url',
+            'banner_image', 'hidden', 'courses', 'authoring_organizations', 'card_image_url',
+            'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
@@ -1477,11 +1557,11 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
-            'enrollment_count', 'recent_enrollment_count', 'topics',
+            'enrollment_count', 'recent_enrollment_count', 'topics', 'credit_value',
         )
 
 
-class PathwaySerializer(serializers.ModelSerializer):
+class PathwaySerializer(BaseModelSerializer):
     """ Serializer for Pathway. """
     uuid = serializers.CharField()
     name = serializers.CharField()
@@ -1515,21 +1595,7 @@ class PathwaySerializer(serializers.ModelSerializer):
         )
 
 
-class ProgramTypeSerializer(serializers.ModelSerializer):
-    """ Serializer for the Program Types. """
-    applicable_seat_types = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug')
-    logo_image = StdImageSerializerField()
-
-    @classmethod
-    def prefetch_queryset(cls, queryset):
-        return queryset.prefetch_related('applicable_seat_types')
-
-    class Meta:
-        model = ProgramType
-        fields = ('name', 'logo_image', 'applicable_seat_types', 'slug',)
-
-
-class AffiliateWindowSerializer(serializers.ModelSerializer):
+class AffiliateWindowSerializer(BaseModelSerializer):
     """ Serializer for Affiliate Window product feeds. """
 
     # We use a hardcoded value since it is determined by Affiliate Window's taxonomy.
@@ -1584,7 +1650,7 @@ class AffiliateWindowSerializer(serializers.ModelSerializer):
         )
 
     def get_pid(self, obj):
-        return '{}-{}'.format(obj.course_run.key, obj.type)
+        return '{}-{}'.format(obj.course_run.key, obj.type.slug)
 
     def get_price(self, obj):
         return {
@@ -1668,11 +1734,11 @@ class FlattenedCourseRunWithCourseSerializer(CourseRunSerializer):
         }
 
         for seat in obj.seats.all():
-            for key in seats[seat.type].keys():
-                if seat.type == 'credit':
+            for key in seats[seat.type.slug].keys():
+                if seat.type.slug == 'credit':
                     seats['credit'][key].append(SeatSerializer(seat).data[key])
                 else:
-                    seats[seat.type][key] = SeatSerializer(seat).data[key]
+                    seats[seat.type.slug][key] = SeatSerializer(seat).data[key]
 
         for credit_attr in seats['credit']:
             seats['credit'][credit_attr] = ','.join([str(e) for e in seats['credit'][credit_attr]])
@@ -1778,15 +1844,12 @@ class CourseSearchSerializer(HaystackSerializer):
     course_runs = serializers.SerializerMethodField()
     seat_types = serializers.SerializerMethodField()
 
-    def to_representation(self, instance):
-        """
-        There are 2 course_run.all() calls in serializerMethodFields, so let's
-        prefetch their objects to reduce the number of queries we have.
-        """
-        prefetch_related_objects([instance.object], 'course_runs__seats')
-        return super().to_representation(instance)
-
     def get_course_runs(self, result):
+        request = self.context['request']
+        course_runs = result.object.course_runs.all()
+        # Check if exclude_expire_course_run is in query_params then exclude the course runs whose end date is passed.
+        if request.GET.get("exclude_expired_course_run"):
+            course_runs = course_runs.exclude(end__lte=datetime.datetime.now(pytz.UTC))
         return [
             {
                 'key': course_run.key,
@@ -1798,18 +1861,18 @@ class CourseSearchSerializer(HaystackSerializer):
                 'modified': course_run.modified,
                 'availability': course_run.availability,
                 'pacing_type': course_run.pacing_type,
-                'enrollment_mode': course_run.type,
+                'enrollment_mode': course_run.type_legacy,
                 'min_effort': course_run.min_effort,
                 'max_effort': course_run.max_effort,
                 'weeks_to_complete': course_run.weeks_to_complete,
                 'estimated_hours': get_course_run_estimated_hours(course_run),
                 'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0
             }
-            for course_run in result.object.course_runs.all()
+            for course_run in course_runs
         ]
 
     def get_seat_types(self, result):
-        seat_types = [seat for course_run in result.object.course_runs.all() for seat in course_run.seat_types]
+        seat_types = [seat.slug for course_run in result.object.course_runs.all() for seat in course_run.seat_types]
         return list(set(seat_types))
 
     class Meta:
@@ -1822,6 +1885,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'short_description',
             'title',
             'card_image_url',
+            'image_url',
             'course_runs',
             'uuid',
             'seat_types',
@@ -1846,12 +1910,16 @@ class CourseFacetSerializer(BaseHaystackFacetSerializer):
 class CourseRunSearchSerializer(HaystackSerializer):
     availability = serializers.SerializerMethodField()
     first_enrollable_paid_seat_price = serializers.SerializerMethodField()
+    type = serializers.SerializerMethodField()
 
     def get_availability(self, result):
         return result.object.availability
 
     def get_first_enrollable_paid_seat_price(self, result):
         return result.object.first_enrollable_paid_seat_price
+
+    def get_type(self, result):
+        return result.object.type_legacy
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -1912,7 +1980,6 @@ class CourseRunFacetSerializer(BaseHaystackFacetSerializer):
             'seat_types': {},
             'subjects': {},
             'transcript_languages': {},
-            'type': {},
         }
         field_queries = {
             'availability_current': {'query': 'start:<now AND end:>now'},
@@ -2100,13 +2167,76 @@ class TypeaheadSearchSerializer(serializers.Serializer):
     programs = TypeaheadProgramSearchSerializer(many=True)
 
 
-class TopicSerializer(serializers.ModelSerializer):
+class TopicSerializer(BaseModelSerializer):
     """Serializer for the ``Topic`` model."""
 
     @classmethod
     def prefetch_queryset(cls):
         return Topic.objects.filter()
 
-    class Meta(object):
+    class Meta:
         model = Topic
         fields = ('name', 'subtitle', 'description', 'long_description', 'banner_image_url', 'slug', 'uuid')
+
+
+class MetadataWithRelatedChoices(SimpleMetadata):
+    """ A version of the normal DRF metadata class that also returns choices for RelatedFields """
+
+    def determine_metadata(self, request, view):
+        self.view = view  # pylint: disable=attribute-defined-outside-init
+        self.request = request  # pylint: disable=attribute-defined-outside-init
+        return super().determine_metadata(request, view)
+
+    def get_field_info(self, field):
+        info = super().get_field_info(field)
+
+        in_whitelist = False
+        if hasattr(self.view, 'metadata_related_choices_whitelist'):
+            in_whitelist = field.field_name in self.view.metadata_related_choices_whitelist
+
+        # The normal metadata class excludes RelatedFields, but we want them! So we do the same thing the normal
+        # class does, but without the RelatedField check.
+        if in_whitelist and not info.get('read_only') and hasattr(field, 'choices'):
+            info['choices'] = [
+                {
+                    'value': choice_value,
+                    'display_name': choice_name,
+                }
+                for choice_value, choice_name in field.choices.items()
+            ]
+
+        return info
+
+
+class MetadataWithType(MetadataWithRelatedChoices):
+    """ A version of the MetadataWithRelatedChoices class that also includes logic for Course Types """
+
+    def create_type_options(self, info):
+        user = self.request.user
+        info['type_options'] = [{
+            'uuid': course_type.uuid,
+            'name': course_type.name,
+            'entitlement_types': [entitlement_type.slug for entitlement_type in course_type.entitlement_types.all()],
+            'course_run_types': [
+                CourseRunTypeSerializer(course_run_type).data for course_run_type
+                in course_type.course_run_types.all()
+            ],
+            'tracks': [
+                TrackSerializer(track).data for track
+                in TrackSerializer.prefetch_queryset().filter(courseruntype__coursetype=course_type).distinct()
+            ],
+        } for course_type in CourseType.objects.prefetch_related(
+            'course_run_types__tracks__mode', 'entitlement_types', 'white_listed_orgs'
+        ).exclude(slug=CourseType.EMPTY) if not course_type.white_listed_orgs.exists() or user.is_staff or
+            user.groups.filter(organization_extension__organization__in=course_type.white_listed_orgs.all()).exists()]
+        return info
+
+    def get_field_info(self, field):
+        info = super().get_field_info(field)
+
+        # This line is because a child serializer of Course (the ProgramSerializer) also has
+        # the type field, but we only want it to match with the CourseSerializer
+        if field.field_name == 'type' and isinstance(field.parent, self.view.get_serializer_class()):
+            return self.create_type_options(info)
+
+        return info

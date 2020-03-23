@@ -353,7 +353,7 @@ disable =
 	unpacking-in-except,
 	using-cmp-argument,
 	xrange-builtin,
-	zip-builtin-not-iterating,,invalid-name,missing-docstring,cyclic-import
+	zip-builtin-not-iterating,,invalid-name,missing-docstring,cyclic-import,modelform-uses-exclude
 
 [REPORTS]
 output-format = text
@@ -453,4 +453,4 @@ int-import-graph =
 [EXCEPTIONS]
 overgeneral-exceptions = Exception
 
-# c18457e95cfd07cb5e4eedd5a6d5a7b0989560f7
+# 0a95647bd24d7700094f314da300124599ee097d

@@ -1,0 +1,11 @@
+{% load i18n %}
+
+{% blocktrans with date=comment_date|date:'m/d/y' time=comment_date.time trimmed %}
+{{ user_name }} made the following comment on {{ course_name }} {{ date }} at {{ time }}
+{% endblocktrans %}
+
+{{ comment_message }}
+
+{% trans "View comment in Publisher" %} {{ page_url }}
+
+{% trans "The edX team" %}

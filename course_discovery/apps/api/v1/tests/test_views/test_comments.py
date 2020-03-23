@@ -1,16 +1,19 @@
+import datetime
+
 import factory
 import mock
-from django.db.models.signals import post_save
+from django.db.models.signals import m2m_changed, post_save
 from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, SalesforceConfigurationFactory, UserFactory
-from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory
+from course_discovery.apps.course_metadata.salesforce import SalesforceMissingCaseException, SalesforceUtil
+from course_discovery.apps.course_metadata.tests.factories import CourseFactoryNoSignals, OrganizationFactoryNoSignals
 
 
 class CommentViewSetTests(OAuth2Mixin, APITestCase):
-    @factory.django.mute_signals(post_save)
+
+    @factory.django.mute_signals(m2m_changed)
     def setUp(self):
         super(CommentViewSetTests, self).setUp()
         self.salesforce_config = SalesforceConfigurationFactory(partner=self.partner)
@@ -18,8 +21,8 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
         self.request.user = self.user
         self.request.site.partner = self.partner
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.course = CourseFactory(partner=self.partner, title='Fake Test', key='edX+Fake101', draft=True)
-        self.org = OrganizationFactory(key='edX', partner=self.partner)
+        self.course = CourseFactoryNoSignals(partner=self.partner, title='Fake Test', key='edX+Fake101', draft=True)
+        self.org = OrganizationFactoryNoSignals(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)  # pylint: disable=no-member
 
     def tearDown(self):
@@ -37,10 +40,10 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.data, [])
 
-    @factory.django.mute_signals(post_save)
     def test_list_salesforce_case_id_set(self):
         self.course.salesforce_id = 'TestSalesforceId'
-        self.course.save()
+        with factory.django.mute_signals(post_save):
+            self.course.save()
 
         salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
         get_comments_path = 'course_discovery.apps.api.v1.views.comments.SalesforceUtil.get_comments_for_course'
@@ -114,8 +117,16 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
                                'SalesforceUtil.create_comment_for_course_case')
 
         with mock.patch(salesforce_path):
-            # Just return an empty array for testing purposes, the utils are tested separately
-            with mock.patch(create_comment_path, return_value=[]) as mock_create_comment:
+            with mock.patch(create_comment_path, return_value={
+                'user': {
+                    'username': self.user.username,
+                    'email': self.user.email,
+                    'first_name': self.user.first_name,
+                    'last_name': self.user.last_name,
+                },
+                'comment': 'Comment body',
+                'created': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            }) as mock_create_comment:
                 url = reverse('api:v1:comment-list')
                 response = self.client.post(url, body, format='json')
                 mock_create_comment.assert_called_with(
@@ -179,6 +190,23 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
             url = reverse('api:v1:comment-list')
             response = self.client.post(url, body, format='json')
             self.assertEqual(response.status_code, 404)
+
+    def test_create_500s_without_a_successful_case_create(self):
+        body = {
+            'course_uuid': self.course.uuid,
+            'comment': 'Test comment',
+            'course_run_key': 'test-key',
+        }
+
+        salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
+        create_comment_path = ('course_discovery.apps.api.v1.views.comments.'
+                               'SalesforceUtil.create_comment_for_course_case')
+
+        with mock.patch(salesforce_path):
+            with mock.patch(create_comment_path, side_effect=SalesforceMissingCaseException('Error')):
+                url = reverse('api:v1:comment-list')
+                response = self.client.post(url, body, format='json')
+                self.assertEqual(response.status_code, 500)
 
     def test_list_404s_without_a_config(self):
         self.salesforce_config.delete()

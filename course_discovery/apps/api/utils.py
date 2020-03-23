@@ -9,7 +9,7 @@ from opaque_keys.edx.keys import CourseKey
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.models import CourseRun as DiscoveryCourseRun
+from course_discovery.apps.course_metadata.models import CourseRun
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ def get_query_param(request, name):
     # This facilitates DRF's schema generation. For more, see
     # https://github.com/encode/django-rest-framework/blob/3.6.3/rest_framework/schemas.py#L383
     if request is None:
-        return
+        return None
 
     return cast2int(request.query_params.get(name), name)
 
@@ -142,19 +142,20 @@ class StudioAPI:
         trimester = math.ceil(start.month / 4.)
         run = '{trimester}T{year}'.format(trimester=trimester, year=start.year)
 
-        related_course_runs = DiscoveryCourseRun.everything.filter(
-            key__contains=course_num
-        ).values_list('key', flat=True)
-
+        related_course_runs = CourseRun.everything.filter(key__contains=course_num).values_list('key', flat=True)
         related_course_runs = [CourseKey.from_string(key).run for key in related_course_runs]
+
         return cls._get_next_run(run, '', related_course_runs)
 
     @classmethod
     def generate_data_for_studio_api(cls, course_run, creating, user=None):
-        editors = cls._run_editors(course_run)
-        org, number, run = cls._run_key_parts(course_run)
-        start, end = cls._run_times(course_run, creating)
-        pacing = cls._run_pacing(course_run, creating)
+        editors = [editor.user for editor in course_run.course.editors.all()]
+        key = CourseKey.from_string(course_run.key)
+
+        # start, end, and pacing are not sent on updates - Studio is where users edit them
+        start = course_run.start if creating else None
+        end = course_run.end if creating else None
+        pacing = course_run.pacing_type if creating else None
 
         if user:
             editors.append(user)
@@ -170,13 +171,13 @@ class StudioAPI:
         else:
             team = []
             logger.warning('No course team admin specified for course [%s]. This may result in a Studio '
-                           'course run being created without a course team.', number)
+                           'course run being created without a course team.', key.course)
 
         data = {
-            'title': cls._run_title(course_run),
-            'org': org,
-            'number': number,
-            'run': run,
+            'title': course_run.title,
+            'org': key.org,
+            'number': key.course,
+            'run': key.run,
             'team': team,
         }
 
@@ -199,18 +200,18 @@ class StudioAPI:
         data = self.generate_data_for_studio_api(publisher_course_run, creating=True, user=user)
         return self._api.course_runs.post(data)
 
-    def update_course_run_image_in_studio(self, course_run, run_response=None):
+    def update_course_run_image_in_studio(self, course_run):
         course = course_run.course
         image = course.image
 
         if image:
             files = {'card_image': image}
             try:
-                self._api.course_runs(self._run_key(course_run, run_response)).images.post(files=files)
+                self._api.course_runs(course_run.key).images.post(files=files)
             except Exception:  # pylint: disable=broad-except
                 logger.exception(
                     _('An error occurred while setting the course run image for [{key}] in studio. All other fields '
-                      'were successfully saved in Studio.').format(key=self._run_key(course_run, run_response))
+                      'were successfully saved in Studio.').format(key=course_run.key)
                 )
         else:
             logger.warning(
@@ -222,7 +223,7 @@ class StudioAPI:
     def update_course_run_details_in_studio(self, course_run):
         data = self.generate_data_for_studio_api(course_run, creating=False)
         # NOTE: We use PATCH to avoid overwriting existing team data that may have been manually input in Studio.
-        return self._api.course_runs(self._run_key(course_run)).patch(data)
+        return self._api.course_runs(course_run.key).patch(data)
 
     def push_to_studio(self, course_run, create=False, old_course_run_key=None, user=None):
         if create and old_course_run_key:
@@ -233,32 +234,3 @@ class StudioAPI:
             response = self.update_course_run_details_in_studio(course_run)
 
         return response
-
-    @classmethod
-    def _run_key(cls, course_run, run_response=None):  # pylint: disable=unused-argument
-        return course_run.key
-
-    @classmethod
-    def _run_key_parts(cls, course_run):
-        key = CourseKey.from_string(course_run.key)
-        return key.org, key.course, key.run
-
-    @classmethod
-    def _run_title(cls, course_run):
-        return course_run.title
-
-    @classmethod
-    def _run_times(cls, course_run, creating):
-        if not creating:
-            return None, None  # not sent by default on update - studio is where the schedule is edited by users
-        return course_run.start, course_run.end
-
-    @classmethod
-    def _run_pacing(cls, course_run, creating):
-        if not creating:
-            return None  # not sent by default on update - studio is where pacing is edited by users
-        return course_run.pacing_type
-
-    @classmethod
-    def _run_editors(cls, course_run):
-        return [editor.user for editor in course_run.course.editors.all()]

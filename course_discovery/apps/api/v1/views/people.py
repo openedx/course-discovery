@@ -9,7 +9,6 @@ from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
-from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException, PersonToMarketingException
 
 logger = logging.getLogger(__name__)
@@ -60,7 +59,7 @@ class PersonViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def update(self, request, *args, **kwargs):  # pylint: disable=unused-argument
+    def update(self, request, *args, **kwargs):
         """
         Updates a person in discovery and the corresponding person node in drupal
         """
@@ -114,10 +113,3 @@ class PersonViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             queryset = queryset.filter(courses_staffed__course__authoring_organizations__key__in=org_keys).order_by()
 
         return queryset
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        query_params = ['include_course_runs_staffed', 'include_publisher_course_runs_staffed']
-        for query_param in query_params:
-            context[query_param] = get_query_param(self.request, query_param)
-        return context

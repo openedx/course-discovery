@@ -23,6 +23,7 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
+from course_discovery.apps.publisher.utils import is_publisher_user
 
 log = logging.getLogger(__name__)
 
@@ -35,9 +36,10 @@ def writable_request_wrapper(method):
         except (PermissionDenied, ValidationError, Http404):
             raise  # just pass these along
         except Exception as e:  # pylint: disable=broad-except
-            log.exception(_('An error occurred while setting course run data.'))
-            return Response(_('Failed to set course run data: {}').format(str(e)),
-                            status=status.HTTP_400_BAD_REQUEST)
+            content = e.content.decode('utf8') if hasattr(e, 'content') else str(e)
+            msg = _('Failed to set course run data: {}').format(content)
+            log.exception(msg)
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
     return inner
 
 
@@ -54,7 +56,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CourseRunWithProgramsSerializer
     metadata_class = MetadataWithRelatedChoices
     metadata_related_choices_whitelist = (
-        'content_language', 'level_type', 'transcript_languages', 'expected_program_type'
+        'content_language', 'level_type', 'transcript_languages', 'expected_program_type', 'type'
     )
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
@@ -78,6 +80,9 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         if edit_mode and q:
             raise EditableAndQUnsupported()
+
+        if edit_mode and (not self.request.user.is_staff and not is_publisher_user(self.request.user)):
+            raise PermissionDenied
 
         if edit_mode:
             queryset = CourseRun.objects.filter_drafts()
@@ -166,7 +171,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
               paramType: query
               multiple: false
         """
-        return super(CourseRunViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)  # pylint: disable=no-member
 
     @classmethod
     def push_to_studio(cls, request, course_run, create=False, old_course_run_key=None):
@@ -203,6 +208,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # Guard against externally setting the draft state
         run_data.pop('draft', None)
 
+        prices = run_data.pop('prices', {})
+
         # Grab any existing course run for this course (we'll use it when talking to studio to form basis of rerun)
         course_key = run_data.get('course', None)  # required field
         if not course_key:
@@ -220,7 +227,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         # Save run to database
         course_run = serializer.save(draft=True)
 
-        course_run.update_or_create_seats()
+        course_run.update_or_create_seats(course_run.type, prices)
 
         # Set canonical course run if needed (done this way to match historical behavior - but shouldn't this be
         # updated *each* time we make a new run?)
@@ -259,7 +266,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         return response
 
     @writable_request_wrapper
-    def _update_course_run(self, course_run, draft, changed, serializer, request, save_kwargs):
+    def _update_course_run(self, course_run, draft, changed, serializer, request, prices):
+        save_kwargs = {}
         # If changes are made after review and before publish, revert status to unpublished.
         # Unless we're just switching the status
         non_exempt_update = changed and course_run.status == CourseRunStatus.Reviewed
@@ -276,10 +284,17 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
         course_run = serializer.save(**save_kwargs)
 
+        if course_run in course_run.course.active_course_runs:
+            course_run.update_or_create_seats(course_run.type, prices)
+
         self.push_to_studio(request, course_run, create=False)
 
-        # Published course runs can be re-published directly
-        if not draft and course_run.status == CourseRunStatus.Published:
+        # Published course runs can be re-published directly or course runs that remain in the Reviewed
+        # state can update their official version. We want to do this even in the Reviewed case for
+        # when an exempt field is changed and we still want to update the official even though we don't
+        # want to completely unpublish it.
+        if ((not draft and course_run.status == CourseRunStatus.Published) or
+           course_run.status == CourseRunStatus.Reviewed):
             course_run.update_or_create_official_version()
 
         return Response(serializer.data)
@@ -303,6 +318,8 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         partial = kwargs.pop('partial', False)
         # Sending draft=False triggers the review process for unpublished courses
         draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
+        prices = request.data.pop('prices', {})
+
         serializer = self.get_serializer(course_run, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
@@ -324,14 +341,13 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         for key in request.data.keys():
             if key in CourseRun.INTERNAL_REVIEW_FIELDS:
                 return Response(
-                    _('Invalid param'),
+                    _('Invalid parameter'),
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
         changed = reviewable_data_has_changed(
             course_run, serializer.validated_data.items(), CourseRun.STATUS_CHANGE_EXEMPT_FIELDS)
-        save_kwargs = {}
-        response = self._update_course_run(course_run, draft, changed, serializer, request, save_kwargs)
+        response = self._update_course_run(course_run, draft, changed, serializer, request, prices)
 
         self.update_course_run_image_in_studio(course_run)
 
@@ -339,7 +355,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
-        return super(CourseRunViewSet, self).retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)  # pylint: disable=no-member
 
     @action(detail=False)
     def contains(self, request):

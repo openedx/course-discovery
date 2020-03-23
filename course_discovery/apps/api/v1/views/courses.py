@@ -2,6 +2,7 @@ import base64
 import logging
 import re
 
+from django.core import validators
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -21,18 +22,19 @@ from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
-from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithRelatedChoices
+from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithType
 from course_discovery.apps.api.utils import get_query_param, reviewable_data_has_changed
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseEntitlement, CourseRun, Organization, Program, Seat, SeatType, Video
+    Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug, Organization, Program, Seat, Video
 )
 from course_discovery.apps.course_metadata.utils import (
     create_missing_entitlement, ensure_draft_world, validate_course_number
 )
+from course_discovery.apps.publisher.utils import is_publisher_user
 
 logger = logging.getLogger(__name__)
 
@@ -48,13 +50,14 @@ def writable_request_wrapper(method):
         except (PermissionDenied, Http404):
             raise  # just pass these along
         except Exception as e:  # pylint: disable=broad-except
-            logger.exception(_('An error occurred while setting Course or Course Run data.'))
-            return Response(_('Failed to set data: {}').format(str(e)),
-                            status=status.HTTP_400_BAD_REQUEST)
+            content = e.content.decode('utf8') if hasattr(e, 'content') else str(e)
+            msg = _('Failed to set data: {}').format(content)
+            logger.exception(msg)
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
     return inner
 
 
-# pylint: disable=no-member,useless-super-delegation
+# pylint: disable=useless-super-delegation
 class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ Course resource. """
 
@@ -64,7 +67,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     lookup_value_regex = COURSE_ID_REGEX + '|' + COURSE_UUID_REGEX
     permission_classes = (IsAuthenticated, IsCourseEditorOrReadOnly,)
     serializer_class = serializers.CourseWithProgramsSerializer
-    metadata_class = MetadataWithRelatedChoices
+    metadata_class = MetadataWithType
     metadata_related_choices_whitelist = ('mode', 'level_type', 'subjects',)
 
     course_key_regex = re.compile(COURSE_ID_REGEX)
@@ -103,6 +106,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         if edit_mode and q:
             raise EditableAndQUnsupported()
+
+        if edit_mode and (not self.request.user.is_staff and not is_publisher_user(self.request.user)):
+            raise PermissionDenied
 
         if edit_mode:
             # Start with either draft versions or real versions of the courses
@@ -170,17 +176,19 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             'title': request.data.get('title'),
             'number': request.data.get('number'),
             'org': request.data.get('org'),
-            'mode': request.data.get('mode'),
-            'url_slug': request.data.get('url_slug', ''),
+            'type': request.data.get('type'),
         }
+        url_slug = request.data.get('url_slug', '')
+
         missing_values = [k for k, v in course_creation_fields.items() if v is None]
         error_message = ''
         if missing_values:
             error_message += ''.join([_('Missing value for: [{name}]. ').format(name=name) for name in missing_values])
         if not Organization.objects.filter(key=course_creation_fields['org']).exists():
-            error_message += _('Organization does not exist. ')
-        if not SeatType.objects.filter(slug=course_creation_fields['mode']).exists():
-            error_message += _('Entitlement Track does not exist. ')
+            error_message += _('Organization [{org}] does not exist. ').format(org=course_creation_fields['org'])
+        if not CourseType.objects.filter(uuid=course_creation_fields['type']).exists():
+            error_message += _('Course Type [{course_type}] does not exist. ').format(
+                course_type=course_creation_fields['type'])
         if error_message:
             return Response((_('Incorrect data sent. ') + error_message).strip(), status=status.HTTP_400_BAD_REQUEST)
 
@@ -195,30 +203,31 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         # Confirm that this course doesn't already exist in an official non-draft form
         if Course.objects.filter(partner=partner, key=course_creation_fields['key']).exists():
-            raise Exception(_('A course with key {key} already exists.').format(key=course_creation_fields['key']))
+            raise Exception(_('A course with key [{key}] already exists.').format(key=course_creation_fields['key']))
 
         # if a manually entered url_slug, ensure it's not already taken (auto-generated are guaranteed uniqueness)
-        if (course_creation_fields['url_slug'] and
-            Course.everything.filter(url_slug=course_creation_fields['url_slug'],
-                                     partner_id=course_creation_fields['partner']).exists()):
-            raise Exception(
-                _('Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. Please '
-                  'update this field and try again.').format(url_slug=course_creation_fields['url_slug']))
+        if url_slug:
+            validators.validate_slug(url_slug)
+            if CourseUrlSlug.objects.filter(url_slug=url_slug, partner=partner).exists():
+                raise Exception(_('Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in '
+                                  'use. Please update this field and try again.').format(url_slug=url_slug))
 
         course = serializer.save(draft=True)
+        course.set_active_url_slug(url_slug)
 
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
 
-        price = request.data.get('price', 0.00)
-        mode = SeatType.objects.get(slug=course_creation_fields['mode'])
-        CourseEntitlement.objects.create(
-            course=course,
-            mode=mode,
-            partner=partner,
-            price=price,
-            draft=True,
-        )
+        entitlement_types = course.type.entitlement_types.all()
+        prices = request.data.get('prices', {})
+        for entitlement_type in entitlement_types:
+            CourseEntitlement.objects.create(
+                course=course,
+                mode=entitlement_type,
+                partner=partner,
+                price=prices.get(entitlement_type.slug, 0),
+                draft=True,
+            )
 
         CourseEditor.objects.create(
             user=request.user,
@@ -229,11 +238,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # Note: We have to send the request object as well because it is used for its metadata
         # (like request.user and is set as part of the serializer context)
         if course_run_creation_fields:
-            course_run_creation_fields.update({
-                'course': course_creation_fields['key'],
-                'price': price,
-                'mode': course_creation_fields['mode'],
-            })
+            course_run_creation_fields.update({'course': course.key, 'prices': prices})
             run_response = CourseRunViewSet().create_run_helper(course_run_creation_fields, request)
             if run_response.status_code != 201:
                 raise Exception(str(run_response.data))
@@ -241,33 +246,48 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def update_entitlement(self, course, data, partial=False):
-        """ Finds and updates an existing entitlement from the incoming data, with verification. """
-        if 'mode' not in data:
-            raise ValidationError(_('Entitlements must have a mode specified.'))
+    def update_entitlement(self, course, entitlement_type, price, partial=False):
+        """
+        Finds and updates an existing entitlement from the incoming data, with verification.
 
-        mode = SeatType.objects.filter(slug=data['mode']).first()
-        if not mode:
-            raise ValidationError(_('Entitlement mode {} not found.').format(data['mode']))
-
+        Will create an entitlement if we're switching from Audit.
+        Returns a tuple of (CourseEntitlement, bool) where the second value is whether the entitlement changed.
+        """
         entitlement = CourseEntitlement.everything.filter(course=course, draft=True).first()
-        if not entitlement:
-            raise ValidationError(_('Existing entitlement not found for course {0}.')
-                                  .format(course.key))
+        existing_slug = entitlement.mode.slug if entitlement else Seat.AUDIT
 
         # We want to allow upgrading an entitlement from Audit -> Verified, but allow no other
-        # mode changes. We use the official version existing as an indicator for ecom products
-        # having already been created.
-        mode_switch_whitelist = {Seat.AUDIT: Seat.VERIFIED}
-        if (course.official_version and entitlement.mode != mode and
-                mode_switch_whitelist.get(entitlement.mode.slug) != mode.slug):
-            raise ValidationError(_('Switching entitlement modes after being reviewed is not supported. Please reach '
+        # entitlement type changes. We use the official version existing as an indicator for
+        # ecom products having already been created.
+        entitlement_type_switch_whitelist = {Seat.AUDIT: Seat.VERIFIED}
+        if (course.official_version and existing_slug != entitlement_type.slug and
+                entitlement_type_switch_whitelist.get(existing_slug) != entitlement_type.slug):
+            raise ValidationError(_('Switching entitlement types after being reviewed is not supported. Please reach '
                                     'out to your project coordinator for additional help if necessary.'))
 
-        # We have an entitlement object, now let's deserialize the incoming data and update it
-        serializer = CourseEntitlementSerializer(entitlement, data=data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        return serializer.save()
+        if entitlement:
+            data = {'mode': entitlement_type.slug, 'price': price}
+            serializer = CourseEntitlementSerializer(entitlement, data=data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            return serializer.save(), entitlement.price != float(price)
+        else:
+            return (CourseEntitlement.objects.create(
+                course=course,
+                mode=entitlement_type,
+                partner=course.partner,
+                price=price,
+                draft=True,
+            ), True)
+
+    def log_request_subjects_and_prices(self, data, course):  # pragma: no cover
+        req_subjects = ', '.join(data.get('subjects', []))
+        current_subjects = ', '.join(list(map(lambda s: s.slug, course.subjects.all())))
+        prices = data.get('prices', {})
+        logger.info(
+            'UPDATE to course uuid - {uuid}, req subjects - [{req_subjects}], request prices - {prices}, '
+            'current subjects - [{current_subjects}]'.format(uuid=data.get('uuid'), req_subjects=req_subjects,
+                                                             prices=prices, current_subjects=current_subjects)
+        )
 
     @writable_request_wrapper
     def update_course(self, data, partial=False):
@@ -275,10 +295,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         changed = False
         # Sending draft=False means the course data is live and updates should be pushed out immediately
         draft = data.pop('draft', True)
-        # Pop nested writables that we will handle ourselves (the serializer won't handle them)
-        entitlements_data = data.pop('entitlements', [])
         image_data = data.pop('image', None)
         video_data = data.pop('video', None)
+        url_slug = data.pop('url_slug', '')
 
         # Get and validate object serializer
         course = self.get_object()
@@ -286,19 +305,23 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(course, data=data, partial=partial)
         serializer.is_valid(raise_exception=True)
 
-        # First, update nested entitlements
-        entitlements = []
-        for entitlement_data in entitlements_data:
-            if entitlement_data == {}:
-                continue
-            entitlements.append(self.update_entitlement(course, entitlement_data, partial=partial))
-            # We set changed to True here if the price of the course is being updated
-            changed = format(float(entitlement_data['price']), '.2f') != str(course.entitlements.first().price)
-        if entitlements:
-            course.entitlements = entitlements
-            # If entitlements were updated, we also want to update seats
-            for course_run in course.active_course_runs:
-                course_run.update_or_create_seats()
+        # TEMPORARY - log incoming request (subject and prices) for all course updates, see Jira DISCO-1593
+        self.log_request_subjects_and_prices(data, course)
+
+        # First, update course entitlements
+        if data.get('type') or data.get('prices'):
+            entitlements = []
+            prices = data.get('prices', {})
+            course_type = CourseType.objects.get(uuid=data.get('type')) if data.get('type') else course.type
+            entitlement_types = course_type.entitlement_types.all()
+            for entitlement_type in entitlement_types:
+                price = prices.get(entitlement_type.slug)
+                if price is None:
+                    continue
+                entitlement, did_change = self.update_entitlement(course, entitlement_type, price, partial=partial)
+                entitlements.append(entitlement)
+                changed = changed or did_change
+            course.entitlements.set(entitlements)
 
         # Save video if a new video source is provided
         if (video_data and video_data.get('src') and
@@ -317,17 +340,21 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # If price didnt change, check the other fields on the course
         # (besides image and video, they are popped off above)
         changed = changed or reviewable_data_has_changed(course, serializer.validated_data.items())
-        validated_data = serializer.validated_data
 
-        if (validated_data.get('url_slug') and
-            Course.everything.filter(url_slug=validated_data['url_slug'],
-                                     partner=course.partner).exclude(uuid=course.uuid).exists()):
-            raise Exception(
-                _('Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. '
-                  'Please update this field and try again.').format(url_slug=validated_data['url_slug']))
+        if url_slug:
+            validators.validate_slug(url_slug)
+            all_course_historical_slugs_excluding_present = CourseUrlSlug.objects.filter(
+                url_slug=url_slug, partner=course.partner).exclude(course__uuid=course.uuid)
+            if all_course_historical_slugs_excluding_present.exists():
+                raise Exception(
+                    _('Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already in use. '
+                      'Please update this field and try again.').format(url_slug=url_slug))
 
         # Then the course itself
         course = serializer.save()
+        if url_slug:
+            course.set_active_url_slug(url_slug)
+
         if not draft:
             for course_run in course.active_course_runs:
                 if course_run.status == CourseRunStatus.Published:
@@ -342,7 +369,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 course_run.official_version.status = CourseRunStatus.Unpublished
                 course_run.official_version.save()
 
-        return Response(serializer.data)
+        # hack to get the correctly-updated url slug into the response
+        return_dict = {'url_slug': course.active_url_slug}
+        return_dict.update(serializer.data)
+        return Response(return_dict)
 
     def update(self, request, *_args, **_kwargs):
         """ Update details for a course. """

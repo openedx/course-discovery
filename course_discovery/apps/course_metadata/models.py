@@ -7,10 +7,12 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
+import requests
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.validators import FileExtensionValidator
 from django.db import models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
@@ -23,12 +25,13 @@ from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
-from stdimage.utils import UploadToAutoSlug
 from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata import emails
-from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
+from course_discovery.apps.course_metadata.choices import (
+    CertificateType, CourseRunPacing, CourseRunStatus, PayeeType, ProgramStatus, ReportingType
+)
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
 from course_discovery.apps.course_metadata.managers import DraftManager
@@ -38,8 +41,8 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run, set_official_state,
-    uslugify
+    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run,
+    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta, uslugify
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -80,7 +83,7 @@ class DraftModelMixin(models.Model):
         except ObjectDoesNotExist:
             return None
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
 
@@ -110,7 +113,7 @@ class AbstractNamedModel(TimeStampedModel):
     def __str__(self):
         return self.name
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
 
@@ -121,7 +124,7 @@ class AbstractValueModel(TimeStampedModel):
     def __str__(self):
         return self.value
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
 
@@ -133,7 +136,7 @@ class AbstractMediaModel(TimeStampedModel):
     def __str__(self):
         return self.src
 
-    class Meta(object):
+    class Meta:
         abstract = True
 
 
@@ -147,8 +150,115 @@ class AbstractTitleDescriptionModel(TimeStampedModel):
             return self.title
         return self.description
 
-    class Meta(object):
+    class Meta:
         abstract = True
+
+
+class Organization(CachedMixin, TimeStampedModel):
+    """ Organization model. """
+    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
+    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
+    key = models.CharField(max_length=255, help_text=_('Please do not use any spaces or special characters other '
+                                                       'than period, underscore or hyphen. This key will be used '
+                                                       'in the course\'s course key.'))
+    name = models.CharField(max_length=255)
+    certificate_name = models.CharField(
+        max_length=255, null=True, blank=True, help_text=_('If populated, this field will overwrite name in platform.')
+    )
+    slug = AutoSlugField(populate_from='key', editable=False, slugify_function=uslugify)
+    description = models.TextField(null=True, blank=True)
+    homepage_url = models.URLField(max_length=255, null=True, blank=True)
+    logo_image = models.ImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/logos'),
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(['png'])]
+    )
+    certificate_logo_image = models.ImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/certificate_logos'),
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(['png'])]
+    )
+    banner_image = models.ImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/banner_images'),
+        blank=True,
+        null=True,
+    )
+    salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Publisher_Organization__c in Salesforce
+
+    tags = TaggableManager(
+        blank=True,
+        help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
+    )
+    auto_generate_course_run_keys = models.BooleanField(
+        default=True,
+        verbose_name=_('Automatically generate course run keys'),
+        help_text=_(
+            "When this flag is enabled, the key of a new course run will be auto"
+            " generated.  When this flag is disabled, the key can be manually set."
+        )
+    )
+    # Do not record the slug field in the history table because AutoSlugField is not compatible with
+    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
+    history = HistoricalRecords(excluded_fields=['slug'])
+
+    def clean(self):
+        if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
+            raise ValidationError(_('Please do not use any spaces or special characters other than period, '
+                                    'underscore or hyphen in the key field.'))
+
+    class Meta:
+        unique_together = (
+            ('partner', 'key'),
+            ('partner', 'uuid'),
+        )
+        ordering = ['created']
+
+    def __str__(self):
+        if self.name and self.name != self.key:
+            return '{key}: {name}'.format(key=self.key, name=self.name)
+        else:
+            return self.key
+
+    @property
+    def marketing_url(self):
+        if self.slug and self.partner:
+            return urljoin(self.partner.marketing_site_url_root, 'school/' + self.slug)
+
+        return None
+
+    @classmethod
+    def user_organizations(cls, user):
+        return cls.objects.filter(organization_extension__group__in=user.groups.all())
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        """
+        We cache the key here before saving the record so that we can hit the correct
+        endpoint in lms.
+        """
+        key = self._cache['key']
+        super(Organization, self).save(*args, **kwargs)
+        key = key or self.key
+        partner = self.partner
+        data = {
+            'name': self.certificate_name or self.name,
+            'short_name': self.key,
+            'description': self.description,
+        }
+        logo = self.certificate_logo_image
+        if logo:
+            base_url = getattr(settings, 'ORG_BASE_LOGO_URL', None)
+            logo_url = '{}{}'.format(base_url, logo) if base_url else logo.url
+            data['logo_url'] = logo_url
+        organizations_url = '{}organizations/{}/'.format(partner.organizations_api_url, key)
+        if partner.lms_api_client:
+            try:
+                partner.lms_api_client.put(organizations_url, json=data)
+            except requests.exceptions.ConnectionError as e:
+                logger.error('[%s]: Unable to push organization [%s] to lms.', e, self.uuid)
+            except Exception as e:
+                raise e
 
 
 class Image(AbstractMediaModel):
@@ -167,15 +277,19 @@ class Video(AbstractMediaModel):
 
 class LevelType(AbstractNamedModel):
     """ LevelType model. """
-    order = models.PositiveSmallIntegerField(default=0, db_index=True)
+    # This field determines ordering by which level types are presented in the
+    # Publisher tool, by virtue of the order in which the level types are
+    # returned by the serializer, and in turn the OPTIONS requests against the
+    # course and courserun view sets.
+    sort_value = models.PositiveSmallIntegerField(default=0, db_index=True)
 
     class Meta:
-        ordering = ('order',)
+        ordering = ('sort_value',)
 
 
 class SeatType(TimeStampedModel):
-    name = models.CharField(max_length=64, unique=True)
-    slug = AutoSlugField(populate_from='name', slugify_function=uslugify)
+    name = models.CharField(max_length=64)
+    slug = AutoSlugField(populate_from='name', slugify_function=uslugify, unique=True)
 
     def __str__(self):
         return self.name
@@ -195,7 +309,7 @@ class ProgramType(TimeStampedModel):
                               'of the course counted toward the completion of the program.'),
     )
     logo_image = StdImageField(
-        upload_to=UploadToAutoSlug(populate_from='name', path='media/program_types/logo_images'),
+        upload_to=UploadToFieldNamePath(populate_from='name', path='media/program_types/logo_images/'),
         blank=True,
         null=True,
         variations={
@@ -208,6 +322,8 @@ class ProgramType(TimeStampedModel):
     )
     slug = AutoSlugField(populate_from='name', editable=True, unique=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
+    coaching_supported = models.BooleanField(default=False)
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
@@ -234,6 +350,136 @@ class ProgramType(TimeStampedModel):
         if slug:
             program_type = program_model.objects.get(slug=slug)
         return program_type, name
+
+
+class Mode(TimeStampedModel):
+    """
+    This model is similar to the LMS CourseMode model.
+
+    It holds several fields that (one day will) control logic for handling enrollments in this mode.
+    Examples of names would be "Verified", "Credit", or "Masters"
+
+    See docs/decisions/0009-LMS-types-in-course-metadata.rst for more information.
+    """
+    name = models.CharField(max_length=64)
+    slug = models.CharField(max_length=64, unique=True)
+    is_id_verified = models.BooleanField(default=False, help_text=_('This mode requires ID verification.'))
+    is_credit_eligible = models.BooleanField(
+        default=False,
+        help_text=_('Completion can grant credit toward an organization’s degree.'),
+    )
+    certificate_type = models.CharField(
+        max_length=64, choices=CertificateType, blank=True,
+        help_text=_('Certificate type granted if this mode is eligible for a certificate, or blank if not.'),
+    )
+    payee = models.CharField(
+        max_length=64, choices=PayeeType, default='', blank=True,
+        help_text=_('Who gets paid for the course? Platform is the site owner, Organization is the school.'),
+    )
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def is_certificate_eligible(self):
+        """
+        Returns True if completion can impart any kind of certificate to the learner.
+        """
+        return bool(self.certificate_type)
+
+
+class Track(TimeStampedModel):
+    """
+    This model ties a Mode (an LMS concept) with a SeatType (an E-Commerce concept)
+
+    Basically, a track is all the metadata for a single enrollment type, with both the course logic and product sides.
+
+    See docs/decisions/0009-LMS-types-in-course-metadata.rst for more information.
+    """
+    seat_type = models.ForeignKey(SeatType, models.CASCADE, null=True, blank=True)
+    mode = models.ForeignKey(Mode, models.CASCADE)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.mode.name
+
+
+class CourseRunType(TimeStampedModel):
+    """
+    This model defines the enrollment options (Tracks) for a given course run.
+
+    A single course might have runs with different enrollment options. Like a course that has a
+    "Masters, Verified, and Audit" CourseType might contain CourseRunTypes named
+    - "Masters, Verified, and Audit" (pointing to three different tracks)
+    - "Verified and Audit"
+    - "Audit only"
+    - "Masters only"
+
+    See docs/decisions/0009-LMS-types-in-course-metadata.rst for more information.
+    """
+    AUDIT = 'audit'
+    VERIFIED_AUDIT = 'verified-audit'
+    PROFESSIONAL = 'professional'
+    CREDIT_VERIFIED_AUDIT = 'credit-verified-audit'
+    HONOR = 'honor'
+    VERIFIED_HONOR = 'verified-honor'
+    VERIFIED_AUDIT_HONOR = 'verified-audit-honor'
+    EMPTY = 'empty'
+
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
+    name = models.CharField(max_length=64)
+    slug = models.CharField(max_length=64, unique=True)
+    tracks = models.ManyToManyField(Track)
+    is_marketable = models.BooleanField(default=True)
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def empty(self):
+        """ Empty types are special - they are the default type used when we don't know a real type """
+        return self.slug == self.EMPTY
+
+
+class CourseType(TimeStampedModel):
+    """
+    This model defines the permissible types of enrollments provided by a whole course.
+
+    It holds a list of permissible entitlement options and a list of permissible CourseRunTypes.
+
+    Examples of names would be "Masters, Verified, and Audit" or "Verified and Audit"
+    """
+    AUDIT = 'audit'
+    VERIFIED_AUDIT = 'verified-audit'
+    PROFESSIONAL = 'professional'
+    CREDIT_VERIFIED_AUDIT = 'credit-verified-audit'
+    EMPTY = 'empty'
+
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
+    name = models.CharField(max_length=64)
+    slug = models.CharField(max_length=64, unique=True)
+    entitlement_types = models.ManyToManyField(SeatType, blank=True)
+    course_run_types = SortedManyToManyField(
+        CourseRunType, help_text=_('Sets the order for displaying Course Run Types.')
+    )
+    white_listed_orgs = models.ManyToManyField(Organization, blank=True, help_text=_(
+        'Leave this blank to allow all orgs. Otherwise, specifies which orgs can see this course type in Publisher.'
+    ))
+
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def empty(self):
+        """ Empty types are special - they are the default type used when we don't know a real type """
+        return self.slug == self.EMPTY
 
 
 class Subject(TranslatableModel, TimeStampedModel):
@@ -263,7 +509,7 @@ class Subject(TranslatableModel, TimeStampedModel):
             raise ValidationError({'name': ['Subject with this Name and Partner already exists', ]})
 
 
-class SubjectTranslation(TranslatedFieldsModel):
+class SubjectTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
     master = models.ForeignKey(Subject, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -301,7 +547,7 @@ class Topic(TranslatableModel, TimeStampedModel):
             raise ValidationError({'name': ['Topic with this Name and Partner already exists', ]})
 
 
-class TopicTranslation(TranslatedFieldsModel):
+class TopicTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
     master = models.ForeignKey(Topic, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -316,17 +562,14 @@ class TopicTranslation(TranslatedFieldsModel):
 
 class Prerequisite(AbstractNamedModel):
     """ Prerequisite model. """
-    pass
 
 
 class ExpectedLearningItem(AbstractValueModel):
     """ ExpectedLearningItem model. """
-    pass
 
 
 class JobOutlookItem(AbstractValueModel):
     """ JobOutlookItem model. """
-    pass
 
 
 class SyllabusItem(AbstractValueModel):
@@ -336,61 +579,6 @@ class SyllabusItem(AbstractValueModel):
 
 class AdditionalPromoArea(AbstractTitleDescriptionModel):
     """ Additional Promo Area Model """
-    pass
-
-
-class Organization(CachedMixin, TimeStampedModel):
-    """ Organization model. """
-    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
-    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
-    key = models.CharField(max_length=255, help_text=_('Please do not use any spaces or special characters other '
-                                                       'than period, underscore or hyphen. This key will be used '
-                                                       'in the course\'s course key.'))
-    name = models.CharField(max_length=255)
-    marketing_url_path = models.CharField(max_length=255, null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
-    homepage_url = models.URLField(max_length=255, null=True, blank=True)
-    logo_image_url = models.URLField(null=True, blank=True)
-    banner_image_url = models.URLField(null=True, blank=True)
-    certificate_logo_image_url = models.URLField(
-        null=True, blank=True, help_text=_('Logo to be displayed on certificates. If this logo is the same as '
-                                           'logo_image_url, copy and paste the same value to both fields.')
-    )
-    salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Publisher_Organization__c in Salesforce
-
-    tags = TaggableManager(
-        blank=True,
-        help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
-    )
-
-    def clean(self):
-        if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(self.key):
-            raise ValidationError(_('Please do not use any spaces or special characters other than period, '
-                                    'underscore or hyphen in the key field.'))
-
-    class Meta:
-        unique_together = (
-            ('partner', 'key'),
-            ('partner', 'uuid'),
-        )
-        ordering = ['created']
-
-    def __str__(self):
-        if self.name and self.name != self.key:
-            return '{key}: {name}'.format(key=self.key, name=self.name)
-        else:
-            return self.key
-
-    @property
-    def marketing_url(self):
-        if self.marketing_url_path:
-            return urljoin(self.partner.marketing_site_url_root, self.marketing_url_path)
-
-        return None
-
-    @classmethod
-    def user_organizations(cls, user):
-        return cls.objects.filter(organization_extension__group__in=user.groups.all())
 
 
 class Person(TimeStampedModel):
@@ -558,7 +746,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     faq = NullHtmlField(verbose_name=_('FAQ'))
     learner_testimonials = NullHtmlField()
-    has_ofac_restrictions = models.BooleanField(default=False, verbose_name=_('Course Has OFAC Restrictions'))
     enrollment_count = models.IntegerField(
         null=True, blank=True, default=0, help_text=_('Total number of learners who have enrolled in this course')
     )
@@ -569,6 +756,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     )
     salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Course__c in Salesforce
     salesforce_case_id = models.CharField(max_length=255, null=True, blank=True)  # Case in Salesforce
+    type = models.ForeignKey(CourseType, models.CASCADE, null=True)  # while null IS True, it should always be set
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
@@ -587,7 +775,11 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         related_name='course_topics',
     )
 
-    additional_information = NullHtmlField(verbose_name=_('Additional Information'))
+    # The 'additional_information' field holds HTML content, but we don't use a NullHtmlField for it, because we don't
+    # want to validate its content at all. This is filled in by administrators, not course teams, and may hold special
+    # HTML that isn't normally allowed.
+    additional_information = models.TextField(blank=True, null=True, default=None,
+                                              verbose_name=_('Additional Information'))
 
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
@@ -596,7 +788,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         unique_together = (
             ('partner', 'uuid', 'draft'),
             ('partner', 'key', 'draft'),
-            ('partner', 'url_slug', 'draft'),
         )
         ordering = ['id']
 
@@ -627,10 +818,21 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     def marketing_url(self):
         url = None
         if self.partner.marketing_site_url_root:
-            path = 'course/{slug}'.format(slug=self.slug)
+            path = 'course/{slug}'.format(slug=self.active_url_slug)
             url = urljoin(self.partner.marketing_site_url_root, path)
 
         return url
+
+    @property
+    def active_url_slug(self):
+        """ Official rows just return whatever slug is active, draft rows will first look for an associated active
+         slug and, if they fail to find one, take the slug associated with the official course that has
+         is_active_on_draft: True."""
+        active_url = self.url_slug_history.filter(is_active=True).first()
+        if not active_url and self.draft and self.official_version:
+            # current draft url slug has already been published at least once, so get it from the official course
+            active_url = self.official_version.url_slug_history.filter(is_active_on_draft=True).first()
+        return getattr(active_url, 'url_slug', None)
 
     def course_run_sort(self, course_run):
         """
@@ -679,10 +881,21 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         return None
 
-    def update_marketing_redirects(self, published_runs=None):
+    @property
+    def course_run_statuses(self):
         """
-        Find old course runs that are no longer active but still published.
-        These will be unpublished and linked to an active course run.
+        Returns all unique course run status values inside this course.
+
+        Note that it skips hidden and archived courses - this list is typically used for presentational purposes.
+        """
+        now = datetime.datetime.now(pytz.UTC)
+        runs = self.course_runs.exclude(hidden=True).exclude(status=CourseRunStatus.Unpublished, end__lt=now)
+        statuses = runs.values_list('status', flat=True).distinct().order_by('status')
+        return list(statuses)
+
+    def unpublish_inactive_runs(self, published_runs=None):
+        """
+        Find old course runs that are no longer active but still published, these will be unpublished.
 
         Designed to work on official runs.
 
@@ -690,7 +903,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             published_runs (iterable): optional optimization; pass published CourseRuns to avoid a lookup
 
         Returns:
-            True if any redirects were changed
+            True if any runs were unpublished
         """
         if not self.partner.has_marketing_site:
             return False
@@ -703,16 +916,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         # (done in Python rather than hitting self.active_course_runs to avoid a second db query)
         now = datetime.datetime.now(pytz.UTC)
         inactive_runs = {run for run in published_runs if run.has_enrollment_ended(now)}
-        active_runs = published_runs - inactive_runs
-        if not active_runs or not inactive_runs:
-            return False  # if there are no runs to redirect from or to, there's no point in continuing
+        marketable_runs = {run for run in published_runs - inactive_runs if run.could_be_marketable}
+        if not marketable_runs or not inactive_runs:
+            # if there are no inactive runs, there's no point in continuing - and ensure that we always have at least
+            # one marketable run around by not unpublishing if we would get rid of all of them
+            return False
 
-        # Find the earliest active run, to which we will redirect any inactive runs
-        earliest_active_run = min(active_runs, key=attrgetter('start'))
-
-        publisher = CourseRunMarketingSitePublisher(self.partner)
         for run in inactive_runs:
-            publisher.add_url_redirect(earliest_active_run, run)
             run.status = CourseRunStatus.Unpublished
             run.save()
             if run.draft_version:
@@ -740,6 +950,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             if entitlement.mode.slug in Seat.ENTITLEMENT_MODES:
                 set_official_state(entitlement, CourseEntitlement, {'course': official_version})
 
+        official_version.set_active_url_slug(self.active_url_slug)
+
         if creating:
             official_version.canonical_course_run = course_run
             official_version.slug = self.slug
@@ -748,6 +960,79 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             self.save()
 
         return official_version
+
+    @transaction.atomic
+    def set_active_url_slug(self, slug):
+        if self.draft:
+            active_draft_url_slug_object = self.url_slug_history.filter(is_active=True).first()
+
+            # case 1: new slug matches an entry in the course's slug history
+            if self.official_version:
+                found = False
+                for url_entry in self.official_version.url_slug_history.filter(Q(is_active_on_draft=True) |
+                                                                               Q(url_slug=slug)):
+                    match = url_entry.url_slug == slug
+                    url_entry.is_active_on_draft = match
+                    found = found or match
+                    url_entry.save()
+                if found:
+                    # we will get the active slug via the official object, so delete the draft one
+                    if active_draft_url_slug_object:
+                        active_draft_url_slug_object.delete()
+                    return
+            # case 2: slug has not been used for this course before
+            obj = self.url_slug_history.update_or_create(is_active=True, defaults={  # pylint: disable=no-member
+                'course': self,
+                'partner': self.partner,
+                'is_active': True,
+                'url_slug': slug,
+            })[0]  # update_or_create returns an (obj, created?) tuple, so just get the object
+            # this line necessary to clear the prefetch cache
+            self.url_slug_history.add(obj)  # pylint: disable=no-member
+        else:
+            if self.draft_version:
+                self.draft_version.url_slug_history.filter(is_active=True).delete()
+            obj = self.url_slug_history.update_or_create(url_slug=slug, defaults={  # pylint: disable=no-member
+                'url_slug': slug,
+                'is_active': True,
+                'is_active_on_draft': True,
+                'partner': self.partner,
+            })[0]
+            for other_slug in self.url_slug_history.filter(Q(is_active=True) |
+                                                           Q(is_active_on_draft=True)).exclude(url_slug=obj.url_slug):
+                other_slug.is_active = False
+                other_slug.is_active_on_draft = False
+                other_slug.save()
+
+    @cached_property
+    def advertised_course_run(self):
+        now = datetime.datetime.now(pytz.UTC)
+
+        tier_one = []
+        tier_two = []
+        tier_three = []
+
+        marketable_course_runs = [course_run for course_run in self.course_runs.all() if course_run.is_marketable]
+
+        for course_run in marketable_course_runs:
+            course_run_started = (not course_run.start) or (course_run.start and course_run.start < now)
+            if course_run.is_current_and_still_upgradeable():
+                tier_one.append(course_run)
+            elif not course_run_started and course_run.is_upgradeable():
+                tier_two.append(course_run)
+            else:
+                tier_three.append(course_run)
+
+        advertised_course_run = None
+
+        if tier_one:
+            advertised_course_run = sorted(tier_one, key=attrgetter('start'), reverse=True)[0]
+        elif tier_two:
+            advertised_course_run = sorted(tier_two, key=attrgetter('start'))[0]
+        elif tier_three:
+            advertised_course_run = sorted(tier_three, key=attrgetter('start'), reverse=True)[0]
+
+        return advertised_course_run
 
 
 class CourseEditor(TimeStampedModel):
@@ -759,7 +1044,7 @@ class CourseEditor(TimeStampedModel):
     user = models.ForeignKey(get_user_model(), models.CASCADE, related_name='courses_edited')
     course = models.ForeignKey(Course, models.CASCADE, related_name='editors')
 
-    class Meta(object):
+    class Meta:
         unique_together = ('user', 'course',)
 
     # The logic for whether a user can edit a course gets a little complicated, so try to use the following class
@@ -850,11 +1135,11 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     """ CourseRun model. """
     OFAC_RESTRICTION_CHOICES = (
         ('', '--'),
-        (True, _('Restricted')),
-        (False, _('Not restricted')),
+        (True, _('Blocked')),
+        (False, _('Unrestricted')),
     )
 
-    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    uuid = models.UUIDField(default=uuid4, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, models.CASCADE, related_name='course_runs')
     key = models.CharField(max_length=255)
     # There is a post save function in signals.py that verifies that this is unique within a program
@@ -908,9 +1193,13 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     video_translation_languages = models.ManyToManyField(
         LanguageTag, blank=True, related_name='+')
-    slug = AutoSlugField(max_length=255, populate_from='title', slugify_function=uslugify, db_index=True,
+    slug = AutoSlugField(max_length=255, populate_from=['title', 'key'], slugify_function=uslugify, db_index=True,
                          editable=True)
-    hidden = models.BooleanField(default=False)
+    hidden = models.BooleanField(
+        default=False,
+        help_text=_('Whether this run should be hidden from API responses.  Do not edit here - this value will be '
+                    'overwritten by the "Course Visibility In Catalog" field in Studio via Refresh Course Metadata.')
+    )
     mobile_available = models.BooleanField(default=False)
     course_overridden = models.BooleanField(
         default=False,
@@ -923,6 +1212,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         help_text=_(
             "'What You Will Learn' description for this particular course run. Leave this value blank to default "
             "to the parent course's Outcome attribute."))
+    type = models.ForeignKey(CourseRunType, models.CASCADE, null=True)  # while null IS True, it should always be set
 
     tags = TaggableManager(
         blank=True,
@@ -973,6 +1263,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     class Meta:
         unique_together = (
             ('key', 'draft'),
+            ('uuid', 'draft'),
         )
 
     def __init__(self, *args, **kwargs):
@@ -997,7 +1288,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         """
         seats = []
         for seat in self.seats.all():
-            if seat.type not in Seat.SEATS_WITH_PREREQUISITES and seat.price > 0.0:
+            if seat.type.slug not in Seat.SEATS_WITH_PREREQUISITES and seat.price > 0.0:
                 seats.append(seat)
         return seats
 
@@ -1047,9 +1338,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         after_start = (not self.start) or (self.start and self.start < now)
         ends_in_more_than_two_weeks = (not self.end) or (self.end.date() and now.date() <= self.end.date() - two_weeks)
         if after_start and ends_in_more_than_two_weeks:
-            paid_seat_enrollment_end = self.get_paid_seat_enrollment_end()
-            if paid_seat_enrollment_end and now < paid_seat_enrollment_end:
-                return True
+            return self.is_upgradeable()
         return False
 
     def get_paid_seat_enrollment_end(self):
@@ -1076,12 +1365,17 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
         return deadline
 
+    def is_upgradeable(self):
+        upgrade_deadline = self.get_paid_seat_enrollment_end()
+        upgradeable = bool(upgrade_deadline) and (datetime.datetime.now(pytz.UTC) < upgrade_deadline)
+        return upgradeable
+
     def enrollable_seats(self, types=None):
         """
         Returns seats, of the given type(s), that can be enrolled in/purchased.
 
         Arguments:
-            types (list of seat type names): Type of seats to limit the returned value to.
+            types (list of SeatTypes): Type of seats to limit the returned value to.
 
         Returns:
             List of Seats
@@ -1093,7 +1387,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             return []
 
         enrollable_seats = []
-        types = types or Seat.SEAT_TYPES
+        types = types or SeatType.objects.all()
         for seat in self.seats.all():
             if seat.type in types and (not seat.upgrade_deadline or now < seat.upgrade_deadline):
                 enrollable_seats.append(seat)
@@ -1126,7 +1420,12 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     @property
     def marketing_url(self):
-        if self.slug:
+        # If the type isn't marketable, don't expose a marketing URL at all, to avoid confusion.
+        # This is very similar to self.could_be_marketable, but we don't use that because we
+        # still want draft runs to expose a marketing URL.
+        type_is_marketable = self.type.is_marketable
+
+        if self.slug and type_is_marketable:
             path = 'course/{slug}'.format(slug=self.slug)
             return urljoin(self.course.partner.marketing_site_url_root, path)
 
@@ -1194,15 +1493,27 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     @property
     def programs(self):
-        return self.course.programs
+        return self.course.programs  # pylint: disable=no-member
 
     @property
     def seat_types(self):
         return [seat.type for seat in self.seats.all()]
 
     @property
-    def type(self):
-        seat_types = set(self.seat_types)
+    def type_legacy(self):
+        """
+        Calculates a single type slug from the seats in this run.
+
+        This is a property that makes less sense these days. It used to be called simply `type`. But now that Tracks
+        and Modes and CourseRunType have made our mode / type situation less rigid, this is losing relevance.
+
+        For example, this cannot support modes that don't have corresponding seats (like Masters).
+
+        It's better to just look at all the modes in the run via type -> tracks -> modes and base any logic off that
+        rather than trying to read the tea leaves at the entire run level. The mode combinations are just too complex
+        these days.
+        """
+        seat_types = {t.slug for t in self.seat_types}
         mapping = (
             ('credit', {'credit'}),
             ('professional', {'professional', 'no-id-professional'}),
@@ -1260,7 +1571,46 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
 
-    def update_or_create_seats(self):
+    def validate_seat_upgrade(self, seat_types):
+        """
+        If a course run has an official version, then ecom products have already been created and
+        we only support changing mode from audit -> verified
+        """
+        if self.official_version:
+            old_types = set(self.official_version.seats.values_list('type', flat=True))  # returns strings
+            new_types = {t.slug for t in seat_types}
+            if new_types & set(Seat.REQUIRES_AUDIT_SEAT):
+                new_types.add(Seat.AUDIT)
+            if old_types - new_types:
+                raise ValidationError(_('Switching seat types after being reviewed is not supported. Please reach out '
+                                        'to your project coordinator for additional help if necessary.'))
+
+    def get_seat_upgrade_deadline(self, seat_type):
+        deadline = None
+        # only verified seats have a deadline specified
+        if seat_type.slug == Seat.VERIFIED:
+            seats = self.seats.filter(type=seat_type)
+            if seats:
+                deadline = seats[0].upgrade_deadline
+            else:
+                deadline = subtract_deadline_delta(self.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
+        return deadline
+
+    def update_or_create_seat_helper(self, seat_type, prices):
+        defaults = {
+            'upgrade_deadline': self.get_seat_upgrade_deadline(seat_type),
+        }
+        if seat_type.slug in prices:
+            defaults['price'] = prices[seat_type.slug]
+
+        Seat.everything.update_or_create(
+            course_run=self,
+            type=seat_type,
+            draft=True,
+            defaults=defaults,
+        )
+
+    def update_or_create_seats(self, run_type=None, prices=None):
         """
         Updates or creates draft seats for a course run.
 
@@ -1268,63 +1618,20 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         course run exists. After an official version of the course run exists, it only supports
         price changes or upgrades from Audit -> Verified.
         """
-        course_entitlement = self.course.entitlements.first()
-        mode = Seat.AUDIT
-        price = 0.00
-        if course_entitlement:
-            mode = course_entitlement.mode.slug
-            price = course_entitlement.price
+        prices = dict(prices or {})
+        seat_types = {track.seat_type for track in run_type.tracks.exclude(seat_type=None)}
 
-        # If a course run has an official version, then ecom products have already been created and
-        # we only support changing mode from audit -> verified
-        if self.official_version:
-            old_types = set(self.official_version.seats.values_list('type', flat=True))
-            new_types = set([mode])
-            if mode in Seat.REQUIRES_AUDIT_SEAT:
-                new_types.add(Seat.AUDIT)
-            if old_types - new_types:
-                raise ValidationError(_('Switching seat modes after being reviewed is not supported. Please reach out '
-                                        'to your project coordinator for additional help if necessary.'))
+        self.validate_seat_upgrade(seat_types)
 
-        deadline = None
-        # only verified seats have a deadline specified
-        if mode == Seat.VERIFIED:
-            seats = [s for s in self.seats.all() if s.type == mode]
-            if seats:
-                deadline = seats[0].upgrade_deadline
-            else:
-                deadline = self.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
-                deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
-        if mode == Seat.AUDIT:
-            price = 0.00
+        for seat_type in seat_types:
+            self.update_or_create_seat_helper(seat_type, prices)
 
-        seat, __ = Seat.everything.update_or_create(  # pylint: disable=no-member
-            course_run=self,
-            type=mode,
-            draft=True,
-            defaults={
-                'price': price,
-                'upgrade_deadline': deadline,
-            },
-        )
-        seats = [seat]
-        if mode in Seat.REQUIRES_AUDIT_SEAT or mode == Seat.AUDIT:
-            Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).exclude(type=Seat.AUDIT).delete()  # pylint: disable=no-member
-            audit_seat, __ = Seat.everything.update_or_create(  # pylint: disable=no-member
-                course_run=self,
-                type=Seat.AUDIT,
-                draft=True,
-                defaults={
-                    'price': 0.00,
-                    'upgrade_deadline': None,
-                },
-            )
-            seats.append(audit_seat)
-        else:
-            Seat.everything.filter(draft=True, course_run=self).exclude(type=mode).delete()  # pylint: disable=no-member
-        self.seats.set(seats)
+        # Deleting seats here since they would be orphaned otherwise.
+        # One example of how this situation can happen is if a course team is switching between
+        # professional and verified before actually publishing their course run.
+        self.seats.exclude(type__in=seat_types).delete()
 
-    def update_or_create_official_version(self, create_ecom_products=True):
+    def update_or_create_official_version(self, notify_services=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
         official_version = set_official_state(draft_version, CourseRun)
 
@@ -1332,14 +1639,18 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             set_official_state(seat, Seat, {'course_run': official_version})
 
         official_course = self.course._update_or_create_official_version(official_version)  # pylint: disable=protected-access
-
         official_version.slug = self.slug
         official_version.course = official_course
+
+        # During this save, the pre_save hook `ensure_external_key_uniqueness__course_run` in signals.py
+        # is run. We rely on there being a save of the official version after the call to set_official_state
+        # and the setting of the official_course.
         official_version.save()
 
-        # Push any product (seat, entitlement) changes to ecommerce as well
-        if create_ecom_products:
+        if notify_services:
+            # Push any track changes to ecommerce and the LMS as well
             push_to_ecommerce_for_course_run(official_version)
+            push_tracks_to_lms_for_course_run(official_version)
         return official_version
 
     def handle_status_change(self, send_emails):
@@ -1392,7 +1703,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         push_to_marketing = (not suppress_publication and
                              self.course.partner.has_marketing_site and
                              waffle.switch_is_active('publish_course_runs_to_marketing_site') and
-                             not self.draft)
+                             self.could_be_marketable)
 
         with transaction.atomic():
             if push_to_marketing:
@@ -1432,8 +1743,15 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
                 run.status = CourseRunStatus.Published
                 run.save(send_emails=send_emails)
 
-        # It is likely that we are sunsetting an old run in favor of this new run, so update redirects just in case
-        self.course.update_marketing_redirects()
+        # It is likely that we are sunsetting an old run in favor of this new run, so unpublish old runs just in case
+        self.course.unpublish_inactive_runs()
+
+        # Add a redirect from the course run URL to the canonical course URL if one doesn't already exist
+        existing_slug = CourseUrlSlug.objects.filter(url_slug=self.slug,
+                                                     partner=self.course.partner).first()
+        if existing_slug and existing_slug.course.uuid == self.course.uuid:
+            return True
+        self.course.url_slug_history.create(url_slug=self.slug, partner=self.course.partner, course=self.course)
 
         return True
 
@@ -1484,47 +1802,51 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
                 (not self.enrollment_start or self.enrollment_start <= now))
 
     @property
+    def could_be_marketable(self):
+        """
+        Checks if the course_run is possibly marketable.
+
+        A course run is considered possibly marketable if it would ever be put on
+        a marketing site (so things that would *never* be marketable are not).
+        """
+        if not self.type.is_marketable:
+            return False
+        return not self.draft
+
+    @property
     def is_marketable(self):
         """
         Checks if the course_run is currently marketable
 
         A course run is considered marketable if it's published, has seats, and
         a non-empty marketing url.
-        """
-        is_published = self.status == CourseRunStatus.Published
 
+        If you change this, also change the marketable() queries in query.py.
+        """
+        if not self.could_be_marketable:
+            return False
+
+        is_published = self.status == CourseRunStatus.Published
         return is_published and self.seats.exists() and bool(self.marketing_url)
 
 
 class Seat(DraftModelMixin, TimeStampedModel):
     """ Seat model. """
+
+    # This set of class variables is historic. Before CourseType and Mode and all that jazz, Seat used to just hold
+    # a CharField 'type' and the logic around what that meant often used these variables. We can slowly remove
+    # these hardcoded variables as code stops referencing them and using dynamic Modes.
     HONOR = 'honor'
     AUDIT = 'audit'
     VERIFIED = 'verified'
     PROFESSIONAL = 'professional'
     CREDIT = 'credit'
     MASTERS = 'masters'
-
-    SEAT_TYPES = [HONOR, AUDIT, VERIFIED, PROFESSIONAL, CREDIT, MASTERS]
     ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL]
-
     REQUIRES_AUDIT_SEAT = [VERIFIED]
-
-    # Seat types that we don't push to ecommerce -- they are either manually or never created as products
-    NON_PRODUCT_MODES = [CREDIT, MASTERS]
-
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.
     SEATS_WITH_PREREQUISITES = [CREDIT]
-
-    SEAT_TYPE_CHOICES = (
-        (HONOR, _('Honor')),
-        (AUDIT, _('Audit')),
-        (VERIFIED, _('Verified')),
-        (PROFESSIONAL, _('Professional')),
-        (CREDIT, _('Credit')),
-        (MASTERS, _('Masters')),
-    )
 
     PRICE_FIELD_CONFIG = {
         'decimal_places': 2,
@@ -1533,11 +1855,15 @@ class Seat(DraftModelMixin, TimeStampedModel):
         'default': 0.00,
     }
     course_run = models.ForeignKey(CourseRun, models.CASCADE, related_name='seats')
-    # TODO Replace with FK to SeatType model
-    type = models.CharField(max_length=63, choices=SEAT_TYPE_CHOICES)
+    # The 'type' field used to be a CharField but when we converted to a ForeignKey, we kept the db column the same,
+    # by specifying a bunch of these extra kwargs.
+    type = models.ForeignKey(SeatType, models.CASCADE,
+                             to_field='slug',  # this keeps the columns as a string, not an int
+                             db_column='type')  # this avoids renaming the column to type_id
     price = models.DecimalField(**PRICE_FIELD_CONFIG)
     currency = models.ForeignKey(Currency, models.CASCADE, default='USD')
-    upgrade_deadline = models.DateTimeField(null=True, blank=True)
+    _upgrade_deadline = models.DateTimeField(null=True, blank=True, db_column='upgrade_deadline')
+    upgrade_deadline_override = models.DateTimeField(null=True, blank=True)
     credit_provider = models.CharField(max_length=255, null=True, blank=True)
     credit_hours = models.IntegerField(null=True, blank=True)
     sku = models.CharField(max_length=128, null=True, blank=True)
@@ -1545,11 +1871,19 @@ class Seat(DraftModelMixin, TimeStampedModel):
 
     history = HistoricalRecords()
 
-    class Meta(object):
+    class Meta:
         unique_together = (
             ('course_run', 'type', 'currency', 'credit_provider', 'draft')
         )
         ordering = ['created']
+
+    @property
+    def upgrade_deadline(self):
+        return self.upgrade_deadline_override or self._upgrade_deadline
+
+    @upgrade_deadline.setter
+    def upgrade_deadline(self, value):
+        self._upgrade_deadline = value
 
 
 class CourseEntitlement(DraftModelMixin, TimeStampedModel):
@@ -1569,7 +1903,7 @@ class CourseEntitlement(DraftModelMixin, TimeStampedModel):
 
     history = HistoricalRecords()
 
-    class Meta(object):
+    class Meta:
         unique_together = (
             ('course', 'draft')
         )
@@ -1613,6 +1947,8 @@ class Program(PkSearchableMixin, TimeStampedModel):
         help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
     subtitle = models.CharField(
         help_text=_('A brief, descriptive subtitle for the Program.'), max_length=255, blank=True)
+    marketing_hook = models.CharField(
+        help_text=_('A brief hook for the marketing website'), max_length=255, blank=True)
     type = models.ForeignKey(ProgramType, models.CASCADE, null=True, blank=True)
     status = models.CharField(
         help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False, db_index=True,
@@ -1620,7 +1956,9 @@ class Program(PkSearchableMixin, TimeStampedModel):
     )
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'), unique=True, max_length=255, db_index=True)
-    courses = SortedManyToManyField(Course, related_name='programs')
+    # Normally you don't need this limit_choices_to line, because Course.objects will return official rows by default.
+    # But our Django admin form for this field does more low level querying than that and needs to be limited.
+    courses = SortedManyToManyField(Course, related_name='programs', limit_choices_to={'draft': False})
     order_courses_by_start_date = models.BooleanField(
         default=True, verbose_name='Order Courses By Start Date',
         help_text=_('If this box is not checked, courses will be ordered as in the courses select box above.')
@@ -1666,7 +2004,6 @@ class Program(PkSearchableMixin, TimeStampedModel):
                     'displayed on program pages. Instructors in this list should appear before all others associated '
                     'with this programs courses runs.')
     )
-
     credit_backing_organizations = SortedManyToManyField(
         Organization, blank=True, related_name='credit_backed_programs'
     )
@@ -1693,6 +2030,10 @@ class Program(PkSearchableMixin, TimeStampedModel):
         null=True, blank=True, default=0, help_text=_(
             'Total number of learners who have enrolled in courses in this program in the last 6 months'
         )
+    )
+    credit_value = models.PositiveSmallIntegerField(
+        blank=True, default=0, help_text=_(
+            'Number of credits a learner will earn upon successful completion of the program')
     )
     objects = ProgramQuerySet.as_manager()
 
@@ -1721,13 +2062,13 @@ class Program(PkSearchableMixin, TimeStampedModel):
             return False
 
         excluded_course_runs = set(self.excluded_course_runs.all())
-        applicable_seat_types = [seat_type.slug for seat_type in self.type.applicable_seat_types.all()]
+        applicable_seat_types = self.type.applicable_seat_types.all()
 
         for course in self.courses.all():
             # Filter the entitlements in python, to avoid duplicate queries for entitlements after prefetching
             all_entitlements = course.entitlements.all()
             entitlement_products = {entitlement for entitlement in all_entitlements
-                                    if entitlement.mode.slug in applicable_seat_types}
+                                    if entitlement.mode in applicable_seat_types}
             if len(entitlement_products) == 1:
                 continue
 
@@ -1825,7 +2166,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def seats(self):
-        applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
+        applicable_seat_types = set(self.type.applicable_seat_types.all())
 
         for run in self.course_runs:
             for seat in run.seats.all():
@@ -1834,7 +2175,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def canonical_seats(self):
-        applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
+        applicable_seat_types = set(self.type.applicable_seat_types.all())
 
         for run in self.canonical_course_runs:
             for seat in run.seats.all():
@@ -1843,8 +2184,8 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def entitlements(self):
-        applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
-        return CourseEntitlement.objects.filter(mode__slug__in=applicable_seat_types, course__in=self.courses.all())
+        applicable_seat_types = set(self.type.applicable_seat_types.all())
+        return CourseEntitlement.objects.filter(mode__in=applicable_seat_types, course__in=self.courses.all())
 
     @property
     def seat_types(self):
@@ -1959,7 +2300,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     @property
     def start(self):
         """ Start datetime, calculated by determining the earliest start datetime of all related course runs. """
-        if self.course_runs:
+        if self.course_runs:  # pylint: disable=using-constant-test
             start_dates = [course_run.start for course_run in self.course_runs if course_run.start]
 
             if start_dates:
@@ -2133,7 +2474,7 @@ class Degree(Program):
         null=True,
     )
 
-    class Meta(object):
+    class Meta:
         verbose_name_plural = "Degrees"
 
     def __str__(self):
@@ -2178,7 +2519,7 @@ class IconTextPairing(TimeStampedModel):
     icon = models.CharField(max_length=100, verbose_name=_('Icon FA class'), choices=ICON_CHOICES)
     text = models.CharField(max_length=255, verbose_name=_('Paired text'))
 
-    class Meta(object):
+    class Meta:
         verbose_name_plural = "IconTextPairings"
 
     def __str__(self):
@@ -2357,7 +2698,7 @@ class Pathway(TimeStampedModel):
         bad_programs = [str(x) for x in programs if x.partner != partner]
         if bad_programs:
             msg = _('These programs are for a different partner than the pathway itself: {}')
-            raise ValidationError(msg.format(', '.join(bad_programs)))  # pylint: disable=no-member
+            raise ValidationError(msg.format(', '.join(bad_programs)))
 
 
 class PersonSocialNetwork(TimeStampedModel):
@@ -2379,7 +2720,7 @@ class PersonSocialNetwork(TimeStampedModel):
     title = models.CharField(max_length=255, blank=True)
     person = models.ForeignKey(Person, models.CASCADE, related_name='person_networks')
 
-    class Meta(object):
+    class Meta:
         verbose_name_plural = 'Person SocialNetwork'
 
         unique_together = (
@@ -2404,8 +2745,73 @@ class PersonAreaOfExpertise(AbstractValueModel):
     """ Person Area of Expertise model. """
     person = models.ForeignKey(Person, models.CASCADE, related_name='areas_of_expertise')
 
-    class Meta(object):
+    class Meta:
         verbose_name_plural = 'Person Areas of Expertise'
+
+
+class CourseUrlSlug(TimeStampedModel):
+    course = models.ForeignKey(Course, models.CASCADE, related_name='url_slug_history')
+    # need to have these on the model separately for unique_together to work, but it should always match course.partner
+    partner = models.ForeignKey(Partner, models.CASCADE)
+    url_slug = AutoSlugField(populate_from='course__title', editable=True, slugify_function=uslugify,
+                             overwrite_on_add=False, max_length=255)
+    is_active = models.BooleanField(default=False)
+
+    # useful if a course editor decides to edit a draft and provide a url_slug that has already been associated
+    # with the course
+    is_active_on_draft = models.BooleanField(default=False)
+
+    # ensure partner matches course
+    def save(self, **kwargs):
+        if self.partner != self.course.partner:
+            msg = _('Partner {partner_key} and course partner {course_partner_key} do not match when attempting'
+                    ' to save url slug {url_slug}')
+            raise ValidationError({'partner': [msg.format(partner_key=self.partner.name,
+                                                          course_partner_key=self.course.partner.name,
+                                                          url_slug=self.url_slug), ]})
+        super().save(**kwargs)
+
+    class Meta:
+        unique_together = (
+            ('partner', 'url_slug')
+        )
+
+
+class CourseUrlRedirect(AbstractValueModel):
+    course = models.ForeignKey(Course, models.CASCADE, related_name='url_redirects')
+    # need to have these on the model separately for unique_together to work, but it should always match course.partner
+    partner = models.ForeignKey(Partner, models.CASCADE)
+
+    def save(self, **kwargs):
+        if self.partner != self.course.partner:
+            msg = _('Partner {partner_key} and course partner {course_partner_key} do not match when attempting'
+                    ' to save url redirect {url_path}')
+            raise ValidationError({'partner': [msg.format(partner_key=self.partner.name,
+                                                          course_partner_key=self.course.partner.name,
+                                                          url_slug=self.value), ]})
+        super().save(**kwargs)
+
+    class Meta:
+        unique_together = (
+            ('partner', 'value')
+        )
+
+
+class BackpopulateCourseTypeConfig(SingletonModel):
+    """
+    Configuration for the backpopulate_course_type management command.
+    """
+    class Meta:
+        verbose_name = 'backpopulate_course_type argument'
+
+    arguments = models.TextField(
+        blank=True,
+        help_text='Useful for manually running a Jenkins job. Specify like "--org=key1 --org=key2".',
+        default='',
+    )
+
+    def __str__(self):
+        return self.arguments
 
 
 class DataLoaderConfig(SingletonModel):
@@ -2419,7 +2825,7 @@ class DeletePersonDupsConfig(SingletonModel):
     """
     Configuration for the delete_person_dups management command.
     """
-    class Meta(object):
+    class Meta:
         verbose_name = 'delete_person_dups argument'
 
     arguments = models.TextField(
@@ -2469,3 +2875,20 @@ class MigrateCommentsToSalesforce(SingletonModel):
     """
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     orgs = SortedManyToManyField(Organization, blank=True)
+
+
+class RemoveRedirectsConfig(SingletonModel):
+    """
+    Configuration for management command remove_redirects_from_courses.
+    """
+    remove_all = models.BooleanField(default=False, verbose_name=_('Remove All Redirects'))
+    url_paths = models.TextField(default='', null=False, blank=True, verbose_name=_('Url Paths'))
+
+
+class BulkModifyProgramHookConfig(SingletonModel):
+    program_hooks = models.TextField(blank=True, null=True)
+
+
+class BackfillCourseRunSlugsConfig(SingletonModel):
+    all = models.BooleanField(default=False, verbose_name=_('Add redirects from all published course url slugs'))
+    uuids = models.TextField(default='', null=False, blank=True, verbose_name=_('Course uuids'))

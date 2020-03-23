@@ -6,7 +6,6 @@ from io import StringIO
 import ddt
 import pytest
 import pytz
-import responses
 from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 
@@ -17,7 +16,7 @@ from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import Course
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory, SeatTypeFactory
 from course_discovery.conftest import get_course_run_states
 
 User = get_user_model()
@@ -114,12 +113,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.client.logout()
         self.assert_catalog_created(HTTP_AUTHORIZATION=generate_jwt_header_for_user(self.user))
 
-    @responses.activate
-    def test_create_with_oauth2_authentication(self):
-        self.client.logout()
-        self.mock_user_info_response(self.user)
-        self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
-
     def test_create_with_new_user(self):
         """ Verify that new users are created if the list of viewers includes the usernames of non-existent users. """
         new_viewer_username = 'new-guy'
@@ -178,7 +171,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             # to be included.
             filtered_course_run = CourseRunFactory(course=course)
 
-            with self.assertNumQueries(23, threshold=3):
+            with self.assertNumQueries(31, threshold=3):
                 response = self.client.get(url)
 
             assert response.status_code == 200
@@ -250,14 +243,15 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assert_catalog_contains_query_string(query_string_kwargs, course_run_key)
 
     def test_csv(self):
-        SeatFactory(type='audit', course_run=self.course_run)
-        SeatFactory(type='verified', course_run=self.course_run)
-        SeatFactory(type='credit', course_run=self.course_run, credit_provider='ASU', credit_hours=9)
-        SeatFactory(type='credit', course_run=self.course_run, credit_provider='Hogwarts', credit_hours=4)
+        SeatFactory(type=SeatTypeFactory.audit(), course_run=self.course_run)
+        SeatFactory(type=SeatTypeFactory.verified(), course_run=self.course_run)
+        SeatFactory(type=SeatTypeFactory.credit(), course_run=self.course_run, credit_provider='ASU', credit_hours=9)
+        SeatFactory(type=SeatTypeFactory.credit(), course_run=self.course_run, credit_provider='Hogwarts',
+                    credit_hours=4)
 
         url = reverse('api:v1:catalog-csv', kwargs={'id': self.catalog.id})
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(23):
             response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)

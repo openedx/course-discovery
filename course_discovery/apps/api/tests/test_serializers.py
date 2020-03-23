@@ -28,9 +28,9 @@ from course_discovery.apps.api.serializers import (
     MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
     OrganizationSerializer, PathwaySerializer, PersonSearchModelSerializer, PersonSearchSerializer, PersonSerializer,
     PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer, ProgramSearchSerializer,
-    ProgramSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer,
-    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
-    get_lms_course_url_for_archived, get_utm_source_for_user
+    ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer,
+    SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
+    VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -50,7 +50,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
     SubjectFactory, TopicFactory, VideoFactory
 )
-from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, uslugify
+from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -58,9 +58,12 @@ def json_date_format(datetime_obj):
     return datetime_obj and datetime.datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
 
 
-def make_request():
+def make_request(query_param=None):
     user = UserFactory()
-    request = APIRequestFactory().get('/')
+    if query_param:
+        request = APIRequestFactory().get('/', query_param)
+    else:
+        request = APIRequestFactory().get('/')
     request.user = user
     return request
 
@@ -126,7 +129,8 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
             'image': ImageField().to_representation(course.image_url),
             'short_description': course.short_description,
-            'url_slug': uslugify(course.title),
+            'type': course.type.uuid,
+            'url_slug': None,
         }
 
     def test_data(self):
@@ -145,6 +149,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
     @classmethod
     def get_expected_data(cls, course, request):
         expected = super().get_expected_data(course, request)
+
         expected.update({
             'short_description': course.short_description,
             'full_description': course.full_description,
@@ -179,6 +184,11 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'recent_enrollment_count': 0,
             'topics': list(course.topics.names()),
             'key_for_reruns': course.key_for_reruns,
+            'url_slug': course.active_url_slug,
+            'url_slug_history': [course.active_url_slug],
+            'url_redirects': [],
+            'course_run_statuses': course.course_run_statuses,
+            'editors': CourseEditorSerializer(course.editors, many=True, read_only=True).data,
         })
 
         return expected
@@ -196,7 +206,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         request = make_request()
         course = CourseFactory()
         course_runs = CourseRunFactory.create_batch(3, course=course)
-        course.course_runs = course_runs
+        course.course_runs.set(course_runs)
         course.canonical_course_run = course_runs[0]
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1})
 
@@ -251,6 +261,9 @@ class CourseEditorSerializerTests(TestCase):
 @ddt.ddt
 class CourseWithProgramsSerializerTests(CourseSerializerTests):
     serializer_class = CourseWithProgramsSerializer
+    YESTERDAY = datetime.datetime.now(UTC) - datetime.timedelta(days=1)
+    TOMORROW = datetime.datetime.now(UTC) + datetime.timedelta(days=1)
+    TWO_WEEKS_FROM_TODAY = datetime.datetime.now(UTC) + datetime.timedelta(days=14)
 
     @classmethod
     def get_expected_data(cls, course, request):
@@ -263,9 +276,24 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             ).data,
             'course_run_keys': [course_run.key for course_run in course.course_runs.all()],
             'editable': False,
+            'advertised_course_run_uuid': None,
         })
 
         return expected
+
+    def create_upgradeable_seat_for_course_run(self, course_run):
+        return SeatFactory(
+            course_run=course_run,
+            type=SeatTypeFactory.verified(),
+            upgrade_deadline=self.TOMORROW
+        )
+
+    def create_not_upgradeable_seat_for_course_run(self, course_run):
+        return SeatFactory(
+            course_run=course_run,
+            type=SeatTypeFactory.verified(),
+            upgrade_deadline=datetime.datetime(2014, 1, 1, tzinfo=UTC)
+        )
 
     def setUp(self):
         super().setUp()
@@ -281,6 +309,164 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         expected = self.get_expected_data(self.course, self.request)
         serializer = self.serializer_class(self.course, context={'request': self.request})
         self.assertDictEqual(serializer.data, expected)
+
+    def test_advertised_course_run_is_upgradeable_and_end_not_within_two_weeks(self):
+        start_days = [
+            self.YESTERDAY,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=2),
+            self.TOMORROW,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=30),
+        ]
+
+        end_days = [
+            datetime.datetime.now(UTC) + datetime.timedelta(days=13),
+            self.TWO_WEEKS_FROM_TODAY,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=30),
+            self.YESTERDAY,
+        ]
+
+        expected_advertised_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.YESTERDAY,
+            end=self.TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Published,
+            enrollment_end=self.TWO_WEEKS_FROM_TODAY,
+        )
+
+        self.create_upgradeable_seat_for_course_run(expected_advertised_course_run)
+
+        not_upgradeable_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.YESTERDAY,
+            end=self.TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Published,
+            enrollment_end=self.TWO_WEEKS_FROM_TODAY,
+        )
+
+        self.create_not_upgradeable_seat_for_course_run(not_upgradeable_course_run)
+
+        not_marketable_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.YESTERDAY,
+            end=self.TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Unpublished,
+            enrollment_end=self.TWO_WEEKS_FROM_TODAY,
+        )
+
+        self.create_upgradeable_seat_for_course_run(not_marketable_course_run)
+
+        for i in range(4):
+            cr = CourseRunFactory(
+                course=self.course,
+                start=start_days[i],
+                end=end_days[i],
+                status=CourseRunStatus.Published,
+                enrollment_end=end_days[i],
+            )
+            self.create_upgradeable_seat_for_course_run(cr)
+
+        serializer = self.serializer_class(self.course, context={'request': self.request})
+        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
+
+    def test_advertised_course_run_is_upgradeable_and_starts_in_the_future(self):
+        start_days = [
+            self.YESTERDAY,
+            datetime.datetime.now(UTC) + datetime.timedelta(days=2),
+            datetime.datetime.now(UTC) - datetime.timedelta(days=30),
+        ]
+
+        end_days = [
+            datetime.datetime.now(UTC) + datetime.timedelta(days=13),
+            self.TWO_WEEKS_FROM_TODAY,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=1),
+        ]
+
+        expected_advertised_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.TOMORROW,
+            status=CourseRunStatus.Published,
+            enrollment_end=None,
+            end=None
+        )
+
+        self.create_upgradeable_seat_for_course_run(expected_advertised_course_run)
+
+        not_upgradeable_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.TOMORROW,
+            end=datetime.datetime.now(UTC) + datetime.timedelta(days=30),
+            status=CourseRunStatus.Published,
+            enrollment_end=datetime.datetime.now(UTC) + datetime.timedelta(days=30),
+        )
+
+        self.create_not_upgradeable_seat_for_course_run(not_upgradeable_course_run)
+
+        not_marketable_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.YESTERDAY,
+            end=self.TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Unpublished,
+            enrollment_end=self.TWO_WEEKS_FROM_TODAY,
+        )
+
+        self.create_upgradeable_seat_for_course_run(not_marketable_course_run)
+
+        for i in range(3):
+            cr = CourseRunFactory(
+                course=self.course,
+                start=start_days[i],
+                end=end_days[i],
+                status=CourseRunStatus.Published,
+                enrollment_end=end_days[i]
+            )
+            self.create_upgradeable_seat_for_course_run(cr)
+
+        serializer = self.serializer_class(self.course, context={'request': self.request})
+        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
+
+    def test_advertise_course_run_else_condition(self):
+        start_days = [
+            self.YESTERDAY,
+            self.TOMORROW,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=30),
+        ]
+
+        end_days = [
+            datetime.datetime.now(UTC) + datetime.timedelta(days=13),
+            self.TWO_WEEKS_FROM_TODAY,
+            datetime.datetime.now(UTC) - datetime.timedelta(days=1),
+        ]
+
+        expected_advertised_course_run = CourseRunFactory(
+            course=self.course,
+            start=datetime.datetime.now(UTC) + datetime.timedelta(days=2),
+            end=datetime.datetime.now(UTC) + datetime.timedelta(days=30),
+            status=CourseRunStatus.Published
+        )
+
+        self.create_not_upgradeable_seat_for_course_run(expected_advertised_course_run)
+
+        not_marketable_course_run = CourseRunFactory(
+            course=self.course,
+            start=self.YESTERDAY,
+            end=self.TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Unpublished
+        )
+
+        self.create_upgradeable_seat_for_course_run(not_marketable_course_run)
+
+        for i in range(3):
+            cr = CourseRunFactory(
+                course=self.course,
+                start=start_days[i],
+                end=end_days[i],
+                status=CourseRunStatus.Published
+            )
+            if not i == 0:
+                self.create_not_upgradeable_seat_for_course_run(cr)
+
+        serializer = self.serializer_class(self.course, context={'request': self.request})
+        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
 
 
 class CurriculumSerializerTests(TestCase):
@@ -367,7 +553,8 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'enrollment_start': json_date_format(course_run.enrollment_start),
             'enrollment_end': json_date_format(course_run.enrollment_end),
             'pacing_type': course_run.pacing_type,
-            'type': course_run.type,
+            'type': course_run.type_legacy,
+            'run_type': course_run.type.uuid,
             'seats': SeatSerializer(course_run.seats, many=True).data,
             'status': course_run.status,
             'external_key': course_run.external_key,
@@ -391,6 +578,7 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         lms_course_url = get_lms_course_url_for_archived(partner, '')
         self.assertIsNone(lms_course_url)
 
+        partner.lms_url = 'http://127.0.0.1:8000'
         lms_course_url = get_lms_course_url_for_archived(partner, course_key)
         expected_url = '{lms_url}/courses/{course_key}/course/'.format(lms_url=partner.lms_url, course_key=course_key)
         self.assertEqual(lms_course_url, expected_url)
@@ -430,8 +618,22 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'has_ofac_restrictions': course_run.has_ofac_restrictions,
             'enrollment_count': 0,
             'recent_enrollment_count': 0,
+            'course_uuid': course_run.course.uuid,
+            'expected_program_name': course_run.expected_program_name,
+            'expected_program_type': course_run.expected_program_type,
+            'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price,
+            'ofac_comment': course_run.ofac_comment,
+            'estimated_hours': get_course_run_estimated_hours(course_run)
         })
         return expected
+
+    def test_data(self):
+        request = make_request()
+        course_run = CourseRunFactory()
+        serializer = self.serializer_class(course_run, context={'request': request})
+        expected = self.get_expected_data(course_run, request)
+
+        assert serializer.data == expected
 
     def test_exclude_utm(self):
         request = make_request()
@@ -571,11 +773,11 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
         }
 
         for seat in course_run.seats.all():
-            for key in seats[seat.type].keys():
-                if seat.type == 'credit':
+            for key in seats[seat.type.slug].keys():
+                if seat.type.slug == 'credit':
                     seats['credit'][key].append(SeatSerializer(seat).data[key])
                 else:
-                    seats[seat.type][key] = SeatSerializer(seat).data[key]
+                    seats[seat.type.slug][key] = SeatSerializer(seat).data[key]
 
         for credit_attr in seats['credit']:
             seats['credit'][credit_attr] = ','.join([str(e) for e in seats['credit'][credit_attr]])
@@ -601,6 +803,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
             'expected_learning_items': cls.serialize_items(course.expected_learning_items.all(), 'value'),
             'course_key': course.key,
             'image': ImageField().to_representation(course_run.card_image_url),
+            'term': 'example-term',
         })
 
         # Remove fields found in CourseRunSerializer, but not in FlattenedCourseRunWithCourseSerializer.
@@ -614,7 +817,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
     def test_data(self):
         request = make_request()
         course_run = CourseRunFactory()
-        SeatFactory(course_run=course_run)
+        SeatFactory(course_run=course_run, type=SeatTypeFactory.audit())
         serializer_context = {'request': request}
         serializer = FlattenedCourseRunWithCourseSerializer(course_run, context=serializer_context)
         expected = self.get_expected_data(request, course_run)
@@ -624,7 +827,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
         """ Verify the serializer handles courses with no level type set. """
         request = make_request()
         course_run = CourseRunFactory(course__level_type=None)
-        SeatFactory(course_run=course_run)
+        SeatFactory(course_run=course_run, type=SeatTypeFactory.audit())
         serializer_context = {'request': request}
         serializer = FlattenedCourseRunWithCourseSerializer(course_run, context=serializer_context)
         expected = self.get_expected_data(request, course_run)
@@ -777,6 +980,7 @@ class MinimalProgramSerializerTests(TestCase):
             'title': program.title,
             'subtitle': program.subtitle,
             'type': program.type.name,
+            'type_attrs': ProgramTypeAttrsSerializer(program.type).data,
             'status': program.status,
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
@@ -795,6 +999,7 @@ class MinimalProgramSerializerTests(TestCase):
             'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
             'degree': None,
             'curricula': [],
+            'marketing_hook': program.marketing_hook,
         }
 
     def test_data(self):
@@ -847,6 +1052,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'enrollment_count': 0,
             'recent_enrollment_count': 0,
             'topics': [topic.name for topic in program.topics],
+            'credit_value': program.credit_value,
         })
         return expected
 
@@ -1057,7 +1263,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         rankings = RankingFactory.create_batch(3)
         degree = DegreeFactory.create(rankings=rankings)
         curriculum = CurriculumFactory.create(program=degree)
-        degree.curricula = [curriculum]
+        degree.curricula.set([curriculum])
         quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
         degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
         degree.cost = DegreeCostFactory.create_batch(size=3, degree=degree)
@@ -1128,10 +1334,12 @@ class ProgramTypeSerializerTests(TestCase):
         image_field._context = {'request': request}  # pylint: disable=protected-access
 
         return {
+            'uuid': str(program_type.uuid),
             'name': program_type.name,
             'logo_image': image_field.to_representation(program_type.logo_image),
             'applicable_seat_types': [seat_type.slug for seat_type in program_type.applicable_seat_types.all()],
             'slug': program_type.slug,
+            'coaching_supported': program_type.coaching_supported
         }
 
     def test_data(self):
@@ -1281,6 +1489,7 @@ class NestedProgramSerializerTests(TestCase):
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
             'type': program.type.name,
+            'type_attrs': ProgramTypeAttrsSerializer(program.type).data,
             'title': program.title,
             'number_of_courses': program.courses.count(),
         }
@@ -1315,6 +1524,7 @@ class MinimalOrganizationSerializerTests(TestCase):
             'uuid': str(organization.uuid),
             'key': organization.key,
             'name': organization.name,
+            'auto_generate_course_run_keys': organization.auto_generate_course_run_keys,
         }
 
     def test_data(self):
@@ -1337,13 +1547,14 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
     def get_expected_data(cls, organization):
         expected = super().get_expected_data(organization)
         expected.update({
-            'certificate_logo_image_url': organization.certificate_logo_image_url,
+            'certificate_logo_image_url': organization.certificate_logo_image.url,
             'description': organization.description,
             'homepage_url': organization.homepage_url,
-            'logo_image_url': organization.logo_image_url,
+            'logo_image_url': organization.logo_image.url,
             'tags': [cls.TAG],
             'marketing_url': organization.marketing_url,
-            'banner_image_url': organization.banner_image_url,
+            'slug': organization.slug,
+            'banner_image_url': organization.banner_image.url,
         })
 
         return expected
@@ -1389,7 +1600,7 @@ class SeatSerializerTests(TestCase):
         serializer = SeatSerializer(self.seat)
 
         expected = {
-            'type': self.seat.type,
+            'type': self.seat.type.slug,
             'price': str(self.seat.price),
             'currency': self.seat.currency.code,
             'upgrade_deadline': json_date_format(self.seat.upgrade_deadline),
@@ -1573,7 +1784,7 @@ class AffiliateWindowSerializerTests(TestCase):
         assert all((course_run.title, course_run.short_description, course_run.marketing_url))
 
         expected = {
-            'pid': '{}-{}'.format(course_run.key, seat.type),
+            'pid': '{}-{}'.format(course_run.key, seat.type.slug),
             'name': course_run.title,
             'desc': course_run.full_description,
             'purl': course_run.marketing_url,
@@ -1597,7 +1808,7 @@ class AffiliateWindowSerializerTests(TestCase):
         assert serializer.data == expected
 
 
-class CourseSearchSerializerMixin(object):
+class CourseSearchSerializerMixin:
     serializer_class = None
 
     def serialize_course(self, course, request):
@@ -1612,7 +1823,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
     def test_data(self):
         request = make_request()
         organization = OrganizationFactory()
-        # 'organizations' in serialzed data should not return duplicate organization names
+        # 'organizations' in serialized data should not return duplicate organization names
         # Add the same organization twice to the course and make sure only one is in the serialized data
         course = CourseFactory(
             subjects=SubjectFactory.create_batch(3),
@@ -1626,6 +1837,62 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
         serializer = self.serialize_course(course, request)
         assert serializer.data == self.get_expected_data(course, course_run, seat)
 
+    def test_exclude_expired_and_keep_current_course_run(self):
+        request = make_request({'exclude_expired_course_run': True})
+        organization = OrganizationFactory()
+        course = CourseFactory(
+            subjects=SubjectFactory.create_batch(3),
+            authoring_organizations=[organization],
+            sponsoring_organizations=[organization],
+        )
+        course_run = CourseRunFactory(course=course, end=datetime.datetime.now(UTC) + datetime.timedelta(days=10))
+        course_run_expired = CourseRunFactory(course=course)
+        course.course_runs.add(course_run, course_run_expired)
+        course.save()
+        seat = SeatFactory(course_run=course_run)
+        serializer = self.serialize_course(course, request)
+        assert serializer.data["course_runs"] == self.get_expected_data(course, course_run, seat)["course_runs"]
+
+    def test_exclude_expired_course_run(self):
+        request = make_request({'exclude_expired_course_run': True})
+        organization = OrganizationFactory()
+        course = CourseFactory(
+            subjects=SubjectFactory.create_batch(3),
+            authoring_organizations=[organization],
+            sponsoring_organizations=[organization],
+        )
+        course_run = CourseRunFactory(course=course)
+        course.course_runs.add(course_run)
+        course.save()
+        seat = SeatFactory(course_run=course_run)
+        expected = {
+            'key': course.key,
+            'title': course.title,
+            'short_description': course.short_description,
+            'full_description': course.full_description,
+            'content_type': 'course',
+            'aggregation_key': 'course:{}'.format(course.key),
+            'card_image_url': course.card_image_url,
+            'image_url': course.image_url,
+            'course_runs': [],
+            'uuid': str(course.uuid),
+            'subjects': [subject.name for subject in course.subjects.all()],
+            'languages': [
+                serialize_language(course_run.language) for course_run in course.course_runs.all()
+                if course_run.language
+            ],
+            'seat_types': [seat.type.slug],
+            'organizations': [
+                '{key}: {name}'.format(
+                    key=course.sponsoring_organizations.first().key,
+                    name=course.sponsoring_organizations.first().name,
+                )
+            ]
+        }
+
+        serializer = self.serialize_course(course, request)
+        self.assertDictEqual(serializer.data, expected)
+
     @classmethod
     def get_expected_data(cls, course, course_run, seat):
         return {
@@ -1636,6 +1903,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             'content_type': 'course',
             'aggregation_key': 'course:{}'.format(course.key),
             'card_image_url': course.card_image_url,
+            'image_url': course.image_url,
             'course_runs': [{
                 'key': course_run.key,
                 'enrollment_start': course_run.enrollment_start,
@@ -1646,7 +1914,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 'modified': course_run.modified,
                 'availability': course_run.availability,
                 'pacing_type': course_run.pacing_type,
-                'enrollment_mode': course_run.type,
+                'enrollment_mode': course_run.type_legacy,
                 'min_effort': course_run.min_effort,
                 'max_effort': course_run.max_effort,
                 'weeks_to_complete': course_run.weeks_to_complete,
@@ -1659,7 +1927,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 serialize_language(course_run.language) for course_run in course.course_runs.all()
                 if course_run.language
             ],
-            'seat_types': [seat.type],
+            'seat_types': [seat.type.slug],
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,
@@ -1682,7 +1950,7 @@ class CourseSearchModelSerializerTests(TestCase, CourseSearchSerializerMixin):
         assert serializer.data == self.get_expected_data(course, course_run, request)
 
     @classmethod
-    def get_expected_data(cls, course, course_run, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, course, course_run, request):
         expected_data = CourseWithProgramsSerializerTests.get_expected_data(course, request)
         expected_data.update({'content_type': 'course'})
         return expected_data
@@ -1695,7 +1963,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
         request = make_request()
         course_run = CourseRunFactory(transcript_languages=LanguageTag.objects.filter(code__in=['en-us', 'zh-cn']),
                                       authoring_organizations=[OrganizationFactory()])
-        SeatFactory.create(course_run=course_run, type='verified', price=10, sku='ABCDEF')
+        SeatFactory.create(course_run=course_run, type=SeatTypeFactory.verified(), price=10, sku='ABCDEF')
         program = ProgramFactory(courses=[course_run.course])
         self.reindex_courses(program)
         serializer = self.serialize_course_run(course_run, request)
@@ -1715,7 +1983,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
         return serializer
 
     @classmethod
-    def get_expected_data(cls, course_run, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, course_run, request):
         return {
             'transcript_languages': [serialize_language(l) for l in course_run.transcript_languages.all()],
             'min_effort': course_run.min_effort,
@@ -1737,15 +2005,15 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'content_type': 'courserun',
             'org': CourseKey.from_string(course_run.key).org,
             'number': CourseKey.from_string(course_run.key).course,
-            'seat_types': course_run.seat_types,
+            'seat_types': [seat.slug for seat in course_run.seat_types],
             'image_url': course_run.image_url,
-            'type': course_run.type,
+            'type': course_run.type_legacy,
             'level_type': course_run.level_type.name,
             'availability': course_run.availability,
             'published': course_run.status == CourseRunStatus.Published,
             'partner': course_run.course.partner.short_code,
             'program_types': course_run.program_types,
-            'logo_image_urls': [org.logo_image_url for org in course_run.authoring_organizations.all()],
+            'logo_image_urls': [org.logo_image.url for org in course_run.authoring_organizations.all()],
             'authoring_organization_uuids': get_uuids(course_run.authoring_organizations.all()),
             'subject_uuids': get_uuids(course_run.subjects.all()),
             'staff_uuids': get_uuids(course_run.staff.all()),
@@ -1771,7 +2039,7 @@ class PersonSearchSerializerTest(ElasticsearchTestMixin, TestCase):
     serializer_class = PersonSearchSerializer
 
     @classmethod
-    def get_expected_data(cls, person, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, person, request):
         return {
             'salutation': person.salutation,
             'position': [person.position.title, person.position.organization_override],
@@ -1841,7 +2109,7 @@ class TestProgramSearchSerializer(TestCase):
         self.request = make_request()
 
     @classmethod
-    def get_expected_data(cls, program, request):  # pylint: disable=unused-argument
+    def get_expected_data(cls, program, request):
         return {
             'uuid': str(program.uuid),
             'title': program.title,
@@ -1918,6 +2186,7 @@ class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
     def get_expected_data(cls, program, request):
         expected = ProgramSerializerTests.get_expected_data(program, request)
         expected.update({'content_type': 'program'})
+        expected.update({'marketing_hook': program.marketing_hook})
         return expected
 
 
@@ -2008,10 +2277,6 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         Verify that `get_utm_source_for_user` returns default value if
         `Partner.lms_url` is not set in the database.
         """
-        # Remove lms_url from partner.
-        self.partner.lms_url = ''
-        self.partner.save()
-
         assert get_utm_source_for_user(self.partner, self.user) == self.user.username
 
     @responses.activate
@@ -2021,6 +2286,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         Verify that `get_utm_source_for_user` returns default value if
         LMS API does not return a valid response.
         """
+        self.partner.lms_url = 'http://127.0.0.1:8000'
         self.mock_api_access_request(self.partner.lms_url, self.user, status=400)
         assert get_utm_source_for_user(self.partner, self.user) == self.user.username
 
@@ -2030,6 +2296,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         """
         Verify that `get_utm_source_for_user` returns correct value.
         """
+        self.partner.lms_url = 'http://127.0.0.1:8000'
         company_name = 'Test Company'
         expected_utm_source = slugify('{} {}'.format(self.user.username, company_name))
 

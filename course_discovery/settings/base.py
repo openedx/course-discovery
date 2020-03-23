@@ -63,7 +63,13 @@ THIRD_PARTY_APPS = [
     'corsheaders',
     'adminsortable2',
     'xss_utils',
+    'algoliasearch_django',
 ]
+
+ALGOLIA = {
+    'APPLICATION_ID': '',
+    'API_KEY': '',
+}
 
 PROJECT_APPS = [
     'course_discovery.apps.core',
@@ -234,7 +240,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
                 'course_discovery.apps.core.context_processors.core',
-                'course_discovery.apps.publisher.context_processors.publisher',
             ),
             'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
         }
@@ -262,7 +267,6 @@ AUTHENTICATION_BACKENDS = (
     'auth_backends.backends.EdXOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
-    'auth_backends.backends.EdXOpenIdConnect',
 )
 
 CORS_ALLOW_CREDENTIALS = True
@@ -279,16 +283,6 @@ ENABLE_AUTO_AUTH = False
 AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
 
 SOCIAL_AUTH_STRATEGY = 'auth_backends.strategies.EdxDjangoStrategy'
-
-# These OIDC variables are DEPRECATED.
-SOCIAL_AUTH_EDX_OIDC_KEY = 'discovery-key'
-SOCIAL_AUTH_EDX_OIDC_SECRET = 'discovery-secret'
-SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_LOGOUT_URL = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
-SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
-SOCIAL_AUTH_EDX_OIDC_PUBLIC_URL_ROOT = 'http://127.0.0.1:8000/oauth2'
-SOCIAL_AUTH_EDX_OIDC_ISSUER = 'http://127.0.0.1:8000/oauth2'
 
 # Set these to the correct values for your OAuth2 provider (e.g., devstack)
 SOCIAL_AUTH_EDX_OAUTH2_KEY = "discovery-sso-key"
@@ -388,7 +382,6 @@ LOGGING = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'edx_rest_framework_extensions.auth.jwt.authentication.JwtAuthentication',
-        'edx_rest_framework_extensions.auth.bearer.authentication.BearerAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
@@ -436,8 +429,7 @@ JWT_AUTH = {
     'JWT_PUBLIC_SIGNING_JWK_SET': None,
     'JWT_AUTH_COOKIE_HEADER_PAYLOAD': 'edx-jwt-cookie-header-payload',
     'JWT_AUTH_COOKIE_SIGNATURE': 'edx-jwt-cookie-signature',
-    'JWT_AUTH_REFRESH_COOKIE': 'edx-jwt-refresh-cookie'
-
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
 
 SWAGGER_SETTINGS = {
@@ -567,8 +559,6 @@ DEFAULT_PARTNER_ID = None
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 # edx-django-sites-extensions will fallback to this site if we cannot identify the site from the hostname.
 SITE_ID = 1
-
-COMMENTS_APP = 'course_discovery.apps.publisher_comments'
 
 TAGGIT_CASE_INSENSITIVE = True
 

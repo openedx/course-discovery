@@ -11,7 +11,7 @@ from course_discovery.apps.course_metadata.people import MarketingSitePeople
 logger = logging.getLogger(__name__)
 
 
-class PersonInfo(object):
+class PersonInfo:
     def __init__(self, partner, uuid, target_uuid):
         self.person = Person.objects.get(partner=partner, uuid=uuid)
         self.target = Person.objects.get(partner=partner, uuid=target_uuid)
@@ -81,13 +81,12 @@ class Command(BaseCommand):
         # - CourseRun staff (sortedm2m)
         # - Publisher CourseRun staff (sortedm2m)
 
-        logger.info(
+        logger.info(  # pylint: disable=logging-not-lazy
             '{} {}:\n'.format(_('Deleting') if commit else _('Would delete'), pinfo.person.uuid) +
             ' {}: {}\n'.format(_('Name'), pinfo.person.full_name) +
             ' {}: {}\n'.format(_('Endorsements'), pinfo.person.endorsement_set.count()) +
             ' {}: {}\n'.format(_('Programs'), pinfo.person.program_set.count()) +
             ' {}: {}\n'.format(_('Course Runs'), pinfo.person.courses_staffed.count()) +
-            ' {}: {}\n'.format(_('Publisher Course Runs'), pinfo.person.publisher_course_runs_staffed.count()) +
             ' {}: {} ({})\n'.format(_('Target'), pinfo.target.full_name, pinfo.target.uuid)
         )
         if not commit:
@@ -112,24 +111,14 @@ class Command(BaseCommand):
             if pinfo.target in program.instructor_ordering.all():
                 continue
             new_instructors = [filter_person(instructor) for instructor in program.instructor_ordering.all()]
-            program.instructor_ordering = new_instructors
-            program.save()
+            program.instructor_ordering.set(new_instructors)
 
         # Update metadata course runs
         for course_run in pinfo.person.courses_staffed.all():
             if pinfo.target in course_run.staff.all():
                 continue
             new_staff = [filter_person(staff) for staff in course_run.staff.all()]
-            course_run.staff = new_staff
-            course_run.save()
-
-        # Update publisher course runs
-        for publisher_course_run in pinfo.person.publisher_course_runs_staffed.all():
-            if pinfo.target in publisher_course_run.staff.all():
-                continue
-            new_staff = [filter_person(staff) for staff in publisher_course_run.staff.all()]
-            publisher_course_run.staff = new_staff
-            publisher_course_run.save()
+            course_run.staff.set(new_staff)
 
         # And finally, actually delete the person
         pinfo.person.delete()

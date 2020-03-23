@@ -1,7 +1,9 @@
+import datetime
 import logging
 
+import pytz
 from django.contrib.auth import get_user_model
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.utils.translation import ugettext as _
 from django_filters import rest_framework as filters
 from drf_haystack.filters import HaystackFacetFilter
@@ -12,7 +14,7 @@ from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import NotFound, PermissionDenied
 
 from course_discovery.apps.api.utils import cast2int
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseRun, Organization, Person, Program, Subject, Topic
 )
@@ -131,10 +133,32 @@ class FilterSetMixin:
 class CourseFilter(filters.FilterSet):
     keys = CharListFilter(field_name='key', lookup_expr='in')
     uuids = UUIDListFilter()
+    course_run_statuses = CharListFilter(method='filter_by_course_run_statuses')
+    editors = CharListFilter(field_name='editors__user__pk', lookup_expr='in', distinct=True)
 
     class Meta:
         model = Course
         fields = ('keys', 'uuids',)
+
+    def filter_by_course_run_statuses(self, queryset, _, value):
+        statuses = set(value.split(','))
+        or_queries = []  # a list of Q() expressions to add to our filter as alternatives to status check
+
+        if 'in_review' in statuses:  # any of our review statuses
+            statuses.remove('in_review')
+            statuses.add(CourseRunStatus.LegalReview)
+            statuses.add(CourseRunStatus.InternalReview)
+        if 'unsubmitted' in statuses:  # unpublished and unarchived
+            statuses.remove('unsubmitted')
+            # "is not archived" logic stolen from CourseRun.has_ended
+            now = datetime.datetime.now(pytz.UTC)
+            or_queries.append(Q(course_runs__status=CourseRunStatus.Unpublished) & ~Q(course_runs__end__lt=now))
+
+        status_check = Q(course_runs__status__in=statuses)
+        for query in or_queries:
+            status_check |= query
+
+        return queryset.filter(status_check, course_runs__hidden=False).distinct()
 
 
 class CourseRunFilter(FilterSetMixin, filters.FilterSet):

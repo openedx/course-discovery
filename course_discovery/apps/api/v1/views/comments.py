@@ -9,8 +9,9 @@ from rest_framework.response import Response
 
 from course_discovery.apps.api.serializers import CommentSerializer
 from course_discovery.apps.core.models import SalesforceConfiguration
+from course_discovery.apps.course_metadata.emails import send_email_for_comment
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, Organization
-from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
+from course_discovery.apps.course_metadata.salesforce import SalesforceMissingCaseException, SalesforceUtil
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 
 log = logging.getLogger(__name__)
@@ -25,7 +26,6 @@ class CommentViewSet(viewsets.GenericViewSet):
         """
         Override needed for DRF, but we don't use any queryset for this ViewSet
         """
-        pass
 
     def list(self, request):
         course_uuid = request.query_params.get('course_uuid')
@@ -66,14 +66,17 @@ class CommentViewSet(viewsets.GenericViewSet):
             raise PermissionDenied
 
         util = self._get_salesforce_util_or_404(partner)
-        comment = util.create_comment_for_course_case(
-            course,
-            request.user,
-            comment_creation_fields.get('comment'),
-            course_run_key=request.data.get('course_run_key')
-        )
-
-        return Response(comment, status=status.HTTP_201_CREATED)
+        try:
+            comment = util.create_comment_for_course_case(
+                course,
+                request.user,
+                comment_creation_fields.get('comment'),
+                course_run_key=request.data.get('course_run_key')
+            )
+            send_email_for_comment(comment, course, request.user)
+            return Response(comment, status=status.HTTP_201_CREATED)
+        except SalesforceMissingCaseException as ex:
+            return Response(ex.message, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @staticmethod
     def _get_course_or_404(partner, course_uuid):

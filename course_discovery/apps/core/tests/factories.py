@@ -54,13 +54,13 @@ class PartnerFactory(factory.DjangoModelFactory):
     marketing_site_api_password = factory.Faker('password')
     analytics_url = factory.Faker('url')
     analytics_token = factory.Faker('sha256')
-    lms_url = "http://127.0.0.1:8000"
+    lms_url = ''
     lms_admin_url = '{root}/admin'.format(root=FuzzyUrlRoot().fuzz())
     site = factory.SubFactory(SiteFactory)
     studio_url = factory.Faker('url')
     publisher_url = factory.Faker('url')
 
-    class Meta(object):
+    class Meta:
         model = Partner
 
 
@@ -68,7 +68,7 @@ class CurrencyFactory(factory.DjangoModelFactory):
     code = factory.fuzzy.FuzzyText(length=6)
     name = factory.fuzzy.FuzzyText()
 
-    class Meta(object):
+    class Meta:
         model = Currency
 
 
@@ -81,5 +81,5 @@ class SalesforceConfigurationFactory(factory.DjangoModelFactory):
     partner = factory.SubFactory(PartnerFactory)
     case_record_type_id = factory.fuzzy.FuzzyText()
 
-    class Meta(object):
+    class Meta:
         model = SalesforceConfiguration

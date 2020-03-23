@@ -3,7 +3,6 @@ import uuid
 from dal import autocomplete
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
-from django.template.loader import render_to_string
 
 from .models import Course, CourseRun, Organization, Person, Program
 
@@ -85,20 +84,3 @@ class PersonAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
                 pass
 
         return queryset
-
-    def get_result_label(self, result):
-        http_referer = self.request.META.get('HTTP_REFERER')
-        if http_referer and '/admin/' in http_referer:
-            return super(PersonAutocomplete, self).get_result_label(result)
-        else:
-            context = {
-                'uuid': result.uuid,
-                'profile_image': result.get_profile_image_url,
-                'full_name': result.full_name,
-                'position': result.position if hasattr(result, 'position') else None,
-                'organization_id': result.position.organization_id if hasattr(result, 'position') else None,
-                'can_edit_instructor': not result.get_profile_image_url,
-
-            }
-
-            return render_to_string('publisher/_personLookup.html', context=context)

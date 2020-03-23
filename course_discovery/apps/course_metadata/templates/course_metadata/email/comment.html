@@ -1,0 +1,23 @@
+{% extends "course_metadata/email/email_base.html" %}
+{% load i18n %}
+{% block body %}
+<!-- Message Body -->
+        <p>
+            {% filter force_escape %}
+            {% blocktrans with date=comment_date|date:'m/d/y' time=comment_date.time trimmed %}
+                {{ user_name }} made the following comment on {{ course_name }} on {{ date }} at {{ time }}
+            {% endblocktrans %}
+            {% endfilter %}
+        </p>
+        <p style="font-style: italic;">
+            {% filter force_escape %}
+              "{{ comment_message }}"
+            {% endfilter %}
+        </p>
+
+        <p>
+            <a href="{{ page_url }}">{% trans "View comment in Publisher" as tmsg %} {{ tmsg | force_escape }}</a>
+        </p>
+        <p>{% trans "The edX team" as tmsg %}{{ tmsg | force_escape }}</p>
+<!-- End Message Body -->
+{% endblock body %}

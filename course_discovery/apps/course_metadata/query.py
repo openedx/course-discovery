@@ -39,6 +39,8 @@ class CourseQuerySet(models.QuerySet):
         marketable = (
             ~Q(course_runs__slug='') &
             Q(course_runs__seats__isnull=False) &
+            Q(course_runs__draft=False) &
+            ~Q(course_runs__type__is_marketable=False) &
             Q(course_runs__status=CourseRunStatus.Published)
         )
 
@@ -114,6 +116,10 @@ class CourseRunQuerySet(models.QuerySet):
         ).exclude(
             # This will exclude any course run without seats (e.g., CCX runs).
             seats__isnull=True
+        ).filter(
+            draft=False
+        ).exclude(
+            type__is_marketable=False
         ).filter(
             status=CourseRunStatus.Published
         )

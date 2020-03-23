@@ -1,3 +1,5 @@
+algoliasearch_django
+backoff
 beautifulsoup4
 django
 django-admin-sortable2
@@ -6,6 +8,7 @@ django-choices
 django-compressor
 django-contrib-comments
 django-cors-headers
+django-dynamic-filenames
 django-extensions
 django-filter
 django-fsm
@@ -26,7 +29,6 @@ django-waffle
 django-webpack-loader
 djangorestframework
 djangorestframework-csv
-djangorestframework-jwt
 djangorestframework-xml
 drf-dynamic-fields
 drf-extensions
@@ -43,7 +45,8 @@ edx-opaque-keys
 edx-rest-api-client
 elasticsearch
 html2text
-jsonfield
+lxml
+jsonfield2
 markdown
 pillow
 pycountry

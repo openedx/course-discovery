@@ -5,9 +5,6 @@ var BundleTracker = require('webpack-bundle-tracker'),
     loaders = [
         {
             loader: 'css-loader',
-            options: {
-                minimize: true
-            }
         },
         {
             loader: 'sass-loader',
@@ -22,8 +19,6 @@ module.exports = {
     context: context,
 
     entry: {
-        'base.style': './sass/main-ltr.scss',
-        'base.style-rtl': './sass/main-rtl.scss',
         'query-preview': './js/query-preview.js',
         'query-preview.style': './sass/query-preview.scss'
     },

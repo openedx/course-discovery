@@ -3,6 +3,8 @@ import base64
 from django.core.files.base import ContentFile
 from rest_framework import serializers
 
+from course_discovery.apps.course_metadata.utils import clean_html
+
 
 class StdImageSerializerField(serializers.ImageField):
     """
@@ -51,3 +53,12 @@ class ImageField(serializers.Field):  # pylint:disable=abstract-method
             'height': None,
             'width': None
         }
+
+
+class HtmlField(serializers.CharField):
+    """ Use this class for any model field defined by a HtmlField or NullHtmlField """
+
+    def to_internal_value(self, data):
+        """ Cleans incoming HTML to strip some styling that word processors might inject when copying/pasting. """
+        data = super().to_internal_value(data)
+        return clean_html(data) if data else data

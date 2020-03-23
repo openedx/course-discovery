@@ -26,8 +26,8 @@ class TopicViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all topics. """
-        return super(TopicViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)  # pylint: disable=no-member
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for an topic. """
-        return super(TopicViewSet, self).retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)

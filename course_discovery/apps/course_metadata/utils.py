@@ -1,25 +1,31 @@
 import datetime
+import logging
 import random
 import string
 import uuid
-from collections import OrderedDict
 from urllib.parse import urljoin
 
+import html2text
+import markdown
 import requests
+from bs4 import BeautifulSoup
 from django.conf import settings
 from django.db import transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
-from opaque_keys.edx.locator import CourseLocator
+from dynamic_filenames import FilePattern
 from slugify import slugify
 from stdimage.models import StdImageFieldFile
-from stdimage.utils import UploadTo
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
+from course_discovery.apps.course_metadata.exceptions import (
+    EcommerceSiteAPIClientException, MarketingSiteAPIClientException
+)
 from course_discovery.apps.course_metadata.salesforce import SalesforceUtil
-from course_discovery.apps.publisher.utils import find_discovery_course
+from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
+
+logger = logging.getLogger(__name__)
 
 RESERVED_ELASTICSEARCH_QUERY_OPERATORS = ('AND', 'OR', 'NOT', 'TO',)
 
@@ -85,6 +91,9 @@ def set_official_state(obj, model, attrs=None):
         for field in model._meta.get_fields():
             if field.many_to_many and not field.auto_created:
                 getattr(official_obj, field.name).clear()
+                # TEMPORARY - log stack trace when subjects are cleared and not re-filled, see Jira DISCO-1593
+                if field.name == "subjects" and draft_version.subjects.count() == 0:
+                    logger.error('Adding empty subject list to published course', stack_info=True)
                 getattr(official_obj, field.name).add(*list(getattr(draft_version, field.name).all()))
 
     else:
@@ -99,7 +108,7 @@ def set_official_state(obj, model, attrs=None):
     return official_obj
 
 
-def set_draft_state(obj, model, attrs=None):
+def set_draft_state(obj, model, attrs=None, related_attrs=None):
     """
     Sets the draft state for an object by giving it a new primary key. Also sets any given
     attributes (primarily used for setting foreign keys that also point to draft rows). This will
@@ -127,6 +136,11 @@ def set_draft_state(obj, model, attrs=None):
 
     obj.save()
 
+    # must be done after save so we have an id
+    if related_attrs:
+        for key, value in related_attrs.items():
+            getattr(obj, key).set(value)
+
     # We refresh the object's instance before we set its salesforce_id because the instance in memory is
     # out of sync with what is actually in the database.  The salesforce_id is indeed in the database at this point
     # because we generate it on a post_save signal for Course's and CourseRun's.
@@ -149,12 +163,12 @@ def set_draft_state(obj, model, attrs=None):
 def _calculate_entitlement_for_run(run):
     from course_discovery.apps.course_metadata.models import Seat
 
-    entitlement_seats = [seat for seat in run.seats.all() if seat.type in Seat.ENTITLEMENT_MODES]
+    entitlement_seats = [seat for seat in run.seats.all() if seat.type.slug in Seat.ENTITLEMENT_MODES]
     if len(entitlement_seats) != 1:
         return None
 
     seat = entitlement_seats[0]
-    return seat.type, seat.price, seat.currency
+    return seat.type.slug, seat.price, seat.currency
 
 
 def _calculate_entitlement_for_course(course):
@@ -228,7 +242,7 @@ def ensure_draft_world(obj):
     Returns:
         obj (Model object): The returned object will be the draft version on the input object.
     """
-    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat, SeatType
+    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat
     if obj.draft:
         return obj
     elif obj.draft_version:
@@ -241,7 +255,7 @@ def ensure_draft_world(obj):
     elif isinstance(obj, Course):
         # We need to null this out because it will fail with a OneToOne uniqueness error when saving the draft
         obj.canonical_course_run = None
-        draft_course, original_course = set_draft_state(obj, Course)
+        draft_course, original_course = set_draft_state(obj, Course, related_attrs={'url_slug_history': []})
         draft_course.slug = original_course.slug
 
         # Move editors from the original course to the draft course since we only care about CourseEditors
@@ -265,34 +279,33 @@ def ensure_draft_world(obj):
         if original_course.entitlements.exists():
             for entitlement in original_course.entitlements.all():
                 set_draft_state(entitlement, CourseEntitlement, {'course': draft_course})
-        elif not create_missing_entitlement(draft_course):
-            mode = SeatType.objects.get(slug=Seat.AUDIT)
-            CourseEntitlement.objects.create(
-                course=draft_course,
-                mode=mode,
-                partner=draft_course.partner,
-                price=0.00,
-                draft=True,
-            )
+        else:
+            create_missing_entitlement(draft_course)
 
         draft_course.save()
-        return draft_course
+        # must re-get from db to ensure related fields like course_runs are updated (refresh_from_db isn't enough)
+        return Course.everything.get(pk=draft_course.pk)
     else:
         raise Exception('Ensure draft world only accepts Courses and Course Runs.')
 
 
-class UploadToFieldNamePath(UploadTo):
+class UploadToFieldNamePath(FilePattern):
     """
     This is a utility to create file path for uploads based on instance field value
     """
+    filename_pattern = '{path}{name}{ext}'
+
     def __init__(self, populate_from, **kwargs):
         self.populate_from = populate_from
-        super(UploadToFieldNamePath, self).__init__(populate_from, **kwargs)
+        kwargs['populate_from'] = populate_from
+        if kwargs['path'] and not kwargs['path'].endswith('/'):
+            kwargs['path'] += '/'
+        super(UploadToFieldNamePath, self).__init__(**kwargs)
 
     def __call__(self, instance, filename):
         field_value = getattr(instance, self.populate_from)
         # Update name with Random string of 12 character at the end example '-ba123cd89e97'
-        self.kwargs.update({
+        self.override_values.update({
             'name': str(field_value) + str(uuid.uuid4())[23:]
         })
         return super(UploadToFieldNamePath, self).__call__(instance, filename)
@@ -354,7 +367,7 @@ def validate_course_number(course_number):
     Args:
         course_number: Course Number String
     """
-    if not CourseLocator.ALLOWED_ID_RE.match(course_number):
+    if not VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY.match(course_number):
         raise ValueError(_('Special characters not allowed in Course Number.'))
 
 
@@ -372,30 +385,32 @@ def get_course_run_estimated_hours(course_run):
     return (effort / 2) * weeks_to_complete if effort and weeks_to_complete else 0
 
 
+def subtract_deadline_delta(end, delta):
+    deadline = end - datetime.timedelta(days=delta)
+    deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
+    return deadline
+
+
 def calculated_seat_upgrade_deadline(seat):
     """ Returns upgraded deadline calculated using edX business logic.
 
     Only verified seats have upgrade deadlines. If the instance does not have an upgrade deadline set, the value
     will be calculated based on the related course run's end date.
     """
-    if seat.type == seat.VERIFIED:
+    slug = seat.type if isinstance(seat.type, str) else seat.type.slug
+    if slug == seat.VERIFIED:
         if seat.upgrade_deadline:
             return seat.upgrade_deadline
 
         if not seat.course_run.end:
             return None
 
-        deadline = seat.course_run.end - datetime.timedelta(days=settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
-        deadline = deadline.replace(hour=23, minute=59, second=59, microsecond=99999)
-        return deadline
+        return subtract_deadline_delta(seat.course_run.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
 
     return None
 
 
-def serialize_seat_for_ecommerce_api(seat):
-    # Avoid circular imports
-    from course_discovery.apps.course_metadata.models import Seat
-
+def serialize_seat_for_ecommerce_api(seat, mode):
     return {
         'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
         'price': str(seat.price),
@@ -403,11 +418,11 @@ def serialize_seat_for_ecommerce_api(seat):
         'attribute_values': [
             {
                 'name': 'certificate_type',
-                'value': '' if seat.type == Seat.AUDIT else seat.type,
+                'value': mode.certificate_type,
             },
             {
                 'name': 'id_verification_required',
-                'value': seat.type in (Seat.VERIFIED, Seat.PROFESSIONAL),
+                'value': mode.is_id_verified,
             }
         ]
     }
@@ -431,22 +446,29 @@ def push_to_ecommerce_for_course_run(course_run):
     Args:
         course_run: Official version of a course_metadata CourseRun
     """
-    # Avoid circular imports
-    from course_discovery.apps.course_metadata.models import Seat
-
     course = course_run.course
     api = course.partner.lms_api_client
     if not api or not course.partner.ecommerce_api_url:
         return False
 
-    seats = course_run.seats.exclude(type__in=Seat.NON_PRODUCT_MODES)
-    entitlements = course.entitlements.all()  # no need to exclude - entitlements are always an ecommerce thing
+    entitlements = course.entitlements.all()
+
+    # Figure out which seats to send (skip ones that have no ecom products - like Masters - or are just misconfigured).
+    # This is dumb and does basically a O(n^2) inner join here to match seats to modes. I feel like the Django
+    # ORM has a better solution for this, but I couldn't find it easily. These lists are small anyway.
+    tracks = course_run.type.tracks.all()
+    seats_with_modes = []
+    for seat in course_run.seats.all():
+        for track in tracks:
+            if track.seat_type and seat.type == track.seat_type:
+                seats_with_modes.append((seat, track.mode))
+                break
 
     discovery_products = []
     serialized_products = []
-    if seats:
-        serialized_products.extend([serialize_seat_for_ecommerce_api(s) for s in seats])
-        discovery_products.extend(list(seats))
+    if seats_with_modes:
+        serialized_products.extend([serialize_seat_for_ecommerce_api(s[0], s[1]) for s in seats_with_modes])
+        discovery_products.extend([s[0] for s in seats_with_modes])
     if entitlements:
         serialized_products.extend([serialize_entitlement_for_ecommerce_api(e) for e in entitlements])
         discovery_products.extend(list(entitlements))
@@ -461,7 +483,12 @@ def push_to_ecommerce_for_course_run(course_run):
         'verification_deadline': serialize_datetime(course_run.end),
         'products': serialized_products,
     })
-    response.raise_for_status()
+
+    if 400 <= response.status_code < 600:
+        error = response.json().get('error')
+        if error:
+            raise EcommerceSiteAPIClientException({'error': error})
+        response.raise_for_status()
 
     # Now save the returned SKU numbers locally
     ecommerce_products = response.json().get('products', [])
@@ -483,141 +510,54 @@ def push_to_ecommerce_for_course_run(course_run):
     return True
 
 
-@transaction.atomic
-def publish_to_course_metadata(partner, course_run, create_official=True):
-    from course_discovery.apps.course_metadata.models import (
-        Course, CourseEntitlement, CourseRun, ProgramType, Seat, SeatType, Video
-    )
+def push_tracks_to_lms_for_course_run(course_run):
+    """
+    Notifies the LMS about this course run's entitlement modes.
 
-    publisher_course = course_run.course
+    Currently, this only actually does anything for entitlement modes without a seat. Other enrollment modes are
+    instead handled by Discovery pushing to E-Commerce, and the LMS then pulls that info in separately.
 
-    video = None
-    if publisher_course.video_link:
-        video, __ = Video.objects.get_or_create(src=publisher_course.video_link)
+    Eventually, we might want to consider handling all track types here and short-cutting that cycle by pushing
+    directly to LMS. But that's a future improvement.
+    """
+    run_type = course_run.type
+    tracks_without_seats = run_type.tracks.filter(seat_type=None)
+    if not tracks_without_seats:
+        return
 
-    defaults = {
-        'title': publisher_course.title,
-        'short_description': publisher_course.short_description,
-        'full_description': publisher_course.full_description,
-        'level_type': publisher_course.level_type,
-        'video': video,
-        'outcome': publisher_course.expected_learnings,
-        'prerequisites_raw': publisher_course.prerequisites,
-        'syllabus_raw': publisher_course.syllabus,
-        'additional_information': publisher_course.additional_information,
-        'faq': publisher_course.faq,
-        'learner_testimonials': publisher_course.learner_testimonial,
-    }
+    partner = course_run.course.partner
+    if not partner.lms_api_client:
+        logger.info('LMS api client is not initiated. Cannot publish LMS tracks for [%s].', course_run.key)
+        return
+    if not partner.lms_coursemode_api_url:
+        logger.info('No LMS coursemode api url configured. Cannot publish LMS tracks for [%s].', course_run.key)
+        return
 
-    discovery_course = find_discovery_course(course_run)
-    course_key = discovery_course.key if discovery_course else publisher_course.key
+    url = partner.lms_coursemode_api_url.rstrip('/') + '/courses/{}/'.format(course_run.key)
+    course_modes = {mode['mode_slug'] for mode in partner.lms_api_client.get(url).json()}
 
-    if discovery_course:
-        defaults['uuid'] = discovery_course.uuid  # just sanity ensure that UUIDs will match
-        # Let's ensure the draft version of everything exists. If it doesn't, we will just create it below.
-        ensure_draft_world(discovery_course)
+    for track in tracks_without_seats:
+        if track.mode.slug in course_modes:
+            # We already have this mode on the LMS side!
+            continue
 
-    discovery_course, created = Course.everything.update_or_create(
-        partner=partner, key=course_key, draft=True, defaults=defaults
-    )
-    # If we are publishing from the Publisher app, image is required and should fail if not provided.
-    if create_official or publisher_course.image:
-        discovery_course.image.save(publisher_course.image.name, publisher_course.image.file)
-    discovery_course.authoring_organizations.add(*publisher_course.organizations.all())
+        data = {
+            'course_id': course_run.key,
+            'mode_slug': track.mode.slug,
+            'mode_display_name': track.mode.name,
+            'currency': 'usd',
+            'min_price': 0,
+        }
+        response = partner.lms_api_client.post(url, json=data)
 
-    subjects = [subject for subject in [
-        publisher_course.primary_subject,
-        publisher_course.secondary_subject,
-        publisher_course.tertiary_subject
-    ] if subject]
-    subjects = list(OrderedDict.fromkeys(subjects))
-    discovery_course.subjects.clear()
-    discovery_course.subjects.add(*subjects)
-
-    discovery_course.url_slug = publisher_course.url_slug
-
-    expected_program_type, program_name = ProgramType.get_program_type_data(course_run, ProgramType)
-
-    defaults = {
-        'start': course_run.start_date_temporary,
-        'end': course_run.end_date_temporary,
-        'pacing_type': course_run.pacing_type_temporary,
-        'title_override': course_run.title_override,
-        'min_effort': course_run.min_effort,
-        'max_effort': course_run.max_effort,
-        'language': course_run.language,
-        'weeks_to_complete': course_run.length,
-        'has_ofac_restrictions': course_run.has_ofac_restrictions,
-        'external_key': course_run.external_key,
-        'expected_program_name': program_name or '',
-        'expected_program_type': expected_program_type,
-        'course': discovery_course,
-    }
-
-    discovery_official_course_run = CourseRun.objects.filter(key=course_run.lms_course_id).first()
-    if discovery_official_course_run:
-        # Just sanity ensure that UUIDs will match (might be mismatched from prior or current bugs)
-        defaults['uuid'] = discovery_official_course_run.uuid
-
-    discovery_course_run, __ = CourseRun.everything.update_or_create(
-        key=course_run.lms_course_id, draft=True, defaults=defaults
-    )
-    discovery_course_run.transcript_languages.add(*course_run.transcript_languages.all())
-    discovery_course_run.staff.clear()
-    discovery_course_run.staff.add(*course_run.staff.all())
-
-    if discovery_official_course_run and not discovery_official_course_run.draft_version:
-        # Ensure that draft and official are linked. They might be mismatched from prior or current bugs.
-        discovery_official_course_run.draft_version = discovery_course_run
-        discovery_official_course_run.save(suppress_publication=True)
-
-    for entitlement in publisher_course.entitlements.all():
-        CourseEntitlement.everything.update_or_create(  # pylint: disable=no-member
-            course=discovery_course,
-            draft=True,
-            defaults={
-                'mode': SeatType.objects.get(slug=entitlement.mode),
-                'partner': partner,
-                'price': entitlement.price,
-                'currency': entitlement.currency,
-            }
-        )
-
-    for seat in course_run.seats.exclude(type=Seat.CREDIT).order_by('created'):
-        Seat.everything.update_or_create(  # pylint: disable=no-member
-            course_run=discovery_course_run,
-            type=seat.type,
-            currency=seat.currency,
-            draft=True,
-            defaults={
-                'price': seat.price,
-                'upgrade_deadline': seat.calculated_upgrade_deadline,
-            }
-        )
-        if seat.masters_track:
-            Seat.everything.update_or_create(  # pylint: disable=no-member
-                course_run=discovery_course_run,
-                type=Seat.MASTERS,
-                currency=seat.currency,
-                draft=True,
-                defaults={
-                    'price': seat.price,
-                    'upgrade_deadline': seat.calculated_upgrade_deadline,
-                }
-            )
-
-    if created:
-        discovery_course.canonical_course_run = discovery_course_run
-        discovery_course.save()
-
-    if create_official:
-        # This will update or create the official version for the Course,
-        # Course Run, Seats, and Entitlements. We are not creating ecom products in this
-        # case because they are created separately as part of old publisher's publish button.
-        discovery_course_run.update_or_create_official_version(create_ecom_products=False)
+        if response.ok:
+            logger.info('Successfully published [%s] LMS mode for [%s].', track.mode.slug, course_run.key)
+        else:
+            logger.warning('Failed publishing [%s] LMS mode for [%s]: %s', track.mode.slug, course_run.key,
+                           response.content.decode('utf-8'))
 
 
-class MarketingSiteAPIClient(object):
+class MarketingSiteAPIClient:
     """
     The marketing site API client we can use to communicate with the marketing site
     """
@@ -700,3 +640,43 @@ def get_salesforce_util(partner):
         return SalesforceUtil(partner)
     except SalesforceConfiguration.DoesNotExist:
         return None
+
+
+class HTML2TextWithLangSpans(html2text.HTML2Text):
+    # pylint: disable=abstract-method
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.in_lang_span = False
+        self.images_with_size = True
+
+    def handle_tag(self, tag, attrs, start):
+        super().handle_tag(tag, attrs, start)
+        if tag == 'span':
+            if attrs:
+                attr_dict = dict(attrs)
+                if start and 'lang' in attr_dict:
+                    self.outtextf(u'<span lang="{}">'.format(attr_dict['lang']))
+                    self.in_lang_span = True
+            if not start:
+                if self.in_lang_span:
+                    self.outtextf('</span>')
+                self.in_lang_span = False
+
+
+def clean_html(content):
+    """Cleans HTML from a string.
+
+    This method converts the HTML to a Markdown string (to remove styles, classes, and other unsupported
+    attributes), and converts the Markdown back to HTML.
+    """
+    cleaned = content.replace('&nbsp;', '')  # Keeping the removal of nbsps for historical consistency
+    cleaned = str(BeautifulSoup(cleaned, 'lxml'))
+    # Need to re-replace the · middot with the entity so that html2text can transform it to * for <ul> in markdown
+    cleaned = cleaned.replace('·', '&middot;')
+    html_converter = HTML2TextWithLangSpans(bodywidth=None)
+    html_converter.wrap_links = False
+    cleaned = html_converter.handle(cleaned).strip()
+    cleaned = markdown.markdown(cleaned)
+
+    return cleaned

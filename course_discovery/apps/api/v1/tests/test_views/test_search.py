@@ -47,7 +47,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         response = self.get_response('software', path=path)
 
         assert response.status_code == 200
-        response_data = response.json()
+        response_data = response.data
 
         # Validate the search results
         expected = {
@@ -164,9 +164,9 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         (list_path, serializers.CourseRunSearchSerializer,
          ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 8),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 43),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 24),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 47),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 25),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -178,24 +178,24 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         ProgramFactory(courses=[course_run.course], status=program_status)
         self.reindex_courses(active_program)
 
-        with self.assertNumQueries(expected_queries, threshold=3):
+        with self.assertNumQueries(expected_queries, threshold=1):  # travis sometimes adds a query
             response = self.get_response('software', path=path)
-            assert response.status_code == 200
-            response_data = response.json()
+        assert response.status_code == 200
+        response_data = response.data
 
-            # Validate the search results
-            expected = {
-                'count': 1,
-                'results': [
-                    self.serialize_course_run_search(course_run, serializer=serializer)
-                ]
-            }
-            self.assertDictContainsSubset(expected, response_data)
+        # Validate the search results
+        expected = {
+            'count': 1,
+            'results': [
+                self.serialize_course_run_search(course_run, serializer=serializer)
+            ]
+        }
+        self.assertDictContainsSubset(expected, response_data)
 
-            # Check that the program is indeed the active one.
-            for key in result_location_keys:
-                response_data = response_data[key]
-            assert response_data == active_program.type.name
+        # Check that the program is indeed the active one.
+        for key in result_location_keys:
+            response_data = response_data[key]
+        assert response_data == active_program.type.name
 
     @ddt.data(
         ([{'title': 'Software Testing', 'excluded': True}], 6),
@@ -290,6 +290,15 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         data = response.json()
         assert data['objects']['results'] == [self.serialize_course_run_search(visible_run)]
 
+    def test_non_marketable_runs_excluded(self):
+        """Search results should not include non-marketable runs."""
+        marketable_run = CourseRunFactory(course__partner=self.partner, type__is_marketable=True)
+        CourseRunFactory(course__partner=self.partner, type__is_marketable=False)
+
+        response = self.get_response()
+        data = response.json()
+        self.assertListEqual(data['objects']['results'], [self.serialize_course_run_search(marketable_run)])
+
     def test_results_filtered_by_default_partner(self):
         """ Verify the search results only include items related to the default partner if no partner is
         specified on the request. If a partner is included, the data should be filtered to the requested partner. """
@@ -338,7 +347,8 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(weeks=4))
         course_run_keys = [course_run.key for course_run in [archived, current, starting_soon, upcoming]]
 
-        response = self.get_response({"ordering": ordering})
+        with self.assertNumQueries(9):
+            response = self.get_response({"ordering": ordering})
         assert response.status_code == 200
         assert response.data['objects']['count'] == 4
 
@@ -435,7 +445,8 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
         data = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
         expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
-        response = self.client.post(self.path, data=data, format='json')
+        with self.assertNumQueries(6):
+            response = self.client.post(self.path, data=data, format='json')
         assert response.json() == expected
 
     def test_get(self):
@@ -608,12 +619,22 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
     def test_typeahead_authoring_organizations_partial_search(self):
         """ Test typeahead response with partial organization matching. """
         authoring_organizations = OrganizationFactory.create_batch(3)
-        course_run = CourseRunFactory(authoring_organizations=authoring_organizations, course__partner=self.partner)
-        program = ProgramFactory(authoring_organizations=authoring_organizations, partner=self.partner)
+        course_run = CourseRunFactory.create(course__partner=self.partner)
+        program = ProgramFactory.create(partner=self.partner)
+        for authoring_organization in authoring_organizations:
+            course_run.authoring_organizations.add(authoring_organization)
+            program.authoring_organizations.add(authoring_organization)
+        course_run.save()
+        program.save()
         partial_key = authoring_organizations[0].key[0:5]
 
         response = self.get_response({'q': partial_key})
         self.assertEqual(response.status_code, 200)
+
+        # This call is flaky in Travis. It is reliable locally, but occasionally in our CI environment,
+        # this call won't contain the data for course_runs and programs. Instead of relying on the factories
+        # we now explicitly add the authoring organizations to a course_run and program and call .save()
+        # in order to update the search indexes.
         expected = {
             'course_runs': [self.serialize_course_run_search(course_run)],
             'programs': [self.serialize_program_search(program)]
@@ -699,7 +720,6 @@ class AutoCompletePersonTests(mixins.APITestCase):
         super(AutoCompletePersonTests, self).setUp()
         self.user = UserFactory(is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.courses = publisher_factories.CourseFactory.create_batch(3, title='Some random course title')
 
         first_instructor = PersonFactory(given_name="First", family_name="Instructor")
         second_instructor = PersonFactory(given_name="Second", family_name="Instructor")
@@ -710,8 +730,6 @@ class AutoCompletePersonTests(mixins.APITestCase):
 
         for instructor in self.instructors:
             PositionFactory(organization=self.organizations[0], title="professor", person=instructor)
-
-        self.course_runs = [publisher_factories.CourseRunFactory(course=course) for course in self.courses]
 
         for organization in self.organizations:
             org_ex = publisher_factories.OrganizationExtensionFactory(organization=organization)

@@ -123,7 +123,7 @@ class TestProgramViewSet(SerializationMixin):
         # 36 queries to get program without a curriculum and no courses
         # +2 for curriculum details (related courses, related programs)
         # +8 for course details on 1 or more courses across all sibling curricula
-        with django_assert_num_queries(FuzzyInt(46, 2)):
+        with django_assert_num_queries(46):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 
@@ -142,7 +142,7 @@ class TestProgramViewSet(SerializationMixin):
             curriculum=curriculum
         )
 
-        with django_assert_num_queries(FuzzyInt(61, 2)):
+        with django_assert_num_queries(FuzzyInt(60, 2)):
             response = self.assert_retrieve_success(parent_program)
         assert response.data == self.serialize_program(parent_program)
 
@@ -158,7 +158,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(FuzzyInt(40, 2)):
+        with django_assert_num_queries(FuzzyInt(42, 1)):  # travis is often 43
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())  # pylint: disable=no-member

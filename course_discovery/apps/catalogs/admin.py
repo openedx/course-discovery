@@ -9,5 +9,5 @@ class CatalogAdmin(GuardedModelAdmin):
     list_display = ('name',)
     readonly_fields = ('created', 'modified',)
 
-    class Media(object):
+    class Media:
         js = ('js/catalogs-change-form.js',)
