@@ -178,6 +178,7 @@ class TestSerializeSeatForEcommerceApi(TestCase):
             'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
             'price': str(seat.price),
             'product_class': 'Seat',
+            'stockrecords': [{'partner_sku': seat.sku}],
             'attribute_values': [
                 {
                     'name': 'certificate_type',
@@ -189,6 +190,10 @@ class TestSerializeSeatForEcommerceApi(TestCase):
                 }
             ]
         }
+        self.assertEqual(actual, expected)
+        seat.sku = None
+        actual = serialize_seat_for_ecommerce_api(seat, mode)
+        expected['stockrecords'][0]['partner_sku'] = None
         self.assertEqual(actual, expected)
 
 

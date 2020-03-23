@@ -415,6 +415,7 @@ def serialize_seat_for_ecommerce_api(seat, mode):
         'expires': serialize_datetime(calculated_seat_upgrade_deadline(seat)),
         'price': str(seat.price),
         'product_class': 'Seat',
+        'stockrecords': [{'partner_sku': getattr(seat, 'sku', None)}],
         'attribute_values': [
             {
                 'name': 'certificate_type',
