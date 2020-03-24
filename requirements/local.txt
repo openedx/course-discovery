@@ -23,9 +23,9 @@ click-log==0.3.2          # via edx-lint
 click==7.1.1              # via click-log, edx-lint
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
-coverage==5.0.3           # via -r requirements/test.in, pytest-cov
-cryptography==2.8         # via authlib, paramiko, pyopenssl, requests
-ddt==1.3.0                # via -r requirements/test.in
+coverage==5.0.4           # via -r requirements/test.in, pytest-cov
+cryptography==2.8         # via authlib, paramiko, social-auth-core
+ddt==1.3.1                # via -r requirements/test.in
 defusedxml==0.6.0         # via djangorestframework-xml, python3-openid, social-auth-core
 django-admin-sortable2==0.7.6  # via -r requirements/base.in
 django-appconf==1.0.3     # via django-compressor
@@ -70,11 +70,11 @@ drf-jwt==1.14.0           # via -c requirements/constraints.txt, edx-drf-extensi
 dry-rest-permissions==0.1.10  # via -r requirements/base.in
 edx-analytics-data-api-client==0.15.5  # via -r requirements/base.in
 edx-auth-backends==3.0.2  # via -r requirements/base.in
-edx-ccx-keys==1.0.0       # via -r requirements/base.in
-edx-django-release-util==0.3.6  # via -r requirements/base.in
+edx-ccx-keys==1.0.1       # via -r requirements/base.in
+edx-django-release-util==0.4.1  # via -r requirements/base.in
 edx-django-sites-extensions==2.4.3  # via -r requirements/base.in
 edx-django-utils==3.0     # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client
-edx-drf-extensions==4.0.2  # via -r requirements/base.in
+edx-drf-extensions==5.0.2  # via -r requirements/base.in
 edx-i18n-tools==0.5.0     # via -r requirements/local.in
 edx-lint==1.4.1           # via -r requirements/test.in
 edx-opaque-keys==2.0.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
@@ -83,7 +83,7 @@ edx-sphinx-theme==1.5.0   # via -r requirements/docs.in
 elasticsearch==1.9.0      # via -c requirements/constraints.txt, -r requirements/base.in
 execnet==1.7.1            # via pytest-xdist
 factory-boy==2.12.0       # via -r requirements/test.in
-faker==4.0.1              # via factory-boy
+faker==4.0.2              # via factory-boy
 freezegun==0.3.15         # via -r requirements/test.in
 future==0.18.2            # via pyjwkest
 html2text==2020.1.16      # via -r requirements/base.in
@@ -115,7 +115,7 @@ pbr==5.4.4                # via stevedore
 pillow==7.0.0             # via -r requirements/base.in, django-stdimage
 pluggy==0.13.1            # via pytest
 polib==1.1.0              # via edx-i18n-tools
-progressbar2==3.50.0      # via django-stdimage
+progressbar2==3.50.1      # via django-stdimage
 psutil==1.2.1             # via edx-django-utils
 py==1.8.1                 # via pytest
 pycodestyle==2.5.0        # via -r requirements/test.in
@@ -132,7 +132,6 @@ pylint-plugin-utils==0.6  # via pylint-celery, pylint-django
 pylint==2.4.2             # via edx-lint, pylint-celery, pylint-django, pylint-plugin-utils
 pymongo==3.10.1           # via edx-opaque-keys
 pynacl==1.3.0             # via paramiko
-pyopenssl==19.1.0         # via requests
 pyparsing==2.4.6          # via packaging
 pyrsistent==0.15.7        # via jsonschema
 pytest-cov==2.8.1         # via -r requirements/test.in
@@ -141,27 +140,27 @@ pytest-django==3.8.0      # via -r requirements/test.in, pytest-django-ordering
 pytest-forked==1.1.3      # via pytest-xdist
 pytest-responses==0.4.0   # via -r requirements/test.in
 pytest-xdist==1.31.0      # via -r requirements/test.in
-pytest==5.4.0             # via -r requirements/test.in, pytest-cov, pytest-django, pytest-django-ordering, pytest-forked, pytest-responses, pytest-xdist
+pytest==5.4.1             # via -r requirements/test.in, pytest-cov, pytest-django, pytest-django-ordering, pytest-forked, pytest-responses, pytest-xdist
 python-dateutil==2.8.1    # via -r requirements/base.in, drf-haystack, edx-drf-extensions, faker, freezegun
 python-utils==2.4.0       # via progressbar2
 python3-openid==3.1.0     # via social-auth-core
 pytz==2019.3              # via -r requirements/base.in, babel, django
-pyyaml==5.3               # via docker-compose, edx-django-release-util, edx-i18n-tools
+pyyaml==5.3.1             # via docker-compose, edx-django-release-util, edx-i18n-tools
 rcssmin==1.0.6            # via django-compressor
 requests-oauthlib==1.3.0  # via social-auth-core
-requests[security]==2.23.0  # via -r requirements/base.in, algoliasearch, coreapi, docker, docker-compose, edx-analytics-data-api-client, edx-drf-extensions, edx-rest-api-client, pyjwkest, requests-oauthlib, responses, simple-salesforce, slumber, social-auth-core, sphinx
+requests==2.23.0          # via -r requirements/base.in, algoliasearch, coreapi, docker, docker-compose, edx-analytics-data-api-client, edx-drf-extensions, edx-rest-api-client, pyjwkest, requests-oauthlib, responses, simple-salesforce, slumber, social-auth-core, sphinx
 responses==0.10.12        # via -r requirements/test.in, pytest-responses
 rest-condition==1.0.3     # via edx-drf-extensions
 rjsmin==1.1.0             # via django-compressor
 selenium==3.141.0         # via -r requirements/test.in
 semantic-version==2.8.4   # via edx-drf-extensions
-simple-salesforce==0.75.3  # via -r requirements/base.in
+simple-salesforce==1.0.0  # via -r requirements/base.in
 simplejson==3.17.0        # via django-rest-swagger
-six==1.14.0               # via astroid, bcrypt, cryptography, django-appconf, django-autocomplete-light, django-choices, django-compressor, django-contrib-comments, django-extensions, django-parler, django-simple-history, django-taggit-serializer, django-waffle, djangorestframework-csv, docker, docker-compose, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, freezegun, jsonschema, libsass, mock, packaging, pathlib2, progressbar2, pyjwkest, pynacl, pyopenssl, pyrsistent, pytest-xdist, python-dateutil, python-utils, responses, social-auth-app-django, social-auth-core, stevedore, transifex-client, unicode-slugify, websocket-client
+six==1.14.0               # via astroid, bcrypt, cryptography, django-appconf, django-autocomplete-light, django-choices, django-compressor, django-contrib-comments, django-extensions, django-parler, django-simple-history, django-taggit-serializer, django-waffle, djangorestframework-csv, docker, docker-compose, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, freezegun, jsonschema, libsass, mock, packaging, pathlib2, progressbar2, pyjwkest, pynacl, pyrsistent, pytest-xdist, python-dateutil, python-utils, responses, social-auth-app-django, social-auth-core, stevedore, transifex-client, unicode-slugify, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==2.0.0    # via sphinx
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in, edx-auth-backends
-social-auth-core==3.2.0   # via edx-auth-backends, social-auth-app-django
+social-auth-core==3.3.0   # via edx-auth-backends, social-auth-app-django
 soupsieve==2.0            # via beautifulsoup4
 sphinx==2.4.4             # via -r requirements/docs.in, edx-sphinx-theme
 sphinxcontrib-applehelp==1.0.2  # via sphinx
@@ -179,10 +178,10 @@ transifex-client==0.12.5  # via -c requirements/constraints.txt, -r requirements
 typed-ast==1.4.1          # via astroid
 unicode-slugify==0.1.3    # via -r requirements/base.in
 unicodecsv==0.14.1        # via djangorestframework-csv
-unidecode==1.1.1          # via unicode-slugify
+unidecode==1.1.1          # via social-auth-core, unicode-slugify
 uritemplate==3.0.1        # via coreapi
 urllib3==1.25.8           # via elasticsearch, requests, selenium, transifex-client
-wcwidth==0.1.8            # via pytest
+wcwidth==0.1.9            # via pytest
 websocket-client==0.57.0  # via docker, docker-compose
 wrapt==1.11.2             # via astroid
 xss-utils==0.1.2          # via -r requirements/base.in
