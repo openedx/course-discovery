@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 NODE_BIN=$(CURDIR)/node_modules/.bin
 
-.PHONY: accept clean clean_static detect_changed_source_translations extract_translations \
+.PHONY: accept clean clean_static check_keywords detect_changed_source_translations extract_translations \
 	help html_coverage migrate open-devstack production-requirements pull_translations quality requirements.js \
 	requirements start-devstack static stop-devstack test docs static.dev static.watch
 
@@ -108,3 +108,6 @@ detect_changed_source_translations: ## Check if translation files are up-to-date
 
 docs:
 	cd docs && make html
+
+check_keywords: ## Scan the Django models in all installed apps in this project for restricted field names
+	python manage.py check_reserved_keywords --override_file db_keyword_overrides.yml --report_file stich_keyword_report.csv --system STITCH
