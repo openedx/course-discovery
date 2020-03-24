@@ -123,6 +123,3 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
     class Meta(TimeStampedModel.Meta):
         abstract = False
         app_label = 'catalogs'
-        permissions = (
-            ('view_catalog', 'Can view catalog'),
-        )
