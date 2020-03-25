@@ -11,3 +11,5 @@ docker-compose
 edx-i18n-tools
 pyinotify                                  # For devserver code reloading
 transifex-client
+python-memcached  # needed for the docker test environment
+mysqlclient  # needed for the docker test environment

@@ -55,7 +55,8 @@ upgrade:
 
 test: clean ## Run tests and generate coverage report
 	## The node_modules .bin directory is added to ensure we have access to Geckodriver.
-	PATH="$(NODE_BIN):$(PATH)" pytest --ds=course_discovery.settings.test --durations=25
+	pip install --upgrade tox
+	PATH="$(NODE_BIN):$(PATH)" tox -e py35-django111
 	coverage combine || true  # will fail if nothing to do, but don't abort if that happens
 	coverage report
 
