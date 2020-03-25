@@ -9,7 +9,9 @@ var BundleTracker = require('webpack-bundle-tracker'),
         {
             loader: 'sass-loader',
             options: {
-                includePaths: [path.resolve('./sass/')]
+                sassOptions: {
+                    includePaths: [path.resolve('./sass/')]
+                }
             }
         }
     ],
