@@ -17,7 +17,7 @@ services:
       - ./.dev/volumes/db:/var/lib/mysql
 
   es:
-    image: elasticsearch:1.5.2
+    image: elasticsearch:1.7.6
     container_name: es
     volumes:
       - ./.dev/volumes/es/data:/usr/share/elasticsearch/data
@@ -28,7 +28,7 @@ services:
       - "9300:9300"
 
   memcached:
-    image: memcached:1.4.24
+    image: memcached:1.6.2
     container_name: memcached
 
   course-discovery:
