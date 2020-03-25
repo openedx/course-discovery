@@ -6,5 +6,15 @@
 #   - ModelName.field_name
 ---
 MYSQL:
+    - BackfillCourseRunSlugsConfig.all
+    - Organization.key
+    - Course.key
+    - HistoricalOrganization.key
+    - CourseRun.key
+    - HistoricalCourse.key
+    - HistoricalCourseRun.key
 SNOWFLAKE:
+    - CourseRun.start
+    - BackfillCourseRunSlugsConfig.all
+    - HistoricalCourseRun.start
 STITCH:
