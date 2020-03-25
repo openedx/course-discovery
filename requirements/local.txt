@@ -186,6 +186,8 @@ websocket-client==0.57.0  # via docker, docker-compose
 wrapt==1.11.2             # via astroid
 xss-utils==0.1.2          # via -r requirements/base.in
 zipp==1.2.0               # via importlib-metadata
+mysqlclient
+python-memcached
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
