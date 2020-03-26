@@ -61,7 +61,7 @@ upgrade:
 
 test: clean ## Run tests and generate coverage report
 	## The node_modules .bin directory is added to ensure we have access to Geckodriver.
-	PATH="$(NODE_BIN):$(PATH)" $(TOX)pytest --ds=course_discovery.settings.test --durations=25
+	PATH="$(NODE_BIN):$(PATH)" $(TOX)
 	coverage combine || true  # will fail if nothing to do, but don't abort if that happens
 	coverage report
 
