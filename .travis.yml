@@ -45,10 +45,10 @@ matrix:
       env: TOXENV=django22
 
 install:
-    #- docker exec -t discovery bash -c 'sed -i "s|http://archive|http://us.archive|g" /etc/apt/sources.list' # US mirrors for speed
-  - docker exec -t discovery bash -c 'apt update && apt install -y firefox gettext xvfb'
+  - docker exec -t discovery bash -c 'sed -i "s|http://archive|http://us.archive|g" /etc/apt/sources.list' # US mirrors for speed
+  - docker exec -t discovery bash -c 'apt update && apt install -y --no-install-recommends firefox gettext xvfb'
   - docker exec -t discovery bash -c 'sed -i "s/course_discovery.settings.devstack/course_discovery.settings.test/" /edx/app/discovery/discovery_env'
-  - docker exec -e TOXENV=$TOXENV -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make requirements'
+  - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make requirements.js'
 
 script:
   - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make clean_static'
