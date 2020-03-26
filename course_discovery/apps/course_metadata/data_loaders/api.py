@@ -36,10 +36,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
 
         initial_page = 1
-        response = self._make_request(initial_page)
+        response, status_code = self._make_request(initial_page)
         count = response['pagination']['count']
         pages = response['pagination']['num_pages']
-        self._process_response(response)
+        self._process_response(response, status_code)
 
         pagerange = range(initial_page + 1, pages + 1)
         logger.info('Looping to request all %d pages...', pages)
@@ -62,15 +62,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     # will take ~30 minutes.
                     # TODO Ticket to gracefully handle 429 https://openedx.atlassian.net/browse/LEARNER-5565
                     time.sleep(30)
-                    response = future.result()
-                    self._process_response(response)
+                    response, status_code = future.result()
+                    self._process_response(response, status_code)
 
         logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
-        response = self._make_request(page)
-        self._process_response(response)
+        response, status_code = self._make_request(page)
+        self._process_response(response, status_code)
 
     def _fatal_code(ex):  # pylint: disable=no-self-argument
         return ex.response.status_code != 429  # pylint: disable=no-member
@@ -89,7 +89,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         params = {'page': page, 'page_size': self.PAGE_SIZE}
         response = self.api_client.get(self.api_url + '/courses/', params=params)
         try:
-            return response.json()
+            return response.json(), response.status_code
         except JSONDecodeError:
             logger.warning('JSONDecodeError was encountered on page {page} when hitting the LMS Courses API.'.format(
                 page=page
@@ -103,13 +103,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
             )
             raise
 
-    def _process_response(self, response):
+    def _process_response(self, response, status_code):
         try:
             results = response['results']
         except KeyError:
             logger.warning('KeyError was encountered when hitting the LMS Courses API.')
             # At this point, response is just a dictionary
-            logger.info('Response had data: {data}'.format(data=response))
+            logger.info('Response had status code: [{code}].\nResponse had data: {data}'.format(
+                code=status_code, data=response
+            ))
             raise
         logger.info('Retrieved %d course runs...', len(results))
 
