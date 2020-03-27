@@ -9,7 +9,7 @@ TOX = ''
 include .travis/docker.mk
 
 ifdef TOXENV
-TOX := tox -- #to isolate each tox environment if TOXENV is defined
+TOX := tox -- # to isolate each tox environment if TOXENV is defined
 endif
 
 
