@@ -13,8 +13,30 @@ from course_discovery.apps.publisher.forms import OrganizationExtensionForm, Use
 from course_discovery.apps.publisher.models import OrganizationExtension, OrganizationUserRole, UserAttributes
 
 
+class myModelAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        perm = super().has_module_permission(request)
+        return perm or request.user.is_staff
+
+    def has_view_permission(self, request, obj=None):
+        perm = super().has_view_permission(request, obj)
+        return perm or request.user.is_staff
+
+    def has_add_permission(self, request):
+        perm = super().has_add_permission(request)
+        return perm or request.user.is_staff
+
+    def has_change_permission(self, request, obj=None):
+        perm = super().has_change_permission(request, obj)
+        return perm or request.user.is_staff
+
+    def has_delete_permission(self, request, obj=None):
+        perm = super().has_delete_permission(request, obj)
+        return perm or request.user.is_staff
+
+
 @admin.register(OrganizationExtension)
-class OrganizationExtensionAdmin(GuardedModelAdminMixin, SimpleHistoryAdmin):
+class OrganizationExtensionAdmin(GuardedModelAdminMixin, SimpleHistoryAdmin, myModelAdmin):
     form = OrganizationExtensionForm
     list_display = ['organization', 'group']
     search_fields = ['organization__name', 'group__name']
@@ -25,12 +47,12 @@ class OrganizationExtensionAdmin(GuardedModelAdminMixin, SimpleHistoryAdmin):
 
 
 @admin.register(UserAttributes)
-class UserAttributesAdmin(admin.ModelAdmin):
+class UserAttributesAdmin(myModelAdmin):
     form = UserAttributesAdminForm
 
 
 @admin.register(OrganizationUserRole)
-class OrganizationUserRoleAdmin(SimpleHistoryAdmin):
+class OrganizationUserRoleAdmin(SimpleHistoryAdmin, myModelAdmin):
     raw_id_fields = ('user', 'organization',)
     list_display = ['role', 'organization', 'user']
     search_fields = ['organization__name']

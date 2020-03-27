@@ -22,6 +22,28 @@ PUBLICATION_FAILURE_MSG_TPL = _(
 )
 
 
+class myModelAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        perm = super().has_module_permission(request)
+        return perm or request.user.is_staff
+
+    def has_view_permission(self, request, obj=None):
+        perm = super().has_view_permission(request, obj)
+        return perm or request.user.is_staff
+
+    def has_add_permission(self, request):
+        perm = super().has_add_permission(request)
+        return perm or request.user.is_staff
+
+    def has_change_permission(self, request, obj=None):
+        perm = super().has_change_permission(request, obj)
+        return perm or request.user.is_staff
+
+    def has_delete_permission(self, request, obj=None):
+        perm = super().has_delete_permission(request, obj)
+        return perm or request.user.is_staff
+
+
 class ProgramEligibilityFilter(admin.SimpleListFilter):
     title = _('eligible for one-click purchase')
     parameter_name = 'eligible_for_one_click_purchase'
@@ -71,7 +93,7 @@ class PersonAreaOfExpertiseInline(admin.TabularInline):
 
 
 @admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
+class CourseAdmin(myModelAdmin):
     form = CourseAdminForm
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
@@ -82,14 +104,14 @@ class CourseAdmin(admin.ModelAdmin):
 
 
 @admin.register(CourseEditor)
-class CourseEditorAdmin(admin.ModelAdmin):
+class CourseEditorAdmin(myModelAdmin):
     list_display = ('user', 'course',)
     search_fields = ('user__username', 'course__title', 'course__key',)
     raw_id_fields = ('user', 'course',)
 
 
 @admin.register(CourseEntitlement)
-class CourseEntitlementAdmin(admin.ModelAdmin):
+class CourseEntitlementAdmin(myModelAdmin):
     list_display = ['course', 'get_course_key', 'mode', 'draft']
 
     def get_course_key(self, obj):
@@ -102,17 +124,17 @@ class CourseEntitlementAdmin(admin.ModelAdmin):
 
 
 @admin.register(Mode)
-class ModeAdmin(admin.ModelAdmin):
+class ModeAdmin(myModelAdmin):
     list_display = ['slug', 'name']
 
 
 @admin.register(Track)
-class TrackAdmin(admin.ModelAdmin):
+class TrackAdmin(myModelAdmin):
     list_display = ['mode', 'seat_type']
 
 
 @admin.register(CourseRunType)
-class CourseRunTypeAdmin(admin.ModelAdmin):
+class CourseRunTypeAdmin(myModelAdmin):
     list_display = ['uuid', 'name']
     search_fields = ['uuid', 'name']
 
@@ -127,14 +149,14 @@ class CourseTypeAdminForm(ModelForm):
 
 
 @admin.register(CourseType)
-class CourseTypeAdmin(admin.ModelAdmin):
+class CourseTypeAdmin(myModelAdmin):
     list_display = ['uuid', 'name']
     search_fields = ['uuid', 'name']
     form = CourseTypeAdminForm
 
 
 @admin.register(CourseRun)
-class CourseRunAdmin(admin.ModelAdmin):
+class CourseRunAdmin(myModelAdmin):
     inlines = (SeatInline,)
     list_display = ('uuid', 'key', 'external_key', 'title', 'status', 'draft',)
     list_filter = (
@@ -169,7 +191,7 @@ class CourseRunAdmin(admin.ModelAdmin):
 
 
 @admin.register(Program)
-class ProgramAdmin(admin.ModelAdmin):
+class ProgramAdmin(myModelAdmin):
     form = ProgramAdminForm
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
     list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden',)
@@ -238,7 +260,7 @@ class ProgramAdmin(admin.ModelAdmin):
 
 
 @admin.register(Pathway)
-class PathwayAdmin(admin.ModelAdmin):
+class PathwayAdmin(myModelAdmin):
     form = PathwayAdminForm
     readonly_fields = ('uuid',)
     list_display = ('name', 'uuid', 'org_name', 'partner', 'email', 'destination_url', 'pathway_type',)
@@ -246,45 +268,45 @@ class PathwayAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProgramType)
-class ProgramTypeAdmin(admin.ModelAdmin):
+class ProgramTypeAdmin(myModelAdmin):
     list_display = ('name', 'slug',)
 
 
 @admin.register(Seat)
-class SeatAdmin(admin.ModelAdmin):
+class SeatAdmin(myModelAdmin):
     list_display = ('course_run', 'type', 'draft', 'upgrade_deadline_override',)
     raw_id_fields = ('draft_version',)
     readonly_fields = ('_upgrade_deadline',)
 
 
 @admin.register(SeatType)
-class SeatTypeAdmin(admin.ModelAdmin):
+class SeatTypeAdmin(myModelAdmin):
     list_display = ('name', 'slug',)
     readonly_fields = ('slug',)
 
 
 @admin.register(Endorsement)
-class EndorsementAdmin(admin.ModelAdmin):
+class EndorsementAdmin(myModelAdmin):
     list_display = ('endorser',)
 
 
 @admin.register(CorporateEndorsement)
-class CorporateEndorsementAdmin(admin.ModelAdmin):
+class CorporateEndorsementAdmin(myModelAdmin):
     list_display = ('corporation_name',)
 
 
 @admin.register(FAQ)
-class FAQAdmin(admin.ModelAdmin):
+class FAQAdmin(myModelAdmin):
     list_display = ('question',)
 
 
 @admin.register(Ranking)
-class RankingAdmin(admin.ModelAdmin):
+class RankingAdmin(myModelAdmin):
     list_display = ('rank', 'description', 'source')
 
 
 @admin.register(AdditionalPromoArea)
-class AdditionalPromoAreaAdmin(admin.ModelAdmin):
+class AdditionalPromoAreaAdmin(myModelAdmin):
     list_display = ('title', 'description', 'courses')
     search_fields = ('description',)
 
@@ -304,7 +326,7 @@ class OrganizationUserRoleInline(admin.TabularInline):
 
 
 @admin.register(Organization)
-class OrganizationAdmin(admin.ModelAdmin):
+class OrganizationAdmin(myModelAdmin):
     list_display = ('uuid', 'key', 'name',)
     inlines = [OrganizationUserRoleInline, ]
     list_filter = ('partner',)
@@ -329,7 +351,7 @@ class TopicAdmin(TranslatableAdmin):
 
 
 @admin.register(Person)
-class PersonAdmin(admin.ModelAdmin):
+class PersonAdmin(myModelAdmin):
     inlines = (PositionInline, PersonSocialNetworkInline, PersonAreaOfExpertiseInline)
     list_display = ('uuid', 'salutation', 'family_name', 'given_name', 'bio_language', 'slug',)
     list_filter = ('partner', 'bio_language')
@@ -339,7 +361,7 @@ class PersonAdmin(admin.ModelAdmin):
 
 
 @admin.register(Position)
-class PositionAdmin(admin.ModelAdmin):
+class PositionAdmin(myModelAdmin):
     list_display = ('person', 'organization', 'organization_override',)
     search_fields = ('person__given_name',)
 
@@ -354,20 +376,20 @@ class PositionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Video)
-class VideoAdmin(admin.ModelAdmin):
+class VideoAdmin(myModelAdmin):
     list_display = ('src', 'description',)
     search_fields = ('src', 'description',)
 
 
 @admin.register(Prerequisite)
-class PrerequisiteAdmin(admin.ModelAdmin):
+class PrerequisiteAdmin(myModelAdmin):
     list_display = ('name',)
     ordering = ('name',)
     search_fields = ('name',)
 
 
 @admin.register(LevelType)
-class LevelTypeAdmin(SortableAdminMixin, admin.ModelAdmin):
+class LevelTypeAdmin(SortableAdminMixin, myModelAdmin):
     list_display = ('name', 'sort_value')
     search_fields = ('name',)
 
@@ -410,23 +432,23 @@ class CurriculumCourseRunExclusionInline(admin.TabularInline):
 
 
 @admin.register(CurriculumProgramMembership)
-class CurriculumProgramMembershipAdmin(admin.ModelAdmin):
+class CurriculumProgramMembershipAdmin(myModelAdmin):
     list_display = ('curriculum', 'program')
 
 
 @admin.register(CurriculumCourseMembership)
-class CurriculumCourseMembershipAdmin(admin.ModelAdmin):
+class CurriculumCourseMembershipAdmin(myModelAdmin):
     list_display = ('curriculum', 'course')
     inlines = (CurriculumCourseRunExclusionInline,)
 
 
 @admin.register(CurriculumCourseRunExclusion)
-class CurriculumCourseRunExclusionAdmin(admin.ModelAdmin):
+class CurriculumCourseRunExclusionAdmin(myModelAdmin):
     list_display = ("course_membership", "course_run")
 
 
 @admin.register(Curriculum)
-class CurriculumAdmin(admin.ModelAdmin):
+class CurriculumAdmin(myModelAdmin):
     list_display = ('uuid', 'program', 'name', 'is_active')
     inlines = (CurriculumProgramMembershipInline, CurriculumCourseMembershipInline)
 
@@ -444,12 +466,12 @@ class IconTextPairingInline(admin.StackedInline):
 
 
 @admin.register(DegreeDeadline)
-class DegreeDeadlineAdmin(admin.ModelAdmin):
+class DegreeDeadlineAdmin(myModelAdmin):
     list_display = ('degree', 'semester', 'name', 'date', 'time')
 
 
 @admin.register(DegreeCost)
-class DegreeCostAdmin(admin.ModelAdmin):
+class DegreeCostAdmin(myModelAdmin):
     list_display = ('degree', 'description', 'amount')
 
 
@@ -464,7 +486,7 @@ class DegreeCostInlineAdmin(admin.StackedInline):
 
 
 @admin.register(Degree)
-class DegreeAdmin(admin.ModelAdmin):
+class DegreeAdmin(myModelAdmin):
     """
     This is an inheritance model from Program
 

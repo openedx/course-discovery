@@ -8,8 +8,30 @@ from course_discovery.apps.core.forms import UserThrottleRateForm
 from course_discovery.apps.core.models import Currency, Partner, SalesforceConfiguration, User, UserThrottleRate
 
 
+class myModelAdmin(admin.ModelAdmin):
+    def has_module_permission(self, request):
+        perm = super().has_module_permission(request)
+        return perm or request.user.is_staff
+
+    def has_view_permission(self, request, obj=None):
+        perm = super().has_view_permission(request, obj)
+        return perm or request.user.is_staff
+
+    def has_add_permission(self, request):
+        perm = super().has_add_permission(request)
+        return perm or request.user.is_staff
+
+    def has_change_permission(self, request, obj=None):
+        perm = super().has_change_permission(request, obj)
+        return perm or request.user.is_staff
+
+    def has_delete_permission(self, request, obj=None):
+        perm = super().has_delete_permission(request, obj)
+        return perm or request.user.is_staff
+
+
 @admin.register(User)
-class CustomUserAdmin(UserAdmin):
+class CustomUserAdmin(myModelAdmin):
     """ Admin configuration for the custom User model. """
     list_display = ('username', 'email', 'full_name', 'first_name', 'last_name', 'is_staff', 'referral_tracking_id')
     fieldsets = (
@@ -21,7 +43,7 @@ class CustomUserAdmin(UserAdmin):
 
 
 @admin.register(UserThrottleRate)
-class UserThrottleRateAdmin(admin.ModelAdmin):
+class UserThrottleRateAdmin(myModelAdmin):
     """ Admin configuration for the UserThrottleRate model. """
     form = UserThrottleRateForm
     list_display = ('user', 'rate',)
@@ -30,14 +52,14 @@ class UserThrottleRateAdmin(admin.ModelAdmin):
 
 
 @admin.register(Currency)
-class CurrencyAdmin(admin.ModelAdmin):
+class CurrencyAdmin(myModelAdmin):
     list_display = ('code', 'name',)
     ordering = ('code', 'name',)
     search_fields = ('code', 'name',)
 
 
 @admin.register(Partner)
-class PartnerAdmin(admin.ModelAdmin):
+class PartnerAdmin(myModelAdmin):
     fieldsets = (
         (None, {
             'fields': ('name', 'short_code', 'lms_url', 'lms_admin_url', 'studio_url', 'publisher_url', 'site')
@@ -66,7 +88,7 @@ class PartnerAdmin(admin.ModelAdmin):
 
 
 @admin.register(SalesforceConfiguration)
-class SalesforceConfigurationAdmin(admin.ModelAdmin):
+class SalesforceConfigurationAdmin(myModelAdmin):
     list_display = (
         'username',
         'password',
