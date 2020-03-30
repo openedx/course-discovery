@@ -37,7 +37,7 @@ django-cors-headers==2.5.3  # via -c requirements/constraints.txt, -r requiremen
 django-debug-toolbar==2.2  # via -r requirements/local.in
 django-dynamic-filenames==1.1.4  # via -r requirements/base.in
 django-elasticsearch-debug-toolbar==2.0.0  # via -r requirements/local.in
-django-extensions==2.2.8  # via -r requirements/base.in
+django-extensions==2.2.9  # via -r requirements/base.in
 django-filter==2.2.0      # via -r requirements/base.in
 django-fsm==2.7.0         # via -r requirements/base.in
 django-guardian==1.5.1    # via -c requirements/constraints.txt, -r requirements/base.in
@@ -73,11 +73,11 @@ edx-auth-backends==3.0.2  # via -r requirements/base.in
 edx-ccx-keys==1.0.1       # via -r requirements/base.in
 edx-django-release-util==0.4.1  # via -r requirements/base.in
 edx-django-sites-extensions==2.4.3  # via -r requirements/base.in
-edx-django-utils==3.0     # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client
+edx-django-utils==3.1     # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client
 edx-drf-extensions==5.0.2  # via -r requirements/base.in
 edx-i18n-tools==0.5.0     # via -r requirements/local.in
 edx-lint==1.4.1           # via -r requirements/test.in
-edx-opaque-keys==2.0.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
+edx-opaque-keys==2.0.2    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
 edx-rest-api-client==4.0.1  # via -c requirements/constraints.txt, -r requirements/base.in
 edx-sphinx-theme==1.5.0   # via -r requirements/docs.in
 elasticsearch==1.9.0      # via -c requirements/constraints.txt, -r requirements/base.in
@@ -89,7 +89,7 @@ future==0.18.2            # via pyjwkest
 html2text==2020.1.16      # via -r requirements/base.in
 idna==2.9                 # via requests
 imagesize==1.2.0          # via sphinx
-importlib-metadata==1.5.0  # via jsonschema, path, pluggy, pytest
+importlib-metadata==1.6.0  # via jsonschema, path, pluggy, pytest
 isort==4.3.21             # via -r requirements/test.in, pylint
 itypes==1.1.0             # via coreapi
 jinja2==2.11.1            # via coreschema, sphinx
@@ -133,7 +133,7 @@ pylint==2.4.2             # via edx-lint, pylint-celery, pylint-django, pylint-p
 pymongo==3.10.1           # via edx-opaque-keys
 pynacl==1.3.0             # via paramiko
 pyparsing==2.4.6          # via packaging
-pyrsistent==0.15.7        # via jsonschema
+pyrsistent==0.16.0        # via jsonschema
 pytest-cov==2.8.1         # via -r requirements/test.in
 pytest-django-ordering==1.2.0  # via -r requirements/test.in
 pytest-django==3.8.0      # via -r requirements/test.in, pytest-django-ordering
@@ -160,7 +160,7 @@ six==1.14.0               # via astroid, bcrypt, cryptography, django-appconf, d
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==2.0.0    # via sphinx
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in, edx-auth-backends
-social-auth-core==3.3.0   # via edx-auth-backends, social-auth-app-django
+social-auth-core==3.3.2   # via edx-auth-backends, social-auth-app-django
 soupsieve==2.0            # via beautifulsoup4
 sphinx==2.4.4             # via -r requirements/docs.in, edx-sphinx-theme
 sphinxcontrib-applehelp==1.0.2  # via sphinx
@@ -178,7 +178,7 @@ transifex-client==0.12.5  # via -c requirements/constraints.txt, -r requirements
 typed-ast==1.4.1          # via astroid
 unicode-slugify==0.1.3    # via -r requirements/base.in
 unicodecsv==0.14.1        # via djangorestframework-csv
-unidecode==1.1.1          # via social-auth-core, unicode-slugify
+unidecode==1.1.1          # via unicode-slugify
 uritemplate==3.0.1        # via coreapi
 urllib3==1.25.8           # via elasticsearch, requests, selenium, transifex-client
 wcwidth==0.1.9            # via pytest

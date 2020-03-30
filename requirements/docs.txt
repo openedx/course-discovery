@@ -30,7 +30,7 @@ requests==2.23.0          # via requests-oauthlib, social-auth-core, sphinx
 six==1.14.0               # via cryptography, edx-sphinx-theme, packaging, social-auth-app-django, social-auth-core
 snowballstemmer==2.0.0    # via sphinx
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in
-social-auth-core==3.3.0   # via social-auth-app-django
+social-auth-core==3.3.2   # via social-auth-app-django
 sphinx==2.4.4             # via -r requirements/docs.in, edx-sphinx-theme
 sphinxcontrib-applehelp==1.0.2  # via sphinx
 sphinxcontrib-devhelp==1.0.2  # via sphinx
@@ -38,7 +38,6 @@ sphinxcontrib-htmlhelp==1.0.3  # via sphinx
 sphinxcontrib-jsmath==1.0.1  # via sphinx
 sphinxcontrib-qthelp==1.0.3  # via sphinx
 sphinxcontrib-serializinghtml==1.1.4  # via sphinx
-unidecode==1.1.1          # via social-auth-core
 urllib3==1.25.8           # via requests
 
 # The following packages are considered to be unsafe in a requirements file:
