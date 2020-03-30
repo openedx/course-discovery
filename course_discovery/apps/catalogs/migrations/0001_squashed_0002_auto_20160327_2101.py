@@ -3,8 +3,6 @@
 from __future__ import unicode_literals
 
 import django_extensions.db.fields
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.db import migrations, models
 
 
@@ -16,23 +14,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
     ]
-
-    def create_view_permission(apps, schema_editor):
-        content_type = ContentType.objects.get(app_label="catalogs", model="catalog")
-        # Django 2.1 creates these views by default, so this ensures we don't violate uniqueness constraints.
-        if not Permission.objects.filter(codename='view_catalog').exists():
-            Permission.objects.get_or_create(
-                codename='view_catalog',
-                name='Can view catalog',
-                content_type=content_type,
-            )
-
-    def destroy_view_permission(apps, schema_editor):
-        try:
-            permission = Permission.objects.get(codename='view_catalog')
-            permission.delete()
-        except Permission.DoesNotExist:
-            pass
 
     operations = [
         migrations.CreateModel(
@@ -52,5 +33,4 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
         ),
-        migrations.RunPython(code=create_view_permission, reverse_code=destroy_view_permission)
     ]
