@@ -3,6 +3,7 @@ Tests for affiliate tracking cookies.
 """
 from django.test import TestCase
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
 
 from acceptance_tests.config import (
     AFFILIATE_COOKIE_NAME, BASIC_AUTH_PASSWORD, BASIC_AUTH_USERNAME, COOKIE_DOMAIN, ECOMMERCE_URL_ROOT, LMS_URL_ROOT,
@@ -34,7 +35,9 @@ class AffiliateCookieTestMixin:
 
     def setUp(self):
         super().setUp()
-        self.browser = webdriver.Firefox()
+        opts = Options()
+        opts.set_headless()
+        self.browser = webdriver.Firefox(opts)
         self.cookie_name = AFFILIATE_COOKIE_NAME
         self.cookie_domain = COOKIE_DOMAIN
 

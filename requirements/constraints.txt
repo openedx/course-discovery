@@ -29,3 +29,6 @@ drf-jwt<1.15.0
 
 # Not properly supporting latest version of edx-rest-api-client
 edx-rest-api-client==4.0.1
+
+# the upgrade to 3.3.0 is what triggered users to lose superuser status; see ARCHBOM-1078 for details.
+social-auth-core==3.2.0

@@ -9,6 +9,7 @@ from django.test import LiveServerTestCase, TestCase
 from django.urls import reverse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
@@ -233,7 +234,9 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.browser = webdriver.Firefox()
+        opts = Options()
+        opts.set_headless()
+        cls.browser = webdriver.Firefox(options=opts)
         cls.browser.set_window_size(1024, 768)
 
     @classmethod

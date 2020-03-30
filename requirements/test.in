@@ -7,7 +7,9 @@ factory-boy
 freezegun
 isort
 mock
+mysqlclient
 pycodestyle
+python-memcached
 pytest
 pytest-cov
 pytest-django
@@ -17,3 +19,4 @@ pytest-xdist
 responses
 selenium
 testfixtures
+tox

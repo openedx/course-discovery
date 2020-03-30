@@ -15,7 +15,7 @@ cffi==1.14.0              # via cryptography
 chardet==3.0.4            # via requests
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
-cryptography==2.8         # via authlib, social-auth-core
+cryptography==2.8         # via authlib
 defusedxml==0.6.0         # via djangorestframework-xml, python3-openid, social-auth-core
 django-admin-sortable2==0.7.6  # via -r requirements/base.in
 django-appconf==1.0.3     # via django-compressor
@@ -25,7 +25,7 @@ django-compressor==2.4    # via -r requirements/base.in, django-libsass
 django-contrib-comments==1.9.2  # via -r requirements/base.in
 django-cors-headers==2.5.3  # via -c requirements/constraints.txt, -r requirements/base.in
 django-dynamic-filenames==1.1.4  # via -r requirements/base.in
-django-extensions==2.2.8  # via -r requirements/base.in
+django-extensions==2.2.9  # via -r requirements/base.in
 django-filter==2.2.0      # via -r requirements/base.in
 django-fsm==2.7.0         # via -r requirements/base.in
 django-guardian==1.5.1    # via -c requirements/constraints.txt, -r requirements/base.in
@@ -58,9 +58,9 @@ edx-auth-backends==3.0.2  # via -r requirements/base.in
 edx-ccx-keys==1.0.1       # via -r requirements/base.in
 edx-django-release-util==0.4.1  # via -r requirements/base.in
 edx-django-sites-extensions==2.4.3  # via -r requirements/base.in
-edx-django-utils==3.0     # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client
+edx-django-utils==3.1     # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client
 edx-drf-extensions==5.0.2  # via -r requirements/base.in
-edx-opaque-keys==2.0.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
+edx-opaque-keys==2.0.2    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
 edx-rest-api-client==4.0.1  # via -c requirements/constraints.txt, -r requirements/base.in
 elasticsearch==1.9.0      # via -c requirements/constraints.txt, -r requirements/base.in
 future==0.18.2            # via django-ses, pyjwkest
@@ -107,12 +107,12 @@ simplejson==3.17.0        # via django-rest-swagger
 six==1.14.0               # via cryptography, django-appconf, django-autocomplete-light, django-choices, django-compressor, django-contrib-comments, django-extensions, django-parler, django-simple-history, django-taggit-serializer, django-waffle, djangorestframework-csv, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-opaque-keys, libsass, progressbar2, pyjwkest, python-dateutil, python-memcached, python-utils, social-auth-app-django, social-auth-core, stevedore, unicode-slugify
 slumber==0.7.1            # via edx-rest-api-client
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in, edx-auth-backends
-social-auth-core==3.3.0   # via edx-auth-backends, social-auth-app-django
+social-auth-core==3.2.0   # via -c requirements/constraints.txt, edx-auth-backends, social-auth-app-django
 soupsieve==2.0            # via beautifulsoup4
 stevedore==1.32.0         # via edx-opaque-keys
 unicode-slugify==0.1.3    # via -r requirements/base.in
 unicodecsv==0.14.1        # via djangorestframework-csv
-unidecode==1.1.1          # via social-auth-core, unicode-slugify
+unidecode==1.1.1          # via unicode-slugify
 uritemplate==3.0.1        # via coreapi
 urllib3==1.25.8           # via elasticsearch, requests
 xss-utils==0.1.2          # via -r requirements/base.in
