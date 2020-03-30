@@ -62,8 +62,6 @@ upgrade:
 test: clean ## Run tests and generate coverage report
 	## The node_modules .bin directory is added to ensure we have access to Geckodriver.
 	PATH="$(NODE_BIN):$(PATH)" $(TOX)
-	coverage combine || true  # will fail if nothing to do, but don't abort if that happens
-	coverage report
 
 quality: ## Run pycodestyle and pylint
 	isort --check-only --diff --recursive acceptance_tests/ course_discovery/
