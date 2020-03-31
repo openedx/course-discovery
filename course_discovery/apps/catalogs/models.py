@@ -125,3 +125,6 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         permissions = (
             ('view_catalog', 'Can view catalog'),
         )
+        # The view permission was added in 2.1, as result two view permissions tries to insert into db and triggers
+        # integrity error. Customize the default permission list and removed view from there
+        default_permissions = ('add', 'change', 'delete',)
