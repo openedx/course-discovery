@@ -20,10 +20,6 @@ before_install:
     - make travis_up
 
 matrix:
-  allow_failures:
-      - env: TOXENV=django20
-      - env: TOXENV=django21
-      - env: TOXENV=django22
   include:
     - env: TOXENV=django111
     - env: COMMAND=test:quality
