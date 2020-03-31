@@ -187,7 +187,8 @@ class FuzzyInt(int):
 
 
 class APITestCase(SiteMixin, RestAPITestCase):
-    def assertNumQueries(self, num, func=None, *args, **kwargs):  # pylint: disable=keyword-arg-before-vararg
+    # pylint: disable=keyword-arg-before-vararg, arguments-differ
+    def assertNumQueries(self, num, func=None, *args, **kwargs):
         """
         Overridden method to allow a number of queries within a constant range, rather than
         an exact amount of queries.  This allows us to make changes to views and models that
