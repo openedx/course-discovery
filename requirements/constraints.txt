@@ -9,7 +9,7 @@ elasticsearch<2
 
 # FIXME: 1.8.5 breaks the way we use serialization methods
 # FIXME: 1.8.3 breaks something about OneToOne field validators
-drf-haystack<1.8.3
+drf-haystack==1.8.3
 djangorestframework<3.10  # newer versions drop features that old drf-haystack above still uses
 
 # FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify

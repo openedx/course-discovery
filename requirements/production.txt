@@ -50,7 +50,7 @@ djangorestframework-xml==1.4.0  # via -r requirements/base.in
 djangorestframework==3.9.4  # via -c requirements/constraints.txt, -r requirements/base.in, django-rest-swagger, djangorestframework-csv, drf-extensions, drf-haystack, drf-jwt, edx-drf-extensions, rest-condition
 drf-dynamic-fields==0.3.1  # via -r requirements/base.in
 drf-extensions==0.6.0     # via -r requirements/base.in
-drf-haystack==1.8.2       # via -c requirements/constraints.txt, -r requirements/base.in
+drf-haystack==1.8.3       # via -c requirements/constraints.txt, -r requirements/base.in
 drf-jwt==1.14.0           # via -c requirements/constraints.txt, edx-drf-extensions
 dry-rest-permissions==0.1.10  # via -r requirements/base.in
 edx-analytics-data-api-client==0.15.5  # via -r requirements/base.in
