@@ -10,6 +10,7 @@ import pytz
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import FieldDoesNotExist
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
@@ -20,6 +21,7 @@ from rest_framework import serializers
 from rest_framework.fields import CreateOnlyDefault, DictField, UUIDField
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.relations import ManyRelatedField
+from rest_framework.utils.field_mapping import get_field_kwargs
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from course_discovery.apps.api.fields import (
@@ -85,6 +87,33 @@ SELECT_RELATED_FIELDS = {
     'course': ['level_type', 'partner', 'video'],
     'course_run': ['course', 'language', 'video'],
 }
+
+
+# Implementation from drf-haystack 1.8.6, but without checking for index_fieldname.
+# If we include that (which wasn't in 1.8.2), something doesn't recognize/filter OneToOne or ForeignKey
+# fields and DRF fails while calling validators for those fields.
+
+def get_default_field_kwargs(model, field):
+    kwargs = {}
+    try:
+        field_name = field.model_attr  # chopped off "or field.index_fieldname"
+        model_field = model._meta.get_field(field_name)
+        kwargs.update(get_field_kwargs(field_name, model_field))
+
+        delete_attrs = [
+            "allow_blank",
+            "choices",
+            "model_field",
+            "allow_unicode",
+        ]
+
+        for attr in delete_attrs:
+            if attr in kwargs:
+                del kwargs[attr]
+    except FieldDoesNotExist:
+        pass
+
+    return kwargs
 
 
 def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False, draft=False, official_version=None):
@@ -1836,6 +1865,10 @@ class CourseSearchSerializer(HaystackSerializer):
     course_runs = serializers.SerializerMethodField()
     seat_types = serializers.SerializerMethodField()
 
+    @staticmethod
+    def _get_default_field_kwargs(model, field):
+        return get_default_field_kwargs(model, field)
+
     def get_course_runs(self, result):
         request = self.context['request']
         course_runs = result.object.course_runs.all()
@@ -1991,6 +2024,10 @@ class PersonSearchSerializer(HaystackSerializer):
 
     def get_profile_image_url(self, result):
         return result.object.get_profile_image_url
+
+    @staticmethod
+    def _get_default_field_kwargs(model, field):
+        return get_default_field_kwargs(model, field)
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES

@@ -400,7 +400,9 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',
     },
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
+
 
 # http://chibisov.github.io/drf-extensions/docs/
 REST_FRAMEWORK_EXTENSIONS = {

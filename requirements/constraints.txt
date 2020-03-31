@@ -1,16 +1,11 @@
 # Stay on an LTS release
-django<1.12
+django<2.3
 
-# FIXME: these need Django 2
+# django-guardian>=2 drops support for Django 1.11
 django-guardian<2
 
 # FIXME: 1.x is an ancient version that we should upgrade off of
 elasticsearch<2
-
-# FIXME: 1.8.5 breaks the way we use serialization methods
-# FIXME: 1.8.3 breaks something about OneToOne field validators
-drf-haystack<1.8.3
-djangorestframework<3.10  # newer versions drop features that old drf-haystack above still uses
 
 # FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
 transifex-client<0.13
