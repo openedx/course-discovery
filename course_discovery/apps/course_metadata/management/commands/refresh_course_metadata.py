@@ -67,10 +67,7 @@ class Command(BaseCommand):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
 
         # For each partner defined...
-        # We are excluding Harvard Medical School Global Academy and MIT Professional Education
-        # as they are being decommissioned as part of https://openedx.atlassian.net/browse/ENT-2632 (HMSGA)
-        # and https://openedx.atlassian.net/browse/ENT-2491 (MITPE)
-        partners = Partner.objects.exclude(short_code__in=['hmsga', 'mitpe'])
+        partners = Partner.objects.all()
 
         # If a specific partner was indicated, filter down the set
         partner_code = options.get('partner_code')
