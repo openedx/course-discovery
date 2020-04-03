@@ -13,8 +13,6 @@ from django.core.files import File
 from django.core.management import CommandError
 from django.db.models import Q
 from opaque_keys.edx.keys import CourseKey
-from simplejson.errors import JSONDecodeError
-from slumber.exceptions import HttpClientError
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
@@ -36,10 +34,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
 
         initial_page = 1
-        response, status_code = self._make_request(initial_page)
+        response = self._make_request(initial_page)
         count = response['pagination']['count']
         pages = response['pagination']['num_pages']
-        self._process_response(response, status_code)
+        self._process_response(response)
 
         pagerange = range(initial_page + 1, pages + 1)
         logger.info('Looping to request all %d pages...', pages)
@@ -56,63 +54,40 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     executor.submit(self._load_data, page)
             else:
                 for future in [executor.submit(self._make_request, page) for page in pagerange]:
-                    # This time.sleep is to make it very likely that this method does not encounter a 429 status
-                    # code by increasing the amount of time between each code. More details at LEARNER-5560
-                    # The current crude estimation is for ~3000 courses with a PAGE_SIZE=50 which means this method
-                    # will take ~30 minutes.
-                    # TODO Ticket to gracefully handle 429 https://openedx.atlassian.net/browse/LEARNER-5565
-                    time.sleep(30)
-                    response, status_code = future.result()
-                    self._process_response(response, status_code)
+                    response = future.result()
+                    self._process_response(response)
 
         logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
-        response, status_code = self._make_request(page)
-        self._process_response(response, status_code)
+        response = self._make_request(page)
+        self._process_response(response)
 
     def _fatal_code(ex):  # pylint: disable=no-self-argument
         return ex.response.status_code != 429  # pylint: disable=no-member
 
     # The courses endpoint has a 40 requests/minute rate limit 10/20/40 seconds puts us into the next minute
+    # This backoff code can still fail because of the concurrent requests all requesting at the same time.
+    # So even in the case of entering into the next minute, if we still exceed our limit for that min,
+    # any requests that failed in both limits are still approaching their max_tries limit.
     @backoff.on_exception(
         backoff.expo,
         factor=10,
         jitter=None,
-        max_tries=3,
-        exception=HttpClientError,
+        max_tries=4,
+        exception=requests.exceptions.RequestException,
         giveup=_fatal_code,
     )
     def _make_request(self, page):
         logger.info('Requesting course run page %d...', page)
-        params = {'page': page, 'page_size': self.PAGE_SIZE}
+        params = {'page': page, 'page_size': self.PAGE_SIZE, 'username': self.username}
         response = self.api_client.get(self.api_url + '/courses/', params=params)
-        try:
-            return response.json(), response.status_code
-        except JSONDecodeError:
-            logger.warning('JSONDecodeError was encountered on page {page} when hitting the LMS Courses API.'.format(
-                page=page
-            ))
-            logger.info(
-                '\nResponse had status code: [{code}].\n\n'
-                'Response had content: {content}\n\n'
-                'Response had text: {text}\n'.format(
-                    code=response.status_code, content=response.content, text=response.text
-                )
-            )
-            raise
+        response.raise_for_status()
+        return response.json()
 
-    def _process_response(self, response, status_code):
-        try:
-            results = response['results']
-        except KeyError:
-            logger.warning('KeyError was encountered when hitting the LMS Courses API.')
-            # At this point, response is just a dictionary
-            logger.info('Response had status code: [{code}].\nResponse had data: {data}'.format(
-                code=status_code, data=response
-            ))
-            raise
+    def _process_response(self, response):
+        results = response['results']
         logger.info('Retrieved %d course runs...', len(results))
 
         for body in results:

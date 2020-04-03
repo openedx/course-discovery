@@ -1,6 +1,7 @@
 import abc
 
 from dateutil.parser import parse
+from edx_rest_framework_extensions.auth.jwt.decoder import configured_jwt_decode_handler
 
 from course_discovery.apps.course_metadata.models import Image, Video
 
@@ -27,6 +28,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         self.partner = partner
         self.api_url = api_url.strip('/')
         self.api_client = self.partner.lms_api_client
+        self.username = self.get_username_from_client(self.api_client)
 
         self.max_workers = max_workers
         self.is_threadsafe = is_threadsafe
@@ -34,6 +36,11 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def ingest(self):  # pragma: no cover
         """ Load data for all supported objects (e.g. courses, runs). """
+
+    def get_username_from_client(self, client):
+        token = client.get_jwt_access_token()
+        decoded_jwt = configured_jwt_decode_handler(token)
+        return decoded_jwt.get('preferred_username')
 
     @classmethod
     def clean_string(cls, s):
