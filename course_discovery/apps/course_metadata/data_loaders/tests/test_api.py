@@ -734,6 +734,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     @responses.activate
     def test_ingest(self):
         """ Verify the method ingests data from the E-Commerce API. """
+        TieredCache.dangerous_clear_all_tiers()
         courses_api_data = self.mock_courses_api()
         loaded_course_run_data = courses_api_data[:-1]
         loaded_seat_data = courses_api_data[:-2]
