@@ -80,12 +80,10 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     def test_fatal_code(self):
         response_with_200 = HttpResponse(status=200)
         response_with_429 = HttpResponse(status=429)
-        self.assertEqual(self.loader_class._fatal_code(  # pylint: disable=protected-access
-            HttpClientError(response=response_with_200)), True
-        )
-        self.assertEqual(self.loader_class._fatal_code(  # pylint: disable=protected-access
-            HttpClientError(response=response_with_429)), False
-        )
+        response_with_504 = HttpResponse(status=504)
+        self.assertTrue(self.loader_class._fatal_code(HttpClientError(response=response_with_200)))  # pylint: disable=protected-access
+        self.assertFalse(self.loader_class._fatal_code(HttpClientError(response=response_with_429)))  # pylint: disable=protected-access
+        self.assertFalse(self.loader_class._fatal_code(HttpClientError(response=response_with_504)))  # pylint: disable=protected-access
 
     def assert_course_run_loaded(self, body, partner_uses_publisher=True, draft=False, new_pub=False):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """
