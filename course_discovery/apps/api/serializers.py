@@ -1158,9 +1158,12 @@ class CatalogCourseSerializer(CourseSerializer):
             'prerequisites',
             'subjects',
             'url_slug_history',
+            'editors',
+            'url_redirects',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+            Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
         )
 
     def get_course_runs(self, course):
