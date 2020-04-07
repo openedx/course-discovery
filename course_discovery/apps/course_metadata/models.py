@@ -588,6 +588,8 @@ class CourseRun(TimeStampedModel):
         verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site')
     )
 
+    invite_only = models.BooleanField(default=False)
+
     objects = CourseRunQuerySet.as_manager()
 
     def _enrollable_paid_seats(self):
