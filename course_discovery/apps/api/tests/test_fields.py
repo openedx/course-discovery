@@ -2,10 +2,13 @@ import base64
 
 import pytest
 from django.core.files.base import ContentFile
+from django.test import TestCase
 
-from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
+from course_discovery.apps.api.fields import ImageField, SlugRelatedFieldWithReadSerializer, StdImageSerializerField
+from course_discovery.apps.api.serializers import ProgramSerializer
 from course_discovery.apps.api.tests.test_serializers import make_request
 from course_discovery.apps.core.tests.helpers import make_image_file
+from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
 
 
@@ -67,3 +70,29 @@ class TestStdImageSerializerField:
     @pytest.mark.parametrize('falsey_value', ("", False, None, []))
     def test_to_internal_value_falsey(self, falsey_value):
         assert StdImageSerializerField().to_internal_value(falsey_value) is None
+
+
+class SlugRelatedFieldWithReadSerializerTests(TestCase):
+    """ Tests for SlugRelatedFieldWithReadSerializer """
+    def test_get_choices_no_queryset(self):
+        """ Make sure that we reproduce the empty-state edge case of the parent class's version """
+        serializer = SlugRelatedFieldWithReadSerializer(slug_field='uuid', read_only=True,
+                                                        read_serializer=ProgramSerializer())
+        self.assertIsNone(serializer.get_queryset())
+        self.assertEqual(serializer.get_choices(), {})
+
+    def test_get_choices_cutoff(self):
+        """ We should slice the queryset if provided a cutoff parameter """
+        ProgramFactory()
+        ProgramFactory()
+        serializer = SlugRelatedFieldWithReadSerializer(slug_field='uuid', queryset=Program.objects.all(),
+                                                        read_serializer=ProgramSerializer())
+        self.assertEqual(len(serializer.get_choices()), 2)
+        self.assertEqual(len(serializer.get_choices(cutoff=1)), 1)
+
+    def test_to_representation(self):
+        """ Should be using provided serializer, rather than the slug """
+        program = ProgramFactory()
+        serializer = SlugRelatedFieldWithReadSerializer(slug_field='uuid', queryset=Program.objects.all(),
+                                                        read_serializer=ProgramSerializer())
+        self.assertIsInstance(serializer.to_representation(program), dict)
