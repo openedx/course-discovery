@@ -8,9 +8,9 @@ algoliasearch-django==1.7.1  # via -r requirements/base.in
 algoliasearch==1.20.0     # via algoliasearch-django
 authlib==0.14.1           # via simple-salesforce
 backoff==1.10.0           # via -r requirements/base.in
-beautifulsoup4==4.8.2     # via -r requirements/base.in
+beautifulsoup4==4.9.0     # via -r requirements/base.in
 boto==2.49.0              # via django-ses
-certifi==2019.11.28       # via -r requirements/production.in, requests
+certifi==2020.4.5.1       # via -r requirements/production.in, requests
 cffi==1.14.0              # via cryptography
 chardet==3.0.4            # via requests
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
