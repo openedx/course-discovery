@@ -1,4 +1,5 @@
 import base64
+from collections import OrderedDict
 
 from django.core.files.base import ContentFile
 from rest_framework import serializers
@@ -62,3 +63,60 @@ class HtmlField(serializers.CharField):
         """ Cleans incoming HTML to strip some styling that word processors might inject when copying/pasting. """
         data = super().to_internal_value(data)
         return clean_html(data) if data else data
+
+
+class SlugRelatedFieldWithReadSerializer(serializers.SlugRelatedField):
+    """
+    This field accepts slugs on updates, but provides full serializations on reads.
+
+    This is useful if you want nested serializations, but still want to be able to update the list
+    of nested objects with a simple list of slugs.
+
+    The required parameter read_serializer should be an instance of a serializer to use when
+    providing a full serialization during read. It does not need 'required' or 'many' parameters to
+    be passed. It will always be provided a single object.
+
+    As an example:
+        subjects = SlugRelatedFieldWithReadSerializer(slug_field='slug', required=False, many=True,
+                                                      queryset=Subject.objects.all(),
+                                                      read_serializer=SubjectSerializer())
+
+        update format: {'subjects': ['chemistry']}
+        read format: {'subjects': [{'display_name': 'Chemistry', 'slug': 'chemistry'}]}
+    """
+    def __init__(self, *args, read_serializer=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        assert read_serializer, 'Must specify a read_serializer to SlugRelatedFieldWithReadSerializer'
+        self.read_serializer = read_serializer
+
+        # Connect the child serializer to us, so it can find the root serializer context.
+        # field_name='' is just a DRF trick to force the binding.
+        self.read_serializer.bind(field_name='', parent=self)
+
+    def to_representation(self, obj):
+        return self.read_serializer.to_representation(obj)
+
+    def get_choices(self, cutoff=None):
+        """
+        This is an exact copy of RelatedField.get_choices, but using slugs instead of to_representation.
+
+        See 'delta' comment below.
+        """
+        queryset = self.get_queryset()
+        if queryset is None:
+            # Ensure that field.choices returns something sensible
+            # even when accessed with a read-only field.
+            return {}
+
+        if cutoff is not None:
+            queryset = queryset[:cutoff]
+
+        return OrderedDict([
+            (
+                # this next line here is the only delta from our parent class: from 'self' to 'super(...)'
+                super(SlugRelatedFieldWithReadSerializer, self).to_representation(item),
+                self.display_value(item)
+            )
+            for item in queryset
+        ])

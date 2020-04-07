@@ -19,9 +19,12 @@ from opaque_keys.edx.locator import CourseLocator
 from rest_framework import serializers
 from rest_framework.fields import CreateOnlyDefault, DictField, UUIDField
 from rest_framework.metadata import SimpleMetadata
+from rest_framework.relations import ManyRelatedField
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
-from course_discovery.apps.api.fields import HtmlField, ImageField, StdImageSerializerField
+from course_discovery.apps.api.fields import (
+    HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, StdImageSerializerField
+)
 from course_discovery.apps.api.utils import StudioAPI
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
@@ -796,7 +799,9 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     )
     video = VideoSerializer(required=False, allow_null=True, source='get_video')
     instructors = serializers.SerializerMethodField(help_text='This field is deprecated. Use staff.')
-    staff = MinimalPersonSerializer(required=False, many=True)  # if you change, change to_internal_value too
+    staff = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
+                                               queryset=Person.objects.all(),
+                                               read_serializer=MinimalPersonSerializer())
     level_type = serializers.SlugRelatedField(
         required=False,
         allow_null=True,
@@ -841,14 +846,6 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 
     def get_estimated_hours(self, obj):
         return get_course_run_estimated_hours(obj)
-
-    def to_internal_value(self, data):
-        # Allow incoming writes to just specify a list of slugs for staff
-        self.fields['staff'] = serializers.SlugRelatedField(slug_field='uuid', required=False, many=True,
-                                                            queryset=Person.objects.all())
-        rv = super().to_internal_value(data)
-        self.fields['staff'] = MinimalPersonSerializer(required=False, many=True)
-        return rv
 
     def update_video(self, instance, video_data):
         # A separate video object is a historical concept. These days, we really just use the link address. So
@@ -982,7 +979,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
     level_type = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='name',
                                               queryset=LevelType.objects.all())
-    subjects = SubjectSerializer(required=False, many=True)  # if you change, change to_internal_value too
+    subjects = SlugRelatedFieldWithReadSerializer(slug_field='slug', required=False, many=True,
+                                                  queryset=Subject.objects.all(),
+                                                  read_serializer=SubjectSerializer())
     prerequisites = PrerequisiteSerializer(required=False, many=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
     video = VideoSerializer(required=False)
@@ -1055,16 +1054,6 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         if obj.canonical_course_run:
             return obj.canonical_course_run.key
         return None
-
-    def to_internal_value(self, data):
-        # Allow incoming writes to just specify a list of slugs for subjects
-        self.fields['subjects'] = serializers.SlugRelatedField(slug_field='slug',
-                                                               required=False,
-                                                               many=True,
-                                                               queryset=Subject.objects.all())
-        rv = super().to_internal_value(data)
-        self.fields['subjects'] = SubjectSerializer(required=False, many=True)
-        return rv
 
     def create(self, validated_data):
         return Course.objects.create(**validated_data)
@@ -2200,13 +2189,20 @@ class MetadataWithRelatedChoices(SimpleMetadata):
         # The normal metadata class excludes RelatedFields, but we want them! So we do the same thing the normal
         # class does, but without the RelatedField check.
         if in_whitelist and not info.get('read_only') and hasattr(field, 'choices'):
-            info['choices'] = [
+            choices = [
                 {
                     'value': choice_value,
                     'display_name': choice_name,
                 }
                 for choice_value, choice_name in field.choices.items()
             ]
+            if isinstance(field, ManyRelatedField):
+                # To mirror normal many=True serializers that have a parent ListSerializer, we want to add
+                # a 'child' entry with the choices below that. This is mostly here for historical
+                # not-breaking-the-api reasons.
+                info['child'] = {'choices': choices}
+            else:
+                info['choices'] = choices
 
         return info
 
