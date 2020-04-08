@@ -1845,8 +1845,15 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             authoring_organizations=[organization],
             sponsoring_organizations=[organization],
         )
-        course_run = CourseRunFactory(course=course, end=datetime.datetime.now(UTC) + datetime.timedelta(days=10))
-        course_run_expired = CourseRunFactory(course=course)
+        course_run = CourseRunFactory(
+            course=course,
+            end=datetime.datetime.now(UTC) + datetime.timedelta(days=10)
+        )
+        course_run_expired = CourseRunFactory(
+            course=course,
+            end=datetime.datetime.now(UTC) - datetime.timedelta(days=10),
+            enrollment_end=datetime.datetime.now(UTC) - datetime.timedelta(days=10)
+        )
         course.course_runs.add(course_run, course_run_expired)
         course.save()
         seat = SeatFactory(course_run=course_run)
@@ -1861,7 +1868,11 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             authoring_organizations=[organization],
             sponsoring_organizations=[organization],
         )
-        course_run = CourseRunFactory(course=course)
+        course_run = CourseRunFactory(
+            course=course,
+            end=datetime.datetime.now(UTC) - datetime.timedelta(days=10),
+            enrollment_end=datetime.datetime.now(UTC) - datetime.timedelta(days=10)
+        )
         course.course_runs.add(course_run)
         course.save()
         seat = SeatFactory(course_run=course_run)

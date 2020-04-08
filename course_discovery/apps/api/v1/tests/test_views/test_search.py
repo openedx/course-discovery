@@ -6,6 +6,7 @@ import ddt
 import pytz
 from django.test import TestCase
 from django.urls import reverse
+from rest_framework.renderers import JSONRenderer
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.v1.tests.test_views import mixins
@@ -247,15 +248,15 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 @ddt.ddt
 class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
                                   mixins.SynonymTestMixin, mixins.APITestCase):
-    path = reverse('api:v1:search-all-facets')
 
-    def get_response(self, query=None):
+    def get_response(self, query=None, endpoint='api:v1:search-all-facets'):
         qs = ''
 
         if query:
             qs = urllib.parse.urlencode(query)
 
-        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        path = reverse(endpoint)
+        url = '{path}?{qs}'.format(path=path, qs=qs)
         return self.client.get(url)
 
     def process_response(self, response):
@@ -325,6 +326,40 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         assert response_data['objects']['results'] == \
             [self.serialize_program_search(other_program), self.serialize_course_run_search(other_course_run)]
 
+    @ddt.data((True, 12), (False, 12))
+    @ddt.unpack
+    def test_query_count_exclude_expired_course_run(self, exclude_expired, expected_queries):
+        """ Verify that there is no query explosion when excluding expired course runs. """
+        program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
+        course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
+        course_run2 = CourseRunFactory(course=course_run.course, status=CourseRunStatus.Published)
+        course_run3 = CourseRunFactory(course=course_run.course, status=CourseRunStatus.Published)
+        course_run4 = CourseRunFactory(course=course_run.course, status=CourseRunStatus.Published)
+        self.reindex_courses(program)
+
+        query = {'partner': self.partner.short_code}
+        if exclude_expired:
+            query['exclude_expired_course_run'] = 'True'
+
+        # Filter results by partner
+        with self.assertNumQueries(expected_queries):
+            response = self.get_response(
+                query,
+                endpoint='api:v1:search-all-list'
+            )
+        assert response.status_code == 200
+        response_data = response.json()
+        expected = [
+            self.serialize_course_run_search(run)
+            for run in (course_run, course_run2, course_run3, course_run4)
+        ] + [
+            self.serialize_program_search(program),
+            # We need to render the json, and then parse it again, to get all of the formatted
+            # data the same as the data coming out of search.
+            json.loads(JSONRenderer().render(self.serialize_course_search(course_run.course)).decode('utf-8')),
+        ]
+        self.assertCountEqual(response_data['results'], expected)
+
     def test_empty_query(self):
         """ Verify, when the query (q) parameter is empty, the endpoint behaves as if the parameter
         was not provided. """
@@ -386,6 +421,10 @@ class LimitedAggregateSearchViewSetTests(
     # pylint: disable=no-member
     def serialize_program_search(self, program):
         return super().serialize_program_search(program, serializers.LimitedAggregateSearchSerializer)
+
+    # pylint: disable=no-member
+    def serialize_course_search(self, course):
+        return super().serialize_course_search(course, serializers.LimitedAggregateSearchSerializer)
 
     def test_results_only_include_published_objects(self):
         """ Verify the search results only include items with status set to 'Published'. """

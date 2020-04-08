@@ -266,10 +266,10 @@ class CourseRunFactory(SalesforceRecordFactory):
     full_description_override = None
     language = factory.Iterator(LanguageTag.objects.all())
     start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
-    end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
+    end = FuzzyDateTime(datetime.datetime.now(tz=UTC), datetime.datetime(2030, 1, 1, tzinfo=UTC))
     go_live_date = None
     enrollment_start = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
-    enrollment_end = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC)).end_dt
+    enrollment_end = FuzzyDateTime(datetime.datetime.now(tz=UTC), datetime.datetime(2029, 1, 1, tzinfo=UTC))
     announcement = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC))
     card_image_url = FuzzyURL()
     video = factory.SubFactory(VideoFactory)
