@@ -14,6 +14,7 @@ INTERNAL_IPS = ('127.0.0.1',)
 
 CORS_ORIGIN_WHITELIST = (
     'localhost:18400',  # frontend-app-publisher
+    'localhost:18450',  # frontend-app-support-tools
 )
 
 HAYSTACK_CONNECTIONS['default']['URL'] = 'http://edx.devstack.elasticsearch:9200/'
