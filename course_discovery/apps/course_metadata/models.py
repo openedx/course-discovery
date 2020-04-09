@@ -611,7 +611,7 @@ class Person(TimeStampedModel):
             ('partner', 'uuid'),
         )
         verbose_name_plural = _('People')
-        ordering = ['created']
+        ordering = ['id']
 
     def __str__(self):
         return self.full_name
