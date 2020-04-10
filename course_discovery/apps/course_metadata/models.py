@@ -1245,7 +1245,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',
+        'start_date',
         'end',
+        'end_date',
         'go_live_date',
         'staff',
         'min_effort',
