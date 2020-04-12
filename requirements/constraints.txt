@@ -1,9 +1,6 @@
 # Stay on an LTS release
 django<2.3
 
-# django-guardian>=2 drops support for Django 1.11
-django-guardian<2
-
 # FIXME: 1.x is an ancient version that we should upgrade off of
 elasticsearch<2
 
