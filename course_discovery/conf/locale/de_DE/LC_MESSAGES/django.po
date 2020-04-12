@@ -15,6 +15,7 @@
 # Ettore Atalan <atalanttore@googlemail.com>, 2016
 # Litera TUGO <literatugo@ibr.cs.tu-bs.de>, 2016
 # Marc Höfken <marchoefken@gmx.de>, 2016
+# Markus Maurer <admin@ryuum3gum1n.de>, 2020
 # johmik <mikulasc@in.tum.de>, 2016
 # 9e6d57405f548b8b8d60fb744413d707, 2017
 # Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018-2020
@@ -23,8 +24,8 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-02-12 15:46+0000\n"
-"PO-Revision-Date: 2020-02-12 16:29+0000\n"
-"Last-Translator: Dillon Dumesnil <ddumesnil@edx.org>\n"
+"PO-Revision-Date: 2020-04-09 16:21+0000\n"
+"Last-Translator: Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -130,7 +131,7 @@ msgstr "Kurslauf ist in Revision. Bearbeiten ist nicht möglich."
 
 #: apps/api/v1/views/course_runs.py:344
 msgid "Invalid parameter"
-msgstr ""
+msgstr "Ungültiger Parameter"
 
 #: apps/api/v1/views/courses.py:54
 msgid "Failed to set data: {}"
