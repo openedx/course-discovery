@@ -214,10 +214,15 @@ class CoursesApiDataLoader(AbstractDataLoader):
         if not instance:
             return
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        updated = False
 
-        instance.save(**kwargs)
+        for attr, value in validated_data.items():
+            if getattr(instance, attr) != value:
+                setattr(instance, attr, value)
+                updated = True
+
+        if updated:
+            instance.save(**kwargs)
 
     def format_course_run_data(self, body, course=None):
         defaults = {
