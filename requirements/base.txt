@@ -1,7 +1,7 @@
 -e git+https://github.com/edx/edx-analytics-data-api-client.git@0.15.2#egg=edx-analytics-data-api-client==0.15.2  # edX
 beautifulsoup4==4.5.1
 boto==2.42.0
-cryptography==1.7.1
+cryptography==2.4.2
 django==1.11.29
 django-autocomplete-light==3.1.8
 django-choices==1.4.3
