@@ -10,8 +10,13 @@ from course_discovery.apps.course_metadata.models import Course, Program, Progra
 # Utility methods used by both courses and programs
 def get_active_language(course):
     if course.advertised_course_run and course.advertised_course_run.language:
-        return course.advertised_course_run.language.name
+        return course.advertised_course_run.language.macro_language
     return None
+
+
+def activate_product_language(product):
+    language = getattr(product, 'language', 'en')
+    activate(language)
 
 
 def logo_image(owner):
@@ -62,9 +67,10 @@ class AlgoliaProxyProduct(Program):
     class Meta:
         proxy = True
 
-    def __init__(self, product):
+    def __init__(self, product, language='en'):
         super().__init__()
         self.product = product
+        self.product.language = language
 
     def product_type(self):
         return getattr(type(self.product), 'product_type', None)
@@ -148,19 +154,21 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def levels(self):
-        level = getattr(self.level_type, 'name', None)
+        activate_product_language(self)
+        level = getattr(self.level_type, 'name_t', None)
         if level:
             return [level]
         return None
 
     @property
     def subject_names(self):
-        activate('en')
+        activate_product_language(self)
         return [subject.name for subject in self.subjects.all()]
 
     @property
     def program_types(self):
-        return [program.type.name for program in self.programs.all()]
+        activate_product_language(self)
+        return [program.type.name_t for program in self.programs.all()]
 
     @property
     def product_card_image_url(self):
@@ -234,7 +242,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def subject_names(self):
-        activate('en')
+        activate_product_language(self)
         return [subject.name for subject in self.subjects]
 
     @property
@@ -243,7 +251,8 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def levels(self):
-        return list(dict.fromkeys([getattr(course.level_type, 'name', None) for course in self.courses.all()]))
+        activate_product_language(self)
+        return list(dict.fromkeys([getattr(course.level_type, 'name_t', None) for course in self.courses.all()]))
 
     @property
     def active_languages(self):
@@ -263,8 +272,9 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def program_types(self):
+        activate_product_language(self)
         if self.type:
-            return [self.type.name]
+            return [self.type.name_t]
         return None
 
     @property
