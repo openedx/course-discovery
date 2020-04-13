@@ -178,10 +178,13 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def should_index(self):
+        """Only index courses in the edX catalog with a non-hidden advertiseable course run, at least one owner, and
+        a marketing url slug"""
         return (len(self.owners) > 0 and
                 self.active_url_slug and
                 self.partner.name == 'edX' and
-                bool(self.advertised_course_run))
+                bool(self.advertised_course_run) and
+                not self.advertised_course_run.hidden)
 
     @property
     def availability_rank(self):
