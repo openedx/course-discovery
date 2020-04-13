@@ -185,6 +185,34 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course.authoring_organizations.add(OrganizationFactory())
         assert not course.should_index
 
+    def test_do_not_index_if_active_course_run_is_hidden(self):
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        for course_run in course.course_runs.all():
+            course_run.hidden = True
+            course_run.save()
+        assert not course.should_index
+
+    def test_index_if_non_active_course_run_is_hidden(self):
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        non_upgradeable_course_run = CourseRunFactory(
+            course=course,
+            start=self.YESTERDAY,
+            end=self.IN_FIFTEEN_DAYS,
+            enrollment_end=self.IN_FIFTEEN_DAYS,
+            status=CourseRunStatus.Published,
+            hidden=True
+        )
+        # not upgradeable because upgrade_deadline has passed
+        SeatFactory(
+            course_run=non_upgradeable_course_run,
+            type=SeatTypeFactory.verified(),
+            upgrade_deadline=self.YESTERDAY,
+            price=10
+        )
+        assert course.should_index
+
     def test_current_and_upgradeable_beats_just_upgradeable(self):
         course_1 = self.create_current_upgradeable_course()
         course_2 = self.create_upgradeable_course_ending_soon()
