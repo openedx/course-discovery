@@ -67,13 +67,14 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def _fatal_code(ex):  # pylint: disable=no-self-argument
         return ex.response.status_code != 429 and ex.response.status_code != 504  # pylint: disable=no-member
 
-    # The courses endpoint has a 40 requests/minute rate limit 10/20/40 seconds puts us into the next minute
+    # The courses endpoint has a 40 requests/minute rate limit.
+    # This will back off at a rate of 60/120/240 seconds (from the factor 60 and default value of base 2).
     # This backoff code can still fail because of the concurrent requests all requesting at the same time.
     # So even in the case of entering into the next minute, if we still exceed our limit for that min,
     # any requests that failed in both limits are still approaching their max_tries limit.
     @backoff.on_exception(
         backoff.expo,
-        factor=10,
+        factor=60,
         jitter=None,
         max_tries=4,
         exception=requests.exceptions.RequestException,
