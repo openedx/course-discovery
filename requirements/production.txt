@@ -8,9 +8,9 @@ algoliasearch-django==1.7.1  # via -r requirements/base.in
 algoliasearch==1.20.0     # via algoliasearch-django
 authlib==0.14.1           # via simple-salesforce
 backoff==1.10.0           # via -r requirements/base.in
-beautifulsoup4==4.8.2     # via -r requirements/base.in
+beautifulsoup4==4.9.0     # via -r requirements/base.in
 boto==2.49.0              # via django-ses
-certifi==2019.11.28       # via -r requirements/production.in, requests
+certifi==2020.4.5.1       # via -r requirements/production.in, requests
 cffi==1.14.0              # via cryptography
 chardet==3.0.4            # via requests
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
@@ -37,7 +37,7 @@ django-ses==0.8.14        # via -r requirements/production.in
 django-simple-history==2.8.0  # via -r requirements/base.in
 django-solo==1.1.3        # via -r requirements/base.in
 django-sortedm2m==3.0.0   # via -r requirements/base.in
-django-stdimage==5.0.3    # via -r requirements/base.in
+django-stdimage==5.1.1    # via -r requirements/base.in
 django-storages==1.8      # via -c requirements/constraints.txt, -r requirements/base.in
 django-taggit-autosuggest==0.3.8  # via -r requirements/base.in
 django-taggit-serializer==0.1.7  # via -r requirements/base.in
@@ -46,7 +46,7 @@ django-waffle==0.20.0     # via -r requirements/base.in, edx-django-utils, edx-d
 django-webpack-loader==0.7.0  # via -r requirements/base.in
 django==2.2.12            # via -c requirements/constraints.txt, -r requirements/base.in, algoliasearch-django, django-admin-sortable2, django-appconf, django-choices, django-contrib-comments, django-cors-headers, django-dynamic-filenames, django-filter, django-haystack, django-stdimage, django-storages, django-taggit, drf-haystack, drf-jwt, edx-auth-backends, edx-django-release-util, edx-django-sites-extensions, edx-django-utils, edx-drf-extensions, jsonfield2, rest-condition, xss-utils
 djangorestframework-csv==2.1.0  # via -r requirements/base.in
-djangorestframework-xml==1.4.0  # via -r requirements/base.in
+djangorestframework-xml==2.0.0  # via -r requirements/base.in
 djangorestframework==3.10.3  # via -r requirements/base.in, django-rest-swagger, djangorestframework-csv, drf-extensions, drf-haystack, drf-jwt, edx-drf-extensions, rest-condition
 drf-dynamic-fields==0.3.1  # via -r requirements/base.in
 drf-extensions==0.6.0     # via -r requirements/base.in
@@ -58,29 +58,29 @@ edx-auth-backends==3.0.2  # via -r requirements/base.in
 edx-ccx-keys==1.0.1       # via -r requirements/base.in
 edx-django-release-util==0.4.2  # via -r requirements/base.in
 edx-django-sites-extensions==2.4.3  # via -r requirements/base.in
-edx-django-utils==3.1     # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client
+edx-django-utils==3.2.0   # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client
 edx-drf-extensions==5.0.2  # via -r requirements/base.in
 edx-opaque-keys==2.0.2    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
 edx-rest-api-client==5.1.0  # via -r requirements/base.in
 elasticsearch==1.9.0      # via -c requirements/constraints.txt, -r requirements/base.in
 future==0.18.2            # via django-ses, pyjwkest
-gevent==1.4.0             # via -r requirements/production.in
+gevent==1.5.0             # via -r requirements/production.in
 greenlet==0.4.15          # via gevent
 gunicorn==20.0.4          # via -r requirements/production.in
 html2text==2020.1.16      # via -r requirements/base.in
 idna==2.9                 # via requests
 itypes==1.1.0             # via coreapi
-jinja2==2.11.1            # via coreschema
+jinja2==2.11.2            # via coreschema
 jsonfield2==3.0.3         # via -c requirements/constraints.txt, -r requirements/base.in
 libsass==0.19.4           # via django-libsass
 lxml==4.5.0               # via -r requirements/base.in
 markdown==3.2.1           # via -r requirements/base.in
 markupsafe==1.1.1         # via jinja2
 mysqlclient==1.4.6        # via -r requirements/production.in
-newrelic==5.10.0.138      # via -r requirements/production.in, edx-django-utils
+newrelic==5.12.0.140      # via -r requirements/production.in, edx-django-utils
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 openapi-codec==1.3.2      # via django-rest-swagger
-pbr==5.4.4                # via stevedore
+pbr==5.4.5                # via stevedore
 pillow==7.1.1             # via -r requirements/base.in, django-stdimage
 progressbar2==3.50.1      # via django-stdimage
 psutil==1.2.1             # via edx-django-utils
