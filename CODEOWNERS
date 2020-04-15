@@ -1,8 +1,2 @@
 # The following users are the owners of all course-discovery files
 *       @Dillon-Dumesnil @jlajoie @jmyatt @mikix @xnick421
-
-# DENG-20: temporary lock on the CoureRun table while DE performs a gh-ost migration.
-# All PRs touching this model should be held off until DE is complete. PRs to other
-# models within this file are OK to be deployed.
-/course_discovery/apps/course_metadata/models.py @estute
-/course_discovery/apps/course_metadata/migrations/ @estute
