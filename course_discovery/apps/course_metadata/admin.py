@@ -246,7 +246,7 @@ class PathwayAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProgramType)
-class ProgramTypeAdmin(admin.ModelAdmin):
+class ProgramTypeAdmin(TranslatableAdmin):
     list_display = ('name', 'slug',)
 
 
@@ -367,7 +367,7 @@ class PrerequisiteAdmin(admin.ModelAdmin):
 
 
 @admin.register(LevelType)
-class LevelTypeAdmin(SortableAdminMixin, admin.ModelAdmin):
+class LevelTypeAdmin(SortableAdminMixin, TranslatableAdmin):
     list_display = ('name', 'sort_value')
     search_fields = ('name',)
 
