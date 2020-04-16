@@ -1,9 +1,6 @@
 # Stay on an LTS release
 django<2.3
 
-# django-guardian>=2 drops support for Django 1.11
-django-guardian<2
-
 # FIXME: 1.x is an ancient version that we should upgrade off of
 elasticsearch<2
 
@@ -28,3 +25,7 @@ social-auth-core==3.2.0
 # sphinx has dropped support for python 3.5, latest version requires at least python3.6
 # see https://www.sphinx-doc.org/en/master/intro.html#prerequisites
 sphinx==2.4.4
+
+
+# pip20+ requires for greater version of pip-tools. But installing 19.3.1 in all our containers and VMs.
+pip-tools==4.5.1
