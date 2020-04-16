@@ -1616,6 +1616,67 @@ class PathwaySerializer(BaseModelSerializer):
         )
 
 
+class ProgramsAffiliateWindowSerializer(BaseModelSerializer):
+    """ Serializer for Affiliate Window product feeds for Program products. """
+    # We use a hardcoded value since it is determined by Affiliate Window's taxonomy.
+    CATEGORY = 'Other Experiences'
+
+    name = serializers.CharField(source='title')
+    pid = serializers.CharField(source='uuid')
+    desc = serializers.CharField(source='overview')
+    purl = serializers.CharField(source='marketing_url')
+    imgurl = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+    lang = serializers.SerializerMethodField()
+    currency = serializers.SerializerMethodField()
+
+    # Optional Fields from https://wiki.awin.com/images/a/a0/PM-FeedColumnDescriptions.pdf
+    custom1 = serializers.SerializerMethodField()  # Program Type
+
+    class Meta:
+        model = Program
+        fields = (
+            'name',
+            'pid',
+            'desc',
+            'purl',
+            'imgurl',
+            'category',
+            'price',
+            'lang',
+            'currency',
+            'custom1',
+        )
+
+    def get_category(self, obj):  # pylint: disable=unused-argument
+        return self.CATEGORY
+
+    def get_imgurl(self, obj):
+        if obj.banner_image and obj.banner_image.url:
+            return obj.banner_image.url
+        return obj.card_image_url
+
+    def get_price(self, obj):
+        price_range = obj.price_ranges
+        if price_range:
+            return str(price_range[0].get('total'))
+        return 'Unknown'
+
+    def get_currency(self, obj):
+        price_range = obj.price_ranges
+        if price_range:
+            return str(price_range[0].get('currency'))
+        return 'Unknown'
+
+    def get_lang(self, obj):
+        languages = obj.languages
+        return languages.pop().code.split('-')[0].lower() if languages else 'en'
+
+    def get_custom1(self, obj):
+        return obj.type
+
+
 class AffiliateWindowSerializer(BaseModelSerializer):
     """ Serializer for Affiliate Window product feeds. """
 

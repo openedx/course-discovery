@@ -1,14 +1,12 @@
 from datetime import datetime
 
 import factory
-import requests
 from django.db.models.signals import post_save
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory, add_m2m_data
 from course_discovery.apps.core.tests.utils import FuzzyURL
-from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -453,7 +451,6 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     type = factory.SubFactory(ProgramTypeFactory)
     status = ProgramStatus.Active
     marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
-    banner_image_url = FuzzyText(prefix='https://example.com/program/banner')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
     partner = factory.SubFactory(PartnerFactory)
     video = factory.SubFactory(VideoFactory)

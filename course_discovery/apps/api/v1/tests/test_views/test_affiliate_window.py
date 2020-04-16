@@ -5,16 +5,107 @@ from os.path import abspath, dirname, join
 import ddt
 import pytz
 from lxml import etree
+from rest_framework import status
 from rest_framework.reverse import reverse
 
-from course_discovery.apps.api.serializers import AffiliateWindowSerializer
+from course_discovery.apps.api.serializers import AffiliateWindowSerializer, ProgramsAffiliateWindowSerializer
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
+from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.models import Seat, SeatType
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory, SeatTypeFactory
+from course_discovery.apps.course_metadata.models import ProgramType, Seat, SeatType
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseRunFactory, ProgramFactory, SeatFactory, SeatTypeFactory
+)
+
+
+@ddt.ddt
+class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
+    """ Tests for the ProgramsAffiliateWindowViewSet. """
+    def _assert_product_xml(self, content, program):
+        """ Helper method to verify product data in xml format. """
+        assert content.find('pid').text == '{}'.format(program.uuid)
+        assert content.find('name').text == program.title
+        assert content.find('desc').text == program.overview
+        assert content.find('purl').text == program.marketing_url
+        assert content.find('imgurl').text == program.banner_image.url
+        assert content.find('category').text == ProgramsAffiliateWindowSerializer.CATEGORY
+
+    def setUp(self):
+        super(ProgramsAffiliateWindowViewSetTests, self).setUp()
+        self.user = UserFactory()
+        self.client.force_authenticate(self.user)
+        self.catalog = CatalogFactory(query='*:*', program_query='*:*', viewers=[self.user])
+
+        self.enrollment_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=30)
+        self.course_end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=60)
+        self.course_run = CourseRunFactory(enrollment_end=self.enrollment_end, end=self.course_end)
+        self.course = self.course_run.course
+
+        # Generate test programs
+        self.test_image = make_image_file('test_banner.jpg')
+        self.masters_program_type = ProgramType.objects.get(slug=ProgramType.MASTERS)
+        self.microbachelors_program_type = ProgramType.objects.get(name=ProgramType.MICROBACHELORS)
+        self.ms_program = ProgramFactory(
+            type=self.masters_program_type,
+            courses=[self.course],
+            banner_image=self.test_image,
+        )
+        self.program = ProgramFactory(
+            type=self.microbachelors_program_type,
+            courses=[self.course],
+            banner_image=self.test_image,
+        )
+
+        self.affiliate_url = reverse('api:v1:partners:programs_affiliate_window-detail', kwargs={'pk': self.catalog.id})
+
+    def test_without_authentication(self):
+        """ Verify authentication is required when accessing the endpoint. """
+        self.client.logout()
+        response = self.client.get(self.affiliate_url)
+        self.assertEqual(response.status_code, 401)
+
+    def test_affiliate_with_approved_programs(self):
+        """Verify that only the expected Program types are returned, No Masters programs"""
+        response = self.client.get(self.affiliate_url)
+        assert response.status_code == status.HTTP_200_OK
+        root = ET.fromstring(response.content)
+
+        # Assert that there is only on Program in the returned data even though 2
+        # are created in setup
+        assert len(root.findall('product')) == 1
+        print(root.findall('product/[pid="{}"]'.format(self.program.uuid)))
+        self._assert_product_xml(
+            root.findall('product/[pid="{}"]'.format(self.program.uuid))[0],
+            self.program
+        )
+
+        # Add a new program of approved type and verify it is available
+        mm_program_type = ProgramType.objects.get(name=ProgramType.MICROMASTERS)
+        mm_program = ProgramFactory(type=mm_program_type, courses=[self.course], banner_image=self.test_image)
+
+        response = self.client.get(self.affiliate_url)
+        assert response.status_code == status.HTTP_200_OK
+        root = ET.fromstring(response.content)
+
+        # Assert that there is only on Program in the returned data even though 2
+        # are created in setup
+        assert len(root.findall('product')) == 2
+        print(root.findall('product/[pid="{}"]'.format(self.program.uuid)))
+        self._assert_product_xml(
+            root.findall('product/[pid="{}"]'.format(self.program.uuid))[0],
+            self.program
+        )
+
+        self._assert_product_xml(
+            root.findall('product/[pid="{}"]'.format(mm_program.uuid))[0],
+            mm_program
+        )
+
+        # Verify that the Masters program is not in the data
+        assert not root.findall('product/[pid="{}"]'.format(self.ms_program.uuid))
 
 
 @ddt.ddt
@@ -54,7 +145,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
             self.seat_verified
         )
 
-        # Add professional seat.
+        # Add professional seat
         seat_professional = SeatFactory(course_run=self.course_run, type=SeatTypeFactory.professional())
 
         response = self.client.get(self.affiliate_url)

@@ -7,13 +7,19 @@ from guardian.shortcuts import get_users_with_perms
 from haystack.query import SearchQuerySet
 
 from course_discovery.apps.core.mixins import ModelPermissionsMixin
-from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
 
 class Catalog(ModelPermissionsMixin, TimeStampedModel):
     VIEW_PERMISSION = 'view_catalog'
     name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Catalog name'))
-    query = models.TextField(null=False, blank=False, help_text=_('Query to retrieve catalog contents'))
+    query = models.TextField(null=False, blank=False, help_text=_('Query to retrieve Course Run catalog contents'))
+    program_query = models.TextField(
+        null=False,
+        blank=True,
+        help_text=_('Query to retrieve Program catalog contents.'),
+        default=''
+    )
     include_archived = models.BooleanField(default=False, help_text=_('Include archived courses'))
 
     def __str__(self):
@@ -35,6 +41,14 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
             QuerySet
         """
         return Course.search(self.query)
+
+    def programs(self):
+        """ Returns the list of Programs contained within this catalog.
+
+        Returns:
+            QuerySet
+        """
+        return Program.search(self.program_query)
 
     @property
     def courses_count(self):

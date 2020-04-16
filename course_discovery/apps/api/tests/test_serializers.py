@@ -27,10 +27,10 @@ from course_discovery.apps.api.serializers import (
     ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
     MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
     OrganizationSerializer, PathwaySerializer, PersonSearchModelSerializer, PersonSearchSerializer, PersonSerializer,
-    PositionSerializer, PrerequisiteSerializer, ProgramSearchModelSerializer, ProgramSearchSerializer,
-    ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer,
-    SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
-    VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
+    PositionSerializer, PrerequisiteSerializer, ProgramsAffiliateWindowSerializer, ProgramSearchModelSerializer,
+    ProgramSearchSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer,
+    SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -1805,6 +1805,51 @@ class AffiliateWindowSerializerTests(TestCase):
             'custom6': str(course_run.weeks_to_complete) + ' week',
         }
 
+        assert serializer.data == expected
+
+
+class ProgramsAffiliateWindowSerializerTests(TestCase):
+    def test_data(self):
+        user = UserFactory()
+
+        CatalogFactory(query='*:*', program_query='*', viewers=[user])
+        course = CourseFactory()
+        course_run = CourseRunFactory(
+            transcript_languages=LanguageTag.objects.filter(code__in=['en-us']),
+            authoring_organizations=[OrganizationFactory()]
+        )
+        course_run.save()
+        course.course_runs.add(course_run)
+        course.canonical_course_run = course_run
+        course.save()
+
+        applicable_seat_types = SeatTypeFactory.create_batch(3)
+        SeatFactory.create(
+            course_run=course_run,
+            type=applicable_seat_types[0],
+            price=10,
+            sku='ABCDEF'
+        )
+        program_type = ProgramTypeFactory(applicable_seat_types=applicable_seat_types)
+        program = ProgramFactory(
+            courses=[course_run.course],
+            type=program_type,
+            banner_image=make_image_file('test_banner.jpg'),
+        )
+        serializer = ProgramsAffiliateWindowSerializer(program)
+
+        expected = {
+            'pid': str(program.uuid),
+            'name': program.title,
+            'desc': program.overview,
+            'purl': program.marketing_url,
+            'price': str(program.price_ranges[0].get('total')),
+            'currency': program.price_ranges[0].get('currency'),
+            'imgurl': program.banner_image.url,
+            'category': 'Other Experiences',
+            'lang': program.languages.pop().code.split('-')[0].lower(),
+            'custom1': program.type,
+        }
         assert serializer.data == expected
 
 

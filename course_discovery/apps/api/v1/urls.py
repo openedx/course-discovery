@@ -3,7 +3,7 @@ from django.conf.urls import include, url
 from rest_framework import routers
 
 from course_discovery.apps.api.v1.views import search as search_views
-from course_discovery.apps.api.v1.views.affiliates import AffiliateWindowViewSet
+from course_discovery.apps.api.v1.views.affiliates import AffiliateWindowViewSet, ProgramsAffiliateWindowViewSet
 from course_discovery.apps.api.v1.views.catalog_queries import CatalogQueryContainsViewSet
 from course_discovery.apps.api.v1.views.catalogs import CatalogViewSet
 from course_discovery.apps.api.v1.views.comments import CommentViewSet
@@ -24,6 +24,11 @@ app_name = 'v1'
 
 partners_router = routers.SimpleRouter()
 partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, basename='affiliate_window')
+partners_router.register(
+    r'affiliate_window/programs/catalogs',
+    ProgramsAffiliateWindowViewSet,
+    basename='programs_affiliate_window'
+)
 
 urlpatterns = [
     url(r'^partners/', include((partners_router.urls, 'partners'))),
