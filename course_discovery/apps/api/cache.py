@@ -1,4 +1,5 @@
 import logging
+import pickle
 import time
 import zlib
 
@@ -93,6 +94,14 @@ class CompressedCacheResponse(CacheResponse):
                     response.status_code,
                     response._headers.copy(),  # pylint: disable=protected-access
                 )
+                if len(response_triple[0]) > 1.5 * 1024 * 1024:  # This might be over the item size
+                    actual_size = len(pickle.dumps(response_triple))
+                    if actual_size >= 1.99 * 1024 * 1024:
+                        logger.warning(
+                            "Cached object for %s is likely over the memcached item size limit (pickle length: %s)",
+                            request.get_full_path(),
+                            actual_size,
+                        )
                 self.cache.set(key, response_triple, self.timeout)
         else:
             # If we get data from the cache, we reassemble the data to build a response
