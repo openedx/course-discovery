@@ -4,7 +4,7 @@ API Client for LMS.
 import logging
 
 from django.core.cache import cache
-from edx_django_utils.cache.utils import get_cache_key
+from edx_django_utils.cache import get_cache_key
 from edx_rest_api_client.client import EdxRestApiClient
 from edx_rest_api_client.exceptions import SlumberBaseException
 from requests.exceptions import ConnectionError, Timeout  # pylint: disable=redefined-builtin
