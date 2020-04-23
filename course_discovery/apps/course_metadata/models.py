@@ -20,7 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from haystack.query import SearchQuerySet
-from parler.models import TranslatableModel, TranslatedFieldsModel
+from parler.models import TranslatableModel, TranslatedFields, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
@@ -275,7 +275,7 @@ class Video(AbstractMediaModel):
         return '{src}: {description}'.format(src=self.src, description=self.description)
 
 
-class LevelType(AbstractNamedModel):
+class LevelType(TranslatableModel, TimeStampedModel):
     """ LevelType model. """
     # This field determines ordering by which level types are presented in the
     # Publisher tool, by virtue of the order in which the level types are
@@ -287,6 +287,15 @@ class LevelType(AbstractNamedModel):
         ordering = ('sort_value',)
 
 
+class LevelTypeTranslation(TranslatedFieldsModel):
+    master = models.ForeignKey(LevelType, models.CASCADE, related_name='translations', null=True)
+    name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        unique_together = ('language_code', 'master')
+        verbose_name = _('LevelType model translations')
+
+
 class SeatType(TimeStampedModel):
     name = models.CharField(max_length=64)
     slug = AutoSlugField(populate_from='name', slugify_function=uslugify, unique=True)
@@ -295,14 +304,13 @@ class SeatType(TimeStampedModel):
         return self.name
 
 
-class ProgramType(TimeStampedModel):
+class ProgramType(TranslatableModel, TimeStampedModel):
     XSERIES = 'xseries'
     MICROMASTERS = 'micromasters'
     PROFESSIONAL_CERTIFICATE = 'professional-certificate'
     PROFESSIONAL_PROGRAM_WL = 'professional-program-wl'
     MASTERS = 'masters'
 
-    name = models.CharField(max_length=32, unique=True, null=False, blank=False)
     applicable_seat_types = models.ManyToManyField(
         SeatType, help_text=_('Seat types that qualify for completion of programs of this type. Learners completing '
                               'associated courses, but enrolled in other seat types, will NOT have their completion '
@@ -350,6 +358,15 @@ class ProgramType(TimeStampedModel):
         if slug:
             program_type = program_model.objects.get(slug=slug)
         return program_type, name
+
+
+class ProgramTypeTranslation(TranslatedFieldsModel):
+    master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
+    name = models.CharField(max_length=32, unique=True, null=False, blank=False)
+
+    class Meta:
+        unique_together = ('language_code', 'master')
+        verbose_name = _('ProgramType model translations')
 
 
 class Mode(TimeStampedModel):

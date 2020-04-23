@@ -16,7 +16,7 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseRun, Organization, Person, Program, Subject, Topic
+    Course, CourseEditor, CourseRun, LevelType, Organization, Person, Program, ProgramType, Subject, Topic
 )
 
 logger = logging.getLogger(__name__)
@@ -217,6 +217,28 @@ class SubjectFilter(filters.FilterSet):
     class Meta:
         model = Subject
         fields = ('slug', 'language_code')
+
+
+class ProgramTypeFilter(filters.FilterSet):
+    language_code = filters.CharFilter(method='_set_language')
+
+    def _set_language(self, queryset, _, language_code):
+        return queryset.language(language_code)
+
+    class Meta:
+        model = ProgramType
+        fields = ('language_code',)
+
+
+class LevelTypeFilter(filters.FilterSet):
+    language_code = filters.CharFilter(method='_set_language')
+
+    def _set_language(self, queryset, _, language_code):
+        return queryset.language(language_code)
+
+    class Meta:
+        model = LevelType
+        fields = ('language_code',)
 
 
 class TopicFilter(filters.FilterSet):

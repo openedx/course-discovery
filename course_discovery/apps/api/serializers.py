@@ -608,6 +608,13 @@ class CourseRunTypeSerializer(BaseModelSerializer):
         return [track.mode.slug for track in obj.tracks.all()]
 
 
+class LevelTypeSerializer(BaseModelSerializer):
+    """Serializer for the ``LevelType`` model."""
+    class Meta:
+        model = LevelType
+        fields = ('name', 'sort_value')
+
+
 class SeatSerializer(BaseModelSerializer):
     """Serializer for the ``Seat`` model."""
     type = serializers.SlugRelatedField(slug_field='slug', queryset=SeatType.objects.all().order_by('name'))

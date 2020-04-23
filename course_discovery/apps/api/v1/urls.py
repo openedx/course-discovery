@@ -11,6 +11,7 @@ from course_discovery.apps.api.v1.views.course_editors import CourseEditorViewSe
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.api.v1.views.courses import CourseViewSet
 from course_discovery.apps.api.v1.views.currency import CurrencyView
+from course_discovery.apps.api.v1.views.level_types import LevelTypeViewSet
 from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet
 from course_discovery.apps.api.v1.views.pathways import PathwayViewSet
 from course_discovery.apps.api.v1.views.people import PersonViewSet
@@ -47,6 +48,7 @@ router.register(r'topics', TopicViewSet, basename='topic')
 router.register(r'pathways', PathwayViewSet, basename='pathway')
 router.register(r'programs', ProgramViewSet, basename='program')
 router.register(r'program_types', ProgramTypeViewSet, basename='program_type')
+router.register(r'level_types', LevelTypeViewSet, basename='level_type')
 router.register(r'search/limited', search_views.LimitedAggregateSearchView, basename='search-limited')
 router.register(r'search/all', search_views.AggregateSearchViewSet, basename='search-all')
 router.register(r'search/courses', search_views.CourseSearchViewSet, basename='search-courses')
