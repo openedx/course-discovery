@@ -1243,6 +1243,29 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(official_course.entitlements.first().mode.slug, Seat.VERIFIED)
 
     @responses.activate
+    def test_patch_draft_switch_verified_to_audit(self):
+        """
+        Verify that draft rows can be updated from a "Verified and Audit" Course with
+        a Verified Entitlement to an "Audit Only" course with no entitlements
+        """
+        self.mock_access_token()
+        self.mock_ecommerce_publication()
+        data = {'type': str(CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT).uuid)}
+        self.create_course_and_course_run(data)
+
+        draft_course = Course.everything.last()
+
+        self.assertEqual(CourseEntitlement.everything.count(), 1)
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+        updates = {
+            'type': str(CourseType.objects.get(slug=CourseType.AUDIT).uuid),
+        }
+        response = self.client.patch(url, updates, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(CourseEntitlement.everything.count(), 0)
+
+    @responses.activate
     def test_patch_creates_draft_entitlement_if_possible(self):
         """
         If an official course exists and does not have an entitlement, during the ensure_draft_world call,
