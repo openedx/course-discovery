@@ -290,7 +290,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         )
 
     @writable_request_wrapper
-    def update_course(self, data, partial=False):
+    def update_course(self, data, partial=False):  # pylint: disable=too-many-statements
         """ Updates an existing course from incoming data. """
         changed = False
         # Sending draft=False means the course data is live and updates should be pushed out immediately
@@ -321,6 +321,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 entitlement, did_change = self.update_entitlement(course, entitlement_type, price, partial=partial)
                 entitlements.append(entitlement)
                 changed = changed or did_change
+            # Deleting entitlements here since they would be orphaned otherwise.
+            # One example of how this situation can happen is if a course team is switching between
+            # "Verified and Audit" and "Audit Only" before actually publishing their course run.
+            course.entitlements.exclude(mode__in=entitlement_types).delete()
             course.entitlements.set(entitlements)
 
         # Save video if a new video source is provided
