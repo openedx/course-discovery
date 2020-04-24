@@ -33,7 +33,6 @@ admin.autodiscover()
 
 urlpatterns = oauth2_urlpatterns + [
     url(r'^admin/course_metadata/', include('course_discovery.apps.course_metadata.urls', namespace='admin_metadata')),
-    url(r'^admin/core/', include('course_discovery.apps.core.urls', namespace='admin_core')),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
     # Use the same auth views for all logins, including those originating from the browseable API.

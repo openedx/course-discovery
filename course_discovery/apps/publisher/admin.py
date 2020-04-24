@@ -9,15 +9,14 @@ from course_discovery.apps.publisher.constants import (
     INTERNAL_USER_GROUP_NAME, PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME,
     REVIEWER_GROUP_NAME
 )
-from course_discovery.apps.publisher.forms import OrganizationExtensionForm, UserAttributesAdminForm
 from course_discovery.apps.publisher.models import OrganizationExtension, OrganizationUserRole, UserAttributes
 
 
 @admin.register(OrganizationExtension)
 class OrganizationExtensionAdmin(GuardedModelAdminMixin, SimpleHistoryAdmin):
-    form = OrganizationExtensionForm
     list_display = ['organization', 'group']
     search_fields = ['organization__name', 'group__name']
+    autocomplete_fields = ['organization', 'group']
 
     def save_model(self, request, obj, form, change):
         obj.save()
@@ -26,14 +25,14 @@ class OrganizationExtensionAdmin(GuardedModelAdminMixin, SimpleHistoryAdmin):
 
 @admin.register(UserAttributes)
 class UserAttributesAdmin(admin.ModelAdmin):
-    form = UserAttributesAdminForm
+    autocomplete_fields = ['user']
 
 
 @admin.register(OrganizationUserRole)
 class OrganizationUserRoleAdmin(SimpleHistoryAdmin):
-    raw_id_fields = ('user', 'organization',)
     list_display = ['role', 'organization', 'user']
     search_fields = ['organization__name']
+    autocomplete_fields = ['organization', 'user']
     role_groups_dict = {
         InternalUserRole.MarketingReviewer: REVIEWER_GROUP_NAME,
         InternalUserRole.ProjectCoordinator: PROJECT_COORDINATOR_GROUP_NAME,
