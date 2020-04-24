@@ -9,5 +9,5 @@ django-debug-toolbar
 django-elasticsearch-debug-toolbar
 docker-compose
 edx-i18n-tools
-pyinotify                                  # For devserver code reloading
+pywatchman                                 # For devserver code reloading
 transifex-client
