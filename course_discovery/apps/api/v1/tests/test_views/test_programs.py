@@ -120,10 +120,10 @@ class TestProgramViewSet(SerializationMixin):
         self.create_curriculum(program)
 
         # Notes on this query count:
-        # 36 queries to get program without a curriculum and no courses
+        # 37 queries to get program without a curriculum and no courses
         # +2 for curriculum details (related courses, related programs)
         # +8 for course details on 1 or more courses across all sibling curricula
-        with django_assert_num_queries(46):
+        with django_assert_num_queries(47):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 
@@ -195,7 +195,7 @@ class TestProgramViewSet(SerializationMixin):
         expected = [self.create_program() for __ in range(3)]
         expected.reverse()
 
-        self.assert_list_results(self.list_path, expected, 19)
+        self.assert_list_results(self.list_path, expected, 20)
 
     def test_uuids_only(self):
         """

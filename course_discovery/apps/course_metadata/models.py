@@ -20,7 +20,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from haystack.query import SearchQuerySet
-from parler.models import TranslatableModel, TranslatedFields, TranslatedFieldsModel
+from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
@@ -286,8 +286,11 @@ class LevelType(TranslatableModel, TimeStampedModel):
     class Meta:
         ordering = ('sort_value',)
 
+    def __str__(self):
+        return self.name
 
-class LevelTypeTranslation(TranslatedFieldsModel):
+
+class LevelTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
     master = models.ForeignKey(LevelType, models.CASCADE, related_name='translations', null=True)
     name = models.CharField(max_length=255, unique=True)
 
@@ -360,7 +363,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
         return program_type, name
 
 
-class ProgramTypeTranslation(TranslatedFieldsModel):
+class ProgramTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
     master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
     name = models.CharField(max_length=32, unique=True, null=False, blank=False)
 

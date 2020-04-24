@@ -610,6 +610,11 @@ class CourseRunTypeSerializer(BaseModelSerializer):
 
 class LevelTypeSerializer(BaseModelSerializer):
     """Serializer for the ``LevelType`` model."""
+
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.prefetch_related('translations')
+
     class Meta:
         model = LevelType
         fields = ('name', 'sort_value')
@@ -694,7 +699,7 @@ class ProgramTypeSerializer(BaseModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls, queryset):
-        return queryset.prefetch_related('applicable_seat_types')
+        return queryset.prefetch_related('applicable_seat_types', 'translations')
 
     class Meta:
         model = ProgramType

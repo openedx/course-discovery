@@ -184,7 +184,7 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
 class ProgramFilter(FilterSetMixin, filters.FilterSet):
     marketable = filters.BooleanFilter(method='filter_marketable')
     status = filters.MultipleChoiceFilter(choices=ProgramStatus.choices)
-    type = filters.CharFilter(field_name='type__name', lookup_expr='iexact')
+    type = filters.CharFilter(field_name='type__translations__name', lookup_expr='iexact')
     types = CharListFilter(field_name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
 
