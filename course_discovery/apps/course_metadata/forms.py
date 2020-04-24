@@ -1,13 +1,10 @@
-from dal import autocomplete
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, CurriculumCourseMembership, CurriculumCourseRunExclusion, Pathway, Program
-)
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Pathway, Program
 from course_discovery.apps.course_metadata.widgets import SortedModelSelect2Multiple
 
 
@@ -63,55 +60,6 @@ class ProgramAdminForm(forms.ModelForm):
             ))
 
         return self.cleaned_data
-
-
-class CurriculumProgramMembershipInlineAdminForm(forms.ModelForm):
-    program = forms.ModelChoiceField(
-        queryset=Program.objects.all(),
-        widget=autocomplete.ModelSelect2(
-            url='admin_metadata:program-autocomplete',
-            attrs={
-                'data-minimum-input-length': 3,
-            },
-        )
-    )
-
-    class Meta:
-        model = Program
-        fields = '__all__'
-
-
-class CurriculumCourseMembershipInlineAdminForm(forms.ModelForm):
-    course = forms.ModelChoiceField(
-        queryset=Course.objects.all(),
-        widget=autocomplete.ModelSelect2(
-            url='admin_metadata:course-autocomplete',
-            attrs={
-                'data-minimum-input-length': 3,
-            },
-        )
-    )
-
-    class Meta:
-        model = CurriculumCourseMembership
-        fields = '__all__'
-
-
-class CurriculumCourseRunExclusionInlineAdminForm(forms.ModelForm):
-    course_run = forms.ModelChoiceField(
-        queryset=CourseRun.objects.all(),
-        widget=autocomplete.ModelSelect2(
-            url='admin_metadata:course-run-autocomplete',
-            forward=['course'],
-            attrs={
-                'data-minimum-input-length': 3,
-            },
-        )
-    )
-
-    class Meta:
-        model = CurriculumCourseRunExclusion
-        fields = '__all__'
 
 
 class CourseRunSelectionForm(forms.ModelForm):
