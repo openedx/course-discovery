@@ -167,7 +167,7 @@ class TestLoadProgramFixture(TestCase):
         self.assertEqual(stored_organization.partner, self.default_partner)
 
         stored_program_type = stored_program.type
-        self.assertEqual(stored_program_type.name, self.program_type_masters.name)
+        self.assertEqual(stored_program_type.name_t, self.program_type_masters.name)
 
         stored_seat_type = stored_program_type.applicable_seat_types.first()
         self.assertEqual(stored_seat_type.name, self.seat_type_verified.name)
@@ -203,6 +203,7 @@ class TestLoadProgramFixture(TestCase):
         )
         existing_program_type = ProgramTypeFactory(
             name='Masters',
+            name_t='Masters',
             slug='masters',
             applicable_seat_types=[seat_type]
         )

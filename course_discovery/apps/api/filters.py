@@ -16,7 +16,7 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseRun, Organization, Person, Program, Subject, Topic
+    Course, CourseEditor, CourseRun, Organization, Person, Program, ProgramType, Subject, Topic
 )
 
 logger = logging.getLogger(__name__)
@@ -184,13 +184,24 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
 class ProgramFilter(FilterSetMixin, filters.FilterSet):
     marketable = filters.BooleanFilter(method='filter_marketable')
     status = filters.MultipleChoiceFilter(choices=ProgramStatus.choices)
-    type = filters.CharFilter(field_name='type__name', lookup_expr='iexact')
+    type = filters.CharFilter(field_name='type__translations__name_t', lookup_expr='iexact')
     types = CharListFilter(field_name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
 
     class Meta:
         model = Program
         fields = ('hidden', 'marketable', 'marketing_slug', 'status', 'type', 'types',)
+
+
+class ProgramTypeFilter(filters.FilterSet):
+    language_code = filters.CharFilter(method='_set_language')
+
+    def _set_language(self, queryset, _, language_code):
+        return queryset.language(language_code)
+
+    class Meta:
+        model = ProgramType
+        fields = ('language_code',)
 
 
 class OrganizationFilter(filters.FilterSet):

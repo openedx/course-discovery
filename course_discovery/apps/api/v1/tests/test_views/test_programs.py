@@ -120,10 +120,10 @@ class TestProgramViewSet(SerializationMixin):
         self.create_curriculum(program)
 
         # Notes on this query count:
-        # 36 queries to get program without a curriculum and no courses
+        # 37 queries to get program without a curriculum and no courses
         # +2 for curriculum details (related courses, related programs)
         # +8 for course details on 1 or more courses across all sibling curricula
-        with django_assert_num_queries(46):
+        with django_assert_num_queries(47):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 
@@ -222,7 +222,7 @@ class TestProgramViewSet(SerializationMixin):
     def test_filter_by_type(self):
         """ Verify that the endpoint filters programs to those of a given type. """
         program_type_name = 'foo'
-        program = ProgramFactory(type__name=program_type_name, partner=self.partner)
+        program = ProgramFactory(type__name_t=program_type_name, partner=self.partner)
         url = self.list_path + '?type=' + program_type_name
         self.assert_list_results(url, [program], 12)
 
