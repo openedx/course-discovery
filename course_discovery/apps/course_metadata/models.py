@@ -295,7 +295,7 @@ class SeatType(TimeStampedModel):
         return self.name
 
 
-class ProgramType(TimeStampedModel):
+class ProgramType(TranslatableModel, TimeStampedModel):
     XSERIES = 'xseries'
     MICROMASTERS = 'micromasters'
     PROFESSIONAL_CERTIFICATE = 'professional-certificate'
@@ -350,6 +350,16 @@ class ProgramType(TimeStampedModel):
         if slug:
             program_type = program_model.objects.get(slug=slug)
         return program_type, name
+
+
+class ProgramTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+    master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
+
+    name_t = models.CharField(max_length=32, blank=False, null=False)
+
+    class Meta:
+        unique_together = (('language_code', 'master'), ('name_t', 'language_code'))
+        verbose_name = _('ProgramType model translations')
 
 
 class Mode(TimeStampedModel):
