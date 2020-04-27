@@ -302,7 +302,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
     PROFESSIONAL_PROGRAM_WL = 'professional-program-wl'
     MASTERS = 'masters'
 
-    name = models.CharField(max_length=32, unique=True, null=False, blank=False)
+    name = models.CharField(max_length=32, blank=False)
     applicable_seat_types = models.ManyToManyField(
         SeatType, help_text=_('Seat types that qualify for completion of programs of this type. Learners completing '
                               'associated courses, but enrolled in other seat types, will NOT have their completion '
