@@ -17,7 +17,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
     program_query = models.TextField(
         null=False,
         blank=True,
-        help_text=_('Query to retrieve Program catalog contents.'),
+        help_text=_('Query to retrieve Program catalog contents'),
         default=''
     )
     include_archived = models.BooleanField(default=False, help_text=_('Include archived courses'))
