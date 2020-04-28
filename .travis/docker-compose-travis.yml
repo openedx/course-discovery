@@ -15,7 +15,7 @@ services:
     image: elasticsearch:1.7.6
     container_name: es
   memcached:
-    image: memcached:1.6.3
+    image: memcached:1.6.5
     container_name: memcached
   discovery:
     # Uncomment this line to use the official course-discovery base image
