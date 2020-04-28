@@ -301,7 +301,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
     PROFESSIONAL_CERTIFICATE = 'professional-certificate'
     PROFESSIONAL_PROGRAM_WL = 'professional-program-wl'
     MASTERS = 'masters'
-    MICROBACHELORS = 'MicroBachelors'
+    MICROBACHELORS = 'microbachelors'
 
     name = models.CharField(max_length=32, blank=False)
     applicable_seat_types = models.ManyToManyField(
