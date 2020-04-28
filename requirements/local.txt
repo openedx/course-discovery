@@ -31,7 +31,7 @@ defusedxml==0.6.0         # via djangorestframework-xml, python3-openid, social-
 distlib==0.3.0            # via virtualenv
 django-admin-sortable2==0.7.6  # via -r requirements/base.in
 django-appconf==1.0.4     # via django-compressor
-django-autocomplete-light==3.5.1  # via -r requirements/base.in
+django-autocomplete-light==3.4.1  # via -c requirements/constraints.txt, -r requirements/base.in
 django-choices==1.7.1     # via -r requirements/base.in
 django-compressor==2.4    # via -r requirements/base.in, django-libsass
 django-contrib-comments==1.9.2  # via -r requirements/base.in
@@ -162,7 +162,7 @@ selenium==3.141.0         # via -r requirements/test.in
 semantic-version==2.8.4   # via edx-drf-extensions
 simple-salesforce==1.0.0  # via -r requirements/base.in
 simplejson==3.17.0        # via django-rest-swagger
-six==1.14.0               # via astroid, bcrypt, cryptography, django-autocomplete-light, django-choices, django-compressor, django-contrib-comments, django-extensions, django-parler, django-simple-history, django-taggit-serializer, django-waffle, djangorestframework-csv, docker, docker-compose, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, freezegun, jsonschema, libsass, mock, packaging, pathlib2, progressbar2, pyjwkest, pynacl, pyrsistent, pytest-xdist, python-dateutil, python-memcached, python-utils, responses, social-auth-app-django, social-auth-core, stevedore, tox, transifex-client, unicode-slugify, virtualenv, websocket-client
+six==1.14.0               # via astroid, bcrypt, cryptography, django-choices, django-compressor, django-contrib-comments, django-extensions, django-parler, django-simple-history, django-taggit-serializer, django-waffle, djangorestframework-csv, docker, docker-compose, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, freezegun, jsonschema, libsass, mock, packaging, pathlib2, progressbar2, pyjwkest, pynacl, pyrsistent, pytest-xdist, python-dateutil, python-memcached, python-utils, responses, social-auth-app-django, social-auth-core, stevedore, tox, transifex-client, unicode-slugify, virtualenv, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==2.0.0    # via sphinx
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in, edx-auth-backends

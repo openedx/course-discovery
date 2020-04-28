@@ -37,7 +37,7 @@ function updateSelect2Data(el){
     }
 }
 
-$(window).load(function(){
+window.addEventListener('load', function(){
     $(function() {
         $('.sortable-select').parents('.form-row').each(function(index, el){
             $(el).find('ul.select2-selection__rendered').sortable({
