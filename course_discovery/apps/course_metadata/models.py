@@ -275,7 +275,7 @@ class Video(AbstractMediaModel):
         return '{src}: {description}'.format(src=self.src, description=self.description)
 
 
-class LevelType(AbstractNamedModel):
+class LevelType(TranslatableModel, AbstractNamedModel):
     """ LevelType model. """
     # This field determines ordering by which level types are presented in the
     # Publisher tool, by virtue of the order in which the level types are
@@ -285,6 +285,15 @@ class LevelType(AbstractNamedModel):
 
     class Meta:
         ordering = ('sort_value',)
+
+
+class LevelTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+    master = models.ForeignKey(LevelType, models.CASCADE, related_name='translations', null=True)
+    name_t = models.CharField(max_length=255)
+
+    class Meta:
+        unique_together = (('language_code', 'name_t'), ('language_code', 'master'))
+        verbose_name = _('LevelType model translations')
 
 
 class SeatType(TimeStampedModel):
