@@ -21,7 +21,7 @@ certifi==2020.4.5.1       # via requests
 cffi==1.14.0              # via bcrypt, cryptography, pynacl
 chardet==3.0.4            # via requests
 click-log==0.3.2          # via edx-lint
-click==7.1.1              # via click-log, edx-lint
+click==7.1.2              # via click-log, edx-lint
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
 coverage==5.1             # via -r requirements/test.in, pytest-cov
@@ -47,7 +47,7 @@ django-haystack==2.8.1    # via -r requirements/base.in, drf-haystack
 django-libsass==0.8       # via -r requirements/base.in
 django-parler==2.0.1      # via -r requirements/base.in
 django-rest-swagger==2.2.0  # via -r requirements/base.in
-django-simple-history==2.9.0  # via -r requirements/base.in
+django-simple-history==2.10.0  # via -r requirements/base.in
 django-solo==1.1.3        # via -r requirements/base.in
 django-sortedm2m==3.0.0   # via -r requirements/base.in
 django-stdimage==5.1.1    # via -r requirements/base.in
@@ -93,7 +93,7 @@ html2text==2020.1.16      # via -r requirements/base.in
 idna==2.9                 # via requests
 imagesize==1.2.0          # via sphinx
 importlib-metadata==1.6.0  # via importlib-resources, jsonschema, path, pluggy, pytest, tox, virtualenv
-importlib-resources==1.4.0  # via virtualenv
+importlib-resources==1.5.0  # via virtualenv
 isort==4.3.21             # via -r requirements/test.in, pylint
 itypes==1.2.0             # via coreapi
 jinja2==2.11.2            # via coreschema, sphinx
@@ -117,7 +117,7 @@ path.py==12.4.0           # via edx-i18n-tools
 path==13.1.0              # via path.py
 pathlib2==2.3.5           # via pytest
 pbr==5.4.5                # via stevedore
-pillow==7.1.1             # via -r requirements/base.in, django-stdimage
+pillow==7.1.2             # via -r requirements/base.in, django-stdimage
 pluggy==0.13.1            # via pytest, tox
 polib==1.1.0              # via edx-i18n-tools
 progressbar2==3.51.0      # via django-stdimage
@@ -149,7 +149,7 @@ python-dateutil==2.8.1    # via -r requirements/base.in, drf-haystack, edx-drf-e
 python-memcached==1.59    # via -r requirements/test.in
 python-utils==2.4.0       # via progressbar2
 python3-openid==3.1.0     # via social-auth-core
-pytz==2019.3              # via -r requirements/base.in, babel, django
+pytz==2020.1              # via -r requirements/base.in, babel, django
 pywatchman==1.4.1         # via -r requirements/local.in
 pyyaml==5.3.1             # via docker-compose, edx-django-release-util, edx-i18n-tools
 rcssmin==1.0.6            # via django-compressor
