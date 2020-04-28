@@ -47,7 +47,7 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         # Generate test programs
         self.test_image = make_image_file('test_banner.jpg')
         self.masters_program_type = ProgramType.objects.get(slug=ProgramType.MASTERS)
-        self.microbachelors_program_type = ProgramType.objects.get(name=ProgramType.MICROBACHELORS)
+        self.microbachelors_program_type = ProgramType.objects.get(slug=ProgramType.MICROBACHELORS)
         self.ms_program = ProgramFactory(
             type=self.masters_program_type,
             courses=[self.course],
@@ -83,7 +83,7 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         )
 
         # Add a new program of approved type and verify it is available
-        mm_program_type = ProgramType.objects.get(name=ProgramType.MICROMASTERS)
+        mm_program_type = ProgramType.objects.get(slug=ProgramType.MICROMASTERS)
         mm_program = ProgramFactory(type=mm_program_type, courses=[self.course], banner_image=self.test_image)
 
         response = self.client.get(self.affiliate_url)
