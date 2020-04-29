@@ -53,6 +53,20 @@ def delegate_attributes(cls):
         setattr(cls, field, _closure(field))
     return cls
 
+def get_course_availability(course):
+    all_runs = course.course_runs.all()
+
+    now = datetime.datetime.now(pytz.UTC) 
+    two_weeks_from_now = now + datetime.timedelta(days=14)
+
+    if len([course_run for course_run in all_runs if course_run.status == 'published' and course_run.start <= now and course_run.end > two_weeks_from_now]) > 0:
+        return 'Available now'
+    elif len([course_run for course_run in all_runs if course_run.status == 'published' and course_run.start >= now]) > 0:
+        return 'Upcoming'
+    elif len([course_run for course_run in all_runs if course_run.status == 'published']) > 0:
+        return 'Archived'
+    else:
+        return None
 
 # Proxies Program model in order to trick Algolia into thinking this is a single model so it doesn't error.
 # No model-specific attributes or methods are actually used.
@@ -140,7 +154,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def availability_level(self):
-        return getattr(self.advertised_course_run, 'availability', None)
+        return get_course_availability(self)
 
     @property
     def partner_names(self):
@@ -269,7 +283,15 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def availability_level(self):
-        return self.status.capitalize()
+         all_courses = self.courses.all()
+
+        if len([course for course in all_courses if get_course_availability(course) == 'Available now']) > 0:
+            return 'Available now'
+        elif len([course for course in all_courses if get_course_availability(course) == 'Upcoming']) > 0:
+            return 'Upcoming'
+        elif len([course for course in all_courses if get_course_availability(course) == 'Archived']) > 0:
+            return 'Archived'
+        else: return None
 
     @property
     def is_prof_cert_program(self):
@@ -281,5 +303,6 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         return (len(self.owners) > 0 and
                 self.marketing_url and
                 self.program_types and
-                self.availability_level == "Active" and
+                self.status == "Active" and
+                self.availability_level is not None and
                 self.partner.name == 'edX')

@@ -43,10 +43,12 @@ class TestAlgoliaProxyWithEdxPartner(TestCase):
 @pytest.mark.django_db
 class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
 
+    ONE_MONTH_AGO = datetime.datetime.now(UTC) - datetime.timedelta(days=30)
     YESTERDAY = datetime.datetime.now(UTC) - datetime.timedelta(days=1)
     TOMORROW = datetime.datetime.now(UTC) + datetime.timedelta(days=1)
     IN_THREE_DAYS = datetime.datetime.now(UTC) + datetime.timedelta(days=3)
     IN_FIFTEEN_DAYS = datetime.datetime.now(UTC) + datetime.timedelta(days=15)
+    IN_TWO_MONTHS = datetime.datetime.now(UTC) + datetime.timedelta(days=60)
 
     def create_current_upgradeable_course(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
@@ -152,6 +154,27 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         return course
 
+    def attach_published_course_run(self, course, type='archived'):
+        if type == 'current and ends within two weeks':
+            course_start = self.ONE_MONTH_AGO
+            course_end = self.TOMORROW
+        elif type == 'current and ends after two weeks':
+            course_start = self.ONE_MONTH_AGO
+            course_end = self.IN_TWO_MONTHS
+        elif type == 'upcoming':
+            course_start = self.TOMORROW
+            course_end = self.IN_TWO_MONTHS
+        elif type == 'archived':
+            course_start = self.ONE_MONTH_AGO
+            course_end = self.YESTERDAY
+
+        return CourseRunFactory(
+            course=course,
+            start=course_start,
+            end=course_end,
+            status=CourseRunStatus.Published
+        )
+
     def test_should_index(self):
         course = self.create_course_with_basic_active_course_run()
         course.authoring_organizations.add(OrganizationFactory())
@@ -249,14 +272,108 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert course_1.availability_rank
         assert not course_2.availability_rank
 
+    def test_course_available_now_if_any_run_available_now(self):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+
+        self.attach_published_course_run(course=course, type="current and ends after two weeks")
+        self.attach_published_course_run(course=course, type='upcoming')
+        self.attach_published_course_run(course=course, type='archived')
+
+        assert course.availability_level == 'Available now'
+
+    def test_not_available_now_if_end_date_too_soon(self):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+
+        self.attach_published_course_run(course=course, type="current and ends within two weeks")
+
+        assert course.availability_level == 'Archived'
+
+    def test_course_upcoming_if_any_run_upcoming_and_no_run_available_now(self): 
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+
+        self.attach_published_course_run(course=course, type='upcoming')
+        self.attach_published_course_run(course=course, type='archived')
+
+        assert course.availability_level == 'Upcoming'
+
+    def test_course_archived(self):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+
+        self.attach_published_course_run(course=course, type='archived')
+
+        assert course.availability_level == 'Archived'
 
 @pytest.mark.django_db
 class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
+
+    ONE_MONTH_AGO = datetime.datetime.now(UTC) - datetime.timedelta(days=30)
+    YESTERDAY = datetime.datetime.now(UTC) - datetime.timedelta(days=1)
+    TOMORROW = datetime.datetime.now(UTC) + datetime.timedelta(days=1)
+    IN_FIFTEEN_DAYS = datetime.datetime.now(UTC) + datetime.timedelta(days=15)
+    IN_TWO_MONTHS = datetime.datetime.now(UTC) + datetime.timedelta(days=60)
+
+    def attach_course(self, program, availability):
+        course = CourseFactory()
+
+        if availability == "Available now":
+            CourseRunFactory(
+                course=course,
+                start=self.ONE_MONTH_AGO,
+                end=self.IN_FIFTEEN_DAYS,
+                status=CourseRunStatus.Published
+            )
+        elif availability == "Upcoming":
+            CourseRunFactory(
+                course=course,
+                start=self.TOMORROW,
+                end=self.IN_TWO_MONTHS,
+                status=CourseRunStatus.Published
+            )
+        elif availability == "Archived":
+            CourseRunFactory(
+                course=course,
+                start=self.ONE_MONTH_AGO,
+                end=self.YESTERDAY,
+                status=CourseRunStatus.Published
+            )
+        else:
+            CourseRunFactory(
+                course=course,
+                start=none,
+                end=none,
+                status=CourseRunStatus.Published
+            )
+
+        return program.courses.add(course)
+
+    def test_program_available_now_if_one_course_available_now(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        self.attach_course(program=program, availability="Available now")
+        self.attach_course(program=program, availability="Upcoming")
+        self.attach_course(program=program, availability="Archived")
+
+        assert program.availability_level == 'Available now'
+
+    def test_program_upcoming_if_one_course_is_upcoming_and_none_available_now(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        self.attach_course(program=program, availability="Upcoming")
+        self.attach_course(program=program, availability="Archived")
+
+        assert program.availability_level == 'Upcoming'
+
+    def test_program_archived(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        self.attach_course(program=program, availability="Archived")
+        self.attach_course(program=program, availability="Archived")
+
+        assert program.availability_level == 'Archived'
 
     def test_should_index(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
         program.authoring_organizations.add(OrganizationFactory())
         assert program.should_index
+
+    ## test_do_not_index_if_availability_leveL_none
 
     def test_do_not_index_if_no_owners(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
