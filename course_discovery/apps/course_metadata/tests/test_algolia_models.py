@@ -288,7 +288,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
 
         assert course.availability_level == 'Archived'
 
-    def test_course_upcoming_if_any_run_upcoming_and_no_run_available_now(self): 
+    def test_course_upcoming_if_any_run_upcoming_and_no_run_available_now(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
         self.attach_published_course_run(course=course, type='upcoming')
@@ -302,6 +302,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         self.attach_published_course_run(course=course, type='archived')
 
         assert course.availability_level == 'Archived'
+
 
 @pytest.mark.django_db
 class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
@@ -371,36 +372,47 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     def test_should_index(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
         program.authoring_organizations.add(OrganizationFactory())
+        self.attach_course(program=program, availability="Archived")
         assert program.should_index
 
-    ## test_do_not_index_if_availability_leveL_none
+    def test_should_not_index_if_availability_leveL_none(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        program.authoring_organizations.add(OrganizationFactory())
+        self.attach_course(program=program)
+        assert not program.should_not_index
 
     def test_do_not_index_if_no_owners(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        self.attach_course(program=program, availability="Archived")
         assert not program.should_index
 
     def test_do_not_index_if_owner_missing_logo(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
         program.authoring_organizations.add(OrganizationFactory(logo_image=None))
+        self.attach_course(program=program, availability="Archived")
         assert not program.should_index
 
     def test_do_not_index_if_partner_not_edx(self):
         program = AlgoliaProxyProgramFactory(partner=PartnerFactory())
         program.authoring_organizations.add(OrganizationFactory())
+        self.attach_course(program=program, availability="Archived")
         assert not program.should_index
 
     def test_do_not_index_if_not_active(self):
         unpublished_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner,
                                                          status=ProgramStatus.Unpublished)
         unpublished_program.authoring_organizations.add(OrganizationFactory())
+        self.attach_course(program=unpublished_program, availability="Archived")
 
         retired_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner,
                                                      status=ProgramStatus.Retired)
         retired_program.authoring_organizations.add(OrganizationFactory())
+        self.attach_course(program=retired_program, availability="Archived")
 
         deleted_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner,
                                                      status=ProgramStatus.Deleted)
         deleted_program.authoring_organizations.add(OrganizationFactory())
+        self.attach_course(program=deleted_program, availability="Archived")
 
         assert not unpublished_program.should_index
         assert not retired_program.should_index
