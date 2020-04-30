@@ -2279,6 +2279,19 @@ class TopicSerializer(BaseModelSerializer):
         fields = ('name', 'subtitle', 'description', 'long_description', 'banner_image_url', 'slug', 'uuid')
 
 
+class LevelTypeSerializer(BaseModelSerializer):
+    """Serializer for the ``LevelType`` model."""
+    name = serializers.CharField(source='name_t')
+
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.prefetch_related('translations')
+
+    class Meta:
+        model = LevelType
+        fields = ('name', 'sort_value')
+
+
 class MetadataWithRelatedChoices(SimpleMetadata):
     """ A version of the normal DRF metadata class that also returns choices for RelatedFields """
 

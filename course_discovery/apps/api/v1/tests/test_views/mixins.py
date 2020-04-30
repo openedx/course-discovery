@@ -82,6 +82,9 @@ class SerializationMixin:
             serializers.FlattenedCourseRunWithCourseSerializer, course_run, many, format, extra_context
         )
 
+    def serialize_level_type(self, level_type, many=False, format=None, extra_context=None):
+        return self._serialize_object(serializers.LevelTypeSerializer, level_type, many, format, extra_context)
+
     def serialize_organization(self, organization, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.OrganizationSerializer, organization, many, format, extra_context)
 
