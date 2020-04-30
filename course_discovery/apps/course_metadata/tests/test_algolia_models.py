@@ -313,7 +313,7 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     IN_FIFTEEN_DAYS = datetime.datetime.now(UTC) + datetime.timedelta(days=15)
     IN_TWO_MONTHS = datetime.datetime.now(UTC) + datetime.timedelta(days=60)
 
-    def attach_course(self, program, availability):
+    def attach_course(self, program, availability="Archived"):
         course = CourseFactory()
 
         if availability == "Available now":
@@ -335,13 +335,6 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
                 course=course,
                 start=self.ONE_MONTH_AGO,
                 end=self.YESTERDAY,
-                status=CourseRunStatus.Published
-            )
-        else:
-            CourseRunFactory(
-                course=course,
-                start=none,
-                end=none,
                 status=CourseRunStatus.Published
             )
 
@@ -374,12 +367,6 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program.authoring_organizations.add(OrganizationFactory())
         self.attach_course(program=program, availability="Archived")
         assert program.should_index
-
-    def test_should_not_index_if_availability_leveL_none(self):
-        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        program.authoring_organizations.add(OrganizationFactory())
-        self.attach_course(program=program)
-        assert not program.should_not_index
 
     def test_do_not_index_if_no_owners(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)

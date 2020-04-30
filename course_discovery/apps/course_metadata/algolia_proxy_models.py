@@ -60,11 +60,9 @@ def get_course_availability(course):
     now = datetime.datetime.now(pytz.UTC)
     two_weeks_from_now = now + datetime.timedelta(days=14)
 
-    if len([course_run for course_run in all_runs if course_run.start is None or course_run.end is None]) > 0:
-        return None
-    elif len([course_run for course_run in all_runs if course_run.status == 'published' and course_run.start <= now and course_run.end > two_weeks_from_now]) > 0:
+    if len([course_run for course_run in all_runs if course_run.status == 'published' and (course_run.start is None or course_run.start <= now) and (course_run.end is None or course_run.end > two_weeks_from_now)]) > 0:
         return 'Available now'
-    elif len([course_run for course_run in all_runs if course_run.status == 'published' and course_run.start >= now]) > 0:
+    elif len([course_run for course_run in all_runs if course_run.status == 'published' and course_run.start and course_run.start >= now]) > 0:
         return 'Upcoming'
     elif len([course_run for course_run in all_runs if course_run.status == 'published']) > 0:
         return 'Archived'
@@ -310,5 +308,4 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.marketing_url and
                 self.program_types and
                 self.status == "active" and
-                self.availability_level is not None and
                 self.partner.name == 'edX')
