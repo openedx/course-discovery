@@ -275,13 +275,17 @@ class Video(AbstractMediaModel):
         return '{src}: {description}'.format(src=self.src, description=self.description)
 
 
-class LevelType(TranslatableModel, AbstractNamedModel):
+class LevelType(TranslatableModel, TimeStampedModel):
     """ LevelType model. """
     # This field determines ordering by which level types are presented in the
     # Publisher tool, by virtue of the order in which the level types are
     # returned by the serializer, and in turn the OPTIONS requests against the
     # course and courserun view sets.
+    name = models.CharField(max_length=255)
     sort_value = models.PositiveSmallIntegerField(default=0, db_index=True)
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         ordering = ('sort_value',)
