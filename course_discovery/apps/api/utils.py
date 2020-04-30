@@ -65,3 +65,18 @@ def get_cache_key(**kwargs):
     key = '__'.join(['{}:{}'.format(item, value) for item, value in six.iteritems(kwargs)])
 
     return hashlib.md5(key.encode('utf-8')).hexdigest()
+
+
+def get_queryset_filtered_on_organization(queryset, edx_org_filter, edx_org_short_name):
+    """
+    Get queryset filtered on edx organization short name.
+
+    Arguments:
+        queryset (DRF queryset object): DRF Queryset object.
+        edx_org_filter (str): Filter to use in queryset.
+        edx_org_short_name (str): Edx organization short name.
+
+    Returns:
+        A DRF queryset object with organization filter applied.
+    """
+    return queryset if not edx_org_short_name else queryset.filter(**{edx_org_filter: edx_org_short_name})

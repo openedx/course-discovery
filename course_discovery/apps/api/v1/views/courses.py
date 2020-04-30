@@ -52,6 +52,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         partner = self.request.site.partner
         q = self.request.query_params.get('q')
+        edx_org_short_name = self.request.query_params.get('org')
 
         if q:
             queryset = Course.search(q)
@@ -73,6 +74,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
             queryset = self.get_serializer_class().prefetch_queryset(
                 queryset=self.queryset,
+                edx_org_short_name=edx_org_short_name,
                 course_runs=course_runs,
                 partner=partner
             )
@@ -138,6 +140,12 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
               mulitple: false
             - name: q
               description: Elasticsearch querystring query. This filter takes precedence over other filters.
+              required: false
+              type: string
+              paramType: query
+              multiple: false
+            - name: org
+              description: Filter results on edx organization's short name.
               required: false
               type: string
               paramType: query

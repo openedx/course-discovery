@@ -28,6 +28,8 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.publisher.models import CourseRun as PublisherCourseRun
 
+from course_discovery.apps.api.utils import get_queryset_filtered_on_organization
+
 User = get_user_model()
 
 COMMON_IGNORED_FIELDS = ('text',)
@@ -631,8 +633,10 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
     programs = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, queryset=None):
+    def prefetch_queryset(cls, queryset=None, edx_org_short_name=None):
+        edx_org_filter = 'course__authoring_organizations__key'
         queryset = super().prefetch_queryset(queryset=queryset)
+        queryset = get_queryset_filtered_on_organization(queryset, edx_org_filter, edx_org_short_name)
 
         return queryset.prefetch_related('course__programs__excluded_course_runs')
 
@@ -752,12 +756,14 @@ class CourseWithProgramsSerializer(CourseSerializer):
     programs = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
+    def prefetch_queryset(cls, partner, edx_org_short_name=None, queryset=None, course_runs=None):
         """
         Similar to the CourseSerializer's prefetch_queryset, but prefetches a
         filtered CourseRun queryset.
         """
+        edx_org_filter = 'authoring_organizations__key'
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
+        queryset = get_queryset_filtered_on_organization(queryset, edx_org_filter, edx_org_short_name)
 
         return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
             'expected_learning_items',
@@ -1417,6 +1423,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'course_runs',
             'uuid',
             'subjects',
+            'org',
         )
 
 

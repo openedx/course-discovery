@@ -43,6 +43,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         """
         q = self.request.query_params.get('q')
         partner = self.request.site.partner
+        edx_org_short_name = self.request.query_params.get('org')
 
         if q:
             qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))
@@ -51,7 +52,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             return qs
         else:
             queryset = super(CourseRunViewSet, self).get_queryset().filter(course__partner=partner)
-            return self.get_serializer_class().prefetch_queryset(queryset=queryset)
+            return self.get_serializer_class().prefetch_queryset(queryset=queryset, edx_org_short_name=edx_org_short_name)
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
@@ -124,6 +125,12 @@ class CourseRunViewSet(viewsets.ModelViewSet):
               type: integer
               paramType: query
               multiple: false
+            - name: org
+              description: Filter results on edx organization's short name.
+              required: false
+              type: string
+              paramType: query
+              multiple: false
         """
         return super(CourseRunViewSet, self).list(request, *args, **kwargs)
 
@@ -163,15 +170,23 @@ class CourseRunViewSet(viewsets.ModelViewSet):
               type: string
               paramType: query
               multiple: false
+            - name: org
+              description: Filter results on edx organization's short name.
+              required: false
+              type: string
+              paramType: query
+              multiple: false
         """
         query = request.GET.get('query')
         course_run_ids = request.GET.get('course_run_ids')
         partner = self.request.site.partner
+        edx_org_short_name = request.GET.get('org')
 
         if query and course_run_ids:
             course_run_ids = course_run_ids.split(',')
-            course_runs = CourseRun.search(query).filter(partner=partner.short_code).filter(key__in=course_run_ids). \
-                values_list('key', flat=True)
+            course_runs = CourseRun.search(query).filter(partner=partner.short_code).filter(key__in=course_run_ids)
+            # update "course_runs" with edx organization filter
+            course_runs = course_runs.filter(course__authoring_organizations__key=edx_org_short_name).values_list('key', flat=True)
             contains = {course_run_id: course_run_id in course_runs for course_run_id in course_run_ids}
 
             instance = {'course_runs': contains}
