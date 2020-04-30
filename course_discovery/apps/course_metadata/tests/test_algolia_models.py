@@ -303,6 +303,15 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
 
         assert course.availability_level == 'Archived'
 
+    def test_course_availability_none_if_no_published_runs(self):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        CourseRunFactory(
+            course=course,
+            status=CourseRunStatus.Unpublished,
+        )
+
+        assert course.availability_level is None
+
 
 @pytest.mark.django_db
 class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
@@ -313,7 +322,7 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     IN_FIFTEEN_DAYS = datetime.datetime.now(UTC) + datetime.timedelta(days=15)
     IN_TWO_MONTHS = datetime.datetime.now(UTC) + datetime.timedelta(days=60)
 
-    def attach_course(self, program, availability="Archived"):
+    def attach_course(self, program, availability="none"):
         course = CourseFactory()
 
         if availability == "Available now":
@@ -336,6 +345,13 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
                 start=self.ONE_MONTH_AGO,
                 end=self.YESTERDAY,
                 status=CourseRunStatus.Published
+            )
+        elif availability == 'none':
+            CourseRunFactory(
+                course=course,
+                start=None,
+                end=None,
+                status=CourseRunStatus.Unpublished
             )
 
         return program.courses.add(course)
@@ -361,6 +377,12 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         self.attach_course(program=program, availability="Archived")
 
         assert program.availability_level == 'Archived'
+
+    def test_program_not_available_if_no_published_runs(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        self.attach_course(program=program, availability="none")
+
+        assert program.availability_level is None
 
     def test_should_index(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)

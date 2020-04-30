@@ -308,4 +308,5 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.marketing_url and
                 self.program_types and
                 self.status == "active" and
+                self.availability_level is not None and
                 self.partner.name == 'edX')
