@@ -979,7 +979,7 @@ class MinimalProgramSerializerTests(TestCase):
             'uuid': str(program.uuid),
             'title': program.title,
             'subtitle': program.subtitle,
-            'type': program.type.name,
+            'type': program.type.name_t,
             'type_attrs': ProgramTypeAttrsSerializer(program.type).data,
             'status': program.status,
             'marketing_slug': program.marketing_slug,
@@ -1335,7 +1335,7 @@ class ProgramTypeSerializerTests(TestCase):
 
         return {
             'uuid': str(program_type.uuid),
-            'name': program_type.name,
+            'name': program_type.name_t,
             'logo_image': image_field.to_representation(program_type.logo_image),
             'applicable_seat_types': [seat_type.slug for seat_type in program_type.applicable_seat_types.all()],
             'slug': program_type.slug,
@@ -2170,7 +2170,7 @@ class TestProgramSearchSerializer(TestCase):
             'uuid': str(program.uuid),
             'title': program.title,
             'subtitle': program.subtitle,
-            'type': program.type.name,
+            'type': program.type.name_t,
             'marketing_url': program.marketing_url,
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
             'content_type': 'program',
@@ -2283,7 +2283,7 @@ class TestTypeaheadProgramSearchSerializer:
         return {
             'uuid': str(program.uuid),
             'title': program.title,
-            'type': program.type.name,
+            'type': program.type.name_t,
             'orgs': [org.key for org in program.authoring_organizations.all()],
             'marketing_url': program.marketing_url,
         }

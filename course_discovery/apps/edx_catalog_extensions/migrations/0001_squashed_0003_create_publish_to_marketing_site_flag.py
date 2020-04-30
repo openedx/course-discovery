@@ -49,6 +49,10 @@ class Migration(migrations.Migration):
         ('course_metadata', '0001_squashed_0033_courserun_mobile_available'),
     ]
 
+    run_before = [
+        ('course_metadata', '0247_auto_20200428_1910')
+    ]
+
     operations = [
         migrations.RunPython(
             code=add_program_types,

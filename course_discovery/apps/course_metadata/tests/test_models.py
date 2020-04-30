@@ -2028,7 +2028,7 @@ class ProgramTypeTests(TestCase):
 
     def test_str(self):
         program_type = factories.ProgramTypeFactory()
-        self.assertEqual(str(program_type), program_type.name)
+        self.assertEqual(str(program_type), program_type.name_t)
 
 
 class CourseEntitlementTests(TestCase):

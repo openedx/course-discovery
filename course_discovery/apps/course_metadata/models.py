@@ -330,7 +330,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
         },
         help_text=_('Please provide an image file with transparent background'),
     )
-    slug = AutoSlugField(populate_from='name', editable=True, unique=True, slugify_function=uslugify,
+    slug = AutoSlugField(populate_from='name_t', editable=True, unique=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     coaching_supported = models.BooleanField(default=False)
@@ -340,7 +340,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
     history = HistoricalRecords(excluded_fields=['slug'])
 
     def __str__(self):
-        return self.name
+        return self.name_t
 
     @staticmethod
     def get_program_type_data(pub_course_run, program_model):
@@ -365,7 +365,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
 class ProgramTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
     master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
 
-    name_t = models.CharField(max_length=32, blank=False, null=False)
+    name_t = models.CharField("name", max_length=32, blank=False, null=False)
 
     class Meta:
         unique_together = (('language_code', 'master'), ('name_t', 'language_code'))

@@ -246,7 +246,8 @@ class PathwayAdmin(admin.ModelAdmin):
 
 @admin.register(ProgramType)
 class ProgramTypeAdmin(TranslatableAdmin):
-    list_display = ('name', 'slug', 'name_t')
+    fields = ('name_t', 'applicable_seat_types', 'logo_image', 'slug', 'coaching_supported',)
+    list_display = ('name_t', 'slug')
 
 
 @admin.register(Seat)
