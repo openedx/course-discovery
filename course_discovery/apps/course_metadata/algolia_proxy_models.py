@@ -3,6 +3,7 @@ import datetime
 import pytz
 from django.db import models
 from django.utils.translation import activate
+from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.course_metadata.models import Course, Program, ProgramType
 
@@ -73,14 +74,14 @@ def get_course_availability(course):
     if len([course_run for course_run in all_runs if
             course_run.status == 'published' and
             is_available_now(course_run)]) > 0:
-        return 'Available now'
+        return _('Available now')
     elif len([course_run for course_run in all_runs if
               course_run.status == 'published' and
               is_upcoming(course_run)]) > 0:
-        return 'Upcoming'
+        return _('Upcoming')
     elif len([course_run for course_run in all_runs if
               course_run.status == 'published']) > 0:
-        return 'Archived'
+        return _('Archived')
     else:
         return None
 
