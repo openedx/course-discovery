@@ -83,7 +83,7 @@ class CompressedCacheResponse(CacheResponse):
                 truncated_response_triple = response_triple
             else:
                 truncated_response_triple = (
-                    response_triple[0][:100] + "...",
+                    response_triple[0][:100] + "...".encode('ascii'),
                     response_triple[1],
                     response_triple[2]
                 )
