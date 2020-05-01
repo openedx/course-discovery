@@ -38,8 +38,8 @@ class TestSearchBoosting:
     @pytest.mark.parametrize('program_type', ['MicroMasters', 'Professional Certificate'])
     def test_program_type_boosting(self, program_type):
         """Verify MicroMasters and Professional Certificate are boosted over XSeries."""
-        ProgramFactory(type=ProgramType.objects.get(name='XSeries'))
-        test_record = ProgramFactory(type=ProgramType.objects.get(name=program_type))
+        ProgramFactory(type=ProgramType.objects.get(translations__name_t='XSeries'))
+        test_record = ProgramFactory(type=ProgramType.objects.get(translations__name_t=program_type))
 
         search_results = SearchQuerySet().models(Program).all()
         assert len(search_results) == 2

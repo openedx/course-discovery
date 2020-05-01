@@ -792,7 +792,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
 
     def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
         super(ProgramsApiDataLoader, self).__init__(partner, api_url, max_workers, is_threadsafe)
-        self.XSERIES = ProgramType.objects.get(name='XSeries')
+        self.XSERIES = ProgramType.objects.get(translations__name_t='XSeries')
 
     def ingest(self):
         api_url = self.partner.programs_api_url

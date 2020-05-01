@@ -980,7 +980,7 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         for attr in ('subtitle', 'status', 'marketing_slug',):
             self.assertEqual(getattr(program, attr), AbstractDataLoader.clean_string(body[attr]))
 
-        self.assertEqual(program.type, ProgramType.objects.get(name='XSeries'))
+        self.assertEqual(program.type, ProgramType.objects.get(translations__name_t='XSeries'))
 
         keys = [org['key'] for org in body['organizations']]
         expected_organizations = list(Organization.objects.filter(key__in=keys))

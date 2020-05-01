@@ -34,3 +34,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(add_program_type, drop_program_type)
     ]
+
+    run_before = [
+        ('course_metadata', '0247_auto_20200428_1910')
+    ]

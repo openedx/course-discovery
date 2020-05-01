@@ -174,7 +174,10 @@ class Command(BaseCommand):
                 stored_seat_type, created = SeatType.objects.get_or_create(name=item.object.name)
                 seat_type_map[item.object.id] = (stored_seat_type, item)
             elif isinstance(item.object, ProgramType):
-                stored_program_type, created = ProgramType.objects.get_or_create(name=item.object.name)
+                # translated fields work differently in 'get' vs 'create', so need to explicitly call relation
+                # in get and then set field in defaults
+                stored_program_type, created = ProgramType.objects.get_or_create(translations__name_t=item.object.name,
+                                                                                 defaults={'name_t': item.object.name})
                 program_type_map[item.object.id] = (stored_program_type, item)
             else:
                 # partner models are not included in the fixture

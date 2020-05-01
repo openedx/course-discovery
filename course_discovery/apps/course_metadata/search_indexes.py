@@ -320,7 +320,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     title = indexes.CharField(model_attr='title', boost=TITLE_FIELD_BOOST)
     title_autocomplete = indexes.NgramField(model_attr='title', boost=TITLE_FIELD_BOOST)
     subtitle = indexes.CharField(model_attr='subtitle')
-    type = indexes.CharField(model_attr='type__name', faceted=True)
+    type = indexes.CharField(model_attr='type__name_t', faceted=True)
     marketing_url = indexes.CharField(null=True)
     search_card_display = indexes.MultiValueField()
     organizations = indexes.MultiValueField(faceted=True)

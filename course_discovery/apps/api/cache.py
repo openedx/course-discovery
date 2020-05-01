@@ -78,6 +78,24 @@ class CompressedCacheResponse(CacheResponse):
             kwargs=kwargs
         )
         response_triple = self.cache.get(key)
+        if view_instance.__class__.__name__ == 'ProgramViewSet':
+            if not response_triple or len(response_triple[0]) < 100:
+                truncated_response_triple = response_triple
+            else:
+                truncated_response_triple = (
+                    response_triple[0][:100] + "...",
+                    response_triple[1],
+                    response_triple[2]
+                )
+            logger.info(
+                "%r page cache result %r from key %r (request: %r, args: %r, kwargs: %r)",
+                view_method,
+                truncated_response_triple,
+                key,
+                request,
+                args,
+                kwargs
+            )
 
         if not response_triple:
             response = view_method(view_instance, request, *args, **kwargs)

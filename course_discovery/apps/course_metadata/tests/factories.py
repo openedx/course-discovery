@@ -378,6 +378,7 @@ class ProgramTypeFactory(factory.django.DjangoModelFactory):
 
     uuid = factory.LazyFunction(uuid4)
     name = FuzzyText()
+    name_t = FuzzyText()
     logo_image = FuzzyText(prefix='https://example.com/program/logo')
     slug = FuzzyText()
 

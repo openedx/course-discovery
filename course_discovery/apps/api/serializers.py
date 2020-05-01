@@ -684,10 +684,14 @@ class ProgramTypeSerializer(BaseModelSerializer):
     """ Serializer for the Program Types. """
     applicable_seat_types = serializers.SlugRelatedField(many=True, read_only=True, slug_field='slug')
     logo_image = StdImageSerializerField()
+    name = serializers.SerializerMethodField('get_translated_name')
 
     @classmethod
     def prefetch_queryset(cls, queryset):
-        return queryset.prefetch_related('applicable_seat_types')
+        return queryset.prefetch_related('applicable_seat_types', 'translations')
+
+    def get_translated_name(self, obj):
+        return obj.name_t
 
     class Meta:
         model = ProgramType
@@ -1396,7 +1400,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
-    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    type = serializers.SlugRelatedField(slug_field='name_t', queryset=ProgramType.objects.all())
     type_attrs = ProgramTypeAttrsSerializer(source='type')
     degree = DegreeSerializer()
     curricula = CurriculumSerializer(many=True)
@@ -1412,6 +1416,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
             # `ProgramType` on `Program`.
             'type__applicable_seat_types',
+            'type__translations',
             'authoring_organizations',
             'degree',
             'curricula',
@@ -2272,6 +2277,19 @@ class TopicSerializer(BaseModelSerializer):
     class Meta:
         model = Topic
         fields = ('name', 'subtitle', 'description', 'long_description', 'banner_image_url', 'slug', 'uuid')
+
+
+class LevelTypeSerializer(BaseModelSerializer):
+    """Serializer for the ``LevelType`` model."""
+    name = serializers.CharField(source='name_t')
+
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.prefetch_related('translations')
+
+    class Meta:
+        model = LevelType
+        fields = ('name', 'sort_value')
 
 
 class MetadataWithRelatedChoices(SimpleMetadata):
