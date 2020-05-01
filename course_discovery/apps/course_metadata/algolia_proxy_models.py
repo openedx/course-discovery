@@ -54,17 +54,32 @@ def delegate_attributes(cls):
     return cls
 
 
+def is_available_now(course_run):
+    now = datetime.datetime.now(pytz.UTC)
+    has_started = course_run.start is None or course_run.start <= now
+    end_after_two_weeks = course_run.end > now + datetime.timedelta(days=14)
+
+    return has_started and end_after_two_weeks
+
+
+def is_upcoming(course_run):
+    now = datetime.datetime.now(pytz.UTC)
+    return course_run.start and course_run.start >= now
+
+
 def get_course_availability(course):
     all_runs = course.course_runs.all()
 
-    now = datetime.datetime.now(pytz.UTC)
-    two_weeks_from_now = now + datetime.timedelta(days=14)
-
-    if len([course_run for course_run in all_runs if course_run.status == 'published' and (course_run.start is None or course_run.start <= now) and (course_run.end is None or course_run.end > two_weeks_from_now)]) > 0:
+    if len([course_run for course_run in all_runs if
+            course_run.status == 'published' and
+            is_available_now(course_run)]) > 0:
         return 'Available now'
-    elif len([course_run for course_run in all_runs if course_run.status == 'published' and course_run.start and course_run.start >= now]) > 0:
+    elif len([course_run for course_run in all_runs if
+              course_run.status == 'published' and
+              is_upcoming(course_run)]) > 0:
         return 'Upcoming'
-    elif len([course_run for course_run in all_runs if course_run.status == 'published']) > 0:
+    elif len([course_run for course_run in all_runs if
+              course_run.status == 'published']) > 0:
         return 'Archived'
     else:
         return None

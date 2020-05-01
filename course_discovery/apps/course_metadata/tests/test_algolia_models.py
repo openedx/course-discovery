@@ -154,17 +154,17 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         return course
 
-    def attach_published_course_run(self, course, type='archived'):
-        if type == 'current and ends within two weeks':
+    def attach_published_course_run(self, course, run_type="archived"):
+        if run_type == 'current and ends within two weeks':
             course_start = self.ONE_MONTH_AGO
             course_end = self.TOMORROW
-        elif type == 'current and ends after two weeks':
+        elif run_type == 'current and ends after two weeks':
             course_start = self.ONE_MONTH_AGO
             course_end = self.IN_TWO_MONTHS
-        elif type == 'upcoming':
+        elif run_type == 'upcoming':
             course_start = self.TOMORROW
             course_end = self.IN_TWO_MONTHS
-        elif type == 'archived':
+        elif run_type == 'archived':
             course_start = self.ONE_MONTH_AGO
             course_end = self.YESTERDAY
 
@@ -275,31 +275,31 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
     def test_course_available_now_if_any_run_available_now(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
-        self.attach_published_course_run(course=course, type="current and ends after two weeks")
-        self.attach_published_course_run(course=course, type='upcoming')
-        self.attach_published_course_run(course=course, type='archived')
+        self.attach_published_course_run(course=course, run_type="current and ends after two weeks")
+        self.attach_published_course_run(course=course, run_type='upcoming')
+        self.attach_published_course_run(course=course, run_type='archived')
 
         assert course.availability_level == 'Available now'
 
     def test_not_available_now_if_end_date_too_soon(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
-        self.attach_published_course_run(course=course, type="current and ends within two weeks")
+        self.attach_published_course_run(course=course, run_type="current and ends within two weeks")
 
         assert course.availability_level == 'Archived'
 
     def test_course_upcoming_if_any_run_upcoming_and_no_run_available_now(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
-        self.attach_published_course_run(course=course, type='upcoming')
-        self.attach_published_course_run(course=course, type='archived')
+        self.attach_published_course_run(course=course, run_type='upcoming')
+        self.attach_published_course_run(course=course, run_type='archived')
 
         assert course.availability_level == 'Upcoming'
 
     def test_course_archived(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
-        self.attach_published_course_run(course=course, type='archived')
+        self.attach_published_course_run(course=course, run_type='archived')
 
         assert course.availability_level == 'Archived'
 
