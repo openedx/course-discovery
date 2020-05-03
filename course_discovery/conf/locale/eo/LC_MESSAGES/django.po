@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-08 20:35+0000\n"
+"POT-Creation-Date: 2020-05-03 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -223,9 +223,16 @@ msgid "Catalog name"
 msgstr "Çätälög nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/catalogs/models.py
-msgid "Query to retrieve catalog contents"
+msgid "Query to retrieve Course Run catalog contents"
 msgstr ""
-"Qüérý tö rétrïévé çätälög çönténts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+"Qüérý tö rétrïévé Çöürsé Rün çätälög çönténts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/catalogs/models.py
+msgid "Query to retrieve Program catalog contents"
+msgstr ""
+"Qüérý tö rétrïévé Prögräm çätälög çönténts Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/catalogs/models.py
 msgid "Include archived courses"
@@ -999,6 +1006,10 @@ msgstr ""
 "ündérsçöré ör hýphén ïn thé kéý fïéld. Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/course_metadata/models.py
+msgid "LevelType model translations"
+msgstr "LévélTýpé mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
 msgid ""
 "Seat types that qualify for completion of programs of this type. Learners "
 "completing associated courses, but enrolled in other seat types, will NOT "
@@ -1026,6 +1037,10 @@ msgid "Leave this field blank to have the value generated automatically."
 msgstr ""
 "Léävé thïs fïéld ßlänk tö hävé thé välüé générätéd äütömätïçällý. Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "ProgramType model translations"
+msgstr "PrögrämTýpé mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/course_metadata/models.py
 msgid "This mode requires ID verification."
