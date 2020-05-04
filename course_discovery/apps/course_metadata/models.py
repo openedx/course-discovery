@@ -275,13 +275,17 @@ class Video(AbstractMediaModel):
         return '{src}: {description}'.format(src=self.src, description=self.description)
 
 
-class LevelType(TranslatableModel, AbstractNamedModel):
+class LevelType(TranslatableModel, TimeStampedModel):
     """ LevelType model. """
     # This field determines ordering by which level types are presented in the
     # Publisher tool, by virtue of the order in which the level types are
     # returned by the serializer, and in turn the OPTIONS requests against the
     # course and courserun view sets.
+    name = models.CharField(max_length=255)
     sort_value = models.PositiveSmallIntegerField(default=0, db_index=True)
+
+    def __str__(self): 
+        return self.name
 
     class Meta:
         ordering = ('sort_value',)
@@ -298,7 +302,6 @@ class LevelTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-e
 
 class SeatType(TimeStampedModel):
     name = models.CharField(max_length=64)
-    slug = AutoSlugField(populate_from='name', slugify_function=uslugify, unique=True)
 
     def __str__(self):
         return self.name
@@ -340,7 +343,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
     history = HistoricalRecords(excluded_fields=['slug'])
 
     def __str__(self):
-        return self.name
+        return self.name_t
 
     @staticmethod
     def get_program_type_data(pub_course_run, program_model):
@@ -365,7 +368,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
 class ProgramTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
     master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
 
-    name_t = models.CharField(max_length=32, blank=False, null=False)
+    name_t = models.CharField("name", max_length=32, blank=False, null=False)
 
     class Meta:
         unique_together = (('language_code', 'master'), ('name_t', 'language_code'))
