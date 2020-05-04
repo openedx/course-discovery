@@ -368,9 +368,8 @@ class PrerequisiteAdmin(admin.ModelAdmin):
 
 @admin.register(LevelType)
 class LevelTypeAdmin(SortableAdminMixin, TranslatableAdmin):
-    list_display = ('name_t', 'sort_value')
-    search_fields = ('name_t',)
-    fields = ('name_t',)
+    list_display = ('name', 'sort_value')
+    search_fields = ('name',)
 
 
 class CurriculumProgramMembershipInline(admin.TabularInline):
