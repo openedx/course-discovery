@@ -76,6 +76,7 @@ def get_course_availability(course):
 # Proxies Program model in order to trick Algolia into thinking this is a single model so it doesn't error.
 # No model-specific attributes or methods are actually used.
 
+
 @delegate_attributes
 class AlgoliaProxyProduct(Program):
     class Meta:
