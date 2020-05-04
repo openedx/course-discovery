@@ -4,12 +4,14 @@ import pytest
 from django.core.files.base import ContentFile
 from django.test import TestCase
 
-from course_discovery.apps.api.fields import ImageField, SlugRelatedFieldWithReadSerializer, StdImageSerializerField
+from course_discovery.apps.api.fields import (
+    ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
+)
 from course_discovery.apps.api.serializers import ProgramSerializer
 from course_discovery.apps.api.tests.test_serializers import make_request
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.course_metadata.models import Program
-from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
+from course_discovery.apps.course_metadata.models import Program, Subject
+from course_discovery.apps.course_metadata.tests.factories import ProgramFactory, SubjectFactory
 
 
 @pytest.mark.django_db
@@ -96,3 +98,11 @@ class SlugRelatedFieldWithReadSerializerTests(TestCase):
         serializer = SlugRelatedFieldWithReadSerializer(slug_field='uuid', queryset=Program.objects.all(),
                                                         read_serializer=ProgramSerializer())
         self.assertIsInstance(serializer.to_representation(program), dict)
+
+
+class SlugRelatedTranslatableFieldTest(TestCase):
+    """ Test for SlugRelatedTranslatableField """
+    def test_to_internal_value(self):
+        subject = SubjectFactory(name='Subject')  # 'name' is a translated field on Subject
+        serializer = SlugRelatedTranslatableField(slug_field='name', queryset=Subject.objects.all())
+        self.assertEqual(serializer.to_internal_value('Subject'), subject)

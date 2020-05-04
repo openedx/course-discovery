@@ -65,6 +65,14 @@ class HtmlField(serializers.CharField):
         return clean_html(data) if data else data
 
 
+class SlugRelatedTranslatableField(serializers.SlugRelatedField):
+    """ Use in place of SlugRelatedField when the slug field is a TranslatedField """
+
+    def to_internal_value(self, data):
+        full_translated_field_name = 'translations__{slug_field}'.format(slug_field=self.slug_field)
+        return self.get_queryset().get(**{full_translated_field_name: data})
+
+
 class SlugRelatedFieldWithReadSerializer(serializers.SlugRelatedField):
     """
     This field accepts slugs on updates, but provides full serializations on reads.

@@ -25,7 +25,7 @@ from rest_framework.utils.field_mapping import get_field_kwargs
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from course_discovery.apps.api.fields import (
-    HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, StdImageSerializerField
+    HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
 )
 from course_discovery.apps.api.utils import StudioAPI
 from course_discovery.apps.catalogs.models import Catalog
@@ -698,6 +698,19 @@ class ProgramTypeSerializer(BaseModelSerializer):
         fields = ('uuid', 'name', 'logo_image', 'applicable_seat_types', 'slug', 'coaching_supported')
 
 
+class LevelTypeSerializer(BaseModelSerializer):
+    """Serializer for the ``LevelType`` model."""
+    name = serializers.CharField(source='name_t')
+
+    @classmethod
+    def prefetch_queryset(cls, queryset):
+        return queryset.prefetch_related('translations')
+
+    class Meta:
+        model = LevelType
+        fields = ('name', 'sort_value')
+
+
 class ProgramTypeAttrsSerializer(BaseModelSerializer):
     """ Serializer for the Program Type Attributes. """
 
@@ -838,7 +851,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
     level_type = serializers.SlugRelatedField(
         required=False,
         allow_null=True,
-        slug_field='name',
+        slug_field='name_t',
         queryset=LevelType.objects.all()
     )
     full_description = HtmlField(required=False, allow_blank=True)
@@ -1010,7 +1023,7 @@ class CourseEditorSerializer(serializers.ModelSerializer):
 
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
-    level_type = serializers.SlugRelatedField(required=False, allow_null=True, slug_field='name',
+    level_type = SlugRelatedTranslatableField(required=False, allow_null=True, slug_field='name_t',
                                               queryset=LevelType.objects.all())
     subjects = SlugRelatedFieldWithReadSerializer(slug_field='slug', required=False, many=True,
                                                   queryset=Subject.objects.all(),
@@ -1706,7 +1719,7 @@ class AffiliateWindowSerializer(BaseModelSerializer):
     # These field names are required by AWIN for data that doesn't fit into one
     # of their default fields.
     custom1 = serializers.CharField(source='course_run.pacing_type')
-    custom2 = serializers.SlugRelatedField(source='course_run.level_type', read_only=True, slug_field='name')
+    custom2 = serializers.SlugRelatedField(source='course_run.level_type', read_only=True, slug_field='name_t')
     custom3 = serializers.SerializerMethodField()
     custom4 = serializers.SerializerMethodField()
     custom5 = serializers.CharField(source='course_run.short_description')
@@ -2277,19 +2290,6 @@ class TopicSerializer(BaseModelSerializer):
     class Meta:
         model = Topic
         fields = ('name', 'subtitle', 'description', 'long_description', 'banner_image_url', 'slug', 'uuid')
-
-
-class LevelTypeSerializer(BaseModelSerializer):
-    """Serializer for the ``LevelType`` model."""
-    name = serializers.CharField(source='name_t')
-
-    @classmethod
-    def prefetch_queryset(cls, queryset):
-        return queryset.prefetch_related('translations')
-
-    class Meta:
-        model = LevelType
-        fields = ('name', 'sort_value')
 
 
 class MetadataWithRelatedChoices(SimpleMetadata):
