@@ -1,3 +1,4 @@
+import json
 import logging
 import pickle
 import time
@@ -79,22 +80,25 @@ class CompressedCacheResponse(CacheResponse):
         )
         response_triple = self.cache.get(key)
         if view_instance.__class__.__name__ == 'ProgramViewSet':
-            if not response_triple or len(response_triple[0]) < 100:
-                truncated_response_triple = response_triple
-            else:
-                truncated_response_triple = (
-                    response_triple[0][:100] + "...".encode('ascii'),
-                    response_triple[1],
-                    response_triple[2]
-                )
+            hit = "miss" if response_triple is None else "hit"
+            if view_method.__name__ == "list":
+                key_func_class = TimestampedListKeyConstructor
+            elif view_method.__name__ == "retrieve":
+                key_func_class = TimestampedObjectKeyConstructor
+
+            key_data = key_func_class().get_data_from_bits(
+                view_instance=view_instance,
+                view_method=view_method,
+                request=request,
+                args=args,
+                kwargs=kwargs
+            )
             logger.info(
-                "%r page cache result %r from key %r (request: %r, args: %r, kwargs: %r)",
+                "%r page cache result %r from key %r (from data %r)",
                 view_method,
-                truncated_response_triple,
+                hit,
                 key,
-                request,
-                args,
-                kwargs
+                json.dumps(key_data, sort_keys=True),
             )
 
         if not response_triple:
