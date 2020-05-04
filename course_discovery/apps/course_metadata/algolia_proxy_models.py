@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.translation import activate
 from django.utils.translation import ugettext_lazy as _
 
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, Program, ProgramType
 
 
@@ -72,15 +73,15 @@ def get_course_availability(course):
     all_runs = course.course_runs.all()
 
     if len([course_run for course_run in all_runs if
-            course_run.status == 'published' and
-            is_available_now(course_run)]) > 0:
+            course_run.status == CourseRunStatus.Published and
+            course_run.is_current()]) > 0:
         return _('Available now')
     elif len([course_run for course_run in all_runs if
-              course_run.status == 'published' and
-              is_upcoming(course_run)]) > 0:
+              course_run.status == CourseRunStatus.Published and
+              course_run.is_upcoming()]) > 0:
         return _('Upcoming')
     elif len([course_run for course_run in all_runs if
-              course_run.status == 'published']) > 0:
+              course_run.status == CourseRunStatus.Published]) > 0:
         return _('Archived')
     else:
         return None
@@ -323,6 +324,6 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         return (len(self.owners) > 0 and
                 self.marketing_url and
                 self.program_types and
-                self.status == "active" and
+                self.status == ProgramStatus.Active and
                 self.availability_level is not None and
                 self.partner.name == 'edX')
