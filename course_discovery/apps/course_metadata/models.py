@@ -284,7 +284,7 @@ class LevelType(TranslatableModel, TimeStampedModel):
     name = models.CharField(max_length=255)
     sort_value = models.PositiveSmallIntegerField(default=0, db_index=True)
 
-    def __str__(self): 
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -302,6 +302,7 @@ class LevelTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-e
 
 class SeatType(TimeStampedModel):
     name = models.CharField(max_length=64)
+    slug = AutoSlugField(populate_from='name', slugify_function=uslugify, unique=True)
 
     def __str__(self):
         return self.name
@@ -333,7 +334,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
         },
         help_text=_('Please provide an image file with transparent background'),
     )
-    slug = AutoSlugField(populate_from='name', editable=True, unique=True, slugify_function=uslugify,
+    slug = AutoSlugField(populate_from='name_t', editable=True, unique=True, slugify_function=uslugify,
                          help_text=_('Leave this field blank to have the value generated automatically.'))
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     coaching_supported = models.BooleanField(default=False)
