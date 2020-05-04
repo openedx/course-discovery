@@ -285,7 +285,7 @@ class LevelType(TranslatableModel, TimeStampedModel):
     sort_value = models.PositiveSmallIntegerField(default=0, db_index=True)
 
     def __str__(self):
-        return self.name
+        return self.name_t
 
     class Meta:
         ordering = ('sort_value',)
@@ -293,7 +293,7 @@ class LevelType(TranslatableModel, TimeStampedModel):
 
 class LevelTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
     master = models.ForeignKey(LevelType, models.CASCADE, related_name='translations', null=True)
-    name_t = models.CharField(max_length=255)
+    name_t = models.CharField('name', max_length=255)
 
     class Meta:
         unique_together = (('language_code', 'name_t'), ('language_code', 'master'))
