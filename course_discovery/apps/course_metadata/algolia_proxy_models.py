@@ -293,11 +293,11 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         all_courses = self.courses.all()
 
         if len([course for course in all_courses if get_course_availability(course) == 'Available now']) > 0:
-            return 'Available now'
+            return _('Available now')
         elif len([course for course in all_courses if get_course_availability(course) == 'Upcoming']) > 0:
-            return 'Upcoming'
+            return _('Upcoming')
         elif len([course for course in all_courses if get_course_availability(course) == 'Archived']) > 0:
-            return 'Archived'
+            return _('Archived')
         else:
             return None
 
