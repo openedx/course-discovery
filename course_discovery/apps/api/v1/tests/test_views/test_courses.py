@@ -21,8 +21,8 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, LevelTypeFactory,
-    OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory,
+    SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -239,7 +239,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # Known to be flaky prior to the addition of tearDown()
         # and logout() code which is the same number of additional queries
-        with self.assertNumQueries(39):
+        with self.assertNumQueries(34):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -250,7 +250,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
-        with self.assertNumQueries(39):
+        with self.assertNumQueries(34):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -261,7 +261,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(39):
+        with self.assertNumQueries(34):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -935,22 +935,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertDictEqual(response.data, self.serialize_course(course))
 
     @responses.activate
-    def test_update_with_level_type(self):
-        beginner = LevelTypeFactory()
-        beginner.set_current_language('en')
-        beginner.name_t = 'Beginner'
-        beginner.save()
-        self.mock_access_token()
-        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        course_data = {
-            'level_type': 'Beginner'
-        }
-        response = self.client.patch(url, course_data, format='json')
-        self.assertEqual(response.status_code, 200)
-        course = Course.everything.get(uuid=self.course.uuid, draft=True)
-        self.assertEqual(course.level_type, beginner)
-
-    @responses.activate
     def test_update_success_with_course_type_verified(self):
         self.mock_access_token()
         verified_mode = SeatTypeFactory.verified()
@@ -1452,13 +1436,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        with self.assertNumQueries(37, threshold=0):
+        with self.assertNumQueries(35, threshold=0):
             response = self.client.options(url)
         self.assertEqual(response.status_code, 200)
 
         data = response.json()['actions']['PUT']
         self.assertEqual(data['level_type']['choices'],
-                         [{'display_name': self.course.level_type.name_t, 'value': self.course.level_type.name_t}])
+                         [{'display_name': self.course.level_type.name, 'value': self.course.level_type.name}])
         self.assertEqual(data['entitlements']['child']['children']['mode']['choices'],
                          [{'display_name': 'Audit', 'value': 'audit'},
                           {'display_name': 'Credit', 'value': 'credit'},

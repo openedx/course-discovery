@@ -67,8 +67,6 @@ class TopicFactory(factory.DjangoModelFactory):
 
 
 class LevelTypeFactory(AbstractNamedModelFactory):
-    name_t = FuzzyText()
-
     class Meta:
         model = LevelType
 

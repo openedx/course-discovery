@@ -1154,12 +1154,12 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         data = response.data['actions']['PUT']
         self.assertEqual(data['level_type']['choices'],
-                         [{'display_name': self.course_run.level_type.name_t,
-                           'value': self.course_run.level_type.name_t},
-                          {'display_name': self.course_run_2.level_type.name_t,
-                           'value': self.course_run_2.level_type.name_t},
-                          {'display_name': self.draft_course_run.level_type.name_t,
-                           'value': self.draft_course_run.level_type.name_t}])
+                         [{'display_name': self.course_run.level_type.name,
+                           'value': self.course_run.level_type.name},
+                          {'display_name': self.course_run_2.level_type.name,
+                           'value': self.course_run_2.level_type.name},
+                          {'display_name': self.draft_course_run.level_type.name,
+                           'value': self.draft_course_run.level_type.name}])
         self.assertEqual(data['content_language']['choices'],
                          [{'display_name': x.name, 'value': x.code} for x in
                              LanguageTag.objects.all().order_by('name')])
