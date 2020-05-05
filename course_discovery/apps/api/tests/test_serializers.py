@@ -1949,6 +1949,71 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
         serializer = self.serialize_course(course, request)
         self.assertDictEqual(serializer.data, expected)
 
+    def test_detail_fields_in_response(self):
+        request = make_request({'detail_fields': True})
+        organization = OrganizationFactory()
+        # 'organizations' in serialized data should not return duplicate organization names
+        # Add the same organization twice to the course and make sure only one is in the serialized data
+        course = CourseFactory(
+            subjects=SubjectFactory.create_batch(3),
+            authoring_organizations=[organization],
+            sponsoring_organizations=[organization],
+        )
+        course_run = CourseRunFactory(course=course)
+        course.course_runs.add(course_run)
+        course.save()
+        seat = SeatFactory(course_run=course_run)
+        expected = {
+            'key': course.key,
+            'title': course.title,
+            'short_description': course.short_description,
+            'full_description': course.full_description,
+            'content_type': 'course',
+            'aggregation_key': 'course:{}'.format(course.key),
+            'card_image_url': course.card_image_url,
+            'image_url': course.image_url,
+            'course_runs': [{
+                'key': course_run.key,
+                'enrollment_start': course_run.enrollment_start,
+                'enrollment_end': course_run.enrollment_end,
+                'go_live_date': course_run.go_live_date,
+                'start': course_run.start,
+                'end': course_run.end,
+                'modified': course_run.modified,
+                'availability': course_run.availability,
+                'pacing_type': course_run.pacing_type,
+                'enrollment_mode': course_run.type_legacy,
+                'min_effort': course_run.min_effort,
+                'max_effort': course_run.max_effort,
+                'weeks_to_complete': course_run.weeks_to_complete,
+                'estimated_hours': get_course_run_estimated_hours(course_run),
+                'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0,
+                'staff': MinimalPersonSerializer(course_run.staff, many=True,
+                                                 context={'request': request}).data,
+                'content_language': course_run.language.code if course_run.language else None,
+
+            }],
+            'uuid': str(course.uuid),
+            'subjects': [subject.name for subject in course.subjects.all()],
+            'languages': [
+                serialize_language(course_run.language) for course_run in course.course_runs.all()
+                if course_run.language
+            ],
+            'seat_types': [seat.type.slug],
+            'organizations': [
+                '{key}: {name}'.format(
+                    key=course.sponsoring_organizations.first().key,
+                    name=course.sponsoring_organizations.first().name,
+                )
+            ],
+            'outcome': course.outcome,
+            'level_type': course.level_type.name,
+            'modified': course.modified.strftime('%Y-%m-%dT%H:%M:%SZ'),
+        }
+
+        serializer = self.serialize_course(course, request)
+        self.assertDictEqual(serializer.data, expected)
+
     @classmethod
     def get_expected_data(cls, course, course_run, seat):
         return {

@@ -117,6 +117,7 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     logo_image_urls = indexes.MultiValueField()
     sponsoring_organizations = indexes.MultiValueField(faceted=True)
     level_type = indexes.CharField(null=True, faceted=True)
+    outcome = indexes.CharField(model_attr='outcome', null=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
 
     def prepare_logo_image_urls(self, obj):
@@ -150,6 +151,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     status = indexes.CharField(model_attr='course_runs__status')
     start = indexes.DateTimeField(model_attr='course_runs__start', null=True)
     end = indexes.DateTimeField(model_attr='course_runs__end', null=True)
+    modified = indexes.DateTimeField(model_attr='modified', null=True)
     enrollment_start = indexes.DateTimeField(model_attr='course_runs__enrollment_start', null=True)
     enrollment_end = indexes.DateTimeField(model_attr='course_runs__enrollment_end', null=True)
     availability = indexes.CharField(model_attr='course_runs__availability')
