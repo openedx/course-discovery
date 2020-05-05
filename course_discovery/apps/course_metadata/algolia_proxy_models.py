@@ -185,7 +185,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     @property
     def program_types(self):
         activate_product_language(self)
-        return [program.type.name_t for program in self.programs.all()]
+        return [program.type.name for program in self.programs.all()]
 
     @property
     def product_card_image_url(self):
@@ -292,7 +292,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     def program_types(self):
         activate_product_language(self)
         if self.type:
-            return [self.type.name_t]
+            return [self.type.name]
         return None
 
     @property
