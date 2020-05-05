@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-03 20:35+0000\n"
+"POT-Creation-Date: 2020-05-05 18:22+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -484,6 +484,21 @@ msgstr ""
 #: apps/course_metadata/admin.py
 msgid "Edit link"
 msgstr "Édït lïnk Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/algolia_proxy_models.py
+#: apps/course_metadata/algolia_proxy_models.py
+msgid "Available now"
+msgstr "Àväïläßlé nöw Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/algolia_proxy_models.py
+#: apps/course_metadata/algolia_proxy_models.py apps/course_metadata/models.py
+msgid "Upcoming"
+msgstr "Ûpçömïng Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/course_metadata/algolia_proxy_models.py
+#: apps/course_metadata/algolia_proxy_models.py apps/course_metadata/models.py
+msgid "Archived"
+msgstr "Àrçhïvéd Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/course_metadata/choices.py apps/course_metadata/choices.py
 msgid "Unpublished"
@@ -1261,20 +1276,12 @@ msgstr ""
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
-msgid "Archived"
-msgstr "Àrçhïvéd Ⱡ'σяєм ιρѕυм ∂#"
-
-#: apps/course_metadata/models.py
 msgid "Current"
 msgstr "Çürrént Ⱡ'σяєм ιρѕυм #"
 
 #: apps/course_metadata/models.py
 msgid "Starting Soon"
 msgstr "Stärtïng Söön Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
-
-#: apps/course_metadata/models.py
-msgid "Upcoming"
-msgstr "Ûpçömïng Ⱡ'σяєм ιρѕυм ∂#"
 
 #: apps/course_metadata/models.py
 msgid ""
