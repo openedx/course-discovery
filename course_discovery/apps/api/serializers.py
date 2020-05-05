@@ -1931,34 +1931,58 @@ class CourseSearchSerializer(HaystackSerializer):
     course_runs = serializers.SerializerMethodField()
     seat_types = serializers.SerializerMethodField()
 
+    def __init__(self, *args, **kwargs):
+        super(CourseSearchSerializer, self).__init__(*args, **kwargs)
+        request = self.context['request']
+        detail_fields = request.GET.get("detail_fields")
+        # if detail_fields query_param not in request than do not add the following fields in serializer response.
+        if not detail_fields:
+            self.fields.pop('level_type')
+            self.fields.pop('modified')
+            self.fields.pop('outcome')
+
     @staticmethod
     def _get_default_field_kwargs(model, field):
         return get_default_field_kwargs(model, field)
+
+    @staticmethod
+    def course_run_detail(request, detail_fields, course_run):
+        course_run_detail = {
+            'key': course_run.key,
+            'enrollment_start': course_run.enrollment_start,
+            'enrollment_end': course_run.enrollment_end,
+            'go_live_date': course_run.go_live_date,
+            'start': course_run.start,
+            'end': course_run.end,
+            'modified': course_run.modified,
+            'availability': course_run.availability,
+            'pacing_type': course_run.pacing_type,
+            'enrollment_mode': course_run.type_legacy,
+            'min_effort': course_run.min_effort,
+            'max_effort': course_run.max_effort,
+            'weeks_to_complete': course_run.weeks_to_complete,
+            'estimated_hours': get_course_run_estimated_hours(course_run),
+            'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0
+        }
+        if detail_fields:
+            course_run_detail.update(
+                {
+                    'staff': MinimalPersonSerializer(course_run.staff, many=True,
+                                                     context={'request': request}).data,
+                    'content_language': course_run.language.code if course_run.language else None,
+                }
+            )
+        return course_run_detail
 
     def get_course_runs(self, result):
         request = self.context['request']
         course_runs = result.object.course_runs.all()
         now = datetime.datetime.now(pytz.UTC)
         exclude_expired = request.GET.get("exclude_expired_course_run")
-
+        detail_fields = request.GET.get("detail_fields")
         return [
-            {
-                'key': course_run.key,
-                'enrollment_start': course_run.enrollment_start,
-                'enrollment_end': course_run.enrollment_end,
-                'go_live_date': course_run.go_live_date,
-                'start': course_run.start,
-                'end': course_run.end,
-                'modified': course_run.modified,
-                'availability': course_run.availability,
-                'pacing_type': course_run.pacing_type,
-                'enrollment_mode': course_run.type_legacy,
-                'min_effort': course_run.min_effort,
-                'max_effort': course_run.max_effort,
-                'weeks_to_complete': course_run.weeks_to_complete,
-                'estimated_hours': get_course_run_estimated_hours(course_run),
-                'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0
-            }
+            self.course_run_detail(request, detail_fields, course_run)
+
             for course_run in course_runs
             # Check if exclude_expire_course_run is in query_params then exclude the course
             # runs whose end date is passed. We do this here, rather than as an additional
@@ -1988,6 +2012,9 @@ class CourseSearchSerializer(HaystackSerializer):
             'subjects',
             'languages',
             'organizations',
+            'outcome',
+            'level_type',
+            'modified',
         )
 
 
