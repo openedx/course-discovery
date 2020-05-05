@@ -1355,7 +1355,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         now = datetime.datetime.now(pytz.UTC)
         two_weeks = datetime.timedelta(days=14)
         after_start = (not self.start) or self.start < now
-        ends_in_more_than_two_weeks = (not self.end) or (now <= self.end - two_weeks)
+        ends_in_more_than_two_weeks = (not self.end) or (now.date() <= self.end.date() - two_weeks)
         return after_start and ends_in_more_than_two_weeks
 
     def is_current_and_still_upgradeable(self):
