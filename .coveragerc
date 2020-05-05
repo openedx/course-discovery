@@ -8,6 +8,7 @@ omit =
     course_discovery/conf*
     course_discovery/apps/course_metadata/tests/factories.py
     course_discovery/apps/course_metadata/algolia_proxy_models.py
+    course_discovery/apps/course_metadata/index.py
     *conftest.py
     *wsgi.py
     *migrations*
