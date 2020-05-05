@@ -1350,6 +1350,14 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         """
         return len(self._enrollable_paid_seats()[:1]) > 0
 
+    def is_current(self):
+        # Return true if today is after the run start (or start is none) and two weeks from the run end (or end is none)
+        now = datetime.datetime.now(pytz.UTC)
+        two_weeks = datetime.timedelta(days=14)
+        after_start = (not self.start) or self.start < now
+        ends_in_more_than_two_weeks = (not self.end) or (now.date() <= self.end.date() - two_weeks)
+        return after_start and ends_in_more_than_two_weeks
+
     def is_current_and_still_upgradeable(self):
         """
         Return true if
@@ -1357,13 +1365,13 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         2. The run has a seat that is still enrollable and upgradeable
         and false otherwise
         """
+        return self.is_current() and self.is_upgradeable()
+
+    def is_upcoming(self):
+        # Return true if course has start date and start date is in the future
+
         now = datetime.datetime.now(pytz.UTC)
-        two_weeks = datetime.timedelta(days=14)
-        after_start = (not self.start) or (self.start and self.start < now)
-        ends_in_more_than_two_weeks = (not self.end) or (self.end.date() and now.date() <= self.end.date() - two_weeks)
-        if after_start and ends_in_more_than_two_weeks:
-            return self.is_upgradeable()
-        return False
+        return self.start and self.start >= now
 
     def get_paid_seat_enrollment_end(self):
         """
