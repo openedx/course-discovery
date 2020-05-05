@@ -1,6 +1,4 @@
-import json
 import logging
-import pickle
 import time
 import zlib
 
@@ -13,6 +11,7 @@ from rest_framework_extensions.key_constructor.bits import KeyBitBase, QueryPara
 from rest_framework_extensions.key_constructor.constructors import (
     DefaultListKeyConstructor, DefaultObjectKeyConstructor
 )
+from waffle import get_waffle_flag_model
 
 from course_discovery.apps.api.utils import conditional_decorator
 
@@ -71,35 +70,27 @@ class CompressedCacheResponse(CacheResponse):
     for a similar implementation of process_cache_response without compression
     """
     def process_cache_response(self, view_instance, view_method, request, args, kwargs):
-        key = self.calculate_key(
-            view_instance=view_instance,
-            view_method=view_method,
-            request=request,
-            args=args,
-            kwargs=kwargs
+        flag = get_waffle_flag_model().get(
+            'compressed_cache.{}.{}'.format(view_instance.__class__.__name__, view_method.__name__)
         )
-        response_triple = self.cache.get(key)
-        if view_instance.__class__.__name__ == 'ProgramViewSet':
-            hit = "miss" if response_triple is None else "hit"
-            if view_method.__name__ == "list":
-                key_func_class = TimestampedListKeyConstructor
-            elif view_method.__name__ == "retrieve":
-                key_func_class = TimestampedObjectKeyConstructor
 
-            key_data = key_func_class().get_data_from_bits(
+        # If the flag isn't stored in the database yet, then use the cache
+        # If it is in the database, use the waffle rules for activity
+        # This logic allows us to opt particular pages out of the cache without having
+        # to define all of the flags ahead of time.
+        use_page_cache = (not flag.pk) or flag.is_active(request)
+
+        if use_page_cache:
+            key = self.calculate_key(
                 view_instance=view_instance,
                 view_method=view_method,
                 request=request,
                 args=args,
                 kwargs=kwargs
             )
-            logger.info(
-                "%r page cache result %r from key %r (from data %r)",
-                view_method,
-                hit,
-                key,
-                json.dumps(key_data, sort_keys=True),
-            )
+            response_triple = self.cache.get(key)
+        else:
+            response_triple = None
 
         if not response_triple:
             response = view_method(view_instance, request, *args, **kwargs)
@@ -107,7 +98,8 @@ class CompressedCacheResponse(CacheResponse):
             response.render()
 
             if (not (response.status_code >= 400 or self.cache_errors) and
-                    isinstance(response.accepted_renderer, JSONRenderer)):
+                    isinstance(response.accepted_renderer, JSONRenderer) and
+                    use_page_cache):
                 # Put the response in the cache only if there are no cache errors, response errors,
                 # and the format is json. We avoid caching for the BrowsableAPIRenderer so that users don't see
                 # different usernames that are cached from the BrowsableAPIRenderer html
@@ -116,14 +108,6 @@ class CompressedCacheResponse(CacheResponse):
                     response.status_code,
                     response._headers.copy(),  # pylint: disable=protected-access
                 )
-                if len(response_triple[0]) > 1.5 * 1024 * 1024:  # This might be over the item size
-                    actual_size = len(pickle.dumps(response_triple))
-                    if actual_size >= 1.99 * 1024 * 1024:
-                        logger.warning(
-                            "Cached object for %s is likely over the memcached item size limit (pickle length: %s)",
-                            request.get_full_path(),
-                            actual_size,
-                        )
                 self.cache.set(key, response_triple, self.timeout)
         else:
             # If we get data from the cache, we reassemble the data to build a response
