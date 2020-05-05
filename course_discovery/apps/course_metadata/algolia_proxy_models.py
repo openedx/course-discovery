@@ -57,18 +57,15 @@ def delegate_attributes(cls):
 
 
 def get_course_availability(course):
-    all_runs = course.course_runs.all()
+    all_runs = course.course_runs.filter(status=CourseRunStatus.Published)
 
     if len([course_run for course_run in all_runs if
-            course_run.status == CourseRunStatus.Published and
             course_run.is_current()]) > 0:
         return _('Available now')
     elif len([course_run for course_run in all_runs if
-              course_run.status == CourseRunStatus.Published and
               course_run.is_upcoming()]) > 0:
         return _('Upcoming')
-    elif len([course_run for course_run in all_runs if
-              course_run.status == CourseRunStatus.Published]) > 0:
+    elif len(all_runs) > 0:
         return _('Archived')
     else:
         return None
@@ -292,11 +289,11 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     def availability_level(self):
         all_courses = self.courses.all()
 
-        if len([course for course in all_courses if get_course_availability(course) == _('Available now')]) > 0:
+        if len([course for course in all_courses if get_course_availability(course) == 'Available now']) > 0:
             return _('Available now')
-        elif len([course for course in all_courses if get_course_availability(course) == _('Upcoming')]) > 0:
+        elif len([course for course in all_courses if get_course_availability(course) == 'Upcoming']) > 0:
             return _('Upcoming')
-        elif len([course for course in all_courses if get_course_availability(course) == _('Archived')]) > 0:
+        elif len([course for course in all_courses if get_course_availability(course) == 'Archived']) > 0:
             return _('Archived')
         else:
             return None
