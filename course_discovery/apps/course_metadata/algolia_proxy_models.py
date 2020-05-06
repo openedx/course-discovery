@@ -12,7 +12,7 @@ from course_discovery.apps.course_metadata.models import Course, Program, Progra
 # Utility methods used by both courses and programs
 def get_active_language(course):
     if course.advertised_course_run and course.advertised_course_run.language:
-        return course.advertised_course_run.language.macrolanguage
+        return course.advertised_course_run.language.translated_macrolanguage
     return None
 
 
@@ -144,6 +144,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def active_languages(self):
+        activate_product_language(self)
         language = get_active_language(self)
         if language:
             return [language]
@@ -274,6 +275,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def active_languages(self):
+        activate_product_language(self)
         return list(dict.fromkeys([get_active_language(course) for course in self.courses.all()]))
 
     @property
