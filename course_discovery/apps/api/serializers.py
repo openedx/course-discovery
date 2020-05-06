@@ -1975,7 +1975,8 @@ class CourseSearchSerializer(HaystackSerializer):
             'max_effort': course_run.max_effort,
             'weeks_to_complete': course_run.weeks_to_complete,
             'estimated_hours': get_course_run_estimated_hours(course_run),
-            'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0
+            'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price or 0.0,
+            'is_enrollable': course_run.is_enrollable,
         }
         if detail_fields:
             course_run_detail.update(
@@ -2047,6 +2048,7 @@ class CourseRunSearchSerializer(HaystackSerializer):
     availability = serializers.SerializerMethodField()
     first_enrollable_paid_seat_price = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
+    is_enrollable = serializers.SerializerMethodField()
 
     def get_availability(self, result):
         return result.object.availability
@@ -2056,6 +2058,9 @@ class CourseRunSearchSerializer(HaystackSerializer):
 
     def get_type(self, result):
         return result.object.type_legacy
+
+    def get_is_enrollable(self, result):
+        return result.object.is_enrollable
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -2073,6 +2078,7 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'go_live_date',
             'has_enrollable_seats',
             'image_url',
+            'is_enrollable',
             'key',
             'language',
             'level_type',
