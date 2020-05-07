@@ -70,9 +70,8 @@ class CompressedCacheResponse(CacheResponse):
     for a similar implementation of process_cache_response without compression
     """
     def process_cache_response(self, view_instance, view_method, request, args, kwargs):
-        flag = get_waffle_flag_model().get(
-            'compressed_cache.{}.{}'.format(view_instance.__class__.__name__, view_method.__name__)
-        )
+        flag_name = 'compressed_cache.{}.{}'.format(view_instance.__class__.__name__, view_method.__name__)
+        flag = get_waffle_flag_model().get(flag_name)
 
         # If the flag isn't stored in the database yet, then use the cache
         # If it is in the database, use the waffle rules for activity
@@ -90,6 +89,7 @@ class CompressedCacheResponse(CacheResponse):
             )
             response_triple = self.cache.get(key)
         else:
+            logger.info("Skipping page caching for %s", flag_name)
             response_triple = None
 
         if not response_triple:
