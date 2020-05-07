@@ -73,8 +73,8 @@ class SpanishProductIndex(AlgoliaIndex):
     should_index = 'should_index'
 
     def get_queryset(self):  # pragma: no cover
-        qs1 = [AlgoliaProxyProduct(course, 'es') for course in AlgoliaProxyCourse.objects.all()]
-        qs2 = [AlgoliaProxyProduct(program, 'es') for program in AlgoliaProxyProgram.objects.all()]
+        qs1 = [AlgoliaProxyProduct(course, 'es_419') for course in AlgoliaProxyCourse.objects.all()]
+        qs2 = [AlgoliaProxyProduct(program, 'es_419') for program in AlgoliaProxyProgram.objects.all()]
         return qs1 + qs2
 
 
