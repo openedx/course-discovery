@@ -1,53 +1,66 @@
 language: python
-
 python:
-  - 3.5
-
+- 3.5
 branches:
   only:
-    - master
-
+  - master
 services:
-  - docker
-
+- docker
 sudo: required
-
 cache:
-  - directories:
-    - course_discovery/static/bower_components
-
+- directories:
+  - course_discovery/static/bower_components
 before_install:
-    - make travis_up
-
+- make travis_up
 matrix:
   include:
-    - env: TOXENV=django22
-    - env: COMMAND=test:quality
-      install:
-        - docker exec -t discovery bash -c 'sed -i "s/course_discovery.settings.devstack/course_discovery.settings.test/" /edx/app/discovery/discovery_env'
-        - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make requirements'
-
-      script:
-        - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make docs'
-        - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make clean_static'
-        - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make static'
-        - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make quality'
-        - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make check_keywords'
-    - python: 3.8
-      env: TOXENV=django22
-
+  - env: TOXENV=django22
+  - env: COMMAND=test:quality
+    install:
+    - docker exec -t discovery bash -c 'sed -i "s/course_discovery.settings.devstack/course_discovery.settings.test/"
+      /edx/app/discovery/discovery_env'
+    - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env &&
+      cd /edx/app/discovery/discovery/ && make requirements'
+    script:
+    - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env &&
+      cd /edx/app/discovery/discovery/ && make docs'
+    - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env &&
+      cd /edx/app/discovery/discovery/ && make clean_static'
+    - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env &&
+      cd /edx/app/discovery/discovery/ && make static'
+    - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env &&
+      cd /edx/app/discovery/discovery/ && make quality'
+    - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env &&
+      cd /edx/app/discovery/discovery/ && make check_keywords'
+  - python: 3.8
+    env: TOXENV=django22
 install:
-  - docker exec -t discovery bash -c 'sed -i "s|http://archive|http://us.archive|g" /etc/apt/sources.list' # US mirrors for speed
-  - docker exec -t discovery bash -c 'apt update && apt install -y --no-install-recommends firefox gettext'
-  - docker exec -t discovery bash -c 'sed -i "s/course_discovery.settings.devstack/course_discovery.settings.test/" /edx/app/discovery/discovery_env'
-  - docker exec -e TOXENV=$TOXENV -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make requirements'
-
+- docker exec -t discovery bash -c 'sed -i "s|http://archive|http://us.archive|g"
+  /etc/apt/sources.list'
+- docker exec -t discovery bash -c 'apt update && apt install -y --no-install-recommends
+  firefox gettext'
+- docker exec -t discovery bash -c 'sed -i "s/course_discovery.settings.devstack/course_discovery.settings.test/"
+  /edx/app/discovery/discovery_env'
+- docker exec -e TOXENV=$TOXENV -t discovery bash -c 'source /edx/app/discovery/discovery_env
+  && cd /edx/app/discovery/discovery/ && make requirements'
 script:
-  - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make clean_static'
-  - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make static'
-  - docker exec -e TOXENV=$TOXENV -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make test'
-
+- docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd
+  /edx/app/discovery/discovery/ && make clean_static'
+- docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd
+  /edx/app/discovery/discovery/ && make static'
+- docker exec -e TOXENV=$TOXENV -t discovery bash -c 'source /edx/app/discovery/discovery_env
+  && cd /edx/app/discovery/discovery/ && make test'
 after_success:
-  - pip install -U codecov
-  - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && coverage xml'
-  - codecov
+- pip install -U codecov
+- docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd
+  /edx/app/discovery/discovery/ && coverage xml'
+- codecov
+env:
+  global:
+  - DOCKER_USERNAME=edxbuilder
+  - secure: aOQRuNnH7pVTs/2upmUvymKk0F54khd5p5v0n8dngPhx6TV8Uv2HPCBBOl9SqYt/NQ/PRWu5EnscYx+tuVpi+ilRHdTZSlo0tFb6UATF9ZYODHsKlL+739PkmHorVSPaQ9C1SoPklrwqlHVRqy3Q6SYaChNAAR/hF8YuSKus8eQE0c7haCmwm/r4BsIOCdH5E6iuUw7lUWBjwOZu0Rv79LfmHy/KG1QjFPiY99BZm0BjzQ04jyA+uMqmtJB1xyO1kia5lp9OyPAeCtgZPtW8LwhsRRwISLHjEEMvawEGIZYS//VTqvfZ9juUBD8ihz8MiPzhpFdN6cdLfdLDldjzR0sQWcWJXNVZmsFd0SOD6iliQ5YMy8Xp1KCy5n4T+r7jufXRbvaq1R2WsiSo7n2ekt7+9BIH1mf3xDdNtpaYyUK5IEjNO1zX4fs473LenMwM74Vo9RyM5k6G0Jdo0g682Yxdy/1w3T12dXIhCv92s7so6iyNCm0S0XPxyQIfH9N65Zc9qGVqpPfQE6AfaAYbDzmC6LrfTJkoIwGRiwLBaMuzrRfoKbDcnjsrU3vXp3XSdYtMGSHO4GPwaGXs/SvHpXRxiLJzntUZWhbUdDSMPofRknC8vRwie7RsybiGwF+FaSK9pBKoON+qT8r6s6lWpvYT1W0WQcoE+kcngTMX70I=
+deploy:
+  provider: script
+  script: make travis_docker_push
+  on:
+    branch: master

@@ -115,3 +115,19 @@ docs:
 
 check_keywords: ## Scan the Django models in all installed apps in this project for restricted field names
 	python manage.py check_reserved_keywords --override_file db_keyword_overrides.yml
+docker_build:
+	docker build . -f Dockerfile -t openedx/course-discovery
+	docker build . -f Dockerfile --target newrelic -t openedx/course-discovery:latest-newrelic
+
+travis_docker_tag: docker_build
+	docker tag openedx/course-discovery openedx/course-discovery:$$TRAVIS_COMMIT
+	docker tag openedx/course-discovery:latest-newrelic openedx/course-discovery:$$TRAVIS_COMMIT-newrelic
+
+travis_docker_auth:
+	echo "$$DOCKER_PASSWORD" | docker login -u "$$DOCKER_USERNAME" --password-stdin
+
+travis_docker_push: travis_docker_tag travis_docker_auth ## push to docker hub
+	docker push 'openedx/course-discovery:latest'
+	docker push "openedx/course-discovery:$$TRAVIS_COMMIT"
+	docker push 'openedx/course-discovery:latest-newrelic'
+	docker push "openedx/course-discovery:$$TRAVIS_COMMIT-newrelic"
