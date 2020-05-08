@@ -115,9 +115,10 @@ docs:
 
 check_keywords: ## Scan the Django models in all installed apps in this project for restricted field names
 	python manage.py check_reserved_keywords --override_file db_keyword_overrides.yml
+
 docker_build:
 	docker build . -f Dockerfile -t openedx/course-discovery
-	docker build . -f Dockerfile --target newrelic -t openedx/course-discovery:latest-newrelic
+	docker build . -f Dockerfile --target edx.org -t openedx/course-discovery:latest-newrelic
 
 travis_docker_tag: docker_build
 	docker tag openedx/course-discovery openedx/course-discovery:$$TRAVIS_COMMIT
