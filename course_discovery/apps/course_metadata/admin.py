@@ -399,8 +399,8 @@ class CurriculumCourseMembershipInline(admin.StackedInline):
                 text=_("Edit course run exclusions"),
             )
         return _("(save and continue editing to create a link)")
+
     get_edit_link.short_description = _("Edit link")
-    get_edit_link.allow_tags = True
 
     extra = 0
 
