@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-05 18:22+0000\n"
+"POT-Creation-Date: 2020-05-11 05:52+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -2017,6 +2017,14 @@ msgid "The program was changed successfully."
 msgstr ""
 "Thé prögräm wäs çhängéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
+
+#: apps/ietf_language_tags/models.py
+msgid "Name for translation"
+msgstr "Nämé för tränslätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/ietf_language_tags/models.py
+msgid "LanguageTag model translations"
+msgstr "LängüägéTäg mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
 #: apps/publisher/models.py
 msgid "Organization Role"
