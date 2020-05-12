@@ -279,14 +279,14 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         self.attach_published_course_run(course=course, run_type='upcoming')
         self.attach_published_course_run(course=course, run_type='archived')
 
-        assert course.availability_level == set(['Available now', 'Upcoming', 'Archived'])
+        assert course.availability_level == list(set(['Available now', 'Upcoming', 'Archived']))
 
     def test_course_not_available_now_if_end_date_too_soon(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
         self.attach_published_course_run(course=course, run_type="current and ends within two weeks")
 
-        assert course.availability_level == set(['Archived'])
+        assert course.availability_level == ['Archived']
 
     def test_course_availability_empty_if_no_published_runs(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
@@ -295,7 +295,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             status=CourseRunStatus.Unpublished,
         )
 
-        assert course.availability_level == set()
+        assert course.availability_level == []
 
 
 @pytest.mark.django_db
@@ -355,7 +355,7 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         self.attach_course_run(course=course_2, availability="Archived")
         program.courses.add(course_2)
 
-        assert program.availability_level == set(['Available now', 'Upcoming', 'Archived'])
+        assert program.availability_level == list(set(['Available now', 'Upcoming', 'Archived']))
 
     def test_program_not_available_if_no_published_runs(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
@@ -363,7 +363,7 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         self.attach_course_run(course=course, availability="none")
         program.courses.add(course)
 
-        assert program.availability_level == set()
+        assert program.availability_level == []
 
     def test_should_index(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
