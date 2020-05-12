@@ -59,17 +59,17 @@ def delegate_attributes(cls):
 
 def get_course_availability(course):
     all_runs = course.course_runs.filter(status=CourseRunStatus.Published)
+    availability = set()
 
-    if len([course_run for course_run in all_runs if
-            course_run.is_current()]) > 0:
-        return _('Available now')
-    elif len([course_run for course_run in all_runs if
-              course_run.is_upcoming()]) > 0:
-        return _('Upcoming')
-    elif len(all_runs) > 0:
-        return _('Archived')
-    else:
-        return None
+    for course_run in all_runs:
+        if course_run.is_current():
+            availability.add(_('Available now'))
+        elif course_run.is_upcoming():
+            availability.add(_('Upcoming'))
+        else:
+            availability.add(_('Archived'))
+
+    return availability
 
 # Proxies Program model in order to trick Algolia into thinking this is a single model so it doesn't error.
 # No model-specific attributes or methods are actually used.
@@ -201,7 +201,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return (len(self.owners) > 0 and
                 self.active_url_slug and
                 self.partner.name == 'edX' and
-                self.availability_level is not None and
+                self.availability_level and
                 bool(self.advertised_course_run) and
                 not self.advertised_course_run.hidden)
 
@@ -288,15 +288,14 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def availability_level(self):
         all_courses = self.courses.all()
+        availability = set()
 
-        if len([course for course in all_courses if get_course_availability(course) == 'Available now']) > 0:
-            return _('Available now')
-        elif len([course for course in all_courses if get_course_availability(course) == 'Upcoming']) > 0:
-            return _('Upcoming')
-        elif len([course for course in all_courses if get_course_availability(course) == 'Archived']) > 0:
-            return _('Archived')
-        else:
-            return None
+        for course in all_courses:
+            course_status = get_course_availability(course)
+            for status in course_status:
+                availability.add(status)
+
+        return availability
 
     @property
     def is_prof_cert_program(self):
@@ -309,5 +308,5 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.marketing_url and
                 self.program_types and
                 self.status == ProgramStatus.Active and
-                self.availability_level is not None and
+                self.availability_level and
                 self.partner.name == 'edX')
