@@ -14,7 +14,8 @@ from course_discovery.apps.course_metadata.algolia_proxy_models import AlgoliaPr
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRunStatus
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory, ProgramTypeFactory, SeatFactory,
+    SeatTypeFactory
 )
 
 
@@ -377,6 +378,13 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         self.attach_course(program=program, availability="Archived")
 
         assert program.availability_level == 'Archived'
+
+    def test_program_available_now_if_program_type_is_masters(self):
+        program_type = ProgramTypeFactory()
+        program_type.slug = 'masters'
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
+
+        assert program.availability_level == 'Available now'
 
     def test_program_not_available_if_no_published_runs(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
