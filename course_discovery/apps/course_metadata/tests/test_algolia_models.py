@@ -280,7 +280,10 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         self.attach_published_course_run(course=course, run_type='upcoming')
         self.attach_published_course_run(course=course, run_type='archived')
 
-        assert course.availability_level == list(set(['Available now', 'Upcoming', 'Archived']))
+        assert len(course.availability_level) == 3
+        assert 'Available now' in course.availability_level
+        assert 'Upcoming' in course.availability_level
+        assert 'Archived' in course.availability_level
 
     def test_course_not_available_now_if_end_date_too_soon(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
@@ -356,7 +359,10 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         self.attach_course_run(course=course_2, availability="Archived")
         program.courses.add(course_2)
 
-        assert program.availability_level == list(set(['Available now', 'Upcoming', 'Archived']))
+        assert len(program.availability_level) == 3
+        assert 'Available now' in program.availability_level
+        assert 'Upcoming' in program.availability_level
+        assert 'Archived' in program.availability_level
 
     def test_program_available_now_if_program_type_is_masters(self):
         program_type = ProgramTypeFactory()
