@@ -94,12 +94,7 @@ class BaseIndex(indexes.SearchIndex):
 
     def _prepare_language(self, language):
         if language:
-            # ECOM-5466: Render the macro language for all languages except Chinese
-            if language.code.startswith('zh'):
-                return language.name
-            else:
-                return language.macrolanguage
-
+            return language.get_search_facet_display()
         return None
 
 

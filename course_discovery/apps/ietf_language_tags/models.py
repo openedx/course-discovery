@@ -21,6 +21,13 @@ class LanguageTag(TranslatableModel):
     def translated_macrolanguage(self):
         return self.name_t.split('-')[0].strip()
 
+    def get_search_facet_display(self, translate=False):
+        # Only Chinese languages (Chinese - Mandarin, Chinese - Traditional, etc.) are separate facets for search.
+        # All other languages are grouped by macrolanguage.
+        if self.code.startswith('zh'):
+            return self.name_t if translate else self.name
+        return self.translated_macrolanguage if translate else self.macrolanguage
+
 
 class LanguageTagTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
     master = models.ForeignKey(LanguageTag, models.CASCADE, related_name='translations', null=True)

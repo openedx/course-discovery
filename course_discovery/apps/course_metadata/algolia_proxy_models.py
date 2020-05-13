@@ -12,7 +12,7 @@ from course_discovery.apps.course_metadata.models import Course, Program, Progra
 # Utility methods used by both courses and programs
 def get_active_language(course):
     if course.advertised_course_run and course.advertised_course_run.language:
-        return course.advertised_course_run.language.translated_macrolanguage
+        return course.advertised_course_run.language.get_search_facet_display(translate=True)
     return None
 
 
