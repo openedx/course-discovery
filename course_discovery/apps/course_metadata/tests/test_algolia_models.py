@@ -273,45 +273,33 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert course_1.availability_rank
         assert not course_2.availability_rank
 
-    def test_course_available_now_if_any_run_available_now(self):
+    def test_course_availability_reflects_all_course_runs(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
         self.attach_published_course_run(course=course, run_type="current and ends after two weeks")
         self.attach_published_course_run(course=course, run_type='upcoming')
         self.attach_published_course_run(course=course, run_type='archived')
 
-        assert course.availability_level == 'Available now'
+        assert len(course.availability_level) == 3
+        assert 'Available now' in course.availability_level
+        assert 'Upcoming' in course.availability_level
+        assert 'Archived' in course.availability_level
 
-    def test_not_available_now_if_end_date_too_soon(self):
+    def test_course_not_available_now_if_end_date_too_soon(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
         self.attach_published_course_run(course=course, run_type="current and ends within two weeks")
 
-        assert course.availability_level == 'Archived'
+        assert course.availability_level == ['Archived']
 
-    def test_course_upcoming_if_any_run_upcoming_and_no_run_available_now(self):
-        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
-
-        self.attach_published_course_run(course=course, run_type='upcoming')
-        self.attach_published_course_run(course=course, run_type='archived')
-
-        assert course.availability_level == 'Upcoming'
-
-    def test_course_archived(self):
-        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
-
-        self.attach_published_course_run(course=course, run_type='archived')
-
-        assert course.availability_level == 'Archived'
-
-    def test_course_availability_none_if_no_published_runs(self):
+    def test_course_availability_empty_if_no_published_runs(self):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
         CourseRunFactory(
             course=course,
             status=CourseRunStatus.Unpublished,
         )
 
-        assert course.availability_level is None
+        assert course.availability_level == []
 
 
 @pytest.mark.django_db
@@ -323,61 +311,58 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     IN_FIFTEEN_DAYS = datetime.datetime.now(UTC) + datetime.timedelta(days=15)
     IN_TWO_MONTHS = datetime.datetime.now(UTC) + datetime.timedelta(days=60)
 
-    def attach_course(self, program, availability="none"):
-        course = CourseFactory()
-
-        if availability == "Available now":
-            CourseRunFactory(
-                course=course,
-                start=self.ONE_MONTH_AGO,
-                end=self.IN_FIFTEEN_DAYS,
-                status=CourseRunStatus.Published
-            )
-        elif availability == "Upcoming":
-            CourseRunFactory(
+    def attach_course_run(self, course, availability="Archived"):
+        if availability == 'none':
+            return CourseRunFactory(
                 course=course,
                 start=self.TOMORROW,
                 end=self.IN_TWO_MONTHS,
-                status=CourseRunStatus.Published
-            )
-        elif availability == "Archived":
-            CourseRunFactory(
-                course=course,
-                start=self.ONE_MONTH_AGO,
-                end=self.YESTERDAY,
-                status=CourseRunStatus.Published
-            )
-        elif availability == 'none':
-            CourseRunFactory(
-                course=course,
-                start=None,
-                end=None,
                 status=CourseRunStatus.Unpublished
             )
+        elif availability == 'Available now':
+            course_start = self.ONE_MONTH_AGO
+            course_end = self.IN_FIFTEEN_DAYS
+        elif availability == 'Upcoming':
+            course_start = self.TOMORROW
+            course_end = self.IN_TWO_MONTHS
+        elif availability == 'Archived':
+            course_start = self.ONE_MONTH_AGO
+            course_end = self.YESTERDAY
 
+        return CourseRunFactory(
+            course=course,
+            start=course_start,
+            end=course_end,
+            status=CourseRunStatus.Published
+        )
+
+    def attach_archived_course(self, program):
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        CourseRunFactory(
+            course=course,
+            start=self.ONE_MONTH_AGO,
+            end=self.YESTERDAY,
+            status=CourseRunStatus.Published
+        )
         return program.courses.add(course)
 
-    def test_program_available_now_if_one_course_available_now(self):
+    def test_program_availability_reflects_all_unique_course_statuses(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        self.attach_course(program=program, availability="Available now")
-        self.attach_course(program=program, availability="Upcoming")
-        self.attach_course(program=program, availability="Archived")
 
-        assert program.availability_level == 'Available now'
+        course_1 = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        self.attach_course_run(course=course_1, availability="Available now")
+        self.attach_course_run(course=course_1, availability="Upcoming")
+        program.courses.add(course_1)
 
-    def test_program_upcoming_if_one_course_is_upcoming_and_none_available_now(self):
-        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        self.attach_course(program=program, availability="Upcoming")
-        self.attach_course(program=program, availability="Archived")
+        course_2 = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        self.attach_course_run(course=course_2, availability="Upcoming")
+        self.attach_course_run(course=course_2, availability="Archived")
+        program.courses.add(course_2)
 
-        assert program.availability_level == 'Upcoming'
-
-    def test_program_archived(self):
-        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        self.attach_course(program=program, availability="Archived")
-        self.attach_course(program=program, availability="Archived")
-
-        assert program.availability_level == 'Archived'
+        assert len(program.availability_level) == 3
+        assert 'Available now' in program.availability_level
+        assert 'Upcoming' in program.availability_level
+        assert 'Archived' in program.availability_level
 
     def test_program_available_now_if_program_type_is_masters(self):
         program_type = ProgramTypeFactory()
@@ -388,48 +373,50 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
 
     def test_program_not_available_if_no_published_runs(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        self.attach_course(program=program, availability="none")
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
+        self.attach_course_run(course=course, availability="none")
+        program.courses.add(course)
 
-        assert program.availability_level is None
+        assert program.availability_level == []
 
     def test_should_index(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
         program.authoring_organizations.add(OrganizationFactory())
-        self.attach_course(program=program, availability="Archived")
+        self.attach_archived_course(program=program)
         assert program.should_index
 
     def test_do_not_index_if_no_owners(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        self.attach_course(program=program, availability="Archived")
+        self.attach_archived_course(program=program)
         assert not program.should_index
 
     def test_do_not_index_if_owner_missing_logo(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
         program.authoring_organizations.add(OrganizationFactory(logo_image=None))
-        self.attach_course(program=program, availability="Archived")
+        self.attach_archived_course(program=program)
         assert not program.should_index
 
     def test_do_not_index_if_partner_not_edx(self):
         program = AlgoliaProxyProgramFactory(partner=PartnerFactory())
         program.authoring_organizations.add(OrganizationFactory())
-        self.attach_course(program=program, availability="Archived")
+        self.attach_archived_course(program=program)
         assert not program.should_index
 
     def test_do_not_index_if_not_active(self):
         unpublished_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner,
                                                          status=ProgramStatus.Unpublished)
         unpublished_program.authoring_organizations.add(OrganizationFactory())
-        self.attach_course(program=unpublished_program, availability="Archived")
+        self.attach_archived_course(program=unpublished_program)
 
         retired_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner,
                                                      status=ProgramStatus.Retired)
         retired_program.authoring_organizations.add(OrganizationFactory())
-        self.attach_course(program=retired_program, availability="Archived")
+        self.attach_archived_course(program=retired_program)
 
         deleted_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner,
                                                      status=ProgramStatus.Deleted)
         deleted_program.authoring_organizations.add(OrganizationFactory())
-        self.attach_course(program=deleted_program, availability="Archived")
+        self.attach_archived_course(program=deleted_program)
 
         assert not unpublished_program.should_index
         assert not retired_program.should_index
