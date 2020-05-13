@@ -365,13 +365,6 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
 
         assert program.availability_level == 'Available now'
 
-    def test_program_available_now_if_program_type_is_masters(self):
-        program_type = ProgramTypeFactory()
-        program_type.slug = 'masters'
-        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
-
-        assert program.availability_level == 'Available now'
-
     def test_program_not_available_if_no_published_runs(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
