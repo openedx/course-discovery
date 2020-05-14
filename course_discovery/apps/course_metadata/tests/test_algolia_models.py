@@ -17,6 +17,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory, ProgramTypeFactory, SeatFactory,
     SeatTypeFactory
 )
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 class AlgoliaProxyCourseFactory(CourseFactory):
@@ -29,21 +30,7 @@ class AlgoliaProxyProgramFactory(ProgramFactory):
         model = AlgoliaProxyProgram
 
 
-@override_settings(SETTING_DICT=ChainMap({'AUTO_INDEXING': 'False'}, settings.ALGOLIA))
-class TestAlgoliaProxyWithEdxPartner(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(TestAlgoliaProxyWithEdxPartner, cls).setUpClass()
-        Partner.objects.all().delete()
-        Site.objects.all().delete()
-        cls.site = SiteFactory(id=settings.SITE_ID, domain=TEST_DOMAIN)
-        cls.edxPartner = PartnerFactory(site=cls.site)
-        cls.edxPartner.name = 'edX'
-
-
-@pytest.mark.django_db
-class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
-
+class TestAlgoliaDataMixin():
     ONE_MONTH_AGO = datetime.datetime.now(UTC) - datetime.timedelta(days=30)
     YESTERDAY = datetime.datetime.now(UTC) - datetime.timedelta(days=1)
     TOMORROW = datetime.datetime.now(UTC) + datetime.timedelta(days=1)
@@ -51,7 +38,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
     IN_FIFTEEN_DAYS = datetime.datetime.now(UTC) + datetime.timedelta(days=15)
     IN_TWO_MONTHS = datetime.datetime.now(UTC) + datetime.timedelta(days=60)
 
-    def create_current_upgradeable_course(self):
+    def create_current_upgradeable_course(self, **kwargs):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
         current_upgradeable_course_run = CourseRunFactory(
             course=course,
@@ -59,6 +46,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             end=self.IN_FIFTEEN_DAYS,
             enrollment_end=self.IN_FIFTEEN_DAYS,
             status=CourseRunStatus.Published,
+            **kwargs
         )
         SeatFactory(
             course_run=current_upgradeable_course_run,
@@ -68,14 +56,15 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         return course
 
-    def create_upgradeable_course_ending_soon(self):
+    def create_upgradeable_course_ending_soon(self, **kwargs):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
         upgradeable_course_run = CourseRunFactory(
             course=course,
             start=self.YESTERDAY,
             end=self.IN_THREE_DAYS,
             enrollment_end=self.IN_THREE_DAYS,
-            status=CourseRunStatus.Published
+            status=CourseRunStatus.Published,
+            **kwargs
         )
 
         SeatFactory(
@@ -86,14 +75,15 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         return course
 
-    def create_upgradeable_course_starting_soon(self):
+    def create_upgradeable_course_starting_soon(self, **kwargs):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
         upgradeable_course_run = CourseRunFactory(
             course=course,
             start=self.TOMORROW,
             end=self.IN_FIFTEEN_DAYS,
             enrollment_end=self.IN_FIFTEEN_DAYS,
-            status=CourseRunStatus.Published
+            status=CourseRunStatus.Published,
+            **kwargs
         )
 
         SeatFactory(
@@ -104,7 +94,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         return course
 
-    def create_current_non_upgradeable_course(self):
+    def create_current_non_upgradeable_course(self, **kwargs):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
         non_upgradeable_course_run = CourseRunFactory(
@@ -112,7 +102,8 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             start=self.YESTERDAY,
             end=self.IN_FIFTEEN_DAYS,
             enrollment_end=self.IN_FIFTEEN_DAYS,
-            status=CourseRunStatus.Published
+            status=CourseRunStatus.Published,
+            **kwargs
         )
         # not upgradeable because upgrade_deadline has passed
         SeatFactory(
@@ -123,14 +114,15 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         return course
 
-    def create_upcoming_non_upgradeable_course(self, additional_days=0):
+    def create_upcoming_non_upgradeable_course(self, additional_days=0, **kwargs):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
         future_course_run = CourseRunFactory(
             course=course,
             start=self.IN_THREE_DAYS + datetime.timedelta(days=additional_days),
             end=self.IN_FIFTEEN_DAYS + datetime.timedelta(days=additional_days),
             enrollment_end=self.IN_THREE_DAYS + datetime.timedelta(days=additional_days),
-            status=CourseRunStatus.Published
+            status=CourseRunStatus.Published,
+            **kwargs
         )
         SeatFactory(
             course_run=future_course_run,
@@ -140,14 +132,15 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         return course
 
-    def create_course_with_basic_active_course_run(self):
+    def create_course_with_basic_active_course_run(self, **kwargs):
         course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner)
 
         course_run = CourseRunFactory(
             course=course,
             start=self.YESTERDAY,
             end=self.YESTERDAY,
-            status=CourseRunStatus.Published
+            status=CourseRunStatus.Published,
+            **kwargs
         )
         SeatFactory(
             course_run=course_run,
@@ -155,7 +148,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         return course
 
-    def attach_published_course_run(self, course, run_type="archived"):
+    def attach_published_course_run(self, course, run_type="archived", **kwargs):
         if run_type == 'current and ends within two weeks':
             course_start = self.ONE_MONTH_AGO
             course_end = self.TOMORROW
@@ -173,8 +166,25 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             course=course,
             start=course_start,
             end=course_end,
-            status=CourseRunStatus.Published
+            status=CourseRunStatus.Published,
+            **kwargs
         )
+
+
+@override_settings(SETTING_DICT=ChainMap({'AUTO_INDEXING': 'False'}, settings.ALGOLIA))
+class TestAlgoliaProxyWithEdxPartner(TestCase, TestAlgoliaDataMixin):
+    @classmethod
+    def setUpClass(cls):
+        super(TestAlgoliaProxyWithEdxPartner, cls).setUpClass()
+        Partner.objects.all().delete()
+        Site.objects.all().delete()
+        cls.site = SiteFactory(id=settings.SITE_ID, domain=TEST_DOMAIN)
+        cls.edxPartner = PartnerFactory(site=cls.site)
+        cls.edxPartner.name = 'edX'
+
+
+@pytest.mark.django_db
+class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
 
     def test_should_index(self):
         course = self.create_course_with_basic_active_course_run()
@@ -301,6 +311,14 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
 
         assert course.availability_level == []
 
+    def test_spanish_courses_promoted_in_spanish_index(self):
+        colombian_spanish = LanguageTag.objects.get(code='es-co')
+        american_english = LanguageTag.objects.get(code='en-us')
+        spanish_course = self.create_course_with_basic_active_course_run(language=colombian_spanish)
+        english_course = self.create_course_with_basic_active_course_run(language=american_english)
+        assert spanish_course.promoted_in_spanish_index
+        assert not english_course.promoted_in_spanish_index
+
 
 @pytest.mark.django_db
 class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
@@ -378,6 +396,25 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program.courses.add(course)
 
         assert program.availability_level == []
+
+    def test_only_programs_with_spanish_courses_promoted_in_spanish_index(self):
+        all_spanish_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        mixed_language_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        all_english_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+
+        colombian_spanish = LanguageTag.objects.get(code='es-co')
+        american_english = LanguageTag.objects.get(code='en-us')
+
+        spanish_course = self.create_course_with_basic_active_course_run(language=colombian_spanish)
+        english_course = self.create_course_with_basic_active_course_run(language=american_english)
+
+        all_spanish_program.courses.add(spanish_course)
+        mixed_language_program.courses.add(spanish_course, english_course)
+        all_english_program.courses.add(english_course)
+
+        assert all_spanish_program.promoted_in_spanish_index
+        assert mixed_language_program.promoted_in_spanish_index
+        assert not all_english_program.promoted_in_spanish_index
 
     def test_should_index(self):
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)

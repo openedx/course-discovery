@@ -8,11 +8,16 @@ from django.utils.translation import ugettext as _
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, Program, ProgramType
 
-
 # Utility methods used by both courses and programs
-def get_active_language(course):
+
+def get_active_language_tag(course):
     if course.advertised_course_run and course.advertised_course_run.language:
-        return course.advertised_course_run.language.get_search_facet_display(translate=True)
+        return course.advertised_course_run.language
+    return None
+
+def get_active_language(course):
+    if get_active_language_tag(course):
+        return get_active_language_tag(course).get_search_facet_display(translate=True)
     return None
 
 
@@ -42,7 +47,7 @@ def delegate_attributes(cls):
     search_fields = ['partner_names', 'product_title', 'primary_description', 'secondary_description',
                      'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages']
-    ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'is_prof_cert_program']
+    ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index']
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'active_run_key',
                      'active_run_start', 'active_run_type', 'owners', 'program_types', 'course_titles']
     object_id_field = ['custom_object_id', ]
@@ -191,6 +196,13 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return get_owners(self)
 
     @property
+    def promoted_in_spanish_index(self):
+        language_tag = get_active_language_tag(self)
+        if language_tag:
+            return language_tag.code.startswith('es')
+        return False
+
+    @property
     def should_index(self):
         """Only index courses in the edX catalog with a non-hidden advertiseable course run, at least one owner, and
         a marketing url slug"""
@@ -298,6 +310,12 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 availability.add(status)
 
         return list(availability)
+
+    @property
+    def promoted_in_spanish_index(self):
+        all_course_languages = [get_active_language_tag(course) for course in self.courses.all()]
+        all_course_languages = [tag for tag in all_course_languages if tag is not None]
+        return any(tag.code.startswith('es') for tag in all_course_languages)
 
     @property
     def should_index(self):
