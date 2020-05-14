@@ -11,9 +11,7 @@ class ProductIndex(AlgoliaIndex):
                      'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'))
-    ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
-                      # TEMPORARY: Demote Professional Certificate programs until promoted programs are in place
-                      'is_prof_cert_program')
+    ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
                      ('product_uuid', 'uuid'), 'active_run_key', 'active_run_start', 'active_run_type', 'owners',
                      'course_titles')
@@ -29,7 +27,7 @@ class ProductIndex(AlgoliaIndex):
             'partner'
         ],
         'attributesForFaceting': ['partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type'],
-        'customRanking': ['asc(availability_rank)', 'asc(is_prof_cert_program)', 'desc(recent_enrollment_count)']
+        'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'product'
     should_index = 'should_index'
@@ -48,9 +46,7 @@ class SpanishProductIndex(AlgoliaIndex):
                      'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'))
-    ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
-                      # TEMPORARY: Demote Professional Certificate programs until promoted programs are in place
-                      'is_prof_cert_program')
+    ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
                      ('product_uuid', 'uuid'), 'active_run_key', 'active_run_start', 'active_run_type', 'owners',
                      'course_titles')
@@ -67,7 +63,7 @@ class SpanishProductIndex(AlgoliaIndex):
             'partner'
         ],
         'attributesForFaceting': ['partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type'],
-        'customRanking': ['asc(availability_rank)', 'asc(is_prof_cert_program)', 'desc(recent_enrollment_count)']
+        'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'spanish_product'
     should_index = 'should_index'
@@ -78,7 +74,7 @@ class SpanishProductIndex(AlgoliaIndex):
         return qs1 + qs2
 
 
-# Standard algoliadjango pattern for populating 2 indices with one model. These are the signatures and structure
+# Standard algoliasearch_django pattern for populating 2 indices with one model. These are the signatures and structure
 # AlgoliaIndex expects, so ignore warnings
 # pylint: disable=no-member,super-init-not-called,dangerous-default-value
 class ProductMetaIndex(AlgoliaIndex):

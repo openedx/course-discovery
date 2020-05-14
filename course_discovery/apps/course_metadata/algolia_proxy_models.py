@@ -191,10 +191,6 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return get_owners(self)
 
     @property
-    def is_prof_cert_program(self):
-        return False
-
-    @property
     def should_index(self):
         """Only index courses in the edX catalog with a non-hidden advertiseable course run, at least one owner, and
         a marketing url slug"""
@@ -302,10 +298,6 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 availability.add(status)
 
         return list(availability)
-
-    @property
-    def is_prof_cert_program(self):
-        return self.type and self.type.slug == ProgramType.PROFESSIONAL_CERTIFICATE
 
     @property
     def should_index(self):
