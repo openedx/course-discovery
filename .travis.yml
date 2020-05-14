@@ -34,7 +34,7 @@ matrix:
         - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make quality'
         - docker exec -t discovery bash -c 'source /edx/app/discovery/discovery_env && cd /edx/app/discovery/discovery/ && make check_keywords'
     - python: 3.8
-      env: TOXENV=django22
+      env: TOXENV=py38-django22
 
 install:
   - docker exec -t discovery bash -c 'sed -i "s|http://archive|http://us.archive|g" /etc/apt/sources.list' # US mirrors for speed
