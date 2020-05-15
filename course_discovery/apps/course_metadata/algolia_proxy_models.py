@@ -8,12 +8,13 @@ from django.utils.translation import ugettext as _
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, Program, ProgramType
 
-# Utility methods used by both courses and programs
 
+# Utility methods used by both courses and programs
 def get_active_language_tag(course):
     if course.advertised_course_run and course.advertised_course_run.language:
         return course.advertised_course_run.language
     return None
+
 
 def get_active_language(course):
     if get_active_language_tag(course):
