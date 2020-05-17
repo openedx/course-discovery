@@ -22,8 +22,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-05 18:22+0000\n"
-"PO-Revision-Date: 2020-05-05 18:49+0000\n"
+"POT-Creation-Date: 2020-05-11 05:52+0000\n"
+"PO-Revision-Date: 2020-05-11 06:19+0000\n"
 "Last-Translator: edx_transifex_bot <i18n-working-group+edx-transifex-bot@edx.org>\n"
 "Language-Team: Russian (http://www.transifex.com/open-edx/edx-platform/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -51,43 +51,43 @@ msgstr "Количество курсов в этом каталоге"
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr "Пользовательские имена участников с имеющимся доступом для просмотра данного каталога"
 
-#: apps/api/serializers.py:811
+#: apps/api/serializers.py:824
 msgid "Start date cannot be after the End date"
 msgstr "Дата начала не может быть позже даты окончания"
 
-#: apps/api/serializers.py:816
+#: apps/api/serializers.py:829
 msgid "Term cannot be changed"
 msgstr ""
 
-#: apps/api/serializers.py:828
+#: apps/api/serializers.py:841
 msgid "Language in which the course is administered"
 msgstr "Язык на котором ведется курс "
 
-#: apps/api/serializers.py:905
+#: apps/api/serializers.py:918
 msgid "Course cannot be changed for an existing course run"
 msgstr ""
 
-#: apps/api/serializers.py:910
+#: apps/api/serializers.py:923
 msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr "Минимальное усилие не может превышать максимальное усилие"
 
-#: apps/api/serializers.py:912
+#: apps/api/serializers.py:925
 msgid "Minimum effort and Maximum effort cannot be the same"
 msgstr ""
 
-#: apps/api/serializers.py:954
+#: apps/api/serializers.py:967
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr "Словарное отображение прохождения курса идентификаторы по булевым значениям"
 
-#: apps/api/serializers.py:1203
+#: apps/api/serializers.py:1216
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr "Словарное отображение курса идентификаторы по булевым значениям "
 
-#: apps/api/serializers.py:1530
+#: apps/api/serializers.py:1543
 msgid "Languages that course runs in this program are offered in."
 msgstr "Предлагаются языки, на которых ведется обучение по этой программе."
 
-#: apps/api/serializers.py:1534
+#: apps/api/serializers.py:1547
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr "Языки, на которых проводится курс в рамках этой программы, имеют доступные расшифровки."
@@ -389,35 +389,35 @@ msgstr "Да"
 msgid "No"
 msgstr "Нет"
 
-#: apps/course_metadata/admin.py:197 apps/course_metadata/admin.py:390
+#: apps/course_metadata/admin.py:197 apps/course_metadata/admin.py:391
 msgid "Included course runs"
 msgstr "Включаемые в курс занятия"
 
-#: apps/course_metadata/admin.py:398
+#: apps/course_metadata/admin.py:399
 msgid "Edit course run exclusions"
 msgstr ""
 
-#: apps/course_metadata/admin.py:400
+#: apps/course_metadata/admin.py:401
 msgid "(save and continue editing to create a link)"
 msgstr ""
 
-#: apps/course_metadata/admin.py:401
+#: apps/course_metadata/admin.py:402
 msgid "Edit link"
 msgstr ""
 
-#: apps/course_metadata/algolia_proxy_models.py:69
-#: apps/course_metadata/algolia_proxy_models.py:303
+#: apps/course_metadata/algolia_proxy_models.py:65
+#: apps/course_metadata/algolia_proxy_models.py:293
 msgid "Available now"
 msgstr ""
 
-#: apps/course_metadata/algolia_proxy_models.py:72
-#: apps/course_metadata/algolia_proxy_models.py:305
+#: apps/course_metadata/algolia_proxy_models.py:68
+#: apps/course_metadata/algolia_proxy_models.py:295
 #: apps/course_metadata/models.py:1579
 msgid "Upcoming"
 msgstr "Скоро"
 
-#: apps/course_metadata/algolia_proxy_models.py:74
-#: apps/course_metadata/algolia_proxy_models.py:307
+#: apps/course_metadata/algolia_proxy_models.py:70
+#: apps/course_metadata/algolia_proxy_models.py:297
 #: apps/course_metadata/models.py:1573
 msgid "Archived"
 msgstr "Сохранено в Архив"
@@ -1597,6 +1597,14 @@ msgstr "Обновление исключенных циклов курсов"
 #: apps/course_metadata/views.py:34
 msgid "The program was changed successfully."
 msgstr "Программа была успешно изменена."
+
+#: apps/ietf_language_tags/models.py:27
+msgid "Name for translation"
+msgstr ""
+
+#: apps/ietf_language_tags/models.py:31
+msgid "LanguageTag model translations"
+msgstr ""
 
 #: apps/publisher/models.py:34
 msgid "Organization Role"
