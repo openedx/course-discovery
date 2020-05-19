@@ -10,7 +10,7 @@ from pytz import UTC
 from conftest import TEST_DOMAIN
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
-from course_discovery.apps.course_metadata.algolia_proxy_models import AlgoliaProxyCourse, AlgoliaProxyProgram
+from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCourse, AlgoliaProxyProgram
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRunStatus
 from course_discovery.apps.course_metadata.tests.factories import (
