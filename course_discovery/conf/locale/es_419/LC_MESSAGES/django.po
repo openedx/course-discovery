@@ -28,8 +28,8 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-05-11 05:52+0000\n"
-"PO-Revision-Date: 2020-05-18 18:10+0000\n"
-"Last-Translator: Richard Reilly <rreilly@edx.org>\n"
+"PO-Revision-Date: 2020-05-21 07:46+0000\n"
+"Last-Translator: Juan Camilo Montoya Franco <juan.montoya@edunext.co>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -127,7 +127,7 @@ msgstr "Falló establecer datos de la ejecución del curso: {}"
 
 #: apps/api/v1/views/course_runs.py:307
 msgid "Can only update status, ofac restrictions, and ofac comment"
-msgstr ""
+msgstr "Solo puede actualizar el estado, las restricciones de ofac y los comentarios de ofac"
 
 #: apps/api/v1/views/course_runs.py:337
 msgid "Course run is in review. Editing disabled."
@@ -167,7 +167,7 @@ msgstr "La creación del curso fue exitosa. La url slug del curso ‘[{url_slug}
 msgid ""
 "Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
-msgstr ""
+msgstr "No se admite el cambio de tipos de derechos después de ser revisado. Comuníquese con su coordinador de proyecto para obtener ayuda adicional si es necesario."
 
 #: apps/api/v1/views/courses.py:354
 #, python-brace-format
@@ -616,7 +616,7 @@ msgstr "Faltan argumentos requeridos"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:10
 msgid "Backpopulate new-style CourseType and CourseRunType where possible."
-msgstr ""
+msgstr "Completar los datos de new-style CourseType y CourseRunType cuando sea posible."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:15
 msgid "CODE"
@@ -639,7 +639,7 @@ msgstr "UUID"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:22
 msgid "Course to backpopulate."
-msgstr ""
+msgstr "Curso para completar los datos."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:27
 msgid "KEY"
@@ -647,7 +647,7 @@ msgstr "KEY"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:29
 msgid "Organization to backpopulate."
-msgstr ""
+msgstr "Organización para completar los datos."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:35
 msgid ""
@@ -689,7 +689,7 @@ msgstr "No se encontraron cursos. Especificó un argumento?"
 msgid ""
 "Could not backpopulate a course type for the following courses: "
 "{course_keys}"
-msgstr ""
+msgstr "No se puede completar los datos de tipo de curso para los siguientes cursos: {course_keys}"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:21
 msgid "Delete duplicate persons in course_metadata."
@@ -893,7 +893,7 @@ msgstr "La finalización puede otorgar crédito para el título de una organizac
 msgid ""
 "Certificate type granted if this mode is eligible for a certificate, or "
 "blank if not."
-msgstr ""
+msgstr "Tipo de certificado otorgado si este modo es elegible para un certificado, o en blanco si no."
 
 #: apps/course_metadata/models.py:401
 msgid ""
@@ -931,7 +931,7 @@ msgstr "Personas"
 msgid ""
 "When making reruns for this course, they will use this key instead of the "
 "course key."
-msgstr ""
+msgstr "Al usar la opción de relanzar este curso, utilizarán esta llave en lugar de la llave del curso."
 
 #: apps/course_metadata/models.py:767
 msgid "Add the course image"
@@ -1014,7 +1014,7 @@ msgid ""
 "Whether this run should be hidden from API responses.  Do not edit here - "
 "this value will be overwritten by the \"Course Visibility In Catalog\" field"
 " in Studio via Refresh Course Metadata."
-msgstr ""
+msgstr "Si esta ejecución debe ocultarse de las respuestas de la API. No edite aquí: este valor se sobrescribirá con el campo \"Visibilidad del curso en el catálogo\" en Studio a través de Actualizar metadatos del curso."
 
 #: apps/course_metadata/models.py:1230
 msgid "Indicates whether the course relation has been manually overridden."
@@ -1119,7 +1119,7 @@ msgstr "Número total de estudiantes que se han inscrito en estos cursos en este
 msgid ""
 "Number of credits a learner will earn upon successful completion of the "
 "program"
-msgstr ""
+msgstr "Número de créditos que un estudiante obtendrá al completar con éxito el programa"
 
 #: apps/course_metadata/models.py:2377
 msgid "The actual rank number"
@@ -1169,7 +1169,7 @@ msgstr "El nombre de la lista de correo electrónico de sailthru para capturar c
 
 #: apps/course_metadata/models.py:2445
 msgid "Please provide an image file for the lead capture banner."
-msgstr ""
+msgstr "Proporcione un archivo de imagen para el banner de captura de prospectos."
 
 #: apps/course_metadata/models.py:2448
 msgid "The Hubspot form ID for the lead capture form"
@@ -1251,7 +1251,7 @@ msgstr "Libro"
 
 #: apps/course_metadata/models.py:2545
 msgid "Mortar Board"
-msgstr ""
+msgstr "Birrete"
 
 #: apps/course_metadata/models.py:2546
 msgid "Star"
@@ -1333,7 +1333,7 @@ msgstr "Otros"
 msgid ""
 "Partner {partner_key} and course partner {course_partner_key} do not match "
 "when attempting to save url slug {url_slug}"
-msgstr ""
+msgstr "Socio {partner_key} el socio del curso {course_partner_key} no coinciden cuando se intenta guardar la url slug {url_slug}"
 
 #: apps/course_metadata/models.py:2819
 #, python-brace-format
@@ -1609,7 +1609,7 @@ msgstr "Nombre para la traducción"
 
 #: apps/ietf_language_tags/models.py:31
 msgid "LanguageTag model translations"
-msgstr ""
+msgstr "Traducciones del modelo LanguageTag"
 
 #: apps/publisher/models.py:34
 msgid "Organization Role"
