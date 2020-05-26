@@ -4,6 +4,7 @@ import pytz
 from django.db import models
 from django.utils.translation import override
 from django.utils.translation import ugettext as _
+from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, Program, ProgramType
@@ -327,3 +328,9 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.status == ProgramStatus.Active and
                 self.availability_level and
                 self.partner.name == 'edX')
+
+
+class SearchDefaultResultsConfiguration(models.Model):
+    index_name = models.CharField(max_length=32, unique=True)
+    programs = SortedManyToManyField(Program, blank=True)
+    courses = SortedManyToManyField(Course, blank=True)

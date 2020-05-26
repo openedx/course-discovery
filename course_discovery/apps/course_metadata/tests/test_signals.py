@@ -11,8 +11,8 @@ from factory import DjangoModelFactory
 from pytz import UTC
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
-from course_discovery.apps.course_metadata.algolia_proxy_models import (
-    AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram
+from course_discovery.apps.course_metadata.algolia_models import (
+    AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram, SearchDefaultResultsConfiguration
 )
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
@@ -51,7 +51,8 @@ class TestCacheInvalidation:
                          DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, SubjectTranslation,
                          TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
                          BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
-                         AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation, LevelTypeTranslation]:
+                         AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation, LevelTypeTranslation,
+                         SearchDefaultResultsConfiguration]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue

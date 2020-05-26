@@ -1,80 +1,61 @@
 
 from algoliasearch_django import AlgoliaIndex, register
 
-from course_discovery.apps.course_metadata.algolia_proxy_models import (
-    AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram
+from course_discovery.apps.course_metadata.algolia_models import (
+    AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram, SearchDefaultResultsConfiguration
 )
 
-# TODO: make these configurable in Django Admin (WS-1025)
-PINNED_COURSE_UUIDS = [
-    '0e575a39-da1e-4e33-bb3b-e96cc6ffc58e',
-    '911175d0-6724-4276-a058-c7b052773dd1',
-    'da1b2400-322b-459b-97b0-0c557f05d017',
-    'ff1df27b-3c97-42ee-a9b3-e031ffd41a4f',
-    'a00ec61d-e2db-45c8-92c9-4727056c2f4a',
-    '605e56d5-08f3-4e90-b4be-2c303def0cd5',
-    '327c8e4f-315a-417b-9857-046dfc90c243',
-    '0cdd5dc6-a20e-4d34-a346-fcbb9c4249f8',
-    'bc4d1642-8b96-44b0-82e8-be8be6e44f94',
-    '81cfc304-0eed-4779-9de8-41c79504e456',
-    '97f16f83-5e8a-496c-9086-5634c8edccbb',
-    'f692cd0b-a77a-4fdf-87db-a309677633e6',
-    '15923a19-7f31-4767-a7a0-73da8886f7b8',
-    '6e418821-0e4c-4b16-94a3-18979ee49717',
-    'c6ad9bb7-cafc-48c8-92e5-5f0900460e66',
-    'ec5e106e-18be-4bf3-8721-58950b7da1d4',
-    '91f52ef3-fa3f-4934-9d19-8d5a32635cd4',
-    '381a0046-5d78-4790-8776-74620d59f48e',
-    '8a140470-bc70-4f7f-a9aa-df0284469b0b',
-    '459e3763-8724-4f36-9e99-387d55b0dbf5']
 
+class BaseProductIndex(AlgoliaIndex):
+    language = None
 
-PINNED_PROGRAM_UUIDS = [
-    '3178ea5b-b7a1-4439-a8b5-aad5df14af34',
-    'a3951294-926b-4247-8c3c-51c1e4347a15',
-    '3c32e3e0-b6fe-4ee4-bd4f-210c6339e074',
-    '9b729425-b524-4344-baaa-107abdee62c6'
-]
+    # Bit of a hack: Override get_queryset to return all wrapped versions of all courses and programs rather than an
+    # actual queryset to get around the fact that courses and programs have different fields and therefore cannot be
+    # combined in a union of querysets. AlgoliaIndex only uses get_queryset as an iterable, so an array works as well.
 
+    def get_queryset(self):  # pragma: no cover
+        if not self.language:
+            raise Exception('Cannot update Algolia index \'{index_name}\'. No language set'.format(
+                index_name=self.index_name))
+        qs1 = [AlgoliaProxyProduct(course, self.language) for course in AlgoliaProxyCourse.objects.all()]
+        qs2 = [AlgoliaProxyProduct(program, self.language) for program in AlgoliaProxyProgram.objects.all()]
+        return qs1 + qs2
 
-def get_promoted_courses():
-    return [{'objectID': 'course-{uuid}'.format(uuid=uuid), 'position': index} for
-            index, uuid in enumerate(PINNED_COURSE_UUIDS)]
-
-
-def get_promoted_programs():
-    return [{'objectID': 'program-{uuid}'.format(uuid=uuid), 'position': index} for
-            index, uuid in enumerate(PINNED_PROGRAM_UUIDS)]
-
-
-class ProductIndex(AlgoliaIndex):
-    # promote specified course/program results when query is empty (eg in pre-search state)
-    rules = [
-        {
-            'objectID': 'empty-query-rule-courses',
+    def generate_empty_query_rule(self, rule_object_id, product_type, results):
+        promoted_results = [{'objectID': '{type}-{uuid}'.format(type=product_type, uuid=result.uuid),
+                             'position': index} for index, result in enumerate(results)]
+        return {
+            'objectID': rule_object_id,
             'condition': {
                 'pattern': '',
                 'anchoring': 'is',
                 'alternatives': False
             },
             'consequence': {
-                'promote': get_promoted_courses(),
-                'filterPromotes': True
-            },
-        },
-        {
-            'objectID': 'empty-query-rule-programs',
-            'condition': {
-                'pattern': '',
-                'anchoring': 'is',
-                'alternatives': False
-            },
-            'consequence': {
-                'promote': get_promoted_programs(),
+                'promote': promoted_results,
                 'filterPromotes': True
             }
         }
-    ]
+
+    def get_rules(self):
+        rules_config = SearchDefaultResultsConfiguration.objects.filter(index_name=self.index_name).first()
+        if rules_config:
+            course_rule = self.generate_empty_query_rule('course-empty-query-rule', 'course',
+                                                         rules_config.courses.all())
+            program_rule = self.generate_empty_query_rule('program-empty-query-rule', 'program',
+                                                          rules_config.programs.all())
+            return [course_rule, program_rule]
+        return []
+
+    # Rules aren't automatically set in regular reindex_all, so set them explicitly
+    def reindex_all(self, batch_size=1000):
+        super().reindex_all(batch_size)
+        self._AlgoliaIndex__index.replace_all_rules(self.get_rules())  # pylint: disable=no-member
+
+
+class EnglishProductIndex(BaseProductIndex):
+    language = 'en'
+
     search_fields = (('partner_names', 'partner'), ('product_title', 'title'), 'primary_description',
                      'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
@@ -100,21 +81,10 @@ class ProductIndex(AlgoliaIndex):
     index_name = 'product'
     should_index = 'should_index'
 
-    # Bit of a hack: Override get_queryset to return all wrapped versions of all courses and programs rather than an
-    # actual queryset to get around the fact that courses and programs have different fields and therefore cannot be
-    # combined in a union of querysets. AlgoliaIndex only uses get_queryset as an iterable, so an array works as well.
-    def get_queryset(self):  # pragma: no cover
-        qs1 = [AlgoliaProxyProduct(course) for course in AlgoliaProxyCourse.objects.all()]
-        qs2 = [AlgoliaProxyProduct(program) for program in AlgoliaProxyProgram.objects.all()]
-        return qs1 + qs2
 
-    # Rules aren't automatically set in regular reindex_all, so set them explicitly
-    def reindex_all(self, batch_size=1000):
-        super().reindex_all(batch_size)
-        self._AlgoliaIndex__index.replace_all_rules(self.rules)  # pylint: disable=no-member
+class SpanishProductIndex(BaseProductIndex):
+    language = 'es_419'
 
-
-class SpanishProductIndex(AlgoliaIndex):
     search_fields = (('partner_names', 'partner'), ('product_title', 'title'), 'primary_description',
                      'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
@@ -142,11 +112,6 @@ class SpanishProductIndex(AlgoliaIndex):
     index_name = 'spanish_product'
     should_index = 'should_index'
 
-    def get_queryset(self):  # pragma: no cover
-        qs1 = [AlgoliaProxyProduct(course, 'es_419') for course in AlgoliaProxyCourse.objects.all()]
-        qs2 = [AlgoliaProxyProduct(program, 'es_419') for program in AlgoliaProxyProgram.objects.all()]
-        return qs1 + qs2
-
 
 # Standard algoliasearch_django pattern for populating 2 indices with one model. These are the signatures and structure
 # AlgoliaIndex expects, so ignore warnings
@@ -156,7 +121,7 @@ class ProductMetaIndex(AlgoliaIndex):
 
     def __init__(self, model, client, settings):
         self.model_index = [
-            ProductIndex(model, client, settings),
+            EnglishProductIndex(model, client, settings),
             SpanishProductIndex(model, client, settings),
         ]
 

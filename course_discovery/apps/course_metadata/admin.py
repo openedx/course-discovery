@@ -8,6 +8,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from parler.admin import TranslatableAdmin
 
+from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
+from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
@@ -486,6 +488,16 @@ class DegreeAdmin(admin.ModelAdmin):
         'micromasters_background_image', 'micromasters_org_name_override', 'faq', 'costs_fine_print',
         'deadlines_fine_print',
     )
+
+
+@admin.register(SearchDefaultResultsConfiguration)
+class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
+    form = SearchDefaultResultsConfigurationForm
+    list_display = ('index_name',)
+
+    class Media:
+        js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
+              'js/sortable_select.js')
 
 
 # Register remaining models using basic ModelAdmin classes
