@@ -15,7 +15,8 @@ class BaseProductIndex(AlgoliaIndex):
 
     def get_queryset(self):  # pragma: no cover
         if not self.language:
-            raise Exception('Cannot update Algolia index \'{index_name}\'. No language set'.format(index_name=self.index_name))
+            raise Exception('Cannot update Algolia index \'{index_name}\'. No language set'.format(
+                index_name=self.index_name))
         qs1 = [AlgoliaProxyProduct(course, self.language) for course in AlgoliaProxyCourse.objects.all()]
         qs2 = [AlgoliaProxyProduct(program, self.language) for program in AlgoliaProxyProgram.objects.all()]
         return qs1 + qs2
