@@ -1038,7 +1038,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
                 context={'request': request}
             ).data,
             'job_outlook_items': [item.value for item in program.job_outlook_items.all()],
-            'languages': [serialize_language_to_code(l) for l in program.languages],
+            'languages': [serialize_language_to_code(p_lang) for p_lang in program.languages],
             'weeks_to_complete': program.weeks_to_complete,
             'total_hours_of_effort': program.total_hours_of_effort,
             'weeks_to_complete_min': program.weeks_to_complete_min,
@@ -1048,7 +1048,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'overview': program.overview,
             'price_ranges': program.price_ranges,
             'subjects': SubjectSerializer(program.subjects, many=True).data,
-            'transcript_languages': [serialize_language_to_code(l) for l in program.transcript_languages],
+            'transcript_languages': [serialize_language_to_code(p_t_l) for p_t_l in program.transcript_languages],
             'enrollment_count': 0,
             'recent_enrollment_count': 0,
             'topics': [topic.name for topic in program.topics],
@@ -2108,7 +2108,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
     @classmethod
     def get_expected_data(cls, course_run, request):
         return {
-            'transcript_languages': [serialize_language(l) for l in course_run.transcript_languages.all()],
+            'transcript_languages': [serialize_language(cr_t_l) for cr_t_l in course_run.transcript_languages.all()],
             'min_effort': course_run.min_effort,
             'max_effort': course_run.max_effort,
             'weeks_to_complete': course_run.weeks_to_complete,
