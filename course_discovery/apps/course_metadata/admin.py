@@ -499,6 +499,7 @@ class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
         js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
               'js/sortable_select.js')
 
+
 # Register remaining models using basic ModelAdmin classes
 for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
               DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCommentsToSalesforce,
