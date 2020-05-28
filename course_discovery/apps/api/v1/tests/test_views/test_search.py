@@ -391,6 +391,22 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         expected = [self.serialize_course_run_search(course_run) for course_run in course_runs]
         assert response.data['objects']['results'] == expected
 
+    @ddt.data(True, False)
+    def test_results_ordered_by_aggregation_key(self, ascending):
+        """ Verify the search results can be ordered by start date """
+        run1 = CourseRunFactory(course__partner=self.partner, course__key='edX+DemoX')
+        run2 = CourseRunFactory(course__partner=self.partner, course__key='fakeX+FakeX')
+
+        with self.assertNumQueries(9):
+            response = self.get_response({'ordering': 'aggregation_key' if ascending else '-aggregation_key'})
+        assert response.status_code == 200
+        assert response.data['objects']['count'] == 2
+
+        run1_data = self.serialize_course_run_search(run1)
+        run2_data = self.serialize_course_run_search(run2)
+        expected = [run1_data, run2_data] if ascending else [run2_data, run1_data]
+        assert response.data['objects']['results'] == expected
+
     def test_results_include_aggregation_key(self):
         """ Verify the search results only include the aggregation_key for each document. """
         course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
