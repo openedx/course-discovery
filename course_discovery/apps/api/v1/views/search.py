@@ -2,7 +2,7 @@ import uuid
 
 from django.db.models import Q
 from django.http import QueryDict
-from drf_haystack.filters import HaystackFilter
+from drf_haystack.filters import HaystackFilter, HaystackOrderingFilter
 from drf_haystack.mixins import FacetMixin
 from drf_haystack.viewsets import HaystackViewSet
 from haystack.backends import SQ
@@ -11,7 +11,6 @@ from haystack.query import SearchQuerySet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ParseError, ValidationError
-from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
@@ -25,8 +24,8 @@ from course_discovery.apps.course_metadata.models import Course, CourseRun, Pers
 # pylint: disable=useless-super-delegation
 class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
     document_uid_field = 'key'
-    facet_filter_backends = [filters.HaystackFacetFilterWithQueries, filters.HaystackFilter, OrderingFilter]
-    ordering_fields = ('start',)
+    facet_filter_backends = [filters.HaystackFacetFilterWithQueries, filters.HaystackFilter, HaystackOrderingFilter]
+    ordering_fields = ('aggregation_key', 'start')
 
     load_all = True
     lookup_field = 'key'
@@ -131,7 +130,7 @@ class BrowsableAPIRendererWithoutForms(BrowsableAPIRenderer):
 class CatalogDataViewSet(viewsets.GenericViewSet):
     renderer_classes = [JSONRenderer, BrowsableAPIRendererWithoutForms]
     permission_classes = (IsAuthenticated,)
-    filter_backends = (CatalogDataFilterBackend,)
+    filter_backends = (CatalogDataFilterBackend, HaystackOrderingFilter)
 
     def create(self, request):
         return self.list(request)  # pylint: disable=no-member
@@ -197,7 +196,7 @@ class PersonSearchViewSet(BaseHaystackViewSet):
     """
     permission_classes = (IsAuthenticated,)
     index_models = (Person,)
-    filter_backends = (CatalogDataFilterBackend,)
+    filter_backends = (CatalogDataFilterBackend, HaystackOrderingFilter)
     detail_serializer_class = serializers.PersonSearchModelSerializer
     facet_serializer_class = serializers.PersonFacetSerializer
     serializer_class = serializers.PersonSearchSerializer
