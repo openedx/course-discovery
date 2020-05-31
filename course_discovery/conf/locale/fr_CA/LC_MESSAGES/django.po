@@ -15,7 +15,7 @@
 # derthy <derthiamj@gmail.com>, 2014
 # eddy01 <ngwa.edwin@yahoo.com>, 2014
 # Emmanuel Olégine <olegine@gmail.com>, 2015
-# Encolpe Degoute <inactive+encolpe@transifex.com>, 2013
+# b37bd6faa8631249767025c90cffb237_c33f832 <d0bf341d6cab6374cbc873fbbf166cb5_105987>, 2013
 # Eric Fortin, 2014,2016
 # fgerber <gerber.francois@gmail.com>, 2015
 # francoisedocq, 2014
@@ -35,11 +35,11 @@
 # c3424d9a1a39134ef6c845e87726a328, 2015
 # Laetitia Pfaender <l.pfaender@learning-tribes.com>, 2016
 # laurentFUN <laurent.at.fun@gmail.com>, 2014
-# Leslie Bordonné <inactive+lbordonne@transifex.com>, 2015
+# 351b2f46d44029449d6cb5b8d390219a_52d59a5 <8569bfdd06aaa5bb95c4c8840e0be2af_243857>, 2015
 # Linda B.A <siria242@gmail.com>, 2016
 # madmarsu <madmarsu@gmail.com>, 2014
 # Maghjina <Maghjina@gmail.com>, 2014
-# mamby, 2014
+# 534ac094493543eb5618172d1b5b5f50_1b2ae6a, 2014
 # Manjari <mringuet@gmail.com>, 2014
 # Marco Morales, 2014
 # moocit-france <contact@moocit.fr>, 2015
