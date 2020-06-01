@@ -6,7 +6,7 @@
 # Translators:
 # Alexander Eroshkin <gjrfytne@gmail.com>, 2019
 # А <alex7y88@gmail.com>, 2016
-# edX project <inactive+bhaylav@transifex.com>, 2016
+# d08dbdb9faa4b94765d9c831db092996_8d79b48 <3addc0d51adc0d627356bc3706eefb88_456717>, 2016
 # e3360004 e3360004 <e3360004@nwytg.net>, 2018
 # SpaceOyster, 2016
 # Liubov Fomicheva <liubov.nelapa@gmail.com>, 2016-2017
