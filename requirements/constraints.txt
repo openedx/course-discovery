@@ -19,9 +19,6 @@ django-storages<1.9
 # Not properly supporting latest version of drf-jwt
 drf-jwt<1.15.0
 
-# the upgrade to 3.3.0 is what triggered users to lose superuser status; see ARCHBOM-1078 for details.
-social-auth-core==3.2.0
-
 # sphinx has dropped support for python 3.5, latest version requires at least python3.6
 # see https://www.sphinx-doc.org/en/master/intro.html#prerequisites
 sphinx==2.4.4
