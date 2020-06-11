@@ -114,6 +114,7 @@ Entity Relationship Diagram:
 .. image:: ../_static/course_discovery_types.png
 
 Update November 18, 2019:
+-------------------------
 
 We are more broadly allowing mismatches between a Course's CourseType and its
 Course Runs' CourseRunType. A mismatch is defined as when a Course Run's
@@ -132,6 +133,80 @@ supporting historical oddities in our system. We do not encourage using
 mismatches generally or as a best practice, but more as a way of dealing with
 oddities that do not require full CourseType support.
 
+Update June 12, 2020:
+---------------------
+
+As we began releasing the newest Open edX release (Juniper), it became clear that we made some misses in regards to the defaults provided to the Open edX community. As of the date of writing, we are adding in support for Honor into the defaults provided through migrations. Course Types are still intended to be customizable to each Open edX installation, but we want to do our best to widely support common cases. With that idea in mind, I am documenting below the list of all of the default Course Types, Course Run Types, Tracks, and Modes that will come with running migrations. The table includes each Course Type and the connections to all of its children.
+
++------------------------+-----------------------+--------------+--------------+--------------+
+| Course Type            | Course Run Type       | Track        | Mode         | Seat Type    |
++========================+=======================+==============+==============+==============+
+| Audit Only             | Audit Only            | Audit        | Audit        | Audit        |
++------------------------+-----------------------+--------------+--------------+--------------+
+| Professional Only      | Professional Only     | Professional | Professional | Professional |
++------------------------+-----------------------+--------------+--------------+--------------+
+| Verified and Audit     | Audit Only            | Audit        | Audit        | Audit        |
+|                        +-----------------------+--------------+--------------+--------------+
+|                        | Verified and Audit    | Audit        | Audit        | Audit        |
+|                        |                       +--------------+--------------+--------------+
+|                        |                       | Verified     | Verified     | Verified     |
++------------------------+-----------------------+--------------+--------------+--------------+
+| Credit                 | Audit Only            | Audit        | Audit        | Audit        |
+|                        +-----------------------+--------------+--------------+--------------+
+|                        | Verified and Audit    | Audit        | Audit        | Audit        |
+|                        |                       +--------------+--------------+--------------+
+|                        |                       | Verified     | Verified     | Verified     |
+|                        +-----------------------+--------------+--------------+--------------+
+|                        | Credit                | Audit        | Audit        | Audit        |
+|                        |                       +--------------+--------------+--------------+
+|                        |                       | Verified     | Verified     | Verified     |
+|                        |                       +--------------+--------------+--------------+
+|                        |                       | Credit       | Credit       | Credit       |
++------------------------+-----------------------+--------------+--------------+--------------+
+| Honor Only             | Honor Only            | Honor        | Honor        | Honor        |
++------------------------+-----------------------+--------------+--------------+--------------+
+| Verified and Honor     | Honor Only            | Honor        | Honor        | Honor        |
+|                        +-----------------------+--------------+--------------+--------------+
+|                        | Verified and Honor    | Honor        | Honor        | Honor        |
+|                        |                       +--------------+--------------+--------------+
+|                        |                       | Verified     | Verified     | Verified     |
++------------------------+-----------------------+--------------+--------------+--------------+
+| Credit with Honor      | Honor Only            | Honor        | Honor        | Honor        |
+|                        +-----------------------+--------------+--------------+--------------+
+|                        | Verified and Honor    | Honor        | Honor        | Honor        |
+|                        |                       +--------------+--------------+--------------+
+|                        |                       | Verified     | Verified     | Verified     |
+|                        +-----------------------+--------------+--------------+--------------+
+|                        | Credit with Honor     | Honor        | Honor        | Honor        |
+|                        |                       +--------------+--------------+--------------+
+|                        |                       | Verified     | Verified     | Verified     |
+|                        |                       +--------------+--------------+--------------+
+|                        |                       | Credit       | Credit       | Credit       |
++------------------------+-----------------------+--------------+--------------+--------------+
+
+If you're only curious about which models exist (the distinct values from each column above), they are listed below:
+
+:Course Type: Audit Only, Professional Only, Verified and Audit, Credit, Honor Only, Verified and Honor, and Credit with Honor
+:Course Run Type: Audit Only, Professional Only, Verified and Audit, Credit, Honor Only, Verified and Honor, and Credit with Honor
+:Track: Audit, Professional, Verified, Credit, and Honor
+:Mode: Audit, Professional, Verified, Credit, and Honor
+:Seat Type: Audit, Professional, Verified, Credit, and Honor
+
+-------
+
+We added in a script to the Refresh Course Metadata command to do a best effort matching of the Courses/Course Runs with their corresponding Course Types and Course Run Types. The script that attempts to do the matching can be found at: ``course_discovery/apps/course_metadata/data_loaders/course_type.py``. It tries to look at the Entitlements associated with the Course and the Seats associated with all of the Course Runs for that Course. From all this information, it will try and find a Course Type and Course Run Types that match.
+
+We believe through the initial migrations adding in Course Types, Course Run Types, Tracks, and Modes, we have covered many of the common cases. We do however recognize that we cannot plan for every possibility and it is possible to encounter an error when running Refresh Course Metadata. This error will look like
+
+::
+
+    Calculating course type failure occurred for [{course_key}].
+
+From there, you can look into the Course Discovery Admin (Django Admin) to try and see why this may have happened. The first place to check would the Entitlement associated with the failing Course. The only Entitlements supported by default are Verified and Professional Entitlements and the Course Type must also have it set (for example, Audit Only and Honor Only have no Entitlement). If the Entitlement does not line up with any Course Type, that would be the first thing to fix. This can either be done via adding your Entitlement type to the correct Course Type or by creating a new Course Type (more on this later).
+
+The next place to check is by pulling up all of the Course Runs associated with the failing Course and looking at their Seats. The Seats must match up with a Course Run Type (see the corresponding Seat Type column in the rows with the Course Run Type). Remember that all Course Run Types listed under a Course Type are all applicable to be matched with. Example: A Course Type of Verified and Audit can have Course Runs matching either Audit Only or Verified and Audit. If your Course Run Seats do not match any Course Run Types (via the Track's Mode and Seat Type), you can either add the appropriate Tracks to the Course Run Type or create a new Course Run Type (see below). Hopefully through these steps, you can find where the disconnect is happening between the expected values from the table and what is actually happening in your Open edX installation.
+
+There is an additional scenario worth covering which is if you have created your own LMS Modes or E-Commerce Seats or Entitlements. In this case, you will need to create a new Course Type to match your system. I would start in this case by making a Mode that corresponds to the LMS Course Mode for your Course Runs and a Seat Type that corresponds to the E-Commerce Seat type. From there, you can create the Track for the newly created Mode and Seat Type. Then you can set up the CourseRunType to utilize the Track and finally the CourseType that includes the CourseRunType. This logic can also be expanded to create multiple Modes, Tracks, CourseRunTypes, and CourseTypes as applicable to your system. It can also be helpful keeping in mind that Course Types can include many Course Run Types.
 
 Alternative Approaches Considered
 ---------------------------------

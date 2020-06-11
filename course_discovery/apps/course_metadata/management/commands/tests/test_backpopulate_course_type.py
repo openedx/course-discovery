@@ -259,18 +259,13 @@ class BackpopulateCourseTypeCommandTests(TestCase):
 
     def test_courses_with_honor_seats(self):
         honor_seat_type = factories.SeatTypeFactory.honor()
-        honor_track = factories.TrackFactory(seat_type=honor_seat_type)
-        honor_run_type = factories.CourseRunTypeFactory(
-            name='Honor Only', slug=CourseRunType.HONOR, tracks=[honor_track]
-        )
+        honor_run_type = CourseRunType.objects.get(slug=CourseRunType.HONOR)
         # Tests that Honor Only will not match with Verified and Honor despite being a subset of that CourseRunType
         honor_run = factories.CourseRunFactory(course=self.course, type=self.empty_run_type,
                                                key='course-v1:Org1+Course1+H')
         factories.SeatFactory(course_run=honor_run, type=honor_seat_type)
 
-        vh_run_type = factories.CourseRunTypeFactory(
-            name='Verified and Honor', slug=CourseRunType.VERIFIED_HONOR, tracks=[honor_track, self.verified_track]
-        )
+        vh_run_type = CourseRunType.objects.get(slug=CourseRunType.VERIFIED_HONOR)
         vh_run = factories.CourseRunFactory(course=self.course, type=self.empty_run_type,
                                             key='course-v1:Org1+Course1+VH')
         factories.SeatFactory(course_run=vh_run, type=honor_seat_type)
