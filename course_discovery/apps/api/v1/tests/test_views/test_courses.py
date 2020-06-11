@@ -1452,7 +1452,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        with self.assertNumQueries(37, threshold=0):
+        with self.assertNumQueries(40, threshold=0):
             response = self.client.options(url)
         self.assertEqual(response.status_code, 200)
 
@@ -1462,6 +1462,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(data['entitlements']['child']['children']['mode']['choices'],
                          [{'display_name': 'Audit', 'value': 'audit'},
                           {'display_name': 'Credit', 'value': 'credit'},
+                          {'display_name': 'Honor', 'value': 'honor'},
                           {'display_name': 'Professional', 'value': 'professional'},
                           {'display_name': 'Verified', 'value': 'verified'}])
         self.assertEqual(data['subjects']['child']['choices'],
