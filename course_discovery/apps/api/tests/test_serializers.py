@@ -468,6 +468,25 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         serializer = self.serializer_class(self.course, context={'request': self.request})
         self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
 
+    def test_advertised_course_run_no_start_date(self):
+        expected_advertised_course_run = CourseRunFactory(
+            course=self.course,
+            start=datetime.datetime.now(UTC) + datetime.timedelta(days=2),
+            end=datetime.datetime.now(UTC) + datetime.timedelta(days=30),
+            status=CourseRunStatus.Published
+        )
+        self.create_not_upgradeable_seat_for_course_run(expected_advertised_course_run)
+
+        other_run_no_start = CourseRunFactory(
+            course=self.course,
+            start=None,
+            end=datetime.datetime.now(UTC) + datetime.timedelta(days=30),
+            status=CourseRunStatus.Published
+        )
+        self.create_not_upgradeable_seat_for_course_run(other_run_no_start)
+        serializer = self.serializer_class(self.course, context={'request': self.request})
+        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
+
 
 class CurriculumSerializerTests(TestCase):
     serializer_class = CurriculumSerializer

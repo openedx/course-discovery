@@ -2,7 +2,6 @@ import datetime
 import itertools
 import logging
 from collections import Counter, defaultdict
-from operator import attrgetter
 from urllib.parse import urljoin
 from uuid import uuid4
 
@@ -1031,6 +1030,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     @cached_property
     def advertised_course_run(self):
         now = datetime.datetime.now(pytz.UTC)
+        min_date = datetime.datetime.min.replace(tzinfo=pytz.UTC)
+        max_date = datetime.datetime.max.replace(tzinfo=pytz.UTC)
 
         tier_one = []
         tier_two = []
@@ -1049,12 +1050,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         advertised_course_run = None
 
+        # start should almost never be null, default added to take care of older incomplete data
         if tier_one:
-            advertised_course_run = sorted(tier_one, key=attrgetter('start'), reverse=True)[0]
+            advertised_course_run = sorted(tier_one, key=lambda run: run.start or min_date, reverse=True)[0]
         elif tier_two:
-            advertised_course_run = sorted(tier_two, key=attrgetter('start'))[0]
+            advertised_course_run = sorted(tier_two, key=lambda run: run.start or max_date)[0]
         elif tier_three:
-            advertised_course_run = sorted(tier_three, key=attrgetter('start'), reverse=True)[0]
+            advertised_course_run = sorted(tier_three, key=lambda run: run.start or min_date, reverse=True)[0]
 
         return advertised_course_run
 
