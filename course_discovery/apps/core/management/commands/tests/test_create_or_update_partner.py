@@ -1,4 +1,4 @@
-from __future__ import unicode_literals
+
 
 from ddt import data, ddt
 from django.core.management import CommandError, call_command
