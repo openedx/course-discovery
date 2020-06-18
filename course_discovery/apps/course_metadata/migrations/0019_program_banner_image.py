@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 import stdimage.models
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
