@@ -166,7 +166,12 @@ class Partner(TimeStampedModel):
         if not self.lms_url:
             return None
 
-        return OAuthAPIClient(self.lms_url.strip('/'), self.oauth2_client_id, self.oauth2_client_secret)
+        return OAuthAPIClient(
+            self.lms_url.strip('/'),
+            self.oauth2_client_id,
+            self.oauth2_client_secret,
+            timeout=settings.OAUTH_API_TIMEOUT
+        )
 
 
 class SalesforceConfiguration(models.Model):

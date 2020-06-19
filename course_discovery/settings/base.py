@@ -294,6 +294,9 @@ BACKEND_SERVICE_EDX_OAUTH2_KEY = "discovery-backend-service-key"
 BACKEND_SERVICE_EDX_OAUTH2_SECRET = "discovery-backend-service-secret"
 BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://127.0.0.1:8000/oauth2"
 
+# OAuth request timeout: either a (connect, read) tuple or a float, in seconds.
+OAUTH_API_TIMEOUT = (3.05, 1)
+
 # Request the user's permissions in the ID token
 EXTRA_SCOPE = ['permissions']
 
