@@ -327,7 +327,8 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.program_types and
                 self.status == ProgramStatus.Active and
                 self.availability_level and
-                self.partner.name == 'edX')
+                self.partner.name == 'edX' and
+                not self.hidden)
 
 
 class SearchDefaultResultsConfiguration(models.Model):
