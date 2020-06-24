@@ -330,7 +330,3 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.partner.name == 'edX')
 
 
-class SearchDefaultResultsConfiguration(models.Model):
-    index_name = models.CharField(max_length=32, unique=True)
-    programs = SortedManyToManyField(Program, blank=True)
-    courses = SortedManyToManyField(Course, blank=True)
