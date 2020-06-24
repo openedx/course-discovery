@@ -2,7 +2,7 @@
 from algoliasearch_django import AlgoliaIndex, register
 
 from course_discovery.apps.course_metadata.algolia_models import (
-    AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram, SearchDefaultResultsConfiguration
+    AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram
 )
 
 
@@ -37,20 +37,10 @@ class BaseProductIndex(AlgoliaIndex):
             }
         }
 
-    def get_rules(self):
-        rules_config = SearchDefaultResultsConfiguration.objects.filter(index_name=self.index_name).first()
-        if rules_config:
-            course_rule = self.generate_empty_query_rule('course-empty-query-rule', 'course',
-                                                         rules_config.courses.all())
-            program_rule = self.generate_empty_query_rule('program-empty-query-rule', 'program',
-                                                          rules_config.programs.all())
-            return [course_rule, program_rule]
-        return []
 
     # Rules aren't automatically set in regular reindex_all, so set them explicitly
     def reindex_all(self, batch_size=1000):
         super().reindex_all(batch_size)
-        self._AlgoliaIndex__index.replace_all_rules(self.get_rules())  # pylint: disable=no-member
 
 
 class EnglishProductIndex(BaseProductIndex):
