@@ -2175,10 +2175,24 @@ class PersonFacetSerializer(BaseHaystackFacetSerializer):
 
 class ProgramSearchSerializer(HaystackSerializer):
     authoring_organizations = serializers.SerializerMethodField()
+    courses = serializers.SerializerMethodField()
+    applicable_seat_types = serializers.SerializerMethodField()
 
     def get_authoring_organizations(self, program):
         organizations = program.authoring_organization_bodies
         return [json.loads(organization) for organization in organizations] if organizations else []
+
+    def get_courses(self, result):
+        return MinimalCourseSerializer(
+            result.object.courses.all(),
+            many=True,
+            context={
+                'request': self.context.get('request'),
+            }
+        ).data
+
+    def get_applicable_seat_types(self, result):
+        return list(result.object.type.applicable_seat_types.values_list('slug', flat=True))
 
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
@@ -2195,7 +2209,9 @@ class ProgramSearchSerializer(HaystackSerializer):
             'subject_uuids',
             'weeks_to_complete_max',
             'weeks_to_complete_min',
-            'search_card_display'
+            'search_card_display',
+            'courses',
+            'applicable_seat_types',
         )
 
 

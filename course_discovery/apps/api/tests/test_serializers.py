@@ -2281,6 +2281,8 @@ class TestProgramSearchSerializer(TestCase):
             'hidden': program.hidden,
             'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
             'search_card_display': [],
+            'courses': MinimalCourseSerializer(program.courses.all(), many=True, context={'request': request}).data,
+            'applicable_seat_types': []
         }
 
     def serialize_program(self, program, request):
