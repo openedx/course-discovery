@@ -5,7 +5,6 @@ import pytz
 from django.db import models
 from django.utils.translation import override
 from django.utils.translation import ugettext as _
-from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, Program, ProgramType
