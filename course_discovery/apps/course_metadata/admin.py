@@ -488,7 +488,6 @@ class DegreeAdmin(admin.ModelAdmin):
     )
 
 
-
 # Register remaining models using basic ModelAdmin classes
 for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
               DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCommentsToSalesforce,

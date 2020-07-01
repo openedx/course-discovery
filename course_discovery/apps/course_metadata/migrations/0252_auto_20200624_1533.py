@@ -10,11 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='leveltypetranslation',
-            name='name_t',
-            field=models.CharField(max_length=255, verbose_name='name'),
-        ),
         migrations.DeleteModel(
             name='SearchDefaultResultsConfiguration',
         ),

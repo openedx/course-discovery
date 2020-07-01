@@ -340,5 +340,3 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.availability_level and
                 self.partner.name == 'edX' and
                 not self.hidden)
-
-
