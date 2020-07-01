@@ -170,14 +170,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
     def test_get_single_person_with_publisher_user(self):
         """ Verify the endpoint returns the details for a single person. """
-        url = reverse('api:v1:person-detail', kwargs={'pk': self.person.uuid})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertDictEqual(response.data, self.serialize_person(self.person))
-
-    def test_get_single_person_with_publisher_user_using_slug(self):
-        """ Verify the endpoint returns the details for a single person. """
-        url = reverse('api:v1:person-detail', kwargs={'pk': self.person.slug})
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(response.data, self.serialize_person(self.person))
@@ -185,7 +178,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
     def test_get_without_authentication(self):
         """ Verify the endpoint shows auth error when the details for a single person unauthenticated """
         self.client.logout()
-        url = reverse('api:v1:person-detail', kwargs={'pk': self.person.uuid})
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 401)
 
@@ -376,7 +369,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
     def test_update_without_drupal_client_settings(self):
         """ Verify that if credentials are missing api will return the error. """
-        url = reverse('api:v1:person-detail', kwargs={'pk': self.person.uuid})
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         self.partner.marketing_site_api_username = None
         self.partner.save()
         data = self._update_person_data()
@@ -396,7 +389,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
     def test_update_with_api_exception(self):
         """ Verify that if the serializer fails, error message is logged and update fails"""
-        url = reverse('api:v1:person-detail', kwargs={'pk': self.person.uuid})
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         data = self._update_person_data()
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value={}):
             with mock.patch(
@@ -419,7 +412,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
     @override_switch('publish_person_to_marketing_site', False)
     def test_update_without_waffle_switch(self):
         """ Verify update endpoint proceeds if waffle switch is disabled. """
-        url = reverse('api:v1:person-detail', kwargs={'pk': self.person.uuid})
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         data = self._update_person_data()
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             response = self.client.patch(url, data, format='json')
@@ -429,7 +422,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
     def test_update(self):
         """Verify that people data can be updated using endpoint."""
-        url = reverse('api:v1:person-detail', kwargs={'pk': self.person.uuid})
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
 
         data = self._update_person_data()
 
@@ -483,7 +476,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         """
         Verify that if the people has no position a new position is created while updating people
         """
-        url = reverse('api:v1:person-detail', kwargs={'pk': self.person.uuid})
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
 
         data = self._update_person_data()
         Position.objects.all().delete()
@@ -497,7 +490,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.assertEqual(updated_person.position.title, data['position']['title'])
 
     def test_update_with_org_restrictions(self):
-        url = reverse('api:v1:person-detail', kwargs={'pk': self.person.uuid})
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         url = url + '?org=invalid-org'
 
         data = self._update_person_data()
