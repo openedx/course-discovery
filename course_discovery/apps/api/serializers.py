@@ -1,6 +1,7 @@
 # pylint: disable=abstract-method
 import datetime
 import json
+import re
 from collections import OrderedDict
 from operator import attrgetter
 from urllib.parse import urlencode
@@ -1396,6 +1397,7 @@ class DegreeSerializer(BaseModelSerializer):
     deadlines = DegreeDeadlineSerializer(many=True)
     rankings = RankingSerializer(many=True)
     micromasters_background_image = StdImageSerializerField()
+    micromasters_path = serializers.SerializerMethodField()
 
     class Meta:
         model = Degree
@@ -1403,10 +1405,15 @@ class DegreeSerializer(BaseModelSerializer):
             'application_requirements', 'apply_url', 'banner_border_color', 'campus_image', 'title_background_image',
             'costs', 'deadlines', 'lead_capture_list_name', 'quick_facts',
             'overall_ranking', 'prerequisite_coursework', 'rankings',
-            'lead_capture_image', 'micromasters_url', 'micromasters_long_title', 'micromasters_long_description',
+            'lead_capture_image', 'micromasters_path', 'micromasters_url',
+            'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
             'deadlines_fine_print', 'hubspot_lead_capture_form_id',
         )
+
+    def get_micromasters_path(self, degree):
+        url = re.compile(r"https?:\/\/[^\/]*")
+        return url.sub('', degree.micromasters_url)
 
 
 class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
@@ -1418,6 +1425,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     since the course serializer also uses drf_dynamic_fields.
     Eg: ?fields=courses,course_runs
     """
+
     authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
