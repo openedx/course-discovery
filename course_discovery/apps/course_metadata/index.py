@@ -21,22 +21,6 @@ class BaseProductIndex(AlgoliaIndex):
         qs2 = [AlgoliaProxyProduct(program, self.language) for program in AlgoliaProxyProgram.objects.all()]
         return qs1 + qs2
 
-    def generate_empty_query_rule(self, rule_object_id, product_type, results):
-        promoted_results = [{'objectID': '{type}-{uuid}'.format(type=product_type, uuid=result.uuid),
-                             'position': index} for index, result in enumerate(results)]
-        return {
-            'objectID': rule_object_id,
-            'condition': {
-                'pattern': '',
-                'anchoring': 'is',
-                'alternatives': False
-            },
-            'consequence': {
-                'promote': promoted_results,
-                'filterPromotes': True
-            }
-        }
-
 
 class EnglishProductIndex(BaseProductIndex):
     language = 'en'
