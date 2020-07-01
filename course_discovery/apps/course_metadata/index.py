@@ -38,11 +38,6 @@ class BaseProductIndex(AlgoliaIndex):
         }
 
 
-    # Rules aren't automatically set in regular reindex_all, so set them explicitly
-    def reindex_all(self, batch_size=1000):
-        super().reindex_all(batch_size)
-
-
 class EnglishProductIndex(BaseProductIndex):
     language = 'en'
 
