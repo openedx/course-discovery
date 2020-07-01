@@ -1,18 +1,14 @@
 import logging
-import re
-from uuid import UUID
 
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
-from course_discovery.apps.course_metadata.constants import COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException, PersonToMarketingException
 
 logger = logging.getLogger(__name__)
@@ -24,42 +20,14 @@ class PersonViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
     filter_backends = (DjangoFilterBackend,)
     filterset_class = filters.PersonFilter
-    lookup_fields = ['uuid', 'slug']
-    lookup_value_regex = '[0-9a-z-]+'
-    serializer_class = serializers.PersonSerializer
-    permission_classes = (DjangoModelPermissions,)
+    lookup_field = 'uuid'
+    lookup_value_regex = '[0-9a-f-]+'
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
     queryset = serializers.PersonSerializer.prefetch_queryset()
+    serializer_class = serializers.PersonSerializer
     pagination_class = PageNumberPagination
     metadata_class = MetadataWithRelatedChoices
     metadata_related_choices_whitelist = ('organization',)
-
-    course_uuid_regex = re.compile(COURSE_UUID_REGEX)
-
-    # override get_object to allow multiple lookup fields
-    def get_object(self):
-
-        def is_valid_uuid(uuid_to_test):
-            try:
-                _ = UUID(uuid_to_test, version=4)
-            except ValueError:
-                return False
-            return True
-
-        queryset = self.filter_queryset(self.get_queryset())
-
-        key = self.kwargs['pk']
-        if is_valid_uuid(key):
-            filter_key = 'uuid'
-        else:
-            filter_key = 'slug'
-
-        filter_kwargs = {filter_key: key}
-        obj = get_object_or_404(queryset, **filter_kwargs)
-
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
-
-        return obj
 
     def create(self, request, *args, **kwargs):
         """
