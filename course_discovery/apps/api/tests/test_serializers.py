@@ -1757,6 +1757,7 @@ class PositionSerializerTests(TestCase):
             'organization_override': position.organization_override,
             'organization_marketing_url': position.organization.marketing_url,
             'organization_uuid': position.organization.uuid,
+            'organization_logo_image_url': position.organization.logo_image.url
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -1770,7 +1771,24 @@ class PositionSerializerTests(TestCase):
             'organization_id': None,
             'organization_override': None,
             'organization_marketing_url': None,
+            'organization_logo_image_url': None,
             'organization_uuid': None,
+        }
+
+        self.assertDictEqual(serializer.data, expected)
+
+    def test_position_with_org_no_image(self):
+        organization = OrganizationFactory(logo_image=None)
+        position = PositionFactory(organization=organization)
+        serializer = PositionSerializer(position)
+        expected = {
+            'title': str(position.title),
+            'organization_name': position.organization_name,
+            'organization_id': position.organization_id,
+            'organization_override': position.organization_override,
+            'organization_marketing_url': position.organization.marketing_url,
+            'organization_uuid': position.organization.uuid,
+            'organization_logo_image_url': None
         }
 
         self.assertDictEqual(serializer.data, expected)

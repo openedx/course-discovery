@@ -301,6 +301,7 @@ class PositionSerializer(BaseModelSerializer):
     """Serializer for the ``Position`` model."""
     organization_marketing_url = serializers.SerializerMethodField()
     organization_uuid = serializers.SerializerMethodField()
+    organization_logo_image_url = serializers.SerializerMethodField()
     # Order organization by key so that frontends will display dropdowns of organization choices that way
     organization = serializers.PrimaryKeyRelatedField(allow_null=True, write_only=True, required=False,
                                                       queryset=Organization.objects.all().order_by('key'))
@@ -309,7 +310,7 @@ class PositionSerializer(BaseModelSerializer):
         model = Position
         fields = (
             'title', 'organization_name', 'organization', 'organization_id', 'organization_override',
-            'organization_marketing_url', 'organization_uuid',
+            'organization_marketing_url', 'organization_uuid', 'organization_logo_image_url'
         )
         extra_kwargs = {
             'organization': {'write_only': True}
@@ -323,6 +324,13 @@ class PositionSerializer(BaseModelSerializer):
     def get_organization_uuid(self, obj):
         if obj.organization:
             return obj.organization.uuid
+        return None
+
+    def get_organization_logo_image_url(self, obj):
+        if obj.organization:
+            image = obj.organization.logo_image
+            if image:
+                return image.url
         return None
 
 
