@@ -149,6 +149,25 @@ class TestProgramViewSet(SerializationMixin):
 
         self.assert_list_results(self.list_path, expected, 28)
 
+    def test_edx_org_short_name_filter(self):
+        """
+        Verify programs filtering on edX organization.
+        """
+        edx_org_short_name = 'edx'
+        programs_api_url_with_org_filter = '{programs_api_url}?org={edx_org_short_name}'.format(
+            programs_api_url=self.list_path,
+            edx_org_short_name=edx_org_short_name
+        )
+        expected_serialized_programs = self.serialize_program(
+            Program.objects.filter(authoring_organizations__key=edx_org_short_name),
+            many=True
+        )
+
+        response = self.client.get(programs_api_url_with_org_filter)
+        assert response.status_code == 200
+        programs_from_response = response.data['results']
+        assert programs_from_response == expected_serialized_programs
+
     def test_uuids_only(self):
         """
         Verify that the list view returns a simply list of UUIDs when the

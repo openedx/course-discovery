@@ -734,6 +734,16 @@ class MinimalProgramSerializerTests(TestCase):
         expected = self.get_expected_data(program, request)
         self.assertDictEqual(serializer.data, expected)
 
+    def test_filter_programs_on_edx_org_short_name(self):
+        """
+        Verify programs filtering on edX organization works as expected.
+        """
+        edx_org_short_name = 'edx'
+        request = make_request()
+        edx_org_program = ProgramFactory(authoring_organizations__key=edx_org_short_name)
+        serializer = self.serializer_class(edx_org_program, context={'request': request})
+        assert serializer.data['title'] == self.get_expected_data(edx_org_program, request)['title']
+
 
 class ProgramSerializerTests(MinimalProgramSerializerTests):
     serializer_class = ProgramSerializer
@@ -1026,6 +1036,16 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'title_background_image': degree.title_background_image,
         }
         self.assertDictEqual(serializer.data, expected)
+
+    def test_filter_programs_on_edx_org_short_name(self):
+        """
+        Verify programs filtering on edX organization works as expected.
+        """
+        edx_org_short_name = 'edx'
+        request = make_request()
+        edx_org_program = ProgramFactory(authoring_organizations__key=edx_org_short_name)
+        serializer = self.serializer_class(edx_org_program, context={'request': request})
+        assert serializer.data['title'] == self.get_expected_data(edx_org_program, request)['title']
 
 
 class PathwaySerialzerTests(TestCase):

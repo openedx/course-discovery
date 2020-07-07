@@ -943,9 +943,11 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     degree = DegreeSerializer()
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None):
+    def prefetch_queryset(cls, partner, queryset=None, edx_org_short_name=None):
         # Explicitly check if the queryset is None before selecting related
+        edx_org_filter = 'authoring_organizations__key'
         queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
+        queryset = get_queryset_filtered_on_organization(queryset, edx_org_filter, edx_org_short_name)
 
         return queryset.select_related('type', 'partner').prefetch_related(
             'excluded_course_runs',
@@ -1074,7 +1076,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     topics = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None):
+    def prefetch_queryset(cls, partner, queryset=None, edx_org_short_name=None):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
@@ -1082,7 +1084,9 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
+        edx_org_filter = 'authoring_organizations__key'
         queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
+        queryset = get_queryset_filtered_on_organization(queryset, edx_org_filter, edx_org_short_name)
 
         return queryset.select_related('type', 'video', 'partner').prefetch_related(
             'excluded_course_runs',
