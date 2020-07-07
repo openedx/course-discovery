@@ -1,6 +1,7 @@
 # pylint: disable=no-member,test-inherits-tests
 import datetime
 import itertools
+import re
 from urllib.parse import urlencode
 
 import ddt
@@ -1295,6 +1296,9 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         expected_degree_deadlines = DegreeDeadlineSerializer(degree.deadline, many=True).data
         expected_degree_costs = DegreeCostSerializer(degree.cost, many=True).data
 
+        url = re.compile(r"https?:\/\/[^\/]*")
+        expected_micromasters_path = url.sub('', degree.micromasters_url)
+
         # Tack in degree data
         expected['curricula'] = [expected_curriculum]
         expected['degree'] = {
@@ -1311,6 +1315,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'lead_capture_list_name': degree.lead_capture_list_name,
             'lead_capture_image': lead_capture_image_field.to_representation(degree.lead_capture_image),
             'hubspot_lead_capture_form_id': degree.hubspot_lead_capture_form_id,
+            'micromasters_path': expected_micromasters_path,
             'micromasters_url': degree.micromasters_url,
             'micromasters_long_title': degree.micromasters_long_title,
             'micromasters_long_description': degree.micromasters_long_description,
