@@ -1416,7 +1416,7 @@ class DegreeSerializer(BaseModelSerializer):
             url = re.compile(r"https?:\/\/[^\/]*")
             return url.sub('', degree.micromasters_url)
         else:
-            return None
+            return degree.micromasters_url
 
 
 class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
