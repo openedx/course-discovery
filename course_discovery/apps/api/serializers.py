@@ -1412,8 +1412,11 @@ class DegreeSerializer(BaseModelSerializer):
         )
 
     def get_micromasters_path(self, degree):
-        url = re.compile(r"https?:\/\/[^\/]*")
-        return url.sub('', degree.micromasters_url)
+        if degree and isinstance(degree.micromasters_url, str):
+            url = re.compile(r"https?:\/\/[^\/]*")
+            return url.sub('', degree.micromasters_url)
+        else:
+            return degree.micromasters_url
 
 
 class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
