@@ -2,7 +2,7 @@
 from algoliasearch_django import AlgoliaIndex, register
 
 from course_discovery.apps.course_metadata.algolia_models import (
-    AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram
+    AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram, SearchDefaultResultsConfiguration
 )
 
 
@@ -21,7 +21,37 @@ class BaseProductIndex(AlgoliaIndex):
         qs2 = [AlgoliaProxyProduct(program, self.language) for program in AlgoliaProxyProgram.objects.all()]
         return qs1 + qs2
 
+    def generate_empty_query_rule(self, rule_object_id, product_type, results):
+        promoted_results = [{'objectID': '{type}-{uuid}'.format(type=product_type, uuid=result.uuid),
+                             'position': index} for index, result in enumerate(results)]
+        return {
+            'objectID': rule_object_id,
+            'condition': {
+                'pattern': '',
+                'anchoring': 'is',
+                'alternatives': False
+            },
+            'consequence': {
+                'promote': promoted_results,
+                'filterPromotes': True
+            }
+        }
 
+    def get_rules(self):
+        rules_config = SearchDefaultResultsConfiguration.objects.filter(index_name=self.index_name).first()
+        if rules_config:
+            course_rule = self.generate_empty_query_rule('course-empty-query-rule', 'course',
+                                                         rules_config.courses.all())
+            program_rule = self.generate_empty_query_rule('program-empty-query-rule', 'program',
+                                                          rules_config.programs.all())
+            return [course_rule, program_rule]
+        return []
+
+    # Rules aren't automatically set in regular reindex_all, so set them explicitly
+    def reindex_all(self, batch_size=1000):
+        super().reindex_all(batch_size)
+        self._AlgoliaIndex__index.replace_all_rules(self.get_rules())  # pylint: disable=no-member\
+        
 class EnglishProductIndex(BaseProductIndex):
     language = 'en'
 
