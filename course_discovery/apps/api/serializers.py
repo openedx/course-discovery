@@ -1089,6 +1089,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'topics',
             'url_slug_history',
             'url_redirects',
+            'collaborators',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),

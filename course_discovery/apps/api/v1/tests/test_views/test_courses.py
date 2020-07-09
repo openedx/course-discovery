@@ -21,8 +21,8 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CollaboratorFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory,
-    CourseRunFactory, LevelTypeFactory, OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, LevelTypeFactory,
+    OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -1452,7 +1452,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        with self.assertNumQueries(42, threshold=0):
+        with self.assertNumQueries(40, threshold=0):
             response = self.client.options(url)
         self.assertEqual(response.status_code, 200)
 
@@ -1468,8 +1468,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(data['subjects']['child']['choices'],
                          [{'display_name': 'Subject1', 'value': 'subject1'}])
         self.assertNotIn('choices', data['partner'])  # we don't whitelist partner to show its choices
-        self.assertEqual(data['collaborators']['child']['choices'],
-                         [{'display_name': 'Collaborator1'}])
 
         # Check that tracks come out alright
         credit_type = CourseType.objects.get(slug=CourseType.CREDIT_VERIFIED_AUDIT)

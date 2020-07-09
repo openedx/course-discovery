@@ -680,11 +680,3 @@ class MigratePublisherToCourseMetadataConfigFactory(factory.DjangoModelFactory):
 class MigrateCommentsToSalesforceFactory(factory.DjangoModelFactory):
     class Meta:
         model = MigrateCommentsToSalesforce
-
-
-class CollaboratorFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = Collaborator
-
-    name = FuzzyText()
-    image_url = FuzzyURL()
