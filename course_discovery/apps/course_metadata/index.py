@@ -51,7 +51,8 @@ class BaseProductIndex(AlgoliaIndex):
     def reindex_all(self, batch_size=1000):
         super().reindex_all(batch_size)
         self._AlgoliaIndex__index.replace_all_rules(self.get_rules())  # pylint: disable=no-member\
-        
+
+
 class EnglishProductIndex(BaseProductIndex):
     language = 'en'
 
