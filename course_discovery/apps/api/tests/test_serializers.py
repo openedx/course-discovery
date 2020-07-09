@@ -190,6 +190,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'url_redirects': [],
             'course_run_statuses': course.course_run_statuses,
             'editors': CourseEditorSerializer(course.editors, many=True, read_only=True).data,
+            'collaborators': [],
         })
 
         return expected

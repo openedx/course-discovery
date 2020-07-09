@@ -495,3 +495,10 @@ for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, Jo
               TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig, BulkModifyProgramHookConfig,
               BackfillCourseRunSlugsConfig):
     admin.site.register(model)
+
+
+@admin.register(Collaborator)
+class CollaboratorAdmin(admin.ModelAdmin):
+    list_display = ('uuid', 'name', 'image_url')
+    readonly_fields = ('uuid', )
+    search_fields = ('uuid', 'name')
