@@ -490,6 +490,16 @@ class DegreeAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(SearchDefaultResultsConfiguration)
+class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
+    form = SearchDefaultResultsConfigurationForm
+    list_display = ('index_name',)
+
+    class Media:
+        js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
+              'js/sortable_select.js')
+
+
 # Register remaining models using basic ModelAdmin classes
 for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
               DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCommentsToSalesforce,
