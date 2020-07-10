@@ -19,19 +19,20 @@ from waffle.testutils import override_switch
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
-    AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer,
-    ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer,
-    CourseEntitlementSerializer, CourseRunSearchModelSerializer, CourseRunSearchSerializer, CourseRunSerializer,
-    CourseRunWithProgramsSerializer, CourseSearchModelSerializer, CourseSearchSerializer, CourseSerializer,
-    CourseWithProgramsSerializer, CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer,
-    EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer,
-    ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
-    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PathwaySerializer, PersonSearchModelSerializer, PersonSearchSerializer, PersonSerializer,
-    PositionSerializer, PrerequisiteSerializer, ProgramsAffiliateWindowSerializer, ProgramSearchModelSerializer,
-    ProgramSearchSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer,
-    SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
-    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
+    AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer, CollaboratorSerializer,
+    ContainedCourseRunsSerializer, ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer,
+    CourseEditorSerializer, CourseEntitlementSerializer, CourseRunSearchModelSerializer, CourseRunSearchSerializer,
+    CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSearchModelSerializer, CourseSearchSerializer,
+    CourseSerializer, CourseWithProgramsSerializer, CurriculumSerializer, DegreeCostSerializer,
+    DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer,
+    IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
+    MinimalOrganizationSerializer, MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
+    NestedProgramSerializer, OrganizationSerializer, PathwaySerializer, PersonSearchModelSerializer,
+    PersonSearchSerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    ProgramsAffiliateWindowSerializer, ProgramSearchModelSerializer, ProgramSearchSerializer, ProgramSerializer,
+    ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer,
+    TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
+    get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -43,8 +44,8 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Person, Program
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalPromoAreaFactory, CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory,
-    CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
+    AdditionalPromoAreaFactory, CollaboratorFactory, CorporateEndorsementFactory, CourseEditorFactory,
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
     CurriculumProgramMembershipFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory,
     ExpectedLearningItemFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory,
     PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory,
@@ -2471,3 +2472,27 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
             self.partner.lms_url, self.user, api_access_request_overrides={'company_name': company_name},
         )
         assert get_utm_source_for_user(self.partner, self.user) == expected_utm_source
+
+
+class CollaboratorSerializerTests(TestCase):
+    serializer_class = CollaboratorSerializer
+
+    def test_data(self):
+        self.maxDiff = None
+
+        request = make_request()
+
+        image_field = StdImageSerializerField()
+        image_field._context = {'request': request}  # pylint: disable=protected-access
+
+        collaborator = CollaboratorFactory()
+        serializer = CollaboratorSerializer(collaborator)
+        serializer = self.serializer_class(collaborator, context={'request': request})
+
+        expected = {
+            'name': collaborator.name,
+            'image_url': image_field.to_representation(collaborator.image_url),
+            'uuid': str(collaborator.uuid)
+        }
+
+        self.assertDictEqual(serializer.data, expected)
