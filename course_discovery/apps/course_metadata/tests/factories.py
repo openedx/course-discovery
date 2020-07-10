@@ -687,5 +687,5 @@ class CollaboratorFactory(factory.DjangoModelFactory):
         model = Collaborator
 
     name = FuzzyText()
-    image_url = factory.django.ImageField()
+    image = factory.django.ImageField()
     uuid = factory.LazyFunction(uuid4)

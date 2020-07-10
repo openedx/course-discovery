@@ -728,7 +728,7 @@ class Collaborator(TimeStampedModel):
     """
     Collaborator model, defining any collaborators who helped write course content.
     """
-    image_url = StdImageField(
+    image = StdImageField(
         upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/course/collaborator/image'),
         blank=True,
         null=True,

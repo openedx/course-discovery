@@ -499,6 +499,6 @@ for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, Jo
 
 @admin.register(Collaborator)
 class CollaboratorAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'name', 'image_url')
+    list_display = ('uuid', 'name', 'image')
     readonly_fields = ('uuid', )
     search_fields = ('uuid', 'name')

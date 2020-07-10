@@ -268,7 +268,7 @@ class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
 
 class CollaboratorSerializer(BaseModelSerializer):
     """Serializer for the ``Collaborator`` model."""
-    image_url = StdImageSerializerField()
+    image = StdImageSerializerField()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -276,7 +276,7 @@ class CollaboratorSerializer(BaseModelSerializer):
 
     class Meta:
         model = Collaborator
-        fields = ('name', 'image_url', 'uuid')
+        fields = ('name', 'image', 'uuid')
 
 
 class PrerequisiteSerializer(NamedModelSerializer):

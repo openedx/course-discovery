@@ -2491,7 +2491,7 @@ class CollaboratorSerializerTests(TestCase):
 
         expected = {
             'name': collaborator.name,
-            'image_url': image_field.to_representation(collaborator.image_url),
+            'image': image_field.to_representation(collaborator.image),
             'uuid': str(collaborator.uuid)
         }
 
