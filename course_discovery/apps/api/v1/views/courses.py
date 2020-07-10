@@ -298,6 +298,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         image_data = data.pop('image', None)
         video_data = data.pop('video', None)
         url_slug = data.pop('url_slug', '')
+        collaborator_uuids = data.pop('collaborators', None) #TODO: Make sure collaborators are uploadable. I'm imagining a list of UUIDs
 
         # Get and validate object serializer
         course = self.get_object()
