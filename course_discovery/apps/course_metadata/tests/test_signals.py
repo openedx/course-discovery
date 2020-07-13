@@ -51,7 +51,8 @@ class TestCacheInvalidation:
                          DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, SubjectTranslation,
                          TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
                          BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
-                         AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation, LevelTypeTranslation]:
+                         AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation, 
+                         LevelTypeTranslation]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue
