@@ -51,7 +51,7 @@ class OrganizationsMixin:
     def format_organization_body(self, organization):
         # Deferred to prevent a circular import:
         # course_discovery.apps.api.serializers -> course_discovery.apps.course_metadata.search_indexes
-        from course_discovery.apps.api.serializers import OrganizationSerializer
+        from course_discovery.apps.api.serializers import OrganizationSerializer  # pylint: disable=import-outside-toplevel
 
         return json.dumps(OrganizationSerializer(organization).data)
 
