@@ -914,9 +914,9 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             self.assertEqual(num_seats, 1)
         seat = Seat.everything.get(course_run=draft_course_run, type__slug=seat_type)
         self.assertEqual(seat.price, price)
-        # This is probably not a great way of verifying this with the last, it just so happens
-        # that if there are two tracks (verified and audit), the verified track is last
-        self.assertEqual(seat.type, updated_run_type.tracks.last().seat_type)  # pylint: disable=no-member
+        # This is probably not a great way of verifying this with the first, it just so happens
+        # that if there are two tracks (verified and audit), the verified track is first
+        self.assertEqual(seat.type, updated_run_type.tracks.first().seat_type)  # pylint: disable=no-member
         self.assertTrue(seat.draft)
 
     @responses.activate

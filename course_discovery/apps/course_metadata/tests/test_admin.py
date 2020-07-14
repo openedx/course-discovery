@@ -407,7 +407,7 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
         with self.assertNumQueries(1):
             self.assertEqual(
                 list(program_filter.queryset({}, Program.objects.all())),
-                [one_click_purchase_ineligible_program, one_click_purchase_eligible_program]
+                [one_click_purchase_eligible_program, one_click_purchase_ineligible_program]
             )
 
     def test_queryset_method_returns_eligible_programs(self):
