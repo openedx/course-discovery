@@ -724,6 +724,26 @@ class PkSearchableMixin:
         return queryset.filter(pk__in=ids)
 
 
+class Collaborator(TimeStampedModel):
+    """
+    Collaborator model, defining any collaborators who helped write course content.
+    """
+    image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/course/collaborator/image'),
+        blank=True,
+        null=True,
+        variations={
+            'original': (80, 80),
+        },
+        help_text=_('Add the collaborator image, please make sure its dimensions are 80x80px')
+    )
+    name = models.CharField(max_length=255, default='')
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+
+    def __str__(self):
+        return '{name}'.format(name=self.name)
+
+
 class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
@@ -747,6 +767,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
+    collaborators = SortedManyToManyField(Collaborator, blank=True, related_name='courses_collaborated')
     subjects = SortedManyToManyField(Subject, blank=True)
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, models.CASCADE, default=None, null=True, blank=True)

@@ -35,11 +35,11 @@ from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType,
-    CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline,
-    Endorsement, IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise,
-    PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track,
-    Video
+    FAQ, AdditionalPromoArea, Collaborator, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun,
+    CourseRunType, CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost,
+    DegreeDeadline, Endorsement, IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person,
+    PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType,
+    Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -264,6 +264,15 @@ class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
     def choices(self):
         # choices shows the possible values via HTTP's OPTIONS verb
         return OrderedDict(sorted([(x.slug, x.name) for x in Subject.objects.all()], key=lambda x: x[1]))
+
+
+class CollaboratorSerializer(BaseModelSerializer):
+    """Serializer for the ``Collaborator`` model."""
+    image = StdImageSerializerField()
+
+    class Meta:
+        model = Collaborator
+        fields = ('name', 'image', 'uuid')
 
 
 class PrerequisiteSerializer(NamedModelSerializer):
@@ -1053,6 +1062,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     url_redirects = serializers.SlugRelatedField(slug_field='value', read_only=True, many=True)
     course_run_statuses = serializers.ReadOnlyField()
     editors = CourseEditorSerializer(many=True, read_only=True)
+    collaborators = CollaboratorSerializer(many=True, required=False)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
@@ -1089,7 +1099,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
-            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors',
+            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
