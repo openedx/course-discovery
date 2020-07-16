@@ -10,6 +10,7 @@ from course_discovery.apps.api.v1.views.comments import CommentViewSet
 from course_discovery.apps.api.v1.views.course_editors import CourseEditorViewSet
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.api.v1.views.courses import CourseViewSet
+from course_discovery.apps.api.v1.views.collaborators import CollaboratorViewSet
 from course_discovery.apps.api.v1.views.currency import CurrencyView
 from course_discovery.apps.api.v1.views.level_types import LevelTypeViewSet
 from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet
@@ -46,6 +47,7 @@ router.register(r'comments', CommentViewSet, basename='comment')
 router.register(r'courses', CourseViewSet, basename='course')
 router.register(r'course_editors', CourseEditorViewSet, basename='course_editor')
 router.register(r'course_runs', CourseRunViewSet, basename='course_run')
+router.register(r'collaborators', CollaboratorViewSet, basename='collaborator')
 router.register(r'organizations', OrganizationViewSet, basename='organization')
 router.register(r'people', PersonViewSet, basename='person')
 router.register(r'subjects', SubjectViewSet, basename='subject')

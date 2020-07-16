@@ -2,6 +2,7 @@ import factory
 from django.contrib.sites.models import Site
 
 from course_discovery.apps.core.models import Currency, Partner, SalesforceConfiguration, User
+from course_discovery.apps.course_metadata.models import Collaborator
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
 
 USER_PASSWORD = 'password'
@@ -11,6 +12,11 @@ def add_m2m_data(m2m_relation, data):
     """ Helper function to enable factories to easily associate many-to-many data with created objects. """
     if data:
         m2m_relation.add(*data)
+
+class CollaboratorFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Collaborator
+    name = (factory.Faker('first_name'), factory.Faker('last_name'))
 
 
 class SiteFactory(factory.DjangoModelFactory):

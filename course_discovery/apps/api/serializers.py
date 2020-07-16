@@ -270,6 +270,10 @@ class CollaboratorSerializer(BaseModelSerializer):
     """Serializer for the ``Collaborator`` model."""
     image = StdImageSerializerField()
 
+    @classmethod
+    def prefetch_queryset(cls):
+        return Collaborator.objects.all()
+
     class Meta:
         model = Collaborator
         fields = ('name', 'image', 'uuid')
