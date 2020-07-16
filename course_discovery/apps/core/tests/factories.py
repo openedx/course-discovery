@@ -2,8 +2,8 @@ import factory
 from django.contrib.sites.models import Site
 
 from course_discovery.apps.core.models import Currency, Partner, SalesforceConfiguration, User
-from course_discovery.apps.course_metadata.models import Collaborator
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
+from course_discovery.apps.course_metadata.models import Collaborator
 
 USER_PASSWORD = 'password'
 

@@ -16,7 +16,8 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Collaborator, Course, CourseEditor, CourseRun, LevelType, Organization, Person, Program, ProgramType, Subject, Topic
+    Collaborator, Course, CourseEditor, CourseRun, LevelType, Organization, Person, Program, ProgramType, Subject,
+    Topic
 )
 
 logger = logging.getLogger(__name__)

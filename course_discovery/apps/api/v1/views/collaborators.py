@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import PageNumberPagination
-from course_discovery.apps.api.serializers import MetadataWithRelatedChoices, CollaboratorSerializer
+from course_discovery.apps.api.serializers import CollaboratorSerializer, MetadataWithRelatedChoices
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException 
 
 logger = logging.getLogger(__name__)

@@ -6,11 +6,11 @@ from course_discovery.apps.api.v1.views import search as search_views
 from course_discovery.apps.api.v1.views.affiliates import AffiliateWindowViewSet, ProgramsAffiliateWindowViewSet
 from course_discovery.apps.api.v1.views.catalog_queries import CatalogQueryContainsViewSet
 from course_discovery.apps.api.v1.views.catalogs import CatalogViewSet
+from course_discovery.apps.api.v1.views.collaborators import CollaboratorViewSet
 from course_discovery.apps.api.v1.views.comments import CommentViewSet
 from course_discovery.apps.api.v1.views.course_editors import CourseEditorViewSet
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.api.v1.views.courses import CourseViewSet
-from course_discovery.apps.api.v1.views.collaborators import CollaboratorViewSet
 from course_discovery.apps.api.v1.views.currency import CurrencyView
 from course_discovery.apps.api.v1.views.level_types import LevelTypeViewSet
 from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet

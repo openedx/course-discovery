@@ -1,7 +1,9 @@
+from rest_framework.reverse import reverse
+
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD
 from course_discovery.apps.course_metadata.tests.factories import CollaboratorFactory
-from rest_framework.reverse import reverse
+
 
 class CollaboratorViewSetTests(SerializationMixin, APITestCase):
     """ Tests for the collaborator resource. """
