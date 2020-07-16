@@ -21,6 +21,6 @@ class CollaboratorViewSetTests(SerializationMixin, APITestCase):
         self.client.logout()
 
     def test_get(self):
-        url = reverse('api:v1:collaborators', kwargs={'name': self.name})
+        url = reverse('api:v1:collaborators', args={'name': self.name})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)
