@@ -110,6 +110,7 @@ class CharListFilter(filters.CharFilter):
 
         return super(CharListFilter, self).filter(qs, value)
 
+
 class UUIDListFilter(CharListFilter):
     """ Filters a field via a comma-delimited list of UUIDs. """
 
@@ -259,8 +260,9 @@ class CourseEditorFilter(filters.FilterSet):
         model = CourseEditor
         fields = ('course',)
 
+
 class CollaboratorFilter(filters.FilterSet):
+
     class Meta:
         model = Collaborator
         fields = ('name', 'uuid',)
-

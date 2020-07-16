@@ -8,10 +8,10 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import PageNumberPagination
-from course_discovery.apps.api.serializers import CollaboratorSerializer, MetadataWithRelatedChoices
-from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException 
+from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
 
 logger = logging.getLogger(__name__)
+
 
 # pylint: disable=useless-super-delegation
 class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
@@ -34,17 +34,17 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         collaborator_data = request.data
         serializer = self.get_serializer(data=collaborator_data)
-        serializer.is_valid(raise_exception= True)
+        serializer.is_valid(raise_exception=True)
 
         try:
             self.perform_create(serializer)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             logger.exception(
                 'An error occured while adding the collaborator [%s] in discovery.',
-                serializer.validated_data['name'], serializer.validated_data['uuid']
+                serializer.validated_data['name'],
             )
             return Response('Failed to add collaborator data.', status=status.HTTP_400_BAD_REQUEST)
-        
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -62,13 +62,13 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         try:
             self.perform_update(serializer)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             logger.exception(
                 'An error occured while updating the collaborator [%s]-[%s] in discovery.',
                 serializer.validated_data['name'], serializer.validated_data['uuid']
             )
             return Response('Failed to update collaborator data.', status=status.HTTP_400_BAD_REQUEST)
-        
+
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
@@ -79,4 +79,3 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """ Retieve details for a collaborator. """
         return super(CollaboratorViewSet, self).retrieve(request, *args, **kwargs)
-

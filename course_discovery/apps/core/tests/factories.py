@@ -13,6 +13,7 @@ def add_m2m_data(m2m_relation, data):
     if data:
         m2m_relation.add(*data)
 
+
 class CollaboratorFactory(factory.DjangoModelFactory):
     class Meta:
         model = Collaborator

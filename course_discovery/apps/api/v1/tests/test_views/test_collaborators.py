@@ -2,7 +2,7 @@ from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD
-from course_discovery.apps.course_metadata.tests.factories import CollaboratorFactory
+from course_discovery.apps.course_metadata.tests.factories import CollaboratorFactory, UserFactory
 
 
 class CollaboratorViewSetTests(SerializationMixin, APITestCase):
@@ -23,9 +23,4 @@ class CollaboratorViewSetTests(SerializationMixin, APITestCase):
     def test_get(self):
         url = reverse('api:v1:collaborators', kwargs={'name': self.name})
         response = self.client.get(url)
-        self.assertEqual(reponse.status_code, 400)
-
-
-
-    
-
+        self.assertEqual(response.status_code, 400)
