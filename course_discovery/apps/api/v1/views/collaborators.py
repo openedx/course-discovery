@@ -44,14 +44,12 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def update(self, request, *args, **kwargs):
+    def update_collaborator(self, data, partial=False):
         """
         Updates a collaborator in discovery
         """
 
         collaborator_data = request.data
-
-        partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=collaborator_data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -67,6 +65,13 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        return self.update_collaborator(request.data)
+
+    def partial_update(self, request, *_args, **_kwargs):
+        """ Partially update details of collaborator. """
+        return self.update_collaborator(request.data, partial=True)
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all collaborators. """
