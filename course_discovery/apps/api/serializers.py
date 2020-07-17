@@ -281,7 +281,7 @@ class CollaboratorSerializer(BaseModelSerializer):
     @property
     def choices(self):
         # choices shows the possiblity values via HTTP's OPTIONS verb
-        return OrderDict(sorted([(x.uuid, x.name) for x in Collaborator.objects.all()], key=lambda x: x[1]))
+        return OrderedDict(sorted([(x.uuid, x.name) for x in Collaborator.objects.all()], key=lambda x: x[1]))
 
 
 class PrerequisiteSerializer(NamedModelSerializer):
