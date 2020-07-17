@@ -1,11 +1,10 @@
 import logging
 
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 
-from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api import serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import PageNumberPagination
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
