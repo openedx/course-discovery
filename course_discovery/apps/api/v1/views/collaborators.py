@@ -17,10 +17,6 @@ logger = logging.getLogger(__name__)
 class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ CollaboratorSerializer resource. """
 
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = filters.CollaboratorFilter
-    lookup_field = 'uuid'
-    lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
     queryset = serializers.CollaboratorSerializer.prefetch_queryset()
     serializer_class = serializers.CollaboratorSerializer

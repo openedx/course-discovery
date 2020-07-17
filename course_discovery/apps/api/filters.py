@@ -259,10 +259,3 @@ class CourseEditorFilter(filters.FilterSet):
     class Meta:
         model = CourseEditor
         fields = ('course',)
-
-
-class CollaboratorFilter(filters.FilterSet):
-
-    class Meta:
-        model = Collaborator
-        fields = ('name', 'uuid',)
