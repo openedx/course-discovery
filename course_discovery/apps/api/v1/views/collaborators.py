@@ -49,7 +49,7 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         Updates a collaborator in discovery
         """
 
-        collaborator_data = request.data
+        collaborator_data = data
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=collaborator_data, partial=partial)
         serializer.is_valid(raise_exception=True)
