@@ -25,12 +25,13 @@ from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithType
 from course_discovery.apps.api.utils import get_query_param, reviewable_data_has_changed
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
-from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.api.v1.views.collaborators import CollaboratorViewSet
+from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
-    Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug, Organization, Program, Seat, Video
+    Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug, Organization, Program,
+    Seat, Video
 )
 from course_discovery.apps.course_metadata.utils import (
     create_missing_entitlement, ensure_draft_world, validate_course_number
@@ -341,13 +342,12 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             ext = file_format.split('/')[-1]  # guess file extension
             image_data = ContentFile(base64.b64decode(imgstr), name='tmp.{extension}'.format(extension=ext))
             course.image.save(image_data.name, image_data)
-        
+
         if data.get('collaborators'):
             collaborators_uuids = data.get('collaborators')
             for uuid in collaborators_uuids:
-                coll = CollaboratorViewSet.retrieve({'uuid': uuid})
+                coll = Collaborator.objects.get({uuid: uuid})
                 course.collaborators.push(coll)
-            
 
         # If price didnt change, check the other fields on the course
         # (besides image and video, they are popped off above)
