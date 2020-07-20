@@ -22,7 +22,7 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, LevelTypeFactory,
-    OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory, CollaboratorFactory,
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -720,6 +720,14 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         course = Course.everything.last()
         course.refresh_from_db()
         self.assertEqual(course.active_url_slug, 'course-title')
+
+    def test_add_collaborator_uuid_list(self):
+        self.mock_access_token()
+        response = self.create_course({'collaborators': {}})
+        self.assertEqual(response.status_code, 201)
+        course = Course.everything.last()
+        collaborator = CollaboratorFactory(name='Collaborator 1')
+        self.assertEqual(course, collaborator)
 
     def test_create_saves_manual_url_slug(self):
         self.mock_access_token()
