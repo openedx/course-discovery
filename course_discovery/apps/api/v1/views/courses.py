@@ -25,7 +25,6 @@ from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithType
 from course_discovery.apps.api.utils import get_query_param, reviewable_data_has_changed
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
-from course_discovery.apps.api.v1.views.collaborators import CollaboratorViewSet
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
