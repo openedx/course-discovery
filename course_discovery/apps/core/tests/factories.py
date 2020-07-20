@@ -1,6 +1,7 @@
 import factory
 from django.contrib.sites.models import Site
 
+from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.core.models import Currency, Partner, SalesforceConfiguration, User
 from course_discovery.apps.core.tests.utils import FuzzyURL, FuzzyUrlRoot
 from course_discovery.apps.course_metadata.models import Collaborator
@@ -17,10 +18,11 @@ def add_m2m_data(m2m_relation, data):
 class CollaboratorFactory(factory.DjangoModelFactory):
     name = (factory.Faker('first_name'), factory.Faker('last_name'))
     image = StdImageSerializerField()
-    image_url = FuzzyUrl()
+    image_url = FuzzyURL()
 
     class Meta:
         model = Collaborator
+
 
 class SiteFactory(factory.DjangoModelFactory):
     class Meta:
