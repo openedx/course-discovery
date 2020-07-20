@@ -18,7 +18,6 @@ def add_m2m_data(m2m_relation, data):
 class CollaboratorFactory(factory.DjangoModelFactory):
     name = (factory.Faker('first_name'), factory.Faker('last_name'))
     image = StdImageSerializerField()
-    image_url = FuzzyURL()
 
     class Meta:
         model = Collaborator

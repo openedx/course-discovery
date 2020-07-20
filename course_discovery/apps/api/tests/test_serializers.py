@@ -2486,12 +2486,13 @@ class CollaboratorSerializerTests(TestCase):
         image_field._context = {'request': request}  # pylint: disable=protected-access
 
         collaborator = CollaboratorFactory()
-        serializer = CollaboratorSerializer(collaborator)
         serializer = self.serializer_class(collaborator, context={'request': request})
+        image = image_field.to_representation(collaborator.image),
 
         expected = {
             'name': collaborator.name,
-            'image': image_field.to_representation(collaborator.image),
+            'image': image[0],
+            'image_url':  collaborator.get_image_url,
             'uuid': str(collaborator.uuid)
         }
 
