@@ -268,15 +268,23 @@ class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
 
 class CollaboratorSerializer(BaseModelSerializer):
     """Serializer for the ``Collaborator`` model."""
-    image = StdImageSerializerField()
+    image = StdImageSerializerField(required=False)
+    image_url = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls):
-        return Collaborator.objects.all()
+        if Collaborator.objects:
+            return Collaborator.objects.all()
+        return None
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.get_image_url
+        return None
 
     class Meta:
         model = Collaborator
-        fields = ('name', 'image', 'uuid')
+        fields = ('name', 'image', 'image_url', 'uuid')
 
     @property
     def choices(self):
