@@ -142,7 +142,7 @@ class TestProgramViewSet(SerializationMixin):
             curriculum=curriculum
         )
 
-        with django_assert_num_queries(FuzzyInt(60, 2)):
+        with django_assert_num_queries(FuzzyInt(63, 2)):
             response = self.assert_retrieve_success(parent_program)
         assert response.data == self.serialize_program(parent_program)
 
