@@ -2487,12 +2487,12 @@ class CollaboratorSerializerTests(TestCase):
 
         collaborator = CollaboratorFactory()
         serializer = self.serializer_class(collaborator, context={'request': request})
-        image = image_field.to_representation(collaborator.image),
+        image = image_field.to_representation(collaborator.image)
 
         expected = {
             'name': collaborator.name,
             'image': image[0],
-            'image_url':  collaborator.get_image_url,
+            'image_url': collaborator.get_image_url,
             'uuid': str(collaborator.uuid)
         }
 
