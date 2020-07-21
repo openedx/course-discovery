@@ -23,34 +23,43 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN ln -s /usr/bin/pip3 /usr/bin/pip
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
+# Use UTF-8.
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
+# Make necessary directories and environment variables.
+RUN mkdir -p /edx/var/discovery/staticfiles
+RUN mkdir -p /edx/var/discovery/media
+ENV DJANGO_SETTINGS_MODULE course_discovery.settings.production
+
 # Working directory will be root of repo.
 WORKDIR /edx/app/discovery
 
-# Copy just Python requirements & install them.
-COPY requirements/ requirements/
-RUN pip install -r requirements/production.txt
-
-# Copy just Node requirements and install them.
+# Copy just JS requirements and install them.
 COPY package.json package.json
 COPY package-lock.json package-lock.json
 RUN nodeenv /edx/app/nodeenv --node=8.9.3 --prebuilt
 ENV PATH /edx/app/nodeenv/bin:${PATH}
 RUN npm install --production
+COPY bower.json bower.json
 RUN ./node_modules/.bin/bower install --allow-root --production
 
+# Copy just Python requirements & install them.
+COPY requirements/ requirements/
+RUN pip install -r requirements/production.txt
+
 # Copy over rest of code.
-# (Copying this after installing requirements makes better use of Docker cache.)
+# We do this AFTER requirements so that the requirements cache isn't busted
+# every time any bit of code is changed.
 COPY . .
 
-# Copy over config file.
-ENV DISCOVERY_CFG /edx/etc/discovery.yml
-RUN cp devstack.yml /edx/etc/discovery.yml
+# Declare necessary environment variables.
+# TODO move upwards?
+ENV DISCOVERY_CFG /edx/app/discovery/devstack.yml
 
+# Expose canoncal Discovery port (TODO: This should be 8381 for prod...)
 EXPOSE 18381
 
 CMD gunicorn --bind=0.0.0.0:18381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
