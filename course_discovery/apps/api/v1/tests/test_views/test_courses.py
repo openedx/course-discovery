@@ -21,11 +21,12 @@ from course_discovery.apps.course_metadata.models import (
     Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, LevelTypeFactory,
-    OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory, CollaboratorFactory,
+    CollaboratorFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory,
+    LevelTypeFactory, OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
+
 
 @ddt.ddt
 @pytest.mark.usefixtures('django_cache')
@@ -722,7 +723,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     def test_add_collaborator_uuid_list(self):
         self.mock_access_token()
-        collaborator = { 'name': 'Collaborator 1'}
+        collaborator = {'name': 'Collaborator 1'}
         collaborator_url = reverse('api:v1:collaborator-list')
         collab_post_response = self.client.post(collaborator_url, collaborator, format='json')
         self.assertEqual(collab_post_response.status_code, 201)
@@ -730,7 +731,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         collab_json = get_collab_response.json()
         self.assertEqual(collab_json['count'], 1)
         collaborator_to_use = collab_json['results'][0]
-        response = self.create_course({ 'collaborators' :[collaborator_to_use['uuid']] })
+        response = self.create_course({'collaborators': [collaborator_to_use['uuid']]})
         self.assertEqual(response.status_code, 201)
         course = response.json()
         self.assertEqual(course['collaborators'][0]['name'], 'Collaborator 1')

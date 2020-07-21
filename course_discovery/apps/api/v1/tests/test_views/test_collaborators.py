@@ -4,6 +4,7 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OA
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests.factories import CollaboratorFactory
 
+
 class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     """ Tests for the collaborator resource. """
 
@@ -27,7 +28,6 @@ class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def test_add(self):
         self.mock_access_token()
         url = reverse('api:v1:collaborator-list')
-        data = { 'name': 'Collaborator 1'}
+        data = {'name': 'Collaborator 1'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
-

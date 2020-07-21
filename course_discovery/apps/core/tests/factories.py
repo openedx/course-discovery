@@ -1,7 +1,8 @@
+from uuid import uuid4
+
 import factory
 from django.contrib.sites.models import Site
 
-from uuid import uuid4
 from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.core.models import Currency, Partner, SalesforceConfiguration, User
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot

@@ -351,7 +351,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         if data.get('collaborators'):
             collaborators_uuids = data.get('collaborators')
             for uuid in collaborators_uuids:
-                coll = Collaborator.objects.get({uuid: uuid})
+                coll = Collaborator.objects.get(uuid=uuid)
                 course.collaborators.add(coll)
 
         # If price didnt change, check the other fields on the course

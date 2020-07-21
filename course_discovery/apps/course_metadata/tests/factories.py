@@ -689,4 +689,3 @@ class CollaboratorFactory(factory.DjangoModelFactory):
     name = FuzzyText()
     image = factory.django.ImageField()
     uuid = factory.LazyFunction(uuid4)
-
