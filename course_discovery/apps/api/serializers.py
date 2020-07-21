@@ -290,11 +290,6 @@ class CollaboratorSerializer(BaseModelSerializer):
         model = Collaborator
         fields = ('name', 'image', 'image_url', 'uuid')
 
-    @property
-    def choices(self):
-        # choices shows the possible values via HTTP's OPTIONS verb
-        return OrderedDict(sorted([(x.uuid, x.name) for x in Collaborator.objects.all()], key=lambda x: x[1]))
-
 
 class PrerequisiteSerializer(NamedModelSerializer):
     """Serializer for the ``Prerequisite`` model."""

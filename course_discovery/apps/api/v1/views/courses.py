@@ -219,11 +219,14 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
 
-        collaborators = request.data.get('collaborators')
-        for uuid in collaborators:
-            collaborator = Collaborator.objects.get(uuid=uuid)
-            course.collaborators.add(collaborator)
-            course.save()
+        collaborators_uuid = request.data.get('collaborators')
+        collaborators = []
+        for uuid in collaborators_uuid:
+            collaborators.append(Collaborator.objects.get(uuid=uuid))
+
+        
+        course.collaborators.add(*collaborators)
+        course.save()
 
         entitlement_types = course.type.entitlement_types.all()
         prices = request.data.get('prices', {})
@@ -350,9 +353,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         if data.get('collaborators'):
             collaborators_uuids = data.get('collaborators')
+            collaborators = []
             for uuid in collaborators_uuids:
-                coll = Collaborator.objects.get(uuid=uuid)
-                course.collaborators.add(coll)
+                collaborators.append(Collaborator.objects.get(uuid=uuid))
+
+            course.collaborators.add(*collaborators)
 
         # If price didnt change, check the other fields on the course
         # (besides image and video, they are popped off above)

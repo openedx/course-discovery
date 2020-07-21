@@ -33,7 +33,7 @@ from course_discovery.apps.publisher.tests.factories import OrganizationExtensio
 class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
-        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.user = UserFactory(is_staff=True)
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.audit_type = CourseType.objects.get(slug=CourseType.AUDIT)
