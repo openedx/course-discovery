@@ -18,11 +18,11 @@ from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
+    Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CollaboratorFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory,
-    LevelTypeFactory, OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, LevelTypeFactory,
+    OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory

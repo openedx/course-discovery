@@ -1079,7 +1079,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     course_run_statuses = serializers.ReadOnlyField()
     editors = CourseEditorSerializer(many=True, read_only=True)
     collaborators = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
-                                                       queryset=Collaborator.objects.all(), read_serializer=CollaboratorSerializer())
+                                                       queryset=Collaborator.objects.all(),
+                                                       read_serializer=CollaboratorSerializer())
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ

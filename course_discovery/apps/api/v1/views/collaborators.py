@@ -1,7 +1,7 @@
 import logging
 
 from rest_framework import status, viewsets
-from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import serializers
