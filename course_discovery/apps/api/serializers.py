@@ -1105,13 +1105,13 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'expected_learning_items',
             'prerequisites',
             'subjects',
+            'collaborators',
             'topics',
             'url_slug_history',
             'url_redirects',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
-            Prefetch('collaborators', queryset=CollaboratorSerializer.prefetch_queryset()),
         )
 
     class Meta(MinimalCourseSerializer.Meta):
