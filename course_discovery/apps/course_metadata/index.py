@@ -56,7 +56,7 @@ class BaseProductIndex(AlgoliaIndex):
 class EnglishProductIndex(BaseProductIndex):
     language = 'en'
 
-    search_fields = (('product_title', 'title'), 'partner_names', 'partner_keys',
+    search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys',
                      'primary_description', 'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
@@ -71,7 +71,7 @@ class EnglishProductIndex(BaseProductIndex):
     settings = {
         'searchableAttributes': [
             'unordered(title)',  # AG best practice: position of the search term in plain text fields doesn't matter
-            'partner_names',
+            'partner',
             'partner_keys',
             'unordered(primary_description)',
             'unordered(secondary_description)',
@@ -88,7 +88,7 @@ class EnglishProductIndex(BaseProductIndex):
 class SpanishProductIndex(BaseProductIndex):
     language = 'es_419'
 
-    search_fields = (('product_title', 'title'), 'partner_names', 'partner_keys',
+    search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys',
                      'primary_description', 'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
@@ -105,7 +105,7 @@ class SpanishProductIndex(BaseProductIndex):
     settings = {
         'searchableAttributes': [
             'unordered(title)',  # Algolia best practice: position of the term in plain text fields doesn't matter
-            'partner_names',
+            'partner',
             'partner_keys',
             'unordered(primary_description)',
             'unordered(secondary_description)',
