@@ -221,12 +221,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         collaborators_uuid = request.data.get('collaborators')
         collaborators = []
-        for uuid in collaborators_uuid:
-            collaborators.append(Collaborator.objects.get(uuid=uuid))
-
-        
-        course.collaborators.add(*collaborators)
-        course.save()
+        if collaborators_uuid:
+            for uuid in collaborators_uuid:
+                collaborators.append(Collaborator.objects.get(uuid=uuid))
+            course.collaborators.add(*collaborators)
+            course.save()
 
         entitlement_types = course.type.entitlement_types.all()
         prices = request.data.get('prices', {})

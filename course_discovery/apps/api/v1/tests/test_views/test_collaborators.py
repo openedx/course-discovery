@@ -31,3 +31,16 @@ class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         data = {'name': 'Collaborator 1'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
+
+    def test_modify(self):
+        self.mock_access_token()
+        url = reverse('api:v1:collaborator-list')
+        data = {'name': 'Collaborator 1'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+        collab = response.json()
+        patch_url = reverse('api:v1:collaborator-detail',  kwargs={'uuid': collab['uuid']})
+        collab['name'] = 'Collaborator 2'
+        response2 = self.client.patch(patch_url, collab, format='json')
+        modified_collab = response2.json()
+        self.assertEqual(modified_collab['name'], 'Collaborator 2')
