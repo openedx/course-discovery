@@ -1,6 +1,7 @@
 import datetime
 import json
 
+import logging, sys
 import ddt
 import pytest
 import pytz
@@ -18,7 +19,7 @@ from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
+    Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, LevelTypeFactory,
@@ -27,13 +28,14 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 @ddt.ddt
 @pytest.mark.usefixtures('django_cache')
 class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def setUp(self):
         super(CourseViewSetTests, self).setUp()
-        self.user = UserFactory(is_staff=True)
+        self.user = UserFactory(is_staff=True, is_superuser=True)
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.audit_type = CourseType.objects.get(slug=CourseType.AUDIT)
@@ -578,6 +580,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             course_data.update(data or {})
         else:
             course_data = data or {}
+        logging.debug(url)
+        logging.debug(course_data)
         return self.client.post(url, course_data, format='json')
 
     def create_course_and_course_run(self, data=None, update=True):
@@ -723,11 +727,19 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     def test_add_collaborator_uuid_list(self):
         self.mock_access_token()
-        response = self.create_course({'collaborators': {}})
-        self.assertEqual(response.status_code, 201)
-        course = Course.everything.last()
-        collaborator = CollaboratorFactory(name='Collaborator 1')
-        self.assertEqual(course, collaborator)
+        collaborator = { 'name': 'Collaborator 1'}
+        collaborator_url = reverse('api:v1:collaborator-list')
+        collab_post_response = self.client.post(collaborator_url, collaborator, format='json')
+        self.assertEqual(collab_post_response.status_code, 200)
+        result = collab_list = self.client.get(collaborator_url)
+        logging.debug(result)
+
+        # response = self.create_course({ 'collaborators' :[collaborator.uuid] })
+        # self.assertEqual(response.status_code, 201)
+        # course = Course.everything.last()
+        # logging.debug(course.collaborators)
+        # course.collaborators = (collaborator.uuid)
+        # self.assertEqual(course.collaborators, collaborator)
 
     def test_create_saves_manual_url_slug(self):
         self.mock_access_token()

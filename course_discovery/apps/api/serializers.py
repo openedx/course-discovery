@@ -282,6 +282,8 @@ class CollaboratorSerializer(BaseModelSerializer):
             return obj.get_image_url
         return None
 
+    def create(self, validated_data):
+        return Collaborator.objects.create(**validated_data)
     class Meta:
         model = Collaborator
         fields = ('name', 'image', 'image_url', 'uuid')
@@ -1079,7 +1081,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     url_redirects = serializers.SlugRelatedField(slug_field='value', read_only=True, many=True)
     course_run_statuses = serializers.ReadOnlyField()
     editors = CourseEditorSerializer(many=True, read_only=True)
-    collaborators = CollaboratorSerializer(many=True, required=False)
+    collaborators = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
+                                               queryset=Collaborator.objects.all(),
+                                               read_serializer=CollaboratorSerializer())
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ

@@ -1,11 +1,10 @@
 from rest_framework.reverse import reverse
 
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
-from course_discovery.apps.core.tests.factories import USER_PASSWORD
-from course_discovery.apps.course_metadata.tests.factories import CollaboratorFactory, UserFactory
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.course_metadata.tests.factories import CollaboratorFactory
 
-
-class CollaboratorViewSetTests(SerializationMixin, APITestCase):
+class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     """ Tests for the collaborator resource. """
 
     def setUp(self):
@@ -24,3 +23,11 @@ class CollaboratorViewSetTests(SerializationMixin, APITestCase):
         url = reverse('api:v1:collaborator-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_add(self):
+        self.mock_access_token()
+        url = reverse('api:v1:collaborator-list')
+        data = { 'name': 'Collaborator 1'}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+
