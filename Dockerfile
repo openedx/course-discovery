@@ -27,8 +27,11 @@ RUN pip install -r requirements.txt
 RUN npm install --production
 RUN ./node_modules/.bin/bower install --allow-root --production
 
-EXPOSE 8381
-CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c /edx/app/discovery/course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
+RUN cp /edx/app/discovery/devstack.yml /edx/etc/discovery.yml
+
+EXPOSE 18381
+
+CMD gunicorn --bind=0.0.0.0:18381 --workers 2 --max-requests=1000 -c /edx/app/discovery/course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
 
 FROM app as newrelic
 RUN pip install newrelic
