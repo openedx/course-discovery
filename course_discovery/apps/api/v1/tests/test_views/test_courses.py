@@ -1,7 +1,6 @@
 import datetime
 import json
 
-import logging, sys
 import ddt
 import pytest
 import pytz
@@ -27,8 +26,6 @@ from course_discovery.apps.course_metadata.tests.factories import (
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
-
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 @ddt.ddt
 @pytest.mark.usefixtures('django_cache')
@@ -580,8 +577,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             course_data.update(data or {})
         else:
             course_data = data or {}
-        logging.debug(url)
-        logging.debug(course_data)
         return self.client.post(url, course_data, format='json')
 
     def create_course_and_course_run(self, data=None, update=True):
@@ -737,15 +732,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         collaborator_to_use = collab_json['results'][0]
         response = self.create_course({ 'collaborators' :[collaborator_to_use['uuid']] })
         self.assertEqual(response.status_code, 201)
-        course_url = reverse('api:v1:course-list')
-        get_course_response = self.client.get(course_url)
-        course_json = get_course_response.json()
-        self.assertEqual(course_json['count'], 1)
-        logging.debug(course_json['results'][0])
-        logging.debug(course_json['results'][0]['collaborators'])
-        course = Course.objects.get()
-        logging.debug(course.collaborators)
-        self.assertEqual(True, False)
+        course = response.json()
+        self.assertEqual(course['collaborators'][0]['name'], 'Collaborator 1')
 
     def test_create_saves_manual_url_slug(self):
         self.mock_access_token()
