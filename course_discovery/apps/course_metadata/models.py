@@ -1011,11 +1011,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         return official_version
 
-    def add_collaborator(self, uuid):
-        collaborator = Collaborator.object.get(uuid=uuid)
-        self.collaborators.add(collaborator)
-        self.save()
-
     @transaction.atomic
     def set_active_url_slug(self, slug):
         if self.draft:

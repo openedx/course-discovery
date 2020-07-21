@@ -222,8 +222,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         collaborators = request.data.get('collaborators')
         for uuid in collaborators:
             logging.debug(uuid)
-            collaborator = Collaborator.get(uuid=uuid)
-            course.add_collaborator(uuid)
+            collaborator = Collaborator.objects.get(uuid=uuid)
+            course.collaborators.add(collaborator)
 
         # if data.get('collaborators'):
         #     collaborators_uuids = data.get('collaborators')

@@ -81,6 +81,7 @@ PREFETCH_FIELDS = {
         'sponsoring_organizations__tags',
         'subjects',
         'video',
+        'collaborators'
     ],
 }
 
@@ -1110,6 +1111,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+            Prefetch('collaborators', queryset=CollaboratorSerializer.prefetch_queryset()),
         )
 
     class Meta(MinimalCourseSerializer.Meta):

@@ -743,6 +743,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(course_json['count'], 1)
         logging.debug(course_json['results'][0])
         logging.debug(course_json['results'][0]['collaborators'])
+        course = Course.objects.get()
+        logging.debug(course.collaborators)
         self.assertEqual(True, False)
 
     def test_create_saves_manual_url_slug(self):
