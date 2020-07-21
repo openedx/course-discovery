@@ -47,7 +47,7 @@ def delegate_attributes(cls):
     fields are prefixed with 'product_' to make them Algolia-specific
     '''
 
-    search_fields = ['partner_names', 'product_title', 'primary_description', 'secondary_description',
+    search_fields = ['partner_names', 'partner_keys', 'product_title', 'primary_description', 'secondary_description',
                      'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index']
@@ -174,6 +174,10 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return [org['name'] for org in get_owners(self)]
 
     @property
+    def partner_keys(self):
+        return [org['key'] for org in get_owners(self)]
+
+    @property
     def levels(self):
         level = getattr(self.level_type, 'name_t', None)
         if level:
@@ -275,6 +279,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def partner_names(self):
         return [org['name'] for org in get_owners(self)]
+
+    @property
+    def partner_keys(self):
+        return [org['key'] for org in get_owners(self)]
 
     @property
     def levels(self):
