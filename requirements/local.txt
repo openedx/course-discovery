@@ -25,7 +25,7 @@ click==7.1.2              # via click-log, edx-lint
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
 coverage==5.2             # via -r requirements/test.in, pytest-cov
-cryptography==2.9.2       # via authlib, paramiko, pyjwt
+cryptography==3.0         # via authlib, paramiko, pyjwt
 ddt==1.4.1                # via -r requirements/test.in
 defusedxml==0.6.0         # via djangorestframework-xml, python3-openid, social-auth-core
 distlib==0.3.1            # via virtualenv

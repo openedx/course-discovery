@@ -9,15 +9,15 @@ algoliasearch==1.20.0     # via algoliasearch-django
 authlib==0.14.3           # via simple-salesforce
 backoff==1.10.0           # via -r requirements/base.in
 beautifulsoup4==4.9.1     # via -r requirements/base.in
-boto3==1.14.23            # via django-ses
+boto3==1.14.24            # via django-ses
 boto==2.49.0              # via -r requirements/production.in
-botocore==1.17.23         # via boto3, s3transfer
+botocore==1.17.24         # via boto3, s3transfer
 certifi==2020.6.20        # via -r requirements/production.in, requests
 cffi==1.14.0              # via cryptography
 chardet==3.0.4            # via requests
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
-cryptography==2.9.2       # via authlib, pyjwt
+cryptography==3.0         # via authlib, pyjwt
 defusedxml==0.6.0         # via djangorestframework-xml, python3-openid, social-auth-core
 django-admin-sortable2==0.7.6  # via -r requirements/base.in
 django-appconf==1.0.4     # via django-compressor
