@@ -730,16 +730,20 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         collaborator = { 'name': 'Collaborator 1'}
         collaborator_url = reverse('api:v1:collaborator-list')
         collab_post_response = self.client.post(collaborator_url, collaborator, format='json')
-        self.assertEqual(collab_post_response.status_code, 200)
-        result = collab_list = self.client.get(collaborator_url)
-        logging.debug(result)
-
-        # response = self.create_course({ 'collaborators' :[collaborator.uuid] })
-        # self.assertEqual(response.status_code, 201)
-        # course = Course.everything.last()
-        # logging.debug(course.collaborators)
-        # course.collaborators = (collaborator.uuid)
-        # self.assertEqual(course.collaborators, collaborator)
+        self.assertEqual(collab_post_response.status_code, 201)
+        get_collab_response = self.client.get(collaborator_url)
+        collab_json = get_collab_response.json()
+        self.assertEqual(collab_json['count'], 1)
+        collaborator_to_use = collab_json['results'][0]
+        response = self.create_course({ 'collaborators' :[collaborator_to_use['uuid']] })
+        self.assertEqual(response.status_code, 201)
+        course_url = reverse('api:v1:course-list')
+        get_course_response = self.client.get(course_url)
+        course_json = get_course_response.json()
+        self.assertEqual(course_json['count'], 1)
+        logging.debug(course_json['results'][0])
+        logging.debug(course_json['results'][0]['collaborators'])
+        self.assertEqual(True, False)
 
     def test_create_saves_manual_url_slug(self):
         self.mock_access_token()

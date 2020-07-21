@@ -1,12 +1,13 @@
 import logging
 
 from rest_framework import status, viewsets
-from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import PageNumberPagination
+from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
 
 logger = logging.getLogger(__name__)
@@ -18,7 +19,7 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
-    permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
+    permission_classes = (IsAuthenticated, IsCourseEditorOrReadOnly,)
     queryset = serializers.CollaboratorSerializer.prefetch_queryset()
     serializer_class = serializers.CollaboratorSerializer
     pagination_class = PageNumberPagination

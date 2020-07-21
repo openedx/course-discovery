@@ -219,6 +219,19 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
 
+        collaborators = request.data.get('collaborators')
+        for uuid in collaborators:
+            logging.debug(uuid)
+            collaborator = Collaborator.get(uuid=uuid)
+            course.add_collaborator(uuid)
+
+        # if data.get('collaborators'):
+        #     collaborators_uuids = data.get('collaborators')
+        #     for uuid in collaborators_uuids:
+        #         coll = Collaborator.objects.get({uuid: uuid})
+        #         course.collaborators.push(coll)
+
+
         entitlement_types = course.type.entitlement_types.all()
         prices = request.data.get('prices', {})
         for entitlement_type in entitlement_types:
