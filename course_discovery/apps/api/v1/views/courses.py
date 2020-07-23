@@ -220,12 +220,9 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         course.authoring_organizations.add(organization)
 
         collaborators_uuid = request.data.get('collaborators')
-        collaborators = []
         if collaborators_uuid:
-            for uuid in collaborators_uuid:
-                collaborators.append(Collaborator.objects.get(uuid=uuid))
+            collaborators = Collaborator.objects.filter(uuid__in=collaborators_uuid)
             course.collaborators.add(*collaborators)
-            course.save()
 
         entitlement_types = course.type.entitlement_types.all()
         prices = request.data.get('prices', {})
@@ -352,10 +349,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         if data.get('collaborators'):
             collaborators_uuids = data.get('collaborators')
-            collaborators = []
-            for uuid in collaborators_uuids:
-                collaborators.append(Collaborator.objects.get(uuid=uuid))
-
+            collaborators = Collaborator.objects.filter(uuid__in=collaborators_uuids)
             course.collaborators.add(*collaborators)
 
         # If price didnt change, check the other fields on the course
