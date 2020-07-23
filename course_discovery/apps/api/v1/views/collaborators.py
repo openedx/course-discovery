@@ -1,7 +1,6 @@
 import logging
 
 from rest_framework import viewsets
-from rest_framework.pagination import CursorPagination
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import serializers
