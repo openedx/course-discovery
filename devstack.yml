@@ -70,11 +70,10 @@ USERNAME_REPLACEMENT_WORKER: OVERRIDE THIS WITH A VALID USERNAME
 # The rest of this is copypasta'd in from base.py and devstack.py
 #####################################################################
 
-MEDIA_STORAGE_BACKEND:
-    DEFAULT_FILE_STORAGE: django.core.files.storage.FileSystemStorage
-    MEDIA_ROOT: /edx/var/discovery/media
-    MEDIA_URL: http://localhost:18381/media/
-    LOCAL_DISCOVERY_MEDIA_URL: /media/
+DEFAULT_FILE_STORAGE: django.core.files.storage.FileSystemStorage
+MEDIA_ROOT: /edx/var/discovery/media
+MEDIA_URL: http://localhost:18381/media/
+LOCAL_DISCOVERY_MEDIA_URL: /media/
 LOGGING: {
     "version": 1,
     "disable_existing_loggers": false,
