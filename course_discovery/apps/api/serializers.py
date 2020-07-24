@@ -278,9 +278,9 @@ class CollaboratorSerializer(BaseModelSerializer):
             return Collaborator.objects.all()
         return None
 
-    def get_image_url(self, obj):
+    def image_url(self, obj):
         if obj.image:
-            return obj.get_image_url
+            return obj.image_url
         return None
 
     def create(self, validated_data):

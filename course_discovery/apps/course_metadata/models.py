@@ -741,7 +741,7 @@ class Collaborator(TimeStampedModel):
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
 
     @property
-    def get_image_url(self):
+    def image_url(self):
         if self.image and hasattr(self.image, 'url'):
             return self.image.url
         return None

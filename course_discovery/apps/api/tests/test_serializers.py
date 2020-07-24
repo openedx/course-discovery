@@ -2492,7 +2492,7 @@ class CollaboratorSerializerTests(TestCase):
         expected = {
             'name': collaborator.name,
             'image': image,
-            'image_url': collaborator.get_image_url,
+            'image_url': collaborator.image_url,
             'uuid': str(collaborator.uuid)
         }
 
