@@ -26,10 +26,10 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs) # pylint: disable=no-member
+        return super().update(request, *args, **kwargs)  # pylint: disable=no-member
 
     def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs) # pylint: disable=no-member
+        return super().partial_update(request, *args, **kwargs)  # pylint: disable=no-member
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all collaborators. """
