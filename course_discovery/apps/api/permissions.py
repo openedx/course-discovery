@@ -35,6 +35,7 @@ class IsCollaboratorEditorOrReadOnly(BasePermission):
         else:
             return CourseEditor.is_course_editable(request.user, obj)
 
+
 class IsCourseEditorOrReadOnly(BasePermission):
     """
     Custom Permission class to check user is a course editor for the course, if they are trying to write.
