@@ -729,7 +729,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(collab_post_response.status_code, 201)
         get_collab_response = self.client.get(collaborator_url)
         collab_json = get_collab_response.json()
-        self.assertEqual(collab_json['count'], 1)
+        self.assertEqual(len(collab_json['results']), 1)
         collaborator_to_use = collab_json['results'][0]
         response = self.create_course({'collaborators': [collaborator_to_use['uuid']]})
         self.assertEqual(response.status_code, 201)
