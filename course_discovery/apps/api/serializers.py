@@ -274,9 +274,7 @@ class CollaboratorSerializer(BaseModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        if Collaborator.objects:
-            return Collaborator.objects.all()
-        return None
+        return Collaborator.objects.all()
 
     def image_url(self, obj):
         if obj.image:
