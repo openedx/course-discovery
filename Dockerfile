@@ -33,6 +33,7 @@ ENV LC_ALL en_US.UTF-8
 RUN mkdir -p /edx/var/discovery/staticfiles
 RUN mkdir -p /edx/var/discovery/media
 ENV DJANGO_SETTINGS_MODULE course_discovery.settings.production
+ENV DISCOVERY_CFG /edx/app/discovery/devstack.yml
 
 # Working directory will be root of repo.
 WORKDIR /edx/app/discovery
@@ -54,10 +55,6 @@ RUN pip install -r requirements/production.txt
 # We do this AFTER requirements so that the requirements cache isn't busted
 # every time any bit of code is changed.
 COPY . .
-
-# Declare necessary environment variables.
-# TODO move upwards?
-ENV DISCOVERY_CFG /edx/app/discovery/devstack.yml
 
 # Expose canoncal Discovery port (TODO: This should be 8381 for prod...)
 EXPOSE 18381
