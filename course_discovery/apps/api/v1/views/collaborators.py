@@ -20,3 +20,21 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     queryset = serializers.CollaboratorSerializer.prefetch_queryset()
     serializer_class = serializers.CollaboratorSerializer
     pagination_class = CursorPagination
+
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        """ Retrieve a list of all collaborators. """
+        return super().list(request, *args, **kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        """ Retieve details for a collaborator. """
+        return super().retrieve(request, *args, **kwargs)
+    
