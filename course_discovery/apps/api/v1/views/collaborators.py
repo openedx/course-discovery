@@ -11,6 +11,7 @@ from course_discovery.apps.api.permissions import IsInOrgOrReadOnly
 logger = logging.getLogger(__name__)
 
 
+# pylint: disable=useless-super-delegation
 class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ CollaboratorSerializer resource. """
 
@@ -25,10 +26,10 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs) # pylint: disable=no-member
 
     def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)
+        return super().partial_update(request, *args, **kwargs) # pylint: disable=no-member
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all collaborators. """
