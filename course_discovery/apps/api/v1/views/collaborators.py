@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
-from course_discovery.apps.api.permissions import IsCollaboratorEditorOrReadOnly
+from course_discovery.apps.api.permissions import IsInOrgOrReadOnly
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
-    permission_classes = (IsAuthenticated, IsCollaboratorEditorOrReadOnly,)
+    permission_classes = (IsAuthenticated, IsInOrgOrReadOnly,)
     queryset = serializers.CollaboratorSerializer.prefetch_queryset()
     serializer_class = serializers.CollaboratorSerializer
     pagination_class = CursorPagination
