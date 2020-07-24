@@ -37,4 +37,3 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         """ Retieve details for a collaborator. """
         return super().retrieve(request, *args, **kwargs)
-    
