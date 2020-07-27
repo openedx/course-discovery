@@ -1,8 +1,12 @@
+from uuid import uuid4
+
 import factory
 from django.contrib.sites.models import Site
 
+from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.core.models import Currency, Partner, SalesforceConfiguration, User
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
+from course_discovery.apps.course_metadata.models import Collaborator
 
 USER_PASSWORD = 'password'
 
@@ -11,6 +15,15 @@ def add_m2m_data(m2m_relation, data):
     """ Helper function to enable factories to easily associate many-to-many data with created objects. """
     if data:
         m2m_relation.add(*data)
+
+
+class CollaboratorFactory(factory.DjangoModelFactory):
+    name = factory.Faker('name')
+    image = StdImageSerializerField()
+    uuid = factory.LazyFunction(uuid4)
+
+    class Meta:
+        model = Collaborator
 
 
 class SiteFactory(factory.DjangoModelFactory):

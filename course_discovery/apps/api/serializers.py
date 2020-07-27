@@ -81,6 +81,7 @@ PREFETCH_FIELDS = {
         'sponsoring_organizations__tags',
         'subjects',
         'video',
+        'collaborators'
     ],
 }
 
@@ -268,11 +269,24 @@ class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
 
 class CollaboratorSerializer(BaseModelSerializer):
     """Serializer for the ``Collaborator`` model."""
-    image = StdImageSerializerField()
+    image = StdImageSerializerField(required=False)
+    image_url = serializers.SerializerMethodField()
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return Collaborator.objects.all()
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image_url
+        return None
+
+    def create(self, validated_data):
+        return Collaborator.objects.create(**validated_data)
 
     class Meta:
         model = Collaborator
-        fields = ('name', 'image', 'uuid')
+        fields = ('name', 'image', 'image_url', 'uuid')
 
 
 class PrerequisiteSerializer(NamedModelSerializer):
@@ -1062,7 +1076,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     url_redirects = serializers.SlugRelatedField(slug_field='value', read_only=True, many=True)
     course_run_statuses = serializers.ReadOnlyField()
     editors = CourseEditorSerializer(many=True, read_only=True)
-    collaborators = CollaboratorSerializer(many=True, required=False)
+    collaborators = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
+                                                       queryset=Collaborator.objects.all(),
+                                                       read_serializer=CollaboratorSerializer())
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
@@ -1083,6 +1099,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'expected_learning_items',
             'prerequisites',
             'subjects',
+            'collaborators',
             'topics',
             'url_slug_history',
             'url_redirects',

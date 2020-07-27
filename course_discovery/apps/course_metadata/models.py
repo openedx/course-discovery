@@ -740,6 +740,12 @@ class Collaborator(TimeStampedModel):
     name = models.CharField(max_length=255, default='')
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
 
+    @property
+    def image_url(self):
+        if self.image and hasattr(self.image, 'url'):
+            return self.image.url
+        return None
+
     def __str__(self):
         return '{name}'.format(name=self.name)
 
