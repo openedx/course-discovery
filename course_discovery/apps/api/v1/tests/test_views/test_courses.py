@@ -27,8 +27,6 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
-import logging, sys
-logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 @ddt.ddt
 @pytest.mark.usefixtures('django_cache')
@@ -756,19 +754,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         collab1 = collab_post_response.json()
         collab2 = collab_post_response2.json()
         self.assertEqual(course['collaborators'][0]['uuid'], collaborator_to_use['uuid'])
-        collaborators = [collab1['uuid'], collab2['uuid']]
-        logging.debug(course)
         course_url = reverse('api:v1:course-detail', kwargs={'key': course['uuid']})
-        logging.debug(course_url)
-        modify_course_data = { 'collaborators': [collab1['uuid'], collab2['uuid']] }
-        logging.debug(modify_course_data)
-        # response = self.client.patch(url, course_data, format='json')
-        response = self.client.patch(course_url, modify_course_data, format='json' )
-        logging.debug(response.json())
+        modify_course_data = {'collaborators': [collab1['uuid'], collab2['uuid']]}
+        response = self.client.patch(course_url, modify_course_data, format='json')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()['collaborators']), 2)
-
-        # TODO: hook up call to patch
 
     def test_create_saves_manual_url_slug(self):
         self.mock_access_token()

@@ -1,12 +1,10 @@
 from rest_framework.reverse import reverse
-import logging
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests.factories import CollaboratorFactory
 
 
-logger = logging.getLogger(__name__)
 class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     """ Tests for the collaborator resource. """
 
