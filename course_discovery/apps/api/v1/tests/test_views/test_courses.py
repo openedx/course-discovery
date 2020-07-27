@@ -27,6 +27,8 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
+import logging, sys
+logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
 
 @ddt.ddt
 @pytest.mark.usefixtures('django_cache')
@@ -735,6 +737,38 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(response.status_code, 201)
         course = response.json()
         self.assertEqual(course['collaborators'][0]['name'], 'Collaborator 1')
+
+    def test_modify_collaborator_uuid_list(self):
+        self.mock_access_token()
+        collaborator = {'name': 'Collaborator 1'}
+        collaborator2 = {'name': 'Collaborator 2'}
+        collaborator_url = reverse('api:v1:collaborator-list')
+        collab_post_response = self.client.post(collaborator_url, collaborator, format='json')
+        collab_post_response2 = self.client.post(collaborator_url, collaborator2, format='json')
+        self.assertEqual(collab_post_response.status_code, 201)
+        get_collab_response = self.client.get(collaborator_url)
+        collab_json = get_collab_response.json()
+        self.assertEqual(len(collab_json['results']), 2)
+        collaborator_to_use = collab_json['results'][0]
+        response = self.create_course({'collaborators': [collaborator_to_use['uuid']]})
+        self.assertEqual(response.status_code, 201)
+        course = response.json()
+        collab1 = collab_post_response.json()
+        collab2 = collab_post_response2.json()
+        self.assertEqual(course['collaborators'][0]['uuid'], collaborator_to_use['uuid'])
+        collaborators = [collab1['uuid'], collab2['uuid']]
+        logging.debug(course)
+        course_url = reverse('api:v1:course-detail', kwargs={'key': course['uuid']})
+        logging.debug(course_url)
+        modify_course_data = { 'collaborators': [collab1['uuid'], collab2['uuid']] }
+        logging.debug(modify_course_data)
+        # response = self.client.patch(url, course_data, format='json')
+        response = self.client.patch(course_url, modify_course_data, format='json' )
+        logging.debug(response.json())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()['collaborators']), 2)
+
+        # TODO: hook up call to patch
 
     def test_create_saves_manual_url_slug(self):
         self.mock_access_token()
