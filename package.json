@@ -8,7 +8,7 @@
   "dependencies": {
     "bootstrap-sass": "3.4.1",
     "bower": "1.8.8",
-    "css-loader": "3.6.0",
+    "css-loader": "4.0.0",
     "datatables.net": "1.10.21",
     "datatables.net-bs": "1.10.21",
     "extract-text-webpack-plugin": "4.0.0-beta.0",
