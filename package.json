@@ -21,7 +21,7 @@
     "url-loader": "4.1.0",
     "webpack": "4.44.0",
     "webpack-bundle-tracker": "0.4.3",
-    "webpack-cli": "3.3.11"
+    "webpack-cli": "3.3.12"
   },
   "devDependencies": {
     "geckodriver": "1.19.1"
