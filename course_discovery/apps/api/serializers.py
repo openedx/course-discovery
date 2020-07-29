@@ -12,7 +12,7 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from drf_haystack.serializers import HaystackFacetSerializer, HaystackSerializer, HaystackSerializerMixin
 from rest_framework import serializers
-from rest_framework.fields import DictField
+from rest_framework.fields import DictField, IntegerField, CharField
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
@@ -937,10 +937,10 @@ class DegreeSerializer(serializers.ModelSerializer):
 
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(many=True)
-    banner_image = StdImageSerializerField()
+    banner_image = StdImageSerializerField(allow_null=True, required=False)
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
-    degree = DegreeSerializer()
+    degree = DegreeSerializer(allow_null=True, required=False)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, edx_org_short_name=None):
@@ -1053,14 +1053,14 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
 
 class ProgramSerializer(MinimalProgramSerializer):
-    authoring_organizations = OrganizationSerializer(many=True)
-    video = VideoSerializer()
+    authoring_organizations = OrganizationSerializer(many=True, read_only=True)
+    video = VideoSerializer(allow_null=True, required=False)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    faq = FAQSerializer(many=True)
-    credit_backing_organizations = OrganizationSerializer(many=True)
-    corporate_endorsements = CorporateEndorsementSerializer(many=True)
+    faq = FAQSerializer(many=True, allow_null=True, required=False)
+    credit_backing_organizations = OrganizationSerializer(many=True, read_only=True)
+    corporate_endorsements = CorporateEndorsementSerializer(many=True, allow_null=True, required=False)
     job_outlook_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    individual_endorsements = EndorsementSerializer(many=True)
+    individual_endorsements = EndorsementSerializer(many=True, allow_null=True, required=False)
     languages = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field='code',
         help_text=_('Languages that course runs in this program are offered in.'),
@@ -1069,11 +1069,14 @@ class ProgramSerializer(MinimalProgramSerializer):
         many=True, read_only=True, slug_field='code',
         help_text=_('Languages that course runs in this program have available transcripts in.'),
     )
-    subjects = SubjectSerializer(many=True)
-    staff = MinimalPersonSerializer(many=True)
-    instructor_ordering = MinimalPersonSerializer(many=True)
+    subjects = SubjectSerializer(many=True, allow_null=True, required=False)
+    staff = MinimalPersonSerializer(many=True, allow_null=True, required=False)
+    instructor_ordering = MinimalPersonSerializer(many=True, allow_null=True, required=False)
     applicable_seat_types = serializers.SerializerMethodField()
     topics = serializers.SerializerMethodField()
+    min_hours_effort_per_week = IntegerField(min_value=0, default=0)
+    max_hours_effort_per_week = IntegerField(min_value=0, default=0)
+    marketing_slug = CharField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, edx_org_short_name=None):
@@ -1123,6 +1126,81 @@ class ProgramSerializer(MinimalProgramSerializer):
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'recent_enrollment_count', 'topics',
         )
+
+    def create(self, validated_data):
+        authoring_organizations = self.context.get('authoring_organizations')
+        credit_backing_organizations = self.context.get('credit_backing_organizations')
+        courses = self.context.get('courses')
+        excluded_course_runs = self.context.get('excluded_course_runs')
+
+        # No need to set these fields, these are being extracted from courses
+        subjects = validated_data.pop('subjects', None)
+        staff = validated_data.pop('staff', None)
+
+        instructor_ordering = validated_data.pop('instructor_ordering', [])
+        corporate_endorsements = validated_data.pop('corporate_endorsements', [])
+        individual_endorsements = validated_data.pop('individual_endorsements', [])
+        faq = validated_data.pop('faq', [])
+
+        program = Program(**validated_data)
+        program.partner = self.context.get("partner")
+        program.save()
+
+        program.authoring_organizations.set(authoring_organizations)
+        program.credit_backing_organizations.set(credit_backing_organizations)
+
+        program.courses.set(courses)
+        program.excluded_course_runs.set(excluded_course_runs)
+
+        program.instructor_ordering.set(instructor_ordering)
+        program.corporate_endorsements.set(corporate_endorsements)
+        program.individual_endorsements.set(individual_endorsements)
+        program.faq.set(faq)
+
+        return program
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get('title', instance.title)
+        instance.status = validated_data.get('status', instance.status)
+        instance.min_hours_effort_per_week = validated_data.get('min_hours_effort_per_week', instance.min_hours_effort_per_week)
+        instance.max_hours_effort_per_week = validated_data.get('max_hours_effort_per_week', instance.max_hours_effort_per_week)
+        instance.marketing_slug = validated_data.get('marketing_slug', instance.marketing_slug)
+
+        instance.save()
+
+        courses = self.context.get('courses')
+        if courses:
+            instance.courses.set(courses, clear=True)
+
+        exluded_course_runs = self.context.get('excluded_course_runs')
+        if exluded_course_runs:
+            instance.excluded_course_runs.set(exluded_course_runs, clear=True)
+
+        authoring_organizations = self.context.get('authoring_organizations')
+        if authoring_organizations:
+            instance.authoring_organizations.set(authoring_organizations, clear=True)
+
+        credit_backing_organizations = self.context.get('credit_backing_organizations')
+        if credit_backing_organizations:
+            instance.credit_backing_organizations.set(credit_backing_organizations, clear=True)
+
+        instructor_ordering = validated_data.pop('instructor_ordering', [])
+        if instructor_ordering:
+            instance.instructor_ordering.set(instructor_ordering, clear=True)
+
+        corporate_endorsements = validated_data.pop('corporate_endorsements', [])
+        if corporate_endorsements:
+            instance.corporate_endorsements.set(corporate_endorsements, clear=True)
+
+        individual_endorsements = validated_data.pop('individual_endorsements', [])
+        if corporate_endorsements:
+            instance.individual_endorsements.set(individual_endorsements, clear=True)
+
+        faq = validated_data.pop('faq', [])
+        if faq:
+            instance.faq.set(faq, clear=True)
+
+        return instance
 
 
 class PathwaySerializer(serializers.ModelSerializer):

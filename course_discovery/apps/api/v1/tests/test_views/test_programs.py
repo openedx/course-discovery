@@ -1,3 +1,4 @@
+import json
 import urllib.parse
 
 import pytest
@@ -41,6 +42,21 @@ class TestProgramViewSet(SerializationMixin):
         self.django_assert_num_queries = django_assert_num_queries
         self.partner = partner
         self.request = request
+
+    def _program_data(self):
+        course_runs = CourseRunFactory.create_batch(3)
+        organizations = OrganizationFactory.create_batch(3)
+        return {
+            "title": "Test Program",
+            "type": "XSeries",
+            "status": "active",
+            "marketing_slug": "edX-test-program",
+            "course_runs": [course_run.key for course_run in course_runs],
+            "min_hours_effort_per_week": 10,
+            "max_hours_effort_per_week": 20,
+            "authoring_organizations": [organization.key for organization in organizations],
+            "credit_backing_organizations": [organization.key for organization in organizations],
+        }
 
     def create_program(self):
         organizations = [OrganizationFactory(partner=self.partner)]
@@ -298,3 +314,71 @@ class TestProgramViewSet(SerializationMixin):
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """
         assert ProgramViewSet(action='list').get_serializer_class() == MinimalProgramSerializer
+
+    def test_create_using_api(self):
+        """
+        Verify endpoint successfully creates a program.
+        """
+        response = self.client.post(self.list_path, self._program_data(), format='json')
+        assert response.status_code == 201
+        program = Program.objects.last()
+        assert program.title == response.data['title']
+        assert program.status == response.data['status']
+        assert program.courses.count() == 3
+        assert program.authoring_organizations.count() == 3
+        assert program.credit_backing_organizations.count() == 3
+
+    def test_update_using_api(self):
+        """
+        Verify endpoint successfully updates a program.
+        """
+        program_data = self._program_data()
+
+        response = self.client.post(self.list_path, program_data, format='json')
+        assert response.status_code == 201
+        program = Program.objects.last()
+        assert program.courses.count() == 3
+        assert program.authoring_organizations.count() == 3
+        assert program.credit_backing_organizations.count() == 3
+
+        program_detail_url = reverse('api:v1:program-detail', kwargs={'uuid': str(program.uuid)})
+        program.title = '{orignal_title} Test Update'.format(orignal_title=program_data['title'])
+        program_data['status'] = 'unpublished'
+
+        course_runs = CourseRunFactory.create_batch(2)
+        course_runs = [course_run.key for course_run in course_runs]
+        program_data['course_runs'] = program_data['course_runs'] + course_runs
+
+        organizations = OrganizationFactory.create_batch(3)
+        organizations = [organization.key for organization in organizations]
+        program_data['authoring_organizations'] = program_data['authoring_organizations'] + organizations
+        program_data['credit_backing_organizations'] = program_data['credit_backing_organizations'] + organizations
+
+        data = json.dumps(program_data)
+        response = self.client.patch(program_detail_url, data, content_type='application/json')
+        assert response.status_code == 200
+        program = Program.objects.last()
+        assert program.title == response.data['title']
+        assert program.status == response.data['status']
+        assert program.courses.count() == 5
+        assert program.authoring_organizations.count() == 6
+        assert program.credit_backing_organizations.count() == 6
+
+        course_runs = CourseRunFactory.create_batch(2)
+        course_runs = [course_run.key for course_run in course_runs]
+        course_runs.append(program_data['course_runs'][0])
+        program_data['course_runs'] = course_runs
+
+        organizations = OrganizationFactory.create_batch(3)
+        organizations = [organization.key for organization in organizations]
+        organizations.append(program_data['authoring_organizations'][0])
+        program_data['authoring_organizations'] = organizations
+        program_data['credit_backing_organizations'] = organizations
+
+        data = json.dumps(program_data)
+        response = self.client.patch(program_detail_url, data, content_type='application/json')
+        assert response.status_code == 200
+        program = Program.objects.last()
+        assert program.courses.count() == 3
+        assert program.authoring_organizations.count() == 4
+        assert program.credit_backing_organizations.count() == 4

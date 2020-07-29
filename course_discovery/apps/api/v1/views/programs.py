@@ -1,5 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
@@ -7,11 +7,11 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
-from course_discovery.apps.course_metadata.models import Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 
 
 # pylint: disable=no-member
-class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
+class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     """ Program resource. """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
@@ -49,6 +49,64 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
             context[query_param] = get_query_param(self.request, query_param)
 
         return context
+
+    def prepare_and_set_read_only_data(self, data, context):
+        """
+        Extracts read only data from data dictionary and sets it in context.
+        """
+        data = dict(data)  # Convert Querydict to dict
+        authoring_organizations = data.get('authoring_organizations')
+        if authoring_organizations:
+            context['authoring_organizations'] = Organization.objects.filter(key__in=authoring_organizations).distinct()
+
+        credit_backing_organizations = data.get('credit_backing_organizations')
+        if credit_backing_organizations:
+            context['credit_backing_organizations'] = Organization.objects.filter(key__in=credit_backing_organizations).distinct()
+
+        course_run_keys = data.get('course_runs')
+        if course_run_keys:
+            course_runs = CourseRun.objects.filter(key__in=course_run_keys).distinct()
+            courses = Course.objects.filter(key__in=course_runs.values('course__key').distinct())
+            excluded_course_runs = CourseRun.objects.filter(course__in=courses).exclude(key__in=course_run_keys).distinct()
+
+            context['courses'] = courses
+            context['excluded_course_runs'] = excluded_course_runs
+
+    def create(self, request, *args, **kwargs):
+        """
+        Create a new program.
+        """
+        data = request.data.copy()
+        context = {}
+
+        self.prepare_and_set_read_only_data(data, context)
+
+        context['partner'] = request.site.partner
+        context['request'] = request
+
+        serializer = serializers.ProgramSerializer(data=data, context=context)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        """
+        Update exsisting program.
+        """
+        data = request.data.copy()
+        context = {}
+        instance = Program.objects.get(uuid=kwargs.get('uuid'))
+
+        self.prepare_and_set_read_only_data(data, context)
+
+        context['request'] = request
+
+        serializer = serializers.ProgramSerializer(instance, data=data, context=context)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK, headers=headers)
 
     def list(self, request, *args, **kwargs):
         """ List all programs.
