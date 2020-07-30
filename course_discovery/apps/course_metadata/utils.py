@@ -1,12 +1,12 @@
 import datetime
 import logging
-import random
 import string
 import uuid
 from urllib.parse import urljoin
 
 import html2text
 import markdown
+import random
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
@@ -41,6 +41,12 @@ def clean_query(query):
     """
     # Ensure the query is lowercase, since that is how we index our data.
     query = query.lower()
+
+    # Ensure the query is wrapped into quotes if field contains the exact phrase "john smith"
+    # author:"John Smith"
+    field, separator, query_value = query.partition(':')
+    if query_value and ' ' in query_value:
+        query = '{0}:"{1}"'.format(field, query_value)
 
     # Specifying a SearchQuerySet filter will append an explicit AND clause to the query, thus changing its semantics.
     # So we wrap parentheses around the original query in order to preserve the semantics.
