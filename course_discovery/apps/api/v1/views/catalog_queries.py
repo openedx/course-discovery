@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from elasticsearch_dsl.query import Q as ESDSLQ
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated
@@ -32,13 +33,18 @@ class CatalogQueryContainsViewSet(GenericAPIView):
             if course_run_ids:
                 course_run_ids = course_run_ids.split(',')
                 specified_course_ids = course_run_ids
-                identified_course_ids.update(CourseRun.search(query).filter(
-                    partner=partner.short_code, key__in=course_run_ids).values_list('key', flat=True))
+                identified_course_ids.update(
+                    i.key
+                    for i in CourseRun.search(query)
+                    .filter(ESDSLQ('term', partner=partner.short_code) | ESDSLQ('terms', key=course_run_ids))
+                    .source(['key'])
+                )
             if course_uuids:
                 course_uuids = [UUID(course_uuid) for course_uuid in course_uuids.split(',')]
                 specified_course_ids += course_uuids
-                identified_course_ids.update(Course.search(query).filter(partner=partner, uuid__in=course_uuids).
-                                             values_list('uuid', flat=True))
+                identified_course_ids.update(
+                    Course.search(query).filter(partner=partner, uuid__in=course_uuids).values_list('uuid', flat=True)
+                )
 
             contains = {str(identifier): identifier in identified_course_ids for identifier in specified_course_ids}
             return Response(contains)
