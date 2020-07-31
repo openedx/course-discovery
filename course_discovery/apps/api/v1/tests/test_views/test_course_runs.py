@@ -836,12 +836,12 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     def create_course_and_run_types(self, seat_type):
         tracks = []
         entitlement_types = []
-        if seat_type:
-            entitlement_types.append(SeatType.objects.get(slug=seat_type))
-            tracks.append(TrackFactory(seat_type=entitlement_types[0]))
         if seat_type == Seat.VERIFIED or not seat_type:
             audit_type_obj = SeatType.objects.get(slug=Seat.AUDIT)
             tracks.append(TrackFactory(seat_type=audit_type_obj))
+        if seat_type:
+            entitlement_types.append(SeatType.objects.get(slug=seat_type))
+            tracks.append(TrackFactory(seat_type=entitlement_types[0]))
 
         run_type = CourseRunTypeFactory(tracks=tracks)
         course_type = CourseTypeFactory(
@@ -1011,7 +1011,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         query = 'title:Some random title'
         url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
 
-        with self.assertNumQueries(39, threshold=2):
+        with self.assertNumQueries(42, threshold=2):
             response = self.client.get(url)
 
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])
