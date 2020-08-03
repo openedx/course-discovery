@@ -10,14 +10,17 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
 
-from course_discovery.apps.api import serializers
 from course_discovery.apps.api.v1.tests.test_views import mixins
 from course_discovery.apps.api.v1.views.search import BrowsableAPIRendererWithoutForms, TypeaheadSearchView
 from course_discovery.apps.core.tests.factories import PartnerFactory, USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun
-from course_discovery.apps.course_metadata.search_indexes.serializers import CourseRunSearchDocumentSerializer
+from course_discovery.apps.course_metadata.search_indexes.serializers import (
+    CourseRunSearchDocumentSerializer,
+    CourseRunSearchModelSerializer,
+    LimitedAggregateSearchSerializer,
+)
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory,
     CourseRunFactory,
@@ -101,7 +104,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 
     @ddt.data(
         (list_path, CourseRunSearchDocumentSerializer),
-        (detailed_path, serializers.CourseRunSearchModelSerializer),
+        (detailed_path, CourseRunSearchModelSerializer),
     )
     @ddt.unpack
     def test_search(self, path, serializer):
@@ -173,9 +176,11 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
          ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 5),
         (list_path, CourseRunSearchDocumentSerializer,
          ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 5),
-        (detailed_path, serializers.CourseRunSearchModelSerializer,
+        (detailed_path,
+         CourseRunSearchModelSerializer,
          ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 24),
-        (detailed_path, serializers.CourseRunSearchModelSerializer,
+        (detailed_path,
+         CourseRunSearchModelSerializer,
          ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 25),
     )
     @ddt.unpack
@@ -212,7 +217,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}], 7),
         ([{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}], 7),
         ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
-         {'title': 'Software Testing 3', 'excluded': False}], 5),
+          {'title': 'Software Testing 3', 'excluded': False}], 5),
     )
     @ddt.unpack
     def test_excluded_course_run(self, course_runs, expected_queries):
@@ -449,15 +454,15 @@ class LimitedAggregateSearchViewSetTests(
 
     # pylint: disable=no-member
     def serialize_course_run_search(self, run):
-        return super().serialize_course_run_search(run, serializers.LimitedAggregateSearchSerializer)
+        return super().serialize_course_run_search(run, LimitedAggregateSearchSerializer)
 
     # pylint: disable=no-member
     def serialize_program_search(self, program):
-        return super().serialize_program_search(program, serializers.LimitedAggregateSearchSerializer)
+        return super().serialize_program_search(program, LimitedAggregateSearchSerializer)
 
     # pylint: disable=no-member
     def serialize_course_search(self, course):
-        return super().serialize_course_search(course, serializers.LimitedAggregateSearchSerializer)
+        return super().serialize_course_search(course, LimitedAggregateSearchSerializer)
 
     def test_results_only_include_published_objects(self):
         """ Verify the search results only include items with status set to 'Published'. """
