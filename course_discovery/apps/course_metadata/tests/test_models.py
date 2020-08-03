@@ -51,7 +51,7 @@ from course_discovery.apps.publisher.tests.factories import OrganizationExtensio
 
 
 @pytest.mark.django_db
-@pytest.mark.usefixtures('haystack_default_connection')
+@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
 @ddt.ddt
 class TestCourse(TestCase):
     def test_str(self):
