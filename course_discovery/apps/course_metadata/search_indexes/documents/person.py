@@ -1,7 +1,7 @@
 from django.conf import settings
 from django_elasticsearch_dsl import fields, Index
 
-from course_discovery.apps.course_metadata.models import Person
+from course_discovery.apps.course_metadata.models import Person, Position
 from .common import BaseDocument
 
 __all__ = ('PersonDocument',)
@@ -23,7 +23,7 @@ class PersonDocument(BaseDocument):
     bio = fields.TextField()
     bio_language = fields.TextField()
     get_profile_image_url = fields.TextField()
-    position = fields.ObjectField(properties={'title': fields.TextField(), 'organization_override': fields.TextField()})
+    position = fields.TextField(multi=True)
     organizations = fields.KeywordField(multi=True)
 
     def prepare_aggregation_key(self, obj):
@@ -39,6 +39,13 @@ class PersonDocument(BaseDocument):
         if obj.bio_language:
             return obj.bio_language.name
         return None
+
+    def prepare_position(self, obj):
+        try:
+            position = Position.objects.get(person=obj)
+        except Position.DoesNotExist:
+            return []
+        return [position.title, position.organization_override]
 
     class Django:
         """
@@ -57,4 +64,4 @@ class PersonDocument(BaseDocument):
 
     def get_queryset(self):
         # TODO: Build queryset smartly.
-        return super().get_queryset().select_related('position').select_related('bio_language')
+        return super().get_queryset().select_related('bio_language')
