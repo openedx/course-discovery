@@ -156,7 +156,7 @@ def get_elasticsearch_boost_config():
                             }
                         }
                     },
-                    'weight': -20.0
+                    'weight': 0.0
                 },
 
                 # Give a slight boost to enrollable course runs, regardless of seat
