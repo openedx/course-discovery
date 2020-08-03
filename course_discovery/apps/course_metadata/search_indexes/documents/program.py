@@ -13,6 +13,8 @@ PROGRAM_INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
 
 PROGRAM_INDEX.settings(number_of_shards=1, number_of_replicas=0, blocks={'read_only_allow_delete': None})
 
+# TODO: For all documents check the common fields and if it possible move them to common.
+
 
 @PROGRAM_INDEX.doc_type
 class ProgramDocument(BaseDocument, OrganizationsMixin):
@@ -40,8 +42,9 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
             'edge_ngram_completion': fields.TextField(analyzer=edge_ngram_completion),
         },
     )
-    subject_uuids = fields.TextField(multi=True)
-    staff_uuids = fields.TextField(multi=True)
+    subject_uuids = fields.KeywordField(multi=True)
+    authoring_organization_uuids = fields.KeywordField(multi=True)
+    staff_uuids = fields.KeywordField(multi=True)
     authoring_organization_bodies = fields.TextField(multi=True)
     credit_backing_organizations = fields.TextField(multi=True)
     card_image_url = fields.TextField()
@@ -72,7 +75,7 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
         return obj.type.name_t
 
     def prepare_seat_types(self, obj):
-        return list(obj.seat_types)
+        return [seat_type.slug for seat_type in obj.seat_types]
 
     def prepare_search_card_display(self, obj):
         try:
