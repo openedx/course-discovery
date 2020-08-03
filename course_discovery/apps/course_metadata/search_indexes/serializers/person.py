@@ -1,6 +1,9 @@
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
 
+from course_discovery.apps.api.serializers import ContentTypeSerializer, MinimalPersonSerializer
+from course_discovery.apps.edx_haystack_extensions.serializers import BaseDjangoESDSLFacetSerializer
+from .common import DocumentDSLSerializerMixin
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import PersonDocument
 
@@ -34,3 +37,31 @@ class PersonSearchDocumentSerializer(DocumentSerializer):
             'position',
             'organizations',
         )
+
+
+class PersonFacetSerializer(BaseDjangoESDSLFacetSerializer):
+    """
+    Serializer for person facets elasticsearch document.
+    """
+
+    class Meta:
+        """
+        Meta options.
+        """
+
+        ignore_fields = COMMON_IGNORED_FIELDS
+        fields = ('organizations',)
+
+
+class PersonSearchModelSerializer(DocumentDSLSerializerMixin, ContentTypeSerializer, MinimalPersonSerializer):
+    """
+    Serializer for person model elasticsearch document.
+    """
+
+    class Meta(MinimalPersonSerializer.Meta):
+        """
+        Meta options.
+        """
+
+        document = PersonDocument
+        fields = ContentTypeSerializer.Meta.fields + MinimalPersonSerializer.Meta.fields

@@ -5,8 +5,10 @@ from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
 
 from course_discovery.apps.api import serializers as cd_serializers
+from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseWithProgramsSerializer
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
-from .common import ModelObjectDocumentSerializerMixin
+from course_discovery.apps.edx_haystack_extensions.serializers import BaseDjangoESDSLFacetSerializer
+from .common import DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import CourseDocument
 
@@ -111,3 +113,22 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, Documen
             'level_type',
             'modified',
         )
+
+
+class CourseFacetSerializer(BaseDjangoESDSLFacetSerializer):
+    """
+    Serializer for course facets elasticsearch document.
+    """
+
+    class Meta:
+        ignore_fields = COMMON_IGNORED_FIELDS
+
+
+class CourseSearchModelSerializer(DocumentDSLSerializerMixin, ContentTypeSerializer, CourseWithProgramsSerializer):
+    """
+    Serializer for course model elasticsearch document.
+    """
+
+    class Meta(CourseWithProgramsSerializer.Meta):
+        document = CourseDocument
+        fields = ContentTypeSerializer.Meta.fields + CourseWithProgramsSerializer.Meta.fields
