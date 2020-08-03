@@ -14,6 +14,7 @@ import responses
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
 from django.conf import settings
+from django.core.management import call_command
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.test import TestCase
@@ -364,6 +365,8 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        call_command('search_index', '--delete', '-f')
+        call_command('search_index', '--create')
         cls.course_run = factories.CourseRunFactory()
         cls.partner = cls.course_run.course.partner
 
@@ -1327,10 +1330,11 @@ class ProgramTests(TestCase):
         Resets course canonical_course_runs to initial state.
         """
         super().tearDown()
-        for course_run in self.course_runs[:2]:
-            course = course_run.course
-            course.canonical_course_run = None
-            course.save()
+        with transaction.atomic():
+            for course_run in self.course_runs[:2]:
+                course = course_run.course
+                course.canonical_course_run = None
+                course.save()
 
     # pylint: disable=access-member-before-definition, attribute-defined-outside-init
     def create_program_with_seats(self):
@@ -1358,13 +1362,15 @@ class ProgramTests(TestCase):
         """
         Verify that the program endpoint correctly handles basic elasticsearch queries
         """
+        call_command('search_index', '--rebuild', '-f')
         query = 'title:' + self.program.title
-        self.assertSetEqual(set(Program.search(query)), set([self.program]))
+        self.assertSetEqual(set([Program.search(query).first()]), set([self.program]))
 
     def test_subject_search(self):
         """
         Verify that the program endpoint correctly handles elasticsearch queries on the subject uuid
         """
+        call_command('search_index', '--rebuild', '-f')
         query = str(self.subjects[0].uuid)
         self.assertSetEqual(set(Program.search(query)), set([self.program]))
 
@@ -1947,8 +1953,10 @@ class ProgramTests(TestCase):
 
     @ddt.data(ProgramStatus.choices)
     def test_is_active(self, status):
+        initial_status = self.program.status
         self.program.status = status
         self.assertEqual(self.program.is_active, status == ProgramStatus.Active)
+        self.program.status = initial_status
 
     def test_publication_disabled(self):
         """
