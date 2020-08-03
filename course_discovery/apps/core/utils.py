@@ -130,7 +130,7 @@ class SearchQuerySetWrapper:
     def __getitem__(self, key):
         if isinstance(key, int) and (key >= 0 or key < self.count()):
             # return the object at the specified position
-            return self.qs[key].object
+            return self.qs[key].execute()[0].object
         # Pass the slice/range on to the delegate
         return SearchQuerySetWrapper(self.qs[key])
 
