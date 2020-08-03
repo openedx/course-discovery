@@ -15,7 +15,7 @@ __all__ = ('CourseSearchDocumentSerializer',)
 
 class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DocumentSerializer):
     """
-    Serializer for course document.
+    Serializer for course elasticsearch document.
     """
 
     course_runs = serializers.SerializerMethodField()
