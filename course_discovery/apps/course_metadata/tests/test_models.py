@@ -31,8 +31,8 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus, Progr
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel, AbstractValueModel,
     CorporateEndorsement, Course, CourseEditor, CourseRun, Curriculum, CurriculumCourseMembership,
-    CurriculumCourseRunExclusion, DegreeCost, DegreeDeadline, Endorsement, Organization, Program, Ranking, Seat,
-    SeatType, Subject, Topic
+    CurriculumCourseRunExclusion, CurriculumProgramMembership, DegreeCost, DegreeDeadline, Endorsement, Organization,
+    Program, Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -2126,6 +2126,44 @@ class CurriculumTests(TestCase):
         self.assertEqual(cm.exception.message_dict[field_name], ['Invalid HTML received'])
 
 
+class CurriculumProgramMembershipTests(TestCase):
+    """ Tests of the CurriculumProgramMembership model. """
+    def setUp(self):
+        super().setUp()
+        self.course_run = factories.CourseRunFactory()
+        self.degree = factories.DegreeFactory()
+        self.program = factories.ProgramFactory(courses=[self.course_run.course])
+        self.curriculum = Curriculum.objects.create(program=self.degree, uuid=uuid.uuid4())
+
+    def test_program_unique_within_same_curriculum(self):
+        CurriculumProgramMembership.objects.create(
+            program=self.program,
+            curriculum=self.curriculum
+        )
+        # Add the same program curriculum relationship again.
+        # Make sure this throws db integrity exception
+        with self.assertRaises(IntegrityError):
+            CurriculumProgramMembership.objects.create(
+                program=self.program,
+                curriculum=self.curriculum
+            )
+
+    def test_same_program_added_to_different_curriculum(self):
+        CurriculumProgramMembership.objects.create(
+            program=self.program,
+            curriculum=self.curriculum
+        )
+        new_curriculum = Curriculum.objects.create(program=self.degree, uuid=uuid.uuid4())
+        CurriculumProgramMembership.objects.create(
+            program=self.program,
+            curriculum=new_curriculum
+        )
+        self.assertEqual(
+            self.curriculum.program_curriculum.all()[0],
+            new_curriculum.program_curriculum.all()[0]
+        )
+
+
 class CurriculumCourseMembershipTests(TestCase):
     """ Tests of the CurriculumCourseMembership model. """
     def setUp(self):
@@ -2153,6 +2191,34 @@ class CurriculumCourseMembershipTests(TestCase):
         self.assertEqual(course_membership.course_runs, set(course_runs[2:]))
         self.assertIn(str(self.curriculum), str(course_membership))
         self.assertIn(str(self.course), str(course_membership))
+
+    def test_course_unique_within_same_curriculum(self):
+        CurriculumCourseMembership.objects.create(
+            course=self.course,
+            curriculum=self.curriculum
+        )
+        # Add the same course curriculum relationship again.
+        # Make sure this throws db integrity exception
+        with self.assertRaises(IntegrityError):
+            CurriculumCourseMembership.objects.create(
+                course=self.course,
+                curriculum=self.curriculum
+            )
+
+    def test_same_course_added_to_different_curriculum(self):
+        CurriculumCourseMembership.objects.create(
+            course=self.course,
+            curriculum=self.curriculum
+        )
+        new_curriculum = Curriculum.objects.create(program=self.degree, uuid=uuid.uuid4())
+        CurriculumCourseMembership.objects.create(
+            course=self.course,
+            curriculum=new_curriculum
+        )
+        self.assertEqual(
+            self.curriculum.course_curriculum.all()[0],
+            new_curriculum.course_curriculum.all()[0]
+        )
 
 
 @ddt.ddt

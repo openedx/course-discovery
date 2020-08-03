@@ -2695,6 +2695,11 @@ class CurriculumProgramMembership(TimeStampedModel):
 
     history = HistoricalRecords()
 
+    class Meta(TimeStampedModel.Meta):
+        unique_together = (
+            ('curriculum', 'program')
+        )
+
 
 class CurriculumCourseMembership(TimeStampedModel):
     """
@@ -2708,6 +2713,11 @@ class CurriculumCourseMembership(TimeStampedModel):
     is_active = models.BooleanField(default=True)
 
     history = HistoricalRecords()
+
+    class Meta(TimeStampedModel.Meta):
+        unique_together = (
+            ('curriculum', 'course')
+        )
 
     @property
     def course_runs(self):
