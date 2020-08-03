@@ -110,7 +110,7 @@ class BaseDocument(Document, metaclass=DocumentMeta):
         returns the result of rendering that template. ``object`` will be in
         its context.
         """
-        template_names = ['search/indexes/%s/%s.txt' % (obj._meta.app_label, obj._meta.model_name)]
+        template_names = ['search/indexes/%s/%s_text.txt' % (obj._meta.app_label, obj._meta.model_name)]
         try:
             t = loader.select_template(template_names)
         except TemplateDoesNotExist:
