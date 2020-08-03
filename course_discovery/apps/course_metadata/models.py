@@ -1630,8 +1630,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         queryset = es_document.search()
         if query == '(*)':
             # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
-            # want everything, we don't need to actually query elasticsearch at all.
-            return queryset.query.MatchAll()
+            # want everything, we don't need to actually query elasticsearch at all
+            return queryset.query(ESDSLQ('match_all'))
 
         return queryset.query(ESDSLQ('query_string', query=query))
 
