@@ -2303,7 +2303,7 @@ class PersonSearchModelSerializerTests(PersonSearchSerializerTest):
 
 
 @pytest.mark.django_db
-@pytest.mark.usefixtures('haystack_default_connection')
+@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
 class TestProgramSearchSerializer(TestCase):
     serializer_class = ProgramSearchDocumentSerializer
 
@@ -2394,7 +2394,7 @@ class ProgramSearchModelSerializerTest(TestProgramSearchSerializer):
 
 
 @pytest.mark.django_db
-@pytest.mark.usefixtures('haystack_default_connection')
+@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
 class TestTypeaheadCourseRunSearchSerializer:
     serializer_class = TypeaheadCourseRunSearchSerializer
 
@@ -2421,7 +2421,7 @@ class TestTypeaheadCourseRunSearchSerializer:
 
 
 @pytest.mark.django_db
-@pytest.mark.usefixtures('haystack_default_connection')
+@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
 class TestTypeaheadProgramSearchSerializer:
     serializer_class = TypeaheadProgramSearchSerializer
 
