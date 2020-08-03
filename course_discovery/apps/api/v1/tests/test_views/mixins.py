@@ -3,14 +3,21 @@
 import json
 
 import responses
-from haystack.query import SearchQuerySet
-from rest_framework.test import APIRequestFactory
-from rest_framework.test import APITestCase as RestAPITestCase
+from rest_framework.test import APIRequestFactory, APITestCase as RestAPITestCase
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.search_indexes.documents import (
+    CourseDocument,
+    CourseRunDocument,
+    ProgramDocument,
+)
+from course_discovery.apps.course_metadata.search_indexes.serializers import (
+    CourseRunSearchDocumentSerializer,
+    CourseSearchDocumentSerializer,
+    ProgramSearchDocumentSerializer,
+)
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -32,8 +39,8 @@ class SerializationMixin:
             context.update(extra_context)
         return serializer(obj, many=many, context=context).data
 
-    def _get_search_result(self, model, **kwargs):
-        return SearchQuerySet().models(model).filter(**kwargs)[0]
+    def _get_search_result(self, document_model, **kwargs):
+        return document_model.search().filter('term', **kwargs).execute()[0]
 
     def serialize_catalog(self, catalog, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.CatalogSerializer, catalog, many, format, extra_context)
@@ -42,8 +49,8 @@ class SerializationMixin:
         return self._serialize_object(serializers.CourseWithProgramsSerializer, course, many, format, extra_context)
 
     def serialize_course_search(self, course, serializer=None):
-        obj = self._get_search_result(Course, key=course.key)
-        return self._serialize_object(serializer or serializers.CourseSearchSerializer, obj)
+        obj = self._get_search_result(CourseDocument, key=course.key)
+        return self._serialize_object(serializer or CourseSearchDocumentSerializer, obj)
 
     def serialize_course_run(self, run, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.CourseRunWithProgramsSerializer, run, many, format, extra_context)
@@ -52,8 +59,8 @@ class SerializationMixin:
         return self._serialize_object(serializers.MinimalCourseRunSerializer, run, many, format, extra_context)
 
     def serialize_course_run_search(self, run, serializer=None):
-        obj = self._get_search_result(CourseRun, key=run.key)
-        return self._serialize_object(serializer or serializers.CourseRunSearchSerializer, obj)
+        obj = self._get_search_result(CourseRunDocument, key=run.key)
+        return self._serialize_object(serializer or CourseRunSearchDocumentSerializer, obj)
 
     def serialize_person(self, person, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.PersonSerializer, person, many, format, extra_context)
@@ -64,12 +71,12 @@ class SerializationMixin:
             program,
             many,
             format,
-            extra_context
+            extra_context,
         )
 
     def serialize_program_search(self, program, serializer=None):
-        obj = self._get_search_result(Program, uuid=program.uuid)
-        return self._serialize_object(serializer or serializers.ProgramSearchSerializer, obj)
+        obj = self._get_search_result(ProgramDocument, uuid=program.uuid)
+        return self._serialize_object(serializer or ProgramSearchDocumentSerializer, obj)
 
     def serialize_program_type(self, program_type, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.ProgramTypeSerializer, program_type, many, format, extra_context)
@@ -100,11 +107,11 @@ class SerializationMixin:
 
 class TypeaheadSerializationMixin:
     def serialize_course_run_search(self, run):
-        obj = SearchQuerySet().models(CourseRun).filter(key=run.key)[0]
+        obj, *_ = CourseRunDocument.search().filter('term', key=run.key).execute()
         return serializers.TypeaheadCourseRunSearchSerializer(obj).data
 
     def serialize_program_search(self, program):
-        obj = SearchQuerySet().models(Program).filter(uuid=program.uuid)[0]
+        obj, *_ = ProgramDocument.search().filter('term', uuid=program.uuid).execute()
         return serializers.TypeaheadProgramSearchSerializer(obj).data
 
 
@@ -119,15 +126,12 @@ class OAuth2Mixin:
 
 
 class SynonymTestMixin:
-
     def test_org_synonyms(self):
         """ Test that synonyms work for organization names """
         title = 'UniversityX'
         authoring_organizations = [factories.OrganizationFactory(name='University')]
         factories.CourseRunFactory(
-            title=title,
-            course__partner=self.partner,
-            authoring_organizations=authoring_organizations
+            title=title, course__partner=self.partner, authoring_organizations=authoring_organizations
         )
         factories.ProgramFactory(title=title, partner=self.partner, authoring_organizations=authoring_organizations)
         response1 = self.process_response({'q': title})
@@ -173,6 +177,7 @@ class FuzzyInt(int):
 
     See: https://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
     """
+
     def __new__(cls, value, threshold):
         obj = super(FuzzyInt, cls).__new__(cls, value)
         obj.value = value
