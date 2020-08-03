@@ -4,12 +4,12 @@ import pytest
 from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.cache import cache, caches
+from django.core.management import call_command
 from django.test.client import Client
-from haystack import connections as haystack_connections
+from elasticsearch_dsl.connections import get_connection
 from pytest_django.lazy_django import skip_if_no_django
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
-from course_discovery.apps.core.utils import ElasticsearchUtils
 
 logger = logging.getLogger(__name__)
 
@@ -41,36 +41,33 @@ def django_cache(django_cache_add_xdist_key_prefix):  # pylint: disable=redefine
 
 
 @pytest.fixture(scope='session', autouse=True)
-def haystack_add_xdist_suffix_to_index_name(request):
+def elasticsearch_dsl_add_xdist_suffix_to_index_name(request):
     skip_if_no_django()
 
     xdist_suffix = getattr(request.config, 'workerinput', {}).get('workerid')
-
     if xdist_suffix:
         # Put a prefix like _gw0, _gw1 etc on xdist processes
-        for name, connection in settings.HAYSTACK_CONNECTIONS.items():
-            connection['INDEX_NAME'] = connection['INDEX_NAME'] + '_' + xdist_suffix
-            logger.info('Set index name for Haystack connection [%s] to [%s]', name, connection['INDEX_NAME'])
+        index_names_orig = settings.ELASTICSEARCH_INDEX_NAMES
+        index_names = index_names_orig.copy()
+        for document, name in index_names.items():
+            name = '{0}_{1}'.format(name, xdist_suffix)
+            index_names_orig[document] = name
+            logger.info('Set index name for elastic connection [%s]', name)
 
 
 @pytest.fixture
-def haystack_default_connection(haystack_add_xdist_suffix_to_index_name):  # pylint: disable=redefined-outer-name,unused-argument
+def elasticsearch_dsl_default_connection(
+    elasticsearch_dsl_add_xdist_suffix_to_index_name
+):  # pylint: disable=redefined-outer-name,unused-argument
     skip_if_no_django()
+    esdsl_conn = get_connection()
 
-    backend = haystack_connections['default'].get_backend()
+    call_command('search_index', '--delete', '-f')
+    call_command('search_index', '--create')
 
-    # Force Haystack to update the mapping for the index
-    backend.setup_complete = False
+    yield esdsl_conn
 
-    es = backend.conn
-    index_name = backend.index_name
-    ElasticsearchUtils.delete_index(es, index_name)
-    ElasticsearchUtils.create_alias_and_index(es, index_name)
-    ElasticsearchUtils.refresh_index(es, index_name)
-
-    yield backend
-
-    ElasticsearchUtils.delete_index(es, index_name)
+    call_command('search_index', '--delete', '-f')
 
 
 @pytest.fixture
