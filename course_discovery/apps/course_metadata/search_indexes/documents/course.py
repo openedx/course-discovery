@@ -8,12 +8,14 @@ from .common import BaseCourseDocument, filter_visible_runs
 
 __all__ = ('CourseDocument',)
 
-COURSE_INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
+COURSE_INDEX_NAME = settings.ELASTICSEARCH_INDEX_NAMES[__name__]
+COURSE_INDEX = Index(COURSE_INDEX_NAME)
 COURSE_INDEX.settings(
     number_of_shards=1,
     number_of_replicas=0,
     blocks={'read_only_allow_delete': None},
 )
+COURSE_INDEX.aliases(**{'catalog': {}})
 
 
 @COURSE_INDEX.doc_type
