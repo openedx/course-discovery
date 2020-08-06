@@ -1,5 +1,6 @@
 from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin, messages
+from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -433,6 +434,12 @@ class CurriculumCourseRunExclusionAdmin(admin.ModelAdmin):
 class CurriculumAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'program', 'name', 'is_active')
     inlines = (CurriculumProgramMembershipInline, CurriculumCourseMembershipInline)
+
+    def save_model(self, request, obj, form, change):
+        try:
+            super().save_model(request, obj, form, change)
+        except IntegrityError:
+            logger.exception('A database integrity error occurred while saving curriculum [%s].', obj.uuid)
 
 
 class CurriculumAdminInline(admin.StackedInline):
