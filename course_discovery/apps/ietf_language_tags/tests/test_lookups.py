@@ -14,7 +14,7 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 class AutocompleteTests(SiteMixin, TestCase):
     """ Tests for autocomplete lookups."""
     def setUp(self):
-        super(AutocompleteTests, self).setUp()
+        super().setUp()
         self.user = UserFactory(is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.language_tag_test = LanguageTag.objects.create(code='xx-xx', name='Test LanguageTag')
@@ -23,7 +23,7 @@ class AutocompleteTests(SiteMixin, TestCase):
     def test_language_tag_autocomplete(self, query):
         """ Verify course autocomplete returns the queried data. """
         response = self.client.get(
-            reverse('language_tags:language-tag-autocomplete') + '?q={query}'.format(query=query)
+            reverse('language_tags:language-tag-autocomplete') + f'?q={query}'
         )
         data = json.loads(response.content.decode('utf-8'))
         self.assertEqual(data['results'][0]['text'], str(self.language_tag_test))

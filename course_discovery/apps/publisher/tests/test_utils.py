@@ -7,7 +7,7 @@ from course_discovery.apps.publisher.utils import is_email_notification_enabled,
 
 class PublisherUtilsTests(TestCase):
     def setUp(self):
-        super(PublisherUtilsTests, self).setUp()
+        super().setUp()
         self.user = UserFactory()
 
     def test_email_notification_enabled_by_default(self):
