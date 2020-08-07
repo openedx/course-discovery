@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.db import migrations
 
 PAID_SEAT_TYPES = ('credit', 'professional', 'verified',)

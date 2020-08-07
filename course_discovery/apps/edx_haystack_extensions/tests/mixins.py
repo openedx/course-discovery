@@ -1,8 +1,9 @@
+from unittest.mock import patch
+
 from django.conf import settings
 from elasticsearch.helpers import bulk
 from haystack import connections as haystack_connections
 from haystack.backends import BaseSearchBackend
-from mock import patch
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.edx_haystack_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
@@ -13,7 +14,7 @@ class SearchBackendTestMixin(ElasticsearchTestMixin):
     backend_class = None
 
     def setUp(self):
-        super(SearchBackendTestMixin, self).setUp()
+        super().setUp()
         self.backend = self.get_backend()
 
     def get_backend(self, connection_alias='default', **connection_options):
@@ -31,7 +32,7 @@ class SearchIndexTestMixin:
     index_prefix = None  # The backend.index_name is manipulated during operation, so we snapshot prefix during setUp
 
     def setUp(self):
-        super(SearchIndexTestMixin, self).setUp()
+        super().setUp()
         self.backend = haystack_connections['default'].get_backend()
         self.index_prefix = self.backend.index_name
 
@@ -39,7 +40,7 @@ class SearchIndexTestMixin:
         """ Remove the indexes we created and reset the backend index_name."""
         self.backend.conn.indices.delete(index=self.index_prefix + '_*')
         self.backend.index_name = self.index_prefix
-        super(SearchIndexTestMixin, self).tearDown()
+        super().tearDown()
 
 
 class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):

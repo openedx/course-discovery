@@ -30,7 +30,7 @@ class SiteFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Site
 
-    domain = factory.Sequence(lambda n: 'test-domain-{number}.fake'.format(number=n))
+    domain = factory.Sequence(lambda n: f'test-domain-{n}.fake')
     name = factory.Faker('name')
 
 
@@ -54,21 +54,21 @@ class StaffUserFactory(UserFactory):
 
 
 class PartnerFactory(factory.django.DjangoModelFactory):
-    name = factory.Sequence(lambda n: 'test-partner-{}'.format(n))  # pylint: disable=unnecessary-lambda
-    short_code = factory.Sequence(lambda n: 'test{}'.format(n))  # pylint: disable=unnecessary-lambda
-    courses_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
-    lms_coursemode_api_url = '{root}/api/course_mode/v1/'.format(root=FuzzyUrlRoot().fuzz())
-    ecommerce_api_url = '{root}/api/v2/'.format(root=FuzzyUrlRoot().fuzz())
-    organizations_api_url = '{root}/api/organizations/v1/'.format(root=FuzzyUrlRoot().fuzz())
-    programs_api_url = '{root}/api/programs/v1/'.format(root=FuzzyUrlRoot().fuzz())
-    marketing_site_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
+    name = factory.Sequence(lambda n: f'test-partner-{n}')  # pylint: disable=unnecessary-lambda
+    short_code = factory.Sequence(lambda n: f'test{n}')  # pylint: disable=unnecessary-lambda
+    courses_api_url = f'{FuzzyUrlRoot().fuzz()}/api/courses/v1/'
+    lms_coursemode_api_url = f'{FuzzyUrlRoot().fuzz()}/api/course_mode/v1/'
+    ecommerce_api_url = f'{FuzzyUrlRoot().fuzz()}/api/v2/'
+    organizations_api_url = f'{FuzzyUrlRoot().fuzz()}/api/organizations/v1/'
+    programs_api_url = f'{FuzzyUrlRoot().fuzz()}/api/programs/v1/'
+    marketing_site_api_url = f'{FuzzyUrlRoot().fuzz()}/api/courses/v1/'
     marketing_site_url_root = factory.Faker('url')
     marketing_site_api_username = factory.Faker('user_name')
     marketing_site_api_password = factory.Faker('password')
     analytics_url = factory.Faker('url')
     analytics_token = factory.Faker('sha256')
     lms_url = ''
-    lms_admin_url = '{root}/admin'.format(root=FuzzyUrlRoot().fuzz())
+    lms_admin_url = f'{FuzzyUrlRoot().fuzz()}/admin'
     site = factory.SubFactory(SiteFactory)
     studio_url = factory.Faker('url')
     publisher_url = factory.Faker('url')

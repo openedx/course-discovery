@@ -1,6 +1,6 @@
 import logging
+from unittest import mock
 
-import mock
 import responses
 from django.test import TestCase
 
@@ -14,7 +14,7 @@ from course_discovery.apps.core.tests.utils import MockLoggingHandler
 class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
     @classmethod
     def setUpClass(cls):
-        super(TestLMSAPIClient, cls).setUpClass()
+        super().setUpClass()
         logger = logging.getLogger(lms.__name__)
         cls.log_handler = MockLoggingHandler(level='DEBUG')
         logger.addHandler(cls.log_handler)
@@ -22,7 +22,7 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
 
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
     def setUp(self, _mock_access_token):  # pylint: disable=arguments-differ
-        super(TestLMSAPIClient, self).setUp()
+        super().setUp()
         # Reset mock logger for each test.
         self.log_handler.reset()
 
