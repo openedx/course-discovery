@@ -10,7 +10,7 @@ class TopicViewSetTests(SerializationMixin, APITestCase):
     list_path = reverse('api:v1:topic-list')
 
     def setUp(self):
-        super(TopicViewSetTests, self).setUp()
+        super().setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 

@@ -305,7 +305,7 @@ class TestProgramViewSet(SerializationMixin):
         # This program should not be included in the results below because it never matches the filter.
         self.create_program()
 
-        url = '{root}?marketing_slug={slug}'.format(root=self.list_path, slug=SLUG)
+        url = f'{self.list_path}?marketing_slug={SLUG}'
         self.assert_list_results(url, [], 5)
 
         program = self.create_program()

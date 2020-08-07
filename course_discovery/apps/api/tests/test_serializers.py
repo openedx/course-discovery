@@ -2,10 +2,10 @@
 import datetime
 import itertools
 import re
+from unittest import mock
 from urllib.parse import urlencode
 
 import ddt
-import mock
 import pytest
 import responses
 from django.test import TestCase
@@ -602,7 +602,7 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
 
         partner.lms_url = 'http://127.0.0.1:8000'
         lms_course_url = get_lms_course_url_for_archived(partner, course_key)
-        expected_url = '{lms_url}/courses/{course_key}/course/'.format(lms_url=partner.lms_url, course_key=course_key)
+        expected_url = f'{partner.lms_url}/courses/{course_key}/course/'
         self.assertEqual(lms_course_url, expected_url)
 
 
@@ -858,7 +858,7 @@ class FlattenedCourseRunWithCourseSerializerTests(TestCase):  # pragma: no cover
 
 class MinimalProgramCourseSerializerTests(TestCase):
     def setUp(self):
-        super(MinimalProgramCourseSerializerTests, self).setUp()
+        super().setUp()
         self.program = ProgramFactory(courses=[CourseFactory()])
 
     def assert_program_courses_serialized(self, program):
@@ -1828,7 +1828,7 @@ class AffiliateWindowSerializerTests(TestCase):
         assert all((course_run.title, course_run.short_description, course_run.marketing_url))
 
         expected = {
-            'pid': '{}-{}'.format(course_run.key, seat.type.slug),
+            'pid': f'{course_run.key}-{seat.type.slug}',
             'name': course_run.title,
             'desc': course_run.full_description,
             'purl': course_run.marketing_url,
@@ -1971,7 +1971,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             'short_description': course.short_description,
             'full_description': course.full_description,
             'content_type': 'course',
-            'aggregation_key': 'course:{}'.format(course.key),
+            'aggregation_key': f'course:{course.key}',
             'card_image_url': course.card_image_url,
             'image_url': course.image_url,
             'course_runs': [],
@@ -2013,7 +2013,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             'short_description': course.short_description,
             'full_description': course.full_description,
             'content_type': 'course',
-            'aggregation_key': 'course:{}'.format(course.key),
+            'aggregation_key': f'course:{course.key}',
             'card_image_url': course.card_image_url,
             'image_url': course.image_url,
             'course_runs': [{
@@ -2067,7 +2067,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
             'short_description': course.short_description,
             'full_description': course.full_description,
             'content_type': 'course',
-            'aggregation_key': 'course:{}'.format(course.key),
+            'aggregation_key': f'course:{course.key}',
             'card_image_url': course.card_image_url,
             'image_url': course.image_url,
             'course_runs': [{
@@ -2184,7 +2184,7 @@ class CourseRunSearchSerializerTests(ElasticsearchTestMixin, TestCase):
             'authoring_organization_uuids': get_uuids(course_run.authoring_organizations.all()),
             'subject_uuids': get_uuids(course_run.subjects.all()),
             'staff_uuids': get_uuids(course_run.staff.all()),
-            'aggregation_key': 'courserun:{}'.format(course_run.course.key),
+            'aggregation_key': f'courserun:{course_run.course.key}',
             'has_enrollable_seats': course_run.has_enrollable_seats,
             'first_enrollable_paid_seat_sku': course_run.first_enrollable_paid_seat_sku(),
             'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price,
@@ -2297,7 +2297,7 @@ class TestProgramSearchSerializer(TestCase):
             'staff_uuids': get_uuids(
                 itertools.chain.from_iterable(course.staff.all() for course in list(program.course_runs))
             ),
-            'aggregation_key': 'program:{}'.format(program.uuid),
+            'aggregation_key': f'program:{program.uuid}',
             'weeks_to_complete_min': program.weeks_to_complete_min,
             'weeks_to_complete_max': program.weeks_to_complete_max,
             'min_hours_effort_per_week': program.min_hours_effort_per_week,
@@ -2425,7 +2425,7 @@ class TestTypeaheadProgramSearchSerializer:
 class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
 
     def setUp(self):
-        super(TestGetUTMSourceForUser, self).setUp()
+        super().setUp()
         self.user = UserFactory.create()
         self.partner = PartnerFactory.create()
 
@@ -2466,7 +2466,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         """
         self.partner.lms_url = 'http://127.0.0.1:8000'
         company_name = 'Test Company'
-        expected_utm_source = slugify('{} {}'.format(self.user.username, company_name))
+        expected_utm_source = slugify(f'{self.user.username} {company_name}')
 
         self.mock_api_access_request(
             self.partner.lms_url, self.user, api_access_request_overrides={'company_name': company_name},

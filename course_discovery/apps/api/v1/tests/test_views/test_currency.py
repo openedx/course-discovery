@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 import pytest
 from django.core.cache import cache
 from django.urls import reverse

@@ -1,7 +1,7 @@
 import datetime
+from unittest import mock
 
 import factory
-import mock
 from django.db.models.signals import m2m_changed, post_save
 from rest_framework.reverse import reverse
 
@@ -15,7 +15,7 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
 
     @factory.django.mute_signals(m2m_changed)
     def setUp(self):
-        super(CommentViewSetTests, self).setUp()
+        super().setUp()
         self.salesforce_config = SalesforceConfigurationFactory(partner=self.partner)
         self.user = UserFactory(is_staff=True)
         self.request.user = self.user
