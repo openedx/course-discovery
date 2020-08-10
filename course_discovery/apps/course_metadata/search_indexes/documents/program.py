@@ -32,7 +32,7 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
         },
     )
     subtitle = fields.TextField(analyzer=html_strip)
-    type = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
+    type = fields.KeywordField()
     marketing_url = fields.TextField()
     search_card_display = fields.TextField(multi=True)
     organizations = fields.TextField(multi=True)
