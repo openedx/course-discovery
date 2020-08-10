@@ -5,7 +5,7 @@ from haystack.backends import BaseSearchBackend
 from mock import patch
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.edx_haystack_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
 
 
 class SearchBackendTestMixin(ElasticsearchTestMixin):
@@ -104,7 +104,7 @@ class SimpleQuerySearchBackendMixinTestMixin(SearchBackendTestMixin):
                 'boost_mode': 'sum'
             }
         }
-        with patch('course_discovery.apps.edx_haystack_extensions.backends.get_elasticsearch_boost_config',
+        with patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.backends.get_elasticsearch_boost_config',
                    return_value=test_elasticsearch_boost_config):
             with patch.object(BaseSearchBackend, 'build_models_list', return_value=[]):
                 kwargs = self.backend.build_search_kwargs(self.specific_query_string)

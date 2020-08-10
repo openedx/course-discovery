@@ -6,7 +6,7 @@ Mixins for the API application.
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from course_discovery.apps.edx_haystack_extensions.backends import (
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
     FacetedFieldSearchFilterBackend,
     FacetedQueryFilterBackend,
 )

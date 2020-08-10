@@ -1,8 +1,8 @@
 from django.conf import settings
 from elasticsearch_dsl.connections import get_connection
 
-from course_discovery.apps.edx_haystack_extensions.response import DistinctDSLResponse
-from course_discovery.apps.edx_haystack_extensions.search import FacetedSearch
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.response import DistinctDSLResponse
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import FacetedSearch
 
 
 class DistinctCountsSearchQuerySet(FacetedSearch):
