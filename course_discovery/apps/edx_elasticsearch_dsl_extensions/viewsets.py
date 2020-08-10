@@ -4,7 +4,7 @@ from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet as OriginDocum
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import mixins
-from course_discovery.apps.edx_haystack_extensions.search import FacetedSearch
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import FacetedSearch
 
 
 class MultiDocumentsWrapper:

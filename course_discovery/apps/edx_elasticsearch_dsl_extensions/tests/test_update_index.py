@@ -9,7 +9,7 @@ from freezegun import freeze_time
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory
-from course_discovery.apps.edx_haystack_extensions.tests.mixins import SearchIndexTestMixin
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.tests.mixins import SearchIndexTestMixin
 
 
 @override_settings(HAYSTACK_SIGNAL_PROCESSOR='haystack.signals.BaseSignalProcessor')
@@ -17,7 +17,7 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
     @freeze_time('2016-06-21')
     def test_handle(self):
         """ Verify the command creates a timestamped index and repoints the alias. """
-        with mock.patch('course_discovery.apps.edx_haystack_extensions.management.commands.'
+        with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
                         'update_index.Command.sanity_check_new_index', return_value=(True, '')):
             call_command('update_index')
 
@@ -45,9 +45,9 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
 
         # Ensure that an error is raised if the sanity check does not pass
         with pytest.raises(CommandError):
-            with mock.patch('course_discovery.apps.edx_haystack_extensions.management.commands.'
+            with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
                             'update_index.Command.set_alias', return_value=True):
-                with mock.patch('course_discovery.apps.edx_haystack_extensions.management.commands.'
+                with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
                                 'update_index.Command.get_record_count', return_value=record_count):
                     call_command('update_index')
 
@@ -59,16 +59,16 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
         CourseRunFactory.create_batch(additional_runs)
 
         # Ensure that no error is raised and the sanity check passes the second time
-        with mock.patch('course_discovery.apps.edx_haystack_extensions.management.commands.'
+        with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
                         'update_index.Command.set_alias', return_value=True):
-            with mock.patch('course_discovery.apps.edx_haystack_extensions.management.commands.'
+            with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
                             'update_index.Command.get_record_count', return_value=record_count):
                 call_command('update_index')
 
     @freeze_time('2016-06-21')
     def test_sanity_check_disabled(self):
         """ Verify the sanity check can be disabled. """
-        with mock.patch('course_discovery.apps.edx_haystack_extensions.management.commands.'
+        with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
                         'update_index.Command.sanity_check_new_index') as mock_sanity_check_new_index:
             call_command('update_index', disable_change_limit=True)
             self.assertFalse(mock_sanity_check_new_index.called)
