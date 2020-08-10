@@ -5,7 +5,6 @@ from rest_framework import serializers
 
 from course_discovery.apps.api.serializers import ContentTypeSerializer, ProgramSerializer
 from course_discovery.apps.edx_haystack_extensions.serializers import BaseDjangoESDSLFacetSerializer
-from course_discovery.apps.course_metadata import search_indexes_haystack
 
 from .common import DocumentDSLSerializerMixin
 from ..constants import BASE_PROGRAM_FIELDS, BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
@@ -62,7 +61,7 @@ class ProgramFacetSerializer(BaseDjangoESDSLFacetSerializer):
         """
 
         ignore_fields = COMMON_IGNORED_FIELDS
-        fields = search_indexes_haystack.BASE_PROGRAM_FIELDS + ('organizations',)
+        fields = BASE_PROGRAM_FIELDS + ('organizations',)
 
 
 class ProgramSearchModelSerializer(DocumentDSLSerializerMixin, ContentTypeSerializer, ProgramSerializer):
