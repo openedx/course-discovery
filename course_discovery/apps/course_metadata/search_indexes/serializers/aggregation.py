@@ -1,17 +1,16 @@
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 
 from course_discovery.apps.api.serializers import COMMON_IGNORED_FIELDS
-from course_discovery.apps.course_metadata import search_indexes_haystack
 from course_discovery.apps.course_metadata.search_indexes import documents
 from course_discovery.apps.edx_haystack_extensions.serializers import (
     BaseDjangoESDSLFacetSerializer,
     DummyDocument,
     MultiDocumentSerializerMixin,
 )
-from .course import CourseFacetSerializer, CourseSearchDocumentSerializer
-from .course_run import CourseRunFacetSerializer, CourseRunSearchDocumentSerializer
-from .person import PersonFacetSerializer, PersonSearchDocumentSerializer
-from .program import ProgramFacetSerializer, ProgramSearchDocumentSerializer
+from .course import CourseSearchDocumentSerializer
+from .course_run import CourseRunSearchDocumentSerializer
+from .person import PersonSearchDocumentSerializer
+from .program import ProgramSearchDocumentSerializer
 
 
 class AggregateSearchModelSerializer(MultiDocumentSerializerMixin, DocumentSerializer):
@@ -42,12 +41,6 @@ class AggregateFacetSearchSerializer(BaseDjangoESDSLFacetSerializer):
         """
 
         ignore_fields = COMMON_IGNORED_FIELDS
-        serializers = {
-            search_indexes_haystack.CourseRunIndex: CourseRunFacetSerializer,
-            search_indexes_haystack.CourseIndex: CourseFacetSerializer,
-            search_indexes_haystack.ProgramIndex: ProgramFacetSerializer,
-            search_indexes_haystack.PersonIndex: PersonFacetSerializer,
-        }
 
 
 class LimitedAggregateSearchSerializer(MultiDocumentSerializerMixin, DocumentSerializer):
