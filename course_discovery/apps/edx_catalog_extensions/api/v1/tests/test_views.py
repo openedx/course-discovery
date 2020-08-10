@@ -22,8 +22,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumCourseRunExclusionFactory,
     CurriculumFactory, OrganizationFactory, ProgramFactory, ProgramTypeFactory, SeatTypeFactory
 )
-from course_discovery.apps.edx_catalog_extensions.api.serializers import DistinctCountsAggregateFacetSearchSerializer
-from course_discovery.apps.edx_catalog_extensions.api.v1.views import ProgramFixtureView
+from course_discovery.apps.edx_catalog_extensions.api.v1.views import ProgramFixtureView, DistinctCountsAggregateSearchViewSet
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
@@ -77,7 +76,7 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
         response = self.get_response()
         assert response.status_code == 200
 
-        expected_facets = DistinctCountsAggregateFacetSearchSerializer.Meta.field_options.keys()
+        expected_facets = DistinctCountsAggregateSearchViewSet.faceted_search_fields.keys()
         assert sorted(expected_facets) == sorted(response.data['fields'].keys())
 
         content_types = {facet['text']: facet for facet in response.data['fields']['content_type']}
@@ -108,7 +107,7 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
         response = self.get_response()
         assert response.status_code == 200
 
-        expected_facets = DistinctCountsAggregateFacetSearchSerializer.Meta.field_queries.keys()
+        expected_facets = DistinctCountsAggregateSearchViewSet.faceted_query_filter_fields.keys()
         for facet_name in expected_facets:
             facet = response.data['queries'][facet_name]
             assert facet['count'] == 2
