@@ -11,7 +11,8 @@ from course_discovery.apps.edx_haystack_extensions.distinct_counts.query import 
     DistinctCountsElasticsearchQueryWrapper,
     DistinctCountsSearchQuerySet,
 )
-from course_discovery.apps.edx_haystack_extensions.viewsets import FacetedSearch, FacetedSearch as DSLFacetedSearch
+from course_discovery.apps.edx_haystack_extensions.search import FacetedSearch as DSLFacetedSearch
+from course_discovery.apps.edx_haystack_extensions.viewsets import FacetedSearch
 
 
 @pytest.mark.django_db
