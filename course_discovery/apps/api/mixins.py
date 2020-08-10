@@ -3,11 +3,13 @@ Mixins for the API application.
 """
 # pylint: disable=not-callable
 
-from django_elasticsearch_dsl_drf.filter_backends import FacetedSearchFilterBackend
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from course_discovery.apps.edx_haystack_extensions.backends import FacetedQueryFilterBackend
+from course_discovery.apps.edx_haystack_extensions.backends import (
+    FacetedFieldSearchFilterBackend,
+    FacetedQueryFilterBackend,
+)
 
 
 class FacetMixin:
@@ -23,7 +25,7 @@ class FacetMixin:
         self.filter_backends = [
             backend
             for backend in self.filter_backends
-            if backend not in (FacetedQueryFilterBackend, FacetedSearchFilterBackend)
+            if backend not in (FacetedQueryFilterBackend, FacetedFieldSearchFilterBackend)
         ]
         response = super().dispatch(request, *args, **kwargs)
 
@@ -38,12 +40,12 @@ class FacetMixin:
         if hasattr(self, 'faceted_query_filter_fields'):
             self.filter_backends.append(FacetedQueryFilterBackend)
         if hasattr(self, 'faceted_search_fields'):
-            self.filter_backends.append(FacetedSearchFilterBackend)
+            self.filter_backends.append(FacetedFieldSearchFilterBackend)
         queryset = self.filter_facet_queryset(self.get_queryset())
 
         search_res = queryset.execute()
-        serializer = self.get_facet_serializer(search_res.facets.to_dict(), objects=queryset, many=False)
-
+        foo = search_res.facets.to_dict()
+        serializer = self.get_facet_serializer(foo, objects=queryset, many=False)
         return Response(serializer.data)
 
     def get_facet_serializer(self, *args, **kwargs):
@@ -52,13 +54,11 @@ class FacetMixin:
         serializing faceted output.
         """
         assert 'objects' in kwargs, '`objects` is a required argument to `get_facet_serializer()`'
-
         facet_serializer_class = self.get_facet_serializer_class()
         kwargs['context'] = self.get_serializer_context()
         kwargs['context'].update(
             {'objects': kwargs.pop('objects'), 'facet_query_params_text': self.facet_query_params_text}
         )
-
         return facet_serializer_class(*args, **kwargs)
 
     def get_facet_serializer_class(self):
@@ -134,7 +134,6 @@ class DetailMixin:
         """
         assert self.detail_serializer_class is not None, (
             "'%s' should either include a `detail_serializer_class` attribute, "
-            "or override the `get_detail_serializer_class()` method."
-            % self.__class__.__name__
+            "or override the `get_detail_serializer_class()` method." % self.__class__.__name__
         )
         return self.detail_serializer_class
