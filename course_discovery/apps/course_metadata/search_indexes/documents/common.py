@@ -3,9 +3,10 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
-from django_elasticsearch_dsl import Document, fields
+from django_elasticsearch_dsl import Document as OriginDocument, fields
 from django_elasticsearch_dsl_drf.analyzers import edge_ngram_completion
 
+from course_discovery.apps.edx_haystack_extensions.viewsets import BoostedSearch
 from .analyzers import html_strip, synonym_text
 
 
@@ -44,7 +45,30 @@ class OrganizationsMixin:
         return self.prepare_authoring_organizations(obj)
 
 
-class DocumentMeta(Document.__class__):
+class BoostedDocument(OriginDocument):
+    """
+    Extended Document class.
+
+    Implements the addition of accelerators(boosting) as `funtion_scopes`
+    query for each search request to Elasticsearch.
+
+    https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html
+    """
+
+    @classmethod
+    def search(cls, using=None, index=None):
+        """
+        Create an :class:`BoostedSearch` instance that will search
+        over this ``Document``.
+        """
+        return BoostedSearch(
+            using=cls._get_using(using),
+            index=cls._default_index(index),
+            doc_type=[cls]
+        )
+
+
+class DocumentMeta(BoostedDocument.__class__):
     """
     Meta class, which extends the capabilities of Document metaclass.
 
@@ -65,7 +89,7 @@ class DocumentMeta(Document.__class__):
         return super().__new__(cls, name, parents, attrs)
 
 
-class BaseDocument(Document, metaclass=DocumentMeta):
+class BaseDocument(BoostedDocument, metaclass=DocumentMeta):
     """
     Base document index.
 
