@@ -141,7 +141,7 @@ class ProgramSearchViewSet(BaseElasticsearchDocumentViewSet):
     serializer_class = search_indexes_serializers.ProgramSearchDocumentSerializer
     filter_backends = [MultiMatchSearchFilterBackend, DefaultOrderingFilterBackend]
     faceted_search_fields = {
-        'type': {'field': 'type.raw', 'enabled': True},
+        'type': {'field': 'type', 'enabled': True},
         'status': {'field': 'status', 'enabled': True},
         'seat_types': {'field': 'seat_types', 'enabled': True},
     }
@@ -171,7 +171,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'subjects': {'field': 'subjects.raw', 'enabled': True},
         'transcript_languages': {'field': 'transcript_languages.raw', 'enabled': True},
         'status': {'field': 'status', 'enabled': True},
-        'type': {'field': 'type.raw', 'enabled': True},
+        'type': {'field': 'type', 'enabled': True},
         'content_type': {'field': 'content_type', 'enabled': True},
     }
 
