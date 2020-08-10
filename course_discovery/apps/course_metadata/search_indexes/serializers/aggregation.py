@@ -2,7 +2,7 @@ from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 
 from course_discovery.apps.api.serializers import COMMON_IGNORED_FIELDS
 from course_discovery.apps.course_metadata.search_indexes import documents
-from course_discovery.apps.edx_haystack_extensions.serializers import (
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import (
     BaseDjangoESDSLFacetSerializer,
     DummyDocument,
     MultiDocumentSerializerMixin,

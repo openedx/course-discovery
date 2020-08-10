@@ -1,8 +1,8 @@
 import copy
 from elasticsearch_dsl import Search as OriginSearch
 
-from course_discovery.apps.edx_haystack_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
-from course_discovery.apps.edx_haystack_extensions.response import DSLResponse
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.response import DSLResponse
 
 
 class BoostedSearch(OriginSearch):
