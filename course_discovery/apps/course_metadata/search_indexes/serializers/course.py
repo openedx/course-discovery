@@ -7,7 +7,7 @@ from rest_framework import serializers
 from course_discovery.apps.api import serializers as cd_serializers
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseWithProgramsSerializer
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
-from course_discovery.apps.edx_haystack_extensions.serializers import BaseDjangoESDSLFacetSerializer
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 from .common import DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import CourseDocument

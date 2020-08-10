@@ -5,12 +5,12 @@ from elasticsearch_dsl.query import Q as ESDSLQ
 
 from course_discovery.apps.course_metadata.search_indexes.documents import CourseRunDocument
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
-from course_discovery.apps.edx_haystack_extensions.distinct_counts.query import (
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.distinct_counts.query import (
     DistinctCountsElasticsearchQueryWrapper,
     DistinctCountsSearchQuerySet,
 )
-from course_discovery.apps.edx_haystack_extensions.search import FacetedSearch as DSLFacetedSearch
-from course_discovery.apps.edx_haystack_extensions.viewsets import FacetedSearch
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import FacetedSearch as DSLFacetedSearch
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import FacetedSearch
 
 
 @pytest.mark.django_db
