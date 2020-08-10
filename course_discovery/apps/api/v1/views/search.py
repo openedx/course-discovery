@@ -19,11 +19,11 @@ from course_discovery.apps.course_metadata.search_indexes import (
     documents as search_documents,
     serializers as search_indexes_serializers,
 )
-from course_discovery.apps.edx_haystack_extensions.backends import (
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
     CatalogDataFilterBackend,
     MultiMatchSearchFilterBackend,
 )
-from course_discovery.apps.edx_haystack_extensions.viewsets import (
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import (
     BaseElasticsearchDocumentViewSet,
     MultiDocumentsWrapper,
 )
