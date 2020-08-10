@@ -11,7 +11,7 @@ from elasticsearch_dsl.query import Q as ESDSLQ
 from rest_framework.exceptions import ParseError
 from rest_framework.filters import BaseFilterBackend
 
-from course_discovery.apps.edx_haystack_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
 
 
 class BaseSearchFilterBackend(OriginBaseSearchFilterBackend):
