@@ -1,133 +1,203 @@
-from haystack.backends.elasticsearch_backend import ElasticsearchSearchBackend, ElasticsearchSearchEngine
+import copy
+from django.core.exceptions import ImproperlyConfigured
+from django_elasticsearch_dsl_drf.constants import MATCHING_OPTION_MUST, MATCHING_OPTIONS
+from django_elasticsearch_dsl_drf.filter_backends import FacetedSearchFilterBackend, FilteringFilterBackend
+from django_elasticsearch_dsl_drf.filter_backends.mixins import FilterBackendMixin
+from django_elasticsearch_dsl_drf.filter_backends.search import BaseSearchFilterBackend as OriginBaseSearchFilterBackend
+from django_elasticsearch_dsl_drf.filter_backends.search.query_backends import (
+    MultiMatchQueryBackend as OriginMultiMatchQueryBackend,
+)
+from elasticsearch_dsl.query import Q as ESDSLQ
+from rest_framework.exceptions import ParseError
+from rest_framework.filters import BaseFilterBackend
 
 from course_discovery.apps.edx_haystack_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
 
 
-class SimpleQuerySearchBackendMixin:
-    """
-    Mixin for simplifying Elasticsearch queries.
-
-    Uses a basic query string query.
-    """
-
-    def build_search_kwargs(self, *args, **kwargs):
-        """
-        Override default `build_search_kwargs` method to set simpler default search query settings.
-
-        source:
-          https://github.com/django-haystack/django-haystack/blob/master/haystack/backends/elasticsearch_backend.py#L254
-        Without this override the default is:
-          'query_string': {
-            'default_field': content_field,
-            'default_operator': DEFAULT_OPERATOR,
-            'query': query_string,
-            'analyze_wildcard': True,
-            'auto_generate_phrase_queries': True,
-            'fuzzy_min_sim': FUZZY_MIN_SIM,
-            'fuzzy_max_expansions': FUZZY_MAX_EXPANSIONS,
-          }
-        """
-        query_string = args[0]
-        search_kwargs = super(SimpleQuerySearchBackendMixin, self).build_search_kwargs(*args, **kwargs)
-
-        simple_query = {
-            'query': query_string,
-            'analyze_wildcard': True,
-            'auto_generate_phrase_queries': True,
-        }
-
-        # https://www.elastic.co/guide/en/elasticsearch/reference/1.5/query-dsl-function-score-query.html
+class BaseSearchFilterBackend(OriginBaseSearchFilterBackend):
+    def filter_queryset(self, request, queryset, view):
         function_score_config = get_elasticsearch_boost_config()['function_score']
-        function_score_config['query'] = {
-            'query_string': simple_query
-        }
+        if self.matching not in MATCHING_OPTIONS:
+            raise ImproperlyConfigured(
+                'Your `matching` value does not match the allowed matching'
+                'options: {}'.format(', '.join(MATCHING_OPTIONS))
+            )
 
-        function_score = {
-            'function_score': function_score_config
-        }
+        __query_backends = self._get_query_backends(request, view)
 
-        if search_kwargs['query'].get('filtered', {}).get('query'):
-            search_kwargs['query']['filtered']['query'] = function_score
-        elif search_kwargs['query'].get('query_string'):
-            search_kwargs['query'] = function_score
+        if len(__query_backends) > 1:
+            __queries = []
+            for query_backend in __query_backends:
+                __queries.extend(query_backend.construct_search(request=request, view=view, search_backend=self))
 
-        return search_kwargs
+            if __queries:
+                function_score_config['query'] = {self.matching: __queries}
+                queryset = queryset.query('function_score', **function_score_config)
+
+        elif len(__query_backends) == 1:
+            __query = __query_backends[0].construct_search(request=request, view=view, search_backend=self)
+            function_score_config['query'] = {'bool': {self.matching: __query}}
+            queryset = queryset.query('function_score', **function_score_config)
+        else:
+            raise ImproperlyConfigured(
+                'Search filter backend shall have at least one query_backend'
+                'specified either in `query_backends` property or '
+                '`get_query_backends` method. Make appropriate changes to'
+                'your {} class'.format(self.__class__.__name__)
+            )
+        return queryset
 
 
-class NonClearingSearchBackendMixin:
+class MultiMatchSearchFilterBackend(BaseSearchFilterBackend):
     """
-    Mixin that prevents indexes from being cleared.
-
-    Inherit this class if you would prefer, for example, to create a new index when you rebuild indexes rather than
-    clearing/updating indexes in place as Haystack normally does.
+    Multi match search filter backend.
     """
 
-    def clear(self, models=None, commit=True):  # pylint: disable=unused-argument
-        """ Does NOT clear the index.
+    search_param = 'q'
+    matching = MATCHING_OPTION_MUST
 
-        Instead of clearing the index, this method logs the fact that the inheriting class does NOT clear
-        indexes, advising the user to use the appropriate tools to manually clear the index.
+    query_backends = [OriginMultiMatchQueryBackend]
+
+    def get_search_query_params(self, request):
         """
-        self.log.info('%s does NOT clear indexes. Indexes should be manually cleared using the APIs/tools appropriate '
-                      'for this search service.', self.__class__.__name__)
+        Get search query params.
 
-
-# pylint: disable=abstract-method
-class ConfigurableElasticBackend(ElasticsearchSearchBackend):
-    def specify_analyzers(self, mapping, field, index_analyzer, search_analyzer):
-        """ Specify separate index and search analyzers for the given field.
-          Args:
-            mapping (dict): /_mapping attribute on index (maps analyzers to fields)
-            field (str): which field to modify
-            index_analyzer (str): name of the index_analyzer (should be defined in the /_settings attribute)
-            search_analyzer (str): name of the search_analyzer (should be defined in the /_settings attribute)
+        :param request: Django REST framework request.
+        :type request: rest_framework.request.Request
+        :return: List of search query params.
+        :rtype: list
         """
-        # The generic analyzer is used for both if index_analyzer and search_analyzer are not specified
-        mapping[field].pop('analyzer')
-        mapping[field].update({
-            'index_analyzer': index_analyzer,
-            'search_analyzer': search_analyzer
-        })
-
-    def build_schema(self, fields):
-        content_field_name, mapping = super().build_schema(fields)
-
-        # The aggregation_key is intended to be used for computing distinct record counts. We do not want it to be
-        # analyzed because doing so would result in more values being counted, as each key would be broken down
-        # into substrings by the analyzer.
-        if mapping.get('aggregation_key'):
-            mapping['aggregation_key']['index'] = 'not_analyzed'
-            del mapping['aggregation_key']['analyzer']
-
-        # Fields default to snowball analyzer, this keeps snowball functionality, but adds synonym functionality
-        snowball_with_synonyms = 'snowball_with_synonyms'
-        for field, value in mapping.items():
-            if value.get('analyzer') == 'snowball':
-                self.specify_analyzers(mapping=mapping, field=field,
-                                       index_analyzer=snowball_with_synonyms,
-                                       search_analyzer=snowball_with_synonyms)
-        # Use the ngram analyzer as the index_analyzer and the lowercase analyzer as the search_analyzer
-        # This is necessary to support partial searches/typeahead
-        # If we used ngram analyzer for both, then 'running' would get split into ngrams like "ing"
-        # and all words containing ing would come back in typeahead.
-        self.specify_analyzers(mapping=mapping, field='title_autocomplete',
-                               index_analyzer='ngram_analyzer', search_analyzer=snowball_with_synonyms)
-        self.specify_analyzers(mapping=mapping, field='authoring_organizations_autocomplete',
-                               index_analyzer='ngram_analyzer', search_analyzer=snowball_with_synonyms)
-
-        return (content_field_name, mapping)
+        query_params = request.query_params.copy()
+        for param in request.query_params:
+            if not query_params[param]:
+                query_params.pop(param)
+        return query_params.getlist(self.search_param, [])
 
 
-# pylint: disable=abstract-method
-class EdxElasticsearchSearchBackend(SimpleQuerySearchBackendMixin, NonClearingSearchBackendMixin,
-                                    ConfigurableElasticBackend):
-    def search(self, query_string, **kwargs):
-        # NOTE (CCB): Haystack by default attempts to read/update the index mapping. Given that our mapping doesn't
-        # frequently change, this is a waste of three API calls. Stop it! We set our mapping when we create the index.
-        self.setup_complete = True
+class FacetedFieldSearchFilterBackend(FacetedSearchFilterBackend):
+    faceted_filter_param = 'selected_facets'
 
-        return super().search(query_string, **kwargs)
+    def get_faceted_filter_params(self, request):
+        """
+        Get faceted search query params.
+
+        :param request: Django REST framework request.
+        :type request: rest_framework.request.Request
+        :return: List of search query params.
+        :rtype: list
+        """
+        query_params = request.query_params.copy()
+        return query_params.getlist(self.faceted_filter_param, [])
+
+    def prepare_faceted_field_filter_params(self, request):
+        filter_params = self.get_faceted_filter_params(request)
+        for param in filter_params:
+            field, __, value = param.partition(':')
+            if field.endswith('_exact'):
+                field, *_ = field.partition('_exact')
+
+            yield field, value
+
+    def filter_by_facets(self, request, queryset, view):
+        filter_params = self.prepare_faceted_field_filter_params(request)
+        _filters = []
+        field_facets = view.faceted_search_fields
+        for field, value in filter_params:
+            if not field_facets.get(field):
+                raise ParseError('The selected query facet [{facet}] is not valid.'.format(facet=field))
+
+            _filters.append(ESDSLQ('term', **{field: value}))
+
+        queryset = queryset.query('bool', **{'filter': _filters})
+        return queryset
+
+    def filter_queryset(self, request, queryset, view):
+        queryset = self.filter_by_facets(request, queryset, view)
+        return self.aggregate(request, queryset, view)
 
 
-class EdxElasticsearchSearchEngine(ElasticsearchSearchEngine):
-    backend = EdxElasticsearchSearchBackend
+class FacetedQueryFilterBackend(BaseFilterBackend, FilterBackendMixin):
+    """
+    Facet query filter backend.
+
+    Adds query facets.
+    """
+
+    faceted_filter_param = 'selected_query_facets'
+
+    def get_faceted_filter_params(self, request):
+        """
+        Get faceted search query params.
+
+        :param request: Django REST framework request.
+        :type request: rest_framework.request.Request
+        :return: List of search query params.
+        :rtype: list
+        """
+        query_params = request.query_params.copy()
+        return query_params.getlist(self.faceted_filter_param, [])
+
+    @staticmethod
+    def prepare_faceted_query_search_fields(view):
+        faceted_query_filter_fields = copy.deepcopy(view.faceted_query_filter_fields)
+        for name, options in faceted_query_filter_fields.items():
+            if 'enabled' not in faceted_query_filter_fields[name]:
+                faceted_query_filter_fields[name]['enabled'] = False
+            if not faceted_query_filter_fields[name].get('query'):
+                faceted_query_filter_fields[name]['query'] = []
+
+        return faceted_query_filter_fields
+
+    def construct_query_filter_facets(self, request, view):
+        facets = {}
+        faceted_query_search_fields = self.prepare_faceted_query_search_fields(view)
+        for name, options in faceted_query_search_fields.items():
+            if options['enabled']:
+                facets[name] = ESDSLQ('bool', filter=options['query'])
+        return facets
+
+    def aggregate(self, request, queryset, view):
+        facets = self.construct_query_filter_facets(request, view)
+        for name, query_filter in facets.items():
+            queryset.aggs.bucket('_query_{0}'.format(name), 'filter', filter=query_filter)
+
+        return queryset
+
+    def filter_by_facets(self, request, queryset, view):
+        filter_params = self.get_faceted_filter_params(request)
+        _queries = []
+        facets = self.construct_query_filter_facets(request, view)
+        for parm in filter_params:
+            query_filter = facets.get(parm)
+            if not query_filter:
+                raise ParseError('The selected query facet [{facet}] is not valid.'.format(facet=parm))
+            _queries.append(query_filter)
+
+        queryset = queryset.query('bool', **{'filter': _queries})
+        return queryset
+
+    def filter_queryset(self, request, queryset, view):
+        queryset = self.filter_by_facets(request, queryset, view)
+        return self.aggregate(request, queryset, view)
+
+
+class CatalogDataFilterBackend(FilteringFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        """
+        Filter the queryset.
+
+        :param request: Django REST framework request.
+        :param queryset: Base queryset.
+        :param view: View.
+        :type request: rest_framework.request.Request
+        :type queryset: elasticsearch_dsl.search.Search
+        :type view: rest_framework.viewsets.ReadOnlyModelViewSet
+        :return: Updated queryset.
+        :rtype: elasticsearch_dsl.search.Search
+        """
+        filter_query_params = self.get_filter_query_params(request, view)
+        if filter_query_params:
+            return super().filter_queryset(request, queryset, view)
+        queryset = self.apply_filter_term(queryset, {'field': 'partner'}, request.site.partner.short_code)
+
+        return queryset
