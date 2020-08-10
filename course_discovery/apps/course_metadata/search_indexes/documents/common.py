@@ -6,7 +6,7 @@ from django.template.exceptions import TemplateDoesNotExist
 from django_elasticsearch_dsl import Document as OriginDocument, fields
 from django_elasticsearch_dsl_drf.analyzers import edge_ngram_completion
 
-from course_discovery.apps.edx_haystack_extensions.viewsets import BoostedSearch
+from course_discovery.apps.edx_haystack_extensions.search import BoostedSearch
 from .analyzers import html_strip, synonym_text
 
 
