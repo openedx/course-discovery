@@ -7,7 +7,7 @@ class CourseMetadataConfig(AppConfig):
     verbose_name = 'Course Metadata'
 
     def ready(self):
-        super(CourseMetadataConfig, self).ready()
+        super().ready()
         # We need to add this setting because, since MM programs we are accepting banner
         # images with height less than 480 max. In order to accept those images, we need
         # to allow PIL to work with these images correctly by setting this variable true

@@ -37,9 +37,9 @@ class BaseMarketingSitePublisher:
 
         self.node_api_base = urljoin(self.client.api_url, '/node.json')
         self.alias_api_base = urljoin(self.client.api_url, '/admin/config/search/path')
-        self.alias_add_url = '{}/add'.format(self.alias_api_base)
+        self.alias_add_url = f'{self.alias_api_base}/add'
         self.redirect_api_base = urljoin(self.client.api_url, '/admin/config/search/redirect')
-        self.redirect_add_url = '{}/add'.format(self.redirect_api_base)
+        self.redirect_add_url = f'{self.redirect_api_base}/add'
 
     def publish_obj(self, obj, previous_obj=None):
         """
@@ -143,7 +143,7 @@ class BaseMarketingSitePublisher:
         Raises:
             NodeEditError: If the PUT to Drupal fails.
         """
-        node_url = '{base}/{node_id}'.format(base=self.node_api_base, node_id=node_id)
+        node_url = f'{self.node_api_base}/{node_id}'
         node_data = json.dumps(node_data)
 
         response = self.client.api_session.put(node_url, data=node_data)
@@ -167,7 +167,7 @@ class BaseMarketingSitePublisher:
         Raises:
             NodeDeleteError: If the DELETE to Drupal fails.
         """
-        node_url = '{base}/{node_id}'.format(base=self.node_api_base, node_id=node_id)
+        node_url = f'{self.node_api_base}/{node_id}'
 
         response = self.client.api_session.delete(node_url)
 
@@ -184,7 +184,7 @@ class BaseMarketingSitePublisher:
         return obj.marketing_slug
 
     def alias(self, obj):
-        return '{type}/{slug}'.format(type=obj.type.slug, slug=obj.marketing_slug)
+        return f'{obj.type.slug}/{obj.marketing_slug}'
 
     def get_alias_list_url(self, slug):
         return '{base}/list/{slug}'.format(
@@ -296,7 +296,7 @@ class BaseMarketingSitePublisher:
                 'alias': new_alias,
                 'form_id': 'path_admin_form',
                 'op': 'Save',
-                'source': 'node/{}'.format(node_id),
+                'source': f'node/{node_id}',
             }
 
             response = self.client.api_session.post(self.alias_add_url, headers=headers, data=data)

@@ -3,7 +3,7 @@ import json
 from decimal import Decimal
 
 import ddt
-import mock
+from unittest import mock
 import pytz
 import responses
 from django.core.management import CommandError
@@ -129,7 +129,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             self.assertEqual(course.card_image_url, body['media'].get('image', {}).get('raw'),)
 
         for field, value in expected_values.items():
-            self.assertEqual(getattr(course_run, field), value, 'Field {} is invalid.'.format(field))
+            self.assertEqual(getattr(course_run, field), value, f'Field {field} is invalid.')
 
         return course_run
 
@@ -238,7 +238,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             with mock.patch(LOGGER_PATH) as mock_logger:
                 self.loader.ingest()
                 self.assertEqual(mock_logger.exception.call_count, len(api_data))
-                msg = 'An error occurred while updating {0} from {1}'.format(
+                msg = 'An error occurred while updating {} from {}'.format(
                     api_data[-1]['id'],
                     self.partner.courses_api_url
                 )
@@ -584,7 +584,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             data['entitlement']['results'][0]["stockrecords"].append(stockrecord)
             data['enrollment_code']['results'][0]["stockrecords"].append(stockrecord)
 
-        url = '{url}products/'.format(url=self.api_url)
+        url = f'{self.api_url}products/'
 
         responses.add(
             responses.GET,

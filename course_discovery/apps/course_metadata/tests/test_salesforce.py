@@ -1,5 +1,5 @@
 import ddt
-import mock
+from unittest import mock
 from django.test import TestCase
 from simple_salesforce import SalesforceExpiredSession
 
@@ -18,7 +18,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 @ddt.ddt
 class TestSalesforce(TestCase):
     def setUp(self):
-        super(TestSalesforce, self).setUp()
+        super().setUp()
         self.salesforce_config = SalesforceConfigurationFactory()
         self.salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
         self.salesforce_util_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil'
@@ -342,7 +342,7 @@ class TestSalesforce(TestCase):
                 'Course__c': course.salesforce_id,
                 'Status': 'Open',
                 'Origin': 'Publisher',
-                'Subject': '{} Comments'.format(course.title),
+                'Subject': f'{course.title} Comments',
                 'Description': 'This case is required to be Open for the Publisher comment service.',
                 'RecordTypeId': self.salesforce_config.case_record_type_id,
             })
@@ -375,7 +375,7 @@ class TestSalesforce(TestCase):
                     'Course__c': course.salesforce_id,
                     'Status': 'Open',
                     'Origin': 'Publisher',
-                    'Subject': '{} Comments'.format(course.title),
+                    'Subject': f'{course.title} Comments',
                     'Description': 'This case is required to be Open for the Publisher comment service.',
                     'RecordTypeId': self.salesforce_config.case_record_type_id,
                 })
@@ -523,7 +523,7 @@ class TestSalesforce(TestCase):
             util = SalesforceUtil(self.salesforce_config.partner)
             formatted_message = util.format_user_comment_body(user, body, course_run_key)
             expected_formatted_message = '[User]\n{}\n\n[Course Run]\n{}\n\n[Body]\n{}'.format(
-                '{} {} ({})'.format(user.first_name, user.last_name, user.username), course_run_key, body
+                f'{user.first_name} {user.last_name} ({user.username})', course_run_key, body
             )
             self.assertEqual(
                 formatted_message,
@@ -549,7 +549,7 @@ class TestSalesforce(TestCase):
 
             formatted_message = util.format_user_comment_body(user, body, course_run_key)
             expected_formatted_message = '[User]\n{}\n\n[Course Run]\n{}\n\n[Body]\n{}'.format(
-                '{}'.format(user.username), course_run_key, body
+                f'{user.username}', course_run_key, body
             )
             self.assertEqual(
                 formatted_message,

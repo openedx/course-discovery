@@ -46,7 +46,7 @@ def filter_visible_runs(course_runs):
 
 class OrganizationsMixin:
     def format_organization(self, organization):
-        return '{key}: {name}'.format(key=organization.key, name=organization.name)
+        return f'{organization.key}: {organization.name}'
 
     def format_organization_body(self, organization):
         # Deferred to prevent a circular import:
@@ -164,13 +164,13 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         # Pre-fetch all fields required by the CourseSearchSerializer. Unfortunately, there's
         # no way to specify at query time which queryset to use during loading in order to customize
         # it for the serializer being used
-        qset = super(CourseIndex, self).read_queryset(using=using)
+        qset = super().read_queryset(using=using)
         return qset.prefetch_related(
             'course_runs__seats__type'
         )
 
     def prepare_aggregation_key(self, obj):
-        return 'course:{}'.format(obj.key)
+        return f'course:{obj.key}'
 
     def prepare_course_runs(self, obj):
         return [course_run.key for course_run in filter_visible_runs(obj.course_runs)]
@@ -249,7 +249,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
         # Pre-fetch all fields required by the CourseRunSearchSerializer. Unfortunately, there's
         # no way to specify at query time which queryset to use during loading in order to customize
         # it for the serializer being used
-        qset = super(CourseRunIndex, self).read_queryset(using=using)
+        qset = super().read_queryset(using=using)
 
         return qset.prefetch_related(
             'seats__type',
@@ -260,7 +260,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_aggregation_key(self, obj):
         # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.
-        return 'courserun:{}'.format(obj.course.key)
+        return f'courserun:{obj.course.key}'
 
     def prepare_has_enrollable_paid_seats(self, obj):
         return obj.has_enrollable_paid_seats()
@@ -345,7 +345,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     )
 
     def prepare_aggregation_key(self, obj):
-        return 'program:{}'.format(obj.uuid)
+        return f'program:{obj.uuid}'
 
     def prepare_published(self, obj):
         return obj.status == ProgramStatus.Active
@@ -390,7 +390,7 @@ class PersonIndex(BaseIndex, indexes.Indexable):
     organizations = indexes.MultiValueField(faceted=True)
 
     def prepare_aggregation_key(self, obj):
-        return 'person:{}'.format(obj.uuid)
+        return f'person:{obj.uuid}'
 
     def prepare_organizations(self, obj):
         course_runs = obj.courses_staffed.all()

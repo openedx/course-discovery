@@ -44,12 +44,12 @@ def clean_query(query):
 
     # Specifying a SearchQuerySet filter will append an explicit AND clause to the query, thus changing its semantics.
     # So we wrap parentheses around the original query in order to preserve the semantics.
-    query = '({qs})'.format(qs=query)
+    query = f'({query})'
 
     # Ensure all operators are uppercase
     for operator in RESERVED_ELASTICSEARCH_QUERY_OPERATORS:
-        old = ' {0} '.format(operator.lower())
-        new = ' {0} '.format(operator.upper())
+        old = f' {operator.lower()} '
+        new = f' {operator.upper()} '
         query = query.replace(old, new)
 
     return query
@@ -300,7 +300,7 @@ class UploadToFieldNamePath(FilePattern):
         kwargs['populate_from'] = populate_from
         if kwargs['path'] and not kwargs['path'].endswith('/'):
             kwargs['path'] += '/'
-        super(UploadToFieldNamePath, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def __call__(self, instance, filename):
         field_value = getattr(instance, self.populate_from)
@@ -308,7 +308,7 @@ class UploadToFieldNamePath(FilePattern):
         self.override_values.update({
             'name': str(field_value) + str(uuid.uuid4())[23:]
         })
-        return super(UploadToFieldNamePath, self).__call__(instance, filename)
+        return super().__call__(instance, filename)
 
 
 def custom_render_variations(file_name, variations, storage, replace=True):
@@ -355,7 +355,7 @@ def parse_course_key_fragment(fragment):
     """
     split = fragment.split('/') if '/' in fragment else fragment.split('+')
     if len(split) != 2:
-        raise ValueError('Could not understand course key fragment "{}".'.format(fragment))
+        raise ValueError(f'Could not understand course key fragment "{fragment}".')
     return split[0], split[1]
 
 
@@ -534,7 +534,7 @@ def push_tracks_to_lms_for_course_run(course_run):
         logger.info('No LMS coursemode api url configured. Cannot publish LMS tracks for [%s].', course_run.key)
         return
 
-    url = partner.lms_coursemode_api_url.rstrip('/') + '/courses/{}/'.format(course_run.key)
+    url = partner.lms_coursemode_api_url.rstrip('/') + f'/courses/{course_run.key}/'
     course_modes = {mode['mode_slug'] for mode in partner.lms_api_client.get(url).json()}
 
     for track in tracks_without_seats:
@@ -577,7 +577,7 @@ class MarketingSiteAPIClient:
     def init_session(self):
         # Login to set session cookies
         session = requests.Session()
-        login_url = '{root}/user'.format(root=self.api_url)
+        login_url = f'{self.api_url}/user'
         login_data = {
             'name': self.username,
             'pass': self.password,
@@ -585,7 +585,7 @@ class MarketingSiteAPIClient:
             'op': 'Log in',
         }
         response = session.post(login_url, data=login_data)
-        admin_url = '{root}/admin'.format(root=self.api_url)
+        admin_url = f'{self.api_url}/admin'
         # This is not a RESTful API so checking the status code is not enough
         # We also check that we were redirected to the admin page
         if not (response.status_code == 200 and response.url == admin_url):
@@ -608,7 +608,7 @@ class MarketingSiteAPIClient:
         # We need to make sure we can bypass the Varnish cache.
         # So adding a random salt into the query string to cache bust
         random_qs = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
-        token_url = '{root}/restws/session/token?cachebust={qs}'.format(root=self.api_url, qs=random_qs)
+        token_url = f'{self.api_url}/restws/session/token?cachebust={random_qs}'
         response = self.init_session.get(token_url)
         if not response.status_code == 200:
             raise MarketingSiteAPIClientException({
@@ -621,7 +621,7 @@ class MarketingSiteAPIClient:
     @cached_property
     def user_id(self):
         # Get a user ID
-        user_url = '{root}/user.json?name={username}'.format(root=self.api_url, username=self.username)
+        user_url = f'{self.api_url}/user.json?name={self.username}'
         response = self.init_session.get(user_url)
         if not response.status_code == 200:
             raise MarketingSiteAPIClientException('Failed to retrieve Marketing site user details!')
@@ -657,7 +657,7 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
             if attrs:
                 attr_dict = dict(attrs)
                 if start and 'lang' in attr_dict:
-                    self.outtextf(u'<span lang="{}">'.format(attr_dict['lang']))
+                    self.outtextf('<span lang="{}">'.format(attr_dict['lang']))
                     self.in_lang_span = True
             if not start:
                 if self.in_lang_span:

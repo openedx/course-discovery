@@ -366,7 +366,7 @@ class PositionAdmin(admin.ModelAdmin):
         return False
 
     def get_actions(self, request):
-        actions = super(PositionAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         actions.pop('delete_selected', None)
         return actions
 
@@ -410,7 +410,7 @@ class CurriculumCourseMembershipInline(admin.StackedInline):
 
     def get_edit_link(self, obj=None):
         if obj and obj.pk:
-            url = reverse('admin:{}_{}_change'.format(obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
+            url = reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk])
             return format_html(
                 """<a href="{url}">{text}</a>""",
                 url=url,

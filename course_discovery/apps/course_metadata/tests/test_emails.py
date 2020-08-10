@@ -41,8 +41,8 @@ class EmailTests(TestCase):
         OrganizationExtensionFactory(group=self.group, organization=self.org)
         OrganizationUserRoleFactory(user=self.pc, organization=self.org, role=InternalUserRole.ProjectCoordinator)
 
-        self.publisher_url = '{}courses/{}'.format(self.partner.publisher_url, self.course_run.course.uuid)
-        self.studio_url = '{}course/{}'.format(self.partner.studio_url, self.course_run.key)
+        self.publisher_url = f'{self.partner.publisher_url}courses/{self.course_run.course.uuid}'
+        self.studio_url = f'{self.partner.studio_url}course/{self.course_run.key}'
         self.admin_url = 'https://{}/admin/course_metadata/courserun/{}/change/'.format(
             self.partner.site.domain, self.course_run.id
         )
@@ -124,7 +124,7 @@ class EmailTests(TestCase):
         """
         self.assertEmailSent(
             emails.send_email_for_legal_review,
-            '^Legal review requested: {}$'.format(self.course_run.title),
+            f'^Legal review requested: {self.course_run.title}$',
             [self.legal],
             both_regexes=[
                 'Dear legal team,',
@@ -149,7 +149,7 @@ class EmailTests(TestCase):
         restricted_url = self.partner.lms_admin_url.rstrip('/') + '/embargo/restrictedcourse/'
         self.assertEmailSent(
             emails.send_email_for_internal_review,
-            '^Review requested: {} - {}$'.format(self.course_run.key, self.course_run.title),
+            f'^Review requested: {self.course_run.key} - {self.course_run.title}$',
             [self.pc],
             both_regexes=[
                 'Dear %s,' % self.pc.full_name,
@@ -175,7 +175,7 @@ class EmailTests(TestCase):
         """
         self.assertEmailSent(
             emails.send_email_for_reviewed,
-            '^Review complete: {}$'.format(self.course_run.title),
+            f'^Review complete: {self.course_run.title}$',
             [self.editor, self.editor2],
             both_regexes=[
                 'Dear course team,',
@@ -219,13 +219,13 @@ class EmailTests(TestCase):
 
         self.assertEmailSent(
             emails.send_email_for_go_live,
-            '^Published: {}$'.format(self.course_run.title),
+            f'^Published: {self.course_run.title}$',
             [self.editor, self.editor2],
             total=2,
             **kwargs,
         )
         self.assertEmailContains(
-            subject='^Published: {} - {}$'.format(self.course_run.key, self.course_run.title),
+            subject=f'^Published: {self.course_run.key} - {self.course_run.title}$',
             to_users=[self.pc],
             index=1,
             **kwargs,
@@ -350,7 +350,7 @@ class EmailTests(TestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertEmailContains(
             both_regexes=[
-                '{} made the following comment on'.format(self.editor.username),
+                f'{self.editor.username} made the following comment on',
                 comment
             ],
         )

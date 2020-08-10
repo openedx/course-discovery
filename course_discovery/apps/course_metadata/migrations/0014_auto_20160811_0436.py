@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import uuid
 
 from django.db import migrations, models
@@ -88,7 +85,7 @@ class Migration(migrations.Migration):
         migrations.RunPython(update_organizations, reverse_code=migrations.RunPython.noop),
         migrations.AlterUniqueTogether(
             name='organization',
-            unique_together=set([('partner', 'uuid'), ('partner', 'key')]),
+            unique_together={('partner', 'uuid'), ('partner', 'key')},
         ),
         migrations.AlterField(
             model_name='historicalorganization',

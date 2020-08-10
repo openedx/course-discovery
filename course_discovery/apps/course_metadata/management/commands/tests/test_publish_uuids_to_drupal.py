@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
@@ -14,7 +14,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 
 class TestPublishUuidsToDrupal(TestCase):
     def setUp(self):
-        super(TestPublishUuidsToDrupal, self).setUp()
+        super().setUp()
         self.partner = PartnerFactory()
         self.course_run = CourseRunFactory(course__partner=self.partner)
 

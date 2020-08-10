@@ -1,7 +1,7 @@
 import json
 
 import ddt
-import mock
+from unittest import mock
 import responses
 from django.core.management import CommandError, call_command
 from django.test import TransactionTestCase
@@ -25,7 +25,7 @@ JSON = 'application/json'
 @ddt.ddt
 class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
     def setUp(self):
-        super(RefreshCourseMetadataCommandTests, self).setUp()
+        super().setUp()
         self.partner = PartnerFactory()
         partner = self.partner
         self.pipeline = [

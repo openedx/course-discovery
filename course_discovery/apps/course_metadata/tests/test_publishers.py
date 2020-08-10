@@ -1,7 +1,7 @@
 import json
 
 import ddt
-import mock
+from unittest import mock
 import pytest
 import responses
 from waffle.testutils import override_switch
@@ -313,7 +313,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         self.publisher.update_node_alias(self.obj, self.node_id, None)
 
-        assert responses.calls[-1].request.url == '{}/add'.format(self.publisher.alias_api_base)
+        assert responses.calls[-1].request.url == f'{self.publisher.alias_api_base}/add'
 
         responses.reset()
 
@@ -353,7 +353,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         Verify that aliases are constructed correctly.
         """
         actual = self.publisher.alias(self.obj)
-        expected = 'course/{slug}'.format(slug=self.obj.slug)
+        expected = f'course/{self.obj.slug}'
 
         assert actual == expected
 
@@ -498,7 +498,7 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         self.publisher.update_node_alias(self.obj, self.node_id, None)
 
-        assert responses.calls[-1].request.url == '{}/add'.format(self.publisher.alias_api_base)
+        assert responses.calls[-1].request.url == f'{self.publisher.alias_api_base}/add'
 
         responses.reset()
 
@@ -541,7 +541,7 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.publisher.update_node_alias(self.obj, self.node_id, previous_obj)
 
         assert any('/add' in call.request.url for call in responses.calls)
-        assert any('/list/{}'.format(previous_obj.marketing_slug) in call.request.url for call in responses.calls)
+        assert any(f'/list/{previous_obj.marketing_slug}' in call.request.url for call in responses.calls)
 
         responses.reset()
 
@@ -561,6 +561,6 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         Verify that aliases are constructed correctly.
         """
         actual = self.publisher.alias(self.obj)
-        expected = '{type}/{slug}'.format(type=self.obj.type.slug, slug=self.obj.marketing_slug)
+        expected = f'{self.obj.type.slug}/{self.obj.marketing_slug}'
 
         assert actual == expected

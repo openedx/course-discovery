@@ -67,7 +67,7 @@ def salesforce_request_wrapper(method):
                     return method(self, *args, **kwargs)
                 # Need to catch OSError for the 'Connection aborted.' error when Salesforce reaps a connection
                 except OSError:
-                    logger.warning('An OSError occurred while attempting to call {}'.format(method.__name__))
+                    logger.warning(f'An OSError occurred while attempting to call {method.__name__}')
                     self.login()
                     return method(self, *args, **kwargs)
             raise SalesforceNotConfiguredException(
@@ -91,7 +91,7 @@ class SalesforceMissingCaseException(Exception):
     """
     def __init__(self, message):
         self.message = message
-        super(SalesforceMissingCaseException, self).__init__(message)
+        super().__init__(message)
 
 
 class SalesforceUtil:
@@ -201,7 +201,7 @@ class SalesforceUtil:
                     'Course__c': course.salesforce_id,
                     'Status': 'Open',
                     'Origin': 'Publisher',
-                    'Subject': '{} Comments'.format(course.title),
+                    'Subject': f'{course.title} Comments',
                     'Description': 'This case is required to be Open for the Publisher comment service.'
                 }
                 case_record_type_id = self.partner.salesforce.case_record_type_id
@@ -271,7 +271,7 @@ class SalesforceUtil:
                 username=user.username,
             )
         else:
-            user_message = '[User]\n{username}'.format(username=user.username)
+            user_message = f'[User]\n{user.username}'
         course_run_message = '[Course Run]\n{course_run_key}\n\n'.format(
             course_run_key=course_run_key
         ) if course_run_key else ''

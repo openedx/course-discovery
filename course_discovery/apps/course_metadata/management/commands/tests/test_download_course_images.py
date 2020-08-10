@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 import pytest
 import responses
 from django.core.management import call_command

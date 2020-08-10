@@ -27,7 +27,7 @@ class TestLoadProgramFixture(TestCase):
     catalog_host = 'http://discovery-example.com'
 
     def setUp(self):
-        super(TestLoadProgramFixture, self).setUp()
+        super().setUp()
         self.pk_generator = itertools.count(1)
 
         stored_site, created = Site.objects.get_or_create(  # pylint: disable=unused-variable
@@ -91,7 +91,7 @@ class TestLoadProgramFixture(TestCase):
     def _mock_oauth_request(self):
         responses.add(
             responses.POST,
-            '{host}/oauth2/access_token'.format(host=self.oauth_host),
+            f'{self.oauth_host}/oauth2/access_token',
             json={'access_token': 'abcd', 'expires_in': 60},
             status=200,
         )
@@ -302,7 +302,7 @@ class TestLoadProgramFixture(TestCase):
 
         with pytest.raises(IntegrityError) as err:
             self._call_load_program_fixture([str(self.program.uuid)])
-        expected_msg = r'Failed to save course_metadata.Organization\(pk={pk}\):'.format(pk=self.organization.id)
+        expected_msg = fr'Failed to save course_metadata.Organization\(pk={self.organization.id}\):'
         assert re.match(expected_msg, str(err.value))
 
     @responses.activate

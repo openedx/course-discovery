@@ -1,4 +1,4 @@
-import mock
+from unittest import mock
 import responses
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
@@ -11,7 +11,7 @@ class DataLoaderTestMixin(OAuth2Mixin):
     partner = None
 
     def setUp(self):
-        super(DataLoaderTestMixin, self).setUp()
+        super().setUp()
         self.partner = PartnerFactory(lms_url='http://127.0.0.1:8000')
         self.mock_access_token()
         with mock.patch(

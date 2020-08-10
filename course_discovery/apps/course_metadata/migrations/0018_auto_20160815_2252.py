@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import uuid
 
 import django.db.models.deletion
@@ -126,7 +123,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='person',
-            unique_together=set([('partner', 'uuid')]),
+            unique_together={('partner', 'uuid')},
         ),
         migrations.AddField(
             model_name='position',

@@ -1,5 +1,5 @@
 import ddt
-import mock
+from unittest import mock
 from django.core.management import CommandError, call_command
 from django.test import TestCase
 from testfixtures import LogCapture, StringComparison
@@ -38,7 +38,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.org = factories.OrganizationFactory(partner=self.partner, key='Org1')
         self.course = factories.CourseFactory(partner=self.partner, authoring_organizations=[self.org],
                                               type=self.empty_course_type,
-                                              key='{org}+Course1'.format(org=self.org.key))
+                                              key=f'{self.org.key}+Course1')
         self.entitlement = factories.CourseEntitlementFactory(partner=self.partner, course=self.course,
                                                               mode=self.verified_seat_type)
         self.audit_run = factories.CourseRunFactory(course=self.course, type=self.empty_run_type,
@@ -54,7 +54,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         self.org3 = factories.OrganizationFactory(partner=self.partner, key='Org3')
         self.course2 = factories.CourseFactory(partner=self.partner, authoring_organizations=[self.org2, self.org3],
                                                type=self.empty_course_type,
-                                               key='{org}+Course1'.format(org=self.org2.key))
+                                               key=f'{self.org2.key}+Course1')
         self.c2_audit_run = factories.CourseRunFactory(course=self.course2, type=self.empty_run_type)
         self.c2_audit_seat = factories.SeatFactory(course_run=self.c2_audit_run, type=self.audit_seat_type)
 
@@ -74,7 +74,7 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         with LogCapture(logger.name) as log_capture:
             if fails:
                 fails = fails if isinstance(fails, list) else [fails]
-                keys = sorted('{key} ({id})'.format(key=fail.key, id=fail.id) for fail in fails)
+                keys = sorted(f'{fail.key} ({fail.id})' for fail in fails)
                 msg = 'Could not backpopulate a course type for the following courses: {course_keys}'.format(
                     course_keys=', '.join(keys)
                 )
@@ -95,8 +95,8 @@ class BackpopulateCourseTypeCommandTests(TestCase):
         call_command('backpopulate_course_type', *args)
 
     def test_invalid_args(self):
-        partner_code = '--partner={}'.format(self.partner.short_code)
-        course_arg = '--course={}'.format(self.course.uuid)
+        partner_code = f'--partner={self.partner.short_code}'
+        course_arg = f'--course={self.course.uuid}'
 
         with self.assertRaises(CommandError) as cm:
             self.call_command(partner_code)  # no courses listed

@@ -301,7 +301,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     LOADER_MAX_RETRY = 2
 
     def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False, **kwargs):
-        super(EcommerceApiDataLoader, self).__init__(partner, api_url, max_workers, is_threadsafe, **kwargs)
+        super().__init__(partner, api_url, max_workers, is_threadsafe, **kwargs)
         self.initial_page = 1
         self.enrollment_skus = []
         self.entitlement_skus = []
@@ -780,7 +780,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
     XSERIES = None
 
     def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
-        super(ProgramsApiDataLoader, self).__init__(partner, api_url, max_workers, is_threadsafe)
+        super().__init__(partner, api_url, max_workers, is_threadsafe)
         self.XSERIES = ProgramType.objects.get(translations__name_t='XSeries')
 
     def ingest(self):
@@ -865,7 +865,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
         program.authoring_organizations.add(*organizations)
 
     def _get_banner_image_url(self, body):
-        image_key = 'w{width}h{height}'.format(width=self.image_width, height=self.image_height)
+        image_key = f'w{self.image_width}h{self.image_height}'
         image_url = body.get('banner_image_urls', {}).get(image_key)
         return image_url
 

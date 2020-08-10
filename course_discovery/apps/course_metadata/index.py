@@ -1,4 +1,3 @@
-
 from algoliasearch_django import AlgoliaIndex, register
 
 from course_discovery.apps.course_metadata.algolia_models import (
@@ -22,7 +21,7 @@ class BaseProductIndex(AlgoliaIndex):
         return qs1 + qs2
 
     def generate_empty_query_rule(self, rule_object_id, product_type, results):
-        promoted_results = [{'objectID': '{type}-{uuid}'.format(type=product_type, uuid=result.uuid),
+        promoted_results = [{'objectID': f'{product_type}-{result.uuid}',
                              'position': index} for index, result in enumerate(results)]
         return {
             'objectID': rule_object_id,

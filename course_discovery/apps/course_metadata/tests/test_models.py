@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import datetime
 import itertools
 import uuid
@@ -7,7 +5,7 @@ from decimal import Decimal
 from functools import partial
 
 import ddt
-import mock
+from unittest import mock
 import pytest
 import pytz
 import responses
@@ -55,7 +53,7 @@ from course_discovery.apps.publisher.tests.factories import OrganizationExtensio
 class TestCourse(TestCase):
     def test_str(self):
         course = factories.CourseFactory()
-        assert str(course), '{key}: {title}'.format(key=course.key, title=course.title)
+        assert str(course), f'{course.key}: {course.title}'
 
     def test_search(self):
         title = 'Some random title'
@@ -409,7 +407,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
         course_run = self.course_run
-        self.assertEqual(str(course_run), '{key}: {title}'.format(key=course_run.key, title=course_run.title))
+        self.assertEqual(str(course_run), f'{course_run.key}: {course_run.title}')
 
     @ddt.data('full_description_override', 'outcome_override', 'short_description_override')
     def test_html_fields_are_validated(self, field_name):
@@ -426,7 +424,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     @ddt.data('title', 'short_description', 'full_description')
     def test_override_fields(self, field_name):
         """ Verify the `CourseRun`'s override field overrides the related `Course`'s field. """
-        override_field_name = "{}_override".format(field_name)
+        override_field_name = f"{field_name}_override"
         self.assertIsNone(getattr(self.course_run, override_field_name))
         self.assertEqual(getattr(self.course_run, field_name), getattr(self.course_run.course, field_name))
 
@@ -524,7 +522,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         """ Verify the slug is created on first save from the title and key. """
         course_run = CourseRunFactory(title='Test Title')
         slug_key = uslugify(course_run.key)
-        self.assertEqual(course_run.slug, 'test-title-{slug_key}'.format(slug_key=slug_key))
+        self.assertEqual(course_run.slug, f'test-title-{slug_key}')
 
     def test_empty_slug_defined_on_save(self):
         """ Verify the slug is defined on save if it wasn't set already. """
@@ -532,7 +530,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         self.course_run.title = 'Test Title'
         self.course_run.save()
         slug_key = uslugify(self.course_run.key)
-        self.assertEqual(self.course_run.slug, 'test-title-{slug_key}'.format(slug_key=slug_key))
+        self.assertEqual(self.course_run.slug, f'test-title-{slug_key}')
 
     def test_program_types(self):
         """ Verify the property retrieves program types correctly based on programs. """
@@ -874,7 +872,7 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         self.partner = self.course_run.course.partner
 
     def mock_ecommerce_publication(self):
-        url = '{root}publication/'.format(root=self.partner.ecommerce_api_url)
+        url = f'{self.partner.ecommerce_api_url}publication/'
         responses.add(responses.POST, url, json={}, status=200)
 
     def test_official_created(self):
@@ -1010,7 +1008,7 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         self.partner.save()
         self.mock_access_token()
         self.mock_ecommerce_publication()
-        url = '{root}courses/{key}/'.format(root=self.partner.lms_coursemode_api_url, key=self.course_run.key)
+        url = f'{self.partner.lms_coursemode_api_url}courses/{self.course_run.key}/'
 
         # Mark course as draft
         self.course_run.course.draft = True
@@ -1115,7 +1113,7 @@ class OrganizationTests(TestCase):
         Verify that the clean method raises validation error if key consists of special characters
         """
         for char in invalid_char_list:
-            self.organization.key = 'key{}'.format(char)
+            self.organization.key = f'key{char}'
             self.assertRaises(ValidationError, self.organization.clean)
 
     @ddt.data(
@@ -1162,7 +1160,7 @@ class PersonTests(TestCase):
     """ Tests for the `Person` model. """
 
     def setUp(self):
-        super(PersonTests, self).setUp()
+        super().setUp()
         self.person = factories.PersonFactory()
 
     def test_full_name(self):
@@ -1225,7 +1223,7 @@ class PositionTests(TestCase):
     """ Tests for the `Position` model. """
 
     def setUp(self):
-        super(PositionTests, self).setUp()
+        super().setUp()
         self.position = factories.PositionFactory()
 
     def test_organization_name(self):
@@ -1309,7 +1307,7 @@ class ProgramTests(TestCase):
         """
         Creates fixture subjects, course_runs, courses, and programs from factories.
         """
-        super(ProgramTests, cls).setUpClass()
+        super().setUpClass()
         transcript_languages = LanguageTag.objects.all()[:2]
         cls.subjects = factories.SubjectFactory.create_batch(3)
         cls.course_runs = factories.CourseRunFactory.create_batch(
@@ -1326,7 +1324,7 @@ class ProgramTests(TestCase):
         """
         Resets course canonical_course_runs to initial state.
         """
-        super(ProgramTests, self).tearDown()
+        super().tearDown()
         for course_run in self.course_runs[:2]:
             course = course_run.course
             course.canonical_course_run = None
@@ -1359,14 +1357,14 @@ class ProgramTests(TestCase):
         Verify that the program endpoint correctly handles basic elasticsearch queries
         """
         query = 'title:' + self.program.title
-        self.assertSetEqual(set(Program.search(query)), set([self.program]))
+        self.assertSetEqual(set(Program.search(query)), {self.program})
 
     def test_subject_search(self):
         """
         Verify that the program endpoint correctly handles elasticsearch queries on the subject uuid
         """
         query = str(self.subjects[0].uuid)
-        self.assertSetEqual(set(Program.search(query)), set([self.program]))
+        self.assertSetEqual(set(Program.search(query)), {self.program})
 
     # pylint: disable=access-member-before-definition, attribute-defined-outside-init
     def create_program_with_entitlements_and_seats(self):
@@ -1766,7 +1764,7 @@ class ProgramTests(TestCase):
         course3.topics.set(topicB, topicC)
 
         program1 = factories.ProgramFactory(courses=[course1, course2, course3])
-        self.assertEqual(program1.topics, set((topicA, topicB, topicC)))
+        self.assertEqual(program1.topics, {topicA, topicB, topicC})
 
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
@@ -1932,7 +1930,7 @@ class ProgramTests(TestCase):
     def test_banner_image(self):
         self.program.banner_image = make_image_file('test_banner.jpg')
         self.program.save()
-        image_url_prefix = '{}media/programs/banner_images/'.format(settings.MEDIA_URL)
+        image_url_prefix = f'{settings.MEDIA_URL}media/programs/banner_images/'
         self.assertIn(image_url_prefix, self.program.banner_image.url)
         for size_key in self.program.banner_image.field.variations:
             # Get different sizes specs from the model field
@@ -2011,14 +2009,14 @@ class PersonSocialNetworkTests(TestCase):
     """Tests of the PersonSocialNetwork model."""
 
     def setUp(self):
-        super(PersonSocialNetworkTests, self).setUp()
+        super().setUp()
         self.network = factories.PersonSocialNetworkFactory()
         self.person = factories.PersonFactory()
 
     def test_str(self):
         """Verify that a person-social-network is properly converted to a str."""
         self.assertEqual(
-            str(self.network), '{title}: {url}'.format(title=self.network.display_title, url=self.network.url)
+            str(self.network), f'{self.network.display_title}: {self.network.url}'
         )
 
     def test_unique_constraint(self):
@@ -2034,7 +2032,7 @@ class PersonAreaOfExpertiseTests(TestCase):
     """Tests for the PersonAreaOfExpertise model."""
 
     def setUp(self):
-        super(PersonAreaOfExpertiseTests, self).setUp()
+        super().setUp()
         self.area_of_expertise = factories.PersonAreaOfExpertiseFactory()
 
     def test_str(self):
@@ -2061,7 +2059,7 @@ class CourseEntitlementTests(TestCase):
     """ Tests of the CourseEntitlement model. """
 
     def setUp(self):
-        super(CourseEntitlementTests, self).setUp()
+        super().setUp()
         self.course = factories.CourseFactory()
         self.mode = factories.SeatTypeFactory()
 
@@ -2078,7 +2076,7 @@ class EndorsementTests(TestCase):
     """ Tests of the Endorsement model. """
 
     def setUp(self):
-        super(EndorsementTests, self).setUp()
+        super().setUp()
         self.person = factories.PersonFactory()
         self.endorsement = Endorsement.objects.create(
             endorser=self.person,
@@ -2093,7 +2091,7 @@ class CorporateEndorsementTests(TestCase):
     """ Tests of the CorporateEndorsement model. """
 
     def setUp(self):
-        super(CorporateEndorsementTests, self).setUp()
+        super().setUp()
         self.corporation_name = 'test org'
         self.individual_endorsements = CorporateEndorsement.objects.create(
             corporation_name=self.corporation_name,
@@ -2264,7 +2262,7 @@ class DegreeDeadlineTests(TestCase):
             name=self.deadline_name,
             date=self.deadline_date,
         )
-        self.assertEqual(str(degree_deadline), "{} {}".format(self.deadline_name, self.deadline_date))
+        self.assertEqual(str(degree_deadline), f"{self.deadline_name} {self.deadline_date}")
         self.assertEqual(degree_deadline.time, '')
 
     @ddt.data('12:30PM EST', '')
@@ -2294,7 +2292,7 @@ class DegreeCostTests(TestCase):
             description=cost_name,
             amount=cost_amount,
         )
-        self.assertEqual(str(degree_cost), str('{}, {}').format(cost_name, cost_amount))
+        self.assertEqual(str(degree_cost), f'{cost_name}, {cost_amount}')
 
 
 class SubjectTests(SiteMixin, TestCase):
@@ -2354,7 +2352,7 @@ class DegreeTests(TestCase):
     """ Tests of the Degree, Curriculum, and related models. """
 
     def setUp(self):
-        super(DegreeTests, self).setUp()
+        super().setUp()
         self.course_run = factories.CourseRunFactory()
         self.courses = [self.course_run.course]
         self.degree = factories.DegreeFactory(courses=self.courses)

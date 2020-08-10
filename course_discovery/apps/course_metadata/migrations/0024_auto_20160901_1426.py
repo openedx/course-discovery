@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import djchoices.choices
 from django.db import migrations, models
 

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import django.db.models.deletion
 import django_extensions.db.fields
 import djchoices.choices

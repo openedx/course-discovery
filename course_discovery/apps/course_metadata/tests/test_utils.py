@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import datetime
 import re
 import urllib
 
 import ddt
-import mock
+from unittest import mock
 import pytest
 import pytz
 import requests
@@ -38,7 +36,7 @@ class UploadToFieldNamePathTests(TestCase):
     Test the utiltity object 'UploadtoFieldNamePath'
     """
     def setUp(self):
-        super(UploadToFieldNamePathTests, self).setUp()
+        super().setUp()
         self.program = ProgramFactory()
 
     @ddt.data(
@@ -221,7 +219,7 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     Unit test cases for MarketinSiteAPIClient
     """
     def setUp(self):
-        super(MarketingSiteAPIClientTests, self).setUp()
+        super().setUp()
         self.api_client = utils.MarketingSiteAPIClient(
             self.username,
             self.password,
