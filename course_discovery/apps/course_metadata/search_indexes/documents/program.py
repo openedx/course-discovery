@@ -1,19 +1,19 @@
 from django.conf import settings
 from django_elasticsearch_dsl import fields, Index
-from django_elasticsearch_dsl_drf.analyzers import edge_ngram_completion
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Degree, Program
-from .analyzers import html_strip, synonym_text
+from .analyzers import edge_ngram_completion, html_strip, synonym_text
 from .common import BaseDocument, OrganizationsMixin
 
 __all__ = ('ProgramDocument',)
 
-
 PROGRAM_INDEX_NAME = settings.ELASTICSEARCH_INDEX_NAMES[__name__]
 PROGRAM_INDEX = Index(PROGRAM_INDEX_NAME)
-PROGRAM_INDEX.settings(number_of_shards=1, number_of_replicas=0, blocks={'read_only_allow_delete': None})
+PROGRAM_INDEX.settings(number_of_shards=1, number_of_replicas=1, blocks={'read_only_allow_delete': None})
 PROGRAM_INDEX.aliases(**{'catalog': {}})
+
+
 # TODO: For all documents check the common fields and if it possible move them to common.
 
 
@@ -120,4 +120,4 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
         """
 
         parallel_indexing = True
-        queryset_pagination = 50
+        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION
