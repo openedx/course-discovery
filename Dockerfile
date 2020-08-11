@@ -2,7 +2,7 @@ FROM ubuntu:xenial as app
 
 # System requirements.
 RUN apt-get update
-RUN apt-get install -y \
+RUN apt-get install --yes \
 	git-core \
 	language-pack-en \
 	python3.5 \
