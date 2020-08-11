@@ -4,10 +4,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
 from django_elasticsearch_dsl import Document as OriginDocument, fields
-from django_elasticsearch_dsl_drf.analyzers import edge_ngram_completion
 
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import BoostedSearch
-from .analyzers import html_strip, synonym_text
+from .analyzers import edge_ngram_completion, html_strip, synonym_text
 
 
 def filter_visible_runs(course_runs):
