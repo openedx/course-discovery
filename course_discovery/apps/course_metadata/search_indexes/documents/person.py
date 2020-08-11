@@ -8,7 +8,7 @@ __all__ = ('PersonDocument',)
 
 PERSON_INDEX_NAME = settings.ELASTICSEARCH_INDEX_NAMES[__name__]
 PERSON_INDEX = Index(PERSON_INDEX_NAME)
-PERSON_INDEX.settings(number_of_shards=1, number_of_replicas=0, blocks={'read_only_allow_delete': None})
+PERSON_INDEX.settings(number_of_shards=1, number_of_replicas=1, blocks={'read_only_allow_delete': None})
 PERSON_INDEX.aliases(**{'catalog': {}})
 
 
@@ -61,7 +61,7 @@ class PersonDocument(BaseDocument):
         """
 
         parallel_indexing = True
-        queryset_pagination = 50
+        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION
 
     def get_queryset(self):
         # TODO: Build queryset smartly.
