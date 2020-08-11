@@ -13,7 +13,7 @@ COURSE_RUN_INDEX_NAME = settings.ELASTICSEARCH_INDEX_NAMES[__name__]
 COURSE_RUN_INDEX = Index(COURSE_RUN_INDEX_NAME)
 COURSE_RUN_INDEX.settings(
     number_of_shards=1,
-    number_of_replicas=0,
+    number_of_replicas=1,
     blocks={'read_only_allow_delete': None},
 )
 COURSE_RUN_INDEX.aliases(**{'catalog': {}})
@@ -148,4 +148,4 @@ class CourseRunDocument(BaseCourseDocument):
         """
 
         parallel_indexing = True
-        queryset_pagination = 50
+        queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION
