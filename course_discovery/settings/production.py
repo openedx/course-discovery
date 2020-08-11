@@ -63,13 +63,10 @@ for override, db_key in DB_OVERRIDES.items():
         DATABASES['default'][db_key] = environ.get(override)
         DATABASES['read_replica'][db_key] = environ.get(override)
 
-HAYSTACK_CONNECTIONS['default'].update({
-    'URL': ELASTICSEARCH_URL,
-    'INDEX_NAME': ELASTICSEARCH_INDEX_NAME,
-    'KWARGS': {
-        'verify_certs': True,
-        'ca_certs': certifi.where(),
-    },
+# To attach certifi elasticsearch host you should  do pip install certifi
+# should do the trick. elasticsearch-py will automatically look it up.
+ELASTICSEARCH_DSL['default'].update({
+    'hosts': ELASTICSEARCH_URL,
 })
 
 # NOTE (CCB): Treat all MySQL warnings as exceptions. This is especially
