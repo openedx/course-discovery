@@ -46,7 +46,7 @@ def clean_query(query):
     # author:"John Smith"
     field, separator, query_value = query.partition(':')
     if query_value and ' ' in query_value:
-        query = '{0}:"{1}"'.format(field, query_value)
+        query = '{0}:"{1}"'.format(field, query_value.strip('\"\''))
 
     # Specifying a SearchQuerySet filter will append an explicit AND clause to the query, thus changing its semantics.
     # So we wrap parentheses around the original query in order to preserve the semantics.
