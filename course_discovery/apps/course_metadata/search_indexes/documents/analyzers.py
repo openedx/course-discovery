@@ -2,7 +2,7 @@ from elasticsearch_dsl import analyzer, token_filter
 
 from course_discovery.settings.process_synonyms import get_synonym_lines_from_file
 
-__all__ = ('html_strip', 'synonym_text')
+__all__ = ('html_strip', 'synonym_text', 'edge_ngram_completion',)
 
 html_strip = analyzer(
     'html_strip', tokenizer='standard', filter=['lowercase', 'stop', 'snowball'], char_filter=['html_strip']
@@ -22,4 +22,18 @@ synonym_text = analyzer(
         'snowball',
     ],
     char_filter=['html_strip'],
+)
+
+edge_ngram_completion_filter = token_filter(
+    'edge_ngram_completion_filter',
+    type="edge_ngram",
+    min_gram=2,
+    max_gram=22
+)
+
+
+edge_ngram_completion = analyzer(
+    "edge_ngram_completion",
+    tokenizer="standard",
+    filter=["lowercase", edge_ngram_completion_filter]
 )
