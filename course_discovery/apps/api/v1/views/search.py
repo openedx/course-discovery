@@ -87,7 +87,6 @@ class CourseSearchViewSet(BaseElasticsearchDocumentViewSet):
     detail_serializer_class = search_indexes_serializers.CourseSearchModelSerializer
     facet_serializer_class = search_indexes_serializers.CourseFacetSerializer
     serializer_class = search_indexes_serializers.CourseSearchDocumentSerializer
-    filter_backends = [MultiMatchSearchFilterBackend, DefaultOrderingFilterBackend]
     faceted_search_fields = {
         'level_type': {'field': 'level_type.raw', 'enabled': True},
         'organizations': {
@@ -109,7 +108,6 @@ class CourseRunSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumentVie
     document = search_documents.CourseRunDocument
     serializer_class = search_indexes_serializers.CourseRunSearchDocumentSerializer
     facet_serializer_class = search_indexes_serializers.CourseRunFacetSerializer
-    filter_backends = [MultiMatchSearchFilterBackend, DefaultOrderingFilterBackend]
     faceted_search_fields = {
         'language': {'field': 'language.raw', 'enabled': True},
         'level_type': {'field': 'level_type.raw', 'enabled': True},
@@ -139,7 +137,6 @@ class ProgramSearchViewSet(BaseElasticsearchDocumentViewSet):
     detail_serializer_class = search_indexes_serializers.ProgramSearchModelSerializer
     facet_serializer_class = search_indexes_serializers.ProgramFacetSerializer
     serializer_class = search_indexes_serializers.ProgramSearchDocumentSerializer
-    filter_backends = [MultiMatchSearchFilterBackend, DefaultOrderingFilterBackend]
     faceted_search_fields = {
         'type': {'field': 'type', 'enabled': True},
         'status': {'field': 'status', 'enabled': True},
@@ -218,7 +215,6 @@ class LimitedAggregateSearchView(BaseAggregateSearchViewSet):
     document = MultiDocumentsWrapper(
         search_documents.CourseRunDocument, search_documents.ProgramDocument, search_documents.CourseDocument
     )
-    filter_backends = [MultiMatchSearchFilterBackend, DefaultOrderingFilterBackend]
 
 
 class PersonSearchViewSet(BaseElasticsearchDocumentViewSet):
@@ -233,7 +229,6 @@ class PersonSearchViewSet(BaseElasticsearchDocumentViewSet):
     serializer_class = search_indexes_serializers.PersonSearchDocumentSerializer
     detail_serializer_class = search_indexes_serializers.PersonSearchModelSerializer
     facet_serializer_class = search_indexes_serializers.PersonFacetSerializer
-    filter_backends = [MultiMatchSearchFilterBackend, DefaultOrderingFilterBackend]
     faceted_search_fields = {'organizations': {'field': 'organizations', 'enabled': True}}
     ordering = ('aggregation_key',)
 
