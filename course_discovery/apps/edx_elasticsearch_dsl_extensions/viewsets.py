@@ -1,9 +1,13 @@
 from django_elasticsearch_dsl import Document as OriginDocument
+from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBackend
 from django_elasticsearch_dsl_drf.pagination import PageNumberPagination
 from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet as OriginDocumentViewSet
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import mixins
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
+    MultiMatchSearchFilterBackend,
+)
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import FacetedSearch
 
 
@@ -104,6 +108,10 @@ class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, Do
     ensure_published = True
     multi_match_search_fields = ('title', 'text')
     ordering = ('-start', 'aggregation_key')
+    filter_backends = [
+        MultiMatchSearchFilterBackend,
+        DefaultOrderingFilterBackend,
+    ]
 
     def filter_facet_queryset(self, queryset):
         queryset = super().filter_queryset(queryset)
