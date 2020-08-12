@@ -92,9 +92,6 @@ INSTALLED_APPS += THIRD_PARTY_APPS
 INSTALLED_APPS += PROJECT_APPS
 INSTALLED_APPS += ES_APPS
 
-# NOTE: Haystack must be installed after core so that we can override Haystack's management commands with our own.
-INSTALLED_APPS += ['haystack']
-
 MIDDLEWARE = (
     'corsheaders.middleware.CorsMiddleware',
     'edx_django_utils.cache.middleware.RequestCacheMiddleware',
