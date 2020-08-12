@@ -358,24 +358,19 @@ class TestCourseEditor(TestCase):
         assert len(editors) == 5
 
 
+@pytest.mark.django_db
+@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
 @ddt.ddt
 class CourseRunTests(OAuth2Mixin, TestCase):
     """ Tests for the `CourseRun` model. """
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        call_command('search_index', '--delete', '-f')
-        call_command('search_index', '--create')
-        cls.course_run = factories.CourseRunFactory()
-        cls.partner = cls.course_run.course.partner
-
     def setUp(self):
-        """ Reset self.course_run and self.partner to whatever the DB says. """
+        """
+        Set up the course_run, course and partner to be used across tests.
+        """
         super().setUp()
-        self.course_run.refresh_from_db()
-        self.course_run.course.refresh_from_db()
-        self.partner.refresh_from_db()
+        self.course_run = factories.CourseRunFactory()
+        self.partner = self.course_run.course.partner
 
     def test_enrollable_seats(self):
         """ Verify the expected seats get returned. """
