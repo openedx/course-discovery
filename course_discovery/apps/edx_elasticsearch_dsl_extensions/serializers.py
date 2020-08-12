@@ -264,6 +264,7 @@ class DummyDocument(Document):
     Implementation of the minimum required functionality of the document
     so that it can be used in the django-drf serializer.
     """
+
     _fields = {}
 
     class Django:
@@ -296,9 +297,11 @@ class MultiDocumentSerializerMixin:
         """
         Multi serializer representation.
         """
-        serializers = self.Meta.serializers
+        instance_serializers = {
+            document._index._name: serializer for document, serializer in self.Meta.serializers.items()
+        }
         index = instance.meta['index']
-        serializer_class = serializers.get(index, None)
+        serializer_class = instance_serializers.get(index, None)
         if not serializer_class:
             raise ImproperlyConfigured('Could not find serializer for %s in mapping' % index)
         return serializer_class(context=self._context).to_representation(instance)
