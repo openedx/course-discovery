@@ -12,7 +12,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseRunFacto
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.tests.mixins import SearchIndexTestMixin
 
 
-@override_settings(HAYSTACK_SIGNAL_PROCESSOR='haystack.signals.BaseSignalProcessor')
+@override_settings(ELASTICSEARCH_DSL_SIGNAL_PROCESSOR='django_elasticsearch_dsl.signals.BaseSignalProcessor')
 class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
     @freeze_time('2016-06-21')
     def test_handle(self):
