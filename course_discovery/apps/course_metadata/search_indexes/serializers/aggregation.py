@@ -24,9 +24,9 @@ class AggregateSearchModelSerializer(MultiDocumentSerializerMixin, DocumentSeria
         """
 
         serializers = {
-            documents.CourseRunDocument._index._name: CourseRunSearchDocumentSerializer,
-            documents.CourseDocument._index._name: CourseSearchDocumentSerializer,
-            documents.ProgramDocument._index._name: ProgramSearchDocumentSerializer,
+            documents.CourseRunDocument: CourseRunSearchDocumentSerializer,
+            documents.CourseDocument: CourseSearchDocumentSerializer,
+            documents.ProgramDocument: ProgramSearchDocumentSerializer,
         }
 
 
@@ -65,9 +65,9 @@ class LimitedAggregateSearchSerializer(MultiDocumentSerializerMixin, DocumentSer
             'content_type',
         ]
         serializers = {
-            documents.CourseRunDocument._index._name: CourseRunSearchDocumentSerializer,
-            documents.CourseDocument._index._name: CourseSearchDocumentSerializer,
-            documents.ProgramDocument._index._name: ProgramSearchDocumentSerializer,
+            documents.CourseRunDocument: CourseRunSearchDocumentSerializer,
+            documents.CourseDocument: CourseSearchDocumentSerializer,
+            documents.ProgramDocument: ProgramSearchDocumentSerializer,
         }
 
 
@@ -89,8 +89,8 @@ class AggregateSearchSerializer(MultiDocumentSerializerMixin, DocumentSerializer
             + CourseSearchDocumentSerializer.Meta.fields
         )
         serializers = {
-            documents.CourseRunDocument._index._name: CourseRunSearchDocumentSerializer,
-            documents.CourseDocument._index._name: CourseSearchDocumentSerializer,
-            documents.ProgramDocument._index._name: ProgramSearchDocumentSerializer,
-            documents.PersonDocument._index._name: PersonSearchDocumentSerializer,
+            documents.CourseRunDocument: CourseRunSearchDocumentSerializer,
+            documents.CourseDocument: CourseSearchDocumentSerializer,
+            documents.ProgramDocument: ProgramSearchDocumentSerializer,
+            documents.PersonDocument: PersonSearchDocumentSerializer,
         }
