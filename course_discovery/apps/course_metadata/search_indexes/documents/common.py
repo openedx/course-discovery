@@ -3,9 +3,11 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
-from django_elasticsearch_dsl import Document as OriginDocument, fields
+from django_elasticsearch_dsl import Document as OriginDocument
+from django_elasticsearch_dsl import fields
 
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import BoostedSearch
+
 from .analyzers import edge_ngram_completion, html_strip, synonym_text
 
 
@@ -27,6 +29,7 @@ class OrganizationsMixin:
     def format_organization_body(self, organization):
         # Deferred to prevent a circular import:
         # course_discovery.apps.api.serializers -> course_discovery.apps.course_metadata.search_indexes
+        # pylint: disable=import-outside-toplevel
         from course_discovery.apps.api.serializers import OrganizationSerializer
 
         return json.dumps(OrganizationSerializer(organization).data)
@@ -77,15 +80,15 @@ class DocumentMeta(BoostedDocument.__class__):
     Otherwise, Elasticsearch will return an exception with error code 400.
     """
 
-    def __new__(cls, name, parents, attrs):
-        def prepare_start(self, obj):
+    def __new__(mcs, name, parents, attrs):
+        def prepare_start(self, obj):  # pylint: disable=unused-argument
             return None
 
         if not name.startswith('Base') and 'start' not in attrs:
             attrs['start'] = fields.DateField()
             attrs[prepare_start.__name__] = prepare_start
 
-        return super().__new__(cls, name, parents, attrs)
+        return super().__new__(mcs, name, parents, attrs)
 
 
 class BaseDocument(BoostedDocument, metaclass=DocumentMeta):

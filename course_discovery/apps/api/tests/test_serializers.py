@@ -21,16 +21,14 @@ from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
     AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer,
     ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer,
-    CourseEntitlementSerializer, CourseRunSerializer,
-    CourseRunWithProgramsSerializer, CourseSerializer,
+    CourseEntitlementSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSerializer,
     CourseWithProgramsSerializer, CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer,
     EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer,
     ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
     MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PathwaySerializer, PersonSerializer,
-    PositionSerializer, PrerequisiteSerializer, ProgramsAffiliateWindowSerializer,
-    ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer,
-    SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
+    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
+    RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
     TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
@@ -42,20 +40,12 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSA
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.search_indexes.documents import (
-    CourseDocument,
-    CourseRunDocument,
-    PersonDocument,
-    ProgramDocument,
+    CourseDocument, CourseRunDocument, PersonDocument, ProgramDocument
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers import (
-    CourseRunSearchDocumentSerializer,
-    CourseRunSearchModelSerializer,
-    CourseSearchDocumentSerializer,
-    CourseSearchModelSerializer,
-    PersonSearchDocumentSerializer,
-    PersonSearchModelSerializer,
-    ProgramSearchDocumentSerializer,
-    ProgramSearchModelSerializer,
+    CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer, CourseSearchDocumentSerializer,
+    CourseSearchModelSerializer, PersonSearchDocumentSerializer, PersonSearchModelSerializer,
+    ProgramSearchDocumentSerializer, ProgramSearchModelSerializer
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalPromoAreaFactory, CollaboratorFactory, CorporateEndorsementFactory, CourseEditorFactory,
