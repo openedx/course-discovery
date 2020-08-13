@@ -3,10 +3,9 @@ from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from course_discovery.apps.api.serializers import COMMON_IGNORED_FIELDS
 from course_discovery.apps.course_metadata.search_indexes import documents
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import (
-    BaseDjangoESDSLFacetSerializer,
-    DummyDocument,
-    MultiDocumentSerializerMixin,
+    BaseDjangoESDSLFacetSerializer, DummyDocument, MultiDocumentSerializerMixin
 )
+
 from .course import CourseSearchDocumentSerializer
 from .course_run import CourseRunSearchDocumentSerializer
 from .person import PersonSearchDocumentSerializer
@@ -30,6 +29,7 @@ class AggregateSearchModelSerializer(MultiDocumentSerializerMixin, DocumentSeria
         }
 
 
+# pylint: disable=abstract-method
 class AggregateFacetSearchSerializer(BaseDjangoESDSLFacetSerializer):
     """
     Serializer for aggregated facets elasticsearch documents.
@@ -84,9 +84,9 @@ class AggregateSearchSerializer(MultiDocumentSerializerMixin, DocumentSerializer
         document = DummyDocument
         ignore_fields = COMMON_IGNORED_FIELDS
         fields = (
-            CourseRunSearchDocumentSerializer.Meta.fields
-            + ProgramSearchDocumentSerializer.Meta.fields
-            + CourseSearchDocumentSerializer.Meta.fields
+            CourseRunSearchDocumentSerializer.Meta.fields +
+            ProgramSearchDocumentSerializer.Meta.fields +
+            CourseSearchDocumentSerializer.Meta.fields
         )
         serializers = {
             documents.CourseRunDocument: CourseRunSearchDocumentSerializer,

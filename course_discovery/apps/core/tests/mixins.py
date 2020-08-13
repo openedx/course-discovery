@@ -24,7 +24,7 @@ class ElasticsearchTestMixin:
         https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html
         """
         for index in registry.get_indices():
-            ElasticsearchUtils.refresh_index(self.es, index._name)
+            ElasticsearchUtils.refresh_index(self.es, index._name)  # pylint: disable=protected-access
 
     def reindex_course_runs(self, course):
         for course_run in course.course_runs.all():

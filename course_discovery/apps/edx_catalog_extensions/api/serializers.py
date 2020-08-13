@@ -5,9 +5,7 @@ from rest_framework.fields import DictField
 from course_discovery.apps.api.serializers import QueryFacetFieldSerializer
 from course_discovery.apps.course_metadata.search_indexes.serializers.aggregation import AggregateFacetSearchSerializer
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import (
-    FacetDictField,
-    FacetFieldSerializer,
-    FacetListField,
+    FacetDictField, FacetFieldSerializer, FacetListField
 )
 
 

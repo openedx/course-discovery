@@ -1,9 +1,10 @@
 from django.conf import settings
-from django_elasticsearch_dsl import fields, Index
+from django_elasticsearch_dsl import Index, fields
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import CourseRun
+
 from .analyzers import html_strip
 from .common import BaseCourseDocument, filter_visible_runs
 
@@ -74,11 +75,10 @@ class CourseRunDocument(BaseCourseDocument):
     def get_queryset(self):
         # TODO: Build queryset smartly.
         return filter_visible_runs(
-            super()
-                .get_queryset()
-                .select_related('course')
-                .prefetch_related('seats__type')
-                .prefetch_related('transcript_languages')
+            super().get_queryset()
+                   .select_related('course')
+                   .prefetch_related('seats__type')
+                   .prefetch_related('transcript_languages')
         )
 
     def prepare_course_key(self, obj):

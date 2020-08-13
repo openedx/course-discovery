@@ -1,8 +1,9 @@
 from django.conf import settings
-from django_elasticsearch_dsl import fields, Index
+from django_elasticsearch_dsl import Index, fields
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.models import Course
+
 from .analyzers import html_strip
 from .common import BaseCourseDocument, filter_visible_runs
 
