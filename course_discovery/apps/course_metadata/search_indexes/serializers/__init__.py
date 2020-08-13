@@ -1,8 +1,6 @@
 from .aggregation import (
-    AggregateFacetSearchSerializer,
-    AggregateSearchModelSerializer,
-    AggregateSearchSerializer,
-    LimitedAggregateSearchSerializer,
+    AggregateFacetSearchSerializer, AggregateSearchModelSerializer, AggregateSearchSerializer,
+    LimitedAggregateSearchSerializer
 )
 from .common import DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 from .course import CourseFacetSerializer, CourseSearchDocumentSerializer, CourseSearchModelSerializer
