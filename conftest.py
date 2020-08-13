@@ -66,8 +66,6 @@ def elasticsearch_dsl_default_connection(
 
     yield esdsl_conn
 
-    call_command('search_index', '--delete', '-f')
-
 
 @pytest.fixture
 def site(db):  # pylint: disable=unused-argument

@@ -9,8 +9,21 @@ services:
       MYSQL_ROOT_PASSWORD: "password"
       MYSQL_DATABASE: "discovery"
   es:
-    image: elasticsearch:1.7
+    image: elasticsearch:7.8.0
     container_name: es
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - http.port=9200
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
   memcached:
     image: memcached:1.6
     container_name: memcached
@@ -45,3 +58,7 @@ services:
       DJANGO_SETTINGS_MODULE: "course_discovery.settings.test"
       ENABLE_DJANGO_TOOLBAR: 1
       TEST_ELASTICSEARCH_URL: "http://es:9200"
+
+volumes:
+  elasticsearch_data:
+    driver: local
