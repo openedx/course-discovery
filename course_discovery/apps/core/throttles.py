@@ -24,14 +24,14 @@ class OverridableUserRateThrottle(UserRateThrottle):
         user = request.user
 
         if user and user.is_authenticated:
-            if user.is_superuser or user.is_staff or is_publisher_user(user):
-                return True
             try:
                 # Override this throttle's rate if applicable
                 user_throttle = UserThrottleRate.objects.get(user=user)
                 self.rate = user_throttle.rate
                 self.num_requests, self.duration = self.parse_rate(self.rate)
             except UserThrottleRate.DoesNotExist:
-                pass
+                # If we don't have a custom user override, skip throttling if they are a privileged user
+                if user.is_superuser or user.is_staff or is_publisher_user(user):
+                    return True
 
         return super(OverridableUserRateThrottle, self).allow_request(request, view)
