@@ -7,8 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
-    FacetedFieldSearchFilterBackend,
-    FacetedQueryFilterBackend,
+    FacetedFieldSearchFilterBackend, FacetedQueryFilterBackend
 )
 
 
@@ -44,8 +43,8 @@ class FacetMixin:
         queryset = self.filter_facet_queryset(self.get_queryset())
 
         search_res = queryset.execute()
-        foo = search_res.facets.to_dict()
-        serializer = self.get_facet_serializer(foo, objects=queryset, many=False)
+        dicted_facets = search_res.facets.to_dict()
+        serializer = self.get_facet_serializer(dicted_facets, objects=queryset, many=False)
         return Response(serializer.data)
 
     def get_facet_serializer(self, *args, **kwargs):

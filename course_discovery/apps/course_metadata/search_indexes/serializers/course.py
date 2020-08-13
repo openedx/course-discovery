@@ -8,9 +8,10 @@ from course_discovery.apps.api import serializers as cd_serializers
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseWithProgramsSerializer
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
-from .common import DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
+
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import CourseDocument
+from .common import DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 
 __all__ = ('CourseSearchDocumentSerializer',)
 
@@ -87,7 +88,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, Documen
 
     def to_representation(self, instance):
         _object = self.get_model_object_by_instance(instance)
-        setattr(instance, 'object', _object)
+        setattr(instance, 'object', _object)  # pylint: disable=literal-used-as-attribute
         return super().to_representation(instance)
 
     class Meta:
@@ -116,6 +117,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, Documen
         )
 
 
+# pylint: disable=abstract-method
 class CourseFacetSerializer(BaseDjangoESDSLFacetSerializer):
     """
     Serializer for course facets elasticsearch document.

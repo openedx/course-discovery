@@ -1,4 +1,5 @@
-from elasticsearch_dsl.response import AggResponse, Response as OriginResponse
+from elasticsearch_dsl.response import AggResponse
+from elasticsearch_dsl.response import Response as OriginResponse
 from elasticsearch_dsl.utils import AttrDict
 
 
@@ -68,7 +69,7 @@ class DSLResponse(OriginResponse):
         if not hasattr(self, '_facets'):
             facets = self.facet_response_class(self._search.aggs, self._search, self._d_.get('aggregations', {}))
             # avoid assigning _facets into self._d_
-            super(AttrDict, self).__setattr__('_facets', facets)
+            super(AttrDict, self).__setattr__('_facets', facets)  # pylint: disable=bad-super-call
 
         return self._facets
 

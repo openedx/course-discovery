@@ -5,9 +5,10 @@ from rest_framework import serializers
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseRunWithProgramsSerializer
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
-from .common import DocumentDSLSerializerMixin
+
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import CourseRunDocument
+from .common import DocumentDSLSerializerMixin
 
 __all__ = ('CourseRunSearchDocumentSerializer',)
 
@@ -87,6 +88,7 @@ class CourseRunSearchDocumentSerializer(DocumentSerializer):
         )
 
 
+# pylint: disable=abstract-method
 class CourseRunFacetSerializer(BaseDjangoESDSLFacetSerializer):
     """
     Serializer for course run facets elasticsearch document.

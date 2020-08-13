@@ -5,9 +5,7 @@ from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet as OriginDocum
 from rest_framework.permissions import IsAuthenticated
 
 from course_discovery.apps.api import mixins
-from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
-    MultiMatchSearchFilterBackend,
-)
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import MultiMatchSearchFilterBackend
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import FacetedSearch
 
 
@@ -31,7 +29,7 @@ class MultiDocumentsWrapper:
 
     def _get_using(self):
         # it's okay to get the first one cause all indices use common connection
-        return self._documents[0]._get_using()
+        return self._documents[0]._get_using()  # pylint: disable=protected-access
 
     @property
     def _fields(self):
@@ -42,6 +40,7 @@ class MultiDocumentsWrapper:
 
     def dispatch_attr(self, attr):
         current_attr = '{}{}'.format(self.current_attr and '{}.'.format(self.current_attr), attr)
+        # pylint: disable=protected-access
         dispatchers = {
             '_index._name': lambda: [doc._index._name for doc in self._documents],
             '_doc_type.mapping.properties.name': lambda: [
@@ -50,7 +49,7 @@ class MultiDocumentsWrapper:
             '_doc_type.name': lambda: [doc._doc_type.name for doc in self._documents],
         }
 
-        if not any(k.startswith(current_attr) for k in dispatchers.keys()):
+        if not any(k.startswith(current_attr) for k in dispatchers):
             raise AttributeError(attr)
 
         return dispatchers.get(current_attr, lambda: self.__class__(*self._documents, current_attr=current_attr))()

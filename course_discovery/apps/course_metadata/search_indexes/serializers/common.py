@@ -22,7 +22,7 @@ class ModelObjectDocumentSerializerMixin:
         _object = None
         index_name = instance.meta.index
         for doc in registry.get_documents():
-            if doc._index._name == index_name:
+            if doc._index._name == index_name:  # pylint: disable=protected-access
                 document = doc
                 break
         hit = self._build_hit(instance)
