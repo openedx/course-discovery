@@ -15,17 +15,13 @@ from rest_framework.views import APIView
 from course_discovery.apps.api import serializers
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Person
-from course_discovery.apps.course_metadata.search_indexes import (
-    documents as search_documents,
-    serializers as search_indexes_serializers,
-)
+from course_discovery.apps.course_metadata.search_indexes import documents as search_documents
+from course_discovery.apps.course_metadata.search_indexes import serializers as search_indexes_serializers
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
-    CatalogDataFilterBackend,
-    MultiMatchSearchFilterBackend,
+    CatalogDataFilterBackend, MultiMatchSearchFilterBackend
 )
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import (
-    BaseElasticsearchDocumentViewSet,
-    MultiDocumentsWrapper,
+    BaseElasticsearchDocumentViewSet, MultiDocumentsWrapper
 )
 
 

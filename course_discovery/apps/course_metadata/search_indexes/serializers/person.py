@@ -3,9 +3,10 @@ from rest_framework import serializers
 
 from course_discovery.apps.api.serializers import ContentTypeSerializer, MinimalPersonSerializer
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
-from .common import DocumentDSLSerializerMixin
+
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import PersonDocument
+from .common import DocumentDSLSerializerMixin
 
 __all__ = ('PersonSearchDocumentSerializer',)
 
@@ -39,6 +40,7 @@ class PersonSearchDocumentSerializer(DocumentSerializer):
         )
 
 
+# pylint: disable=abstract-method
 class PersonFacetSerializer(BaseDjangoESDSLFacetSerializer):
     """
     Serializer for person facets elasticsearch document.

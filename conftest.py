@@ -48,6 +48,7 @@ def elasticsearch_dsl_add_xdist_suffix_to_index_name(request):
     xdist_suffix = getattr(request.config, 'workerinput', {}).get('workerid')
     if xdist_suffix:
         # Put a prefix like _gw0, _gw1 etc on xdist processes
+        # pylint: disable=protected-access
         for index, document in registry._indices.items():
             name = '{0}_{1}'.format(index._name, xdist_suffix)
             index._name = name

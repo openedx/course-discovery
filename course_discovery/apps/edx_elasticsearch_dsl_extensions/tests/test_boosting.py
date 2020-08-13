@@ -56,6 +56,7 @@ class TestSearchBoosting:
         search_results = CourseRunDocument.search().query(ESDSLQ('match_all')).execute()
         assert len(search_results) == 2
         assert search_results[0].meta['score'] > search_results[1].meta['score']
+        # pylint: disable=no-member
         assert int(test_record.start.timestamp()) == int(search_results[0].start.timestamp())
 
     @pytest.mark.parametrize(
