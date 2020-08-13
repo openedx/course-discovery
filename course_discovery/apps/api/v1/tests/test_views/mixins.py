@@ -3,20 +3,17 @@
 import json
 
 import responses
-from rest_framework.test import APIRequestFactory, APITestCase as RestAPITestCase
+from rest_framework.test import APIRequestFactory
+from rest_framework.test import APITestCase as RestAPITestCase
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.search_indexes.documents import (
-    CourseDocument,
-    CourseRunDocument,
-    ProgramDocument,
+    CourseDocument, CourseRunDocument, ProgramDocument
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers import (
-    CourseRunSearchDocumentSerializer,
-    CourseSearchDocumentSerializer,
-    ProgramSearchDocumentSerializer,
+    CourseRunSearchDocumentSerializer, CourseSearchDocumentSerializer, ProgramSearchDocumentSerializer
 )
 from course_discovery.apps.course_metadata.tests import factories
 

@@ -4,6 +4,7 @@ import json
 import logging
 import re
 from collections import OrderedDict
+from operator import attrgetter
 from urllib.parse import urlencode
 from uuid import uuid4
 
@@ -15,12 +16,12 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from drf_dynamic_fields import DynamicFieldsMixin
 from opaque_keys.edx.locator import CourseLocator
-from operator import attrgetter
 from rest_framework import serializers
 from rest_framework.fields import CreateOnlyDefault, UUIDField
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.relations import ManyRelatedField
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
+
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
 )

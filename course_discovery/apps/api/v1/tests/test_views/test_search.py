@@ -12,22 +12,15 @@ from rest_framework.renderers import JSONRenderer
 
 from course_discovery.apps.api.v1.tests.test_views import mixins
 from course_discovery.apps.api.v1.views.search import BrowsableAPIRendererWithoutForms, TypeaheadSearchView
-from course_discovery.apps.core.tests.factories import PartnerFactory, USER_PASSWORD, UserFactory
+from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun
 from course_discovery.apps.course_metadata.search_indexes.serializers import (
-    CourseRunSearchDocumentSerializer,
-    CourseRunSearchModelSerializer,
-    LimitedAggregateSearchSerializer,
+    CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer, LimitedAggregateSearchSerializer
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory,
-    CourseRunFactory,
-    OrganizationFactory,
-    PersonFactory,
-    PositionFactory,
-    ProgramFactory,
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory
 )
 from course_discovery.apps.publisher.tests import factories as publisher_factories
 

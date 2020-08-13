@@ -22,7 +22,9 @@ from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumCourseRunExclusionFactory,
     CurriculumFactory, OrganizationFactory, ProgramFactory, ProgramTypeFactory, SeatTypeFactory
 )
-from course_discovery.apps.edx_catalog_extensions.api.v1.views import ProgramFixtureView, DistinctCountsAggregateSearchViewSet
+from course_discovery.apps.edx_catalog_extensions.api.v1.views import (
+    DistinctCountsAggregateSearchViewSet, ProgramFixtureView
+)
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
