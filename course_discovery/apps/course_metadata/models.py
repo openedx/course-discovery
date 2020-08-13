@@ -2117,6 +2117,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     class Meta:
         ordering = ['created']
+        get_latest_by = 'created'
 
     def __str__(self):
         return self.title
