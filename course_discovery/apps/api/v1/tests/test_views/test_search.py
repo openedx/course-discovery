@@ -161,13 +161,13 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 
     @ddt.data(
         (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 8),
+         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 5),
         (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 8),
+         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 5),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 24),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 22),
         (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 25),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 23),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -203,7 +203,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}], 7),
         ([{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}], 7),
         ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
-         {'title': 'Software Testing 3', 'excluded': False}], 8),
+         {'title': 'Software Testing 3', 'excluded': False}], 5),
     )
     @ddt.unpack
     def test_excluded_course_run(self, course_runs, expected_queries):
@@ -326,7 +326,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         assert response_data['objects']['results'] == \
             [self.serialize_program_search(other_program), self.serialize_course_run_search(other_course_run)]
 
-    @ddt.data((True, 12), (False, 12))
+    @ddt.data((True, 9), (False, 9))
     @ddt.unpack
     def test_query_count_exclude_expired_course_run(self, exclude_expired, expected_queries):
         """ Verify that there is no query explosion when excluding expired course runs. """
@@ -382,7 +382,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(weeks=4))
         course_run_keys = [course_run.key for course_run in [archived, current, starting_soon, upcoming]]
 
-        with self.assertNumQueries(9):
+        with self.assertNumQueries(6):
             response = self.get_response({"ordering": ordering})
         assert response.status_code == 200
         assert response.data['objects']['count'] == 4
@@ -397,7 +397,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         run1 = CourseRunFactory(course__partner=self.partner, course__key='edX+DemoX')
         run2 = CourseRunFactory(course__partner=self.partner, course__key='fakeX+FakeX')
 
-        with self.assertNumQueries(9):
+        with self.assertNumQueries(6):
             response = self.get_response({'ordering': 'aggregation_key' if ascending else '-aggregation_key'})
         assert response.status_code == 200
         assert response.data['objects']['count'] == 2
@@ -500,7 +500,7 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
         data = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
         expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(3):
             response = self.client.post(self.path, data=data, format='json')
         assert response.json() == expected
 

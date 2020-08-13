@@ -60,3 +60,6 @@ PUBLISHER_FROM_EMAIL = 'test@example.com'
 # Set to 0 to disable edx-django-sites-extensions to retrieve
 # the site from cache and risk working with outdated information.
 SITE_CACHE_TTL = 0
+
+# Disable throttling during most testing, as it just adds queries
+REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = ()
