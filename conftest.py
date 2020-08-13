@@ -92,3 +92,9 @@ def client():
 def clear_caches(request):
     for existing_cache in caches.all():
         existing_cache.clear()
+
+
+@pytest.fixture(scope='session', autouse=True)
+def clear_es_indexes():
+    yield None
+    call_command('search_index', '--delete', '-f')
