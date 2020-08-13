@@ -620,7 +620,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                 enrollment_end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
             )
         message = _duplicate_external_key_message([course_run])  # Not draft_course_run_1
-        with self.assertNumQueries(11, threshold=0):
+        with self.assertNumQueries(11, threshold=1):
             with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=self.course_1,
