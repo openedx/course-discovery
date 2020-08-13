@@ -1,5 +1,5 @@
-from .course_run import CourseRunDocument
 from .course import CourseDocument
+from .course_run import CourseRunDocument
 from .person import PersonDocument
 from .program import ProgramDocument
 

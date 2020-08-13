@@ -1,7 +1,8 @@
 from django.conf import settings
-from django_elasticsearch_dsl import fields, Index
+from django_elasticsearch_dsl import Index, fields
 
 from course_discovery.apps.course_metadata.models import Person, Position
+
 from .common import BaseDocument
 
 __all__ = ('PersonDocument',)
