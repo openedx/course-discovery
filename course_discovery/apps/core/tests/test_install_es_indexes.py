@@ -8,6 +8,10 @@ LOGGER_NAME = 'courses.management.commands.install_es_indexes'
 
 
 class InstallEsIndexesCommandTests(ElasticsearchTestMixin, TestCase):
+    def setUp(self):
+        super().setUp()
+        call_command('search_index', '--delete', '-f')
+
     def test_create_index(self):
         """ Verify the app sets the alias and creates a new index. """
         index_names = settings.ELASTICSEARCH_INDEX_NAMES
