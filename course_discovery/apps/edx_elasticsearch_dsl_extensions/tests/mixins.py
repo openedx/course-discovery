@@ -5,7 +5,9 @@ from haystack.backends import BaseSearchBackend
 from mock import patch
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_config import (
+    get_elasticsearch_boost_config
+)
 
 
 class SearchBackendTestMixin(ElasticsearchTestMixin):

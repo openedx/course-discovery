@@ -16,6 +16,7 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
         self.aggregation_key = None
         self._distinct_result_count = None
 
+    # pylint: disable=arguments-differ
     def _clone(self, klass=None):
         """
         Create and return a new DistinctCountsSearchQuery with fields set to match those on the original object.
@@ -58,7 +59,7 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
         if ignore_cache or not hasattr(self, '_response'):
             search_query = self.to_dict()
             backend = DistinctCountsElasticsearchQueryWrapper(self, self.aggregation_key)
-            self._response = backend.search(search_query)
+            self._response = backend.search(search_query)  # pylint: disable=attribute-defined-outside-init
             # Use the DistinctCountsElasticsearchQueryWrapper to execute the query so that distinct hit and query
             # counts may be computed.
 
@@ -93,12 +94,14 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
                 ).format(field=field, supported=','.join(supported_options), provided=','.join(options.keys()))
                 raise RuntimeError(msg)
 
+    # pylint: disable=arguments-differ
     @classmethod
-    def from_dict(cls, *args, **kwargs):  # pylint: disable=unused-argument
+    def from_dict(cls, *args, **kwargs):
         """ Raise an exception since we do not currently want/need to support raw queries."""
         raise RuntimeError('DistinctCountsSearchQuerySet does not support raw queries.')
 
-    def update_from_dict(self, *args, **kwargs):  # pylint: disable=unused-argument
+    # pylint: disable=arguments-differ
+    def update_from_dict(self, *args, **kwargs):
         """ Raise an exception since we do not currently want/need to support raw queries."""
         raise RuntimeError('DistinctCountsSearchQuerySet does not support raw queries.')
 
@@ -157,12 +160,13 @@ class DistinctCountsElasticsearchQueryWrapper:
 
         self.search_instance.validate()
         search_kwargs = self._build_search_kwargs(**search_query)
+        # pylint: disable=protected-access
         es = get_connection(self.search_instance._using)
         raw_results = es.search(index=self.search_instance._index, body=search_kwargs, **self.search_instance._params)
 
         return self._process_results(raw_results)
 
-    def _build_search_kwargs(self, *args, **kwargs):
+    def _build_search_kwargs(self, *args, **kwargs):  # pylint: disable=unused-argument
         """ Build and return the arguments for the elasticsearch query."""
         aggregations = self._build_cardinality_aggregation(precision=settings.DISTINCT_COUNTS_HIT_PRECISION)
         facets = kwargs.get('aggs', {})
@@ -226,12 +230,13 @@ class DistinctCountsElasticsearchQueryWrapper:
             }
         return aggregations
 
-    def _process_results(self, raw_results, **kwargs):
+    def _process_results(self, raw_results, **kwargs):  # pylint: disable=unused-argument
         """ Process the query results into a form that is more easily consumable by the client."""
         raw_results['aggregations']['aggregation_name'] = self.aggregation_name
         results = DistinctDSLResponse(self.search_instance, raw_results)
         aggregations = raw_results['aggregations']
         # Process the distinct hit count
+        # pylint: disable=literal-used-as-attribute
         setattr(results, 'distinct_hits', aggregations[self.aggregation_name]['value'])
 
         return results

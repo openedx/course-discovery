@@ -1,7 +1,7 @@
 from django.db import models
 from django.test import TestCase
 
-from course_discovery.apps.core.utils import delete_orphans, get_all_related_field_names, SearchQuerySetWrapper
+from course_discovery.apps.core.utils import SearchQuerySetWrapper, delete_orphans, get_all_related_field_names
 from course_discovery.apps.course_metadata.models import Video
 from course_discovery.apps.course_metadata.search_indexes.documents import CourseRunDocument
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, VideoFactory

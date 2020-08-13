@@ -1,19 +1,22 @@
 import copy
+
 from django.core.exceptions import ImproperlyConfigured
 from django_elasticsearch_dsl_drf.constants import MATCHING_OPTION_MUST, MATCHING_OPTIONS
 from django_elasticsearch_dsl_drf.filter_backends import FacetedSearchFilterBackend, FilteringFilterBackend
 from django_elasticsearch_dsl_drf.filter_backends.mixins import FilterBackendMixin
 from django_elasticsearch_dsl_drf.filter_backends.search import BaseSearchFilterBackend as OriginBaseSearchFilterBackend
-from django_elasticsearch_dsl_drf.filter_backends.search.query_backends import (
-    MultiMatchQueryBackend as OriginMultiMatchQueryBackend,
-)
+from django_elasticsearch_dsl_drf.filter_backends.search.query_backends import \
+    MultiMatchQueryBackend as OriginMultiMatchQueryBackend
 from elasticsearch_dsl.query import Q as ESDSLQ
 from rest_framework.exceptions import ParseError
 from rest_framework.filters import BaseFilterBackend
 
-from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_config import get_elasticsearch_boost_config
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_config import (
+    get_elasticsearch_boost_config
+)
 
 
+# pylint: disable=abstract-method
 class BaseSearchFilterBackend(OriginBaseSearchFilterBackend):
     def filter_queryset(self, request, queryset, view):
         function_score_config = get_elasticsearch_boost_config()['function_score']
@@ -140,7 +143,7 @@ class FacetedQueryFilterBackend(BaseFilterBackend, FilterBackendMixin):
     @staticmethod
     def prepare_faceted_query_search_fields(view):
         faceted_query_filter_fields = copy.deepcopy(view.faceted_query_filter_fields)
-        for name, options in faceted_query_filter_fields.items():
+        for name in faceted_query_filter_fields:
             if 'enabled' not in faceted_query_filter_fields[name]:
                 faceted_query_filter_fields[name]['enabled'] = False
             if not faceted_query_filter_fields[name].get('query'):

@@ -9,6 +9,7 @@ from rest_framework.fields import DictField, ListField
 from course_discovery.apps.api.serializers import QueryFacetFieldSerializer
 
 
+# pylint: disable=abstract-method
 class FacetFieldSerializer(serializers.Serializer):
     """
     Responsible for serializing a faceted result.
@@ -107,6 +108,7 @@ class FacetFieldSerializer(serializers.Serializer):
         url = request.build_absolute_uri(path)
         return serializers.Hyperlink(url, 'narrow-url')
 
+    # pylint: disable=arguments-differ
     def to_representation(self, field, instance):
         """
         Set the `parent_field` property equal to the current field on the serializer class,
@@ -126,7 +128,7 @@ class FacetDictField(DictField):
     """
 
     def to_representation(self, value):
-        return dict([(key, self.child.to_representation(key, val)) for key, val in value.items()])
+        return {key: self.child.to_representation(key, val) for key, val in value.items()}
 
 
 class FacetListField(ListField):
@@ -137,10 +139,12 @@ class FacetListField(ListField):
     Note: Implemented to be backward compatible with previous used drf-haystack lib.
     """
 
+    # pylint: disable=arguments-differ
     def to_representation(self, key, data):
         return [self.child.to_representation(key, item) for item in data]
 
 
+# pylint: disable=abstract-method
 class DjangoESDSLDRFFacetSerializer(serializers.Serializer):
     """
     The `DjangoESDSLDRFFacetSerializer` is used to serialize the facets
@@ -178,6 +182,7 @@ class DjangoESDSLDRFFacetSerializer(serializers.Serializer):
             field_mapping['objects'] = serializers.SerializerMethodField()
         return field_mapping
 
+    # pylint: disable=unused-argument
     def get_objects(self, instance):
         """
         Return a list of objects matching the faceted result.
@@ -214,6 +219,7 @@ class DjangoESDSLDRFFacetSerializer(serializers.Serializer):
         return self.context['facet_query_params_text']
 
 
+# pylint: disable=abstract-method
 class BaseDjangoESDSLFacetSerializer(DjangoESDSLDRFFacetSerializer):
     _abstract = True
     serialize_objects = True
@@ -237,7 +243,7 @@ class BaseDjangoESDSLFacetSerializer(DjangoESDSLDRFFacetSerializer):
     def format_query_facet_data(self, query_facet_counts):
         query_data = {}
         view = self.context['view']
-        for field, options in getattr(view, 'faceted_query_filter_fields', {}).items():  # pylint: disable=no-member
+        for field, options in getattr(view, 'faceted_query_filter_fields', {}).items():
             count = query_facet_counts.get(field, 0)
             if count:
                 query_data[field] = {'field': field, 'options': options, 'count': count}
@@ -254,7 +260,7 @@ class DummyModel:
 
     def __init__(self):
         self._meta = object()
-        setattr(self._meta, 'get_fields', lambda self: [])
+        setattr(self._meta, 'get_fields', lambda self: [])  # pylint: disable=literal-used-as-attribute
 
 
 class DummyDocument(Document):
@@ -297,6 +303,7 @@ class MultiDocumentSerializerMixin:
         """
         Multi serializer representation.
         """
+        # pylint: disable=protected-access
         instance_serializers = {
             document._index._name: serializer for document, serializer in self.Meta.serializers.items()
         }
