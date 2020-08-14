@@ -1,8 +1,8 @@
 # pylint: disable=abstract-method
 import datetime
 import json
-import re
 import logging
+import re
 from collections import OrderedDict
 from operator import attrgetter
 from urllib.parse import urlencode
