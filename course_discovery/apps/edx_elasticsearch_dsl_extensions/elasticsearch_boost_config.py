@@ -151,17 +151,18 @@ def get_elasticsearch_boost_config():
                             'must_not': {
                                 'range': {
                                     'paid_seat_enrollment_end': {
-                                        'gte': 'now'
+                                        'lte': 'now'
                                     }
+                                }
+                            },
+                            'filter': {
+                                'exists': {
+                                    'field': 'paid_seat_enrollment_end'
                                 }
                             }
                         }
                     },
-                    # FIXME: Old value was -20.0. In es7 negative values do not supported.
-                    # Need think how to handle the filter.
-                    # See the link, probably it could be useful to make a decision
-                    # https://github.com/elastic/elasticsearch/issues/24910
-                    'weight': 0.0
+                    'weight': 20.0
                 },
 
                 # Give a slight boost to enrollable course runs, regardless of seat
