@@ -2,6 +2,7 @@
 import datetime
 import json
 import re
+import logging
 from collections import OrderedDict
 from operator import attrgetter
 from urllib.parse import urlencode
@@ -46,6 +47,7 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import GroupUserSerializer
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 COMMON_IGNORED_FIELDS = ('text',)
 COMMON_SEARCH_FIELD_ALIASES = {'q': 'text'}
@@ -939,6 +941,9 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         # save() will be called by main update()
 
     def update(self, instance, validated_data):
+        # logging to help debug error around course url slugs incrementing
+        logger.info('The data coming from publisher is {}.'.format(validated_data))
+
         # Handle writing nested video data separately
         if 'get_video' in validated_data:
             self.update_video(instance, validated_data.pop('get_video'))
