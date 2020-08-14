@@ -314,7 +314,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
     def update(self, request, **kwargs):
 
         # logging to help debug error around course url slugs incrementing
-        logger.info('The raw course run data coming from publisher is {}.'.format(request.data))
+        log.info('The raw course run data coming from publisher is {}.'.format(request.data))
 
         """ Update one, or more, fields for a course run. """
         course_run = self.get_object()
