@@ -733,9 +733,9 @@ class Collaborator(TimeStampedModel):
         blank=True,
         null=True,
         variations={
-            'original': (80, 80),
+            'original': (200, 100),
         },
-        help_text=_('Add the collaborator image, please make sure its dimensions are 80x80px')
+        help_text=_('Add the collaborator image, please make sure its dimensions are 200x100px')
     )
     name = models.CharField(max_length=255, default='')
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
