@@ -508,17 +508,18 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             response = self.client.patch(url, {'start': '2019-01-01T00:00:00Z'}, format='json')
 
         self.assertEqual(response.status_code, 200, "Status {}: {}".format(response.status_code, response.content))
-        self.assertEqual(mock_logger.call_count, 2)
-        self.assertEqual(mock_logger.call_args_list[0], mock.call(
+
+        self.assertIn(mock.call(
             'Not pushing course run info for %s to Studio as partner %s has no studio_url set.',
             self.draft_course_run.key,
             self.partner.short_code,
-        ))
-        self.assertEqual(mock_logger.call_args_list[1], mock.call(
+        ), mock_logger.call_args_list)
+
+        self.assertIn(mock.call(
             'Not updating course run image for %s to Studio as partner %s has no studio_url set.',
             self.draft_course_run.key,
             self.partner.short_code,
-        ))
+        ), mock_logger.call_args_list)
 
         # reset the shared self.partner attribute
         self.partner.studio_url = orignal_partner_studio_url

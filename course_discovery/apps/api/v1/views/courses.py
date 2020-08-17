@@ -298,6 +298,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     @writable_request_wrapper
     def update_course(self, data, partial=False):  # pylint: disable=too-many-statements
         """ Updates an existing course from incoming data. """
+
+        # logging to help debug error around course url slugs incrementing
+        logger.info('The raw course data coming from publisher is {}.'.format(data))
+
         changed = False
         # Sending draft=False means the course data is live and updates should be pushed out immediately
         draft = data.pop('draft', True)

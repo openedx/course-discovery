@@ -1013,6 +1013,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     @transaction.atomic
     def set_active_url_slug(self, slug):
+        # logging to help debug error around course url slugs incrementing
+        logger.info('The current slug is {}; The slug to be set is {}; Current course is a draft: {}'
+                    .format(self.url_slug, slug, self.draft))
+
         if self.draft:
             active_draft_url_slug_object = self.url_slug_history.filter(is_active=True).first()
 
