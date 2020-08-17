@@ -1475,13 +1475,14 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         with LogCapture(course_logger.name) as log_capture:
             response = self.client.patch(url, {'type': '00000000-0000-0000-0000-000000000000'}, format='json')
             self.assertEqual(response.status_code, 400)
-            assertTrue(
+            log_capture.check_present(
                 (
                     course_logger.name,
                     'ERROR',
                     ("Failed to set data: {'type': [ErrorDetail(string='Object with "
                      "uuid=00000000-0000-0000-0000-000000000000 does not exist.', code='does_not_exist')]}"),
-                ) in log_capture)
+                )
+            )
 
     @responses.activate
     def test_options(self):
