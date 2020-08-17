@@ -33,7 +33,11 @@ def _fatal_code(ex):
 
     That means don't retry any 4XX code, except 429, which is rate limiting.
     """
-    return ex.response.status_code != 429 and 400 <= ex.response.status_code < 500  # pylint: disable=no-member
+    return (
+        ex.response is not None and
+        ex.response.status_code != 429 and
+        400 <= ex.response.status_code < 500
+    )  # pylint: disable=no-member
 
 
 class CoursesApiDataLoader(AbstractDataLoader):
