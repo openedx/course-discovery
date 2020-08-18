@@ -12,7 +12,6 @@ __all__ = ('ProgramDocument',)
 PROGRAM_INDEX_NAME = settings.ELASTICSEARCH_INDEX_NAMES[__name__]
 PROGRAM_INDEX = Index(PROGRAM_INDEX_NAME)
 PROGRAM_INDEX.settings(number_of_shards=1, number_of_replicas=1, blocks={'read_only_allow_delete': None})
-PROGRAM_INDEX.aliases(**{'catalog': {}})
 
 
 # TODO: For all documents check the common fields and if it possible move them to common.
