@@ -13,6 +13,7 @@ class InstallEsIndexesCommandTests(ElasticsearchTestMixin, TestCase):
         """ Verify the app sets the alias and creates a new index. """
         for index in registry.get_indices():
             # Delete the index
+            # pylint:disable=protected-access
             self.es.indices.delete(index=index._name, ignore=404)
             self.assertFalse(self.es.indices.exists(index=index._name))
 
@@ -20,10 +21,12 @@ class InstallEsIndexesCommandTests(ElasticsearchTestMixin, TestCase):
 
         # Verify the index was created
         for index in registry.get_indices():
+            # pylint:disable=protected-access
             self.assertTrue(self.es.indices.exists(index=index._name))
 
     def test_alias_exists(self):
         """ Verify the app does not setup a new Elasticsearch index if the alias is already set. """
+        # pylint:disable=protected-access
         index_names = [index._name for index in registry.get_indices()]
         for index_name in index_names:
             # Verify the index exists
