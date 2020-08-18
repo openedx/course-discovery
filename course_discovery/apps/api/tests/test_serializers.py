@@ -881,7 +881,7 @@ class MinimalProgramCourseSerializerTests(TestCase):
         self.assertSequenceEqual(serializer.data, expected)
 
     def test_data(self):
-        for course in self.program.courses.all():
+        for course in self.program.courses.all():  # pylint:disable=no-member
             CourseRunFactory(course=course)
 
         self.assert_program_courses_serialized(self.program)
@@ -1089,7 +1089,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         """
         request = make_request()
         program = self.create_program()
-
+        # pylint:disable=no-member
         excluded_course_run = program.courses.all()[0].course_runs.all()[0]
         program.excluded_course_runs.add(excluded_course_run)
 
@@ -1521,7 +1521,7 @@ class NestedProgramSerializerTests(TestCase):
             'type': program.type.name,
             'type_attrs': ProgramTypeAttrsSerializer(program.type).data,
             'title': program.title,
-            'number_of_courses': program.courses.count(),
+            'number_of_courses': program.courses.count(),  # pylint:disable=no-member
         }
 
         self.assertDictEqual(serializer.data, expected)
@@ -1893,7 +1893,7 @@ class ProgramsAffiliateWindowSerializerTests(TestCase):
             'purl': program.marketing_url,
             'price': str(program.price_ranges[0].get('total')),
             'currency': program.price_ranges[0].get('currency'),
-            'imgurl': program.banner_image.url,
+            'imgurl': program.banner_image.url,  # pylint:disable=no-member
             'category': 'Other Experiences',
             'lang': program.languages.pop().code.split('-')[0].lower(),
             'custom1': program.type.slug,
