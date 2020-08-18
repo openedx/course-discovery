@@ -10,7 +10,6 @@ __all__ = ('PersonDocument',)
 PERSON_INDEX_NAME = settings.ELASTICSEARCH_INDEX_NAMES[__name__]
 PERSON_INDEX = Index(PERSON_INDEX_NAME)
 PERSON_INDEX.settings(number_of_shards=1, number_of_replicas=1, blocks={'read_only_allow_delete': None})
-PERSON_INDEX.aliases(**{'catalog': {}})
 
 
 @PERSON_INDEX.doc_type
