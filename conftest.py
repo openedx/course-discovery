@@ -105,4 +105,6 @@ def clear_caches(request):
 @pytest.fixture(scope='session', autouse=True)
 def clear_es_indexes():
     yield None
-    call_command('search_index', '--delete', '-f')
+    conn = get_connection()
+    for index_name in settings.ELASTICSEARCH_INDEX_NAMES.values():
+        conn.indices.delete(index=index_name + '_*')
