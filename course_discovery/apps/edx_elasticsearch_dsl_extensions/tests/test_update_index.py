@@ -2,8 +2,8 @@ from unittest import mock
 
 import pytest
 from django.conf import settings
-from django.core.management import call_command, CommandError
-from django.test import override_settings, TestCase
+from django.core.management import CommandError, call_command
+from django.test import TestCase, override_settings
 from freezegun import freeze_time
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
