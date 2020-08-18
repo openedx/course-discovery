@@ -17,7 +17,6 @@ COURSE_RUN_INDEX.settings(
     number_of_replicas=1,
     blocks={'read_only_allow_delete': None},
 )
-COURSE_RUN_INDEX.aliases(**{'catalog': {}})
 
 
 @COURSE_RUN_INDEX.doc_type
