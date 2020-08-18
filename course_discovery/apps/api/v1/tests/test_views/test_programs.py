@@ -161,7 +161,7 @@ class TestProgramViewSet(SerializationMixin):
         with django_assert_num_queries(FuzzyInt(40, 1)):  # travis is often 43
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
-        assert course_list == list(program.courses.all())
+        assert course_list == list(program.courses.all())  # pylint:disable=no-member
 
     def test_retrieve_without_course_runs(self, django_assert_num_queries):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
