@@ -28,6 +28,7 @@ class TestStdImageSerializerField:
         program = ProgramFactory(banner_image=make_image_file('test.jpg'))
         field = StdImageSerializerField()
         field._context = {'request': request}  # pylint: disable=protected-access
+        # pylint:disable=no-member
         expected = {
             size_key: {
                 'url': '{}{}'.format('http://testserver', getattr(program.banner_image, size_key).url),
