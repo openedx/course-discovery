@@ -3,13 +3,12 @@ import datetime
 import logging
 import time
 from collections import namedtuple
-
 from copy import copy
+
 from django.conf import settings
 from django.core.management import CommandError
 from django_elasticsearch_dsl.management.commands.search_index import Command as DjangoESDSLCommand
 from django_elasticsearch_dsl.registries import registry
-from elasticsearch.exceptions import NotFoundError
 from elasticsearch_dsl.connections import get_connection
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
@@ -48,8 +47,9 @@ class Command(DjangoESDSLCommand):
                  'By default all backends will be updated.',
         )
 
-    def handle(self, **options):
-        from django.utils import translation  # pylint: disable=import-outside-toplevel
+    def handle(self, *args, **options):
+        # pylint:disable=import-outside-toplevel
+        from django.utils import translation
         translation.activate(settings.LANGUAGE_CODE)
         specified_backend = options.get('using')
         supported_backends = tuple(settings.ELASTICSEARCH_DSL.keys())
@@ -73,6 +73,7 @@ class Command(DjangoESDSLCommand):
 
     @contextlib.contextmanager
     def preserve_state_registered_indexes(self, state_to_update, models):
+        # pylint:disable=protected-access
         for index, (__, new_name) in zip(registry.get_indices(models), state_to_update):
             index._name = new_name
         yield
@@ -91,6 +92,7 @@ class Command(DjangoESDSLCommand):
         for index, document in zip(registry.get_indices(models), registry.get_documents(models)):
             record_count = self.get_record_count(document)
             alias, new_index_name = self.prepare_backend_index(index)
+            # pylint:disable=protected-access
             alias_mappings.append(AliasMapper(document, index, index._name, new_index_name, alias, record_count))
         # Set the alias (from settings) to the timestamped catalog.
         run_attempts = 0
@@ -101,7 +103,7 @@ class Command(DjangoESDSLCommand):
             existed_and_new_index_names = [mapper[OLD_AND_NEW_INDEX_NAMES] for mapper in alias_mappings]
             with self.preserve_state_registered_indexes(existed_and_new_index_names, models):
                 self._populate(models, options)
-            for doc, registered_index, registered_index_name, new_index_name, alias, record_count in alias_mappings:
+            for doc, registered_index, __, new_index_name, alias, record_count in alias_mappings:
                 # Run a sanity check to ensure we aren't drastically changing the
                 # index, which could be indicative of a bug.
                 if new_index_name in indexes_pending and not options.get('disable_change_limit', False):
@@ -110,6 +112,7 @@ class Command(DjangoESDSLCommand):
                             doc, new_index_name, record_count
                         )
                     if record_count_is_sane:
+                        # pylint:disable=protected-access
                         registered_index._name = new_index_name
                         self.set_alias(conn, alias, new_index_name)
                         indexes_pending.pop(new_index_name, None)
@@ -191,6 +194,7 @@ class Command(DjangoESDSLCommand):
         """
         copied_registered_index = copy(registered_index)
         timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
+        # pylint:disable=protected-access
         existed_index_name = copied_registered_index._name
         alias, *_ = copied_registered_index.get_alias(using=backend).get(existed_index_name, {}).get('aliases').keys()
         new_index_name = '{alias}_{timestamp}'.format(alias=alias, timestamp=timestamp)
