@@ -28,7 +28,7 @@ class OrganizationViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelVi
         user = self.request.user
         partner = self.request.site.partner
 
-        if user.is_staff or user.username == 'prospectus_worker':
+        if user.is_staff:
             return serializers.OrganizationSerializer.prefetch_queryset(partner=partner)
         else:
             organizations = get_objects_for_user(
