@@ -1,4 +1,4 @@
-# pylint: disable=no-member,test-inherits-tests
+# pylint: disable=test-inherits-tests
 import datetime
 import itertools
 import re
