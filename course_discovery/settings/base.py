@@ -467,7 +467,7 @@ ELASTICSEARCH_DSL_INDEX_SETTINGS = {'number_of_shards': 1, 'number_of_replicas':
 # If you still want to use please use customized RealTimeSignalProcessor
 # course_discovery.apps.course_metadata.search_indexes.signals.RealTimeSignalProcessor
 ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = 'django_elasticsearch_dsl.signals.BaseSignalProcessor'
-HAYSTACK_INDEX_RETENTION_LIMIT = 3
+ELASTICSEARCH_DSL_INDEX_RETENTION_LIMIT = 3
 
 # Update Index Settings
 # Make sure the size of the new index does not change by more than this percentage
