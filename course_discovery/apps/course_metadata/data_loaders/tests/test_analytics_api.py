@@ -46,7 +46,7 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         # Create a program with all of the courses we created
         program = ProgramFactory()
-        program.courses.set(courses.values())
+        program.courses.set(courses.values())  # pylint:disable=no-member
 
     @responses.activate
     def test_ingest(self):
