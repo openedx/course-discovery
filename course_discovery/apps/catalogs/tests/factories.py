@@ -1,10 +1,11 @@
 import factory
+import factory.django
 from factory.fuzzy import FuzzyText
 
 from course_discovery.apps.catalogs.models import Catalog
 
 
-class CatalogFactory(factory.DjangoModelFactory):
+class CatalogFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Catalog
 

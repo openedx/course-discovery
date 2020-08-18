@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import factory
+import factory.django
 from django.db.models.signals import post_save
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
@@ -13,16 +14,16 @@ from course_discovery.apps.ietf_language_tags.models import LanguageTag
 # pylint: disable=unused-argument
 
 
-class AbstractMediaModelFactory(factory.DjangoModelFactory):
+class AbstractMediaModelFactory(factory.django.DjangoModelFactory):
     src = FuzzyURL()
     description = FuzzyText()
 
 
-class AbstractNamedModelFactory(factory.DjangoModelFactory):
+class AbstractNamedModelFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
 
 
-class AbstractTitleDescriptionFactory(factory.DjangoModelFactory):
+class AbstractTitleDescriptionFactory(factory.django.DjangoModelFactory):
     title = FuzzyText(length=255)
     description = FuzzyText()
 
@@ -42,7 +43,7 @@ class VideoFactory(AbstractMediaModelFactory):
         model = Video
 
 
-class SubjectFactory(factory.DjangoModelFactory):
+class SubjectFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Subject
 
@@ -54,7 +55,7 @@ class SubjectFactory(factory.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
 
 
-class TopicFactory(factory.DjangoModelFactory):
+class TopicFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Topic
 
@@ -83,7 +84,7 @@ class AdditionalPromoAreaFactory(AbstractTitleDescriptionFactory):
         model = AdditionalPromoArea
 
 
-class SalesforceRecordFactory(factory.DjangoModelFactory):
+class SalesforceRecordFactory(factory.django.DjangoModelFactory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         from course_discovery.apps.course_metadata.tests.utils import build_salesforce_exception  # pylint: disable=import-outside-toplevel
@@ -125,7 +126,7 @@ class SeatTypeFactory(factory.django.DjangoModelFactory):
         return SeatType.objects.get(slug=Seat.VERIFIED)
 
 
-class ModeFactory(factory.DjangoModelFactory):
+class ModeFactory(factory.django.DjangoModelFactory):
     name = FuzzyText()
     slug = FuzzyText()
 
@@ -133,7 +134,7 @@ class ModeFactory(factory.DjangoModelFactory):
         model = Mode
 
 
-class TrackFactory(factory.DjangoModelFactory):
+class TrackFactory(factory.django.DjangoModelFactory):
     mode = factory.SubFactory(ModeFactory)
     seat_type = factory.SubFactory(SeatTypeFactory)
 
@@ -141,7 +142,7 @@ class TrackFactory(factory.DjangoModelFactory):
         model = Track
 
 
-class CourseRunTypeFactory(factory.DjangoModelFactory):
+class CourseRunTypeFactory(factory.django.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     name = FuzzyText()
     slug = FuzzyText()
@@ -156,7 +157,7 @@ class CourseRunTypeFactory(factory.DjangoModelFactory):
             add_m2m_data(self.tracks, extracted)
 
 
-class CourseTypeFactory(factory.DjangoModelFactory):
+class CourseTypeFactory(factory.django.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     name = FuzzyText()
     slug = FuzzyText()
@@ -224,7 +225,7 @@ class CourseFactory(SalesforceRecordFactory):
             CourseUrlSlugFactory(**data)
 
 
-class CourseUrlSlugFactory(factory.DjangoModelFactory):
+class CourseUrlSlugFactory(factory.django.DjangoModelFactory):
     course = factory.SubFactory(CourseFactory)
     partner = factory.SelfAttribute('course.partner')
     url_slug = FuzzyText()
@@ -233,7 +234,7 @@ class CourseUrlSlugFactory(factory.DjangoModelFactory):
         model = CourseUrlSlug
 
 
-class CourseUrlRedirectFactory(factory.DjangoModelFactory):
+class CourseUrlRedirectFactory(factory.django.DjangoModelFactory):
     course = factory.SubFactory(CourseFactory)
     partner = factory.SelfAttribute('course.partner')
     value = FuzzyText()
@@ -247,7 +248,7 @@ class CourseFactoryNoSignals(CourseFactory):
     pass
 
 
-class CourseEditorFactory(factory.DjangoModelFactory):
+class CourseEditorFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     course = factory.SubFactory(CourseFactory)
 
@@ -307,7 +308,7 @@ class CourseRunFactoryNoSignals(CourseRunFactory):
     pass
 
 
-class SeatFactory(factory.DjangoModelFactory):
+class SeatFactory(factory.django.DjangoModelFactory):
     type = factory.SubFactory(SeatTypeFactory)
     price = FuzzyDecimal(0.0, 650.0)
     currency = factory.Iterator(Currency.objects.all())
@@ -320,7 +321,7 @@ class SeatFactory(factory.DjangoModelFactory):
         model = Seat
 
 
-class CourseEntitlementFactory(factory.DjangoModelFactory):
+class CourseEntitlementFactory(factory.django.DjangoModelFactory):
     mode = factory.SubFactory(SeatTypeFactory)
     price = FuzzyDecimal(0.0, 650.0)
     currency = factory.Iterator(Currency.objects.all())
@@ -351,7 +352,7 @@ class OrganizationFactoryNoSignals(OrganizationFactory):
     pass
 
 
-class PersonFactory(factory.DjangoModelFactory):
+class PersonFactory(factory.django.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     partner = factory.SubFactory(PartnerFactory)
     given_name = factory.Faker('first_name')
@@ -365,7 +366,7 @@ class PersonFactory(factory.DjangoModelFactory):
         model = Person
 
 
-class PositionFactory(factory.DjangoModelFactory):
+class PositionFactory(factory.django.DjangoModelFactory):
     person = factory.SubFactory(PersonFactory)
     title = FuzzyText()
     organization = factory.SubFactory(OrganizationFactory)
@@ -555,7 +556,7 @@ class IconTextPairingFactory(factory.django.DjangoModelFactory):
     text = FuzzyText(length=255)
 
 
-class CurriculumFactory(factory.DjangoModelFactory):
+class CurriculumFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Curriculum
 
@@ -576,7 +577,7 @@ class CurriculumFactory(factory.DjangoModelFactory):
             add_m2m_data(self.course_curriculum, extracted)
 
 
-class DegreeDeadlineFactory(factory.DjangoModelFactory):
+class DegreeDeadlineFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = DegreeDeadline
 
@@ -587,7 +588,7 @@ class DegreeDeadlineFactory(factory.DjangoModelFactory):
     time = FuzzyText()
 
 
-class DegreeCostFactory(factory.DjangoModelFactory):
+class DegreeCostFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = DegreeCost
 
@@ -596,7 +597,7 @@ class DegreeCostFactory(factory.DjangoModelFactory):
     amount = FuzzyText()
 
 
-class CurriculumProgramMembershipFactory(factory.DjangoModelFactory):
+class CurriculumProgramMembershipFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = CurriculumProgramMembership
 
@@ -604,7 +605,7 @@ class CurriculumProgramMembershipFactory(factory.DjangoModelFactory):
     curriculum = factory.SubFactory(CurriculumFactory)
 
 
-class CurriculumCourseMembershipFactory(factory.DjangoModelFactory):
+class CurriculumCourseMembershipFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = CurriculumCourseMembership
 
@@ -617,7 +618,7 @@ class CurriculumCourseMembershipFactory(factory.DjangoModelFactory):
             add_m2m_data(self.course_run_exclusions, extracted)
 
 
-class CurriculumCourseRunExclusionFactory(factory.DjangoModelFactory):
+class CurriculumCourseRunExclusionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = CurriculumCourseRunExclusion
 
@@ -625,7 +626,7 @@ class CurriculumCourseRunExclusionFactory(factory.DjangoModelFactory):
     course_run = factory.SubFactory(CourseRunFactory)
 
 
-class PathwayFactory(factory.DjangoModelFactory):
+class PathwayFactory(factory.django.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
     partner = factory.SubFactory(PartnerFactory)
     name = FuzzyText()
@@ -639,7 +640,7 @@ class PathwayFactory(factory.DjangoModelFactory):
         model = Pathway
 
 
-class PersonSocialNetworkFactory(factory.DjangoModelFactory):
+class PersonSocialNetworkFactory(factory.django.DjangoModelFactory):
     type = FuzzyChoice(PersonSocialNetwork.SOCIAL_NETWORK_CHOICES.keys())
     url = FuzzyText()
     title = FuzzyText()
@@ -649,7 +650,7 @@ class PersonSocialNetworkFactory(factory.DjangoModelFactory):
         model = PersonSocialNetwork
 
 
-class PersonAreaOfExpertiseFactory(factory.DjangoModelFactory):
+class PersonAreaOfExpertiseFactory(factory.django.DjangoModelFactory):
     value = FuzzyText()
     person = factory.SubFactory(PersonFactory)
 
@@ -662,27 +663,27 @@ class SyllabusItemFactory(factory.django.DjangoModelFactory):
         model = SyllabusItem
 
 
-class DrupalPublishUuidConfigFactory(factory.DjangoModelFactory):
+class DrupalPublishUuidConfigFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = DrupalPublishUuidConfig
 
 
-class ProfileImageDownloadConfigFactory(factory.DjangoModelFactory):
+class ProfileImageDownloadConfigFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ProfileImageDownloadConfig
 
 
-class MigratePublisherToCourseMetadataConfigFactory(factory.DjangoModelFactory):
+class MigratePublisherToCourseMetadataConfigFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MigratePublisherToCourseMetadataConfig
 
 
-class MigrateCommentsToSalesforceFactory(factory.DjangoModelFactory):
+class MigrateCommentsToSalesforceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = MigrateCommentsToSalesforce
 
 
-class CollaboratorFactory(factory.DjangoModelFactory):
+class CollaboratorFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Collaborator
 
