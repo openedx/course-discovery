@@ -1,11 +1,16 @@
 import datetime
 import logging
+from collections import namedtuple
 
+import re
 from django.conf import settings
+from django_elasticsearch_dsl import Index
 
-from course_discovery.settings.process_synonyms import get_synonyms
-
+IndexMeta = namedtuple("IndexMeta", "name alias")
 logger = logging.getLogger(__name__)
+
+INDEX_ALIAS_REGEX = re.compile(r'^(\w+)(?=[_]\d{8}[_]\d{6})')
+INDEX_ALIAS_SLICE = slice(0, -16)
 
 
 def serialize_datetime(d):
@@ -13,19 +18,25 @@ def serialize_datetime(d):
 
 
 class ElasticsearchUtils:
-    @classmethod
-    def create_alias_and_index(cls, es_connection, alias):
-        logger.info('Making sure alias [%s] exists...', alias)
 
+    @staticmethod
+    def get_alias_by_index_name(name):
+        return name[INDEX_ALIAS_SLICE] if INDEX_ALIAS_REGEX.match(name) else name
+
+    @classmethod
+    def create_alias_and_index(cls, es_connection, index, conn_name='default'):
+        assert isinstance(index, Index), '`index` must be an instance of `Index` class. Got: {0}'.format(type(index))
+        logger.info('Making sure alias [%s] exists...', index._name)
+        alias = cls.get_alias_by_index_name(index._name)
         if es_connection.indices.exists_alias(name=alias):
             # If the alias exists, and points to an open index, we are all set.
             logger.info('...alias exists.')
         else:
-            index = cls.create_index(es_connection=es_connection, prefix=alias)
+            index, __ = cls.create_index(index, conn_name)
             # Point the alias to the new index
             body = {
                 'actions': [
-                    {'remove': {'alias': alias, 'index': '*'}},
+                    {'remove': {'alias': alias, "index": '{0}_*'.format(alias)}},
                     {'add': {'alias': alias, 'index': index}},
                 ]
             }
@@ -33,25 +44,25 @@ class ElasticsearchUtils:
             logger.info('...alias updated.')
 
     @classmethod
-    def create_index(cls, es_connection, prefix):
+    def create_index(cls, index, conn_name='default'):
         """
         Creates a new index whose name is prefixed with the specified value.
 
         Args:
-            es_connection (Elasticsearch): Elasticsearch connection - the connection object as created in the
-             ElasticsearchSearchBackend class - the 'conn' attribute
-            prefix (str): Alias for the connection, used as prefix for the index name
+             index (Index): instance of `Index` class
+             conn_name (str): Elasticsearch connection name
 
         Returns:
-            index_name (str): Name of the new index.
+            IndexMeta (tuple): Name and generated alias of the new index.
         """
+        assert isinstance(index, Index), '`index` must be an instance of `Index` class. Got: {0}'.format(type(index))
+
         timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-        index_name = f'{prefix}_{timestamp}'
-        index_settings = settings.ELASTICSEARCH_INDEX_SETTINGS
-        index_settings['settings']['analysis']['filter']['synonym']['synonyms'] = get_synonyms(es_connection)
-        es_connection.indices.create(index=index_name, body=index_settings)
-        logger.info('...index [%s] created.', index_name)
-        return index_name
+        alias = cls.get_alias_by_index_name(index._name)
+        index_name = f'{alias}_{timestamp}'
+        index._name = index_name
+        index.create(using=conn_name)
+        return IndexMeta(index_name, alias)
 
     @classmethod
     def delete_index(cls, es_connection, index):
@@ -99,7 +110,7 @@ def delete_orphans(model, exclude=None):
         None
     """
     field_names = get_all_related_field_names(model)
-    kwargs = {f'{field_name}__isnull': True for field_name in field_names}
+    kwargs = {f'{field_name}__isnull'.format(): True for field_name in field_names}
     query = model.objects.filter(**kwargs)
     if exclude:
         query = query.exclude(pk__in=exclude)
