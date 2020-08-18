@@ -1,4 +1,4 @@
-from collections.abc import Iterable
+from collections import Iterable  # pylint:disable=no-name-in-module
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
