@@ -176,27 +176,6 @@ class Command(DjangoESDSLCommand):
 
         return record_count_is_sane, index_info_string
 
-    def _delete(self, models, options):
-        index_names = [index._name for index in registry.get_indices(models)]
-
-        if not options['force']:
-            response = input(
-                "Are you sure you want to delete "
-                "the '{}' indexes? [y/N]: ".format(", ".join(index_names)))
-            if response.lower() != 'y':
-                self.stdout.write('Aborted')
-                return False
-
-        for index in registry.get_indices(models):
-            try:
-                index_name, *_ = index.get().keys()
-            except NotFoundError:
-                pass
-            else:
-                index._name = index_name
-            self.stdout.write("Deleting index '{}'".format(index._name))
-            index.delete(ignore=404)
-
     def prepare_backend_index(self, registered_index, backend='default'):
         """
         Prepares an index that will be used to store data by the backend.
