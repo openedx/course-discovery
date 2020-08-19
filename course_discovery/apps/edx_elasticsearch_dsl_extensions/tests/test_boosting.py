@@ -119,16 +119,13 @@ class TestSearchBoosting:
 
         assert [promoted_run.title, penalized_run.title] == [hit.title for hit in search_results]
         assert search_results[0].meta['score'] > search_results[1].meta['score']
+        assert search_results[0].meta['score'] > 20
 
-        # Verify that this result has a negative score. Course runs with expired,
-        # paid seats are penalized by having a relatively large value subtracted
-        # from their relevance score. In this test case, the result should be a
-        # negative relevance score.
-        # FIXME: The test case bellow it not relevant now cause In es7 negative values do not supported.
-        # Need think how to handle the filter.
-        # See the link, probably it could be useful to make a decision
-        # https://github.com/elastic/elasticsearch/issues/24910
-        # assert 0 == search_results[1].meta['score']
+        # Verify that this result has an initial score (~1.0).
+        # Course runs with expired paid seats are penalized by having a relatively large value added
+        # to all another(not expired) courses their relevance score.
+        # In this test case, the result should be an initial relevance score for the expired course.
+        assert round(search_results[1].meta['score']) == 1
 
     @pytest.mark.parametrize(
         'enrollment_start,enrollment_end,expects_boost',
