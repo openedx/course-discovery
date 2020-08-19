@@ -85,6 +85,11 @@ class Command(DjangoESDSLCommand):
             for index in registry.get_indices(models):
                 created_index_info = ElasticsearchUtils.create_index(index, backend)
                 es_connection = get_connection(backend)
+                self.stdout.write(
+                    'Creating index "{1}".\nSet alias "{0}" for index "{1}".'.format(
+                        created_index_info.alias, created_index_info.name
+                    )
+                )
                 self.set_alias(es_connection, created_index_info.alias, created_index_info.name)
 
     def _update(self, models, options):
