@@ -720,12 +720,14 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         mit_run = CourseRunFactory(
             authoring_organizations=[MITx, HarvardX],
             title='MIT Testing1',
-            course__partner=self.partner
+            course__partner=self.partner,
+            pacing_type='self_paced'
         )
         harvard_run = CourseRunFactory(
             authoring_organizations=[HarvardX],
             title='MIT Testing2',
-            course__partner=self.partner
+            course__partner=self.partner,
+            pacing_type='self_paced'
         )
         mit_program = ProgramFactory(
             authoring_organizations=[MITx, HarvardX],
