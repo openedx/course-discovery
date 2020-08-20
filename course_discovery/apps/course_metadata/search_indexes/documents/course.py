@@ -24,26 +24,13 @@ class CourseDocument(BaseCourseDocument):
     Course Elasticsearch document.
     """
 
-    uuid = fields.KeywordField()
     card_image_url = fields.TextField()
-    image_url = fields.TextField()
-    org = fields.KeywordField()
-    modified = fields.DateField()
-    first_enrollable_paid_seat_price = fields.IntegerField()
-    subject_uuids = fields.KeywordField(multi=True)
     course_runs = fields.KeywordField(multi=True)
     expected_learning_items = fields.KeywordField(multi=True)
-    partner = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
-    prerequisites = fields.KeywordField(multi=True)
+    first_enrollable_paid_seat_price = fields.IntegerField()
     languages = fields.KeywordField(multi=True)
-    seat_types = fields.KeywordField(multi=True)
-
-    def get_queryset(self):
-        # TODO: Build queryset smartly.
-        return super().get_queryset().prefetch_related('course_runs__seats__type')
-
-    def prepare_partner(self, obj):
-        return obj.partner.short_code
+    modified = fields.DateField()
+    prerequisites = fields.KeywordField(multi=True)
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
@@ -54,25 +41,6 @@ class CourseDocument(BaseCourseDocument):
     def prepare_expected_learning_items(self, obj):
         return [item.value for item in obj.expected_learning_items.all()]
 
-    def prepare_prerequisites(self, obj):
-        return [prerequisite.name for prerequisite in obj.prerequisites.all()]
-
-    def prepare_org(self, obj):
-        course_run = filter_visible_runs(obj.course_runs).first()
-        if course_run:
-            return CourseKey.from_string(course_run.key).org
-        return None
-
-    def prepare_first_enrollable_paid_seat_price(self, obj):
-        return obj.first_enrollable_paid_seat_price
-
-    def prepare_seat_types(self, obj):
-        seat_types = [seat.slug for run in filter_visible_runs(obj.course_runs) for seat in run.seat_types]
-        return list(set(seat_types))
-
-    def prepare_subject_uuids(self, obj):
-        return [str(subject.uuid) for subject in obj.subjects.all()]
-
     def prepare_languages(self, obj):
         return list(
             {
@@ -81,6 +49,25 @@ class CourseDocument(BaseCourseDocument):
                 if course_run.language
             }
         )
+
+    def prepare_org(self, obj):
+        course_run = filter_visible_runs(obj.course_runs).first()
+        if course_run:
+            return CourseKey.from_string(course_run.key).org
+        return None
+
+    def prepare_partner(self, obj):
+        return obj.partner.short_code
+
+    def prepare_prerequisites(self, obj):
+        return [prerequisite.name for prerequisite in obj.prerequisites.all()]
+
+    def prepare_seat_types(self, obj):
+        seat_types = [seat.slug for run in filter_visible_runs(obj.course_runs) for seat in run.seat_types]
+        return list(set(seat_types))
+
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related('course_runs__seats__type')
 
     class Django:
         """
