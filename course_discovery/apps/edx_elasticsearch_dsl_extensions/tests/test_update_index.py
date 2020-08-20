@@ -16,8 +16,8 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
     def test_handle(self):
         """ Verify the command creates a timestamped index and repoints the alias. """
         with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
-                        'search_index.Command.sanity_check_new_index', return_value=(True, '')):
-            call_command('search_index', '--update')
+                        'update_index.Command.sanity_check_new_index', return_value=(True, '')):
+            call_command('update_index')
 
         for alias in settings.ELASTICSEARCH_INDEX_NAMES.values():
             index = '{alias}_20160621_000000'.format(alias=alias)
@@ -40,11 +40,10 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
 
         # Ensure that an error is raised if the sanity check does not pass
         with pytest.raises(CommandError):
-            with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
-                            'search_index.Command.set_alias', return_value=True):
+            with mock.patch('course_discovery.apps.core.utils.ElasticsearchUtils.set_alias', return_value=True):
                 with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
-                                'search_index.Command.get_record_count', return_value=record_count):
-                    call_command('search_index', '--update')
+                                'update_index.Command.get_record_count', return_value=record_count):
+                    call_command('update_index')
 
     def test_sanity_check_success(self):
         """ Verify the command does not raise a CommandError error if the new index passes the sanity check. """
@@ -54,16 +53,15 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
         record_count = 60
 
         # Ensure that no error is raised and the sanity check passes the second time
-        with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
-                        'search_index.Command.set_alias', return_value=True):
+        with mock.patch('course_discovery.apps.core.utils.ElasticsearchUtils.set_alias', return_value=True):
             with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
-                            'search_index.Command.get_record_count', return_value=record_count):
-                call_command('search_index', '--update')
+                            'update_index.Command.get_record_count', return_value=record_count):
+                call_command('update_index')
 
     @freeze_time('2016-06-21')
     def test_sanity_check_disabled(self):
         """ Verify the sanity check can be disabled. """
         with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
-                        'search_index.Command.sanity_check_new_index') as mock_sanity_check_new_index:
-            call_command('search_index', '--update', disable_change_limit=True)
+                        'update_index.Command.sanity_check_new_index') as mock_sanity_check_new_index:
+            call_command('update_index', disable_change_limit=True)
             self.assertFalse(mock_sanity_check_new_index.called)
