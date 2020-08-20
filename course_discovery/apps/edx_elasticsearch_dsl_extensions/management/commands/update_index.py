@@ -3,13 +3,14 @@ import datetime
 import logging
 import time
 from collections import namedtuple
-
 from copy import copy
+
 from django.conf import settings
 from django.core.management import CommandError
 from django_elasticsearch_dsl.management.commands.search_index import Command as DjangoESDSLCommand
 from django_elasticsearch_dsl.registries import registry
 from elasticsearch_dsl.connections import get_connection
+
 from course_discovery.apps.core.utils import ElasticsearchUtils
 
 OLD_AND_NEW_INDEX_NAMES = slice(2, 4)
