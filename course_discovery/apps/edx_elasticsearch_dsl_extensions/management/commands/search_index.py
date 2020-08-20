@@ -35,7 +35,6 @@ class Command(DjangoESDSLCommand):
         )
 
     def handle(self, *args, **options):
-        # pylint:disable=import-outside-toplevel
         from django.utils import translation
         translation.activate(settings.LANGUAGE_CODE)
         specified_backend = options.get('using')
