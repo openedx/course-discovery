@@ -35,14 +35,33 @@ class ElasticsearchUtils:
         else:
             index, __ = cls.create_index(index, conn_name)
             # Point the alias to the new index
-            body = {
-                'actions': [
-                    {'remove': {'alias': alias, "index": '{0}_*'.format(alias)}},
-                    {'add': {'alias': alias, 'index': index}},
-                ]
-            }
-            es_connection.indices.update_aliases(body)
+            cls.set_alias(es_connection, alias, index)
             logger.info('...alias updated.')
+
+    @classmethod
+    def set_alias(cls, connection, alias, index):
+        """
+        Points the alias to the specified index.
+
+        All other references made by the alias will be removed, however the referenced indexes will
+        not be modified in any other manner.
+
+        Args:
+            connection (ElasticsearchSearchBackend): Elasticsearch backend with an open connection.
+            alias (str): Name of the alias to set.
+            index (str): Name of the index where the alias should point.
+
+        Returns:
+            None
+        """
+        body = {
+            'actions': [
+                {"remove": {"alias": alias, "index": '{0}_*'.format(alias)}},
+                {"add": {"alias": alias, "index": index}}
+            ]
+        }
+
+        connection.indices.update_aliases(body)
 
     @classmethod
     def create_index(cls, index, conn_name='default'):
