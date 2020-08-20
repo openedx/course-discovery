@@ -4,6 +4,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from elasticsearch_dsl.connections import get_connection
 
+from course_discovery.apps.core.utils import INDEX_ALIAS_SLICE
+
 logger = logging.getLogger(__name__)
 
 
@@ -68,5 +70,5 @@ class Command(BaseCommand):
         # endpoint instead of the (more succinct) settings endpoint. For more information, see
         # http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/aes-supported-es-operations.html
         all_indexes = indices_client.get('*').keys()
-        all_current_indexes = [index_name for index_name in all_indexes if index_name[:-16] == index_prefix]
-        return sorted(all_current_indexes)
+        current_indexes = [index_name for index_name in all_indexes if index_name[INDEX_ALIAS_SLICE] == index_prefix]
+        return sorted(current_indexes)

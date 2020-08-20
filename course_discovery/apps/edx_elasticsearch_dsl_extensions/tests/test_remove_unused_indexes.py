@@ -29,7 +29,7 @@ class TestRemoveUnusedIndexes:
         call_command('remove_unused_indexes')
         indices_client = elasticsearch_dsl_default_connection.indices
         for index in registry.get_indices():
-            # pylint:disable=protected-access
+            # pylint: disable=protected-access
             current_alias = indices_client.get_alias(name=index._name[:-16])
             indexes_to_keep = current_alias.keys()
 
@@ -46,7 +46,7 @@ class TestRemoveUnusedIndexes:
 
         for index in registry.get_indices():
             # check that we keep the current indexes, which we don't want removed
-            # pylint:disable=protected-access
+            # pylint: disable=protected-access
             all_indexes = self.get_current_index_names(indices_client=indices_client, index_prefix=index._name[:-16])
             current_alias = indices_client.get_alias(name=index._name[:-16])
             indexes_to_keep = current_alias.keys()
@@ -58,7 +58,7 @@ class TestRemoveUnusedIndexes:
 
         # Cleanup indexes created by this test
         for index in registry.get_indices():
-            # pylint:disable=protected-access
+            # pylint: disable=protected-access
             indices_client.delete(index=index._name + '_*')
 
     @staticmethod
