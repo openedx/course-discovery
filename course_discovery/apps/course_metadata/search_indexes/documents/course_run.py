@@ -99,10 +99,10 @@ class CourseRunDocument(BaseCourseDocument):
         return obj.status == CourseRunStatus.Published
 
     def prepare_seat_types(self, obj):
-            return [seat_type.slug for seat_type in obj.seat_types]
+        return [seat_type.slug for seat_type in obj.seat_types]
 
     def prepare_staff_uuids(self, obj):
-            return [str(staff.uuid) for staff in obj.staff.all()]
+        return [str(staff.uuid) for staff in obj.staff.all()]
 
     def prepare_transcript_languages(self, obj):
         return [

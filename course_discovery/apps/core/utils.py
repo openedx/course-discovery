@@ -26,7 +26,7 @@ class ElasticsearchUtils:
     @classmethod
     def create_alias_and_index(cls, es_connection, index, conn_name='default'):
         assert isinstance(index, Index), '`index` must be an instance of `Index` class. Got: {0}'.format(type(index))
-        # pylint:disable=protected-access
+        # pylint: disable=protected-access
         logger.info('Making sure alias [%s] exists...', index._name)
         alias = cls.get_alias_by_index_name(index._name)
         if es_connection.indices.exists_alias(name=alias):
@@ -78,7 +78,7 @@ class ElasticsearchUtils:
         assert isinstance(index, Index), '`index` must be an instance of `Index` class. Got: {0}'.format(type(index))
 
         timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-        # pylint:disable=protected-access
+        # pylint: disable=protected-access
         alias = cls.get_alias_by_index_name(index._name)
         index_name = f'{alias}_{timestamp}'
         index._name = index_name
