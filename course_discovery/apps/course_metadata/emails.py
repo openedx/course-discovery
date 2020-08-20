@@ -53,7 +53,6 @@ def get_project_coordinator(org):
             Object: a User object or None if no project coordinator is registered
     """
     # Model imports here to avoid a circular import
-    # pylint: disable=import-outside-toplevel
     from course_discovery.apps.publisher.models import OrganizationUserRole
 
     if not org:
@@ -196,7 +195,6 @@ def send_email_to_editors(course_run, template_name, subject, context=None):
             context (dict): additional context for the template
     """
     # Model imports here to avoid a circular import
-    # pylint: disable=import-outside-toplevel
     from course_discovery.apps.course_metadata.models import CourseEditor
 
     editors = CourseEditor.course_editors(course_run.course)
@@ -267,7 +265,6 @@ def send_email_for_comment(comment, course, author):
             author (User): User object who made the post request
     """
     # Model imports here to avoid a circular import
-    # pylint: disable=import-outside-toplevel
     from course_discovery.apps.course_metadata.models import CourseEditor
 
     subject = _('Comment added: {title}').format(

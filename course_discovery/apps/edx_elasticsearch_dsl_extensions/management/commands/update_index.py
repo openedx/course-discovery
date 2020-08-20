@@ -66,7 +66,6 @@ class Command(DjangoESDSLCommand):
         )
 
     def handle(self, *args, **options):
-        # pylint:disable=import-outside-toplevel
         from django.utils import translation
         translation.activate(settings.LANGUAGE_CODE)
         specified_backend = options.get('using')
@@ -93,7 +92,7 @@ class Command(DjangoESDSLCommand):
         for index, document in zip(registry.get_indices(models), registry.get_documents(models)):
             record_count = self.get_record_count(document)
             alias, new_index_name = self.prepare_backend_index(index)
-            # pylint:disable=protected-access
+            # pylint: disable=protected-access
             alias_mappings.append(AliasMapper(document, index, index._name, new_index_name, alias, record_count))
         # Set the alias (from settings) to the timestamped catalog.
         run_attempts = 0
@@ -113,7 +112,7 @@ class Command(DjangoESDSLCommand):
                             doc, new_index_name, record_count
                         )
                     if record_count_is_sane:
-                        # pylint:disable=protected-access
+                        # pylint: disable=protected-access
                         registered_index._name = new_index_name
                         ElasticsearchUtils.set_alias(conn, alias, new_index_name)
                         indexes_pending.pop(new_index_name, None)
@@ -186,7 +185,7 @@ class Command(DjangoESDSLCommand):
 
     @contextlib.contextmanager
     def preserve_state_registered_indexes(self, state_to_update, models):
-        # pylint:disable=protected-access
+        # pylint: disable=protected-access
         for index, (__, new_name) in zip(registry.get_indices(models), state_to_update):
             index._name = new_name
         yield
@@ -209,7 +208,7 @@ class Command(DjangoESDSLCommand):
         """
         copied_registered_index = copy(registered_index)
         timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-        # pylint:disable=protected-access
+        # pylint: disable=protected-access
         existed_index_name = copied_registered_index._name
         alias, *_ = copied_registered_index.get_alias(using=backend).get(existed_index_name, {}).get('aliases').keys()
         new_index_name = '{alias}_{timestamp}'.format(alias=alias, timestamp=timestamp)

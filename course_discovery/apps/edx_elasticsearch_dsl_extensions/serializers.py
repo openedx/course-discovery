@@ -189,8 +189,8 @@ class DjangoESDSLDRFFacetSerializer(serializers.Serializer):
         """
         view = self.context['view']
         queryset = self.context['objects']
-
         page = view.paginate_queryset(queryset)
+
         if page is not None:
             serializer = view.get_facet_objects_serializer(page, many=True)
             return OrderedDict(
@@ -226,11 +226,8 @@ class BaseDjangoESDSLFacetSerializer(DjangoESDSLDRFFacetSerializer):
 
     def get_fields(self):
         query_facet_counts = self.instance.pop('queries', {})
-
         field_mapping = super(BaseDjangoESDSLFacetSerializer, self).get_fields()
-
         query_data = self.format_query_facet_data(query_facet_counts)
-
         field_mapping['queries'] = DictField(query_data, child=QueryFacetFieldSerializer(), required=False)
 
         if self.serialize_objects:
