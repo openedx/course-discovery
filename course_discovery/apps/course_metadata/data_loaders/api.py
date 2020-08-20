@@ -81,7 +81,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
     @backoff.on_exception(
         backoff.expo,
         factor=60,
-        jitter=None,
         max_tries=4,
         exception=requests.exceptions.RequestException,
         giveup=_fatal_code,
