@@ -4,7 +4,7 @@ import uuid
 
 import requests
 from django.utils.functional import cached_property
-from slugify import slugify
+from django.utils.text import slugify
 from stdimage.models import StdImageFieldFile
 from stdimage.utils import UploadTo
 
@@ -77,15 +77,7 @@ def custom_render_variations(file_name, variations, storage, replace=True):
 
 def uslugify(string):
     """Slugifies a string, while handling unicode"""
-    # only_ascii=True asks slugify to convert unicode to ascii
-    slug = slugify(string, only_ascii=True)
-
-    # Version 0.1.3 of unicode-slugify does not do the following for us.
-    # But 0.1.4 does! So once it's available and we upgrade, we can drop this extra logic.
-    slug = slug.strip().replace(' ', '-').lower()
-    slug = ''.join(filter(lambda c: c.isalnum() or c in '-_~', slug))
-    # End code that can be dropped with 0.1.4
-
+    slug = slugify(string, allow_unicode=True)
     return slug
 
 

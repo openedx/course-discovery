@@ -42,8 +42,8 @@ class UslugifyTests(TestCase):
     Test the utiltity function uslugify
     """
     @ddt.data(
-        ('技研究', 'ji-yan-jiu'),
-        ('عائشة', 'ysh'),
+        ('技研究', '技研究'),
+        ('عائشة', 'عائشة'),
         ('TWO WORDS', 'two-words'),
     )
     @ddt.unpack
