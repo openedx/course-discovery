@@ -1,5 +1,5 @@
-# Stay on an LTS release
-django<2.3
+# This file contains all common constraints for edx-repos
+-c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
 
 # Elasticsearch upgrades need to be done in lockstep across Open edX
 elasticsearch>=7.8,<8.0
