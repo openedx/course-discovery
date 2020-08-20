@@ -104,11 +104,13 @@ class BaseDocument(BoostedDocument, metaclass=DocumentMeta):
         super().__init__(*args, **kwargs)
         self._object = None
 
-    id = fields.KeywordField()
-    pk = fields.IntegerField()
-    text = fields.TextField(analyzer=synonym_text)
     aggregation_key = fields.KeywordField()
     content_type = fields.KeywordField()
+    id = fields.KeywordField()
+    organizations = fields.TextField(analyzer=html_strip, multi=True, fields={'raw': fields.KeywordField(multi=True)})
+    pk = fields.IntegerField()
+    text = fields.TextField(analyzer=synonym_text)
+    uuid = fields.KeywordField()
 
     def _get_object(self):
         if self._object is None:
@@ -122,10 +124,18 @@ class BaseDocument(BoostedDocument, metaclass=DocumentMeta):
     def _set_object(self, obj):
         self._object = obj
 
+    def _prepare_language(self, language):
+        if language:
+            return language.get_search_facet_display()
+        return None
+
     object = property(_get_object, _set_object)
 
     def prepare_content_type(self, obj):  # pylint: disable=unused-argument
         return self.Django.model.__name__.lower()
+
+    def prepare_id(self, obj):
+        return '{0}.{1}.{2}'.format(obj._meta.app_label, obj._meta.model_name, obj.pk)
 
     def prepare_text(self, obj):
         """
@@ -143,14 +153,6 @@ class BaseDocument(BoostedDocument, metaclass=DocumentMeta):
             return ''
         return t.render({'object': obj})
 
-    def _prepare_language(self, language):
-        if language:
-            return language.get_search_facet_display()
-        return None
-
-    def prepare_id(self, obj):
-        return '{0}.{1}.{2}'.format(obj._meta.app_label, obj._meta.model_name, obj.pk)
-
 
 class BaseCourseDocument(OrganizationsMixin, BaseDocument):
     """
@@ -158,6 +160,14 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
 
     Contains common fields and logic for Course and CourseRun indexes.
     """
+    authoring_organizations = fields.TextField(
+        multi=True,
+        fields={
+            'suggest': fields.CompletionField(),
+            'edge_ngram_completion': fields.TextField(analyzer=edge_ngram_completion),
+        },
+    )
+    authoring_organization_bodies = fields.TextField(multi=True)
     key = fields.KeywordField()
     title = fields.TextField(
         analyzer=synonym_text,
@@ -166,25 +176,28 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
             'edge_ngram_completion': fields.TextField(analyzer=edge_ngram_completion),
         },
     )
-    authoring_organization_bodies = fields.TextField(multi=True)
-    short_description = fields.TextField(analyzer=html_strip)
+    first_enrollable_paid_seat_price = fields.IntegerField()
     full_description = fields.TextField(analyzer=html_strip)
-    subjects = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField(multi=True)}, multi=True)
-    organizations = fields.TextField(analyzer=html_strip, multi=True, fields={'raw': fields.KeywordField(multi=True)})
-    authoring_organizations = fields.TextField(
-        multi=True,
-        fields={
-            'suggest': fields.CompletionField(),
-            'edge_ngram_completion': fields.TextField(analyzer=edge_ngram_completion),
-        },
-    )
+    image_url = fields.TextField()
     logo_image_urls = fields.TextField(multi=True)
-    sponsoring_organizations = fields.TextField(multi=True)
     level_type = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
+    partner = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
     outcome = fields.TextField()
+    org = fields.KeywordField()
+    subject_uuids = fields.KeywordField(multi=True)
+    short_description = fields.TextField(analyzer=html_strip)
+    seat_types = fields.KeywordField(multi=True)
+    subjects = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField(multi=True)}, multi=True)
+    sponsoring_organizations = fields.TextField(multi=True)
 
-    def prepare_subjects(self, obj):
-        return [subject.name for subject in obj.subjects.all()]
+    def prepare_authoring_organization_uuids(self, obj):
+        return [str(organization.uuid) for organization in obj.authoring_organizations.all()]
+
+    def prepare_first_enrollable_paid_seat_price(self, obj):
+        return obj.first_enrollable_paid_seat_price
+
+    def prepare_level_type(self, obj):
+        return obj.level_type.name if obj.level_type else None
 
     def prepare_logo_image_urls(self, obj):
         orgs = obj.authoring_organizations.all()
@@ -193,11 +206,11 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
     def prepare_organizations(self, obj):
         return list(set(self.prepare_authoring_organizations(obj) + self.prepare_sponsoring_organizations(obj)))
 
+    def prepare_subjects(self, obj):
+        return [subject.name for subject in obj.subjects.all()]
+
+    def prepare_subject_uuids(self, obj):
+        return [str(subject.uuid) for subject in obj.subjects.all()]
+
     def prepare_sponsoring_organizations(self, obj):
         return self._prepare_organizations(obj.sponsoring_organizations.all())
-
-    def prepare_level_type(self, obj):
-        return obj.level_type.name if obj.level_type else None
-
-    def prepare_authoring_organization_uuids(self, obj):
-        return [str(organization.uuid) for organization in obj.authoring_organizations.all()]
