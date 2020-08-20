@@ -300,7 +300,6 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
 class OrganizationUserRoleInline(admin.TabularInline):
     # course-meta-data models are importing in publisher app. So just for safe side
     # to avoid any circular issue importing the publisher model here.
-    # pylint: disable=import-outside-toplevel
     from course_discovery.apps.publisher.models import OrganizationUserRole
     model = OrganizationUserRole
     extra = 3

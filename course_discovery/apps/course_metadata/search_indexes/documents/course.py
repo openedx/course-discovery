@@ -4,7 +4,6 @@ from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.models import Course
 
-from .analyzers import html_strip
 from .common import BaseCourseDocument, filter_visible_runs
 
 __all__ = ('CourseDocument',)
