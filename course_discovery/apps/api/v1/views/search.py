@@ -340,8 +340,7 @@ class TypeaheadSearchView(APIView):
                 must_not=[ESDSLQ('term', hidden=True)],
             )
         )
-
-        programs = programs[: self.RESULT_COUNT]
+        programs = programs[:self.RESULT_COUNT]
 
         return course_run_list, programs
 

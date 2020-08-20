@@ -86,7 +86,6 @@ class AdditionalPromoAreaFactory(AbstractTitleDescriptionFactory):
 class SalesforceRecordFactory(factory.django.DjangoModelFactory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
-        # pylint: disable=import-outside-toplevel
         from course_discovery.apps.course_metadata.tests.utils import build_salesforce_exception
         try:
             return super()._create(model_class, *args, **kwargs)

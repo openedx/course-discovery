@@ -4,7 +4,7 @@ from django_elasticsearch_dsl import Index, fields
 from course_discovery.apps.course_metadata.models import Person, Position
 
 from .common import BaseDocument
-from .analyzers import html_strip
+
 __all__ = ('PersonDocument',)
 
 PERSON_INDEX_NAME = settings.ELASTICSEARCH_INDEX_NAMES[__name__]
@@ -24,6 +24,7 @@ class PersonDocument(BaseDocument):
     get_profile_image_url = fields.TextField()
     organizations = fields.KeywordField(multi=True)
     position = fields.TextField(multi=True)
+    salutation = fields.TextField()
 
     def prepare_aggregation_key(self, obj):
         return 'person:{}'.format(obj.uuid)

@@ -74,7 +74,6 @@ def set_official_state(obj, model, attrs=None):
     Returns
         the official version of that object with the attributes updated to attrs
     """
-    # pylint: disable=import-outside-toplevel
     from course_discovery.apps.course_metadata.models import Course, CourseRun
     # This is so we don't create the marketing node with an incorrect slug.
     # We correct the slug after setting official state, but the AutoSlugField initially overwrites it.
@@ -131,7 +130,6 @@ def set_draft_state(obj, model, attrs=None, related_attrs=None):
         (Model obj, Model obj): Tuple of Model objects where the first is the draft object
             and the second is the original
     """
-    # pylint: disable=import-outside-toplevel
     from course_discovery.apps.course_metadata.models import Course, CourseRun
     original_obj = model.objects.get(pk=obj.pk)
     obj.pk = None
@@ -169,7 +167,6 @@ def set_draft_state(obj, model, attrs=None, related_attrs=None):
 
 
 def _calculate_entitlement_for_run(run):
-    # pylint: disable=import-outside-toplevel
     from course_discovery.apps.course_metadata.models import Seat
 
     entitlement_seats = [seat for seat in run.seats.all() if seat.type.slug in Seat.ENTITLEMENT_MODES]
@@ -181,7 +178,6 @@ def _calculate_entitlement_for_run(run):
 
 
 def _calculate_entitlement_for_course(course):
-    # pylint: disable=import-outside-toplevel
     from course_discovery.apps.course_metadata.models import Course
 
     # When we are creating the draft course for the first time, the prefetch_related of course runs
@@ -211,7 +207,6 @@ def create_missing_entitlement(course):
     Returns:
         True if an entitlement was created, False if we could not make one
     """
-    # pylint: disable=import-outside-toplevel
     from course_discovery.apps.course_metadata.models import CourseEntitlement, SeatType
 
     calculated_entitlement = _calculate_entitlement_for_course(course)
@@ -253,7 +248,6 @@ def ensure_draft_world(obj):
     Returns:
         obj (Model object): The returned object will be the draft version on the input object.
     """
-    # pylint: disable=import-outside-toplevel
     from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat
     if obj.draft:
         return obj
