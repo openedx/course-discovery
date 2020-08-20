@@ -27,6 +27,15 @@ from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_co
 logger = logging.getLogger(__name__)
 
 
+def _fatal_code(ex):
+    """
+    Give up if the error indicates that the request was invalid.
+
+    That means don't retry any 4XX code, except 429, which is rate limiting.
+    """
+    return ex.response.status_code != 429 and 400 <= ex.response.status_code < 500  # pylint: disable=no-member
+
+
 class CoursesApiDataLoader(AbstractDataLoader):
     """ Loads course runs from the Courses API. """
 
@@ -63,9 +72,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
         """Make a request for the given page and process the response."""
         response = self._make_request(page)
         self._process_response(response)
-
-    def _fatal_code(ex):  # pylint: disable=no-self-argument
-        return ex.response.status_code != 429 and ex.response.status_code != 504  # pylint: disable=no-member
 
     # The courses endpoint has a 40 requests/minute rate limit.
     # This will back off at a rate of 60/120/240 seconds (from the factor 60 and default value of base 2).
