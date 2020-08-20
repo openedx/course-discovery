@@ -25,88 +25,58 @@ class CourseRunDocument(BaseCourseDocument):
     Course run Elasticsearch document.
     """
 
+    announcement = fields.DateField()
+    availability = fields.KeywordField()
+    authoring_organization_uuids = fields.KeywordField(multi=True)
     course_key = fields.KeywordField()
-    org = fields.KeywordField()
-    number = fields.KeywordField()
-    status = fields.KeywordField()
-    start = fields.DateField()
     end = fields.DateField()
-    go_live_date = fields.DateField()
     enrollment_start = fields.DateField()
     enrollment_end = fields.DateField()
-    availability = fields.KeywordField()
-    announcement = fields.DateField()
-    min_effort = fields.IntegerField()
-    max_effort = fields.IntegerField()
-    weeks_to_complete = fields.IntegerField()
+    first_enrollable_paid_seat_sku = fields.TextField()
+    go_live_date = fields.DateField()
+    has_enrollable_seats = fields.BooleanField()
+    has_enrollable_paid_seats = fields.BooleanField()
+    hidden = fields.BooleanField()
+    is_enrollable = fields.BooleanField()
+    is_current_and_still_upgradeable = fields.BooleanField()
     language = fields.TextField(
         analyzer=html_strip, fields={'raw': fields.KeywordField()}
     )
+    license = fields.KeywordField()
+    marketing_url = fields.TextField()
+    min_effort = fields.IntegerField()
+    max_effort = fields.IntegerField()
+    mobile_available = fields.BooleanField()
+    number = fields.KeywordField()
+    paid_seat_enrollment_end = fields.DateField()
+    pacing_type = fields.KeywordField()
+    program_types = fields.KeywordField(multi=True)
+    published = fields.BooleanField()
+    status = fields.KeywordField()
+    start = fields.DateField()
+    slug = fields.TextField()
+    staff_uuids = fields.KeywordField(multi=True)
+    type = fields.KeywordField(attr='type_legacy')
     transcript_languages = fields.TextField(
         analyzer=html_strip, fields={'raw': fields.KeywordField(multi=True)}, multi=True
     )
-    pacing_type = fields.KeywordField()
-    marketing_url = fields.TextField()
-    slug = fields.TextField()
-    seat_types = fields.KeywordField(multi=True)
-    type = fields.KeywordField(attr='type_legacy')
-    image_url = fields.TextField()
-    partner = fields.TextField(
-        analyzer=html_strip,
-        fields={'raw': fields.KeywordField()}
-    )
-    program_types = fields.KeywordField(multi=True)
-    published = fields.BooleanField()
-    hidden = fields.BooleanField()
-    mobile_available = fields.BooleanField()
-    authoring_organization_uuids = fields.KeywordField(multi=True)
-    staff_uuids = fields.KeywordField(multi=True)
-    subject_uuids = fields.KeywordField(multi=True)
-    has_enrollable_paid_seats = fields.BooleanField()
-    first_enrollable_paid_seat_sku = fields.TextField()
-    first_enrollable_paid_seat_price = fields.IntegerField()
-    paid_seat_enrollment_end = fields.DateField()
-    license = fields.KeywordField()
-    has_enrollable_seats = fields.BooleanField()
-    is_enrollable = fields.BooleanField()
-    is_current_and_still_upgradeable = fields.BooleanField()
-
-    def get_queryset(self):
-        # TODO: Build queryset smartly.
-        return filter_visible_runs(
-            super().get_queryset()
-                   .select_related('course')
-                   .prefetch_related('seats__type')
-                   .prefetch_related('transcript_languages')
-        )
-
-    def prepare_course_key(self, obj):
-        return obj.course.key
+    weeks_to_complete = fields.IntegerField()
 
     def prepare_aggregation_key(self, obj):
         # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.
         return 'courserun:{}'.format(obj.course.key)
 
-    def prepare_has_enrollable_paid_seats(self, obj):
-        return obj.has_enrollable_paid_seats()
+    def prepare_course_key(self, obj):
+        return obj.course.key
 
     def prepare_first_enrollable_paid_seat_sku(self, obj):
         return obj.first_enrollable_paid_seat_sku()
 
-    def prepare_first_enrollable_paid_seat_price(self, obj):
-        return obj.first_enrollable_paid_seat_price
-
     def prepare_is_current_and_still_upgradeable(self, obj):
         return obj.is_current_and_still_upgradeable()
 
-    def prepare_paid_seat_enrollment_end(self, obj):
-        return obj.get_paid_seat_enrollment_end()
-
-    def prepare_partner(self, obj):
-        return obj.course.partner.short_code
-
-    def prepare_published(self, obj):
-        return obj.status == CourseRunStatus.Published
+    def prepare_has_enrollable_paid_seats(self, obj):
+        return obj.has_enrollable_paid_seats()
 
     def prepare_language(self, obj):
         return self._prepare_language(obj.language)
@@ -119,20 +89,34 @@ class CourseRunDocument(BaseCourseDocument):
         course_run_key = CourseKey.from_string(obj.key)
         return course_run_key.org
 
+    def prepare_paid_seat_enrollment_end(self, obj):
+        return obj.get_paid_seat_enrollment_end()
+
+    def prepare_partner(self, obj):
+        return obj.course.partner.short_code
+
+    def prepare_published(self, obj):
+        return obj.status == CourseRunStatus.Published
+
+    def prepare_seat_types(self, obj):
+            return [seat_type.slug for seat_type in obj.seat_types]
+
+    def prepare_staff_uuids(self, obj):
+            return [str(staff.uuid) for staff in obj.staff.all()]
+
     def prepare_transcript_languages(self, obj):
         return [
             self._prepare_language(language)
             for language in obj.transcript_languages.all()
         ]
 
-    def prepare_seat_types(self, obj):
-        return [seat_type.slug for seat_type in obj.seat_types]
-
-    def prepare_staff_uuids(self, obj):
-        return [str(staff.uuid) for staff in obj.staff.all()]
-
-    def prepare_subject_uuids(self, obj):
-        return [str(subject.uuid) for subject in obj.subjects.all()]
+    def get_queryset(self):
+        return filter_visible_runs(
+            super().get_queryset()
+                   .select_related('course')
+                   .prefetch_related('seats__type')
+                   .prefetch_related('transcript_languages')
+        )
 
     class Django:
         """
