@@ -41,7 +41,7 @@ WORKDIR /edx/app/discovery
 # Copy just JS requirements and install them.
 COPY package.json package.json
 COPY package-lock.json package-lock.json
-RUN nodeenv /edx/app/nodeenv --node=8.9.3 --prebuilt
+RUN nodeenv /edx/app/nodeenv --node=12.11.1 --prebuilt
 ENV PATH /edx/app/nodeenv/bin:${PATH}
 RUN npm install --production
 COPY bower.json bower.json
