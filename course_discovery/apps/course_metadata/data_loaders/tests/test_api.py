@@ -23,7 +23,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     CourseEntitlementFactory, CourseFactory, CourseRunFactory, ImageFactory, OrganizationFactory, SeatFactory,
     VideoFactory
 )
-from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
+from course_discovery.apps.publisher.constants import ENABLE_EDLY_MARKETING_SITE_SWITCH, PUBLISHER_ENABLE_READ_ONLY_FIELDS
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
 
@@ -94,40 +94,47 @@ class OrganizationsApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, T
         )
         return bodies
 
-    def assert_organization_loaded(self, body, partner_has_marketing_site=True):
+    def assert_organization_loaded(self, body, partner_has_marketing_site=True, edly_enable_marketing_site=True):
         """ Assert an Organization corresponding to the specified data body was properly loaded into the database. """
         organization = Organization.objects.get(key=AbstractDataLoader.clean_string(body['short_name']))
-        if not partner_has_marketing_site:
+        if not partner_has_marketing_site or edly_enable_marketing_site:
             self.assertEqual(organization.name, AbstractDataLoader.clean_string(body['name']))
             self.assertEqual(organization.description, AbstractDataLoader.clean_string(body['description']))
             self.assertEqual(organization.logo_image_url, AbstractDataLoader.clean_string(body['logo']))
             self.assertEqual(organization.certificate_logo_image_url, AbstractDataLoader.clean_string(body['logo']))
 
     @responses.activate
-    @ddt.data(True, False)
-    def test_ingest(self, partner_has_marketing_site):
+    @ddt.unpack
+    @ddt.data(
+        (True, True),
+        (True, False),
+        (False, True),
+        (False, False),
+    )
+    def test_ingest(self, partner_has_marketing_site, edly_enable_marketing_site):
         """ Verify the method ingests data from the Organizations API. """
-        api_data = self.mock_api()
-        if not partner_has_marketing_site:
-            self.partner.marketing_site_url_root = None
-            self.partner.save()
+        with override_switch(ENABLE_EDLY_MARKETING_SITE_SWITCH, active=edly_enable_marketing_site):
+            api_data = self.mock_api()
+            if not partner_has_marketing_site:
+                self.partner.marketing_site_url_root = None
+                self.partner.save()
 
-        self.assertEqual(Organization.objects.count(), 0)
+            self.assertEqual(Organization.objects.count(), 0)
 
-        self.loader.ingest()
+            self.loader.ingest()
 
-        # Verify the API was called with the correct authorization header
-        self.assert_api_called(1)
+            # Verify the API was called with the correct authorization header
+            self.assert_api_called(1)
 
-        # Verify the Organizations were created correctly
-        expected_num_orgs = len(api_data)
-        self.assertEqual(Organization.objects.count(), expected_num_orgs)
+            # Verify the Organizations were created correctly
+            expected_num_orgs = len(api_data)
+            self.assertEqual(Organization.objects.count(), expected_num_orgs)
 
-        for datum in api_data:
-            self.assert_organization_loaded(datum, partner_has_marketing_site)
+            for datum in api_data:
+                self.assert_organization_loaded(datum, partner_has_marketing_site, edly_enable_marketing_site)
 
-        # Verify multiple calls to ingest data do NOT result in data integrity errors.
-        self.loader.ingest()
+            # Verify multiple calls to ingest data do NOT result in data integrity errors.
+            self.loader.ingest()
 
     @responses.activate
     def test_ingest_respects_partner(self):
@@ -171,7 +178,8 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
     def assert_course_run_loaded(
         self,
         body, partner_has_marketing_site=True,
-        is_publisher_read_only_switch_active=True
+        is_publisher_read_only_switch_active=True,
+        edly_enable_marketing_site=True,
     ):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """
 
@@ -202,7 +210,7 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
         start = self.loader.parse_date(body['start'])
         pacing_type = self.loader.get_pacing_type(body)
 
-        if not partner_has_marketing_site:
+        if not partner_has_marketing_site or edly_enable_marketing_site:
             expected_values.update({
                 'start': start,
                 'card_image_url': body['media'].get('image', {}).get('raw'),
@@ -228,14 +236,19 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
     @responses.activate
     @ddt.unpack
     @ddt.data(
-        (True, True),
-        (True, False),
-        (False, True),
-        (False, False)
+        (True, True, True),
+        (True, True, False),
+        (True, False, True),
+        (True, False, False),
+        (False, True, True),
+        (False, True, False),
+        (False, False, True),
+        (False, False, False),
     )
-    def test_ingest(self, partner_has_marketing_site, is_publisher_read_only_switch_active):
+    def test_ingest(self, partner_has_marketing_site, is_publisher_read_only_switch_active, edly_enable_marketing_site):
         """ Verify the method ingests data from the Courses API. """
-        with override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=is_publisher_read_only_switch_active):
+        with override_switch(PUBLISHER_ENABLE_READ_ONLY_FIELDS, active=is_publisher_read_only_switch_active),\
+             override_switch(ENABLE_EDLY_MARKETING_SITE_SWITCH, active=edly_enable_marketing_site):
             api_data = self.mock_api()
             if not partner_has_marketing_site:
                 self.partner.marketing_site_url_root = None
@@ -254,7 +267,9 @@ class CoursesApiDataLoaderTests(ApiClientTestMixin, DataLoaderTestMixin, TestCas
             self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
 
             for datum in api_data:
-                self.assert_course_run_loaded(datum, partner_has_marketing_site, is_publisher_read_only_switch_active)
+                self.assert_course_run_loaded(
+                    datum, partner_has_marketing_site, is_publisher_read_only_switch_active,edly_enable_marketing_site
+                )
 
             # Verify multiple calls to ingest data do NOT result in data integrity errors.
             self.loader.ingest()

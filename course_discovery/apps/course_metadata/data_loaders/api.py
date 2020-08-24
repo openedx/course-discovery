@@ -18,7 +18,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
 )
-from course_discovery.apps.publisher.constants import PUBLISHER_ENABLE_READ_ONLY_FIELDS
+from course_discovery.apps.publisher.constants import ENABLE_EDLY_MARKETING_SITE_SWITCH, PUBLISHER_ENABLE_READ_ONLY_FIELDS
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ class OrganizationsApiDataLoader(AbstractDataLoader):
             'certificate_logo_image_url': logo,
         }
 
-        if not self.partner.has_marketing_site:
+        if not self.partner.has_marketing_site or waffle.switch_is_active(ENABLE_EDLY_MARKETING_SITE_SWITCH):
             defaults.update({
                 'name': body['name'],
                 'description': body['description'],
@@ -132,7 +132,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 if course_run:
                     self.update_course_run(course_run, body)
                     course = getattr(course_run, 'canonical_for_course', False)
-                    if course and not self.partner.has_marketing_site:
+                    if course and (not self.partner.has_marketing_site or waffle.switch_is_active(ENABLE_EDLY_MARKETING_SITE_SWITCH)):
                         # If the partner have marketing site,
                         # we should only update the course information from the marketing site.
                         # Therefore, we don't need to do the statements below
@@ -230,7 +230,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             })
 
         # When using a marketing site, only dates (excluding start) should come from the Course API.
-        if not self.partner.has_marketing_site:
+        if not self.partner.has_marketing_site or waffle.switch_is_active(ENABLE_EDLY_MARKETING_SITE_SWITCH):
             defaults.update({
                 'start': start,
                 'card_image_url': body['media'].get('image', {}).get('raw'),
