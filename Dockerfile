@@ -56,6 +56,8 @@ RUN pip install -r requirements/production.txt
 # every time any bit of code is changed.
 COPY . .
 
+# building static assets
+RUN ./node_modules/.bin//webpack --config webpack.config.js --display-error-details --progress --optimize-minimize
 RUN python manage.py collectstatic -v 0 --noinput
 
 # Expose canoncal Discovery port (TODO: This should be 8381 for prod...)

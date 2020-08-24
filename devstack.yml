@@ -38,6 +38,7 @@ DATABASES:
         PASSWORD: password
         PORT: 3306
         USER: discov001
+DEBUG: true
 DEFAULT_PARTNER_ID: 1
 EDX_DRF_EXTENSIONS:
     OAUTH2_USER_INFO_URL: http://127.0.0.1:8000/user_info
