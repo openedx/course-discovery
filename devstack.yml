@@ -4,7 +4,7 @@ API_ROOT: null
 AWS_SES_REGION_ENDPOINT: email.us-east-1.amazonaws.com
 AWS_SES_REGION_NAME: us-east-1
 BACKEND_SERVICE_EDX_OAUTH2_KEY: discovery-backend-service-key
-BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL: http://localhost:18000/oauth2
+BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL: http://localhost:8000/oauth2
 BACKEND_SERVICE_EDX_OAUTH2_SECRET: discovery-backend-service-secret
 CACHES:
     default:
@@ -72,7 +72,7 @@ USERNAME_REPLACEMENT_WORKER: OVERRIDE THIS WITH A VALID USERNAME
 
 DEFAULT_FILE_STORAGE: django.core.files.storage.FileSystemStorage
 MEDIA_ROOT: /edx/var/discovery/media
-MEDIA_URL: http://localhost:18381/media/
+MEDIA_URL: http://localhost:8381/media/
 LOCAL_DISCOVERY_MEDIA_URL: /media/
 LOGGING: {
     "version": 1,
@@ -153,11 +153,11 @@ JWT_AUTH: {
         {
             "AUDIENCE": "lms-key",
             "SECRET_KEY": "lms-secret",
-            "ISSUER": "http://localhost:18000/oauth2"
+            "ISSUER": "http://localhost:8000/oauth2"
         }
     ],
     "JWT_VERIFY_AUDIENCE": false,
-    "JWT_ISSUER": "http://localhost:18000/oauth2",
+    "JWT_ISSUER": "http://localhost:8000/oauth2",
     "JWT_AUTH_COOKIE_HEADER_PAYLOAD": "edx-jwt-cookie-header-payload",
     "JWT_SECRET_KEY": "lms-secret",
     "JWT_AUTH_REFRESH_COOKIE": "edx-jwt-refresh-cookie"
@@ -172,8 +172,8 @@ PARLER_LANGUAGES:
     default:
         fallbacks: ['en']
         hide_untranslated: false
-SOCIAL_AUTH_EDX_OAUTH2_ISSUER: http://localhost:18000
-SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT: http://edx.devstack.lms:18000
-SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT: http://localhost:18000
-SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL: http://localhost:18000/logout
-ORG_BASE_LOGO_URL: http://discovery:18381/media/
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER: http://localhost:8000
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT: http://edx.devstack.lms:8000
+SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT: http://localhost:8000
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL: http://localhost:8000/logout
+ORG_BASE_LOGO_URL: http://discovery:8381/media/
