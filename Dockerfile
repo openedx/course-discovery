@@ -56,11 +56,11 @@ RUN pip install -r requirements/production.txt
 # every time any bit of code is changed.
 COPY . .
 
-# Expose canoncal Discovery port (TODO: This should be 8381 for prod...)
-EXPOSE 18381
+# Expose canoncal Discovery port
+EXPOSE 8381
 
-CMD gunicorn --bind=0.0.0.0:18381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
+CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
 
 FROM app as newrelic
 RUN pip install newrelic
-CMD newrelic-admin run-program gunicorn --bind=0.0.0.0:18381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
+CMD newrelic-admin run-program gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
