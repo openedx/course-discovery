@@ -5,8 +5,8 @@ from django.conf import settings
 from django.core.management import CommandError
 from django_elasticsearch_dsl.management.commands.search_index import Command as DjangoESDSLCommand
 from django_elasticsearch_dsl.registries import registry
-from elasticsearch_dsl.connections import get_connection
 from elasticsearch.exceptions import NotFoundError
+from elasticsearch_dsl.connections import get_connection
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
 
