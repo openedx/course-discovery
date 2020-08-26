@@ -1,4 +1,5 @@
 import json
+from fnmatch import fnmatch
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.template import loader
@@ -110,6 +111,12 @@ class BaseDocument(BoostedDocument, metaclass=DocumentMeta):
     pk = fields.IntegerField()
     text = fields.TextField(analyzer=synonym_text)
     uuid = fields.KeywordField()
+
+    @classmethod
+    def _matches(cls, hit):
+        if cls._index._name is None:
+            return True
+        return fnmatch(hit.get('_index', ''), '{}*'.format(cls._index._name))
 
     def _get_object(self):
         if self._object is None:

@@ -7,6 +7,7 @@ from rest_framework import serializers
 from rest_framework.fields import DictField, ListField
 
 from course_discovery.apps.api.serializers import QueryFacetFieldSerializer
+from course_discovery.apps.core.utils import ElasticsearchUtils
 
 
 # pylint: disable=abstract-method
@@ -304,8 +305,9 @@ class MultiDocumentSerializerMixin:
         instance_serializers = {
             document._index._name: serializer for document, serializer in self.Meta.serializers.items()
         }
-        index = instance.meta['index']
-        serializer_class = instance_serializers.get(index, None)
+        index_name = instance.meta['index']
+        index_alias = ElasticsearchUtils.get_alias_by_index_name(index_name)
+        serializer_class = instance_serializers.get(index_alias, None)
         if not serializer_class:
-            raise ImproperlyConfigured('Could not find serializer for %s in mapping' % index)
+            raise ImproperlyConfigured('Could not find serializer for %s in mapping' % index_name)
         return serializer_class(context=self._context).to_representation(instance)
