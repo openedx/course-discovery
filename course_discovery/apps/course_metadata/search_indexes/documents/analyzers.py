@@ -16,7 +16,6 @@ synonym_text = analyzer(
     filter=[
         # The ORDER is important here.
         'lowercase',
-        'stop',
         synonym_tokenfilter,
         # Note! 'snowball' comes after 'synonym_tokenfilter'
         'snowball',
