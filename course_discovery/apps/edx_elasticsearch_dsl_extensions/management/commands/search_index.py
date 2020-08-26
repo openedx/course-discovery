@@ -6,6 +6,7 @@ from django.core.management import CommandError
 from django_elasticsearch_dsl.management.commands.search_index import Command as DjangoESDSLCommand
 from django_elasticsearch_dsl.registries import registry
 from elasticsearch_dsl.connections import get_connection
+from elasticsearch.exceptions import NotFoundError
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
 
@@ -59,3 +60,24 @@ class Command(DjangoESDSLCommand):
                     )
                 )
                 ElasticsearchUtils.set_alias(es_connection, created_index_info.alias, created_index_info.name)
+
+    def _delete(self, models, options):
+        index_names = [index._name for index in registry.get_indices(models)]
+        if not options['force']:
+            response = input(
+                "Are you sure you want to delete "
+                "the '{}' indexes? [y/N]: ".format(", ".join(index_names)))
+            if response.lower() != 'y':
+                self.stdout.write('Aborted')
+                return False
+
+        for index in registry.get_indices(models):
+            try:
+                index_alias = index.get_alias()
+            except NotFoundError:
+                continue
+            index_name, *_ = index_alias.keys()
+            index._name = index_name
+            self.stdout.write("Deleting index '{}'".format(index._name))
+            index.delete(ignore=404)
+        return True
