@@ -114,6 +114,7 @@ class BaseDocument(BoostedDocument, metaclass=DocumentMeta):
 
     @classmethod
     def _matches(cls, hit):
+        # pylint: disable=protected-access
         if cls._index._name is None:
             return True
         return fnmatch(hit.get('_index', ''), '{}*'.format(cls._index._name))
