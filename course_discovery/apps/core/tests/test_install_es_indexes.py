@@ -13,6 +13,9 @@ class InstallEsIndexesCommandTests(ElasticsearchTestMixin, TestCase):
         """ Verify the app sets the alias and creates a new index. """
         for index in registry.get_indices():
             # pylint: disable=protected-access
+            index_alias = index.get_alias()
+            index_name, *_ = index_alias.keys()
+            index._name = index_name
             self.es.indices.delete(index=index._name, ignore=404)
             self.assertFalse(self.es.indices.exists(index=index._name))
 
