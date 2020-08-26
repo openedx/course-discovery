@@ -100,7 +100,7 @@ class Command(DjangoESDSLCommand):
         while indexes_pending and run_attempts < 2:
             run_attempts += 1
             self._populate(models, options)
-            for doc, registered_index, new_index_name, alias, record_count in alias_mappings:
+            for doc, __, new_index_name, alias, record_count in alias_mappings:
                 # Run a sanity check to ensure we aren't drastically changing the
                 # index, which could be indicative of a bug.
                 if new_index_name in indexes_pending and not options.get('disable_change_limit', False):
@@ -108,7 +108,6 @@ class Command(DjangoESDSLCommand):
                         doc, new_index_name, record_count
                     )
                     if record_count_is_sane:
-                        # pylint: disable=protected-access
                         ElasticsearchUtils.set_alias(conn, alias, new_index_name)
                         indexes_pending.pop(new_index_name, None)
                     else:
@@ -118,7 +117,7 @@ class Command(DjangoESDSLCommand):
                     indexes_pending.pop(new_index_name, None)
 
         for index_alias_mapper in alias_mappings:
-            index_alias_mapper.registered_index._name = index_alias_mapper.alias
+            index_alias_mapper.registered_index._name = index_alias_mapper.alias  # pylint: disable=protected-access
 
         if indexes_pending:
             raise CommandError('Sanity check failed for the new index(es): {}'.format(indexes_pending))
