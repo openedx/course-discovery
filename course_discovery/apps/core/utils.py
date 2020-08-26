@@ -83,6 +83,7 @@ class ElasticsearchUtils:
         index_name = '{alias}_{timestamp}'.format(alias=alias, timestamp=timestamp)
         index._name = index_name
         index.create(using=conn_name)
+        index._name = alias
         return IndexMeta(index_name, alias)
 
     @classmethod
