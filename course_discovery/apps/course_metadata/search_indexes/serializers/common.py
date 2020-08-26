@@ -3,6 +3,8 @@ import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django_elasticsearch_dsl.registries import registry
 
+from course_discovery.apps.core.utils import ElasticsearchUtils
+
 log = logging.getLogger(__name__)
 
 
@@ -20,9 +22,9 @@ class ModelObjectDocumentSerializerMixin:
         """
         document = None
         _object = None
-        index_name = instance.meta.index
+        index_or_alias_name = ElasticsearchUtils.get_alias_by_index_name(instance.meta.index)
         for doc in registry.get_documents():
-            if doc._index._name == index_name:  # pylint: disable=protected-access
+            if index_or_alias_name == doc._index._name:  # pylint: disable=protected-access
                 document = doc
                 break
         hit = self._build_hit(instance)
