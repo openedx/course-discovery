@@ -42,7 +42,7 @@ class Command(BaseCommand):
         logger.info(f'Found {index_count} indexes')
 
         # Remove current index from list so we don't delete it
-        current_alias = indices_client.get_alias(name=current_alias_name)
+        current_alias = indices_client.get_alias(name=current_alias_name, ignore=404)
         sorted_indexes_by_timestamp = list(set(sorted_indexes_by_timestamp) - set(current_alias.keys()))
 
         num_indices_to_remove = len(sorted_indexes_by_timestamp) - settings.ELASTICSEARCH_DSL_INDEX_RETENTION_LIMIT
