@@ -30,11 +30,14 @@ class TestRemoveUnusedIndexes:
         indices_client = elasticsearch_dsl_default_connection.indices
         for index in registry.get_indices():
             # pylint: disable=protected-access
-            current_alias = indices_client.get_alias(name=index._name[:-16])
+            index_alias = ElasticsearchUtils.get_alias_by_index_name(index._name)
+            current_alias = indices_client.get_alias(name=index_alias)
             indexes_to_keep = current_alias.keys()
 
             # check that we keep the current indexes, which we don't want removed
-            all_indexes = self.get_current_index_names(indices_client=indices_client, index_prefix=index._name[:-16])
+            all_indexes = self.get_current_index_names(
+                indices_client=indices_client, index_prefix=index_alias
+            )
             assert set(all_indexes).issuperset(set(indexes_to_keep))
 
             # check that other indexes are removed, excepting those that don't hit the retention limit
@@ -47,8 +50,11 @@ class TestRemoveUnusedIndexes:
         for index in registry.get_indices():
             # check that we keep the current indexes, which we don't want removed
             # pylint: disable=protected-access
-            all_indexes = self.get_current_index_names(indices_client=indices_client, index_prefix=index._name[:-16])
-            current_alias = indices_client.get_alias(name=index._name[:-16])
+            index_alias = ElasticsearchUtils.get_alias_by_index_name(index._name)
+            all_indexes = self.get_current_index_names(
+                indices_client=indices_client, index_prefix=index_alias
+            )
+            current_alias = indices_client.get_alias(name=index_alias)
             indexes_to_keep = current_alias.keys()
             assert set(all_indexes).issuperset(set(indexes_to_keep))
 
@@ -64,5 +70,9 @@ class TestRemoveUnusedIndexes:
     @staticmethod
     def get_current_index_names(indices_client, index_prefix):
         all_indexes = indices_client.get('*').keys()
-        all_current_indexes = [index_name for index_name in all_indexes if index_name[:-16] == index_prefix]
+        all_current_indexes = [
+            index_name
+            for index_name in all_indexes
+            if ElasticsearchUtils.get_alias_by_index_name(index_name) == index_prefix
+        ]
         return all_current_indexes
