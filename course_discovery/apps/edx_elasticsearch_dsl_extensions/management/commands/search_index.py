@@ -62,6 +62,7 @@ class Command(DjangoESDSLCommand):
                 ElasticsearchUtils.set_alias(es_connection, created_index_info.alias, created_index_info.name)
 
     def _delete(self, models, options):
+        # pylint: disable=protected-access
         index_names = [index._name for index in registry.get_indices(models)]
         if not options['force']:
             response = input(
