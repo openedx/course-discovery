@@ -22,7 +22,7 @@ class BaseSearchFilterBackend(OriginBaseSearchFilterBackend):
         function_score_config = get_elasticsearch_boost_config()['function_score']
         if self.matching not in MATCHING_OPTIONS:
             raise ImproperlyConfigured(
-                'Your `matching` value does not match the allowed matching'
+                'Your `matching` value does not match the allowed matching\t'
                 'options: {}'.format(', '.join(MATCHING_OPTIONS))
             )
 
@@ -43,9 +43,9 @@ class BaseSearchFilterBackend(OriginBaseSearchFilterBackend):
             queryset = queryset.query('function_score', **function_score_config)
         else:
             raise ImproperlyConfigured(
-                'Search filter backend shall have at least one query_backend'
-                'specified either in `query_backends` property or '
-                '`get_query_backends` method. Make appropriate changes to'
+                'Search filter backend shall have at least one query_backend\t'
+                'specified either in `query_backends` property or\t'
+                '`get_query_backends` method. Make appropriate changes to\t'
                 'your {} class'.format(self.__class__.__name__)
             )
         return queryset
