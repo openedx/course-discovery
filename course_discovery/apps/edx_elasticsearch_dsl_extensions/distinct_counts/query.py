@@ -6,7 +6,11 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import Facete
 
 
 class DistinctCountsSearchQuerySet(FacetedSearch):
-    """Custom `FacetedSearch` class that can compute and cache distinct hit and facet counts for a query."""
+    """
+    Extends original Faceted search.
+
+    Computes and caches distinct hit and facet counts for a query.
+    """
 
     def __init__(self, **kwargs):
         """
@@ -18,7 +22,10 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
     # pylint: disable=arguments-differ
     def _clone(self, klass=None):
         """
-        Create and return a new DistinctCountsSearchQuery with fields set to match those on the original object.
+        Clone Search class.
+
+        Create and return a new DistinctCountsSearchQuery with fieldset
+        to match those on the original object.
         """
         clone = super()._clone(klass=klass)
         if isinstance(clone, DistinctCountsSearchQuerySet):
@@ -29,7 +36,9 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
 
     @staticmethod
     def from_queryset(queryset):
-        """ Builds a DistinctCountsSearchQuerySet from an existing `Search` queryset."""
+        """
+        Builds DistinctCountsSearchQuerySet from an existing `Search` queryset.
+        """
         queryset.__class__.with_distinct_counts = DistinctCountsSearchQuerySet.with_distinct_counts
         clone = queryset._clone()  # pylint: disable=protected-access
         return clone
@@ -67,7 +76,9 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
         return self._response
 
     def validate(self):
-        """ Verify that all `FacetedSearch` options are valid and supported by this custom `FacetedSearch` class."""
+        """
+        Verify that all `FacetedSearch` options are valid and supported by this custom `FacetedSearch` class.
+        """
         dicted_aggs = self.aggs.to_dict().get('aggs')
         if dicted_aggs:
             for agg_name, options in dicted_aggs.items():
@@ -82,7 +93,9 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
             raise RuntimeError('aggregation_key is required.')
 
     def _validate_field_facet_options(self, field, options):
-        """ Verify that the provided field facet options are valid and can be converted to an aggregation."""
+        """
+        Verify that the provided field facet options are valid and can be converted to an aggregation.
+        """
         supported_options = DistinctCountsElasticsearchQueryWrapper.SUPPORTED_FIELD_FACET_OPTIONS
         options_ = list(options.values())[0]
         for option, __ in options_.items():
@@ -96,12 +109,16 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
     # pylint: disable=arguments-differ
     @classmethod
     def from_dict(cls, *args, **kwargs):
-        """ Raise an exception since we do not currently want/need to support raw queries."""
+        """
+        Raise an exception since we do not currently want/need to support raw queries.
+        """
         raise RuntimeError('DistinctCountsSearchQuerySet does not support raw queries.')
 
     # pylint: disable=arguments-differ
     def update_from_dict(self, *args, **kwargs):
-        """ Raise an exception since we do not currently want/need to support raw queries."""
+        """
+        Raise an exception since we do not currently want/need to support raw queries.
+        """
         raise RuntimeError('DistinctCountsSearchQuerySet does not support raw queries.')
 
     def distinct_count(self):
@@ -124,6 +141,8 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
 
 class DistinctCountsElasticsearchQueryWrapper:
     """
+    Elasticsearch `Search` class wrapper.
+
     Custom search-like class that enables the computation of distinct hit and facet counts during search queries.
     This class is not meant to be a true Search. It is meant to wrap an existing
     Search instance and expose a very limited subset of search functionality.
@@ -166,7 +185,9 @@ class DistinctCountsElasticsearchQueryWrapper:
         return self._process_results(raw_results)
 
     def _build_search_kwargs(self, *args, **kwargs):  # pylint: disable=unused-argument
-        """ Build and return the arguments for the elasticsearch query."""
+        """
+        Build and return the arguments for the elasticsearch query.
+        """
         aggregations = self._build_cardinality_aggregation(precision=settings.DISTINCT_COUNTS_HIT_PRECISION)
         facets = kwargs.get('aggs', {})
         field_facets = {key: value for key, value in facets.items() if key.startswith('_filter')}
@@ -196,9 +217,11 @@ class DistinctCountsElasticsearchQueryWrapper:
 
     def _build_cardinality_aggregation(self, precision=None):
         """
-        Build and return a cardinality aggregation using the configured aggregation_key.
-        The elasticsearch cardinality aggregation does not guarantee accurate results. Accuracy
-        is configurable via an optional precision_threshold argument. See
+        Builds and returns cardinality aggregation using configured aggregation_key.
+
+        The elasticsearch cardinality aggregation does not guarantee accurate results.
+        Accuracy is configurable via an optional precision_threshold argument.
+        See
         https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html
 
         Arguments:
@@ -212,7 +235,9 @@ class DistinctCountsElasticsearchQueryWrapper:
         return aggregation
 
     def _build_field_facet_aggregations(self, facet_dict, precision=None):
-        """ Build and return a dictionary of aggregations for field facets."""
+        """
+        Build and return a dictionary of aggregations for field facets.
+        """
         aggregations = {}
         for facet_field_name, opts in facet_dict.items():
             aggregations[facet_field_name] = {'aggregations': self._build_cardinality_aggregation(precision=precision)}
@@ -220,7 +245,9 @@ class DistinctCountsElasticsearchQueryWrapper:
         return aggregations
 
     def _build_query_facet_aggregations(self, facet_dict, precision=None):
-        """ Build and return a dictionary of aggregations for query facets."""
+        """
+        Build and return a dictionary of aggregations for query facets.
+        """
         aggregations = {}
         for facet_field_name, value in facet_dict.items():
             aggregations[facet_field_name] = {
@@ -230,7 +257,9 @@ class DistinctCountsElasticsearchQueryWrapper:
         return aggregations
 
     def _process_results(self, raw_results, **kwargs):  # pylint: disable=unused-argument
-        """ Process the query results into a form that is more easily consumable by the client."""
+        """
+        Process the query results into a form that is more easily consumable by the client.
+        """
         raw_results['aggregations']['aggregation_name'] = self.aggregation_name
         results = DistinctDSLResponse(self.search_instance, raw_results)
         aggregations = raw_results['aggregations']
