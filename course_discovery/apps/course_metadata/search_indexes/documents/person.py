@@ -51,16 +51,16 @@ class PersonDocument(BaseDocument):
         return super().get_queryset().select_related('bio_language')
 
     class Django:
-
         """
         Django Elasticsearch DSL ORM Meta.
         """
+
         model = Person
 
     class Meta:
-
         """
         Meta options.
         """
+
         parallel_indexing = True
         queryset_pagination = settings.ELASTICSEARCH_DSL_QUERYSET_PAGINATION
