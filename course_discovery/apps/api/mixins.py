@@ -34,6 +34,7 @@ class FacetMixin:
     def facets(self, request):
         """
         Sets up a list route for ``faceted`` results.
+
         This will add ie ^search/facets/$ to your existing ^search pattern.
         """
         if hasattr(self, 'faceted_query_filter_fields'):
@@ -49,10 +50,12 @@ class FacetMixin:
 
     def get_facet_serializer(self, *args, **kwargs):
         """
+        Get serialized facet object.
+
         Return the facet serializer instance that should be used for
         serializing faceted output.
         """
-        assert 'objects' in kwargs, '`objects` is a required argument to `get_facet_serializer()`'
+        assert 'objects' in kwargs, '`objects` is a required naming argument.'
         facet_serializer_class = self.get_facet_serializer_class()
         kwargs['context'] = self.get_serializer_context()
         kwargs['context'].update(
