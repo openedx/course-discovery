@@ -11,6 +11,13 @@ logger = logging.getLogger(__name__)
 
 INDEX_ALIAS_REGEX = re.compile(r'^(\w+)(?=[_]\d{8}[_]\d{6})')
 INDEX_ALIAS_SLICE = slice(0, -16)
+# Any elasticsearch index name for a django model has two parts:
+# Part 1 - title. The name is the same as the model name and will henceforth be an alias for this index.
+# Part 2 - timestamp (time of index creation). The format is `%Y%m%d_%H%M%S`, i.e. 20200826_122240
+# For example, for the CourseRun model, the index will be named course_run_20200826_122240.
+# To get 1 part, i.e. the alias needs to be subtracted from the timestamp. So
+# >>> 'course_run_20200826_122240'[INDEX_ALIAS_SLICE]
+# >>> 'course_run'
 
 
 def serialize_datetime(d):

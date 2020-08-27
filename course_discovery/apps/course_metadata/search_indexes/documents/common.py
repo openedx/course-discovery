@@ -28,7 +28,7 @@ class OrganizationsMixin:
         return '{key}: {name}'.format(key=organization.key, name=organization.name)
 
     def format_organization_body(self, organization):
-        # Deferred to prevent a circular import:
+        # NOTE: Deferred to prevent a circular import:
         # course_discovery.apps.api.serializers -> course_discovery.apps.course_metadata.search_indexes
         from course_discovery.apps.api.serializers import OrganizationSerializer
 
@@ -60,8 +60,11 @@ class BoostedDocument(OriginDocument):
     @classmethod
     def search(cls, using=None, index=None):
         """
-        Create an :class:`BoostedSearch` instance that will search
-        over this ``Document``.
+        Constructor of elasticsearch dls `Search` class.
+
+        Creates `BoostedSearch` class instance that will search
+        over this `Document`.
+        `BoostedSearch` is child class of main elasticsearch dls `Search`.
         """
         return BoostedSearch(
             using=cls._get_using(using),
