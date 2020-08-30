@@ -6,10 +6,10 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import (
     BaseDjangoESDSLFacetSerializer, DummyDocument, MultiDocumentSerializerMixin
 )
 
-from .course import CourseSearchDocumentSerializer
-from .course_run import CourseRunSearchDocumentSerializer
+from .course import CourseSearchDocumentSerializer, CourseSearchModelSerializer
+from .course_run import CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer
 from .person import PersonSearchDocumentSerializer
-from .program import ProgramSearchDocumentSerializer
+from .program import ProgramSearchDocumentSerializer, ProgramSearchModelSerializer
 
 
 class AggregateSearchModelSerializer(MultiDocumentSerializerMixin, DocumentSerializer):
@@ -21,11 +21,12 @@ class AggregateSearchModelSerializer(MultiDocumentSerializerMixin, DocumentSeria
         """
         Meta options.
         """
+        document = DummyDocument
 
         serializers = {
-            documents.CourseRunDocument: CourseRunSearchDocumentSerializer,
-            documents.CourseDocument: CourseSearchDocumentSerializer,
-            documents.ProgramDocument: ProgramSearchDocumentSerializer,
+            documents.CourseRunDocument: CourseRunSearchModelSerializer,
+            documents.CourseDocument: CourseSearchModelSerializer,
+            documents.ProgramDocument: ProgramSearchModelSerializer,
         }
 
 
