@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from django.core.exceptions import ImproperlyConfigured
 from django_elasticsearch_dsl import Document
+from django_elasticsearch_dsl_drf.utils import EmptySearch
 from rest_framework import serializers
 from rest_framework.fields import DictField, ListField
 
@@ -297,17 +298,24 @@ class MultiDocumentSerializerMixin:
 
         return representation
 
+    def get_serializer_class_by_instance(self, instance):
+        if isinstance(instance, EmptySearch):
+            serializer_class = serializers.Serializer
+        else:
+            instance_serializers = {
+                # pylint: disable=protected-access
+                document._index._name: serializer for document, serializer in self.Meta.serializers.items()
+            }
+            index_name = instance.meta['index']
+            index_alias = ElasticsearchUtils.get_alias_by_index_name(index_name)
+            serializer_class = instance_serializers.get(index_alias, None)
+            if not serializer_class:
+                raise ImproperlyConfigured('Could not find serializer for %s in mapping' % index_name)
+        return serializer_class
+
     def multi_serializer_representation(self, instance):
         """
         Multi serializer representation.
         """
-        # pylint: disable=protected-access
-        instance_serializers = {
-            document._index._name: serializer for document, serializer in self.Meta.serializers.items()
-        }
-        index_name = instance.meta['index']
-        index_alias = ElasticsearchUtils.get_alias_by_index_name(index_name)
-        serializer_class = instance_serializers.get(index_alias, None)
-        if not serializer_class:
-            raise ImproperlyConfigured('Could not find serializer for %s in mapping' % index_name)
+        serializer_class = self.get_serializer_class_by_instance(instance)
         return serializer_class(context=self._context).to_representation(instance)
