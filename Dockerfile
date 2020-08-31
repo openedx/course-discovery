@@ -1,4 +1,4 @@
-FROM ubuntu:xenial as discovery
+FROM ubuntu:xenial as app
 
 # System requirements.
 RUN apt-get update
@@ -60,10 +60,10 @@ EXPOSE 8381
 
 CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
 
-FROM discovery as discovery-devstack
+FROM app as devstack
 ENV DISCOVERY_CFG /edx/app/discovery/devstack.yml
 RUN make static
 
-FROM discovery as discovery-newrelic
+FROM app as newrelic
 RUN pip install newrelic
 CMD newrelic-admin run-program gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
