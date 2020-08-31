@@ -38,6 +38,8 @@ DATABASES:
         PASSWORD: password
         PORT: 3306
         USER: discov001
+# Django won't serve static assets unless DEBUG is enabled
+DEBUG: true
 DEFAULT_PARTNER_ID: 1
 EDX_DRF_EXTENSIONS:
     OAUTH2_USER_INFO_URL: http://127.0.0.1:8000/user_info
@@ -61,6 +63,7 @@ SECRET_KEY: Your secret key here
 SESSION_EXPIRE_AT_BROWSER_CLOSE: false
 SOCIAL_AUTH_EDX_OAUTH2_KEY: discovery-sso-key
 SOCIAL_AUTH_REDIRECT_IS_HTTPS: false
+STATIC_SERVE_EXPLICITLY: true
 STATICFILES_STORAGE: django.contrib.staticfiles.storage.StaticFilesStorage
 STATIC_ROOT: /edx/var/discovery/staticfiles
 TIME_ZONE: UTC
