@@ -38,6 +38,7 @@ DATABASES:
         PASSWORD: password
         PORT: 3306
         USER: discov001
+# Django won't serve static assets unless DEBUG is enabled
 DEBUG: true
 DEFAULT_PARTNER_ID: 1
 EDX_DRF_EXTENSIONS:
