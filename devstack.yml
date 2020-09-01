@@ -30,7 +30,7 @@ DATABASES:
         ATOMIC_REQUESTS: "false"
         CONN_MAX_AGE: 60
         ENGINE: django.db.backends.mysql
-        HOST: edx.devstack.mysql
+        HOST: mysql.local.edx.org
         NAME: discovery
         OPTIONS:
             connect_timeout: 10
@@ -142,7 +142,7 @@ CORS_ORIGIN_WHITELIST:
 HAYSTACK_CONNECTIONS:
     default:
         ENGINE: "course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine"
-        URL: "http://edx.devstack.elasticsearch:9200/"
+        URL: "http://elasticsearch.local.edx.org:9200/"
         INDEX_NAME: "catalog"
 JWT_AUTH: {
     "JWT_AUTH_COOKIE": "edx-jwt-cookie",
@@ -176,7 +176,7 @@ PARLER_LANGUAGES:
         fallbacks: ['en']
         hide_untranslated: false
 SOCIAL_AUTH_EDX_OAUTH2_ISSUER: http://localhost:8000
-SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT: http://edx.devstack.lms:8000
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT: http://lms.local.edx.org:8000
 SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT: http://localhost:8000
 SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL: http://localhost:8000/logout
 ORG_BASE_LOGO_URL: http://discovery:8381/media/
