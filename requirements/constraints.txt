@@ -28,3 +28,6 @@ django-autocomplete-light<3.5
 
 # pip20+ requires for greater version of pip-tools. But installing 19.3.1 in all our containers and VMs.
 pip-tools==4.5.1
+
+# pytest-xdist>=2.0.0 removes some aliases and until pytest-django>=3.10.0 is released, this will break tests.
+pytest-xdist==1.34.0
