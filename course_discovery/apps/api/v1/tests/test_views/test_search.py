@@ -166,15 +166,15 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
     @factory.django.mute_signals(signals.post_save)
     @ddt.data(
         (list_path, CourseRunSearchDocumentSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 5),
+         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 3),
         (list_path, CourseRunSearchDocumentSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 5),
+         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 3),
         (detailed_path,
          CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 24),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 21),
         (detailed_path,
          CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 25),
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 22),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -206,9 +206,9 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         assert response_data == active_program.type.name
 
     @ddt.data(
-        ([{'title': 'Software Testing', 'excluded': True}], 6),
-        ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}], 7),
-        ([{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}], 7),
+        ([{'title': 'Software Testing', 'excluded': True}], 3),
+        ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}], 3),
+        ([{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}], 3),
         ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
           {'title': 'Software Testing 3', 'excluded': False}], 5),
     )
