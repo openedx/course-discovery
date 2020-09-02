@@ -19,17 +19,18 @@ from waffle.testutils import override_switch
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
-    AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer, ContainedCourseRunsSerializer,
-    ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer,
-    CourseEntitlementSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSerializer,
-    CourseWithProgramsSerializer, CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer,
-    EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer,
-    ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
-    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
-    ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
-    RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
-    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
+    AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer, CollaboratorSerializer,
+    ContainedCourseRunsSerializer, ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer,
+    CourseEditorSerializer, CourseEntitlementSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer,
+    CourseSerializer, CourseWithProgramsSerializer, CurriculumSerializer, DegreeCostSerializer,
+    DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer,
+    IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
+    MinimalOrganizationSerializer, MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
+    NestedProgramSerializer, OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer,
+    PrerequisiteSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer,
+    ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer,
+    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
+    get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
