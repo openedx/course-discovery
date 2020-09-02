@@ -64,7 +64,7 @@ class Command(DjangoESDSLCommand):
         )
 
     def handle(self, *args, **options):
-        from django.utils import translation
+        from django.utils import translation  # pylint: disable=import-outside-toplevel
         translation.activate(settings.LANGUAGE_CODE)
         specified_backend = options.get('using')
         supported_backends = tuple(settings.ELASTICSEARCH_DSL.keys())
