@@ -192,6 +192,9 @@ STATIC_ROOT = root('assets')
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = '/static/'
 
+# Is this a dev environment where static files need to be explicitly added to the URL configuration?
+STATIC_SERVE_EXPLICITLY = False
+
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = (
     root('static'),
