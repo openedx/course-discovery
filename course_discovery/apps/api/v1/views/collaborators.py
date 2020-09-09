@@ -23,15 +23,13 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     pagination_class = CursorPagination
 
     def create(self, request, *args, **kwargs):
-        # logging to help debug missing collaborator images
-        logger.info('The raw collaborator data coming from publisher is {}.'.format(request.data))
+        logger.info('The raw collaborator data coming from the publisher POST is {}.'.format(request.data))
 
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        # logging to help debug missing collaborator images
-        logger.info('The raw collaborator data coming from publisher is {}.'.format(request.data))
-        
+        logger.info('The raw collaborator data coming from the publisher PATCH is {}.'.format(request.data))
+
         return super().update(request, *args, **kwargs)  # pylint: disable=no-member
 
     def partial_update(self, request, *args, **kwargs):
