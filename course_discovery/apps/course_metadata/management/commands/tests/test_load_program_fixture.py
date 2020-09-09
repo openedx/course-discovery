@@ -112,6 +112,22 @@ class TestLoadProgramFixture(TestCase):
             '--client-secret', 'bar',
         )
 
+    def _set_up_masters_program_type(self):
+        """
+        Set DB to have a conflicting program type on load.
+        """
+        seat_type = SeatTypeFactory(
+            name='Something',
+            slug='something',
+        )
+        existing_program_type = ProgramTypeFactory(
+            name='Masters',
+            name_t='Masters',
+            slug='masters',
+            applicable_seat_types=[seat_type]
+        )
+        return existing_program_type
+
     def reset_db_state(self):
         Partner.objects.all().exclude(short_code='edx').delete()
         SeatType.objects.all().delete()
@@ -196,17 +212,7 @@ class TestLoadProgramFixture(TestCase):
         self._mock_fixture_response(fixture)
         self.reset_db_state()
 
-        # set DB to have a conflicting program type on load
-        seat_type = SeatTypeFactory(
-            name='Something',
-            slug='something',
-        )
-        existing_program_type = ProgramTypeFactory(
-            name='Masters',
-            name_t='Masters',
-            slug='masters',
-            applicable_seat_types=[seat_type]
-        )
+        existing_program_type = self._set_up_masters_program_type()
 
         self._call_load_program_fixture([str(self.program.uuid)])
 
@@ -220,6 +226,39 @@ class TestLoadProgramFixture(TestCase):
         stored_seat_types = list(stored_program_type.applicable_seat_types.all())
         self.assertEqual(len(stored_seat_types), 1)
         self.assertEqual(stored_seat_types[0].name, self.seat_type_verified.name)
+
+    @responses.activate
+    def test_remapping_courserun_programtype(self):
+        """
+        Tests whether the remapping of program types works for the course run field that points to them
+        """
+        self.course_run.expected_program_type = self.program_type_masters
+        self.course_run.save()
+        fixture = json_serializer.Serializer().serialize([
+            self.program_type_masters,
+            self.program_type_mm,
+            self.organization,
+            self.seat_type_verified,
+            self.program,
+            self.program_mm,
+            self.curriculum_program_membership,
+            self.curriculum_course_membership,
+            self.curriculum,
+            self.course,
+            self.course_mm,
+            self.course_run,
+        ])
+        self._mock_fixture_response(fixture)
+        self.reset_db_state()
+
+        existing_program_type = self._set_up_masters_program_type()
+
+        self._call_load_program_fixture([str(self.program.uuid)])
+
+        stored_courserun = CourseRun.objects.get(key=self.course_run.key)
+        stored_program_type = stored_courserun.expected_program_type
+
+        self.assertEqual(existing_program_type, stored_program_type)
 
     @responses.activate
     def test_existing_seat_types(self):
