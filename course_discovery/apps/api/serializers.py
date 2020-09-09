@@ -271,7 +271,7 @@ class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
 
 class CollaboratorSerializer(BaseModelSerializer):
     """Serializer for the ``Collaborator`` model."""
-    image = StdImageSerializerField(required=False)
+    image = StdImageSerializerField()
     image_url = serializers.SerializerMethodField()
 
     @classmethod
