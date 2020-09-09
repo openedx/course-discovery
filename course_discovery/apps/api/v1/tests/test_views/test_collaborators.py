@@ -7,7 +7,6 @@ from course_discovery.apps.course_metadata.tests.factories import CollaboratorFa
 
 class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     """ Tests for the collaborator resource. """
-
     def setUp(self):
         super(CollaboratorViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True)
@@ -28,21 +27,41 @@ class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def test_add(self):
         self.mock_access_token()
         url = reverse('api:v1:collaborator-list')
-        data = {'name': 'Collaborator 1'}
+        data = {
+            'name': 'Collaborator 1',
+            # The API is expecting the image to be base64 encoded. We are simulating that here.
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
-        collab = response.json()
-        self.assertEqual(collab['image_url'], None)
+
+    def test_add_fails_when_no_image(self):
+        self.mock_access_token()
+        url = reverse('api:v1:collaborator-list')
+        data = {
+            'name': 'Collaborator 1',
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 400)
 
     def test_modify(self):
         self.mock_access_token()
         url = reverse('api:v1:collaborator-list')
-        data = {'name': 'Collaborator 1'}
+        data = {
+            'name': 'Collaborator 1',
+            # The API is expecting the image to be base64 encoded. We are simulating that here.
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, 201)
         collab = response.json()
         patch_url = reverse('api:v1:collaborator-detail', kwargs={'uuid': collab['uuid']})
-        collab['name'] = 'Collaborator 2'
-        response2 = self.client.patch(patch_url, collab, format='json')
+        data = {
+            'uuid': collab['uuid'],
+            'name': 'Collaborator 2'
+        }
+        response2 = self.client.patch(patch_url, data, format='json')
         modified_collab = response2.json()
         self.assertEqual(modified_collab['name'], 'Collaborator 2')
