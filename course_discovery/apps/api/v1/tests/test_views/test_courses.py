@@ -723,7 +723,12 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     def test_add_collaborator_uuid_list(self):
         self.mock_access_token()
-        collaborator = {'name': 'Collaborator 1'}
+        collaborator = {
+            'name': 'Collaborator 1',
+            # The API is expecting the image to be base64 encoded. We are simulating that here.
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
         collaborator_url = reverse('api:v1:collaborator-list')
         collab_post_response = self.client.post(collaborator_url, collaborator, format='json')
         self.assertEqual(collab_post_response.status_code, 201)
@@ -738,8 +743,18 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     def test_modify_collaborator_uuid_list(self):
         self.mock_access_token()
-        collaborator = {'name': 'Collaborator 1'}
-        collaborator2 = {'name': 'Collaborator 2'}
+        collaborator = {
+            'name': 'Collaborator 1',
+            # The API is expecting the image to be base64 encoded. We are simulating that here.
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
+        collaborator2 = {
+            'name': 'Collaborator 2',
+            # The API is expecting the image to be base64 encoded. We are simulating that here.
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
         collaborator_url = reverse('api:v1:collaborator-list')
         collab_post_response = self.client.post(collaborator_url, collaborator, format='json')
         collab_post_response2 = self.client.post(collaborator_url, collaborator2, format='json')
