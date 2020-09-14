@@ -1162,6 +1162,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
         instance.status = validated_data.get('status', instance.status)
+        instance.banner_image = validated_data.get('banner_image', instance.banner_image)
         instance.min_hours_effort_per_week = validated_data.get('min_hours_effort_per_week', instance.min_hours_effort_per_week)
         instance.max_hours_effort_per_week = validated_data.get('max_hours_effort_per_week', instance.max_hours_effort_per_week)
         instance.marketing_slug = validated_data.get('marketing_slug', instance.marketing_slug)
