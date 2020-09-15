@@ -3,7 +3,6 @@
 -r github.in              # Forks and other dependencies not yet on PyPI
 -r base.in
 
-boto
 certifi
 django-ses
 gevent
