@@ -145,7 +145,7 @@ pytest-django-ordering==1.2.0  # via -r requirements/test.in
 pytest-django==3.10.0     # via -r requirements/test.in, pytest-django-ordering
 pytest-forked==1.3.0      # via pytest-xdist
 pytest-responses==0.4.0   # via -r requirements/test.in
-pytest-xdist==1.34.0      # via -c requirements/constraints.txt, -r requirements/test.in
+pytest-xdist==2.1.0       # via -r requirements/test.in
 pytest==6.0.2             # via -r requirements/test.in, pytest-cov, pytest-django, pytest-django-ordering, pytest-forked, pytest-responses, pytest-xdist
 python-dateutil==2.8.1    # via -r requirements/base.in, drf-haystack, edx-drf-extensions, faker, freezegun
 python-dotenv==0.14.0     # via docker-compose
