@@ -66,7 +66,7 @@ for override, db_key in DB_OVERRIDES.items():
 # To attach certifi elasticsearch host you should  do pip install certifi
 # should do the trick. elasticsearch-py will automatically look it up.
 ELASTICSEARCH_DSL['default'].update({
-    'hosts': ELASTICSEARCH_URL,
+    'hosts': ELASTICSEARCH_CLUSTER_URL,
 })
 
 # NOTE (CCB): Treat all MySQL warnings as exceptions. This is especially
