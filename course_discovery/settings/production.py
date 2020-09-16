@@ -65,7 +65,7 @@ DB_OVERRIDES = dict(
 # To attach certifi elasticsearch host you should  do pip install certifi
 # should do the trick. elasticsearch-py will automatically look it up.
 ELASTICSEARCH_DSL['default'].update({
-    'hosts': ELASTICSEARCH_URL,
+    'hosts': ELASTICSEARCH_CLUSTER_URL,
 })
 
 for override, value in DB_OVERRIDES.items():
