@@ -10,7 +10,6 @@ authlib==0.14.3           # via simple-salesforce
 backoff==1.10.0           # via -r requirements/base.in
 beautifulsoup4==4.9.1     # via -r requirements/base.in
 boto3==1.14.61            # via django-ses
-boto==2.49.0              # via -r requirements/production.in
 botocore==1.17.61         # via boto3, s3transfer
 certifi==2020.6.20        # via -r requirements/production.in, requests
 cffi==1.14.3              # via cryptography
