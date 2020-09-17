@@ -69,14 +69,6 @@ module.exports = {
                         name: 'font/[name]-[hash].[ext]'
                     }
                 }]
-            },
-            {
-                test: require.resolve('datatables.net'),
-                use: 'imports-loader?define=>false'
-            },
-            {
-                test: require.resolve('datatables.net-bs'),
-                use: 'imports-loader?define=>false'
             }
         ]
     },
