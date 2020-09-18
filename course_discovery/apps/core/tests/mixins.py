@@ -3,19 +3,22 @@ import logging
 
 import pytest
 import responses
-from django_elasticsearch_dsl.registries import registry
-from elasticsearch_dsl.connections import get_connection
+from django.conf import settings
+from haystack import connections as haystack_connections
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Person
 
 logger = logging.getLogger(__name__)
 
 
-@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
+@pytest.mark.usefixtures('haystack_default_connection')
 class ElasticsearchTestMixin:
     def setUp(self):
         super(ElasticsearchTestMixin, self).setUp()
-        self.es = get_connection()
+        self.index = settings.HAYSTACK_CONNECTIONS['default']['INDEX_NAME']
+        connection = haystack_connections['default']
+        self.es = connection.get_backend().conn
 
     def refresh_index(self):
         """
@@ -23,20 +26,22 @@ class ElasticsearchTestMixin:
 
         https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html
         """
-        for index in registry.get_indices():
-            ElasticsearchUtils.refresh_index(self.es, index._name)  # pylint: disable=protected-access
+        ElasticsearchUtils.refresh_index(self.es, self.index)
 
     def reindex_course_runs(self, course):
+        index = haystack_connections['default'].get_unified_index().get_index(CourseRun)
         for course_run in course.course_runs.all():
-            registry.update(course_run)
+            index.update_object(course_run)
 
     def reindex_courses(self, program):
+        index = haystack_connections['default'].get_unified_index().get_index(Course)
         for course in program.courses.all():
-            registry.update(course)
+            index.update_object(course)
             self.reindex_course_runs(course)
 
     def reindex_people(self, person):
-        registry.update(person)
+        index = haystack_connections['default'].get_unified_index().get_index(Person)
+        index.update_object(person)
 
 
 class LMSAPIClientMixin:
@@ -69,7 +74,7 @@ class LMSAPIClientMixin:
                 ],
             'next': None,
             'start': 0,
-            'previous': None,
+            'previous': None
         }
 
         responses.add(
@@ -77,7 +82,7 @@ class LMSAPIClientMixin:
             lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/?user__username={}'.format(user.username),
             body=json.dumps(data),
             content_type='application/json',
-            status=status,
+            status=status
         )
 
     def mock_api_access_request_with_configurable_results(self, lms_url, user, status=200, results=None):
@@ -91,7 +96,7 @@ class LMSAPIClientMixin:
             'results': results,
             'next': None,
             'start': 0,
-            'previous': None,
+            'previous': None
         }
 
         responses.add(
@@ -99,7 +104,7 @@ class LMSAPIClientMixin:
             lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/?user__username={}'.format(user.username),
             body=json.dumps(data),
             content_type='application/json',
-            status=status,
+            status=status
         )
 
     def mock_api_access_request_with_invalid_data(self, lms_url, user, status=200, response_overrides=None):
@@ -113,5 +118,5 @@ class LMSAPIClientMixin:
             lms_url.rstrip('/') + '/api-admin/api/v1/api_access_request/?user__username={}'.format(user.username),
             body=json.dumps(data),
             content_type='application/json',
-            status=status,
+            status=status
         )

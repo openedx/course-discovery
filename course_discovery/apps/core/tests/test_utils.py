@@ -1,9 +1,9 @@
 from django.db import models
 from django.test import TestCase
+from haystack.query import SearchQuerySet
 
 from course_discovery.apps.core.utils import SearchQuerySetWrapper, delete_orphans, get_all_related_field_names
-from course_discovery.apps.course_metadata.models import Video
-from course_discovery.apps.course_metadata.search_indexes.documents import CourseRunDocument
+from course_discovery.apps.course_metadata.models import CourseRun, Video
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, VideoFactory
 
 
@@ -67,7 +67,7 @@ class SearchQuerySetWrapperTests(TestCase):
         query = 'title:' + title
 
         CourseRunFactory.create_batch(3, title=title)
-        self.search_queryset = CourseRunDocument().search().query('query_string', query=query)
+        self.search_queryset = SearchQuerySet().models(CourseRun).raw_search(query).load_all()
         self.course_runs = [e.object for e in self.search_queryset]
         self.wrapper = SearchQuerySetWrapper(self.search_queryset)
 

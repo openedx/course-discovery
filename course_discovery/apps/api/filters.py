@@ -6,6 +6,9 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q, QuerySet
 from django.utils.translation import ugettext as _
 from django_filters import rest_framework as filters
+from drf_haystack.filters import HaystackFacetFilter
+from drf_haystack.filters import HaystackFilter as DefaultHaystackFilter
+from drf_haystack.query import FacetQueryBuilder
 from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import NotFound, PermissionDenied
@@ -51,6 +54,50 @@ class PermissionsFilter(DRYPermissionFiltersBase):
                 )
 
         return get_objects_for_user(user, perm)
+
+
+class FacetQueryBuilderWithQueries(FacetQueryBuilder):
+    def build_query(self, **query_filters):
+        query = super(FacetQueryBuilderWithQueries, self).build_query(**query_filters)
+        facet_serializer_cls = self.view.get_facet_serializer_class()
+        query['query_facets'] = getattr(facet_serializer_cls.Meta, 'field_queries', {})
+        return query
+
+
+class HaystackRequestFilterMixin:
+    @staticmethod
+    def get_request_filters(request):
+        request_filters = HaystackFacetFilter.get_request_filters(request)
+
+        # Remove items with empty values.
+        #
+        # NOTE 1: We copy the keys list to avoid a RuntimeError that occurs when modifying a dict while iterating.
+        #
+        # NOTE 2: We filter in this fashion, as opposed to dictionary comprehension, due to the fact that filters
+        # is a `QueryDict` object, not a `dict`. Dictionary comprehension will not preserve the values of
+        # `QueryDict.getlist()`. Since we support multiple values for a single parameter, dictionary comprehension is a
+        # dealbreaker (and production breaker).
+        for key in list(request_filters.keys()):
+            if not request_filters[key]:
+                del request_filters[key]
+
+        return request_filters
+
+
+class HaystackFacetFilterWithQueries(HaystackRequestFilterMixin, HaystackFacetFilter):
+    query_builder_class = FacetQueryBuilderWithQueries
+
+
+class HaystackFilter(HaystackRequestFilterMixin, DefaultHaystackFilter):
+    @staticmethod
+    def get_request_filters(request):
+        request_filters = HaystackRequestFilterMixin.get_request_filters(request)
+
+        # Return data for the default partner, if no partner is requested
+        if not any(field in request_filters for field in ('partner', 'partner_exact')):
+            request_filters['partner'] = request.site.partner.short_code
+
+        return request_filters
 
 
 class CharListFilter(filters.CharFilter):
