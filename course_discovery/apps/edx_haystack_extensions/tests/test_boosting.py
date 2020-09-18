@@ -3,16 +3,15 @@ import datetime
 import pytest
 import pytz
 from dateutil.relativedelta import relativedelta
-from elasticsearch_dsl.query import Q as ESDSLQ
+from haystack.query import SearchQuerySet
 from mock import patch
 
-from course_discovery.apps.course_metadata.models import CourseRun, ProgramType
-from course_discovery.apps.course_metadata.search_indexes.documents import CourseRunDocument, ProgramDocument
+from course_discovery.apps.course_metadata.models import CourseRun, Program, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
 
 
 @pytest.mark.django_db
-@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
+@pytest.mark.usefixtures('haystack_default_connection')
 class TestSearchBoosting:
     def build_normalized_course_run(self, **kwargs):
         """Builds a CourseRun with fields set to normalize boosting behavior."""
@@ -31,9 +30,9 @@ class TestSearchBoosting:
         self.build_normalized_course_run(pacing_type='instructor_paced')
         test_record = self.build_normalized_course_run(pacing_type='self_paced')
 
-        search_results = CourseRunDocument.search().query(ESDSLQ('match_all')).execute()
+        search_results = SearchQuerySet().models(CourseRun).all()
         assert len(search_results) == 2
-        assert search_results[0].meta['score'] > search_results[1].meta['score']
+        assert search_results[0].score > search_results[1].score
         assert test_record.pacing_type == search_results[0].pacing_type
 
     @pytest.mark.parametrize('program_type', ['MicroMasters', 'Professional Certificate'])
@@ -41,9 +40,10 @@ class TestSearchBoosting:
         """Verify MicroMasters and Professional Certificate are boosted over XSeries."""
         ProgramFactory(type=ProgramType.objects.get(translations__name_t='XSeries'))
         test_record = ProgramFactory(type=ProgramType.objects.get(translations__name_t=program_type))
-        search_results = ProgramDocument.search().query(ESDSLQ('match_all')).execute()
+
+        search_results = SearchQuerySet().models(Program).all()
         assert len(search_results) == 2
-        assert search_results[0].meta['score'] > search_results[1].meta['score']
+        assert search_results[0].score > search_results[1].score
         assert str(test_record.type) == str(search_results[0].type)
 
     def test_start_date_boosting(self):
@@ -52,10 +52,9 @@ class TestSearchBoosting:
         self.build_normalized_course_run(start=now + datetime.timedelta(weeks=10))
         test_record = self.build_normalized_course_run(start=now + datetime.timedelta(weeks=1))
 
-        search_results = CourseRunDocument.search().query(ESDSLQ('match_all')).execute()
+        search_results = SearchQuerySet().models(CourseRun).all()
         assert len(search_results) == 2
-        assert search_results[0].meta['score'] > search_results[1].meta['score']
-        # pylint: disable=no-member
+        assert search_results[0].score > search_results[1].score
         assert int(test_record.start.timestamp()) == int(search_results[0].start.timestamp())
 
     @pytest.mark.parametrize(
@@ -88,14 +87,14 @@ class TestSearchBoosting:
             with patch.object(CourseRun, 'get_paid_seat_enrollment_end', return_value=paid_seat_enrollment_end):
                 test_record = self.build_normalized_course_run(title='test2')
 
-        search_results = CourseRunDocument.search().query(ESDSLQ('match_all')).execute()
+        search_results = SearchQuerySet().models(CourseRun).all()
         assert len(search_results) == 2
 
         if expects_boost:
-            assert search_results[0].meta['score'] > search_results[1].meta['score']
+            assert search_results[0].score > search_results[1].score
             assert test_record.title == search_results[0].title
         else:
-            assert search_results[0].meta['score'] == search_results[1].meta['score']
+            assert search_results[0].score == search_results[1].score
 
     def test_expired_paid_seat_penalized(self):
         """
@@ -114,18 +113,17 @@ class TestSearchBoosting:
             with patch.object(CourseRun, 'get_paid_seat_enrollment_end', return_value=past):
                 penalized_run = self.build_normalized_course_run(title='penalized')
 
-        search_results = CourseRunDocument.search().query(ESDSLQ('match_all')).execute()
+        search_results = SearchQuerySet().models(CourseRun).all()
         assert len(search_results) == 2
 
         assert [promoted_run.title, penalized_run.title] == [hit.title for hit in search_results]
-        assert search_results[0].meta['score'] > search_results[1].meta['score']
-        assert search_results[0].meta['score'] > 20
+        assert search_results[0].score > search_results[1].score
 
-        # Verify that this result has an initial score (~1.0).
-        # Course runs with expired paid seats are penalized by having a relatively large value added
-        # to all another(not expired) courses their relevance score.
-        # In this test case, the result should be an initial relevance score for the expired course.
-        assert round(search_results[1].meta['score']) == 1
+        # Verify that this result has a negative score. Course runs with expired,
+        # paid seats are penalized by having a relatively large value subtracted
+        # from their relevance score. In this test case, the result should be a
+        # negative relevance score.
+        assert 0 > search_results[1].score
 
     @pytest.mark.parametrize(
         'enrollment_start,enrollment_end,expects_boost',
@@ -161,14 +159,14 @@ class TestSearchBoosting:
             enrollment_end=enrollment_end
         )
 
-        search_results = CourseRunDocument.search().query(ESDSLQ('match_all')).execute()
+        search_results = SearchQuerySet().models(CourseRun).all()
         assert len(search_results) == 2
 
         if expects_boost:
-            assert search_results[0].meta['score'] > search_results[1].meta['score']
+            assert search_results[0].score > search_results[1].score
             assert test_record.title == search_results[0].title
         else:
-            assert search_results[0].meta['score'] == search_results[1].meta['score']
+            assert search_results[0].score == search_results[1].score
 
     now = datetime.datetime.now(pytz.timezone('utc'))
     one_day = relativedelta(days=1)
@@ -229,12 +227,12 @@ class TestSearchBoosting:
                 end=endb,
                 pacing_type=pacing_type
             )
-            search_results = CourseRunDocument.search().query(ESDSLQ('match_all')).execute()
+            search_results = SearchQuerySet().models(CourseRun).all()
 
         assert len(search_results) == 2
         if boosted == 'a':
-            assert search_results[0].meta['score'] > search_results[1].meta['score']
+            assert search_results[0].score > search_results[1].score
             assert runa.title == search_results[0].title
         else:
-            assert search_results[0].meta['score'] > search_results[1].meta['score']
+            assert search_results[0].score > search_results[1].score
             assert runb.title == search_results[0].title

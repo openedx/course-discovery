@@ -28,13 +28,12 @@ class TestStdImageSerializerField:
         program = ProgramFactory(banner_image=make_image_file('test.jpg'))
         field = StdImageSerializerField()
         field._context = {'request': request}  # pylint: disable=protected-access
-        # pylint: disable=no-member
         expected = {
             size_key: {
                 'url': '{}{}'.format('http://testserver', getattr(program.banner_image, size_key).url),
-                'width': program.banner_image.field.variations[size_key]['width'],
-                'height': program.banner_image.field.variations[size_key]['height']
-            } for size_key in program.banner_image.field.variations}
+                'width': program.banner_image.field.variations[size_key]['width'],  # pylint: disable=no-member
+                'height': program.banner_image.field.variations[size_key]['height']  # pylint: disable=no-member
+            } for size_key in program.banner_image.field.variations}  # pylint: disable=no-member
         assert field.to_representation(program.banner_image) == expected
 
     def test_to_internal_value(self):

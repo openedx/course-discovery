@@ -38,46 +38,6 @@ run:
     $ ./manage.py update_index --disable-change-limit
 
 
-To delete elasticsearch old indexes locally you have to use
-
-.. code-block:: shell
-
-    $ ./manage.py remove_unused_indexes
-
-This command will purge the oldest indexes, freeing up disk space. This command will never delete the currently used indexes.
-
-
-Also you can use base commands by django-elasticsearch-dsl library.
-
-Delete all the currently used indexes in Elasticsearch:
-
-.. code-block:: shell
-
-    $ ./manage.py search_index --delete [-f] [--models [app[.model] app[.model] ...]]
-
-Create the indices and their mapping in Elasticsearch:
-
-.. code-block:: shell
-
-    $ ./manage.py search_index --create [--models [app[.model] app[.model] ...]]
-
-Populate the Elasticsearch mappings with the django models data (index need to be existing):
-
-.. code-block:: shell
-
-    $ ./manage.py search_index --populate [--models [app[.model] app[.model] ...]] [--parallel]
-
-Recreate and repopulate the indices:
-
-.. code-block:: shell
-
-    $ ./manage.py search_index --rebuild [-f] [--models [app[.model] app[.model] ...]] [--parallel]
-
-Please use the link to get more https://django-elasticsearch-dsl.readthedocs.io/en/latest/management.html
-
-
-**WARNING:** Be aware that `search_index` command works without sanity index check. So be careful to use it.
-
 Working with memcached locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Some endpoints, such as /api/v1/courses, have their responses cached in memcached through mechanisms such as the

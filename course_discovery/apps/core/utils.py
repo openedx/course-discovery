@@ -1,23 +1,11 @@
 import datetime
 import logging
-import re
-from collections import namedtuple
 
 from django.conf import settings
-from django_elasticsearch_dsl import Index
 
-IndexMeta = namedtuple("IndexMeta", "name alias")
+from course_discovery.settings.process_synonyms import get_synonyms
+
 logger = logging.getLogger(__name__)
-
-INDEX_ALIAS_REGEX = re.compile(r'^(\w+)(?=[_]\d{8}[_]\d{6})')
-INDEX_ALIAS_SLICE = slice(0, -16)
-# Any elasticsearch index name for a django model has two parts:
-# Part 1 - title. The name is the same as the model name and will henceforth be an alias for this index.
-# Part 2 - timestamp (time of index creation). The format is `%Y%m%d_%H%M%S`, i.e. 20200826_122240
-# For example, for the CourseRun model, the index will be named course_run_20200826_122240.
-# To get 1 part, i.e. the alias needs to be subtracted from the timestamp. So
-# >>> 'course_run_20200826_122240'[INDEX_ALIAS_SLICE]
-# >>> 'course_run'
 
 
 def serialize_datetime(d):
@@ -25,73 +13,45 @@ def serialize_datetime(d):
 
 
 class ElasticsearchUtils:
-
-    @staticmethod
-    def get_alias_by_index_name(name):
-        return name[INDEX_ALIAS_SLICE] if INDEX_ALIAS_REGEX.match(name) else name
-
     @classmethod
-    def create_alias_and_index(cls, es_connection, index, conn_name='default'):
-        assert isinstance(index, Index), '`index` must be an instance of `Index` class. Got: {0}'.format(type(index))
-        # pylint: disable=protected-access
-        logger.info('Making sure alias [%s] exists...', index._name)
-        alias = cls.get_alias_by_index_name(index._name)
+    def create_alias_and_index(cls, es_connection, alias):
+        logger.info('Making sure alias [%s] exists...', alias)
+
         if es_connection.indices.exists_alias(name=alias):
             # If the alias exists, and points to an open index, we are all set.
             logger.info('...alias exists.')
         else:
-            index, __ = cls.create_index(index, conn_name)
+            index = cls.create_index(es_connection=es_connection, prefix=alias)
             # Point the alias to the new index
-            cls.set_alias(es_connection, alias, index)
+            body = {
+                'actions': [
+                    {'remove': {'alias': alias, 'index': '*'}},
+                    {'add': {'alias': alias, 'index': index}},
+                ]
+            }
+            es_connection.indices.update_aliases(body)
             logger.info('...alias updated.')
 
     @classmethod
-    def set_alias(cls, connection, alias, index):
-        """
-        Points the alias to the specified index.
-
-        All other references made by the alias will be removed, however the referenced indexes will
-        not be modified in any other manner.
-
-        Args:
-            connection (ElasticsearchSearchBackend): Elasticsearch backend with an open connection.
-            alias (str): Name of the alias to set.
-            index (str): Name of the index where the alias should point.
-
-        Returns:
-            None
-        """
-        body = {
-            'actions': [
-                {"remove": {"alias": alias, "index": '{0}_*'.format(alias)}},
-                {"add": {"alias": alias, "index": index}}
-            ]
-        }
-
-        connection.indices.update_aliases(body)
-
-    @classmethod
-    def create_index(cls, index, conn_name='default'):
+    def create_index(cls, es_connection, prefix):
         """
         Creates a new index whose name is prefixed with the specified value.
 
         Args:
-             index (Index): instance of `Index` class
-             conn_name (str): Elasticsearch connection name
+            es_connection (Elasticsearch): Elasticsearch connection - the connection object as created in the
+             ElasticsearchSearchBackend class - the 'conn' attribute
+            prefix (str): Alias for the connection, used as prefix for the index name
 
         Returns:
-            IndexMeta (tuple): Name and generated alias of the new index.
+            index_name (str): Name of the new index.
         """
-        assert isinstance(index, Index), '`index` must be an instance of `Index` class. Got: {0}'.format(type(index))
-
         timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-        # pylint: disable=protected-access
-        alias = cls.get_alias_by_index_name(index._name)
-        index_name = '{alias}_{timestamp}'.format(alias=alias, timestamp=timestamp)
-        index._name = index_name
-        index.create(using=conn_name)
-        index._name = alias
-        return IndexMeta(index_name, alias)
+        index_name = '{alias}_{timestamp}'.format(alias=prefix, timestamp=timestamp)
+        index_settings = settings.ELASTICSEARCH_INDEX_SETTINGS
+        index_settings['settings']['analysis']['filter']['synonym']['synonyms'] = get_synonyms(es_connection)
+        es_connection.indices.create(index=index_name, body=index_settings)
+        logger.info('...index [%s] created.', index_name)
+        return index_name
 
     @classmethod
     def delete_index(cls, es_connection, index):
@@ -170,7 +130,7 @@ class SearchQuerySetWrapper:
     def __getitem__(self, key):
         if isinstance(key, int) and (key >= 0 or key < self.count()):
             # return the object at the specified position
-            return self.qs[key].execute()[0].object
+            return self.qs[key].object
         # Pass the slice/range on to the delegate
         return SearchQuerySetWrapper(self.qs[key])
 

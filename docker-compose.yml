@@ -17,17 +17,12 @@ services:
       - ./.dev/volumes/db:/var/lib/mysql
 
   es:
-    image: elasticsearch:7.8.0
+    image: elasticsearch:1.7.6
     container_name: es
     volumes:
       - ./.dev/volumes/es/data:/usr/share/elasticsearch/data
       - ./.dev/volumes/es/logs:/usr/share/elasticsearch/logs
       - ./.dev/volumes/es/plugins:/usr/share/elasticsearch/plugins
-    environment:
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - http.port=9200
     ports:
       - "9200:9200"
       - "9300:9300"
