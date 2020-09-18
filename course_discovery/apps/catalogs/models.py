@@ -1,13 +1,14 @@
-from collections.abc import Iterable
+from collections import Iterable  # pylint: disable=no-name-in-module
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
+from elasticsearch_dsl.query import Q as ESDSLQ
 from guardian.shortcuts import get_users_with_perms
-from haystack.query import SearchQuerySet
 
 from course_discovery.apps.core.mixins import ModelPermissionsMixin
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
+from course_discovery.apps.course_metadata.search_indexes.documents import CourseDocument
 
 
 class Catalog(ModelPermissionsMixin, TimeStampedModel):
@@ -32,7 +33,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         Returns:
             SearchQuerySet
         """
-        return SearchQuerySet().models(Course).raw_search(self.query)
+        return CourseDocument.search().query(ESDSLQ('query_string', query=self.query))
 
     def courses(self):
         """ Returns the list of courses contained within this catalog.
@@ -65,9 +66,9 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
                   contained in this catalog.
         """
         contains = {course_id: False for course_id in course_ids}
-        results = self._get_query_results().filter(key__in=course_ids)
+        results = self._get_query_results().filter('terms', key=course_ids)
         for result in results:
-            contains[result.get_stored_fields()['key']] = True
+            contains[result.key] = True
 
         return contains
 
@@ -83,8 +84,9 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
                   contained in this catalog.
         """
         contains = {course_run_id: False for course_run_id in course_run_ids}
-        course_runs = CourseRun.search(self.query).filter(key__in=course_run_ids).values_list('key', flat=True)
-        contains.update({course_run_id: course_run_id in course_runs for course_run_id in course_run_ids})
+        course_runs = CourseRun.search(self.query).filter('terms', key=course_run_ids).source(['key'])
+        course_runs_keys = [i.key for i in course_runs]
+        contains.update({course_run_id: course_run_id in course_runs_keys for course_run_id in course_run_ids})
 
         return contains
 
