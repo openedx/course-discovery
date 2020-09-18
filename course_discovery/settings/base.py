@@ -64,6 +64,7 @@ THIRD_PARTY_APPS = [
     'adminsortable2',
     'xss_utils',
     'algoliasearch_django',
+    'taxonomy',
 ]
 
 ALGOLIA = {
@@ -640,3 +641,13 @@ MEDIA_STORAGE_BACKEND = {
     'MEDIA_ROOT': MEDIA_ROOT,
     'MEDIA_URL': MEDIA_URL
 }
+
+
+# Settings related to the taxonomy_support
+TAXONOMY_COURSE_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryCourseMetadataProvider'
+
+# Settings related to the EMSI client
+EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'
+EMSI_API_BASE_URL = 'https://emsiservices.com'
+EMSI_CLIENT_ID = ''
+EMSI_CLIENT_SECRET = ''
