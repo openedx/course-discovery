@@ -42,6 +42,12 @@ def clean_query(query):
     # Ensure the query is lowercase, since that is how we index our data.
     query = query.lower()
 
+    # Ensure the query is wrapped into quotes if field contains the exact phrase "john smith"
+    # author:"John Smith"
+    field, __, query_value = query.partition(':')
+    if query_value and ' ' in query_value:
+        query = '{0}:"{1}"'.format(field, query_value.strip('\"\''))
+
     # Specifying a SearchQuerySet filter will append an explicit AND clause to the query, thus changing its semantics.
     # So we wrap parentheses around the original query in order to preserve the semantics.
     query = '({qs})'.format(qs=query)
@@ -68,7 +74,8 @@ def set_official_state(obj, model, attrs=None):
     Returns
         the official version of that object with the attributes updated to attrs
     """
-    from course_discovery.apps.course_metadata.models import Course, CourseRun  # pylint: disable=import-outside-toplevel
+    # pylint: disable=import-outside-toplevel
+    from course_discovery.apps.course_metadata.models import Course, CourseRun
     # This is so we don't create the marketing node with an incorrect slug.
     # We correct the slug after setting official state, but the AutoSlugField initially overwrites it.
     if isinstance(obj, CourseRun):
@@ -124,7 +131,8 @@ def set_draft_state(obj, model, attrs=None, related_attrs=None):
         (Model obj, Model obj): Tuple of Model objects where the first is the draft object
             and the second is the original
     """
-    from course_discovery.apps.course_metadata.models import Course, CourseRun  # pylint: disable=import-outside-toplevel
+    # pylint: disable=import-outside-toplevel
+    from course_discovery.apps.course_metadata.models import Course, CourseRun
     original_obj = model.objects.get(pk=obj.pk)
     obj.pk = None
     obj.draft = True
@@ -172,7 +180,8 @@ def _calculate_entitlement_for_run(run):
 
 
 def _calculate_entitlement_for_course(course):
-    from course_discovery.apps.course_metadata.models import Course  # pylint: disable=import-outside-toplevel
+    # pylint: disable=import-outside-toplevel
+    from course_discovery.apps.course_metadata.models import Course
 
     # When we are creating the draft course for the first time, the prefetch_related of course runs
     # on the serializer causes any related key lookups on course.course_runs return an empty
@@ -201,7 +210,8 @@ def create_missing_entitlement(course):
     Returns:
         True if an entitlement was created, False if we could not make one
     """
-    from course_discovery.apps.course_metadata.models import CourseEntitlement, SeatType  # pylint: disable=import-outside-toplevel
+    # pylint: disable=import-outside-toplevel
+    from course_discovery.apps.course_metadata.models import CourseEntitlement, SeatType
 
     calculated_entitlement = _calculate_entitlement_for_course(course)
     if calculated_entitlement:
@@ -242,7 +252,8 @@ def ensure_draft_world(obj):
     Returns:
         obj (Model object): The returned object will be the draft version on the input object.
     """
-    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat  # pylint: disable=import-outside-toplevel
+    # pylint: disable=import-outside-toplevel
+    from course_discovery.apps.course_metadata.models import Course, CourseEntitlement, CourseRun, Seat
     if obj.draft:
         return obj
     elif obj.draft_version:
