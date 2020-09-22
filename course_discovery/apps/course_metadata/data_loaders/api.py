@@ -374,13 +374,13 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 pagerange = pageranges['course_runs']
                 for i, future in enumerate([executor.submit(self._request_course_runs, page) for page in pagerange]):
                     self._check_future_and_process(
-                        future, self._process_course_runs, self._request_course_runs, pagerange[0] + i
+                        future, self._process_course_runs,
                     )
 
                 pagerange = pageranges['entitlements']
                 for i, future in enumerate([executor.submit(self._request_entitlements, page) for page in pagerange]):
                     self._check_future_and_process(
-                        future, self._process_entitlements, self._request_entitlements, pagerange[0] + i
+                        future, self._process_entitlements,
                     )
 
                 pagerange = pageranges['enrollment_codes']
@@ -388,7 +388,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                     [executor.submit(self._request_enrollment_codes, page) for page in pagerange]
                 ):
                     self._check_future_and_process(
-                        future, self._process_enrollment_codes, self._request_enrollment_codes, pagerange[0] + i
+                        future, self._process_enrollment_codes,
                     )
 
         logger.info('Expected %d course seats, %d course entitlements, and %d enrollment codes from %s.',
@@ -451,14 +451,29 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             logger.exception(ex)
             self.processing_failure_occurred = True
 
+    @backoff.on_exception(
+        backoff.expo,
+        requests.exceptions.RequestException,
+        max_tries=5
+    )
     def _request_course_runs(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'include_products': True}
         return self.api_client.get(self.api_url + '/courses/', params=params).json()
 
+    @backoff.on_exception(
+        backoff.expo,
+        requests.exceptions.RequestException,
+        max_tries=5
+    )
     def _request_entitlements(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Course Entitlement'}
         return self.api_client.get(self.api_url + '/products/', params=params).json()
 
+    @backoff.on_exception(
+        backoff.expo,
+        requests.exceptions.RequestException,
+        max_tries=5
+    )
     def _request_enrollment_codes(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Enrollment Code'}
         return self.api_client.get(self.api_url + '/products/', params=params).json()
@@ -509,15 +524,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             logger.info(msg)
         entitlements_to_delete.delete()
 
-    def _check_future_and_process(self, future, process_fn, request_fn, page):
+    def _check_future_and_process(self, future, process_fn):
         check_exception = future.exception()
         if check_exception is None:
             response = future.result()
-            process_fn(response)
-        # The OSError we are catching here is a Connection Aborted OSError("(104, 'ECONNRESET')")
-        # This will just retry the request which should refresh the connection.
-        elif isinstance(check_exception, OSError):
-            response = request_fn(page)
             process_fn(response)
         else:
             logger.exception(check_exception)
