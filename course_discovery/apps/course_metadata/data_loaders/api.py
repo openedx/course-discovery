@@ -316,27 +316,16 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         self.enrollment_code_lock = threading.Lock()
 
     def ingest(self):
-        attempt_count = 0
+        logger.info('Refreshing ecommerce data from %s...', self.partner.ecommerce_api_url)
+        self._load_ecommerce_data()
 
-        while (attempt_count == 0 or
-               (self.processing_failure_occurred and attempt_count < EcommerceApiDataLoader.LOADER_MAX_RETRY)):
-            attempt_count += 1
-            if self.processing_failure_occurred and attempt_count > 1:  # pragma: no cover
-                logger.info('Processing failure occurred attempting {attempt_count} of {max}...'.format(
-                    attempt_count=attempt_count,
-                    max=EcommerceApiDataLoader.LOADER_MAX_RETRY
-                ))
-
-            logger.info('Refreshing ecommerce data from %s...', self.partner.ecommerce_api_url)
-            self._load_ecommerce_data()
-
-            if self.processing_failure_occurred:  # pragma: no cover
-                logger.warning('Processing failure occurred caused by an exception on at least on of the threads, '
-                               'blocking deletes.')
-                if attempt_count >= EcommerceApiDataLoader.LOADER_MAX_RETRY:
-                    raise CommandError('Max retries exceeded and Ecommerce Data Loader failed to successfully load')
-            else:
-                self._delete_entitlements()
+        if self.processing_failure_occurred:  # pragma: no cover
+            logger.warning(
+                'Processing failure occurred caused by an exception on at least on of the threads, '
+                'blocking deletes.'
+            )
+            raise CommandError('Ecommerce Data Loader failed to successfully load')
+        self._delete_entitlements()
 
     def _load_ecommerce_data(self):
         course_runs = self._request_course_runs(self.initial_page)
