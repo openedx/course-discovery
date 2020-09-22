@@ -2,6 +2,7 @@ import concurrent.futures
 import itertools
 import logging
 
+import backoff
 import waffle
 from django.apps import apps
 from django.core.management import BaseCommand, CommandError
@@ -21,8 +22,18 @@ logger = logging.getLogger(__name__)
 
 
 def execute_loader(loader_class, *loader_args):
+    @backoff.on_exception(
+        backoff.expo,
+        Exception,
+        max_tries=loader_class.LOADER_MAX_RETRY,
+        logger=logger,
+        base=60,
+    )
+    def run_loader():
+        return loader_class(*loader_args).ingest()
+
     try:
-        loader_class(*loader_args).ingest()
+        run_loader()
         return True
     except Exception:  # pylint: disable=broad-except
         logger.exception('%s failed!', loader_class.__name__)
