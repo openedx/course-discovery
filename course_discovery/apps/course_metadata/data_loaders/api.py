@@ -353,11 +353,17 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
             if self.is_threadsafe:
                 for page in pageranges['course_runs']:
-                    executor.submit(self._load_course_runs_data, page)
+                    executor.submit(self._request_course_runs, page).add_done_callback(
+                        lambda future: self._check_future_and_process(future, self._process_course_runs)
+                    )
                 for page in pageranges['entitlements']:
-                    executor.submit(self._load_entitlements_data, page)
+                    executor.submit(self._request_entitlements, page).add_done_callback(
+                        lambda future: self._check_future_and_process(future, self.process_entitlements)
+                    )
                 for page in pageranges['enrollment_codes']:
-                    executor.submit(self._load_enrollment_codes_data, page)
+                    executor.submit(self._request_enrollment_codes, page).add_done_callback(
+                        lambda future: self._check_future_and_process(future, self.process_enrollment_codes)
+                    )
             else:
                 # Process in batches and wait for the result from the futures
                 pagerange = pageranges['course_runs']
@@ -414,35 +420,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def _pagerange(self, count):
         pages = int(math.ceil(count / self.PAGE_SIZE))
         return range(self.initial_page + 1, pages + 1)
-
-    def _load_course_runs_data(self, page):  # pragma: no cover
-        """Make a request for the given page and process the response."""
-        try:
-            course_runs = self._request_course_runs(page)
-            self._process_course_runs(course_runs)
-
-        except requests.exceptions.RequestException as ex:
-            logger.exception(ex)
-            self.processing_failure_occurred = True
-
-    def _load_entitlements_data(self, page):  # pragma: no cover
-        """Make a request for the given page and process the response."""
-        try:
-            entitlements = self._request_entitlements(page)
-            self._process_entitlements(entitlements)
-
-        except requests.exceptions.RequestException as ex:
-            logger.exception(ex)
-            self.processing_failure_occurred = True
-
-    def _load_enrollment_codes_data(self, page):  # pragma: no cover
-        """Make a request for the given page and process the response."""
-        try:
-            enrollment_codes = self._request_enrollment_codes(page)
-            self._process_enrollment_codes(enrollment_codes)
-        except requests.exceptions.RequestException as ex:
-            logger.exception(ex)
-            self.processing_failure_occurred = True
 
     @backoff.on_exception(
         backoff.expo,
