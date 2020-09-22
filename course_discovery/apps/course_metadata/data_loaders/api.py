@@ -361,20 +361,24 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             else:
                 # Process in batches and wait for the result from the futures
                 pagerange = pageranges['course_runs']
-                for i, future in enumerate([executor.submit(self._request_course_runs, page) for page in pagerange]):
+                for future in concurrent.futures.as_completed(
+                    executor.submit(self._request_course_runs, page) for page in pagerange
+                ):
                     self._check_future_and_process(
                         future, self._process_course_runs,
                     )
 
                 pagerange = pageranges['entitlements']
-                for i, future in enumerate([executor.submit(self._request_entitlements, page) for page in pagerange]):
+                for future in concurrent.futures.as_completed(
+                    executor.submit(self._request_entitlements, page) for page in pagerange
+                ):
                     self._check_future_and_process(
                         future, self._process_entitlements,
                     )
 
                 pagerange = pageranges['enrollment_codes']
-                for i, future in enumerate(
-                    [executor.submit(self._request_enrollment_codes, page) for page in pagerange]
+                for future in concurrent.futures.as_completed(
+                    executor.submit(self._request_enrollment_codes, page) for page in pagerange
                 ):
                     self._check_future_and_process(
                         future, self._process_enrollment_codes,
