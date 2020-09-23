@@ -38,7 +38,7 @@ from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.tests import factories
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory, SeatTypeFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory, SeatFactory, SeatTypeFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.utils import logger as utils_logger
@@ -1897,11 +1897,39 @@ class ProgramTests(TestCase):
         self.assertEqual(program.price_ranges, expected_price_ranges)
 
     def test_staff(self):
+        TWO_WEEKS_FROM_TODAY = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=14)
+        YESTERDAY = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
+        TOMORROW = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
+        expected_staff = factories.PersonFactory.create_batch(2)
+        unexpected_staff = factories.PersonFactory.create_batch(2)
+        advertised_course_run = factories.CourseRunFactory(
+            start=YESTERDAY,
+            end=TWO_WEEKS_FROM_TODAY,
+            status=CourseRunStatus.Published,
+            enrollment_end=TWO_WEEKS_FROM_TODAY,
+            staff=set(expected_staff)
+        )
+        SeatFactory(
+            course_run=advertised_course_run,
+            type=SeatTypeFactory.verified(),
+            upgrade_deadline=TOMORROW
+        )
+        ignored_course_run = factories.CourseRunFactory(
+            status=CourseRunStatus.Unpublished,
+            staff=set(unexpected_staff)
+        )
+        self.program.courses.set([advertised_course_run.course, ignored_course_run.course ])
+
+        self.assertEqual(self.program.staff, set(expected_staff))
+
+
+    def test_staff_no_advertised_course_run(self):
         staff = factories.PersonFactory.create_batch(2)
         self.course_runs[0].staff.add(staff[0])
         self.course_runs[1].staff.add(staff[1])
 
-        self.assertEqual(self.program.staff, set(staff))
+        self.assertEqual(self.program.staff, set())
+
 
     def test_banner_image(self):
         self.program.banner_image = make_image_file('test_banner.jpg')
