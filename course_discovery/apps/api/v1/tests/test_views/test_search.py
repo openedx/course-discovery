@@ -273,7 +273,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         return objects
 
     def test_results_only_include_specific_key_objects(self):
-        """ Verify the search results only include items with key set to 'course:edX+DemoX'. """
+        """ Verify the search results only include items with 'key' set to 'course:edX+DemoX'. """
         desired_key = 'course:edX+DemoX'
         CourseFactory(key='course:edX+TeamX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
         course = CourseFactory(key=desired_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
@@ -287,7 +287,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         ]
 
     def test_results_only_include_specific_key_objects_which_were_requested_in_the_search(self):
-        """ Verify the search results only include items with key set to 'course:edX+DemoX'. """
+        """ Verify the search results only include items with 'q' set to 'course:edX+DemoX'. """
         desired_key = 'course:edX+DemoX'
         CourseFactory(key='course:edX+TeamX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
         course = CourseFactory(key=desired_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
