@@ -720,7 +720,8 @@ class PkSearchableMixin:
             return queryset
 
         es_document, *_ = registry.get_documents(models=(cls,))
-        results = es_document.search().query(ESDSLQ('query_string', query=query)).execute()
+        dsl_query = ESDSLQ('query_string', query=query, analyze_wildcard=True)
+        results = es_document.search().query(dsl_query).execute()
         ids = {result.pk for result in results}
 
         return queryset.filter(pk__in=ids)
@@ -1632,8 +1633,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
             # want everything, we don't need to actually query elasticsearch at all
             return queryset.query(ESDSLQ('match_all'))
-
-        return queryset.query(ESDSLQ('query_string', query=query))
+        dsl_query = ESDSLQ('query_string', query=query, analyze_wildcard=True)
+        return queryset.query(dsl_query)
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
