@@ -97,7 +97,7 @@ class CourseSearchViewSet(BaseElasticsearchDocumentViewSet):
 
 class CourseRunSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumentViewSet):
     """
-    Generic person search
+    CourseRun search viewset.
     """
 
     detail_serializer_class = search_indexes_serializers.CourseRunSearchModelSerializer
@@ -193,6 +193,8 @@ class AggregateSearchViewSet(BaseAggregateSearchViewSet):
         'partner': {'field': 'partner.raw', 'lookups': [LOOKUP_FILTER_TERM]},
         'content_type': {'field': 'content_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'aggregation_key': {'field': 'aggregation_key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'org': {'field': 'org', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
     }
 
     def create(self, request):
