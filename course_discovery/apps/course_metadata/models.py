@@ -2375,7 +2375,9 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def staff(self):
-        advertised_course_runs = [course.advertised_course_run for course in self.courses.all() if course.advertised_course_run]
+        advertised_course_runs = [course.advertised_course_run for
+                                  course in self.courses.all() if
+                                  course.advertised_course_run]
         staff = [advertised_course_run.staff.all() for advertised_course_run in advertised_course_runs]
         staff = itertools.chain.from_iterable(staff)
         return set(staff)

@@ -38,7 +38,9 @@ from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
 from course_discovery.apps.course_metadata.tests import factories
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ImageFactory, SeatFactory, SeatTypeFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseRunFactory, ImageFactory, SeatFactory, SeatTypeFactory
+)
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.utils import logger as utils_logger
@@ -1918,10 +1920,9 @@ class ProgramTests(TestCase):
             status=CourseRunStatus.Unpublished,
             staff=set(unexpected_staff)
         )
-        self.program.courses.set([advertised_course_run.course, ignored_course_run.course ])
+        self.program.courses.set([advertised_course_run.course, ignored_course_run.course])
 
         self.assertEqual(self.program.staff, set(expected_staff))
-
 
     def test_staff_no_advertised_course_run(self):
         staff = factories.PersonFactory.create_batch(2)
@@ -1929,7 +1930,6 @@ class ProgramTests(TestCase):
         self.course_runs[1].staff.add(staff[1])
 
         self.assertEqual(self.program.staff, set())
-
 
     def test_banner_image(self):
         self.program.banner_image = make_image_file('test_banner.jpg')
