@@ -272,6 +272,34 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         assert objects['count'] > 0
         return objects
 
+    def test_results_only_include_specific_key_objects(self):
+        """ Verify the search results only include items with key set to 'course:edX+DemoX'. """
+        desired_key = 'course:edX+DemoX'
+        CourseFactory(key='course:edX+TeamX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        course = CourseFactory(key=desired_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+
+        response = self.get_response(query={'key': desired_key}, endpoint='api:v1:search-all-list')
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["results"] == [
+            self.serialize_course_search(course),
+        ]
+
+    def test_results_only_include_specific_key_objects_which_were_requested_in_the_search(self):
+        """ Verify the search results only include items with key set to 'course:edX+DemoX'. """
+        desired_key = 'course:edX+DemoX'
+        CourseFactory(key='course:edX+TeamX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        course = CourseFactory(key=desired_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+
+        response = self.get_response(query={'q': desired_key}, endpoint='api:v1:search-all-list')
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["results"] == [
+            self.serialize_course_search(course),
+        ]
+
     def test_results_only_include_published_objects(self):
         """ Verify the search results only include items with status set to 'Published'. """
         # These items should NOT be in the results
