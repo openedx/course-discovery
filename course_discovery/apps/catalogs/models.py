@@ -33,7 +33,8 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         Returns:
             SearchQuerySet
         """
-        return CourseDocument.search().query(ESDSLQ('query_string', query=self.query))
+        dsl_query = ESDSLQ('query_string', query=self.query, analyze_wildcard=True)
+        return CourseDocument.search().query(dsl_query)
 
     def courses(self):
         """ Returns the list of courses contained within this catalog.
