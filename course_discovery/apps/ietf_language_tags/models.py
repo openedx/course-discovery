@@ -29,7 +29,7 @@ class LanguageTag(TranslatableModel):
         return self.translated_macrolanguage if translate else self.macrolanguage
 
 
-class LanguageTagTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class LanguageTagTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(LanguageTag, models.CASCADE, related_name='translations', null=True)
     name_t = models.CharField(_('Name for translation'), max_length=255)
 

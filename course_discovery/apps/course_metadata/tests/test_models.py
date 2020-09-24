@@ -48,8 +48,6 @@ from course_discovery.apps.course_metadata.utils import uslugify
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
-# pylint: disable=no-member
-
 
 @pytest.mark.django_db
 @pytest.mark.usefixtures('haystack_default_connection')
@@ -261,7 +259,7 @@ class TestCourseEditor(TestCase):
 
         # Course with an invalid editor (but course is in our group)
         cls.course_bad_editor_in_group = factories.CourseFactory(title="bad editor in group")
-        cls.course_bad_editor_in_group.authoring_organizations.add(cls.org_ext.organization)  # pylint: disable=no-member
+        cls.course_bad_editor_in_group.authoring_organizations.add(cls.org_ext.organization)
         cls.run_bad_editor_in_group = factories.CourseRunFactory(course=cls.course_bad_editor_in_group)
         factories.CourseEditorFactory(user=bad_editor, course=cls.course_bad_editor_in_group)
 
@@ -269,7 +267,7 @@ class TestCourseEditor(TestCase):
         cls.good_editor = factories.UserFactory()
         cls.good_editor.groups.add(cls.org_ext.group)
         cls.course_good_editor = factories.CourseFactory(title="good editor")
-        cls.course_good_editor.authoring_organizations.add(cls.org_ext.organization)  # pylint: disable=no-member
+        cls.course_good_editor.authoring_organizations.add(cls.org_ext.organization)
         cls.run_good_editor = factories.CourseRunFactory(course=cls.course_good_editor)
         factories.CourseEditorFactory(user=cls.good_editor, course=cls.course_good_editor)
 
@@ -280,15 +278,15 @@ class TestCourseEditor(TestCase):
 
         # Course with user as an valid editor
         cls.course_editor = factories.CourseFactory(title="editor")
-        cls.course_editor.authoring_organizations.add(cls.org_ext.organization)  # pylint: disable=no-member
+        cls.course_editor.authoring_organizations.add(cls.org_ext.organization)
         cls.run_editor = factories.CourseRunFactory(course=cls.course_editor)
         factories.CourseEditorFactory(user=cls.user, course=cls.course_editor)
 
         # Add another authoring_org, which will cause django to return duplicates, if we don't filter them out
         org_ext2 = OrganizationExtensionFactory()
         cls.user.groups.add(org_ext2.group)
-        cls.course_editor.authoring_organizations.add(org_ext2.organization)  # pylint: disable=no-member
-        cls.course_bad_editor_in_group.authoring_organizations.add(org_ext2.organization)  # pylint: disable=no-member
+        cls.course_editor.authoring_organizations.add(org_ext2.organization)
+        cls.course_bad_editor_in_group.authoring_organizations.add(org_ext2.organization)
 
     def setUp(self):
         """ Resets self.user to not be staff and to belong to the self.org_ext group. """

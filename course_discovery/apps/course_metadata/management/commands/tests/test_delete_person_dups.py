@@ -117,7 +117,6 @@ class DeletePersonDupsCommandTests(TestCase):
         ])
 
     def test_target_already_present(self):
-        # pylint: disable=no-member
         # Change everything to include target. We expect that target's place isn't altered.
         self.courserun1.staff.set(list(self.courserun1.staff.all()) + [self.target])
         self.courserun2.staff.set(list(self.courserun2.staff.all()) + [self.target])

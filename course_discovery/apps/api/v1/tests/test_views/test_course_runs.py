@@ -1,4 +1,3 @@
-# pylint: disable=no-member
 import datetime
 import urllib
 
@@ -917,7 +916,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertEqual(seat.price, price)
         # This is probably not a great way of verifying this with the first, it just so happens
         # that if there are two tracks (verified and audit), the verified track is first
-        self.assertEqual(seat.type, updated_run_type.tracks.first().seat_type)  # pylint: disable=no-member
+        self.assertEqual(seat.type, updated_run_type.tracks.first().seat_type)
         self.assertTrue(seat.draft)
 
     @responses.activate

@@ -1,4 +1,3 @@
-# pylint: disable=no-member
 import ddt
 import mock
 from django.core.management import CommandError, call_command

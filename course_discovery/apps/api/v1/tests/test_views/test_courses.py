@@ -40,7 +40,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.verified_type = CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT)
         self.course = CourseFactory(partner=self.partner, title='Fake Test', key='edX+Fake101', type=self.audit_type)
         self.org = OrganizationFactory(key='edX', partner=self.partner)
-        self.course.authoring_organizations.add(self.org)  # pylint: disable=no-member
+        self.course.authoring_organizations.add(self.org)
 
     def tearDown(self):
         super(CourseViewSetTests, self).tearDown()
