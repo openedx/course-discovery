@@ -290,7 +290,7 @@ class LevelType(TranslatableModel, TimeStampedModel):
         ordering = ('sort_value',)
 
 
-class LevelTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class LevelTypeTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(LevelType, models.CASCADE, related_name='translations', null=True)
     name_t = models.CharField('name', max_length=255)
 
@@ -365,7 +365,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
         return program_type, name
 
 
-class ProgramTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class ProgramTypeTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
 
     name_t = models.CharField("name", max_length=32, blank=False, null=False)
@@ -532,7 +532,7 @@ class Subject(TranslatableModel, TimeStampedModel):
             raise ValidationError({'name': ['Subject with this Name and Partner already exists', ]})
 
 
-class SubjectTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class SubjectTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(Subject, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -570,7 +570,7 @@ class Topic(TranslatableModel, TimeStampedModel):
             raise ValidationError({'name': ['Topic with this Name and Partner already exists', ]})
 
 
-class TopicTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class TopicTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(Topic, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)

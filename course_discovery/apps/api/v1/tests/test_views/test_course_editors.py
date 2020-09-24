@@ -21,7 +21,7 @@ class CourseEditorsViewSetTests(SerializationMixin, APITestCase):
         partner = Partner.objects.first()
         self.course = CourseFactory(draft=True, partner=partner)
         self.org_ext = OrganizationExtensionFactory()
-        self.course.authoring_organizations.add(self.org_ext.organization)  # pylint: disable=no-member
+        self.course.authoring_organizations.add(self.org_ext.organization)
 
     def test_list(self):
         """Verify GET endpoint returns list of editors"""

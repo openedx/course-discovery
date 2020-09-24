@@ -23,7 +23,7 @@ class CommentViewSetTests(OAuth2Mixin, APITestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         self.course = CourseFactoryNoSignals(partner=self.partner, title='Fake Test', key='edX+Fake101', draft=True)
         self.org = OrganizationFactoryNoSignals(key='edX', partner=self.partner)
-        self.course.authoring_organizations.add(self.org)  # pylint: disable=no-member
+        self.course.authoring_organizations.add(self.org)
 
     def tearDown(self):
         super().tearDown()
