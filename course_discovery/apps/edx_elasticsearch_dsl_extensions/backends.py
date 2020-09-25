@@ -15,9 +15,19 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_
     get_elasticsearch_boost_config
 )
 
+SEPARATOR_LOOKUP_NAME = ':='
+
 
 # pylint: disable=abstract-method
 class BaseSearchFilterBackend(OriginBaseSearchFilterBackend):
+
+    @classmethod
+    def split_lookup_name(cls, value, maxsplit=-1):
+        """
+        Split lookup value.
+        """
+        return value.split(SEPARATOR_LOOKUP_NAME, maxsplit)
+
     def filter_queryset(self, request, queryset, view):
         function_score_config = get_elasticsearch_boost_config()['function_score']
         if self.matching not in MATCHING_OPTIONS:
