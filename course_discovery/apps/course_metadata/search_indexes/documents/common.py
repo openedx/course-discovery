@@ -142,6 +142,9 @@ class BaseDocument(BoostedDocument, metaclass=DocumentMeta):
 
     object = property(_get_object, _set_object)
 
+    def prepare_authoring_organization_uuids(self, obj):
+        return [str(organization.uuid) for organization in obj.authoring_organizations.all()]
+
     def prepare_content_type(self, obj):  # pylint: disable=unused-argument
         return self.Django.model.__name__.lower()
 
@@ -200,9 +203,6 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
     seat_types = fields.KeywordField(multi=True)
     subjects = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField(multi=True)}, multi=True)
     sponsoring_organizations = fields.TextField(multi=True)
-
-    def prepare_authoring_organization_uuids(self, obj):
-        return [str(organization.uuid) for organization in obj.authoring_organizations.all()]
 
     def prepare_first_enrollable_paid_seat_price(self, obj):
         return obj.first_enrollable_paid_seat_price
