@@ -1,5 +1,6 @@
 import datetime
 import json
+from unittest import mock
 
 import ddt
 import pytest
@@ -8,7 +9,6 @@ import responses
 from django.conf import settings
 from django.db import IntegrityError
 from django.db.models.functions import Lower
-from mock import mock
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 
@@ -32,7 +32,7 @@ from course_discovery.apps.publisher.tests.factories import OrganizationExtensio
 @pytest.mark.usefixtures('django_cache')
 class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def setUp(self):
-        super(CourseViewSetTests, self).setUp()
+        super().setUp()
         self.user = UserFactory(is_staff=True)
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
@@ -43,11 +43,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.course.authoring_organizations.add(self.org)
 
     def tearDown(self):
-        super(CourseViewSetTests, self).tearDown()
+        super().tearDown()
         self.client.logout()
 
     def mock_ecommerce_publication(self):
-        url = '{root}publication/'.format(root=self.course.partner.ecommerce_api_url)
+        url = f'{self.course.partner.ecommerce_api_url}publication/'
         responses.add(responses.POST, url, json={}, status=200)
 
     def test_get(self):
@@ -148,7 +148,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         SeatFactory(course_run=closed_course_run)
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        url = '{}?marketable_course_runs_only={}'.format(url, marketable_course_runs_only)
+        url = f'{url}?marketable_course_runs_only={marketable_course_runs_only}'
         response = self.client.get(url)
 
         assert response.status_code == 200
@@ -205,7 +205,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         unpublished_course_run = CourseRunFactory(status=CourseRunStatus.Unpublished, course=self.course)
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        url = '{}?published_course_runs_only={}'.format(url, published_course_runs_only)
+        url = f'{url}?published_course_runs_only={published_course_runs_only}'
 
         response = self.client.get(url)
 
@@ -606,7 +606,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
         responses.add(responses.POST, studio_url, status=200)
         key = 'course-v1:{org}+{number}+1T2001'.format(org=course_data['org'], number=course_data['number'])
-        responses.add(responses.POST, '{url}{key}/images/'.format(url=studio_url, key=key), status=200)
+        responses.add(responses.POST, f'{studio_url}{key}/images/', status=200)
         return self.create_course(course_data, update)
 
     def test_multiple_authoring_orgs_get_pulled_in_order(self):

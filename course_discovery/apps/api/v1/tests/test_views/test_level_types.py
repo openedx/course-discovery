@@ -10,7 +10,7 @@ class LevelTypeViewSetTests(SerializationMixin, APITestCase):
     list_path = reverse('api:v1:level_type-list')
 
     def setUp(self):
-        super(LevelTypeViewSetTests, self).setUp()
+        super().setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 

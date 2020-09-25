@@ -348,7 +348,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             # base64 encoded image - decode
             file_format, imgstr = image_data.split(';base64,')  # format ~= data:image/X;base64,/xxxyyyzzz/
             ext = file_format.split('/')[-1]  # guess file extension
-            image_data = ContentFile(base64.b64decode(imgstr), name='tmp.{extension}'.format(extension=ext))
+            image_data = ContentFile(base64.b64decode(imgstr), name=f'tmp.{ext}')
             course.image.save(image_data.name, image_data)
 
         if data.get('collaborators'):
@@ -461,7 +461,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
               paramType: query
               multiple: false
         """
-        return super(CourseViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course. """
@@ -475,4 +475,4 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         if get_query_param(request, 'editable') and not course.entitlements.exists():
             create_missing_entitlement(course)
 
-        return super(CourseViewSet, self).retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)

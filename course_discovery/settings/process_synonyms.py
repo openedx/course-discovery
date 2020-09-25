@@ -32,7 +32,7 @@ def get_synonym_lines_from_file():
     return synonyms_module.SYNONYMS
 
 
-@lru_cache()
+@lru_cache
 def get_synonyms(es):
     synonyms = get_synonym_lines_from_file()
     synonyms = process_synonyms(es, synonyms)

@@ -1,7 +1,8 @@
+from unittest import mock
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.db import IntegrityError
-from mock import mock
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 from waffle.testutils import override_switch
@@ -30,7 +31,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         cls._original_partner_marketing_site_api_username = cls.partner.marketing_site_api_username
 
     def setUp(self):
-        super(PersonViewSetTests, self).setUp()
+        super().setUp()
         self.user = UserFactory()
         self.request.user = self.user
         self.target_permissions = Permission.objects.filter(
@@ -202,7 +203,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint allows people to be filtered by slug. """
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
             person = PersonFactory(partner=self.partner)
-        url = '{root}?slug={slug}'.format(root=self.people_list_url, slug=person.slug)
+        url = f'{self.people_list_url}?slug={person.slug}'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.data['results'], self.serialize_person([person], many=True))
@@ -212,7 +213,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.client.logout()
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
             person = PersonFactory(partner=self.partner)
-        url = '{root}?slug={slug}'.format(root=self.people_list_url, slug=person.slug)
+        url = f'{self.people_list_url}?slug={person.slug}'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertCountEqual(response.data['results'], self.serialize_person([person], many=True))
@@ -224,7 +225,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             person1 = PersonFactory(partner=self.partner)
             PersonFactory(partner=self.partner)
             CourseRunFactory(staff=[person1], course=course)
-            url = '{url}?org='.format(url=self.people_list_url)
+            url = f'{self.people_list_url}?org='
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.data['results']), 0)
@@ -237,7 +238,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             PersonFactory(partner=self.partner)
             PersonFactory(partner=self.partner)
             CourseRunFactory(staff=[person1], course=course)
-            url = '{url}?org={org_key}'.format(url=self.people_list_url, org_key=org1.key)
+            url = f'{self.people_list_url}?org={org1.key}'
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.data['results']), 1)

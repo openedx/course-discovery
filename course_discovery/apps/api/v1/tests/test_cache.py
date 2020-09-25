@@ -18,7 +18,7 @@ factory = APIRequestFactory()
 @ddt.ddt
 class CompressedCacheResponseTest(TestCase):
     def setUp(self):
-        super(CompressedCacheResponseTest, self).setUp()
+        super().setUp()
         self.request = factory.get('')
         self.cache_response_key = 'cache_response_key'
 

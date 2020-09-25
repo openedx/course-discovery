@@ -145,7 +145,7 @@ def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False, 
             'utm_source': get_utm_source_for_user(partner, user),
             'utm_medium': user.referral_tracking_id,
         })
-        return '{url}?{params}'.format(url=marketing_url, params=params)
+        return f'{marketing_url}?{params}'
 
 
 def get_lms_course_url_for_archived(partner, course_key):
@@ -163,7 +163,7 @@ def get_lms_course_url_for_archived(partner, course_key):
     if not course_key or not lms_url:
         return None
 
-    return '{lms_url}/courses/{course_key}/course/'.format(lms_url=lms_url, course_key=course_key)
+    return f'{lms_url}/courses/{course_key}/course/'
 
 
 def get_utm_source_for_user(partner, user):
@@ -498,7 +498,7 @@ class PersonSerializer(MinimalPersonSerializer):
     """Full serializer for the ``Person`` model."""
 
     def validate(self, attrs):
-        validated_data = super(PersonSerializer, self).validate(attrs)
+        validated_data = super().validate(attrs)
         validated_data['urls_detailed'] = self.initial_data.get('urls_detailed', [])
         validated_data['areas_of_expertise'] = self.initial_data.get('areas_of_expertise', [])
         return validated_data
@@ -704,7 +704,7 @@ class CatalogSerializer(BaseModelSerializer):
         viewers = User.objects.filter(username__in=viewers)
 
         # Set viewers after the model has been saved
-        instance = super(CatalogSerializer, self).create(validated_data)
+        instance = super().create(validated_data)
         instance.viewers = viewers
         instance.save()
         return instance
@@ -1801,7 +1801,7 @@ class AffiliateWindowSerializer(BaseModelSerializer):
         )
 
     def get_pid(self, obj):
-        return '{}-{}'.format(obj.course_run.key, obj.type.slug)
+        return f'{obj.course_run.key}-{obj.type.slug}'
 
     def get_price(self, obj):
         return {
@@ -1953,7 +1953,7 @@ class QueryFacetFieldSerializer(serializers.Serializer):
         selected_facets.add(field)
         query_params.setlist('selected_query_facets', sorted(selected_facets))
 
-        path = '{path}?{query}'.format(path=request.path_info, query=query_params.urlencode())
+        path = f'{request.path_info}?{query_params.urlencode()}'
         url = request.build_absolute_uri(path)
         return serializers.Hyperlink(url, 'narrow-url')
 
@@ -1965,7 +1965,7 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
     def get_fields(self):
         query_facet_counts = self.instance.pop('queries', {})
 
-        field_mapping = super(BaseHaystackFacetSerializer, self).get_fields()
+        field_mapping = super().get_fields()
 
         query_data = self.format_query_facet_data(query_facet_counts)
 
@@ -1996,7 +1996,7 @@ class CourseSearchSerializer(HaystackSerializer):
     seat_types = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
-        super(CourseSearchSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         request = self.context['request']
         detail_fields = request.GET.get("detail_fields")
         # if detail_fields query_param not in request than do not add the following fields in serializer response.
