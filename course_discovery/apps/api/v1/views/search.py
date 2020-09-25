@@ -167,6 +167,15 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'type': {'field': 'type', 'enabled': True},
         'content_type': {'field': 'content_type', 'enabled': True},
     }
+    ordering_fields = {'start': 'start', 'aggregation_key': 'aggregation_key'}
+    filter_fields = {
+        'partner': {'field': 'partner.raw', 'lookups': [LOOKUP_FILTER_TERM]},
+        'content_type': {'field': 'content_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'aggregation_key': {'field': 'aggregation_key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'org': {'field': 'org', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'authoring_organization_uuids': {'field': 'authoring_organization_uuids', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+    }
 
 
 class AggregateSearchViewSet(BaseAggregateSearchViewSet):
@@ -188,14 +197,6 @@ class AggregateSearchViewSet(BaseAggregateSearchViewSet):
         OrderingFilterBackend,
         DefaultOrderingFilterBackend,
     ]
-    ordering_fields = {'start': 'start', 'aggregation_key': 'aggregation_key'}
-    filter_fields = {
-        'partner': {'field': 'partner.raw', 'lookups': [LOOKUP_FILTER_TERM]},
-        'content_type': {'field': 'content_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'aggregation_key': {'field': 'aggregation_key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'org': {'field': 'org', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-    }
 
     def create(self, request):
         return self.list(request)
@@ -211,8 +212,15 @@ class LimitedAggregateSearchView(BaseAggregateSearchViewSet):
 
     serializer_class = search_indexes_serializers.LimitedAggregateSearchSerializer
     document = MultiDocumentsWrapper(
-        search_documents.CourseRunDocument, search_documents.ProgramDocument, search_documents.CourseDocument
+        search_documents.CourseRunDocument,
+        search_documents.ProgramDocument,
+        search_documents.CourseDocument
     )
+    filter_backends = [
+        MultiMatchSearchFilterBackend,
+        OrderingFilterBackend,
+        DefaultOrderingFilterBackend,
+    ]
 
 
 class PersonSearchViewSet(BaseElasticsearchDocumentViewSet):
