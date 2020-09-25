@@ -45,12 +45,10 @@ class BaseSearchFilterBackend(OriginBaseSearchFilterBackend):
 
             if __queries:
                 function_score_config['query'] = {self.matching: __queries}
-                queryset = queryset.query('function_score', **function_score_config)
 
         elif len(__query_backends) == 1:
             __query = __query_backends[0].construct_search(request=request, view=view, search_backend=self)
             function_score_config['query'] = {'bool': {self.matching: __query}}
-            queryset = queryset.query('function_score', **function_score_config)
         else:
             raise ImproperlyConfigured(
                 'Search filter backend shall have at least one query_backend\t'
@@ -58,6 +56,8 @@ class BaseSearchFilterBackend(OriginBaseSearchFilterBackend):
                 '`get_query_backends` method. Make appropriate changes to\t'
                 'your {} class'.format(self.__class__.__name__)
             )
+        queryset = queryset.query('function_score', **function_score_config).extra(collapse={'field': 'id'})
+
         return queryset
 
 
