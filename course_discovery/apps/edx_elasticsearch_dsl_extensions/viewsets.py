@@ -105,7 +105,7 @@ class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, Do
     pagination_class = CustomPageNumberPagination
     permission_classes = (IsAuthenticated,)
     ensure_published = True
-    multi_match_search_fields = ('title', 'text')
+    multi_match_search_fields = ('key', 'title', 'text')
     ordering = ('-start', 'aggregation_key')
     filter_backends = [
         MultiMatchSearchFilterBackend,
