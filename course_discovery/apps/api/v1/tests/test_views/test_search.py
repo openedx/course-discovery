@@ -1,6 +1,7 @@
 import datetime
 import json
 import urllib.parse
+import uuid
 
 import ddt
 import factory
@@ -532,6 +533,43 @@ class LimitedAggregateSearchViewSetTests(
             [obj.get('aggregation_key') for obj in response_data['objects']['results']]
         )
         assert expected == actual
+
+    def test_results_include_authoring_organization_uuids(self):
+        """ Test the search results include the authoring_organization_uuids for each document. """
+        desired_org_uuid = str(uuid.uuid4())
+        MITx = OrganizationFactory(key='MITx', uuid=desired_org_uuid)
+        HarvardX = OrganizationFactory(key='HarvardX', uuid=str(uuid.uuid4()))
+        mit_run = CourseRunFactory(
+            authoring_organizations=[MITx],
+            title='MIT Testing1',
+            course__partner=self.partner,
+            pacing_type='self_paced'
+        )
+        CourseRunFactory(
+            authoring_organizations=[HarvardX],
+            title='MIT Testing2',
+            course__partner=self.partner,
+            pacing_type='self_paced'
+        )
+        mit_program = ProgramFactory(
+            authoring_organizations=[MITx],
+            title='MIT Testing1',
+            partner=self.partner
+        )
+        ProgramFactory(
+            authoring_organizations=[HarvardX],
+            title='MIT Testing2',
+            partner=self.partner
+        )
+        query = {'authoring_organization_uuids': desired_org_uuid}
+        qs = urllib.parse.urlencode(query)
+        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        expected = [self.serialize_course_run_search(mit_run), self.serialize_program_search(mit_program)]
+        data = response.json()
+
+        assert data['objects']['results'] == expected
 
 
 class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
