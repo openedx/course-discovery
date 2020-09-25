@@ -8,7 +8,7 @@ from course_discovery.apps.course_metadata.tests.factories import CollaboratorFa
 class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     """ Tests for the collaborator resource. """
     def setUp(self):
-        super().setUp()
+        super(CollaboratorViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True)
         self.request.user = self.user
         self.client.login(username=self.user.username, password=USER_PASSWORD)
@@ -16,7 +16,7 @@ class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.collaborator = CollaboratorFactory(name=self.name)
 
     def tearDown(self):
-        super().tearDown()
+        super(CollaboratorViewSetTests, self).tearDown()
         self.client.logout()
 
     def test_get(self):

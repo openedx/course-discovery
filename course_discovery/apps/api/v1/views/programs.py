@@ -106,4 +106,4 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet
 
             return Response(uuids)
 
-        return super().list(request, *args, **kwargs)
+        return super(ProgramViewSet, self).list(request, *args, **kwargs)

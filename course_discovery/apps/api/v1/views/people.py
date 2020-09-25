@@ -95,11 +95,11 @@ class PersonViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all people. """
-        return super().list(request, *args, **kwargs)
+        return super(PersonViewSet, self).list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a person. """
-        return super().retrieve(request, *args, **kwargs)
+        return super(PersonViewSet, self).retrieve(request, *args, **kwargs)
 
     def get_queryset(self):
         # Only include people from the current request's site

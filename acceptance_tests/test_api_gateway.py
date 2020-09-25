@@ -10,8 +10,8 @@ from acceptance_tests.config import API_ACCESS_TOKEN, API_GATEWAY_CATALOG_ROOT, 
 class ApiGatewayTests(TestCase):
     PATHS = (
         'catalogs/',
-        f'catalogs/{CATALOG_ID}/',
-        f'catalogs/{CATALOG_ID}/courses/',
+        'catalogs/{id}/'.format(id=CATALOG_ID),
+        'catalogs/{id}/courses/'.format(id=CATALOG_ID),
     )
 
     def get_discovery_api_gateway_url(self, path):
@@ -35,7 +35,7 @@ class ApiGatewayTests(TestCase):
     def test_endpoint_ok(self, path):
         """ Verify the endpoint returns HTTP 200 for valid requests. """
         headers = {
-            'Authorization': f'JWT {API_ACCESS_TOKEN}'
+            'Authorization': 'JWT {token}'.format(token=API_ACCESS_TOKEN)
         }
         self.assert_api_response(path, **headers)
 

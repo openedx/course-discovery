@@ -14,7 +14,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
     list_path = reverse('api:v1:organization-list')
 
     def setUp(self):
-        super().setUp()
+        super(OrganizationViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.non_staff_user = UserFactory()
         self.request.user = self.user
@@ -43,7 +43,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         organizations = sorted(organizations, key=lambda o: o.created)
         with self.assertNumQueries(expected_query_count):
             uuids = ','.join([organization.uuid.hex for organization in organizations])
-            url = f'{self.list_path}?uuids={uuids}'
+            url = '{root}?uuids={uuids}'.format(root=self.list_path, uuids=uuids)
             response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)
@@ -53,7 +53,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         """ Asserts the list endpoint supports filtering by tags. """
         with self.assertNumQueries(expected_query_count):
             tags = ','.join(tags)
-            url = f'{self.list_path}?tags={tags}'
+            url = '{root}?tags={tags}'.format(root=self.list_path, tags=tags)
             response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)

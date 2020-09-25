@@ -10,7 +10,7 @@ class ProgramTypeViewSetTests(SerializationMixin, APITestCase):
     list_path = reverse('api:v1:program_type-list')
 
     def setUp(self):
-        super().setUp()
+        super(ProgramTypeViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 

@@ -14,7 +14,7 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
     """ Catalog model tests. """
 
     def setUp(self):
-        super().setUp()
+        super(CatalogTests, self).setUp()
         self.catalog = factories.CatalogFactory(query='title:abc*')
         self.course = CourseFactory(key='a/b/c', title='ABCs of Ͳҽʂէìղց')
         self.refresh_index()
@@ -25,7 +25,7 @@ class CatalogTests(ElasticsearchTestMixin, TestCase):
         self.catalog.name = name
         self.catalog.save()
 
-        expected = f'Catalog #{self.catalog.id}: {name}'
+        expected = 'Catalog #{id}: {name}'.format(id=self.catalog.id, name=name)
         self.assertEqual(str(self.catalog), expected)
 
     def test_courses(self):

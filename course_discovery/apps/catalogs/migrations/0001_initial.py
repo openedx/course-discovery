@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 import django_extensions.db.fields
 from django.db import migrations, models
 

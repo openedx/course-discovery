@@ -26,7 +26,7 @@ def generate_jwt_token(payload):
 
 def generate_jwt_header(token):
     """Generate a valid JWT header given a token."""
-    return f'JWT {token}'
+    return 'JWT {token}'.format(token=token)
 
 
 def generate_jwt_header_for_user(user):

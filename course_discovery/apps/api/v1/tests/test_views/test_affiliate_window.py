@@ -26,7 +26,7 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
     """ Tests for the ProgramsAffiliateWindowViewSet. """
     def _assert_product_xml(self, content, program):
         """ Helper method to verify product data in xml format. """
-        assert content.find('pid').text == f'{program.uuid}'
+        assert content.find('pid').text == '{}'.format(program.uuid)
         assert content.find('name').text == program.title
         assert content.find('desc').text == program.overview
         assert content.find('purl').text == program.marketing_url
@@ -34,7 +34,7 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         assert content.find('category').text == ProgramsAffiliateWindowSerializer.CATEGORY
 
     def setUp(self):
-        super().setUp()
+        super(ProgramsAffiliateWindowViewSetTests, self).setUp()
         self.user = UserFactory()
         self.client.force_authenticate(self.user)
         self.catalog = CatalogFactory(query='*:*', program_query='*:*', viewers=[self.user])
@@ -76,8 +76,9 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         # Assert that there is only on Program in the returned data even though 2
         # are created in setup
         assert len(root.findall('product')) == 1
+        print(root.findall('product/[pid="{}"]'.format(self.program.uuid)))
         self._assert_product_xml(
-            root.findall(f'product/[pid="{self.program.uuid}"]')[0],
+            root.findall('product/[pid="{}"]'.format(self.program.uuid))[0],
             self.program
         )
 
@@ -92,18 +93,19 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         # Assert that there is only on Program in the returned data even though 2
         # are created in setup
         assert len(root.findall('product')) == 2
+        print(root.findall('product/[pid="{}"]'.format(self.program.uuid)))
         self._assert_product_xml(
-            root.findall(f'product/[pid="{self.program.uuid}"]')[0],
+            root.findall('product/[pid="{}"]'.format(self.program.uuid))[0],
             self.program
         )
 
         self._assert_product_xml(
-            root.findall(f'product/[pid="{mm_program.uuid}"]')[0],
+            root.findall('product/[pid="{}"]'.format(mm_program.uuid))[0],
             mm_program
         )
 
         # Verify that the Masters program is not in the data
-        assert not root.findall(f'product/[pid="{self.ms_program.uuid}"]')
+        assert not root.findall('product/[pid="{}"]'.format(self.ms_program.uuid))
 
 
 @ddt.ddt
@@ -111,7 +113,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
     """ Tests for the AffiliateWindowViewSet. """
 
     def setUp(self):
-        super().setUp()
+        super(AffiliateWindowViewSetTests, self).setUp()
         self.user = UserFactory()
         self.client.force_authenticate(self.user)
         self.catalog = CatalogFactory(query='*:*', viewers=[self.user])
@@ -139,7 +141,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         root = ET.fromstring(response.content)
         self.assertEqual(1, len(root.findall('product')))
         self.assert_product_xml(
-            root.findall(f'product/[pid="{self.course_run.key}-{self.seat_verified.type.slug}"]')[0],
+            root.findall('product/[pid="{}-{}"]'.format(self.course_run.key, self.seat_verified.type.slug))[0],
             self.seat_verified
         )
 
@@ -151,11 +153,11 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         self.assertEqual(2, len(root.findall('product')))
 
         self.assert_product_xml(
-            root.findall(f'product/[pid="{self.course_run.key}-{self.seat_verified.type.slug}"]')[0],
+            root.findall('product/[pid="{}-{}"]'.format(self.course_run.key, self.seat_verified.type.slug))[0],
             self.seat_verified
         )
         self.assert_product_xml(
-            root.findall(f'product/[pid="{self.course_run.key}-{seat_professional.type.slug}"]')[0],
+            root.findall('product/[pid="{}-{}"]'.format(self.course_run.key, seat_professional.type.slug))[0],
             seat_professional
         )
 
@@ -188,7 +190,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
     def assert_product_xml(self, content, seat):
         """ Helper method to verify product data in xml format. """
-        assert content.find('pid').text == f'{self.course_run.key}-{seat.type.slug}'
+        assert content.find('pid').text == '{}-{}'.format(self.course_run.key, seat.type.slug)
         assert content.find('name').text == self.course_run.title
         assert content.find('desc').text == self.course_run.full_description
         assert content.find('purl').text == self.course_run.marketing_url

@@ -45,8 +45,8 @@ class OrganizationViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelVi
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all organizations. """
-        return super().list(request, *args, **kwargs)
+        return super(OrganizationViewSet, self).list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for an organization. """
-        return super().retrieve(request, *args, **kwargs)
+        return super(OrganizationViewSet, self).retrieve(request, *args, **kwargs)

@@ -23,7 +23,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
     include_archived = models.BooleanField(default=False, help_text=_('Include archived courses'))
 
     def __str__(self):
-        return f'Catalog #{self.id}: {self.name}'
+        return 'Catalog #{id}: {name}'.format(id=self.id, name=self.name)
 
     def _get_query_results(self):
         """

@@ -58,7 +58,7 @@ class PermissionsFilter(DRYPermissionFiltersBase):
 
 class FacetQueryBuilderWithQueries(FacetQueryBuilder):
     def build_query(self, **query_filters):
-        query = super().build_query(**query_filters)
+        query = super(FacetQueryBuilderWithQueries, self).build_query(**query_filters)
         facet_serializer_cls = self.view.get_facet_serializer_class()
         query['query_facets'] = getattr(facet_serializer_cls.Meta, 'field_queries', {})
         return query
@@ -107,7 +107,7 @@ class CharListFilter(filters.CharFilter):
         if value not in (None, ''):
             value = value.split(',')
 
-        return super().filter(qs, value)
+        return super(CharListFilter, self).filter(qs, value)
 
 
 class UUIDListFilter(CharListFilter):
@@ -174,7 +174,7 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
         if not isinstance(self.queryset, QuerySet):
             return self.queryset
 
-        return super().qs
+        return super(CourseRunFilter, self).qs
 
     class Meta:
         model = CourseRun

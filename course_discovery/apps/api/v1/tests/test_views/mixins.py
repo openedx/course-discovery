@@ -160,7 +160,7 @@ class SynonymTestMixin:
 
 class LoginMixin:
     def setUp(self):
-        super().setUp()
+        super(LoginMixin, self).setUp()
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         if hasattr(self, 'request'):
@@ -174,7 +174,7 @@ class FuzzyInt(int):
     See: https://lukeplant.me.uk/blog/posts/fuzzy-testing-with-assertnumqueries/
     """
     def __new__(cls, value, threshold):
-        obj = super().__new__(cls, value)
+        obj = super(FuzzyInt, cls).__new__(cls, value)
         obj.value = value
         obj.threshold = threshold
         return obj
@@ -186,7 +186,7 @@ class FuzzyInt(int):
         return not self.__eq__(other)
 
     def __str__(self):
-        return f'FuzzyInt(value={self.value}, threshold={self.threshold})'  # pylint: disable=no-member
+        return 'FuzzyInt(value={}, threshold={})'.format(self.value, self.threshold)  # pylint: disable=no-member
 
 
 class APITestCase(SiteMixin, RestAPITestCase):

@@ -31,7 +31,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
     catalog_list_url = reverse('api:v1:catalog-list')
 
     def setUp(self):
-        super().setUp()
+        super(CatalogViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.request.user = self.user
         self.client.force_authenticate(self.user)
@@ -82,7 +82,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
     def grant_catalog_permission_to_user(self, user, action, catalog=None):
         """ Grant the user access to view `self.catalog`. """
         catalog = catalog or self.catalog
-        perm = f'{action}_catalog'
+        perm = '{action}_catalog'.format(action=action)
         user.add_obj_perm(perm, catalog)
         self.assertTrue(user.has_perm('catalogs.' + perm, catalog))
 
@@ -446,7 +446,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         user = UserFactory(is_staff=False, is_superuser=False)
         catalog = CatalogFactory()
 
-        path = f'{self.catalog_list_url}?username={user.username}'
+        path = '{root}?username={username}'.format(root=self.catalog_list_url, username=user.username)
         response = self.client.get(path)
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(response.data['results'], [])
@@ -460,8 +460,8 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
     def test_username_filter_as_staff_user_with_invalid_username(self):
         """ Verify HTTP 404 is returned if the given username does not correspond to an actual user. """
         username = 'jack'
-        path = f'{self.catalog_list_url}?username={username}'
+        path = '{root}?username={username}'.format(root=self.catalog_list_url, username=username)
         response = self.client.get(path)
         self.assertEqual(response.status_code, 404)
-        expected = {'detail': f'No user with the username [{username}] exists.'}
+        expected = {'detail': 'No user with the username [{username}] exists.'.format(username=username)}
         self.assertDictEqual(response.data, expected)

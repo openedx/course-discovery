@@ -9,7 +9,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseFactory,
 
 class CatalogQueryViewSetTests(APITestCase):
     def setUp(self):
-        super().setUp()
+        super(CatalogQueryViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.force_authenticate(self.user)
         self.course = CourseFactory(partner=self.partner, key='simple_key')
@@ -24,7 +24,7 @@ class CatalogQueryViewSetTests(APITestCase):
             'course_run_ids': self.course_run.key,
             'course_uuids': self.course.uuid,
         })
-        url = f'{self.url_base}/?{qs}'
+        url = '{}/?{}'.format(self.url_base, qs)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -42,7 +42,7 @@ class CatalogQueryViewSetTests(APITestCase):
             'course_run_ids': self.course_run.key,
             'course_uuids': self.course.uuid,
         })
-        url = f'{self.url_base}/?{qs}'
+        url = '{}/?{}'.format(self.url_base, qs)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -62,7 +62,7 @@ class CatalogQueryViewSetTests(APITestCase):
             'course_run_ids': self.course_run.key,
             'course_uuids': self.course.uuid,
         })
-        url = f'{self.url_base}/?{qs}'
+        url = '{}/?{}'.format(self.url_base, qs)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -78,7 +78,7 @@ class CatalogQueryViewSetTests(APITestCase):
         qs = urllib.parse.urlencode({
             'query': 'id:*'
         })
-        url = f'{self.url_base}/?{qs}'
+        url = '{}/?{}'.format(self.url_base, qs)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, self.error_message)
@@ -89,7 +89,7 @@ class CatalogQueryViewSetTests(APITestCase):
             'course_run_ids': self.course_run.key,
             'course_uuids': self.course.uuid,
         })
-        url = f'{self.url_base}/?{qs}'
+        url = '{}/?{}'.format(self.url_base, qs)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, self.error_message)

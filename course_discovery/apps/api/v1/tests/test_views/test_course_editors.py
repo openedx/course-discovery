@@ -14,7 +14,7 @@ class CourseEditorsViewSetTests(SerializationMixin, APITestCase):
     list_path = reverse('api:v1:course_editor-list')
 
     def setUp(self):
-        super().setUp()
+        super(CourseEditorsViewSetTests, self).setUp()
         self.staff_user = UserFactory(is_staff=True, is_superuser=True)
         self.client.login(username=self.staff_user.username, password=USER_PASSWORD)
         self.user = UserFactory()

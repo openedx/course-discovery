@@ -46,7 +46,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'edX Discovery Service'
-copyright = f'2015-{datetime.date.today().year}, edX Inc.'
+copyright = '2015-{year}, edX Inc.'.format(year=datetime.date.today().year)
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -43,7 +43,7 @@ class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
               type: string
               required: false
         """
-        return super().list(request, *args, **kwargs)
+        return super(BaseHaystackViewSet, self).list(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'], url_path='facets')
     def facets(self, request):
@@ -73,7 +73,7 @@ class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
                 pytype: str
               required: false
         """
-        return super().facets(request)
+        return super(BaseHaystackViewSet, self).facets(request)
 
     def filter_facet_queryset(self, queryset):
         queryset = super().filter_facet_queryset(queryset)
@@ -93,7 +93,7 @@ class BaseHaystackViewSet(mixins.DetailMixin, FacetMixin, HaystackViewSet):
             query = field_queries.get(facet)
 
             if not query:
-                raise ParseError(f'The selected query facet [{facet}] is not valid.')
+                raise ParseError('The selected query facet [{facet}] is not valid.'.format(facet=facet))
 
             queryset = queryset.raw_search(query['query'])
 
