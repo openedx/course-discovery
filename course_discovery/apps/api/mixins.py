@@ -6,6 +6,92 @@ Mixins for the API application.
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
+    FacetedFieldSearchFilterBackend, FacetedQueryFilterBackend
+)
+
+
+class FacetMixin:
+    """
+    Mixin class for supporting faceting on an API View.
+    """
+
+    facet_serializer_class = None
+    facet_objects_serializer_class = None
+    facet_query_params_text = 'selected_facets'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.filter_backends = [
+            backend
+            for backend in self.filter_backends
+            if backend not in (FacetedQueryFilterBackend, FacetedFieldSearchFilterBackend)
+        ]
+        response = super().dispatch(request, *args, **kwargs)
+
+        return response
+
+    @action(detail=False, methods=['get'], url_path='facets')
+    def facets(self, request):
+        """
+        Sets up a list route for ``faceted`` results.
+
+        This will add ie ^search/facets/$ to your existing ^search pattern.
+        """
+        if hasattr(self, 'faceted_query_filter_fields'):
+            self.filter_backends.append(FacetedQueryFilterBackend)
+        if hasattr(self, 'faceted_search_fields'):
+            self.filter_backends.append(FacetedFieldSearchFilterBackend)
+        queryset = self.filter_facet_queryset(self.get_queryset())
+
+        search_res = queryset.execute()
+        dicted_facets = search_res.facets.to_dict()
+        serializer = self.get_facet_serializer(dicted_facets, objects=queryset, many=False)
+        return Response(serializer.data)
+
+    def get_facet_serializer(self, *args, **kwargs):
+        """
+        Get serialized facet object.
+
+        Return the facet serializer instance that should be used for
+        serializing faceted output.
+        """
+        assert 'objects' in kwargs, '`objects` is a required naming argument.'
+        facet_serializer_class = self.get_facet_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        kwargs['context'].update(
+            {'objects': kwargs.pop('objects'), 'facet_query_params_text': self.facet_query_params_text}
+        )
+        return facet_serializer_class(*args, **kwargs)
+
+    def get_facet_serializer_class(self):
+        """
+        Return the class to use for serializing facets.
+        Defaults to using ``self.facet_serializer_class``.
+        """
+        if self.facet_serializer_class is None:
+            raise AttributeError(
+                '%(cls)s should either include a `facet_serializer_class` attribute, '
+                'or override %(cls)s.get_facet_serializer_class() method.' % {'cls': self.__class__.__name__}
+            )
+        return self.facet_serializer_class
+
+    def get_facet_objects_serializer(self, *args, **kwargs):
+        """
+        Return the serializer instance, which should be used for
+        serializing faceted objects.
+        """
+        facet_objects_serializer_class = self.get_facet_objects_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        return facet_objects_serializer_class(*args, **kwargs)
+
+    def get_facet_objects_serializer_class(self):
+        """
+        Return the class to use for serializing faceted objects.
+        Defaults to using the views ``self.serializer_class`` if not
+        ``self.facet_objects_serializer_class`` is set.
+        """
+        return self.facet_objects_serializer_class or super(FacetMixin, self).get_serializer_class()
+
 
 class DetailMixin:
     """Mixin for adding in a detail endpoint using a special detail serializer."""
@@ -50,7 +136,6 @@ class DetailMixin:
         """
         assert self.detail_serializer_class is not None, (
             "'%s' should either include a `detail_serializer_class` attribute, "
-            "or override the `get_detail_serializer_class()` method."
-            % self.__class__.__name__
+            "or override the `get_detail_serializer_class()` method." % self.__class__.__name__
         )
         return self.detail_serializer_class

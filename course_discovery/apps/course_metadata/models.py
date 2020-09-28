@@ -16,9 +16,10 @@ from django.db import models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
+from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
-from haystack.query import SearchQuerySet
+from elasticsearch_dsl.query import Q as ESDSLQ
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
@@ -718,7 +719,9 @@ class PkSearchableMixin:
             # want everything, we don't need to actually query elasticsearch at all.
             return queryset
 
-        results = SearchQuerySet().models(cls).raw_search(query)
+        es_document, *_ = registry.get_documents(models=(cls,))
+        dsl_query = ESDSLQ('query_string', query=query, analyze_wildcard=True)
+        results = es_document.search().query(dsl_query).execute()
         ids = {result.pk for result in results}
 
         return queryset.filter(pk__in=ids)
@@ -1621,17 +1624,17 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         Args:
             query (str) -- Elasticsearch querystring (e.g. `title:intro*`)
         Returns:
-            SearchQuerySet
+            Search object
         """
         query = clean_query(query)
-        queryset = SearchQuerySet().models(cls)
-
+        es_document, *_ = registry.get_documents(models=(cls,))
+        queryset = es_document.search()
         if query == '(*)':
             # Early-exit optimization. Wildcard searching is very expensive in elasticsearch. And since we just
-            # want everything, we don't need to actually query elasticsearch at all.
-            return queryset.load_all()
-
-        return queryset.raw_search(query).load_all()
+            # want everything, we don't need to actually query elasticsearch at all
+            return queryset.query(ESDSLQ('match_all'))
+        dsl_query = ESDSLQ('query_string', query=query, analyze_wildcard=True)
+        return queryset.query(dsl_query)
 
     def __str__(self):
         return '{key}: {title}'.format(key=self.key, title=self.title)
@@ -2103,6 +2106,10 @@ class Program(PkSearchableMixin, TimeStampedModel):
     objects = ProgramQuerySet.as_manager()
 
     history = HistoricalRecords()
+
+    class Meta:
+        ordering = ['created']
+        get_latest_by = 'created'
 
     def __str__(self):
         return self.title
