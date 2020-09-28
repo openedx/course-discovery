@@ -955,14 +955,14 @@ class AutoCompletePersonTests(mixins.APITestCase):
 
     def test_instructor_autocomplete_with_uuid(self):
         """ Verify instructor autocomplete returns the data with valid uuid. """
-        uuid = self.instructors[0].uuid
-        response = self.query(uuid)
+        uuid_ = self.instructors[0].uuid
+        response = self.query(uuid_)
         self._assert_response(response, 1)
 
     def test_instructor_autocomplete_with_invalid_uuid(self):
         """ Verify instructor autocomplete returns empty list without giving error. """
-        uuid = 'invalid-uuid'
-        response = self.query(uuid)
+        uuid_ = 'invalid-uuid'
+        response = self.query(uuid_)
         self._assert_response(response, 0)
 
     def test_instructor_autocomplete_without_staff_user(self):
