@@ -62,10 +62,13 @@ DB_OVERRIDES = dict(
     PORT=environ.get('DB_MIGRATION_PORT', DATABASES['default']['PORT']),
 )
 
-# To attach certifi elasticsearch host you should  do pip install certifi
-# should do the trick. elasticsearch-py will automatically look it up.
-ELASTICSEARCH_DSL['default'].update({
-    'hosts': ELASTICSEARCH_CLUSTER_URL,
+HAYSTACK_CONNECTIONS['default'].update({
+    'URL': ELASTICSEARCH_URL,
+    'INDEX_NAME': ELASTICSEARCH_INDEX_NAME,
+    'KWARGS': {
+        'verify_certs': True,
+        'ca_certs': certifi.where(),
+    },
 })
 
 for override, value in DB_OVERRIDES.items():
