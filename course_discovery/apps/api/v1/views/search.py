@@ -3,7 +3,11 @@ import uuid
 from django.conf import settings
 from django.db.models import Q as DQ
 from django_elasticsearch_dsl_drf.constants import LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS
-from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBackend, OrderingFilterBackend
+from django_elasticsearch_dsl_drf.filter_backends import (
+    DefaultOrderingFilterBackend,
+    FilteringFilterBackend,
+    OrderingFilterBackend,
+)
 from elasticsearch_dsl.query import Q as ESDSLQ
 from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
@@ -218,6 +222,7 @@ class LimitedAggregateSearchView(BaseAggregateSearchViewSet):
     )
     filter_backends = [
         MultiMatchSearchFilterBackend,
+        FilteringFilterBackend,
         OrderingFilterBackend,
         DefaultOrderingFilterBackend,
     ]
