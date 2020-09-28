@@ -163,7 +163,7 @@ class TestProgramViewSet(SerializationMixin):
         with django_assert_num_queries(FuzzyInt(40, 1)):  # CI is often 41
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
-        assert course_list == list(program.courses.all())  # pylint: disable=no-member
+        assert course_list == list(program.courses.all())
 
     def test_retrieve_has_sorted_courses(self):
         """ Verify that runs inside a course are sorted properly. """
