@@ -1,4 +1,5 @@
 {{ object.uuid }}
+{{ object.key }}
 {{ object.title }}
 {{ object.short_description|default:'' }}
 {{ object.full_description|default:'' }}

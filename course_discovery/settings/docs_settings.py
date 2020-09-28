@@ -17,12 +17,12 @@ SECRET_KEY = 'secret'
 
 STATIC_URL = '/static/'
 
-ELASTICSEARCH_DSL = {'default': {'hosts': ''}}
-ELASTICSEARCH_INDEX_NAMES = {
-    'course_discovery.apps.course_metadata.search_indexes.documents.course': '',
-    'course_discovery.apps.course_metadata.search_indexes.documents.course_run': '',
-    'course_discovery.apps.course_metadata.search_indexes.documents.person': '',
-    'course_discovery.apps.course_metadata.search_indexes.documents.program': '',
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': '',
+        'URL': '',
+        'INDEX_NAME': '',
+    }
 }
 
 LOGGING['handlers']['local'] = {
