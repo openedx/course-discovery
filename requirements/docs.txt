@@ -17,7 +17,7 @@ jinja2==2.11.2            # via sphinx
 markupsafe==1.1.1         # via jinja2
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 packaging==20.4           # via sphinx
-pygments==2.7.0           # via sphinx
+pygments==2.7.1           # via sphinx
 pyjwt==1.7.1              # via social-auth-core
 pyparsing==2.4.7          # via packaging
 python3-openid==3.2.0     # via social-auth-core
