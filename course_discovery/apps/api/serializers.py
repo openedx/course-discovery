@@ -1743,7 +1743,7 @@ class ProgramsAffiliateWindowSerializer(BaseModelSerializer):
         return languages.pop().code.split('-')[0].lower() if languages else 'en'
 
     def get_custom1(self, obj):
-        return obj.type
+        return obj.type.slug
 
 
 class AffiliateWindowSerializer(BaseModelSerializer):
