@@ -1,3 +1,4 @@
+from django.db.models.query import Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
@@ -70,6 +71,17 @@ class ProgramsAffiliateWindowViewSet(viewsets.ViewSet):
             exclude_type = ProgramType.objects.get(slug=ProgramType.MASTERS)
         except ProgramType.DoesNotExist:
             exclude_type = ''
-        programs = catalog.programs().marketable().exclude(type=exclude_type)
+        programs = catalog.programs().marketable().exclude(type=exclude_type).select_related(
+            'type',
+            'partner',
+        ).prefetch_related(
+            'excluded_course_runs',
+            'type__applicable_seat_types',
+            'type__translations',
+            # We need the full Course prefetch here to get CourseRun information that methods on the Program
+            # model iterate across (e.g. price and currency). These fields aren't prefetched by the
+            # minimal Course serializer.
+            Prefetch('courses', queryset=serializers.MinimalProgramCourseSerializer.prefetch_queryset()),
+        )
         serializer = serializers.ProgramsAffiliateWindowSerializer(programs, many=True)
         return Response(serializer.data)
