@@ -1892,7 +1892,7 @@ class ProgramsAffiliateWindowSerializerTests(TestCase):
             'imgurl': program.banner_image.url,
             'category': 'Other Experiences',
             'lang': program.languages.pop().code.split('-')[0].lower(),
-            'custom1': program.type,
+            'custom1': program.type.slug,
         }
         assert serializer.data == expected
 
