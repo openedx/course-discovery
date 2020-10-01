@@ -2178,20 +2178,22 @@ class Program(PkSearchableMixin, TimeStampedModel):
         Otherwise, this method will incur many, many queries when fetching related courses and course runs.
         """
         excluded_course_run_ids = [course_run.id for course_run in self.excluded_course_runs.all()]
-
+        course_run_list = list()
         for course in self.courses.all():
             for run in course.course_runs.all():
                 if run.id not in excluded_course_run_ids:
-                    yield run
+                    course_run_list.append(run)
+        return course_run_list
 
     @property
     def canonical_course_runs(self):
         excluded_course_run_ids = [course_run.id for course_run in self.excluded_course_runs.all()]
-
+        canonical_course_run_list = list()
         for course in self.courses.all():
             canonical_course_run = course.canonical_course_run
             if canonical_course_run and canonical_course_run.id not in excluded_course_run_ids:
-                yield canonical_course_run
+                canonical_course_run_list.append(canonical_course_run)
+        return canonical_course_run_list
 
     @property
     def languages(self):
@@ -2241,11 +2243,12 @@ class Program(PkSearchableMixin, TimeStampedModel):
     @property
     def canonical_seats(self):
         applicable_seat_types = set(self.type.applicable_seat_types.all())
-
+        seat_list = list()
         for run in self.canonical_course_runs:
             for seat in run.seats.all():
                 if seat.type in applicable_seat_types:
-                    yield seat
+                    seat_list.append(seat)
+        return seat_list
 
     @property
     def entitlements(self):
@@ -2287,13 +2290,14 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
         return end_valid and enrollment_start_valid
 
-    def _get_total_price_by_currency(self):
+    def _get_total_price_by_currency(self, canonical_seats=None):
         """
         This helper function returns the total program price indexed by the currency
         """
         currencies_with_total = defaultdict()
         course_map = defaultdict(list)
-        for seat in self.canonical_seats:
+        canonical_seats = canonical_seats if canonical_seats else self.canonical_seats
+        for seat in canonical_seats:
             course_uuid = seat.course_run.course.uuid
             # Identify the most relevant course_run seat for a course.
             # And use the price of the seat to represent the price of the course
@@ -2354,12 +2358,13 @@ class Program(PkSearchableMixin, TimeStampedModel):
     @property
     def price_ranges(self):
         currencies = defaultdict(list)
-        for seat in self.canonical_seats:
+        canonical_seats = self.canonical_seats
+        for seat in canonical_seats:
             currencies[seat.currency].append(seat.price)
         for entitlement in self.entitlements:
             currencies[entitlement.currency].append(entitlement.price)
 
-        total_by_currency = self._get_total_price_by_currency()
+        total_by_currency = self._get_total_price_by_currency(canonical_seats=canonical_seats)
 
         price_ranges = []
         for currency, prices in currencies.items():
