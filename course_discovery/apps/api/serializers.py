@@ -1020,7 +1020,7 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
 
-        return queryset.select_related('partner', 'type').prefetch_related(
+        return queryset.select_related('partner', 'type', 'canonical_course_run').prefetch_related(
             'authoring_organizations',
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
             Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
@@ -1111,6 +1111,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+            Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
         )
 
     class Meta(MinimalCourseSerializer.Meta):

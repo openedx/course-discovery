@@ -2249,8 +2249,18 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def entitlements(self):
-        applicable_seat_types = set(self.type.applicable_seat_types.all())
-        return CourseEntitlement.objects.filter(mode__in=applicable_seat_types, course__in=self.courses.all())
+        """
+        Property to retrieve all of the entitlements in a Program.
+        """
+        # Warning: The choice to not use a filter method on the queryset here was deliberate. The filter
+        # method resulted in a new queryset being made which results in the prefetch_related cache being
+        # ignored.
+        return [
+            entitlement
+            for course in self.courses.all()
+            for entitlement in course.entitlements.all()
+            if entitlement.mode in set(self.type.applicable_seat_types.all())
+        ]
 
     @property
     def seat_types(self):
