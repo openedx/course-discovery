@@ -1,16 +1,12 @@
 .DEFAULT_GOAL := help
 NODE_BIN=$(CURDIR)/node_modules/.bin
-TOX = ''
+TOX := tox
 
 .PHONY: accept clean clean_static check_keywords detect_changed_source_translations extract_translations \
 	help html_coverage migrate open-devstack production-requirements pull_translations quality requirements.js \
 	requirements start-devstack static stop-devstack test docs static.dev static.watch
 
 include .travis/docker.mk
-
-ifdef TOXENV
-TOX := tox # to isolate each tox environment if TOXENV is defined
-endif
 
 
 # Generates a help message. Borrowed from https://github.com/pydanny/cookiecutter-djangopackage.
