@@ -2026,6 +2026,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'end': course_run.end,
             'modified': course_run.modified,
             'availability': course_run.availability,
+            'status': course_run.status,
             'pacing_type': course_run.pacing_type,
             'enrollment_mode': course_run.type_legacy,
             'min_effort': course_run.min_effort,
