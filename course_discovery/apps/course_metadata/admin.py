@@ -1,6 +1,6 @@
 from adminsortable2.admin import SortableAdminMixin
+from dal import autocomplete
 from django.contrib import admin, messages
-from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -21,6 +21,20 @@ PUBLICATION_FAILURE_MSG_TPL = _(
     'An error occurred while publishing the {model} to the marketing site. '
     'Please try again. If the error persists, please contact the Engineering Team.'
 )
+
+
+class CurriculumCourseMembershipForm(ModelForm):
+    """
+    A custom CurriculumCourseMembershipForm to override the widget used by the course ModelChoiceField.
+    This allows us to leverage the view at the URL admin_metadata:course-autocomplete, which filters out draft
+    courses.
+    """
+    class Meta:
+        model = CurriculumCourseMembership
+        fields = ['curriculum', 'course', 'course_run_exclusions', 'is_active']
+        widgets = {
+            'course': autocomplete.ModelSelect2(url='admin_metadata:course-autocomplete')
+        }
 
 
 class ProgramEligibilityFilter(admin.SimpleListFilter):
@@ -202,7 +216,6 @@ class ProgramAdmin(admin.ModelAdmin):
     def _redirect_course_run_update_page(self, obj):
         """ Returns a response redirect to a page where the user can update the
         course runs for the program being edited.
-
         Returns:
             HttpResponseRedirect
         """
@@ -384,9 +397,9 @@ class CurriculumProgramMembershipInline(admin.TabularInline):
 
 
 class CurriculumCourseMembershipInline(admin.StackedInline):
+    form = CurriculumCourseMembershipForm
     model = CurriculumCourseMembership
     readonly_fields = ("custom_course_runs_display", "course_run_exclusions", "get_edit_link",)
-    autocomplete_fields = ['course']
 
     def custom_course_runs_display(self, obj):
         return mark_safe('<br>'.join([str(run) for run in obj.course_runs]))
@@ -421,6 +434,7 @@ class CurriculumProgramMembershipAdmin(admin.ModelAdmin):
 
 @admin.register(CurriculumCourseMembership)
 class CurriculumCourseMembershipAdmin(admin.ModelAdmin):
+    form = CurriculumCourseMembershipForm
     list_display = ('curriculum', 'course')
     inlines = (CurriculumCourseRunExclusionInline,)
 
@@ -434,12 +448,6 @@ class CurriculumCourseRunExclusionAdmin(admin.ModelAdmin):
 class CurriculumAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'program', 'name', 'is_active')
     inlines = (CurriculumProgramMembershipInline, CurriculumCourseMembershipInline)
-
-    def save_model(self, request, obj, form, change):
-        try:
-            super().save_model(request, obj, form, change)
-        except IntegrityError:
-            logger.exception('A database integrity error occurred while saving curriculum [%s].', obj.uuid)
 
 
 class CurriculumAdminInline(admin.StackedInline):
@@ -478,7 +486,6 @@ class DegreeCostInlineAdmin(admin.StackedInline):
 class DegreeAdmin(admin.ModelAdmin):
     """
     This is an inheritance model from Program
-
     """
     list_display = ('title', 'partner', 'status', 'hidden')
     ordering = ('title', 'status')
@@ -514,10 +521,3 @@ for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, Jo
               TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig, BulkModifyProgramHookConfig,
               BackfillCourseRunSlugsConfig):
     admin.site.register(model)
-
-
-@admin.register(Collaborator)
-class CollaboratorAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'name', 'image')
-    readonly_fields = ('uuid', )
-    search_fields = ('uuid', 'name')
