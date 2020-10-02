@@ -15,6 +15,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         PAGE_SIZE (int): Number of items to load per API call
     """
 
+    LOADER_MAX_RETRY = 3
     PAGE_SIZE = 50
 
     def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):

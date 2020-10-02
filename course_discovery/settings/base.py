@@ -80,7 +80,6 @@ PROJECT_APPS = [
     'course_discovery.apps.edx_haystack_extensions',
     'course_discovery.apps.publisher',
     'course_discovery.apps.publisher_comments',
-    'course_discovery.apps.journal',
 ]
 
 
@@ -192,6 +191,9 @@ STATIC_ROOT = root('assets')
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = '/static/'
 
+# Is this a dev environment where static files need to be explicitly added to the URL configuration?
+STATIC_SERVE_EXPLICITLY = False
+
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = (
     root('static'),
@@ -293,6 +295,9 @@ SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/logout"
 BACKEND_SERVICE_EDX_OAUTH2_KEY = "discovery-backend-service-key"
 BACKEND_SERVICE_EDX_OAUTH2_SECRET = "discovery-backend-service-secret"
 BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://127.0.0.1:8000/oauth2"
+
+# OAuth request timeout: either a (connect, read) tuple or a float, in seconds.
+OAUTH_API_TIMEOUT = (3.05, 1)
 
 # Request the user's permissions in the ID token
 EXTRA_SCOPE = ['permissions']

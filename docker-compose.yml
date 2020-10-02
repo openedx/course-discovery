@@ -28,7 +28,7 @@ services:
       - "9300:9300"
 
   memcached:
-    image: memcached:1.6.6
+    image: memcached:1.6.7
     container_name: memcached
 
   course-discovery:

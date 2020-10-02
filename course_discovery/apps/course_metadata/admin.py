@@ -1,6 +1,7 @@
 from adminsortable2.admin import SortableAdminMixin
 from dal import autocomplete
 from django.contrib import admin, messages
+from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -314,7 +315,7 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
 class OrganizationUserRoleInline(admin.TabularInline):
     # course-meta-data models are importing in publisher app. So just for safe side
     # to avoid any circular issue importing the publisher model here.
-    from course_discovery.apps.publisher.models import OrganizationUserRole
+    from course_discovery.apps.publisher.models import OrganizationUserRole  # pylint: disable=import-outside-toplevel
     model = OrganizationUserRole
     extra = 3
     raw_id_fields = ('user',)
@@ -450,6 +451,12 @@ class CurriculumAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'program', 'name', 'is_active')
     inlines = (CurriculumProgramMembershipInline, CurriculumCourseMembershipInline)
 
+    def save_model(self, request, obj, form, change):
+        try:
+            super().save_model(request, obj, form, change)
+        except IntegrityError:
+            logger.exception('A database integrity error occurred while saving curriculum [%s].', obj.uuid)
+
 
 class CurriculumAdminInline(admin.StackedInline):
     model = Curriculum
@@ -523,3 +530,10 @@ for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, Jo
               TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig, BulkModifyProgramHookConfig,
               BackfillCourseRunSlugsConfig):
     admin.site.register(model)
+
+
+@admin.register(Collaborator)
+class CollaboratorAdmin(admin.ModelAdmin):
+    list_display = ('uuid', 'name', 'image')
+    readonly_fields = ('uuid', )
+    search_fields = ('uuid', 'name')

@@ -31,9 +31,9 @@ class TestStdImageSerializerField:
         expected = {
             size_key: {
                 'url': '{}{}'.format('http://testserver', getattr(program.banner_image, size_key).url),
-                'width': program.banner_image.field.variations[size_key]['width'],  # pylint: disable=no-member
-                'height': program.banner_image.field.variations[size_key]['height']  # pylint: disable=no-member
-            } for size_key in program.banner_image.field.variations}  # pylint: disable=no-member
+                'width': program.banner_image.field.variations[size_key]['width'],
+                'height': program.banner_image.field.variations[size_key]['height']
+            } for size_key in program.banner_image.field.variations}
         assert field.to_representation(program.banner_image) == expected
 
     def test_to_internal_value(self):

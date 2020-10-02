@@ -312,7 +312,10 @@ class CourseRunViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def update(self, request, **kwargs):
-        """ Update one, or more, fields for a course run. """
+        # logging to help debug error around course url slugs incrementing
+        log.info('The raw course run data coming from publisher is {}.'.format(request.data))
+
+        # Update one, or more, fields for a course run.
         course_run = self.get_object()
         course_run = ensure_draft_world(course_run)  # always work on drafts
         partial = kwargs.pop('partial', False)

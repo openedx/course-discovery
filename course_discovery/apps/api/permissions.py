@@ -17,6 +17,19 @@ class ReadOnlyByPublisherUser(BasePermission):
         return True
 
 
+class IsInOrgOrReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        if request.method in SAFE_METHODS:
+            return True
+        else:
+            org = request.data.get('org')
+            if not org:
+                # Fail happily because OPTIONS goes down this path too with a fake POST.
+                # If this is a real POST, we'll complain about the missing org in the view.
+                return True
+            return CourseEditor.can_create_course(request.user, org)
+
+
 class IsCourseEditorOrReadOnly(BasePermission):
     """
     Custom Permission class to check user is a course editor for the course, if they are trying to write.

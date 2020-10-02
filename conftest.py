@@ -1,6 +1,7 @@
 import logging
 
 import pytest
+from django.conf import settings
 from django.contrib.sites.models import Site
 from django.core.cache import cache, caches
 from django.test.client import Client
@@ -19,9 +20,7 @@ TEST_DOMAIN = 'testserver.fake'
 def django_cache_add_xdist_key_prefix(request):
     skip_if_no_django()
 
-    from django.conf import settings
-
-    xdist_prefix = getattr(request.config, 'slaveinput', {}).get('slaveid')
+    xdist_prefix = getattr(request.config, 'workerinput', {}).get('workerid')
 
     if xdist_prefix:
         # Put a prefix like gw0_, gw1_ etc on xdist processes
@@ -45,9 +44,7 @@ def django_cache(django_cache_add_xdist_key_prefix):  # pylint: disable=redefine
 def haystack_add_xdist_suffix_to_index_name(request):
     skip_if_no_django()
 
-    from django.conf import settings
-
-    xdist_suffix = getattr(request.config, 'slaveinput', {}).get('slaveid')
+    xdist_suffix = getattr(request.config, 'workerinput', {}).get('workerid')
 
     if xdist_suffix:
         # Put a prefix like _gw0, _gw1 etc on xdist processes
@@ -79,8 +76,6 @@ def haystack_default_connection(haystack_add_xdist_suffix_to_index_name):  # pyl
 @pytest.fixture
 def site(db):  # pylint: disable=unused-argument
     skip_if_no_django()
-
-    from django.conf import settings
 
     Site.objects.all().delete()
     return SiteFactory(id=settings.SITE_ID, domain=TEST_DOMAIN)

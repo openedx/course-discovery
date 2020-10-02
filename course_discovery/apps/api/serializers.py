@@ -1,6 +1,8 @@
 # pylint: disable=abstract-method
 import datetime
 import json
+import logging
+import re
 from collections import OrderedDict
 from operator import attrgetter
 from urllib.parse import urlencode
@@ -34,17 +36,18 @@ from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AdditionalPromoArea, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType,
-    CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline,
-    Endorsement, IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise,
-    PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track,
-    Video
+    FAQ, AdditionalPromoArea, Collaborator, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun,
+    CourseRunType, CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost,
+    DegreeDeadline, Endorsement, IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person,
+    PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType,
+    Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.api.serializers import GroupUserSerializer
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 COMMON_IGNORED_FIELDS = ('text',)
 COMMON_SEARCH_FIELD_ALIASES = {'q': 'text'}
@@ -80,6 +83,7 @@ PREFETCH_FIELDS = {
         'sponsoring_organizations__tags',
         'subjects',
         'video',
+        'collaborators'
     ],
 }
 
@@ -141,7 +145,7 @@ def get_marketing_url_for_user(partner, user, marketing_url, exclude_utm=False, 
             'utm_source': get_utm_source_for_user(partner, user),
             'utm_medium': user.referral_tracking_id,
         })
-        return '{url}?{params}'.format(url=marketing_url, params=params)
+        return f'{marketing_url}?{params}'
 
 
 def get_lms_course_url_for_archived(partner, course_key):
@@ -159,7 +163,7 @@ def get_lms_course_url_for_archived(partner, course_key):
     if not course_key or not lms_url:
         return None
 
-    return '{lms_url}/courses/{course_key}/course/'.format(lms_url=lms_url, course_key=course_key)
+    return f'{lms_url}/courses/{course_key}/course/'
 
 
 def get_utm_source_for_user(partner, user):
@@ -265,6 +269,28 @@ class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
         return OrderedDict(sorted([(x.slug, x.name) for x in Subject.objects.all()], key=lambda x: x[1]))
 
 
+class CollaboratorSerializer(BaseModelSerializer):
+    """Serializer for the ``Collaborator`` model."""
+    image = StdImageSerializerField()
+    image_url = serializers.SerializerMethodField()
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return Collaborator.objects.all()
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image_url
+        return None
+
+    def create(self, validated_data):
+        return Collaborator.objects.create(**validated_data)
+
+    class Meta:
+        model = Collaborator
+        fields = ('name', 'image', 'image_url', 'uuid')
+
+
 class PrerequisiteSerializer(NamedModelSerializer):
     """Serializer for the ``Prerequisite`` model."""
 
@@ -301,6 +327,7 @@ class PositionSerializer(BaseModelSerializer):
     """Serializer for the ``Position`` model."""
     organization_marketing_url = serializers.SerializerMethodField()
     organization_uuid = serializers.SerializerMethodField()
+    organization_logo_image_url = serializers.SerializerMethodField()
     # Order organization by key so that frontends will display dropdowns of organization choices that way
     organization = serializers.PrimaryKeyRelatedField(allow_null=True, write_only=True, required=False,
                                                       queryset=Organization.objects.all().order_by('key'))
@@ -309,7 +336,7 @@ class PositionSerializer(BaseModelSerializer):
         model = Position
         fields = (
             'title', 'organization_name', 'organization', 'organization_id', 'organization_override',
-            'organization_marketing_url', 'organization_uuid',
+            'organization_marketing_url', 'organization_uuid', 'organization_logo_image_url'
         )
         extra_kwargs = {
             'organization': {'write_only': True}
@@ -323,6 +350,13 @@ class PositionSerializer(BaseModelSerializer):
     def get_organization_uuid(self, obj):
         if obj.organization:
             return obj.organization.uuid
+        return None
+
+    def get_organization_logo_image_url(self, obj):
+        if obj.organization:
+            image = obj.organization.logo_image
+            if image:
+                return image.url
         return None
 
 
@@ -464,7 +498,7 @@ class PersonSerializer(MinimalPersonSerializer):
     """Full serializer for the ``Person`` model."""
 
     def validate(self, attrs):
-        validated_data = super(PersonSerializer, self).validate(attrs)
+        validated_data = super().validate(attrs)
         validated_data['urls_detailed'] = self.initial_data.get('urls_detailed', [])
         validated_data['areas_of_expertise'] = self.initial_data.get('areas_of_expertise', [])
         return validated_data
@@ -670,7 +704,7 @@ class CatalogSerializer(BaseModelSerializer):
         viewers = User.objects.filter(username__in=viewers)
 
         # Set viewers after the model has been saved
-        instance = super(CatalogSerializer, self).create(validated_data)
+        instance = super().create(validated_data)
         instance.viewers = viewers
         instance.save()
         return instance
@@ -907,6 +941,9 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         # save() will be called by main update()
 
     def update(self, instance, validated_data):
+        # logging to help debug error around course url slugs incrementing
+        logger.info('The data coming from publisher is {}.'.format(validated_data))
+
         # Handle writing nested video data separately
         if 'get_video' in validated_data:
             self.update_video(instance, validated_data.pop('get_video'))
@@ -1044,6 +1081,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     url_redirects = serializers.SlugRelatedField(slug_field='value', read_only=True, many=True)
     course_run_statuses = serializers.ReadOnlyField()
     editors = CourseEditorSerializer(many=True, read_only=True)
+    collaborators = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
+                                                       queryset=Collaborator.objects.all(),
+                                                       read_serializer=CollaboratorSerializer())
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
@@ -1064,6 +1104,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'expected_learning_items',
             'prerequisites',
             'subjects',
+            'collaborators',
             'topics',
             'url_slug_history',
             'url_redirects',
@@ -1080,7 +1121,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
-            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors',
+            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1388,6 +1429,7 @@ class DegreeSerializer(BaseModelSerializer):
     deadlines = DegreeDeadlineSerializer(many=True)
     rankings = RankingSerializer(many=True)
     micromasters_background_image = StdImageSerializerField()
+    micromasters_path = serializers.SerializerMethodField()
 
     class Meta:
         model = Degree
@@ -1395,10 +1437,18 @@ class DegreeSerializer(BaseModelSerializer):
             'application_requirements', 'apply_url', 'banner_border_color', 'campus_image', 'title_background_image',
             'costs', 'deadlines', 'lead_capture_list_name', 'quick_facts',
             'overall_ranking', 'prerequisite_coursework', 'rankings',
-            'lead_capture_image', 'micromasters_url', 'micromasters_long_title', 'micromasters_long_description',
+            'lead_capture_image', 'micromasters_path', 'micromasters_url',
+            'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
             'deadlines_fine_print', 'hubspot_lead_capture_form_id',
         )
+
+    def get_micromasters_path(self, degree):
+        if degree and isinstance(degree.micromasters_url, str):
+            url = re.compile(r"https?:\/\/[^\/]*")
+            return url.sub('', degree.micromasters_url)
+        else:
+            return degree.micromasters_url
 
 
 class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
@@ -1410,6 +1460,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     since the course serializer also uses drf_dynamic_fields.
     Eg: ?fields=courses,course_runs
     """
+
     authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
@@ -1692,7 +1743,7 @@ class ProgramsAffiliateWindowSerializer(BaseModelSerializer):
         return languages.pop().code.split('-')[0].lower() if languages else 'en'
 
     def get_custom1(self, obj):
-        return obj.type
+        return obj.type.slug
 
 
 class AffiliateWindowSerializer(BaseModelSerializer):
@@ -1750,7 +1801,7 @@ class AffiliateWindowSerializer(BaseModelSerializer):
         )
 
     def get_pid(self, obj):
-        return '{}-{}'.format(obj.course_run.key, obj.type.slug)
+        return f'{obj.course_run.key}-{obj.type.slug}'
 
     def get_price(self, obj):
         return {
@@ -1902,7 +1953,7 @@ class QueryFacetFieldSerializer(serializers.Serializer):
         selected_facets.add(field)
         query_params.setlist('selected_query_facets', sorted(selected_facets))
 
-        path = '{path}?{query}'.format(path=request.path_info, query=query_params.urlencode())
+        path = f'{request.path_info}?{query_params.urlencode()}'
         url = request.build_absolute_uri(path)
         return serializers.Hyperlink(url, 'narrow-url')
 
@@ -1914,7 +1965,7 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
     def get_fields(self):
         query_facet_counts = self.instance.pop('queries', {})
 
-        field_mapping = super(BaseHaystackFacetSerializer, self).get_fields()
+        field_mapping = super().get_fields()
 
         query_data = self.format_query_facet_data(query_facet_counts)
 
@@ -1945,7 +1996,7 @@ class CourseSearchSerializer(HaystackSerializer):
     seat_types = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
-        super(CourseSearchSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         request = self.context['request']
         detail_fields = request.GET.get("detail_fields")
         # if detail_fields query_param not in request than do not add the following fields in serializer response.

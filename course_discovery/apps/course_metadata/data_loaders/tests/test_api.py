@@ -16,7 +16,7 @@ from slumber.exceptions import HttpClientError
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    AbstractDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
+    AbstractDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader, _fatal_code
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
@@ -79,11 +79,13 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
     def test_fatal_code(self):
         response_with_200 = HttpResponse(status=200)
+        response_with_400 = HttpResponse(status=400)
         response_with_429 = HttpResponse(status=429)
         response_with_504 = HttpResponse(status=504)
-        self.assertTrue(self.loader_class._fatal_code(HttpClientError(response=response_with_200)))  # pylint: disable=protected-access
-        self.assertFalse(self.loader_class._fatal_code(HttpClientError(response=response_with_429)))  # pylint: disable=protected-access
-        self.assertFalse(self.loader_class._fatal_code(HttpClientError(response=response_with_504)))  # pylint: disable=protected-access
+        self.assertFalse(_fatal_code(HttpClientError(response=response_with_200)))
+        self.assertTrue(_fatal_code(HttpClientError(response=response_with_400)))
+        self.assertFalse(_fatal_code(HttpClientError(response=response_with_429)))
+        self.assertFalse(_fatal_code(HttpClientError(response=response_with_504)))
 
     def assert_course_run_loaded(self, body, partner_uses_publisher=True, draft=False, new_pub=False):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """

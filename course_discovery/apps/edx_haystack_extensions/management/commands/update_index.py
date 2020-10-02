@@ -3,6 +3,7 @@ import time
 
 from django.conf import settings
 from django.core.management import CommandError
+from django.utils import translation
 from haystack import connections as haystack_connections
 from haystack.management.commands.update_index import Command as HaystackCommand
 
@@ -25,7 +26,6 @@ class Command(HaystackCommand):
         return conn.count(index_name).get('count')
 
     def handle(self, **options):
-        from django.utils import translation
         translation.activate(settings.LANGUAGE_CODE)
 
         self.backends = options.get('using')

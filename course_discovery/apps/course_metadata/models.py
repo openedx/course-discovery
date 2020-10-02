@@ -290,7 +290,7 @@ class LevelType(TranslatableModel, TimeStampedModel):
         ordering = ('sort_value',)
 
 
-class LevelTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class LevelTypeTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(LevelType, models.CASCADE, related_name='translations', null=True)
     name_t = models.CharField('name', max_length=255)
 
@@ -365,7 +365,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
         return program_type, name
 
 
-class ProgramTypeTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class ProgramTypeTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
 
     name_t = models.CharField("name", max_length=32, blank=False, null=False)
@@ -532,7 +532,7 @@ class Subject(TranslatableModel, TimeStampedModel):
             raise ValidationError({'name': ['Subject with this Name and Partner already exists', ]})
 
 
-class SubjectTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class SubjectTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(Subject, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -570,7 +570,7 @@ class Topic(TranslatableModel, TimeStampedModel):
             raise ValidationError({'name': ['Topic with this Name and Partner already exists', ]})
 
 
-class TopicTranslation(TranslatedFieldsModel):  # pylint: disable=model-no-explicit-unicode
+class TopicTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(Topic, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -724,6 +724,32 @@ class PkSearchableMixin:
         return queryset.filter(pk__in=ids)
 
 
+class Collaborator(TimeStampedModel):
+    """
+    Collaborator model, defining any collaborators who helped write course content.
+    """
+    image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/course/collaborator/image'),
+        blank=True,
+        null=True,
+        variations={
+            'original': (200, 100),
+        },
+        help_text=_('Add the collaborator image, please make sure its dimensions are 200x100px')
+    )
+    name = models.CharField(max_length=255, default='')
+    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+
+    @property
+    def image_url(self):
+        if self.image and hasattr(self.image, 'url'):
+            return self.image.url
+        return None
+
+    def __str__(self):
+        return '{name}'.format(name=self.name)
+
+
 class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
@@ -747,6 +773,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
+    collaborators = SortedManyToManyField(Collaborator, blank=True, related_name='courses_collaborated')
     subjects = SortedManyToManyField(Subject, blank=True)
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, models.CASCADE, default=None, null=True, blank=True)
@@ -986,6 +1013,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     @transaction.atomic
     def set_active_url_slug(self, slug):
+        # logging to help debug error around course url slugs incrementing
+        logger.info('The current slug is {}; The slug to be set is {}; Current course is a draft: {}'
+                    .format(self.url_slug, slug, self.draft))
+
         if self.draft:
             active_draft_url_slug_object = self.url_slug_history.filter(is_active=True).first()
 
@@ -2344,7 +2375,10 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def staff(self):
-        staff = [course_run.staff.all() for course_run in self.course_runs]
+        advertised_course_runs = [course.advertised_course_run for
+                                  course in self.courses.all() if
+                                  course.advertised_course_run]
+        staff = [advertised_course_run.staff.all() for advertised_course_run in advertised_course_runs]
         staff = itertools.chain.from_iterable(staff)
         return set(staff)
 
@@ -2668,6 +2702,11 @@ class CurriculumProgramMembership(TimeStampedModel):
 
     history = HistoricalRecords()
 
+    class Meta(TimeStampedModel.Meta):
+        unique_together = (
+            ('curriculum', 'program')
+        )
+
 
 class CurriculumCourseMembership(TimeStampedModel):
     """
@@ -2681,6 +2720,11 @@ class CurriculumCourseMembership(TimeStampedModel):
     is_active = models.BooleanField(default=True)
 
     history = HistoricalRecords()
+
+    class Meta(TimeStampedModel.Meta):
+        unique_together = (
+            ('curriculum', 'course')
+        )
 
     @property
     def course_runs(self):

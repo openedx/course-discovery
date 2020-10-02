@@ -214,10 +214,21 @@ class Command(BaseCommand):
                     obj.object.type = program_type_map[obj.object.type_id][0]
                 except KeyError:
                     msg = ('Failed to assign type(pk={program_type}) to Program(pk={program}):'
-                           'No matching ProgramType in fixture')
+                           ' No matching ProgramType in fixture')
                     logger.warning(msg.format(
                         program_type=obj.object.type_id,
-                        program=obj.object.id
+                        program=obj.object.id,
+                    ))
+                    raise
+            elif isinstance(obj.object, CourseRun) and obj.object.expected_program_type_id:
+                try:
+                    obj.object.expected_program_type = program_type_map[obj.object.expected_program_type_id][0]
+                except KeyError:
+                    msg = ('Failed to assign program type (pk={program_type}) to CourseRun (pk={course_id}):'
+                           ' No matching ProgramType in fixture')
+                    logger.warning(msg.format(
+                        program_type=obj.object.expected_program_type,
+                        course_id=obj.object.key,
                     ))
                     raise
 

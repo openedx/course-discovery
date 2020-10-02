@@ -1,8 +1,12 @@
+from uuid import uuid4
+
 import factory
 from django.contrib.sites.models import Site
 
+from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.core.models import Currency, Partner, SalesforceConfiguration, User
 from course_discovery.apps.core.tests.utils import FuzzyUrlRoot
+from course_discovery.apps.course_metadata.models import Collaborator
 
 USER_PASSWORD = 'password'
 
@@ -13,7 +17,16 @@ def add_m2m_data(m2m_relation, data):
         m2m_relation.add(*data)
 
 
-class SiteFactory(factory.DjangoModelFactory):
+class CollaboratorFactory(factory.django.DjangoModelFactory):
+    name = factory.Faker('name')
+    image = StdImageSerializerField()
+    uuid = factory.LazyFunction(uuid4)
+
+    class Meta:
+        model = Collaborator
+
+
+class SiteFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Site
 
@@ -21,7 +34,7 @@ class SiteFactory(factory.DjangoModelFactory):
     name = factory.Faker('name')
 
 
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
     username = factory.Sequence(lambda n: 'user_%d' % n)
     password = factory.PostGenerationMethodCall('set_password', USER_PASSWORD)
     is_active = True
@@ -40,7 +53,7 @@ class StaffUserFactory(UserFactory):
     is_staff = True
 
 
-class PartnerFactory(factory.DjangoModelFactory):
+class PartnerFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'test-partner-{}'.format(n))  # pylint: disable=unnecessary-lambda
     short_code = factory.Sequence(lambda n: 'test{}'.format(n))  # pylint: disable=unnecessary-lambda
     courses_api_url = '{root}/api/courses/v1/'.format(root=FuzzyUrlRoot().fuzz())
@@ -64,7 +77,7 @@ class PartnerFactory(factory.DjangoModelFactory):
         model = Partner
 
 
-class CurrencyFactory(factory.DjangoModelFactory):
+class CurrencyFactory(factory.django.DjangoModelFactory):
     code = factory.fuzzy.FuzzyText(length=6)
     name = factory.fuzzy.FuzzyText()
 
@@ -72,7 +85,7 @@ class CurrencyFactory(factory.DjangoModelFactory):
         model = Currency
 
 
-class SalesforceConfigurationFactory(factory.DjangoModelFactory):
+class SalesforceConfigurationFactory(factory.django.DjangoModelFactory):
     username = factory.fuzzy.FuzzyText()
     password = factory.fuzzy.FuzzyText()
     organization_id = factory.fuzzy.FuzzyText()

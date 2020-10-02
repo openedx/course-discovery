@@ -1,3 +1,4 @@
+
 from django import forms
 
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration

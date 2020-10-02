@@ -29,7 +29,8 @@ from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_ID_REGEX, COURSE_UUID_REGEX
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug, Organization, Program, Seat, Video
+    Collaborator, Course, CourseEditor, CourseEntitlement, CourseRun, CourseType, CourseUrlSlug, Organization, Program,
+    Seat, Video
 )
 from course_discovery.apps.course_metadata.utils import (
     create_missing_entitlement, ensure_draft_world, validate_course_number
@@ -218,6 +219,11 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         organization = Organization.objects.get(key=course_creation_fields['org'])
         course.authoring_organizations.add(organization)
 
+        collaborators_uuid = request.data.get('collaborators')
+        if collaborators_uuid:
+            collaborators = Collaborator.objects.filter(uuid__in=collaborators_uuid)
+            course.collaborators.add(*collaborators)
+
         entitlement_types = course.type.entitlement_types.all()
         prices = request.data.get('prices', {})
         for entitlement_type in entitlement_types:
@@ -292,6 +298,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     @writable_request_wrapper
     def update_course(self, data, partial=False):  # pylint: disable=too-many-statements
         """ Updates an existing course from incoming data. """
+
+        # logging to help debug error around course url slugs incrementing
+        logger.info('The raw course data coming from publisher is {}.'.format(data))
+
         changed = False
         # Sending draft=False means the course data is live and updates should be pushed out immediately
         draft = data.pop('draft', True)
@@ -338,8 +348,13 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             # base64 encoded image - decode
             file_format, imgstr = image_data.split(';base64,')  # format ~= data:image/X;base64,/xxxyyyzzz/
             ext = file_format.split('/')[-1]  # guess file extension
-            image_data = ContentFile(base64.b64decode(imgstr), name='tmp.{extension}'.format(extension=ext))
+            image_data = ContentFile(base64.b64decode(imgstr), name=f'tmp.{ext}')
             course.image.save(image_data.name, image_data)
+
+        if data.get('collaborators'):
+            collaborators_uuids = data.get('collaborators')
+            collaborators = Collaborator.objects.filter(uuid__in=collaborators_uuids)
+            course.collaborators.add(*collaborators)
 
         # If price didnt change, check the other fields on the course
         # (besides image and video, they are popped off above)
@@ -446,7 +461,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
               paramType: query
               multiple: false
         """
-        return super(CourseViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course. """
@@ -460,4 +475,4 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         if get_query_param(request, 'editable') and not course.entitlements.exists():
             create_missing_entitlement(course)
 
-        return super(CourseViewSet, self).retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)

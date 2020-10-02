@@ -27,6 +27,19 @@ from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_co
 logger = logging.getLogger(__name__)
 
 
+def _fatal_code(ex):
+    """
+    Give up if the error indicates that the request was invalid.
+
+    That means don't retry any 4XX code, except 429, which is rate limiting.
+    """
+    return (
+        ex.response is not None and
+        ex.response.status_code != 429 and
+        400 <= ex.response.status_code < 500
+    )  # pylint: disable=no-member
+
+
 class CoursesApiDataLoader(AbstractDataLoader):
     """ Loads course runs from the Courses API. """
 
@@ -64,9 +77,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
         response = self._make_request(page)
         self._process_response(response)
 
-    def _fatal_code(ex):  # pylint: disable=no-self-argument
-        return ex.response.status_code != 429 and ex.response.status_code != 504  # pylint: disable=no-member
-
     # The courses endpoint has a 40 requests/minute rate limit.
     # This will back off at a rate of 60/120/240 seconds (from the factor 60 and default value of base 2).
     # This backoff code can still fail because of the concurrent requests all requesting at the same time.
@@ -75,7 +85,6 @@ class CoursesApiDataLoader(AbstractDataLoader):
     @backoff.on_exception(
         backoff.expo,
         factor=60,
-        jitter=None,
         max_tries=4,
         exception=requests.exceptions.RequestException,
         giveup=_fatal_code,
@@ -307,27 +316,16 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         self.enrollment_code_lock = threading.Lock()
 
     def ingest(self):
-        attempt_count = 0
+        logger.info('Refreshing ecommerce data from %s...', self.partner.ecommerce_api_url)
+        self._load_ecommerce_data()
 
-        while (attempt_count == 0 or
-               (self.processing_failure_occurred and attempt_count < EcommerceApiDataLoader.LOADER_MAX_RETRY)):
-            attempt_count += 1
-            if self.processing_failure_occurred and attempt_count > 1:  # pragma: no cover
-                logger.info('Processing failure occurred attempting {attempt_count} of {max}...'.format(
-                    attempt_count=attempt_count,
-                    max=EcommerceApiDataLoader.LOADER_MAX_RETRY
-                ))
-
-            logger.info('Refreshing ecommerce data from %s...', self.partner.ecommerce_api_url)
-            self._load_ecommerce_data()
-
-            if self.processing_failure_occurred:  # pragma: no cover
-                logger.warning('Processing failure occurred caused by an exception on at least on of the threads, '
-                               'blocking deletes.')
-                if attempt_count >= EcommerceApiDataLoader.LOADER_MAX_RETRY:
-                    raise CommandError('Max retries exceeded and Ecommerce Data Loader failed to successfully load')
-            else:
-                self._delete_entitlements()
+        if self.processing_failure_occurred:  # pragma: no cover
+            logger.warning(
+                'Processing failure occurred caused by an exception on at least on of the threads, '
+                'blocking deletes.'
+            )
+            raise CommandError('Ecommerce Data Loader failed to successfully load')
+        self._delete_entitlements()
 
     def _load_ecommerce_data(self):
         course_runs = self._request_course_runs(self.initial_page)
@@ -355,31 +353,41 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
             if self.is_threadsafe:
                 for page in pageranges['course_runs']:
-                    executor.submit(self._load_course_runs_data, page)
+                    executor.submit(self._request_course_runs, page).add_done_callback(
+                        lambda future: self._check_future_and_process(future, self._process_course_runs)
+                    )
                 for page in pageranges['entitlements']:
-                    executor.submit(self._load_entitlements_data, page)
+                    executor.submit(self._request_entitlements, page).add_done_callback(
+                        lambda future: self._check_future_and_process(future, self.process_entitlements)
+                    )
                 for page in pageranges['enrollment_codes']:
-                    executor.submit(self._load_enrollment_codes_data, page)
+                    executor.submit(self._request_enrollment_codes, page).add_done_callback(
+                        lambda future: self._check_future_and_process(future, self.process_enrollment_codes)
+                    )
             else:
                 # Process in batches and wait for the result from the futures
                 pagerange = pageranges['course_runs']
-                for i, future in enumerate([executor.submit(self._request_course_runs, page) for page in pagerange]):
+                for future in concurrent.futures.as_completed(
+                    executor.submit(self._request_course_runs, page) for page in pagerange
+                ):
                     self._check_future_and_process(
-                        future, self._process_course_runs, self._request_course_runs, pagerange[0] + i
+                        future, self._process_course_runs,
                     )
 
                 pagerange = pageranges['entitlements']
-                for i, future in enumerate([executor.submit(self._request_entitlements, page) for page in pagerange]):
+                for future in concurrent.futures.as_completed(
+                    executor.submit(self._request_entitlements, page) for page in pagerange
+                ):
                     self._check_future_and_process(
-                        future, self._process_entitlements, self._request_entitlements, pagerange[0] + i
+                        future, self._process_entitlements,
                     )
 
                 pagerange = pageranges['enrollment_codes']
-                for i, future in enumerate(
-                    [executor.submit(self._request_enrollment_codes, page) for page in pagerange]
+                for future in concurrent.futures.as_completed(
+                    executor.submit(self._request_enrollment_codes, page) for page in pagerange
                 ):
                     self._check_future_and_process(
-                        future, self._process_enrollment_codes, self._request_enrollment_codes, pagerange[0] + i
+                        future, self._process_enrollment_codes,
                     )
 
         logger.info('Expected %d course seats, %d course entitlements, and %d enrollment codes from %s.',
@@ -413,43 +421,29 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         pages = int(math.ceil(count / self.PAGE_SIZE))
         return range(self.initial_page + 1, pages + 1)
 
-    def _load_course_runs_data(self, page):  # pragma: no cover
-        """Make a request for the given page and process the response."""
-        try:
-            course_runs = self._request_course_runs(page)
-            self._process_course_runs(course_runs)
-
-        except requests.exceptions.RequestException as ex:
-            logger.exception(ex)
-            self.processing_failure_occurred = True
-
-    def _load_entitlements_data(self, page):  # pragma: no cover
-        """Make a request for the given page and process the response."""
-        try:
-            entitlements = self._request_entitlements(page)
-            self._process_entitlements(entitlements)
-
-        except requests.exceptions.RequestException as ex:
-            logger.exception(ex)
-            self.processing_failure_occurred = True
-
-    def _load_enrollment_codes_data(self, page):  # pragma: no cover
-        """Make a request for the given page and process the response."""
-        try:
-            enrollment_codes = self._request_enrollment_codes(page)
-            self._process_enrollment_codes(enrollment_codes)
-        except requests.exceptions.RequestException as ex:
-            logger.exception(ex)
-            self.processing_failure_occurred = True
-
+    @backoff.on_exception(
+        backoff.expo,
+        requests.exceptions.RequestException,
+        max_tries=5
+    )
     def _request_course_runs(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'include_products': True}
         return self.api_client.get(self.api_url + '/courses/', params=params).json()
 
+    @backoff.on_exception(
+        backoff.expo,
+        requests.exceptions.RequestException,
+        max_tries=5
+    )
     def _request_entitlements(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Course Entitlement'}
         return self.api_client.get(self.api_url + '/products/', params=params).json()
 
+    @backoff.on_exception(
+        backoff.expo,
+        requests.exceptions.RequestException,
+        max_tries=5
+    )
     def _request_enrollment_codes(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Enrollment Code'}
         return self.api_client.get(self.api_url + '/products/', params=params).json()
@@ -500,15 +494,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             logger.info(msg)
         entitlements_to_delete.delete()
 
-    def _check_future_and_process(self, future, process_fn, request_fn, page):
+    def _check_future_and_process(self, future, process_fn):
         check_exception = future.exception()
         if check_exception is None:
             response = future.result()
-            process_fn(response)
-        # The OSError we are catching here is a Connection Aborted OSError("(104, 'ECONNRESET')")
-        # This will just retry the request which should refresh the connection.
-        elif isinstance(check_exception, OSError):
-            response = request_fn(page)
             process_fn(response)
         else:
             logger.exception(check_exception)
