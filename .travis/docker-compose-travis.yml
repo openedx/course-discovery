@@ -2,7 +2,7 @@ version: "2"
 
 services:
   db:
-    image: mysql:5.6.45
+    image: mysql:5.7
     container_name: db
     command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
     environment:
@@ -10,7 +10,7 @@ services:
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
       MYSQL_USER: "discov001"
       MYSQL_PASSWORD: "password"
-      MYSQL_DATABASE: "discovery"
+      MYSQL_DATABASE: "test_discovery_gw0"
   es:
     image: elasticsearch:1.7.6
     container_name: es
