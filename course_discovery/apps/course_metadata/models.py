@@ -2188,7 +2188,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     @property
     def canonical_course_runs(self):
         excluded_course_run_ids = [course_run.id for course_run in self.excluded_course_runs.all()]
-        canonical_course_run_list = list()
+        canonical_course_run_list = []
         for course in self.courses.all():
             canonical_course_run = course.canonical_course_run
             if canonical_course_run and canonical_course_run.id not in excluded_course_run_ids:
@@ -2243,7 +2243,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     @property
     def canonical_seats(self):
         applicable_seat_types = set(self.type.applicable_seat_types.all())
-        seat_list = list()
+        seat_list = []
         for run in self.canonical_course_runs:
             for seat in run.seats.all():
                 if seat.type in applicable_seat_types:
@@ -2290,13 +2290,14 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
         return end_valid and enrollment_start_valid
 
-    def _get_total_price_by_currency(self, canonical_seats=None):
+    def _get_total_price_by_currency(self, canonical_seats=None, entitlements=None):
         """
         This helper function returns the total program price indexed by the currency
         """
         currencies_with_total = defaultdict()
         course_map = defaultdict(list)
         canonical_seats = canonical_seats if canonical_seats else self.canonical_seats
+        entitlements = entitlements if entitlements else self.entitlements
         for seat in canonical_seats:
             course_uuid = seat.course_run.course.uuid
             # Identify the most relevant course_run seat for a course.
@@ -2332,7 +2333,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
                     # Now remove the seats that should not be counted for calculation for program total
                     course_map[course_uuid].remove(removable_seat)
 
-        for entitlement in self.entitlements:
+        for entitlement in entitlements:
             course_uuid = entitlement.course.uuid
             selected_seats = course_map.get(course_uuid)
             if not selected_seats:
@@ -2359,12 +2360,16 @@ class Program(PkSearchableMixin, TimeStampedModel):
     def price_ranges(self):
         currencies = defaultdict(list)
         canonical_seats = self.canonical_seats
+        entitlements = self.entitlements
         for seat in canonical_seats:
             currencies[seat.currency].append(seat.price)
-        for entitlement in self.entitlements:
+        for entitlement in entitlements:
             currencies[entitlement.currency].append(entitlement.price)
 
-        total_by_currency = self._get_total_price_by_currency(canonical_seats=canonical_seats)
+        total_by_currency = self._get_total_price_by_currency(
+            canonical_seats=canonical_seats,
+            entitlements=entitlements
+        )
 
         price_ranges = []
         for currency, prices in currencies.items():

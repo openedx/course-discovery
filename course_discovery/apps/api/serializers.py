@@ -680,7 +680,7 @@ class CourseEntitlementSerializer(BaseModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls):
-        return CourseEntitlement.everything.all().select_related('course', 'currency', 'mode')
+        return CourseEntitlement.everything.all().select_related('currency', 'mode')
 
     class Meta:
         model = CourseEntitlement
@@ -799,7 +799,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else CourseRun.objects.all()
 
-        return queryset.select_related('course', 'type', 'language').prefetch_related(
+        return queryset.select_related('course', 'type').prefetch_related(
             '_official_version',
             'course__partner',
             Prefetch('seats', queryset=SeatSerializer.prefetch_queryset()),
