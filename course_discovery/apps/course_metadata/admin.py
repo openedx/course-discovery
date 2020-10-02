@@ -22,6 +22,7 @@ PUBLICATION_FAILURE_MSG_TPL = _(
     'Please try again. If the error persists, please contact the Engineering Team.'
 )
 
+
 class CurriculumCourseMembershipForm(ModelForm):
     """
     A custom CurriculumCourseMembershipForm to override the widget used by the course ModelChoiceField.
