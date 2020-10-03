@@ -208,6 +208,68 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             [course_run_1.course, course_run_2.course], many=True
         )
 
+    def test_courses_with_subjects_and_negative_query(self):
+        catalog = CatalogFactory(
+            query='subjects:(-"Business & Management" AND -"Economics & Finance" AND -"Data Analysis & Statistics" AND -"Math"  AND -"Engineering") AND org:(-galileox AND -davidsonnext AND -microsoft AND -gtx AND -pekingx AND -asux AND -bux AND -columbiax)'
+        )
+        not_included_subject_names = (
+            'Business & Management',
+            'Economics & Finance',
+            'Business & Management',
+            'Economics & Finance',
+            'Data Analysis & Statistics',
+            'Math',
+            'Engineering',
+        )
+        for name in not_included_subject_names:
+            course_run = CourseRunFactory(
+                start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
+                status=CourseRunStatus.Published,
+                type__is_marketable=True,
+                course__subjects=[SubjectFactory(name=name)],
+            )
+            SeatFactory.create(course_run=course_run)
+
+        included_subject_names = ('Health & Sport', 'Galaxy')
+        desired_courses = []
+        for name in included_subject_names:
+            course_run = CourseRunFactory(
+                start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
+                status=CourseRunStatus.Published,
+                type__is_marketable=True,
+                course__subjects=[SubjectFactory(name=name)],
+            )
+            SeatFactory.create(course_run=course_run)
+            desired_courses.append(course_run.course)
+
+        not_included_org_names = ('galileox', 'davidsonnext', 'microsoft', 'gtx', 'pekingx', 'asux', 'bux', 'columbiax')
+        for name in not_included_org_names:
+            course_run = CourseRunFactory(
+                start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
+                status=CourseRunStatus.Published,
+                type__is_marketable=True,
+                key=f'{name}/{factory.Faker("word").generate()}/test',
+            )
+            SeatFactory.create(course_run=course_run)
+
+        included_org_names = ('apple', 'cisco')
+        for name in included_org_names:
+            course_run = CourseRunFactory(
+                start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
+                status=CourseRunStatus.Published,
+                type__is_marketable=True,
+                key=f'{name}/{factory.Faker("word").generate()}/test',
+            )
+            SeatFactory.create(course_run=course_run)
+            desired_courses.append(course_run.course)
+
+        call_command('search_index', '--rebuild', '-f')
+        url = reverse('api:v1:catalog-courses', kwargs={'id': catalog.id})
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        assert response.data['results'] == self.serialize_catalog_course(desired_courses, many=True)
+
     @ddt.data(
         *STATES()
     )
