@@ -23,16 +23,25 @@ class CourseDocument(BaseCourseDocument):
     Course Elasticsearch document.
     """
 
+    availability = fields.KeywordField(multi=True)
     card_image_url = fields.TextField()
     course_runs = fields.KeywordField(multi=True)
     expected_learning_items = fields.KeywordField(multi=True)
+    end = fields.DateField(multi=True)
+    enrollment_start = fields.DateField(multi=True)
+    enrollment_end = fields.DateField(multi=True)
     first_enrollable_paid_seat_price = fields.IntegerField()
     languages = fields.KeywordField(multi=True)
     modified = fields.DateField()
     prerequisites = fields.KeywordField(multi=True)
+    status = fields.KeywordField(multi=True)
+    start = fields.DateField(multi=True)
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
+
+    def prepare_availability(self, obj):
+        return [str(course_run.availability) for course_run in filter_visible_runs(obj.course_runs)]
 
     def prepare_course_runs(self, obj):
         return [course_run.key for course_run in filter_visible_runs(obj.course_runs)]
@@ -49,21 +58,36 @@ class CourseDocument(BaseCourseDocument):
             }
         )
 
+    def prepare_end(self, obj):
+        return [course_run.end for course_run in filter_visible_runs(obj.course_runs)]
+
+    def prepare_enrollment_start(self, obj):
+        return [course_run.enrollment_start for course_run in filter_visible_runs(obj.course_runs)]
+
+    def prepare_enrollment_end(self, obj):
+        return [course_run.enrollment_end for course_run in filter_visible_runs(obj.course_runs)]
+
     def prepare_org(self, obj):
         course_run = filter_visible_runs(obj.course_runs).first()
         if course_run:
             return CourseKey.from_string(course_run.key).org
         return None
 
+    def prepare_seat_types(self, obj):
+        seat_types = [seat.slug for run in filter_visible_runs(obj.course_runs) for seat in run.seat_types]
+        return list(set(seat_types))
+
+    def prepare_status(self, obj):
+        return [course_run.status for course_run in filter_visible_runs(obj.course_runs)]
+
+    def prepare_start(self, obj):
+        return [course_run.start for course_run in filter_visible_runs(obj.course_runs)]
+
     def prepare_partner(self, obj):
         return obj.partner.short_code
 
     def prepare_prerequisites(self, obj):
         return [prerequisite.name for prerequisite in obj.prerequisites.all()]
-
-    def prepare_seat_types(self, obj):
-        seat_types = [seat.slug for run in filter_visible_runs(obj.course_runs) for seat in run.seat_types]
-        return list(set(seat_types))
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related('course_runs__seats__type')
