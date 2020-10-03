@@ -1,11 +1,20 @@
 import logging
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.dateparse import parse_datetime
 from django_elasticsearch_dsl.registries import registry
 
-from course_discovery.apps.core.utils import ElasticsearchUtils
+from course_discovery.apps.core.utils import ElasticsearchUtils, serialize_datetime
 
 log = logging.getLogger(__name__)
+
+
+class DateTimeSerializerMixin:
+    @staticmethod
+    def handle_datetime_field(value):
+        if isinstance(value, str):
+            value = parse_datetime(value)
+        return serialize_datetime(value)
 
 
 class ModelObjectDocumentSerializerMixin:
