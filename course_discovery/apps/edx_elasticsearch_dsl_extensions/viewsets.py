@@ -106,6 +106,9 @@ class BaseElasticsearchDocumentViewSet(mixins.DetailMixin, mixins.FacetMixin, Do
     permission_classes = (IsAuthenticated,)
     ensure_published = True
     multi_match_search_fields = ('key', 'title', 'text')
+    multi_match_options = {
+        'type': 'phrase',
+    }
     ordering = ('-start', 'aggregation_key')
     filter_backends = [
         MultiMatchSearchFilterBackend,
