@@ -9,14 +9,14 @@ from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseW
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
+from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import CourseDocument
-from .common import DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 
 __all__ = ('CourseSearchDocumentSerializer',)
 
 
-class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DocumentSerializer):
+class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTimeSerializerMixin, DocumentSerializer):
     """
     Serializer for course elasticsearch document.
     """
@@ -24,16 +24,15 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, Documen
     course_runs = serializers.SerializerMethodField()
     seat_types = serializers.SerializerMethodField()
 
-    @staticmethod
-    def course_run_detail(request, detail_fields, course_run):
+    def course_run_detail(self, request, detail_fields, course_run):
         course_run_detail = {
             'key': course_run.key,
-            'enrollment_start': course_run.enrollment_start,
-            'enrollment_end': course_run.enrollment_end,
+            'enrollment_start': self.handle_datetime_field(course_run.enrollment_start),
+            'enrollment_end': self.handle_datetime_field(course_run.enrollment_end),
             'go_live_date': course_run.go_live_date,
-            'start': course_run.start,
-            'end': course_run.end,
-            'modified': course_run.modified,
+            'start': self.handle_datetime_field(course_run.start),
+            'end': self.handle_datetime_field(course_run.end),
+            'modified': self.handle_datetime_field(course_run.modified),
             'availability': course_run.availability,
             'pacing_type': course_run.pacing_type,
             'enrollment_mode': course_run.type_legacy,
