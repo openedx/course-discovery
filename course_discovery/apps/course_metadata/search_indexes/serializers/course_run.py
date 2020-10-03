@@ -1,19 +1,17 @@
-from django.utils.dateparse import parse_datetime
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
 
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseRunWithProgramsSerializer
-from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import CourseRunDocument
-from .common import DocumentDSLSerializerMixin
+from .common import DocumentDSLSerializerMixin, DateTimeSerializerMixin
 
 __all__ = ('CourseRunSearchDocumentSerializer',)
 
 
-class CourseRunSearchDocumentSerializer(DocumentSerializer):
+class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSerializer):
     """
     Serializer for course run elasticsearch document.
     """
@@ -22,12 +20,6 @@ class CourseRunSearchDocumentSerializer(DocumentSerializer):
     end = serializers.SerializerMethodField()
     enrollment_start = serializers.SerializerMethodField()
     enrollment_end = serializers.SerializerMethodField()
-
-    @staticmethod
-    def handle_datetime_field(value):
-        if isinstance(value, str):
-            value = parse_datetime(value)
-        return serialize_datetime(value)
 
     def get_start(self, obj):
         return self.handle_datetime_field(obj.start)
