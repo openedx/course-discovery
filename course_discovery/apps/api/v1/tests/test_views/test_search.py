@@ -257,6 +257,11 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
                                   mixins.SynonymTestMixin, mixins.APITestCase):
 
+    def setUp(self):
+        super().setUp()
+        self.desired_key = 'course-v1:edx+DemoX+2018'
+        self.regular_key = 'course-v1:edx+TeamX+2018'
+
     def get_response(self, query=None, endpoint='api:v1:search-all-facets'):
         qs = ''
 
@@ -275,25 +280,44 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 
     def test_results_only_include_specific_key_objects(self):
         """ Verify the search results only include items with 'key' set to 'course:edX+DemoX'. """
-        desired_key = 'course:edX+DemoX'
-        CourseFactory(key='course:edX+TeamX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
-        course = CourseFactory(key=desired_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
 
-        response = self.get_response(query={'key': desired_key}, endpoint='api:v1:search-all-list')
-
+        CourseFactory(
+            key=self.regular_key,
+            title='ABCs of Ͳҽʂէìղց',
+            partner=self.partner
+        )
+        course = CourseFactory(
+            key=self.desired_key,
+            title='ABCs of Ͳҽʂէìղց',
+            partner=self.partner
+        )
+        course_run = CourseRunFactory(
+            course__partner=self.partner,
+            course=course,
+            status=CourseRunStatus.Published,
+            key=self.desired_key,
+            type__is_marketable=True
+        )
+        CourseRunFactory(
+            course__partner=self.partner,
+            status=CourseRunStatus.Published,
+            key=self.regular_key,
+            type__is_marketable=True
+        )
+        response = self.get_response(query={'key': self.desired_key}, endpoint='api:v1:search-all-list')
         assert response.status_code == 200
         response_data = response.json()
         assert response_data["results"] == [
-            self.serialize_course_search(course),
+            self.serialize_course_run_search(course_run),
+            self.serialize_course_search(course)
         ]
 
     def test_results_only_include_specific_key_objects_which_were_requested_in_the_search(self):
         """ Verify the search results only include items with 'q' set to 'course:edX+DemoX'. """
-        desired_key = 'course:edX+DemoX'
-        CourseFactory(key='course:edX+TeamX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
-        course = CourseFactory(key=desired_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        CourseFactory(key=self.regular_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        course = CourseFactory(key=self.desired_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
 
-        response = self.get_response(query={'q': desired_key}, endpoint='api:v1:search-all-list')
+        response = self.get_response(query={'q': self.desired_key}, endpoint='api:v1:search-all-list')
 
         assert response.status_code == 200
         response_data = response.json()
