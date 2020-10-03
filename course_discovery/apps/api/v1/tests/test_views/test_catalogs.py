@@ -185,6 +185,29 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             [course_run_1.course, course_run_2.course, course_run_3.course], many=True
         )
 
+    def test_courses_with_time_range_query(self):
+        catalog = CatalogFactory(query='start:[2015-01-01 TO 2015-12-01]')
+        course_run_1 = CourseRunFactory(
+            start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
+            status=CourseRunStatus.Published,
+            type__is_marketable=True,
+        )
+        course_run_2 = CourseRunFactory(
+            start=datetime.datetime(2015, 10, 13, tzinfo=pytz.UTC),
+            status=CourseRunStatus.Published,
+            type__is_marketable=True,
+        )
+        SeatFactory.create(course_run=course_run_1)
+        SeatFactory.create(course_run=course_run_2)
+        call_command('search_index', '--rebuild', '-f')
+        url = reverse('api:v1:catalog-courses', kwargs={'id': catalog.id})
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        assert response.data['results'] == self.serialize_catalog_course(
+            [course_run_1.course, course_run_2.course], many=True
+        )
+
     @ddt.data(
         *STATES()
     )
