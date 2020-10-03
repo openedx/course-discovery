@@ -1,5 +1,6 @@
 import datetime
 from collections import OrderedDict
+from contextlib import contextmanager
 
 from django.core.exceptions import ImproperlyConfigured
 from django_elasticsearch_dsl import Document
@@ -304,7 +305,8 @@ class MultiDocumentSerializerMixin:
         else:
             instance_serializers = {
                 # pylint: disable=protected-access
-                document._index._name: serializer for document, serializer in self.Meta.serializers.items()
+                document._index._name: serializer
+                for document, serializer in self.Meta.serializers.items()
             }
             index_name = instance.meta['index']
             index_alias = ElasticsearchUtils.get_alias_by_index_name(index_name)
@@ -313,9 +315,46 @@ class MultiDocumentSerializerMixin:
                 raise ImproperlyConfigured('Could not find serializer for %s in mapping' % index_name)
         return serializer_class
 
+    @property
+    def is_patch_required(self):
+        """
+        Check if a specific serializer class needs to be changed.
+        """
+        return hasattr(self.Meta, 'fields')
+
+    @contextmanager
+    def patch_multi_serializer_context(self, serializer_class):
+        """
+        Change the state of a specific serializer at the time of its launch.
+
+        If the multi-serializer has its own state and properties,
+        then these must be applied for every application serializer
+        that invokes the multi-serializer.
+
+        Changes the state of the application serializer to before it serializes.
+        The initial state of the applied serializer will be returned after serialization.
+
+        Implemented 'monkey patch' pattern.
+        """
+        Meta_origin = serializer_class.Meta
+        origin_declared_fields = serializer_class._declared_fields
+        serializer_class.Meta = type('Meta', (Meta_origin,), {'fields': self.Meta.fields})
+        serializer_class._declared_fields = self._declared_fields
+
+        yield serializer_class
+
+        serializer_class.Meta = Meta_origin
+        serializer_class._declared_fields = origin_declared_fields
+
     def multi_serializer_representation(self, instance):
         """
         Multi serializer representation.
         """
         serializer_class = self.get_serializer_class_by_instance(instance)
-        return serializer_class(context=self._context).to_representation(instance)
+        if self.is_patch_required:
+            with self.patch_multi_serializer_context(serializer_class) as serializer_class_patched:
+                representation = serializer_class_patched(context=self._context).to_representation(instance)
+        else:
+            representation = serializer_class(context=self._context).to_representation(instance)
+
+        return representation
