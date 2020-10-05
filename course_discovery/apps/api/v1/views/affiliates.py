@@ -1,4 +1,3 @@
-from django.db.models.query import Prefetch
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
@@ -78,10 +77,18 @@ class ProgramsAffiliateWindowViewSet(viewsets.ViewSet):
             'excluded_course_runs',
             'type__applicable_seat_types',
             'type__translations',
-            # We need the full Course prefetch here to get CourseRun information that methods on the Program
-            # model iterate across (e.g. price and currency). These fields aren't prefetched by the
-            # minimal Course serializer.
-            Prefetch('courses', queryset=serializers.MinimalProgramCourseSerializer.prefetch_queryset()),
+            'courses',
+            'courses__course_runs',
+            'courses__course_runs__language',
+            'courses__canonical_course_run',
+            'courses__canonical_course_run__seats',
+            'courses__canonical_course_run__seats__course_run__course',
+            'courses__canonical_course_run__seats__type',
+            'courses__canonical_course_run__seats__currency',
+            'courses__course_runs__seats',
+            'courses__entitlements',
+            'courses__entitlements__currency',
+            'courses__entitlements__mode',
         )
         serializer = serializers.ProgramsAffiliateWindowSerializer(programs, many=True)
         return Response(serializer.data)
