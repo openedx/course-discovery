@@ -14,7 +14,7 @@ Devstack will allow you to run all edX services together. If you only need Disco
 
 .. code-block:: bash
 
-    $ DEVSTACK_WORKSPACE=.. docker-compose -f docker-compose.yml -f docker-compose-host.yml up -d mysql elasticsearch memcached discovery
+    $ make dev.up.discovery
 
 Data Loaders
 ------------
