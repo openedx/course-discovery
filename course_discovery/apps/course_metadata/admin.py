@@ -360,6 +360,7 @@ class PositionAdmin(admin.ModelAdmin):
 class VideoAdmin(admin.ModelAdmin):
     list_display = ('src', 'description',)
     search_fields = ('src', 'description',)
+    exclude = ('image',)
 
 
 @admin.register(Prerequisite)
