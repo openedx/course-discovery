@@ -1,13 +1,16 @@
 FROM ubuntu:xenial as app
 
 # System requirements.
-RUN apt-get update
+RUN apt-get update && \
+	apt-get install -y software-properties-common && \
+	apt-add-repository -y ppa:deadsnakes/ppa && \
+	apt-get update && \
+	apt-get upgrade -qy
 RUN apt-get install --yes \
 	git-core \
 	language-pack-en \
-	python3.5 \
-	python3-pip \
-	python3.5-dev \
+	python3.8-dev \
+	python3.8-venv \
 	build-essential \
 	libffi-dev \
 	libmysqlclient-dev \
@@ -15,13 +18,14 @@ RUN apt-get install --yes \
 	libxslt-dev \
 	libjpeg-dev \
 	libssl-dev
-RUN pip3 install nodeenv
-RUN pip3 install --upgrade pip setuptools
+
 RUN rm -rf /var/lib/apt/lists/*
 
-# Python is Python3.
-RUN ln -s /usr/bin/pip3 /usr/bin/pip
-RUN ln -s /usr/bin/python3 /usr/bin/python
+ENV VIRTUAL_ENV=/venv
+RUN python3.8 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+RUN pip install pip==20.2.3 setuptools==50.3.0 nodeenv
 
 # Use UTF-8.
 RUN locale-gen en_US.UTF-8

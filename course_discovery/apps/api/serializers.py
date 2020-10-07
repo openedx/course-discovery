@@ -1020,7 +1020,7 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
 
-        return queryset.select_related('partner', 'type').prefetch_related(
+        return queryset.select_related('partner', 'type', 'canonical_course_run').prefetch_related(
             'authoring_organizations',
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
             Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
@@ -1109,8 +1109,14 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'url_slug_history',
             'url_redirects',
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
+            'canonical_course_run',
+            'canonical_course_run__seats',
+            'canonical_course_run__seats__course_run__course',
+            'canonical_course_run__seats__type',
+            'canonical_course_run__seats__currency',
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+            Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
         )
 
     class Meta(MinimalCourseSerializer.Meta):
@@ -1743,7 +1749,7 @@ class ProgramsAffiliateWindowSerializer(BaseModelSerializer):
         return languages.pop().code.split('-')[0].lower() if languages else 'en'
 
     def get_custom1(self, obj):
-        return obj.type
+        return obj.type.slug
 
 
 class AffiliateWindowSerializer(BaseModelSerializer):
@@ -2020,6 +2026,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'end': course_run.end,
             'modified': course_run.modified,
             'availability': course_run.availability,
+            'status': course_run.status,
             'pacing_type': course_run.pacing_type,
             'enrollment_mode': course_run.type_legacy,
             'min_effort': course_run.min_effort,

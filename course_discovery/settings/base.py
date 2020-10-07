@@ -80,7 +80,6 @@ PROJECT_APPS = [
     'course_discovery.apps.edx_haystack_extensions',
     'course_discovery.apps.publisher',
     'course_discovery.apps.publisher_comments',
-    'course_discovery.apps.journal',
 ]
 
 
@@ -116,7 +115,7 @@ ROOT_URLCONF = 'course_discovery.urls'
 WSGI_APPLICATION = 'course_discovery.wsgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 # Set this value in the environment-specific files (e.g. local.py, production.py, test.py)
 DATABASES = {
     'default': {

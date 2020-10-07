@@ -23,13 +23,7 @@ DICT_UPDATE_KEYS = ('JWT_AUTH',)
 # This may be overridden by the YAML in DISCOVERY_CFG, but it should be here as a default.
 MEDIA_STORAGE_BACKEND = {}
 
-# TODO Drop the try-except block once https://github.com/edx/configuration/pull/3549 is merged and we are using the
-# common play for this service.
-try:
-    CONFIG_FILE = environ['DISCOVERY_CFG']
-except KeyError:
-    CONFIG_FILE = environ['COURSE_DISCOVERY_CFG']
-
+CONFIG_FILE = environ['DISCOVERY_CFG']
 with open(CONFIG_FILE, encoding='utf-8') as f:
     config_from_yaml = yaml.safe_load(f)
 
@@ -53,14 +47,21 @@ CACHES['default']['KEY_PREFIX'] = CACHES['default'].get('KEY_PREFIX', '') + '_' 
 if 'EXTRA_APPS' in locals():
     INSTALLED_APPS += EXTRA_APPS
 
+if 'read_replica' not in DATABASES:
+    DATABASES['read_replica'] = deepcopy(DATABASES['default'])
+
 DB_OVERRIDES = dict(
-    PASSWORD=environ.get('DB_MIGRATION_PASS', DATABASES['default']['PASSWORD']),
-    ENGINE=environ.get('DB_MIGRATION_ENGINE', DATABASES['default']['ENGINE']),
-    USER=environ.get('DB_MIGRATION_USER', DATABASES['default']['USER']),
-    NAME=environ.get('DB_MIGRATION_NAME', DATABASES['default']['NAME']),
-    HOST=environ.get('DB_MIGRATION_HOST', DATABASES['default']['HOST']),
-    PORT=environ.get('DB_MIGRATION_PORT', DATABASES['default']['PORT']),
+    DB_MIGRATION_PASS='PASSWORD',
+    DB_MIGRATION_ENGINE='ENGINE',
+    DB_MIGRATION_USER='USER',
+    DB_MIGRATION_NAME='NAME',
+    DB_MIGRATION_HOST='HOST',
+    DB_MIGRATION_PORT='PORT',
 )
+for override, db_key in DB_OVERRIDES.items():
+    if override in environ:
+        DATABASES['default'][db_key] = environ.get(override)
+        DATABASES['read_replica'][db_key] = environ.get(override)
 
 HAYSTACK_CONNECTIONS['default'].update({
     'URL': ELASTICSEARCH_URL,
@@ -70,12 +71,6 @@ HAYSTACK_CONNECTIONS['default'].update({
         'ca_certs': certifi.where(),
     },
 })
-
-for override, value in DB_OVERRIDES.items():
-    DATABASES['default'][override] = value
-
-if 'read_replica' not in DATABASES:
-    DATABASES['read_replica'] = deepcopy(DATABASES['default'])
 
 # NOTE (CCB): Treat all MySQL warnings as exceptions. This is especially
 # desired for truncation warnings, which hide potential data integrity issues.

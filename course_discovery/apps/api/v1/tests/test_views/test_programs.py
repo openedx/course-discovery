@@ -105,7 +105,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
 
-        with django_assert_num_queries(FuzzyInt(56, 2)):
+        with django_assert_num_queries(FuzzyInt(57, 2)):
             response = self.assert_retrieve_success(program)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
@@ -158,7 +158,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(FuzzyInt(44, 1)):  # travis is often 43
+        with django_assert_num_queries(FuzzyInt(40, 1)):  # travis is often 43
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())
@@ -167,7 +167,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory(partner=self.partner)
         program = ProgramFactory(courses=[course], partner=self.partner)
-        with django_assert_num_queries(FuzzyInt(31, 2)):
+        with django_assert_num_queries(FuzzyInt(32, 2)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 

@@ -2,14 +2,11 @@ version: "2"
 
 services:
   db:
-    image: mysql:5.6.45
+    image: mysql:5.7
     container_name: db
     command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
     environment:
-      MYSQL_ROOT_PASSWORD: ""
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_USER: "discov001"
-      MYSQL_PASSWORD: "password"
+      MYSQL_ROOT_PASSWORD: "password"
       MYSQL_DATABASE: "discovery"
   es:
     image: elasticsearch:1.7.6
@@ -44,7 +41,7 @@ services:
       DB_NAME: "discovery"
       DB_PASSWORD: "password"
       DB_PORT: "3306"
-      DB_USER: "discov001"
+      DB_USER: "root"
       DJANGO_SETTINGS_MODULE: "course_discovery.settings.test"
       ENABLE_DJANGO_TOOLBAR: 1
       TEST_ELASTICSEARCH_URL: "http://es:9200"
