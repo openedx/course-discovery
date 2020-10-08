@@ -320,7 +320,7 @@ class MultiDocumentSerializerMixin:
         """
         Check if a specific serializer class needs to be changed.
         """
-        return hasattr(self.Meta, 'fields')
+        return bool(getattr(self.Meta, 'fields', None))
 
     @contextmanager
     def patch_multi_serializer_context(self, serializer_class):
