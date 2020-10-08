@@ -116,6 +116,9 @@ class BaseDocument(BoostedDocument, metaclass=DocumentMeta):
     text = fields.TextField(analyzer=synonym_text)
     uuid = fields.KeywordField()
 
+    def get_queryset(self):
+        return self.django.model.objects.all()
+
     @classmethod
     def _matches(cls, hit):
         # pylint: disable=protected-access
