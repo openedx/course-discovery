@@ -1,21 +1,19 @@
-FROM ubuntu:xenial as app
+FROM ubuntu:focal as app
 
 # System requirements.
 RUN apt-get update && \
-	apt-get install -y software-properties-common && \
-	apt-add-repository -y ppa:deadsnakes/ppa && \
-	apt-get update && \
 	apt-get upgrade -qy
 RUN apt-get install --yes \
-	git-core \
+	git \
 	language-pack-en \
+	python3-venv \
 	python3.8-dev \
 	python3.8-venv \
 	build-essential \
 	libffi-dev \
 	libmysqlclient-dev \
 	libxml2-dev \
-	libxslt-dev \
+	libxslt1-dev \
 	libjpeg-dev \
 	libssl-dev
 
@@ -59,7 +57,7 @@ RUN pip install -r requirements/production.txt
 # every time any bit of code is changed.
 COPY . .
 
-# Expose canoncal Discovery port
+# Expose canonical Discovery port
 EXPOSE 8381
 
 CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
