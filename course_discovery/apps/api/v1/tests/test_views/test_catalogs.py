@@ -207,6 +207,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
     def test_courses_with_subjects_and_negative_query(self):
         catalog = CatalogFactory(
+            # pylint: disable=line-too-long
             query='subjects:(-"Business & Management" AND -"Economics & Finance" AND -"Data Analysis & Statistics" AND -"Math"  AND -"Engineering") AND org:(-galileox AND -davidsonnext AND -microsoft AND -gtx AND -pekingx AND -asux AND -bux AND -columbiax)'
         )
         not_included_subject_names = (
