@@ -345,6 +345,23 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             self.serialize_program_search(program),
         ]
 
+    def test_verify_that_draft_objects_are_not_indexed(self):
+        course_draft = CourseFactory(title='software', draft=True, partner=self.partner)
+        draft_course_run = CourseRunFactory(draft=True, course=course_draft)
+
+        course = CourseFactory(title='software', draft=False, draft_version_id=course_draft.id,
+                               partner=self.partner)
+        course_run = CourseRunFactory(draft=False, course=course, draft_version_id=draft_course_run.id)
+
+        response = self.get_response(query={'q': 'software'}, endpoint=self.list_path)
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["results"] == [
+            self.serialize_course_run_search(course_run),
+            self.serialize_course_search(course),
+        ]
+
     @factory.django.mute_signals(signals.post_save)
     def test_verify_that_draft_objects_are_not_indexed_when_run_command_to_populate_index(self):
         course_draft = CourseFactory(title='software', draft=True, partner=self.partner)
