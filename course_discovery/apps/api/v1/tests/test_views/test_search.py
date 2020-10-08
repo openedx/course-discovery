@@ -6,8 +6,8 @@ import uuid
 import ddt
 import factory
 import pytz
-from django.db.models import signals
 from django.core.management import call_command
+from django.db.models import signals
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
