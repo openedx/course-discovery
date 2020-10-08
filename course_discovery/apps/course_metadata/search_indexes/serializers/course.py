@@ -9,9 +9,9 @@ from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseW
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
 
-from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import CourseDocument
+from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 
 __all__ = ('CourseSearchDocumentSerializer',)
 

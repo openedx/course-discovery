@@ -1,6 +1,7 @@
 import csv
 import datetime
 import urllib
+from io import StringIO
 
 import ddt
 import factory
@@ -8,7 +9,6 @@ import pytest
 import pytz
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
-from io import StringIO
 from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
@@ -20,10 +20,7 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory,
-    SeatFactory,
-    SeatTypeFactory,
-    SubjectFactory,
+    CourseRunFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.conftest import get_course_run_states
 
