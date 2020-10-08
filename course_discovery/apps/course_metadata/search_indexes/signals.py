@@ -4,6 +4,12 @@ from django_elasticsearch_dsl.registries import registry
 from django_elasticsearch_dsl.signals import RealTimeSignalProcessor as OriginRealTimeSignalProcessor
 
 
+class IndexForbiddenException(Exception):
+    """
+    Raised if it is impossible to add/modify an object to an Elasticsearch index.
+    """
+
+
 class RegistryUpdateHandler(ABC):
     """
     Abstract index update handler.
@@ -29,7 +35,7 @@ class RegistryUpdateHandler(ABC):
     def handle(self, sender, instance, **kwargs):
         if self.__next_handler:
             return self.__next_handler.handle(sender, instance, **kwargs)
-
+        # pylint: disable=inconsistent-return-statements
         registry.update(instance)
         registry.update_related(instance)
 
@@ -46,7 +52,7 @@ class MarketableHandler(RegistryUpdateHandler):
 
     def handle(self, sender, instance, **kwargs):
         if sender._meta.model_name in self.expected_models and not instance.type.is_marketable:
-            return
+            raise IndexForbiddenException("Requested to index object is not marketable.")
 
         return super().handle(sender, instance, **kwargs)
 
@@ -63,7 +69,7 @@ class DraftHandler(RegistryUpdateHandler):
 
     def handle(self, sender, instance, **kwargs):
         if sender._meta.model_name in self.expected_models and instance.draft:
-            return
+            raise IndexForbiddenException("Requested to index object is marked as draft.")
 
         return super().handle(sender, instance, **kwargs)
 
@@ -81,7 +87,10 @@ class RealTimeSignalProcessor(OriginRealTimeSignalProcessor):
 
     def handle_save(self, sender, instance, **kwargs):
         index_updater = self.build_index_updater()
-        index_updater.handle(sender, instance, **kwargs)
+        try:
+            index_updater.handle(sender, instance, **kwargs)
+        except IndexForbiddenException:
+            pass
 
     @staticmethod
     def build_index_updater():
