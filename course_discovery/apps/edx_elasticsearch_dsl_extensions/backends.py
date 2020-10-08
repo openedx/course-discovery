@@ -56,7 +56,7 @@ class BaseSearchFilterBackend(OriginBaseSearchFilterBackend):
                 '`get_query_backends` method. Make appropriate changes to\t'
                 'your {} class'.format(self.__class__.__name__)
             )
-        queryset = queryset.query('function_score', **function_score_config).extra(collapse={'field': 'id'})
+        queryset = queryset.query('function_score', **function_score_config)
 
         return queryset
 
