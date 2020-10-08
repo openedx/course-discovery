@@ -7,6 +7,7 @@ import ddt
 import factory
 import pytz
 from django.db.models import signals
+from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
@@ -256,19 +257,21 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 @ddt.ddt
 class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
                                   mixins.SynonymTestMixin, mixins.APITestCase):
+    faceted_path = reverse('api:v1:search-all-facets')
+    list_path = reverse('api:v1:search-all-list')
 
     def setUp(self):
         super().setUp()
         self.desired_key = 'course-v1:edx+DemoX+2018'
         self.regular_key = 'course-v1:edx+TeamX+2018'
 
-    def get_response(self, query=None, endpoint='api:v1:search-all-facets'):
+    def get_response(self, query=None, endpoint=None):
+        path = endpoint or self.faceted_path
         qs = ''
 
         if query:
             qs = urllib.parse.urlencode(query, True)
 
-        path = reverse(endpoint)
         url = f'{path}?{qs}'
         return self.client.get(url)
 
@@ -304,7 +307,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             key=self.regular_key,
             type__is_marketable=True
         )
-        response = self.get_response(query={'key': self.desired_key}, endpoint='api:v1:search-all-list')
+        response = self.get_response(query={'key': self.desired_key}, endpoint=self.list_path)
         assert response.status_code == 200
         response_data = response.json()
         assert response_data["results"] == [
@@ -317,7 +320,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         CourseFactory(key=self.regular_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
         course = CourseFactory(key=self.desired_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
 
-        response = self.get_response(query={'q': self.desired_key}, endpoint='api:v1:search-all-list')
+        response = self.get_response(query={'q': self.desired_key}, endpoint=self.list_path)
 
         assert response.status_code == 200
         response_data = response.json()
@@ -340,6 +343,25 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         assert response_data["objects"]["results"] == [
             self.serialize_course_run_search(course_run),
             self.serialize_program_search(program),
+        ]
+
+    @factory.django.mute_signals(signals.post_save)
+    def test_verify_that_draft_objects_are_not_indexed_when_run_command_to_populate_index(self):
+        course_draft = CourseFactory(title='software', draft=True, partner=self.partner)
+        draft_course_run = CourseRunFactory(draft=True, course=course_draft)
+
+        course = CourseFactory(title='software', draft=False, draft_version_id=course_draft.id, partner=self.partner)
+        course_run = CourseRunFactory(draft=False, course=course, draft_version_id=draft_course_run.id)
+
+        call_command('search_index', '--populate')
+
+        response = self.get_response(query={'q': 'software'}, endpoint=self.list_path)
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["results"] == [
+            self.serialize_course_search(course),
+            self.serialize_course_run_search(course_run),
         ]
 
     def test_hidden_runs_excluded(self):
@@ -411,7 +433,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         with self.assertNumQueries(expected_queries):
             response = self.get_response(
                 query,
-                endpoint='api:v1:search-all-list'
+                endpoint=self.list_path
             )
         assert response.status_code == 200
         response_data = response.json()
