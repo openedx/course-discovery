@@ -337,14 +337,14 @@ class MultiDocumentSerializerMixin:
         Implemented 'monkey patch' pattern.
         """
         Meta_origin = serializer_class.Meta
-        origin_declared_fields = serializer_class._declared_fields
+        origin_declared_fields = serializer_class._declared_fields  # pylint: disable=protected-access
         serializer_class.Meta = type('Meta', (Meta_origin,), {'fields': self.Meta.fields})
-        serializer_class._declared_fields = self._declared_fields
+        serializer_class._declared_fields = self._declared_fields  # pylint: disable=protected-access
 
         yield serializer_class
 
         serializer_class.Meta = Meta_origin
-        serializer_class._declared_fields = origin_declared_fields
+        serializer_class._declared_fields = origin_declared_fields  # pylint: disable=protected-access
 
     def multi_serializer_representation(self, instance):
         """
