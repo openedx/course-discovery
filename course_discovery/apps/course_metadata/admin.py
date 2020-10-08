@@ -195,11 +195,12 @@ class ProgramAdmin(admin.ModelAdmin):
                        'recent_enrollment_count',)
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
+    exclude = ('card_image_url',)
 
     # ordering the field display on admin page.
     fields = (
         'uuid', 'title', 'subtitle', 'marketing_hook', 'status', 'type', 'partner', 'banner_image', 'banner_image_url',
-        'card_image_url', 'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'total_hours_of_effort',
+        'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'total_hours_of_effort',
         'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses',
         'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
         'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden', 'corporate_endorsements', 'faq',
