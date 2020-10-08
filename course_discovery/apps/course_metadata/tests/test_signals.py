@@ -580,7 +580,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
         )
 
     def test_draft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(FuzzyInt(71, 1)):
+        with self.assertNumQueries(FuzzyInt(21, 1)):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=True,
