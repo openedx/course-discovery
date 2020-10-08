@@ -321,8 +321,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
 
         expected = [
             'field-uuid', 'field-title', 'field-subtitle', 'field-marketing_hook',
-            'field-status', 'field-type', 'field-partner', 'field-banner_image', 'field-banner_image_url',
-            'field-card_image_url', 'field-marketing_slug', 'field-overview', 'field-credit_redemption_overview',
+            'field-status', 'field-type', 'field-partner', 'field-banner_image', 'field-banner_image_url', 'field-marketing_slug', 'field-overview', 'field-credit_redemption_overview',
             'field-video', 'field-total_hours_of_effort', 'field-weeks_to_complete', 'field-min_hours_effort_per_week',
             'field-max_hours_effort_per_week', 'field-courses', 'field-order_courses_by_start_date',
             'field-custom_course_runs_display', 'field-excluded_course_runs', 'field-authoring_organizations',
