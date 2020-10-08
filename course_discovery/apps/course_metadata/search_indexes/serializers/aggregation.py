@@ -84,11 +84,6 @@ class AggregateSearchSerializer(MultiDocumentSerializerMixin, DocumentSerializer
 
         document = DummyDocument
         ignore_fields = COMMON_IGNORED_FIELDS
-        fields = (
-            CourseRunSearchDocumentSerializer.Meta.fields +
-            ProgramSearchDocumentSerializer.Meta.fields +
-            CourseSearchDocumentSerializer.Meta.fields
-        )
         serializers = {
             documents.CourseRunDocument: CourseRunSearchDocumentSerializer,
             documents.CourseDocument: CourseSearchDocumentSerializer,
