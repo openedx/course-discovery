@@ -31,11 +31,11 @@ class RegistryUpdateHandler(ABC):
         self.__next_handler = handler
         return handler
 
+    # pylint: disable=inconsistent-return-statements
     @abstractmethod
     def handle(self, sender, instance, **kwargs):
         if self.__next_handler:
             return self.__next_handler.handle(sender, instance, **kwargs)
-        # pylint: disable=inconsistent-return-statements
         registry.update(instance)
         registry.update_related(instance)
 
