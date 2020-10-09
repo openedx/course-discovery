@@ -1,6 +1,7 @@
 FROM ubuntu:focal as app
 
 # System requirements.
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
 	apt-get upgrade -qy
 RUN apt-get install --yes \
