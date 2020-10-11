@@ -19,13 +19,14 @@
 # johmik <mikulasc@in.tum.de>, 2016
 # 9e6d57405f548b8b8d60fb744413d707, 2017
 # Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018-2020
+# Tobi, 2020
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-08-16 20:35+0000\n"
-"PO-Revision-Date: 2020-08-16 21:09+0000\n"
-"Last-Translator: edx_transifex_bot <i18n-working-group+edx-transifex-bot@edx.org>\n"
+"PO-Revision-Date: 2020-10-07 02:02+0000\n"
+"Last-Translator: Tobi\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
