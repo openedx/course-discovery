@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-08-16 20:35+0000\n"
-"PO-Revision-Date: 2020-10-02 21:37+0000\n"
+"PO-Revision-Date: 2020-10-06 17:19+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
@@ -130,17 +130,17 @@ msgstr ""
 #: apps/api/v1/views/courses.py:189
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
-msgstr ""
+msgstr "[{org}] kurumu mevcut değil."
 
 #: apps/api/v1/views/courses.py:191
 #, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
-msgstr ""
+msgstr "[{course_type}] ders türü mevcut değil."
 
 #: apps/api/v1/views/courses.py:207
 #, python-brace-format
 msgid "A course with key [{key}] already exists."
-msgstr ""
+msgstr "[{key}] anahtarına sahip olan ders zaten mevcut."
 
 #: apps/api/v1/views/courses.py:213
 #, python-brace-format
@@ -299,7 +299,7 @@ msgstr "Studio URL"
 
 #: apps/core/models.py:90
 msgid "Publisher URL"
-msgstr ""
+msgstr "Publisher URL"
 
 #: apps/core/models.py:91
 msgid ""
@@ -399,7 +399,7 @@ msgstr "Bağlantıyı düzenle"
 #: apps/course_metadata/algolia_models.py:74
 #: apps/course_metadata/algolia_models.py:323
 msgid "Available now"
-msgstr ""
+msgstr "Şimdi mevcut"
 
 #: apps/course_metadata/algolia_models.py:76
 #: apps/course_metadata/models.py:1608
@@ -609,7 +609,7 @@ msgstr "KOD"
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:16
 #: apps/course_metadata/management/commands/delete_person_dups.py:33
 msgid "Short code for a partner."
-msgstr ""
+msgstr "İş ortağı için kısakod."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:20
 #: apps/course_metadata/models.py:159 apps/course_metadata/models.py:338
@@ -653,7 +653,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:64
 msgid "You must specify --partner"
-msgstr ""
+msgstr "Bir iş ortağı belirtmelisiniz"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:71
 #, python-brace-format
@@ -728,7 +728,7 @@ msgstr "Programlar"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:89
 msgid "Course Runs"
-msgstr ""
+msgstr "Ders Yayınları"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:90
 msgid "Target"
@@ -1201,7 +1201,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2564
 msgid "Bell"
-msgstr ""
+msgstr "Zil"
 
 #: apps/course_metadata/models.py:2565
 msgid "Certificate"
@@ -1354,7 +1354,7 @@ msgstr "Tüm Yönlendirmeleri Kaldır"
 
 #: apps/course_metadata/models.py:2956
 msgid "Url Paths"
-msgstr ""
+msgstr "Url Yolları"
 
 #: apps/course_metadata/models.py:2964
 msgid "Add redirects from all published course url slugs"
@@ -1595,7 +1595,7 @@ msgstr "Program başarıyla değiştirildi."
 
 #: apps/ietf_language_tags/models.py:34
 msgid "Name for translation"
-msgstr ""
+msgstr "Çeviri için isim"
 
 #: apps/ietf_language_tags/models.py:38
 msgid "LanguageTag model translations"
