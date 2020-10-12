@@ -34,3 +34,16 @@ edx-lint<=1.6
 
 # latest version causing issues in IDAs.
 edx-auth-backends==3.3.0
+
+celery<5.0
+
+# latest version requires PyJWT>=2.0.0 but drf-jwt requires PyJWT[crypto]<2.0.0,>=1.5.2
+social-auth-core<4.0.3
+
+# latest version of edx-lint is pulling code-annotations and code-annotations is pulling python-slugify and
+# python-slugify is conflicting with unicode-slugify
+edx-lint<=1.6
+
+
+# latest version causing issues in IDAs.
+edx-auth-backends==3.3.0
