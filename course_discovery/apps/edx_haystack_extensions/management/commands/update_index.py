@@ -47,7 +47,7 @@ class Command(HaystackCommand):
         indexes_pending = {key: '' for key in [x[1] for x in alias_mappings]}
         while indexes_pending and run_attempts < 2:
             run_attempts += 1
-            super(Command, self).handle(**options)
+            super().handle(**options)
 
             for backend, index, alias, record_count in alias_mappings:
                 # Run a sanity check to ensure we aren't drastically changing the
@@ -66,7 +66,7 @@ class Command(HaystackCommand):
                     indexes_pending.pop(index, None)
 
         if indexes_pending:
-            raise CommandError('Sanity check failed for new index(es): {}'.format(indexes_pending))
+            raise CommandError(f'Sanity check failed for new index(es): {indexes_pending}')
 
     def percentage_change(self, current, previous):
         try:
@@ -77,7 +77,7 @@ class Command(HaystackCommand):
             return 1
 
     def get_per_model_record_count(self, conn, index, content_type):
-        return conn.search(index=index, q='content_type:{}'.format(content_type)).get('hits', {}).get('total', 0)
+        return conn.search(index=index, q=f'content_type:{content_type}').get('hits', {}).get('total', 0)
 
     def sanity_check_new_index(self, conn, index, previous_record_count):
         """ Ensure that we do not point to an index that looks like it has missing data. """
@@ -99,14 +99,14 @@ class Command(HaystackCommand):
                 program_search_record_count = self.get_per_model_record_count(conn, index, 'program')
                 person_search_record_count = self.get_per_model_record_count(conn, index, 'person')
                 message = '''
-    Sanity check failed for attempt #{0}.
-    Percentage change: {1}
-    Base record count: {2}
-    Search record count: {3}
-    Course count: {4}
-    CourseRun count: {5}
-    Program count: {6}
-    People count: {7}
+    Sanity check failed for attempt #{}.
+    Percentage change: {}
+    Base record count: {}
+    Search record count: {}
+    Course count: {}
+    CourseRun count: {}
+    Program count: {}
+    People count: {}
                 '''.format(
                     attempts,
                     str(int(round(current_attempt_percentage_change * 100, 0))) + '%',

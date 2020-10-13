@@ -1,10 +1,10 @@
 import datetime
+from unittest.mock import patch
 
 import pytest
 import pytz
 from dateutil.relativedelta import relativedelta
 from haystack.query import SearchQuerySet
-from mock import patch
 
 from course_discovery.apps.course_metadata.models import CourseRun, Program, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory

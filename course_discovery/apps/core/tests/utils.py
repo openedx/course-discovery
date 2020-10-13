@@ -57,11 +57,11 @@ def mock_api_callback(url, data, results_key=True, pagination=False):
 
         if (page * page_size) < count:
             next_page = page + 1
-            next_url = '{}?page={}'.format(url, next_page)
+            next_url = f'{url}?page={next_page}'
 
         if page > 1:
             previous_page = page - 1
-            previous_url = '{}?page={}'.format(url, previous_page)
+            previous_url = f'{url}?page={previous_page}'
 
         body = {
             'count': count,
@@ -109,7 +109,7 @@ class MockLoggingHandler(logging.Handler):
             'error': [],
             'critical': [],
         }
-        super(MockLoggingHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def emit(self, record):
         """

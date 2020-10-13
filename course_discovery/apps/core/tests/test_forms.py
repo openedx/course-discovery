@@ -11,7 +11,7 @@ class UserThrottleRateFormTest(TestCase):
     """Tests for the UserThrottleRate admin form."""
 
     def setUp(self):
-        super(UserThrottleRateFormTest, self).setUp()
+        super().setUp()
         self.user = UserFactory()
 
     def test_form_valid(self):
