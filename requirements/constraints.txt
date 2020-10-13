@@ -19,6 +19,3 @@ social-auth-core==3.2.0
 # sphinx has dropped support for python 3.5, latest version requires at least python3.6
 # see https://www.sphinx-doc.org/en/master/intro.html#prerequisites
 sphinx==2.4.4
-
-# FIXME: dal 3.5 requires you to include jquery yourself on the admin page -- needs a proper fix
-django-autocomplete-light<3.5
