@@ -2,9 +2,9 @@ import datetime
 import json
 import urllib.parse
 from collections import defaultdict
+from unittest import mock
 
 import ddt
-import mock
 import pytz
 from django.urls import reverse
 
@@ -33,7 +33,7 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
 
     def get_response(self, query=None):
         query = urllib.parse.urlencode(query) if query else ''
-        url = '{path}?{qs}'.format(path=self.path, qs=query)
+        url = f'{self.path}?{query}'
         return self.client.get(url)
 
     def process_response(self, query):
@@ -182,9 +182,9 @@ class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
     def test_pagination(self):
         """ Verify that the response is paginated correctly."""
         for i, course in enumerate([CourseFactory(partner=self.partner), CourseFactory(partner=self.partner)]):
-            self.build_courserun(title='{}a'.format(i), course=course)
-            self.build_courserun(title='{}b'.format(i), course=course)
-            self.build_courserun(title='{}c'.format(i), course=course)
+            self.build_courserun(title=f'{i}a', course=course)
+            self.build_courserun(title=f'{i}b', course=course)
+            self.build_courserun(title=f'{i}c', course=course)
         self.build_program(title='program', partner=self.partner)
 
         response_all = self.get_response()
@@ -299,7 +299,7 @@ class ProgramFixtureViewTests(APITestCase):
         path = reverse('extensions:api:v1:get-program-fixture')
         if uuids:
             uuids_str = ",".join(str(uuid) for uuid in uuids)
-            url = "{}?programs={}".format(path, uuids_str)
+            url = f"{path}?programs={uuids_str}"
         else:
             url = path
         return self.client.get(url)

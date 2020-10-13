@@ -1,6 +1,6 @@
 import datetime
+from unittest import mock
 
-import mock
 import pytest
 from haystack.backends import SQ
 from haystack.backends.elasticsearch_backend import ElasticsearchSearchQuery

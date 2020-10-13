@@ -34,4 +34,4 @@ class OverridableUserRateThrottle(UserRateThrottle):
                 if user.is_superuser or user.is_staff or is_publisher_user(user):
                     return True
 
-        return super(OverridableUserRateThrottle, self).allow_request(request, view)
+        return super().allow_request(request, view)
