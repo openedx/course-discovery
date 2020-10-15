@@ -23,18 +23,22 @@ class Search(OriginSearch):
     """
 
     # pylint: disable=arguments-differ
-    def to_dict(self, *args, **kwargs):
-        query_dict = super().to_dict(*args, **kwargs)
+    def to_dict(self, count=False, **kwargs):
+        source_query_dict = super().to_dict(count, **kwargs)
+        query_dict = {}
         function_score_config = get_elasticsearch_boost_config()['function_score']
-        function_score_config['query'] = query_dict.pop('query')
+
+        function_score_config['query'] = source_query_dict.pop('query')
         function_score = {'function_score': function_score_config}
         query_dict['query'] = function_score
 
-        query_dict['from'] = query_dict.get("from", 0)
-        query_dict['size'] = query_dict.get(
-            "size",
-            getattr(settings, "ELASTICSEARCH_DSL_LOAD_PER_QUERY", DEFAULT_SIZE)
-        )
+        if not count:
+            query_dict['from'] = source_query_dict.get("from", 0)
+            query_dict['size'] = source_query_dict.get(
+                "size",
+                getattr(settings, "ELASTICSEARCH_DSL_LOAD_PER_QUERY", DEFAULT_SIZE)
+            )
+        query_dict.update(source_query_dict)
 
         return query_dict
 
