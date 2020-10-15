@@ -33,7 +33,7 @@ def backwards_func(apps, schema_editor):
             language_tag.save()
         except ObjectDoesNotExist:
             # nothing to migrate
-            logger.warning('Migrating data from LanguageTagTranslation for master_id={} DoesNotExist'.format(language_tag.pk))
+            logger.warning(f'Migrating data from LanguageTagTranslation for master_id={language_tag.pk} DoesNotExist')
 
 
 class Migration(migrations.Migration):

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.db import migrations
 
 from course_discovery.apps.publisher.constants import PARTNER_MANAGER_GROUP_NAME

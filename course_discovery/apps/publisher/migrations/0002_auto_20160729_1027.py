@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import django.db.models.deletion
 import sortedm2m.fields
 from django.db import migrations, models
