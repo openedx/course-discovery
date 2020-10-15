@@ -1,4 +1,5 @@
 import copy
+
 from django.conf import settings
 from elasticsearch_dsl import Search as OriginSearch
 

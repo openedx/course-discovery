@@ -1,12 +1,14 @@
 import json
+from fnmatch import fnmatch
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
-from django_elasticsearch_dsl import Document as OriginDocument, fields
-from fnmatch import fnmatch
+from django_elasticsearch_dsl import Document as OriginDocument
+from django_elasticsearch_dsl import fields
 
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import Search
+
 from .analyzers import edge_ngram_completion, html_strip, synonym_text
 
 
