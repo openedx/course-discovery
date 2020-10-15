@@ -56,3 +56,4 @@ requests
 simple-salesforce
 unicode-slugify
 xss-utils
+taxonomy-connector

@@ -46,10 +46,11 @@ django-fsm==2.7.0         # via -r requirements/base.in
 django-guardian==2.3.0    # via -r requirements/base.in
 django-haystack==3.0      # via -r requirements/base.in, drf-haystack
 django-libsass==0.8       # via -r requirements/base.in
+django-model-utils==4.0.0  # via taxonomy-connector
 django-parler==2.2        # via -r requirements/base.in
 django-rest-swagger==2.2.0  # via -r requirements/base.in
 django-simple-history==2.11.0  # via -r requirements/base.in
-django-solo==1.1.3        # via -r requirements/base.in
+django-solo==1.1.3        # via -r requirements/base.in, taxonomy-connector
 django-sortedm2m==3.0.2   # via -r requirements/base.in
 django-stdimage==5.1.1    # via -r requirements/base.in
 django-storages==1.10.1   # via -r requirements/base.in
@@ -60,7 +61,7 @@ django-waffle==2.0.0      # via -r requirements/base.in, edx-django-utils, edx-d
 django-webpack-loader==0.7.0  # via -r requirements/base.in
 djangorestframework-csv==2.1.0  # via -r requirements/base.in
 djangorestframework-xml==2.0.0  # via -r requirements/base.in
-djangorestframework==3.12.1  # via -r requirements/base.in, django-rest-swagger, djangorestframework-csv, drf-extensions, drf-haystack, drf-jwt, edx-drf-extensions, rest-condition
+djangorestframework==3.12.1  # via -r requirements/base.in, django-rest-swagger, djangorestframework-csv, drf-extensions, drf-haystack, drf-jwt, edx-drf-extensions, rest-condition, taxonomy-connector
 docker-compose==1.27.4    # via -r requirements/local.in
 docker[ssh]==4.3.1        # via docker-compose
 dockerpty==0.4.1          # via docker-compose
@@ -76,12 +77,12 @@ edx-auth-backends==3.1.0  # via -r requirements/base.in
 edx-ccx-keys==1.1.0       # via -r requirements/base.in
 edx-django-release-util==0.4.4  # via -r requirements/base.in
 edx-django-sites-extensions==2.5.1  # via -r requirements/base.in
-edx-django-utils==3.8.0   # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client
+edx-django-utils==3.8.0   # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client, taxonomy-connector
 edx-drf-extensions==6.2.0  # via -r requirements/base.in
 edx-i18n-tools==0.5.3     # via -r requirements/local.in
 edx-lint==1.5.2           # via -r requirements/test.in
 edx-opaque-keys==2.1.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
-edx-rest-api-client==5.2.1  # via -r requirements/base.in
+edx-rest-api-client==5.2.1  # via -r requirements/base.in, taxonomy-connector
 edx-sphinx-theme==1.5.0   # via -r requirements/docs.in
 elasticsearch==1.9.0      # via -c requirements/constraints.txt, -r requirements/base.in
 execnet==1.7.1            # via pytest-xdist
@@ -151,7 +152,7 @@ python-dotenv==0.14.0     # via docker-compose
 python-memcached==1.59    # via -r requirements/test.in
 python-utils==2.4.0       # via progressbar2
 python3-openid==3.2.0     # via social-auth-core
-pytz==2020.1              # via -r requirements/base.in, babel, django
+pytz==2020.1              # via -r requirements/base.in, babel, django, taxonomy-connector
 pywatchman==1.4.1         # via -r requirements/local.in
 pyyaml==5.3.1             # via docker-compose, edx-django-release-util, edx-i18n-tools
 rcssmin==1.0.6            # via django-compressor
@@ -180,6 +181,7 @@ sphinxcontrib-serializinghtml==1.1.4  # via sphinx
 sqlparse==0.4.1           # via django, django-debug-toolbar
 stevedore==1.32.0         # via edx-django-utils, edx-opaque-keys
 testfixtures==6.15.0      # via -r requirements/test.in
+taxonomy-connector==1.1.0  # via -r requirements/base.in
 text-unidecode==1.3       # via faker
 texttable==1.6.3          # via docker-compose
 toml==0.10.1              # via pytest, tox
