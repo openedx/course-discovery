@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.test import override_settings, TestCase
+from django.test import TestCase, override_settings
 from elasticsearch_dsl.query import Q as ESDSLQ
 
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
