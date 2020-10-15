@@ -153,10 +153,10 @@ PARLER_LANGUAGES = {
         {'code': LANGUAGE_CODE, },
     ),
     'default': {
-         'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
-         'hide_untranslated': False,
-     }
- }
+        'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
+        'hide_untranslated': False,
+    }
+}
 
 # Parler seems to be a bit overeager with its caching of translated models,
 # and so we get a large number of sets, but rarely any gets
@@ -176,7 +176,6 @@ USE_TZ = True
 LOCALE_PATHS = (
     root('conf', 'locale'),
 )
-
 
 # MEDIA CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#media-root
@@ -411,7 +410,6 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
-
 # http://chibisov.github.io/drf-extensions/docs/
 REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_ERRORS': False,
@@ -445,10 +443,17 @@ SWAGGER_SETTINGS = {
     'DOC_EXPANSION': 'list',
 }
 
-
 SYNONYMS_MODULE = 'course_discovery.settings.synonyms'
 
+# Paginate the django queryset used to populate the index with the specified size
+# (by default it uses the database driver's default setting)
+# https://docs.djangoproject.com/en/3.1/ref/models/querysets/#iterator
+# Thus set the 'chunk_size'
 ELASTICSEARCH_DSL_QUERYSET_PAGINATION = 5000
+
+# Defining default pagination for all requests to ElasticSearch,
+# whose parameters 'size' and 'from' are not explicitly set.
+ELASTICSEARCH_DSL_LOAD_PER_QUERY = 5000
 
 ELASTICSEARCH_DSL = {
     'default': {'hosts': '127.0.0.1:9200'}
