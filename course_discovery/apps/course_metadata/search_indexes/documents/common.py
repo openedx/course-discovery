@@ -1,14 +1,12 @@
 import json
-from fnmatch import fnmatch
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
-from django_elasticsearch_dsl import Document as OriginDocument
-from django_elasticsearch_dsl import fields
+from django_elasticsearch_dsl import Document as OriginDocument, fields
+from fnmatch import fnmatch
 
-from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import BoostedSearch
-
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import Search
 from .analyzers import edge_ngram_completion, html_strip, synonym_text
 
 
@@ -48,14 +46,17 @@ class OrganizationsMixin:
         return self.prepare_authoring_organizations(obj)
 
 
-class BoostedDocument(OriginDocument):
+class Document(OriginDocument):
     """
     Extended Document class.
 
-    Implements the addition of accelerators(boosting) as `funtion_scopes`
-    query for each search request to Elasticsearch.
+    Implements:
+        - addition of accelerators(boosting) as `funtion_scopes`
+        query for each search request to Elasticsearch.
 
-    https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html
+        https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html,
+
+        - default search pagination.
     """
 
     @classmethod
@@ -63,18 +64,18 @@ class BoostedDocument(OriginDocument):
         """
         Constructor of elasticsearch dls `Search` class.
 
-        Creates `BoostedSearch` class instance that will search
+        Creates custom `Search` class instance that will search
         over this `Document`.
-        `BoostedSearch` is child class of main elasticsearch dls `Search`.
+        Custom `Search` is child class of main elasticsearch dls original `Search`.
         """
-        return BoostedSearch(
+        return Search(
             using=cls._get_using(using),
             index=cls._default_index(index),
             doc_type=[cls]
         )
 
 
-class DocumentMeta(BoostedDocument.__class__):
+class DocumentMeta(Document.__class__):
     """
     Meta class, which extends the capabilities of Document metaclass.
 
@@ -95,7 +96,7 @@ class DocumentMeta(BoostedDocument.__class__):
         return super().__new__(mcs, name, parents, attrs)
 
 
-class BaseDocument(BoostedDocument, metaclass=DocumentMeta):
+class BaseDocument(Document, metaclass=DocumentMeta):
     """
     Base document index.
 
