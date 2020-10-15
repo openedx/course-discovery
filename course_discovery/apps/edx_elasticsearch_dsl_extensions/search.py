@@ -1,5 +1,5 @@
 import copy
-
+from django.conf import settings
 from elasticsearch_dsl import Search as OriginSearch
 
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_config import (
@@ -7,14 +7,18 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_
 )
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.response import DSLResponse
 
+DEFAULT_SIZE = 10
 
-class BoostedSearch(OriginSearch):
+
+class Search(OriginSearch):
     """
-    Boosted search.
+    Extended search.
 
     Extends original search class to provide `function_score` block,
     which should improve the order of the output of the results,
     where the best will have the highest score.
+
+    Adds default pagination based on ITERATOR_LOAD_PER_QUERY value.
     """
 
     # pylint: disable=arguments-differ
@@ -24,6 +28,12 @@ class BoostedSearch(OriginSearch):
         function_score_config['query'] = query_dict.pop('query')
         function_score = {'function_score': function_score_config}
         query_dict['query'] = function_score
+
+        query_dict['from'] = query_dict.get("from", 0)
+        query_dict['size'] = query_dict.get(
+            "size",
+            getattr(settings, "ELASTICSEARCH_DSL_LOAD_PER_QUERY", DEFAULT_SIZE)
+        )
 
         return query_dict
 
