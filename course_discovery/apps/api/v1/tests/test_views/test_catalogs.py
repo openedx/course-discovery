@@ -216,7 +216,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             'Business & Management',
             'Economics & Finance',
             'Data Analysis & Statistics',
-            'Math',
+            'math',
             'Engineering',
         )
         for name in not_included_subject_names:
@@ -240,7 +240,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             SeatFactory.create(course_run=course_run)
             desired_courses.append(course_run.course)
 
-        not_included_org_names = ('galileox', 'davidsonnext', 'microsoft', 'gtx', 'pekingx', 'asux', 'bux', 'columbiax')
+        not_included_org_names = ('galileox', 'davidsonnext', 'microsoft', 'gtx', 'pekingx', 'asux', 'bux', 'ColumbiaX')
         for name in not_included_org_names:
             course_run = CourseRunFactory(
                 start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
