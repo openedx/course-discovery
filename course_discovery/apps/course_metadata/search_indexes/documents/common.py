@@ -203,7 +203,7 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
     level_type = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
     partner = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
     outcome = fields.TextField()
-    org = fields.KeywordField()
+    org = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
     subject_uuids = fields.KeywordField(multi=True)
     short_description = fields.TextField(analyzer=html_strip)
     seat_types = fields.KeywordField(multi=True)
