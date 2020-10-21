@@ -19,6 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
+from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
@@ -721,7 +722,11 @@ class PkSearchableMixin:
 
         es_document, *_ = registry.get_documents(models=(cls,))
         dsl_query = ESDSLQ('query_string', query=query, analyze_wildcard=True)
-        results = es_document.search().query(dsl_query).execute()
+        try:
+            results = es_document.search().query(dsl_query).execute()
+        except RequestError as exp:
+            logger.warning('Elasticsearch request is failed. Got exception: %r', exp)
+            results = []
         ids = {result.pk for result in results}
 
         return queryset.filter(pk__in=ids)
