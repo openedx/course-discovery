@@ -1474,6 +1474,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     type_attrs = ProgramTypeAttrsSerializer(source='type')
     degree = DegreeSerializer()
     curricula = CurriculumSerializer(many=True)
+    card_image_url = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -1584,6 +1585,11 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
         courses.sort(key=min_run_start)
 
         return courses
+
+    def get_card_image_url(self, obj):
+        if obj.card_image:
+            return obj.card_image.url
+        return obj.card_image_url
 
 
 class ProgramSerializer(MinimalProgramSerializer):

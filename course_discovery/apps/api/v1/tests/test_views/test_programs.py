@@ -323,3 +323,46 @@ class TestProgramViewSet(SerializationMixin):
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """
         assert ProgramViewSet(action='list').get_serializer_class() == MinimalProgramSerializer
+
+    def test_update_card_image(self):
+        program = self.create_program()
+        image_dict = {
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
+        update_url = reverse('api:v1:program-update-card-image', kwargs={'uuid': program.uuid})
+        response = self.client.post(update_url, image_dict, format='json')
+        assert response.status_code == 200
+
+    def test_update_card_image_authentication(self):
+        program = self.create_program()
+        self.client.logout()
+        image_dict = {
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
+        update_url = reverse('api:v1:program-update-card-image', kwargs={'uuid': program.uuid})
+        response = self.client.post(update_url, image_dict, format='json')
+        assert response.status_code == 401
+
+    def test_update_card_image_authentication_notstaff(self):
+        program = self.create_program()
+        self.client.logout()
+        user = UserFactory(is_staff=False)
+        self.client.login(username=user.username, password=USER_PASSWORD)
+        image_dict = {
+            'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                     '42YAAAAASUVORK5CYII=',
+        }
+        update_url = reverse('api:v1:program-update-card-image', kwargs={'uuid': program.uuid})
+        response = self.client.post(update_url, image_dict, format='json')
+        assert response.status_code == 403
+
+    def test_update_card_malformed_image(self):
+        program = self.create_program()
+        image_dict = {
+            'image': 'ARandomString',
+        }
+        update_url = reverse('api:v1:program-update-card-image', kwargs={'uuid': program.uuid})
+        response = self.client.post(update_url, image_dict, format='json')
+        assert response.status_code == 400

@@ -2058,6 +2058,14 @@ class Program(PkSearchableMixin, TimeStampedModel):
         render_variations=custom_render_variations
     )
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
+    card_image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/programs/card_images'),
+        blank=True,
+        null=True,
+        variations={
+            'card': (378, 225),
+        }
+    )
     card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
