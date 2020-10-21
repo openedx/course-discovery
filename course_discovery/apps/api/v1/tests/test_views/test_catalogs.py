@@ -150,6 +150,27 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assertEqual(response.status_code, 400)
         self.assertEqual(User.objects.count(), original_user_count)
 
+    def test_catalog_if_query_is_incorrect(self):
+        catalog = CatalogFactory(query='title:')
+        CourseRunFactory(
+            start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
+            course__title='Science at the Polls: Biology for Voters, Part 1',
+            status=CourseRunStatus.Published,
+            type__is_marketable=True,
+        )
+        CourseRunFactory(
+            start=datetime.datetime(2015, 10, 13, tzinfo=pytz.UTC),
+            course__title="DNA: Biology's Genetic Code",
+            status=CourseRunStatus.Published,
+            type__is_marketable=True,
+        )
+
+        url = reverse('api:v1:catalog-courses', kwargs={'id': catalog.id})
+        response = self.client.get(url)
+
+        assert response.status_code == 200
+        assert response.data['results'] == []
+
     @ddt.data('title:Biology*', 'title:(*Biology* OR Biology)')
     def test_courses_with_different_catalog_queries_but_the_same_meaning(self, query):
         catalog = CatalogFactory(query=query)
