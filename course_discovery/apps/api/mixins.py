@@ -3,9 +3,10 @@ Mixins for the API application.
 """
 # pylint: disable=not-callable
 
+from elasticsearch.exceptions import RequestError
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from elasticsearch.exceptions import RequestError
+
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
     FacetedFieldSearchFilterBackend, FacetedQueryFilterBackend
 )
