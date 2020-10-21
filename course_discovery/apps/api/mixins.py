@@ -5,10 +5,11 @@ Mixins for the API application.
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from elasticsearch.exceptions import RequestError
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
     FacetedFieldSearchFilterBackend, FacetedQueryFilterBackend
 )
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.exceptions import InvalidQuery
 
 
 class FacetMixin:
@@ -91,6 +92,27 @@ class FacetMixin:
         ``self.facet_objects_serializer_class`` is set.
         """
         return self.facet_objects_serializer_class or super(FacetMixin, self).get_serializer_class()
+
+
+class ValidElasticSearchQueryRequiredMixin:
+    """
+    Mixin to catch invalid Elasticsearch query string exception.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            return super().dispatch(request, *args, **kwargs)
+        except RequestError as exc:
+            self.args = args
+            self.kwargs = kwargs
+            request = self.initialize_request(request, *args, **kwargs)
+            self.request = request
+            self.headers = self.default_response_headers
+            exception = InvalidQuery(f'Failed to make Elasticsearch request. Got exception: {exc}')
+            response = self.handle_exception(exception)
+            self.response = self.finalize_response(request, response, *args, **kwargs)
+
+            return self.response
 
 
 class DetailMixin:
