@@ -210,6 +210,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             # pylint: disable=line-too-long
             query='subjects:(-"Business & Management" AND -"Economics & Finance" AND -"Data Analysis & Statistics" AND -"Math"  AND -"Engineering") AND org:(-galileox AND -davidsonnext AND -microsoft AND -gtx AND -pekingx AND -asux AND -bux AND -columbiax)'
         )
+        Course.objects.all().delete()
         not_included_subject_names = (
             'Business & Management',
             'Economics & Finance',
