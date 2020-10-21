@@ -25,6 +25,7 @@ from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.utils import is_publisher_user
+from course_discovery.apps.api.mixins import ValidElasticSearchQueryRequiredMixin
 
 log = logging.getLogger(__name__)
 
@@ -45,7 +46,7 @@ def writable_request_wrapper(method):
 
 
 # pylint: disable=useless-super-delegation
-class CourseRunViewSet(viewsets.ModelViewSet):
+class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewSet):
     """ CourseRun resource. """
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = filters.CourseRunFilter

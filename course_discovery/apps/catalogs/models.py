@@ -3,6 +3,7 @@ from collections import Iterable  # pylint: disable=no-name-in-module
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
+from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
 from guardian.shortcuts import get_users_with_perms
 
@@ -54,7 +55,11 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
 
     @property
     def courses_count(self):
-        return self._get_query_results().count()
+        try:
+            result = self._get_query_results().count()
+        except RequestError:
+            result = 0
+        return result
 
     def contains(self, course_ids):
         """ Determines if the given courses are contained in this catalog.
@@ -86,7 +91,10 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         """
         contains = {course_run_id: False for course_run_id in course_run_ids}
         course_runs = CourseRun.search(self.query).filter('terms', key=course_run_ids).source(['key'])
-        course_runs_keys = [i.key for i in course_runs]
+        try:
+            course_runs_keys = [i.key for i in course_runs]
+        except RequestError:
+            course_runs_keys = []
         contains.update({course_run_id: course_run_id in course_runs_keys for course_run_id in course_run_ids})
 
         return contains
