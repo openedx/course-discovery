@@ -271,7 +271,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def product_card_image_url(self):
         if self.card_image:
-            return getattr(self.card_image, 'url', None)
+            return self.card_image.url
         return self.card_image_url
 
     @property
