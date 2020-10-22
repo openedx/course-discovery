@@ -1907,7 +1907,8 @@ class Seat(DraftModelMixin, TimeStampedModel):
     PROFESSIONAL = 'professional'
     CREDIT = 'credit'
     MASTERS = 'masters'
-    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL]
+    EXECUTIVE_EDUCATION = 'executive-education'
+    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION]
     REQUIRES_AUDIT_SEAT = [VERIFIED]
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.
