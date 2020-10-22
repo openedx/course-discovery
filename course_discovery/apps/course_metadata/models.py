@@ -2066,7 +2066,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
             'card': (378, 225),
         }
     )
-    card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
+    card_image_url = models.URLField(null=True, blank=True, help_text=_('DEPRECATED: Use the card image field'))
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)

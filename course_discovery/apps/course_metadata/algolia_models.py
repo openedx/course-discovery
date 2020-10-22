@@ -272,6 +272,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     def product_card_image_url(self):
         if self.card_image:
             return self.card_image.url
+        # legacy field for programs with images hosted outside of discovery
         return self.card_image_url
 
     @property
