@@ -1,20 +1,26 @@
 import datetime
 import json
 import urllib.parse
+import uuid
 
 import ddt
+import factory
 import pytz
+from django.core.management import call_command
+from django.db.models import signals
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework.renderers import JSONRenderer
 
-from course_discovery.apps.api import serializers
 from course_discovery.apps.api.v1.tests.test_views import mixins
 from course_discovery.apps.api.v1.views.search import BrowsableAPIRendererWithoutForms, TypeaheadSearchView
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.search_indexes.serializers import (
+    CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer, LimitedAggregateSearchSerializer
+)
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory
 )
@@ -53,9 +59,9 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         # Validate the search results
         expected = {
             'count': 1,
-            'results': [
-                self.serialize_course_run_search(course_run, serializer=serializer)
-            ]
+            'results': [self.serialize_course_run_search(course_run, serializer=serializer)],
+            'previous': None,
+            'next': None,
         }
         actual = response_data['objects'] if path == self.faceted_path else response_data
         self.assertDictContainsSubset(expected, actual)
@@ -92,8 +98,8 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         assert response.status_code == 401
 
     @ddt.data(
-        (list_path, serializers.CourseRunSearchSerializer,),
-        (detailed_path, serializers.CourseRunSearchModelSerializer,),
+        (list_path, CourseRunSearchDocumentSerializer),
+        (detailed_path, CourseRunSearchModelSerializer),
     )
     @ddt.unpack
     def test_search(self, path, serializer):
@@ -159,15 +165,18 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         response_data = response.json()
         assert response_data['objects']['results'] == [self.serialize_course_run_search(archived)]
 
+    @factory.django.mute_signals(signals.post_save)
     @ddt.data(
-        (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 5),
-        (list_path, serializers.CourseRunSearchSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 5),
-        (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 22),
-        (detailed_path, serializers.CourseRunSearchModelSerializer,
-         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 23),
+        (list_path, CourseRunSearchDocumentSerializer,
+         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 3),
+        (list_path, CourseRunSearchDocumentSerializer,
+         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 3),
+        (detailed_path,
+         CourseRunSearchModelSerializer,
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 21),
+        (detailed_path,
+         CourseRunSearchModelSerializer,
+         ['results', 0, 'programs', 0, 'type'], ProgramStatus.Unpublished, 22),
     )
     @ddt.unpack
     def test_exclude_unavailable_program_types(self, path, serializer, result_location_keys, program_status,
@@ -199,11 +208,11 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         assert response_data == active_program.type.name
 
     @ddt.data(
-        ([{'title': 'Software Testing', 'excluded': True}], 6),
-        ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}], 7),
-        ([{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}], 7),
+        ([{'title': 'Software Testing', 'excluded': True}], 3),
+        ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}], 3),
+        ([{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}], 3),
         ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
-         {'title': 'Software Testing 3', 'excluded': False}], 5),
+          {'title': 'Software Testing 3', 'excluded': False}], 5),
     )
     @ddt.unpack
     def test_excluded_course_run(self, course_runs, expected_queries):
@@ -248,14 +257,21 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 @ddt.ddt
 class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
                                   mixins.SynonymTestMixin, mixins.APITestCase):
+    faceted_path = reverse('api:v1:search-all-facets')
+    list_path = reverse('api:v1:search-all-list')
 
-    def get_response(self, query=None, endpoint='api:v1:search-all-facets'):
+    def setUp(self):
+        super().setUp()
+        self.desired_key = 'course-v1:edx+DemoX+2018'
+        self.regular_key = 'course-v1:edx+TeamX+2018'
+
+    def get_response(self, query=None, endpoint=None):
+        path = endpoint or self.faceted_path
         qs = ''
 
         if query:
-            qs = urllib.parse.urlencode(query)
+            qs = urllib.parse.urlencode(query, True)
 
-        path = reverse(endpoint)
         url = f'{path}?{qs}'
         return self.client.get(url)
 
@@ -264,6 +280,53 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         objects = response['objects']
         assert objects['count'] > 0
         return objects
+
+    def test_results_only_include_specific_key_objects(self):
+        """ Verify the search results only include items with 'key' set to 'course:edX+DemoX'. """
+
+        CourseFactory(
+            key=self.regular_key,
+            title='ABCs of Ͳҽʂէìղց',
+            partner=self.partner
+        )
+        course = CourseFactory(
+            key=self.desired_key,
+            title='ABCs of Ͳҽʂէìղց',
+            partner=self.partner
+        )
+        course_run = CourseRunFactory(
+            course__partner=self.partner,
+            course=course,
+            status=CourseRunStatus.Published,
+            key=self.desired_key,
+            type__is_marketable=True
+        )
+        CourseRunFactory(
+            course__partner=self.partner,
+            status=CourseRunStatus.Published,
+            key=self.regular_key,
+            type__is_marketable=True
+        )
+        response = self.get_response(query={'key': self.desired_key}, endpoint=self.list_path)
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["results"] == [
+            self.serialize_course_run_search(course_run),
+            self.serialize_course_search(course)
+        ]
+
+    def test_results_only_include_specific_key_objects_which_were_requested_in_the_search(self):
+        """ Verify the search results only include items with 'q' set to 'course:edX+DemoX'. """
+        CourseFactory(key=self.regular_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        course = CourseFactory(key=self.desired_key, title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+
+        response = self.get_response(query={'q': self.desired_key}, endpoint=self.list_path)
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["results"] == [
+            self.serialize_course_search(course),
+        ]
 
     def test_results_only_include_published_objects(self):
         """ Verify the search results only include items with status set to 'Published'. """
@@ -277,8 +340,46 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         response = self.get_response()
         assert response.status_code == 200
         response_data = response.json()
-        assert response_data['objects']['results'] == \
-            [self.serialize_program_search(program), self.serialize_course_run_search(course_run)]
+        assert response_data["objects"]["results"] == [
+            self.serialize_course_run_search(course_run),
+            self.serialize_program_search(program),
+        ]
+
+    def test_verify_that_draft_objects_are_not_indexed(self):
+        course_draft = CourseFactory(title='software', draft=True, partner=self.partner)
+        draft_course_run = CourseRunFactory(draft=True, course=course_draft)
+
+        course = CourseFactory(title='software', draft=False, draft_version_id=course_draft.id,
+                               partner=self.partner)
+        course_run = CourseRunFactory(draft=False, course=course, draft_version_id=draft_course_run.id)
+
+        response = self.get_response(query={'q': 'software'}, endpoint=self.list_path)
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["results"] == [
+            self.serialize_course_run_search(course_run),
+            self.serialize_course_search(course),
+        ]
+
+    @factory.django.mute_signals(signals.post_save)
+    def test_verify_that_draft_objects_are_not_indexed_when_run_command_to_populate_index(self):
+        course_draft = CourseFactory(title='software', draft=True, partner=self.partner)
+        draft_course_run = CourseRunFactory(draft=True, course=course_draft)
+
+        course = CourseFactory(title='software', draft=False, draft_version_id=course_draft.id, partner=self.partner)
+        course_run = CourseRunFactory(draft=False, course=course, draft_version_id=draft_course_run.id)
+
+        call_command('search_index', '--populate')
+
+        response = self.get_response(query={'q': 'software'}, endpoint=self.list_path)
+
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["results"] == [
+            self.serialize_course_search(course),
+            self.serialize_course_run_search(course_run),
+        ]
 
     def test_hidden_runs_excluded(self):
         """Search results should not include hidden runs."""
@@ -316,17 +417,21 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         response = self.get_response()
         assert response.status_code == 200
         response_data = response.json()
-        assert response_data['objects']['results'] == \
-            [self.serialize_program_search(program), self.serialize_course_run_search(course_run)]
+        assert response_data['objects']['results'] == [
+            self.serialize_course_run_search(course_run),
+            self.serialize_program_search(program),
+        ]
 
         # Filter results by partner
         response = self.get_response({'partner': other_partner.short_code})
         assert response.status_code == 200
         response_data = response.json()
-        assert response_data['objects']['results'] == \
-            [self.serialize_program_search(other_program), self.serialize_course_run_search(other_course_run)]
+        assert response_data['objects']['results'] == [
+            self.serialize_course_run_search(other_course_run),
+            self.serialize_program_search(other_program),
+        ]
 
-    @ddt.data((True, 9), (False, 9))
+    @ddt.data((True, 8), (False, 8))
     @ddt.unpack
     def test_query_count_exclude_expired_course_run(self, exclude_expired, expected_queries):
         """ Verify that there is no query explosion when excluding expired course runs. """
@@ -345,7 +450,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         with self.assertNumQueries(expected_queries):
             response = self.get_response(
                 query,
-                endpoint='api:v1:search-all-list'
+                endpoint=self.list_path
             )
         assert response.status_code == 200
         response_data = response.json()
@@ -369,8 +474,10 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         response = self.get_response({'q': '', 'content_type': ['courserun', 'program']})
         assert response.status_code == 200
         response_data = response.json()
-        assert response_data['objects']['results'] == \
-            [self.serialize_program_search(program), self.serialize_course_run_search(course_run)]
+        assert response_data['objects']['results'] == [
+            self.serialize_course_run_search(course_run),
+            self.serialize_program_search(program),
+        ]
 
     @ddt.data('start', '-start')
     def test_results_ordered_by_start_date(self, ordering):
@@ -432,15 +539,15 @@ class LimitedAggregateSearchViewSetTests(
 
     # pylint: disable=no-member
     def serialize_course_run_search(self, run):
-        return super().serialize_course_run_search(run, serializers.LimitedAggregateSearchSerializer)
+        return super().serialize_course_run_search(run, LimitedAggregateSearchSerializer)
 
     # pylint: disable=no-member
     def serialize_program_search(self, program):
-        return super().serialize_program_search(program, serializers.LimitedAggregateSearchSerializer)
+        return super().serialize_program_search(program, LimitedAggregateSearchSerializer)
 
     # pylint: disable=no-member
     def serialize_course_search(self, course):
-        return super().serialize_course_search(course, serializers.LimitedAggregateSearchSerializer)
+        return super().serialize_course_search(course, LimitedAggregateSearchSerializer)
 
     def test_results_only_include_published_objects(self):
         """ Verify the search results only include items with status set to 'Published'. """
@@ -455,8 +562,10 @@ class LimitedAggregateSearchViewSetTests(
             response = self.client.get(self.path)
         assert response.status_code == 200
         response_data = response.json()
-        assert response_data['objects']['results'] == \
-            [self.serialize_program_search(program), self.serialize_course_run_search(course_run)]
+        assert response_data['objects']['results'] == [
+            self.serialize_course_run_search(course_run),
+            self.serialize_program_search(program),
+        ]
 
     def test_hidden_runs_excluded(self):
         """Search results should not include hidden runs."""
@@ -488,6 +597,43 @@ class LimitedAggregateSearchViewSetTests(
         )
         assert expected == actual
 
+    def test_results_include_authoring_organization_uuids(self):
+        """ Test the search results include the authoring_organization_uuids for each document. """
+        desired_org_uuid = str(uuid.uuid4())
+        MITx = OrganizationFactory(key='MITx', uuid=desired_org_uuid)
+        HarvardX = OrganizationFactory(key='HarvardX', uuid=str(uuid.uuid4()))
+        mit_run = CourseRunFactory(
+            authoring_organizations=[MITx],
+            title='MIT Testing1',
+            course__partner=self.partner,
+            pacing_type='self_paced'
+        )
+        CourseRunFactory(
+            authoring_organizations=[HarvardX],
+            title='MIT Testing2',
+            course__partner=self.partner,
+            pacing_type='self_paced'
+        )
+        mit_program = ProgramFactory(
+            authoring_organizations=[MITx],
+            title='MIT Testing1',
+            partner=self.partner
+        )
+        ProgramFactory(
+            authoring_organizations=[HarvardX],
+            title='MIT Testing2',
+            partner=self.partner
+        )
+        query = {'authoring_organization_uuids': desired_org_uuid}
+        qs = urllib.parse.urlencode(query)
+        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        expected = [self.serialize_course_run_search(mit_run), self.serialize_program_search(mit_program)]
+        data = response.json()
+
+        assert data['objects']['results'] == expected
+
 
 class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
                                          mixins.APITestCase):
@@ -499,8 +645,8 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         """
         CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
         data = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
-        expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
-        with self.assertNumQueries(3):
+        expected = {'previous': None, 'results': [], 'next': None, 'count': 0, 'facets': {}}
+        with self.assertNumQueries(6):
             response = self.client.post(self.path, data=data, format='json')
         assert response.json() == expected
 
@@ -509,7 +655,7 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         Verify that GET request works as expected for `AggregateSearchViewSet`
         """
         CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
-        expected = {'previous': None, 'results': [], 'next': None, 'count': 0}
+        expected = {'previous': None, 'results': [], 'next': None, 'count': 0, 'facets': {}}
         query = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
         qs = urllib.parse.urlencode(query)
         url = f'{self.path}?{qs}'
@@ -703,12 +849,14 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         mit_run = CourseRunFactory(
             authoring_organizations=[MITx, HarvardX],
             title='MIT Testing1',
-            course__partner=self.partner
+            course__partner=self.partner,
+            pacing_type='self_paced'
         )
         harvard_run = CourseRunFactory(
             authoring_organizations=[HarvardX],
             title='MIT Testing2',
-            course__partner=self.partner
+            course__partner=self.partner,
+            pacing_type='self_paced'
         )
         mit_program = ProgramFactory(
             authoring_organizations=[MITx, HarvardX],
@@ -735,6 +883,7 @@ class TestPersonFacetSearchViewSet(mixins.SerializationMixin, mixins.LoginMixin,
                                    ElasticsearchTestMixin, mixins.APITestCase):
     path = reverse('api:v1:search-people-facets')
 
+    @factory.django.mute_signals(signals.post_save)
     def test_search_single(self):
         org = OrganizationFactory()
         course = CourseFactory(authoring_organizations=[org])
@@ -869,14 +1018,14 @@ class AutoCompletePersonTests(mixins.APITestCase):
 
     def test_instructor_autocomplete_with_uuid(self):
         """ Verify instructor autocomplete returns the data with valid uuid. """
-        uuid = self.instructors[0].uuid
-        response = self.query(uuid)
+        uuid_ = self.instructors[0].uuid
+        response = self.query(uuid_)
         self._assert_response(response, 1)
 
     def test_instructor_autocomplete_with_invalid_uuid(self):
         """ Verify instructor autocomplete returns empty list without giving error. """
-        uuid = 'invalid-uuid'
-        response = self.query(uuid)
+        uuid_ = 'invalid-uuid'
+        response = self.query(uuid_)
         self._assert_response(response, 0)
 
     def test_instructor_autocomplete_without_staff_user(self):
