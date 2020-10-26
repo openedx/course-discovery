@@ -4,7 +4,6 @@ import urllib
 from io import StringIO
 
 import ddt
-import factory
 import pytest
 import pytz
 from django.contrib.auth import get_user_model
