@@ -92,7 +92,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug',)
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key',)
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
