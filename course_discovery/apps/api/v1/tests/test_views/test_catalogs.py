@@ -4,11 +4,9 @@ import urllib
 from io import StringIO
 
 import ddt
-import factory
 import pytest
 import pytz
 from django.contrib.auth import get_user_model
-from django.core.management import call_command
 from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
@@ -17,11 +15,8 @@ from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course
-from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, SeatFactory, SeatTypeFactory, SubjectFactory
-)
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory, SeatTypeFactory
 from course_discovery.conftest import get_course_run_states
 
 User = get_user_model()
@@ -149,146 +144,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(User.objects.count(), original_user_count)
-
-    def test_catalog_if_query_is_incorrect(self):
-        catalog = CatalogFactory(query='title:')
-        CourseRunFactory(
-            start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
-            course__title='Science at the Polls: Biology for Voters, Part 1',
-            status=CourseRunStatus.Published,
-            type__is_marketable=True,
-        )
-        CourseRunFactory(
-            start=datetime.datetime(2015, 10, 13, tzinfo=pytz.UTC),
-            course__title="DNA: Biology's Genetic Code",
-            status=CourseRunStatus.Published,
-            type__is_marketable=True,
-        )
-
-        url = reverse('api:v1:catalog-courses', kwargs={'id': catalog.id})
-        response = self.client.get(url)
-
-        assert response.status_code == 200
-        assert response.data['results'] == []
-
-    @ddt.data('title:Biology*', 'title:(*Biology* OR Biology)')
-    def test_courses_with_different_catalog_queries_but_the_same_meaning(self, query):
-        catalog = CatalogFactory(query=query)
-        course_run_1 = CourseRunFactory(
-            start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
-            course__title='Science at the Polls: Biology for Voters, Part 1',
-            status=CourseRunStatus.Published,
-            type__is_marketable=True,
-        )
-        course_run_2 = CourseRunFactory(
-            start=datetime.datetime(2015, 10, 13, tzinfo=pytz.UTC),
-            course__title="DNA: Biology's Genetic Code",
-            status=CourseRunStatus.Published,
-            type__is_marketable=True,
-        )
-        course_run_3 = CourseRunFactory(
-            status=CourseRunStatus.Published,
-            start=datetime.datetime(2015, 1, 1, tzinfo=pytz.UTC),
-            course__title="AP Biology",
-            type__is_marketable=True,
-        )
-        SeatFactory.create(course_run=course_run_1)
-        SeatFactory.create(course_run=course_run_2)
-        SeatFactory.create(course_run=course_run_3)
-        url = reverse('api:v1:catalog-courses', kwargs={'id': catalog.id})
-        response = self.client.get(url)
-
-        assert response.status_code == 200
-        assert response.data['results'] == self.serialize_catalog_course(
-            [course_run_1.course, course_run_2.course, course_run_3.course], many=True
-        )
-
-    def test_courses_with_time_range_query(self):
-        catalog = CatalogFactory(query='start:[2015-01-01 TO 2015-12-01]')
-        course_run_1 = CourseRunFactory(
-            start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
-            status=CourseRunStatus.Published,
-            type__is_marketable=True,
-        )
-        course_run_2 = CourseRunFactory(
-            start=datetime.datetime(2015, 10, 13, tzinfo=pytz.UTC),
-            status=CourseRunStatus.Published,
-            type__is_marketable=True,
-        )
-        SeatFactory.create(course_run=course_run_1)
-        SeatFactory.create(course_run=course_run_2)
-        call_command('search_index', '--rebuild', '-f')
-        url = reverse('api:v1:catalog-courses', kwargs={'id': catalog.id})
-        response = self.client.get(url)
-
-        assert response.status_code == 200
-        assert response.data['results'] == self.serialize_catalog_course(
-            [course_run_1.course, course_run_2.course], many=True
-        )
-
-    def test_courses_with_subjects_and_negative_query(self):
-        catalog = CatalogFactory(
-            # pylint: disable=line-too-long
-            query='subjects:(-"Business & Management" AND -"Economics & Finance" AND -"Data Analysis & Statistics" AND -"Math"  AND -"Engineering") AND org:(-galileox AND -davidsonnext AND -microsoft AND -gtx AND -pekingx AND -asux AND -bux AND -columbiax)'
-        )
-        Course.objects.all().delete()
-        not_included_subject_names = (
-            'Business & Management',
-            'Economics & Finance',
-            'Business & Management',
-            'Economics & Finance',
-            'Data Analysis & Statistics',
-            'math',
-            'Engineering',
-        )
-        for name in not_included_subject_names:
-            course_run = CourseRunFactory(
-                start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
-                status=CourseRunStatus.Published,
-                type__is_marketable=True,
-                course__subjects=[SubjectFactory(name=name)],
-            )
-            SeatFactory.create(course_run=course_run)
-
-        included_subject_names = ('Health & Sport', 'Galaxy')
-        desired_courses = []
-        for name in included_subject_names:
-            course_run = CourseRunFactory(
-                start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
-                status=CourseRunStatus.Published,
-                type__is_marketable=True,
-                course__subjects=[SubjectFactory(name=name)],
-            )
-            SeatFactory.create(course_run=course_run)
-            desired_courses.append(course_run.course)
-
-        not_included_org_names = ('galileox', 'davidsonnext', 'microsoft', 'gtx', 'pekingx', 'asux', 'bux', 'ColumbiaX')
-        for name in not_included_org_names:
-            course_run = CourseRunFactory(
-                start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
-                status=CourseRunStatus.Published,
-                type__is_marketable=True,
-                key=f'{name}/course/run',
-            )
-            SeatFactory.create(course_run=course_run)
-
-        included_org_names = ('apple', 'cisco')
-        for name in included_org_names:
-            course_run = CourseRunFactory(
-                start=datetime.datetime(2015, 9, 1, tzinfo=pytz.UTC),
-                status=CourseRunStatus.Published,
-                type__is_marketable=True,
-                key=f'{name}/course/run',
-            )
-            SeatFactory.create(course_run=course_run)
-            desired_courses.append(course_run.course)
-
-        call_command('search_index', '--rebuild', '-f')
-        url = reverse('api:v1:catalog-courses', kwargs={'id': catalog.id})
-        response = self.client.get(url)
-
-        assert response.status_code == 200
-        assert response.data['results'] == self.serialize_catalog_course(desired_courses, many=True)
 
     @ddt.data(
         *STATES()

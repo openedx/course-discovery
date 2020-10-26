@@ -5,7 +5,6 @@ from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.utils.translation import ugettext as _
 from django_filters.rest_framework import DjangoFilterBackend
-from elasticsearch_dsl.query import Q as ESDSLQ
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
@@ -14,7 +13,6 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
-from course_discovery.apps.api.mixins import ValidElasticSearchQueryRequiredMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseRunEditorOrDjangoOrReadOnly
 from course_discovery.apps.api.serializers import MetadataWithRelatedChoices
@@ -46,7 +44,7 @@ def writable_request_wrapper(method):
 
 
 # pylint: disable=useless-super-delegation
-class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewSet):
+class CourseRunViewSet(viewsets.ModelViewSet):
     """ CourseRun resource. """
     filter_backends = (DjangoFilterBackend, OrderingFilter)
     filterset_class = filters.CourseRunFilter
@@ -93,7 +91,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
             queryset = self.queryset
 
         if q:
-            qs = SearchQuerySetWrapper(CourseRun.search(q).filter('term', partner=partner.short_code))
+            qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))
             # This is necessary to avoid issues with the filter backend.
             qs.model = self.queryset.model
             return qs
@@ -397,13 +395,10 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
 
         if query and course_run_ids:
             course_run_ids = course_run_ids.split(',')
-            course_runs = (
-                CourseRun.search(query)
-                .filter(ESDSLQ('term', partner=partner.short_code) & ESDSLQ('terms', key=course_run_ids))
-                .source(['key'])
-            )
-            course_runs_keys = [i.key for i in course_runs]
-            contains = {course_run_id: course_run_id in course_runs_keys for course_run_id in course_run_ids}
+            course_runs = CourseRun.search(query).filter(partner=partner.short_code).filter(key__in=course_run_ids). \
+                values_list('key', flat=True)
+            contains = {course_run_id: course_run_id in course_runs for course_run_id in course_run_ids}
+
             instance = {'course_runs': contains}
             serializer = serializers.ContainedCourseRunsSerializer(instance)
             return Response(serializer.data)
