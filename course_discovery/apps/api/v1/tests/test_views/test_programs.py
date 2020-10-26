@@ -187,6 +187,7 @@ class TestProgramViewSet(SerializationMixin):
         """
         with self.django_assert_num_queries(FuzzyInt(expected_query_count, 2)):
             response = self.client.get(url)
+
         assert response.data['results'] == self.serialize_program(expected, many=True, extra_context=extra_context)
 
     def test_list(self):

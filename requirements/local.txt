@@ -40,12 +40,11 @@ django-cors-headers==2.5.3  # via -c requirements/constraints.txt, -r requiremen
 django-debug-toolbar==3.1.1  # via -r requirements/local.in
 django-dynamic-filenames==1.1.4  # via -r requirements/base.in
 django-elasticsearch-debug-toolbar==2.0.0  # via -r requirements/local.in
-django-elasticsearch-dsl-drf==0.20.8  # via -r requirements/base.in
-django-elasticsearch-dsl==7.1.4  # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl-drf
 django-extensions==3.0.9  # via -r requirements/base.in
 django-filter==2.4.0      # via -r requirements/base.in
 django-fsm==2.7.1         # via -r requirements/base.in
 django-guardian==2.3.0    # via -r requirements/base.in
+django-haystack==3.0      # via -r requirements/base.in, drf-haystack
 django-libsass==0.8       # via -r requirements/base.in
 django-model-utils==4.0.0  # via taxonomy-connector
 django-parler==2.2        # via -r requirements/base.in
@@ -70,6 +69,7 @@ docopt==0.6.2             # via docker-compose
 docutils==0.16            # via sphinx
 drf-dynamic-fields==0.3.1  # via -r requirements/base.in
 drf-extensions==0.6.0     # via -r requirements/base.in
+drf-haystack==1.8.9       # via -r requirements/base.in
 drf-jwt==1.17.2           # via edx-drf-extensions
 dry-rest-permissions==0.1.10  # via -r requirements/base.in
 edx-analytics-data-api-client==0.16.1  # via -r requirements/base.in
@@ -84,8 +84,7 @@ edx-lint==1.5.2           # via -r requirements/test.in
 edx-opaque-keys==2.1.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
 edx-rest-api-client==5.2.1  # via -r requirements/base.in, taxonomy-connector
 edx-sphinx-theme==1.5.0   # via -r requirements/docs.in
-elasticsearch-dsl==7.2.1  # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl, django-elasticsearch-dsl-drf
-elasticsearch==7.9.0      # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl-drf, elasticsearch-dsl
+elasticsearch==1.9.0      # via -c requirements/constraints.txt, -r requirements/base.in
 execnet==1.7.1            # via pytest-xdist
 factory-boy==3.1.0        # via -r requirements/test.in
 faker==4.14.0             # via factory-boy
