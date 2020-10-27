@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from course_discovery.apps.api import serializers
-from course_discovery.apps.api.utils import update_query_params_by_body_data
+from course_discovery.apps.api.utils import update_query_params_with_body_data
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.search_indexes import documents as search_documents
@@ -73,7 +73,7 @@ class CatalogDataViewSet(viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated,)
     filter_backends = [CatalogDataFilterBackend, OrderingFilterBackend]
 
-    @update_query_params_by_body_data
+    @update_query_params_with_body_data
     def create(self, request):
         return self.list(request)  # pylint: disable=no-member
 
@@ -205,7 +205,7 @@ class AggregateSearchViewSet(BaseAggregateSearchViewSet):
         DefaultOrderingFilterBackend,
     ]
 
-    @update_query_params_by_body_data
+    @update_query_params_with_body_data
     def create(self, request):
         return self.list(request)
 
