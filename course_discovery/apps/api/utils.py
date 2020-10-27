@@ -78,6 +78,7 @@ def update_query_params_by_body_data(func_to_decorate):
 
     return wrapper
 
+
 def reviewable_data_has_changed(obj, new_key_vals, exempt_fields=None):
     """
     Check whether serialized data for the object has changed.

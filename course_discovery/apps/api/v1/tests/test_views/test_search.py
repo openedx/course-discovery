@@ -643,23 +643,59 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         """
         Verify that POST request works as expected for `AggregateSearchViewSet`
         """
-        CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
-        data = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
-        expected = {'previous': None, 'results': [], 'next': None, 'count': 0, 'facets': {}}
-        with self.assertNumQueries(6):
+        course = CourseFactory(key='edX+DemoX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        data = {'content_type': 'course', 'aggregation_key': 'course:edX+DemoX'}
+        expected = {
+            'previous': None,
+            'results': [self.serialize_course_search(course)],
+            'next': None,
+            'count': 1,
+            'facets': {}
+        }
+        with self.assertNumQueries(3):
             response = self.client.post(self.path, data=data, format='json')
+
         assert response.json() == expected
 
     def test_get(self):
         """
         Verify that GET request works as expected for `AggregateSearchViewSet`
         """
-        CourseFactory(key='course:edX+DemoX', title='ABCs of Ͳҽʂէìղց')
-        expected = {'previous': None, 'results': [], 'next': None, 'count': 0, 'facets': {}}
-        query = {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']}
+        course = CourseFactory(key='edX+DemoX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        expected = {
+            'previous': None,
+            'results': [self.serialize_course_search(course)],
+            'next': None,
+            'count': 1,
+            'facets': {}
+        }
+        query = {'content_type': 'course', 'aggregation_key': 'course:edX+DemoX'}
         qs = urllib.parse.urlencode(query)
         url = f'{self.path}?{qs}'
         response = self.client.get(url)
+
+        assert response.json() == expected
+
+    def test_post_support_for_both_query_and_body_parameters(self):
+        """
+        Verify that POST request works as expected for `AggregateSearchViewSet`
+        when simultaneously query and body request parameters.
+        """
+        course = CourseFactory(title='software', partner=self.partner)
+        CourseFactory(title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        data = {'content_type': 'course'}
+        query = {'q': 'software'}
+        qs = urllib.parse.urlencode(query)
+        url = f'{self.path}?{qs}'
+        expected = {
+            'previous': None,
+            'results': [self.serialize_course_search(course)],
+            'next': None,
+            'count': 1,
+            'facets': {}
+        }
+        response = self.client.post(url, data=data, format='json')
+
         assert response.json() == expected
 
 
