@@ -68,11 +68,11 @@ def update_query_params_by_body_data(func_to_decorate):
     @functools.wraps(func_to_decorate)
     def wrapper(self, request, *args, **kwargs):
         encoded_data = urlencode(request.data.copy())
-        _mutable = request.query_params._mutable
-        request.query_params._mutable = True
+        _mutable = request.query_params._mutable  # pylint: disable=protected-access
+        request.query_params._mutable = True  # pylint: disable=protected-access
         for key, value in limited_parse_qsl(encoded_data):
             request.query_params.appendlist(key, value)
-        request.query_params._mutable = _mutable
+        request.query_params._mutable = _mutable  # pylint: disable=protected-access
 
         return func_to_decorate(self, request, *args, **kwargs)
 
