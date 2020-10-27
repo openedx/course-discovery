@@ -52,9 +52,9 @@ def get_query_param(request, name):
     return cast2int(request.query_params.get(name), name)
 
 
-def update_query_params_by_body_data(func_to_decorate):
+def update_query_params_with_body_data(func_to_decorate):
     """
-    Update Request query parameters by Request body data.
+    Update Request query parameters with Request body data.
 
     Make merging when body data become query parameters.
     Solves the problem when it is impossible to pass the required parameters
