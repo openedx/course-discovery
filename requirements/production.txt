@@ -9,14 +9,14 @@ algoliasearch==1.20.0     # via algoliasearch-django
 authlib==0.15.2           # via simple-salesforce
 backoff==1.10.0           # via -r requirements/base.in
 beautifulsoup4==4.9.3     # via -r requirements/base.in
-boto3==1.16.0             # via django-ses
-botocore==1.19.0          # via boto3, s3transfer
+boto3==1.16.5             # via django-ses
+botocore==1.19.5          # via boto3, s3transfer
 certifi==2020.6.20        # via -r requirements/production.in, requests
 cffi==1.14.3              # via cryptography
 chardet==3.0.4            # via requests
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
-cryptography==3.1.1       # via authlib, pyjwt
+cryptography==3.2         # via authlib, pyjwt
 defusedxml==0.6.0         # via djangorestframework-xml, python3-openid, social-auth-core
 django-admin-sortable2==0.7.7  # via -r requirements/base.in
 django-appconf==1.0.4     # via django-compressor
@@ -60,7 +60,7 @@ edx-auth-backends==3.1.0  # via -r requirements/base.in
 edx-ccx-keys==1.1.0       # via -r requirements/base.in
 edx-django-release-util==0.4.4  # via -r requirements/base.in
 edx-django-sites-extensions==2.5.1  # via -r requirements/base.in
-edx-django-utils==3.8.0   # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client, taxonomy-connector
+edx-django-utils==3.9.0   # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client, taxonomy-connector
 edx-drf-extensions==6.2.0  # via -r requirements/base.in
 edx-opaque-keys==2.1.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
 edx-rest-api-client==5.2.1  # via -r requirements/base.in, taxonomy-connector
@@ -81,13 +81,13 @@ lxml==4.6.1               # via -r requirements/base.in
 markdown==3.2.2           # via -r requirements/base.in
 markupsafe==1.1.1         # via jinja2
 mysqlclient==2.0.1        # via -r requirements/production.in
-newrelic==5.20.1.150      # via -r requirements/production.in, edx-django-utils
+newrelic==5.22.0.151      # via -r requirements/production.in, edx-django-utils
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 openapi-codec==1.3.2      # via django-rest-swagger
 pbr==5.5.1                # via stevedore
 pillow==7.2.0             # via -r requirements/base.in, django-stdimage
 progressbar2==3.53.1      # via django-stdimage
-psutil==5.7.2             # via edx-django-utils
+psutil==5.7.3             # via edx-django-utils
 pycountry==20.7.3         # via -r requirements/base.in
 pycparser==2.20           # via cffi
 pycryptodomex==3.9.8      # via pyjwkest
