@@ -22,7 +22,6 @@ class Search(OriginSearch):
     Adds default pagination based on ITERATOR_LOAD_PER_QUERY value.
     """
 
-    # pylint: disable=arguments-differ
     def to_dict(self, count=False, **kwargs):
         source_query_dict = super().to_dict(count, **kwargs)
         query_dict = {}
