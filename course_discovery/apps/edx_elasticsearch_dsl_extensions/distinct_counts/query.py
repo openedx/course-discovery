@@ -16,7 +16,8 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
         """
         Initialize a new instance of the DistinctCountsSearchQuerySet.
         """
-        super().__init__(**kwargs)
+        super(DistinctCountsSearchQuerySet, self).__init__(**kwargs)
+        self.aggregation_key = None
         self._distinct_result_count = None
 
     # pylint: disable=arguments-differ
