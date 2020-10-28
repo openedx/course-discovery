@@ -5,7 +5,6 @@ import pytest
 import pytz
 from dateutil.relativedelta import relativedelta
 from elasticsearch_dsl.query import Q as ESDSLQ
-from mock import patch
 
 from course_discovery.apps.course_metadata.models import CourseRun, ProgramType
 from course_discovery.apps.course_metadata.search_indexes.documents import CourseRunDocument, ProgramDocument
