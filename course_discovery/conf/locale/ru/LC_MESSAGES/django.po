@@ -20,13 +20,14 @@
 # Александр Печников <cfic34@ya.ru>, 2020
 # Валентина Пицик <lushalusha007@gmail.com>, 2019
 # Сергей Малахов <nekto.ss@yandex.ru>, 2020
+# Yaroslav Lelyavin <yarik2701@gmail.com>, 2020
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-08-16 20:35+0000\n"
-"PO-Revision-Date: 2020-08-31 13:22+0000\n"
-"Last-Translator: Сергей Малахов <nekto.ss@yandex.ru>\n"
+"PO-Revision-Date: 2020-10-15 19:49+0000\n"
+"Last-Translator: Yaroslav Lelyavin <yarik2701@gmail.com>\n"
 "Language-Team: Russian (http://www.transifex.com/open-edx/edx-platform/language/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"

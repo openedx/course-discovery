@@ -1331,6 +1331,18 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         }
         self.assertDictEqual(serializer.data, expected)
 
+    def test_data_with_card_image(self):
+        program = self.create_program()
+        request = make_request()
+        card_image_file = make_image_file('test_card.jpg')
+        program.card_image = card_image_file
+        serializer = self.serializer_class(program, context={'request': request})
+        expected = self.get_expected_data(program, request)
+        expected.update({
+            'card_image_url': '/media/test_card.jpg'
+        })
+        self.assertDictEqual(serializer.data, expected)
+
 
 class PathwaySerialzerTests(TestCase):
     def test_data(self):

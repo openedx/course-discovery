@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-08-16 20:35+0000\n"
+"POT-Creation-Date: 2020-10-25 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1354,8 +1354,10 @@ msgstr ""
 " çömplété ä çöürsé rün ßélöngïng tö thïs prögräm. Ⱡ'σяєм #"
 
 #: apps/course_metadata/models.py
-msgid "Image used for discovery cards"
-msgstr "Ìmägé üséd för dïsçövérý çärds Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+msgid "DEPRECATED: Use the card image field"
+msgstr ""
+"DÉPRÉÇÀTÉD: Ûsé thé çärd ïmägé fïéld Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -2023,6 +2025,14 @@ msgid "The program was changed successfully."
 msgstr ""
 "Thé prögräm wäs çhängéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
+
+#: apps/edx_elasticsearch_dsl_extensions/exceptions.py
+msgid ""
+"Request could not be completed due to an incorrect ElasticSearch query "
+"parameters"
+msgstr ""
+"Réqüést çöüld nöt ßé çömplétéd düé tö än ïnçörréçt ÉlästïçSéärçh qüérý "
+"pärämétérs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/ietf_language_tags/models.py
 msgid "Name for translation"

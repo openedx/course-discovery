@@ -1907,7 +1907,8 @@ class Seat(DraftModelMixin, TimeStampedModel):
     PROFESSIONAL = 'professional'
     CREDIT = 'credit'
     MASTERS = 'masters'
-    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL]
+    EXECUTIVE_EDUCATION = 'executive-education'
+    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION]
     REQUIRES_AUDIT_SEAT = [VERIFIED]
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.
@@ -2058,7 +2059,15 @@ class Program(PkSearchableMixin, TimeStampedModel):
         render_variations=custom_render_variations
     )
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
-    card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
+    card_image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/programs/card_images'),
+        blank=True,
+        null=True,
+        variations={
+            'card': (378, 225),
+        }
+    )
+    card_image_url = models.URLField(null=True, blank=True, help_text=_('DEPRECATED: Use the card image field'))
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)

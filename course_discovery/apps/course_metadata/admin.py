@@ -92,7 +92,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug',)
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key',)
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
@@ -200,7 +200,7 @@ class ProgramAdmin(admin.ModelAdmin):
     # ordering the field display on admin page.
     fields = (
         'uuid', 'title', 'subtitle', 'marketing_hook', 'status', 'type', 'partner', 'banner_image', 'banner_image_url',
-        'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'total_hours_of_effort',
+        'card_image', 'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'total_hours_of_effort',
         'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses',
         'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
         'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden', 'corporate_endorsements', 'faq',
