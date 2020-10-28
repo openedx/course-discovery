@@ -156,10 +156,23 @@ class AbstractTitleDescriptionModel(TimeStampedModel):
 class Organization(CachedMixin, TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
-    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
-    key = models.CharField(max_length=255, help_text=_('Please do not use any spaces or special characters other '
-                                                       'than period, underscore or hyphen. This key will be used '
-                                                       'in the course\'s course key.'))
+    uuid = models.UUIDField(
+        unique=True,
+        blank=False,
+        null=False,
+        default=uuid4,
+        editable=False,
+        verbose_name=_('UUID'),
+    )
+    key = models.CharField(
+        unique=True,
+        max_length=255,
+        help_text=_(
+            'Please do not use any spaces or special characters other '
+            'than period, underscore or hyphen. This key will be used '
+            'in the course\'s course key.'
+        ),
+    )
     name = models.CharField(max_length=255)
     certificate_name = models.CharField(
         max_length=255, null=True, blank=True, help_text=_('If populated, this field will overwrite name in platform.')
