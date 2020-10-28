@@ -33,7 +33,7 @@ def backwards_func(apps, schema_editor):
             level_type.save()  # Note this only calls Model.save()
         except ObjectDoesNotExist:
             # nothing to migrate
-            logger.warning('Migrating data from LevelTypeTranslation for master_id={} DoesNotExist'.format(level_type.pk))
+            logger.warning(f'Migrating data from LevelTypeTranslation for master_id={level_type.pk} DoesNotExist')
 
 
 

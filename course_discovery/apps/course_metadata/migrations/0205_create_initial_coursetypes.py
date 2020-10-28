@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 from django.db import migrations, models
 
 # Contains the slug (unique identifier) and any fields that are not the default values

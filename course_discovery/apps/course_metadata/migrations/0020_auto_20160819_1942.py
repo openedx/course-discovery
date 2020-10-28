@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import stdimage.models
 from django.db import migrations, models
 

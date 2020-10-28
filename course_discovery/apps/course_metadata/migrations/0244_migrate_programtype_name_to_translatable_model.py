@@ -36,7 +36,7 @@ def backwards_func(apps, schema_editor):
             program_type.save()  # Note this only calls Model.save()
         except ObjectDoesNotExist:
             # nothing to migrate
-            logger.warning('Migrating data from ProgramTypeTranslation for master_id={} DoesNotExist'.format(program_type.pk))
+            logger.warning(f'Migrating data from ProgramTypeTranslation for master_id={program_type.pk} DoesNotExist')
 
 
 class Migration(migrations.Migration):
