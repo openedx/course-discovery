@@ -175,7 +175,7 @@ class TestAlgoliaDataMixin():
 class TestAlgoliaProxyWithEdxPartner(TestCase, TestAlgoliaDataMixin):
     @classmethod
     def setUpClass(cls):
-        super(TestAlgoliaProxyWithEdxPartner, cls).setUpClass()
+        super().setUpClass()
         Partner.objects.all().delete()
         Site.objects.all().delete()
         cls.site = SiteFactory(id=settings.SITE_ID, domain=TEST_DOMAIN)

@@ -35,7 +35,7 @@ class MarketingSiteAPIClientTestMixin(TestCase):
 
         responses.add_callback(
             responses.POST,
-            '{root}/user'.format(root=self.api_root),
+            f'{self.api_root}/user',
             callback=request_callback,
             content_type='text/html',
         )
@@ -51,7 +51,7 @@ class MarketingSiteAPIClientTestMixin(TestCase):
     def mock_csrf_token_response(self, status):
         responses.add(
             responses.GET,
-            '{root}/restws/session/token'.format(root=self.api_root),
+            f'{self.api_root}/restws/session/token',
             body=self.csrf_token,
             content_type='text/html',
             status=status
@@ -65,7 +65,7 @@ class MarketingSiteAPIClientTestMixin(TestCase):
         }
         responses.add(
             responses.GET,
-            '{root}/user.json?name={username}'.format(root=self.api_root, username=self.username),
+            f'{self.api_root}/user.json?name={self.username}',
             body=json.dumps(data),
             content_type='application/json',
             status=status,
@@ -110,7 +110,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
         )
 
     def mock_add_alias(self, alias=None, status=200):
-        node_url = 'node/{node_id}'.format(node_id=self.node_id)
+        node_url = f'node/{self.node_id}'
         data = {
             'source': node_url,
             'alias': alias,
@@ -120,7 +120,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
 
         responses.add(
             responses.POST,
-            '{root}/admin/config/search/path/add'.format(root=self.api_root),
+            f'{self.api_root}/admin/config/search/path/add',
             body=urllib.parse.urlencode(data),
             status=status
         )
@@ -134,7 +134,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
 
         responses.add(
             responses.POST,
-            '{root}/admin/config/search/path/delete/foo'.format(root=self.api_root),
+            f'{self.api_root}/admin/config/search/path/delete/foo',
             body=urllib.parse.urlencode(data),
             status=status
         )
@@ -142,7 +142,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     def mock_get_alias_form(self, status=200):
         responses.add(
             responses.GET,
-            '{root}/admin/config/search/path/add'.format(root=self.api_root),
+            f'{self.api_root}/admin/config/search/path/add',
             status=status,
             body='<html><form><input name="form_build_id" value="1">'
                  '</input><input name="form_token" value="2"></input></form></html>'
@@ -151,7 +151,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     def mock_delete_alias_form(self, status=200):
         responses.add(
             responses.GET,
-            '{root}/admin/config/search/path/delete/foo'.format(root=self.api_root),
+            f'{self.api_root}/admin/config/search/path/delete/foo',
             status=status,
             body='<html><form><input name="form_build_id" value="1">'
                  '</input><input name="form_token" value="2"></input></form></html>'
@@ -160,7 +160,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     def mock_get_delete_form(self, alias, status=200):
         responses.add(
             responses.GET,
-            '{root}/admin/config/search/path/list/{alias}'.format(root=self.api_root, alias=alias),
+            f'{self.api_root}/admin/config/search/path/list/{alias}',
             status=status,
             body='<li class="delete last"><a href="/admin/config/search/path/delete/foo"></a></li>'
         )
@@ -168,7 +168,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     def mock_node_create(self, response_data, status):
         responses.add(
             responses.POST,
-            '{root}/node.json'.format(root=self.api_root),
+            f'{self.api_root}/node.json',
             body=json.dumps(response_data),
             content_type='application/json',
             status=status
@@ -177,7 +177,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     def mock_node_edit(self, status):
         responses.add(
             responses.PUT,
-            '{root}/node.json/{node_id}'.format(root=self.api_root, node_id=self.node_id),
+            f'{self.api_root}/node.json/{self.node_id}',
             body=json.dumps({}),
             content_type='application/json',
             status=status
@@ -186,7 +186,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     def mock_node_delete(self, status):
         responses.add(
             responses.DELETE,
-            '{root}/node.json/{node_id}'.format(root=self.api_root, node_id=self.node_id),
+            f'{self.api_root}/node.json/{self.node_id}',
             body='',
             content_type='text/html',
             status=status
@@ -195,7 +195,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     def mock_get_redirect_form(self, status=200):
         responses.add(
             responses.GET,
-            '{root}/admin/config/search/redirect/add'.format(root=self.api_root),
+            f'{self.api_root}/admin/config/search/redirect/add',
             status=status,
             body='<html><form><input name="form_build_id" value="1">'
                  '</input><input name="form_token" value="2"></input></form></html>'
@@ -206,13 +206,13 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
         data = {
             'form_id': 'redirect_edit_form',
             'op': 'Save',
-            'source': 'node/{}'.format(previous_node_id),
-            'redirect': 'node/{}'.format(self.node_id),
+            'source': f'node/{previous_node_id}',
+            'redirect': f'node/{self.node_id}',
         }
 
         responses.add(
             responses.POST,
-            '{root}/admin/config/search/redirect/add'.format(root=self.api_root),
+            f'{self.api_root}/admin/config/search/redirect/add',
             body=urllib.parse.urlencode(data),
             status=status
         )

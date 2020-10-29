@@ -1,5 +1,6 @@
+from unittest import mock
+
 import ddt
-import mock
 import pytest
 import responses
 from testfixtures import LogCapture
@@ -180,4 +181,4 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         with LogCapture(LOGGER_NAME) as log:
             people.delete_person_by_uuid(self.partner, self.uuid)
             log.check((LOGGER_NAME, 'INFO',
-                       'Person with UUID [{}] does not exist on the marketing site'.format(self.uuid)))
+                       f'Person with UUID [{self.uuid}] does not exist on the marketing site'))

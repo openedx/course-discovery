@@ -132,7 +132,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def custom_object_id(self):
-        return 'course-{uuid}'.format(uuid=self.uuid)
+        return f'course-{self.uuid}'
 
     @property
     def primary_description(self):
@@ -266,7 +266,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def custom_object_id(self):
-        return 'program-{uuid}'.format(uuid=self.uuid)
+        return f'program-{self.uuid}'
 
     @property
     def product_card_image_url(self):

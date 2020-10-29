@@ -17,7 +17,7 @@ from course_discovery.apps.publisher.tests.factories import OrganizationExtensio
 class TestAutocomplete:
     def assert_valid_query_result(self, client, path, query, expected_result):
         """ Asserts a query made against the given endpoint returns the expected result. """
-        response = client.get(path + '?q={q}'.format(q=query))
+        response = client.get(path + f'?q={query}')
         data = json.loads(response.content.decode('utf-8'))
         assert len(data['results']) == 1
         assert data['results'][0]['text'] == str(expected_result)
@@ -97,7 +97,7 @@ class TestAutocomplete:
 
         user = UserFactory(is_staff=False)
         client.login(username=user.username, password=USER_PASSWORD)
-        response = client.get(reverse('admin_metadata:{}-autocomplete'.format(view_prefix)))
+        response = client.get(reverse(f'admin_metadata:{view_prefix}-autocomplete'))
         data = json.loads(response.content.decode('utf-8'))
         assert response.status_code == 200
         assert data['results'] == []
@@ -138,7 +138,7 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         self._set_user_is_staff_and_login(True)
 
     def query(self, q):
-        query_params = '?q={q}'.format(q=q)
+        query_params = f'?q={q}'
 
         return self.client.get(
             reverse('admin_metadata:person-autocomplete') + query_params
