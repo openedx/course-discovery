@@ -1135,24 +1135,14 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         )
 
     @ddt.data(
-        {'params': {'query': 'title:', 'course_run_ids': '1,2,3'}},
+        {'params': {'course_run_ids': 'a/b/c'}},
+        {'params': {'query': 'id:course*'}},
+        {'params': {}}
     )
     @ddt.unpack
-    def test_contains_incorrect_queries(self, params):
-
+    def test_contains_missing_parameter(self, params):
         qs = urllib.parse.urlencode(params)
         url = '{}?{}'.format(reverse('api:v1:course_run-contains'), qs)
-
-        response = self.client.get(url)
-        assert response.status_code == 400
-
-    @ddt.data(
-        {'params': {'q': 'title:'}},
-    )
-    @ddt.unpack
-    def test_get_course_runs_if_incorrect_queries(self, params):
-        qs = urllib.parse.urlencode(params)
-        url = '{}?{}'.format(reverse('api:v1:course_run-list'), qs)
 
         response = self.client.get(url)
         assert response.status_code == 400
