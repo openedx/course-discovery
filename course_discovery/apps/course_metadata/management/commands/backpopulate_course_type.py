@@ -96,7 +96,7 @@ class Command(BaseCommand):
                 failures.add(course)
 
         if failures:
-            keys = sorted('{key} ({id})'.format(key=failure.key, id=failure.id) for failure in failures)
+            keys = sorted(f'{failure.key} ({failure.id})' for failure in failures)
             raise CommandError(
                 _('Could not backpopulate a course type for the following courses: {course_keys}').format(
                     course_keys=', '.join(keys)

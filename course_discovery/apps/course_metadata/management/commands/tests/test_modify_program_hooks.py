@@ -1,4 +1,5 @@
-import mock
+from unittest import mock
+
 from django.core.management import call_command
 from django.test import TestCase
 
@@ -10,7 +11,7 @@ class ModifyProgramHooksCommandTest(TestCase):
     LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.modify_program_hooks.logger'
 
     def setUp(self):
-        super(ModifyProgramHooksCommandTest, self).setUp()
+        super().setUp()
         self.config = BulkModifyProgramHookConfig.get_solo()
 
     def testNormalRun(self):
@@ -48,7 +49,7 @@ class ModifyProgramHooksCommandTest(TestCase):
         program.delete()
         self.config.save()
         call_command('modify_program_hooks')
-        mock_logger.warning.assert_called_with('Cannot find program with uuid {uuid}'.format(uuid=uuid))
+        mock_logger.warning.assert_called_with(f'Cannot find program with uuid {uuid}')
 
     @mock.patch(LOGGER_PATH)
     def testUnreadableLine(self, mock_logger):

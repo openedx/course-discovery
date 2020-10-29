@@ -10,7 +10,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 @ddt.ddt
 class RemoveRedirectsFromCoursesCommandTests(TestCase):
     def setUp(self):
-        super(RemoveRedirectsFromCoursesCommandTests, self).setUp()
+        super().setUp()
         self.partner = PartnerFactory(marketing_site_api_password=None)
         self.course1 = CourseFactory(partner=self.partner)
         self.course2 = CourseFactory(partner=self.partner)
@@ -110,7 +110,7 @@ class RemoveRedirectsFromCoursesCommandTests(TestCase):
     def test_cannot_remove_active_url_slug(self):
         active_url_slug = self.course1.active_url_slug
         call_command('remove_redirects_from_courses', '-url_paths',
-                     '/course/{url_slug}'.format(url_slug=active_url_slug))
+                     f'/course/{active_url_slug}')
         self.assertEqual(self.course1.active_url_slug, active_url_slug)
 
     def test_remove_multiple_specific_same_course(self):
