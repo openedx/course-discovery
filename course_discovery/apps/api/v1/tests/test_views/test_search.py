@@ -635,16 +635,21 @@ class LimitedAggregateSearchViewSetTests(
         assert data['objects']['results'] == expected
 
 
+@ddt.ddt
 class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, ElasticsearchTestMixin,
                                          mixins.APITestCase):
     path = reverse('api:v1:search-all-list')
 
-    def test_post(self):
+    @ddt.data(
+        {'content_type': 'course', 'aggregation_key': 'course:edX+DemoX'},
+        {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']},
+        {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX', 'course:edX+Life']}
+    )
+    def test_post(self, data):
         """
         Verify that POST request works as expected for `AggregateSearchViewSet`
         """
         course = CourseFactory(key='edX+DemoX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
-        data = {'content_type': 'course', 'aggregation_key': 'course:edX+DemoX'}
         expected = {
             'previous': None,
             'results': [self.serialize_course_search(course)],
