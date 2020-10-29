@@ -2,8 +2,7 @@ import logging
 
 from django.conf import settings
 from django.core.management import BaseCommand
-from django_elasticsearch_dsl.registries import registry
-from elasticsearch_dsl.connections import get_connection
+from elasticsearch import Elasticsearch
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
 
@@ -14,11 +13,11 @@ class Command(BaseCommand):
     help = 'Install any required Elasticsearch indexes'
 
     def handle(self, *args, **options):
-        for backend_name, host_cong in settings.ELASTICSEARCH_DSL.items():
-            logger.info('Attempting to establish initial connection to Elasticsearch host [%s]...', host_cong['hosts'])
-            es_connection = get_connection(backend_name)
-            es_connection.ping()
-            logger.info('...success!')
+        host = settings.HAYSTACK_CONNECTIONS['default']['URL']
+        alias = settings.HAYSTACK_CONNECTIONS['default']['INDEX_NAME']
 
-            for index in registry.get_indices():
-                ElasticsearchUtils.create_alias_and_index(es_connection, index, backend_name)
+        logger.info('Attempting to establish initial connection to Elasticsearch host [%s]...', host)
+        es = Elasticsearch(host)
+        logger.info('...success!')
+
+        ElasticsearchUtils.create_alias_and_index(es, alias)
