@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import uuid
 
 import django.db.models.deletion
@@ -81,7 +78,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='subject',
-            unique_together=set([('partner', 'name'), ('partner', 'slug'), ('partner', 'uuid')]),
+            unique_together={('partner', 'name'), ('partner', 'slug'), ('partner', 'uuid')},
         ),
         migrations.RunPython(update_subjects, reverse_code=migrations.RunPython.noop),
         migrations.AlterField(

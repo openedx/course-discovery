@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import django.db.models.deletion
 import django_extensions.db.fields
 import sortedm2m.fields
@@ -449,14 +446,14 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='seat',
-            unique_together=set([('course_run', 'type', 'currency', 'credit_provider')]),
+            unique_together={('course_run', 'type', 'currency', 'credit_provider')},
         ),
         migrations.AlterUniqueTogether(
             name='courseorganization',
-            unique_together=set([('course', 'organization', 'relation_type')]),
+            unique_together={('course', 'organization', 'relation_type')},
         ),
         migrations.AlterIndexTogether(
             name='courseorganization',
-            index_together=set([('course', 'relation_type')]),
+            index_together={('course', 'relation_type')},
         ),
     ]

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 import stdimage.models
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from django.db import migrations
