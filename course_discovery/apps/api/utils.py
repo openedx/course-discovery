@@ -1,7 +1,10 @@
+import functools
 import logging
 import math
+from urllib.parse import urlencode
 
 from django.db.models.fields.related import ManyToManyField
+from django.utils.http import limited_parse_qsl
 from django.utils.translation import ugettext as _
 from opaque_keys.edx.keys import CourseKey
 from sortedm2m.fields import SortedManyToManyField
@@ -47,6 +50,33 @@ def get_query_param(request, name):
         return None
 
     return cast2int(request.query_params.get(name), name)
+
+
+def update_query_params_with_body_data(func_to_decorate):
+    """
+    Update Request query parameters with Request body data.
+
+    Make merging when body data become query parameters.
+    Solves the problem when it is impossible to pass the required parameters
+    through query url string due to size problem and need to use body(json) data.
+
+    Should be used only for Django View classes.
+
+    BE AWARE: The decorator changes a state of Request object.
+    """
+
+    @functools.wraps(func_to_decorate)
+    def wrapper(self, request, *args, **kwargs):
+        encoded_data = urlencode(request.data.copy())
+        _mutable = request.query_params._mutable  # pylint: disable=protected-access
+        request.query_params._mutable = True  # pylint: disable=protected-access
+        for key, value in limited_parse_qsl(encoded_data):
+            request.query_params.appendlist(key, value)
+        request.query_params._mutable = _mutable  # pylint: disable=protected-access
+
+        return func_to_decorate(self, request, *args, **kwargs)
+
+    return wrapper
 
 
 def reviewable_data_has_changed(obj, new_key_vals, exempt_fields=None):

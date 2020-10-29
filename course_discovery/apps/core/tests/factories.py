@@ -54,8 +54,8 @@ class StaffUserFactory(UserFactory):
 
 
 class PartnerFactory(factory.django.DjangoModelFactory):
-    name = factory.Sequence(lambda n: f'test-partner-{n}')  # pylint: disable=unnecessary-lambda
-    short_code = factory.Sequence(lambda n: f'test{n}')  # pylint: disable=unnecessary-lambda
+    name = factory.Sequence(lambda n: f'test-partner-{n}')
+    short_code = factory.Sequence(lambda n: f'test{n}')
     courses_api_url = f'{FuzzyUrlRoot().fuzz()}/api/courses/v1/'
     lms_coursemode_api_url = f'{FuzzyUrlRoot().fuzz()}/api/course_mode/v1/'
     ecommerce_api_url = f'{FuzzyUrlRoot().fuzz()}/api/v2/'

@@ -24,7 +24,8 @@ logger = logging.getLogger(__name__)
 
 
 def requires_salesforce_update(source_of_edit, instance):
-    from course_discovery.apps.course_metadata.models import Course, CourseRun  # pylint: disable=import-outside-toplevel
+    # pylint: disable=import-outside-toplevel
+    from course_discovery.apps.course_metadata.models import Course, CourseRun
     relative_fields = ORGANIZATION_SALESFORCE_FIELDS
     if isinstance(instance, Course):
         relative_fields = COURSE_SALESFORCE_FIELDS
@@ -36,7 +37,8 @@ def requires_salesforce_update(source_of_edit, instance):
 
 
 def populate_official_with_existing_draft(instance, util):
-    from course_discovery.apps.course_metadata.models import Course, CourseRun  # pylint: disable=import-outside-toplevel
+    # pylint: disable=import-outside-toplevel
+    from course_discovery.apps.course_metadata.models import Course, CourseRun
     created = False
     if not instance.draft_version.salesforce_id:
         if isinstance(instance, Course):

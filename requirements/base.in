@@ -13,7 +13,6 @@ django-extensions
 django-filter
 django-fsm
 django-guardian
-django-haystack
 django-libsass
 django-parler
 django-rest-swagger
@@ -30,9 +29,10 @@ django-webpack-loader
 djangorestframework
 djangorestframework-csv
 djangorestframework-xml
+django-elasticsearch-dsl
+django-elasticsearch-dsl-drf
 drf-dynamic-fields
 drf-extensions
-drf-haystack
 dry-rest-permissions
 edx-analytics-data-api-client
 edx-auth-backends
@@ -44,6 +44,7 @@ edx-drf-extensions
 edx-opaque-keys
 edx-rest-api-client
 elasticsearch
+elasticsearch-dsl
 html2text
 lxml
 jsonfield2

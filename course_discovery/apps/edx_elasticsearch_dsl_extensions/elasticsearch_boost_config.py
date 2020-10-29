@@ -29,7 +29,7 @@ def get_elasticsearch_boost_config():
                 {
                     'filter': {
                         'term': {
-                            'pacing_type_exact': 'self_paced'
+                            'pacing_type': 'self_paced'
                         }
                     },
                     'weight': 5.0
@@ -37,7 +37,7 @@ def get_elasticsearch_boost_config():
                 {
                     'filter': {
                         'term': {
-                            'type_exact': 'MicroBachelors'
+                            'type': 'MicroBachelors'
                         }
                     },
                     'weight': 5.0
@@ -45,7 +45,7 @@ def get_elasticsearch_boost_config():
                 {
                     'filter': {
                         'term': {
-                            'type_exact': 'MicroMasters'
+                            'type': 'MicroMasters'
                         }
                     },
                     'weight': 5.0
@@ -53,7 +53,7 @@ def get_elasticsearch_boost_config():
                 {
                     'filter': {
                         'term': {
-                            'type_exact': 'Professional Certificate'
+                            'type': 'Professional Certificate'
                         }
                     },
                     'weight': 5.0
@@ -130,7 +130,8 @@ def get_elasticsearch_boost_config():
                                         }
                                     }
                                 }
-                            ]
+                            ],
+                            'minimum_should_match': 1
                         }
                     },
                     'weight': 15.0
@@ -144,19 +145,24 @@ def get_elasticsearch_boost_config():
                         'bool': {
                             'must': {
                                 'term': {
-                                    'content_type_exact': 'courserun'
+                                    'content_type': 'courserun'
                                 }
                             },
                             'must_not': {
                                 'range': {
                                     'paid_seat_enrollment_end': {
-                                        'gte': 'now'
+                                        'lte': 'now'
                                     }
+                                }
+                            },
+                            'filter': {
+                                'exists': {
+                                    'field': 'paid_seat_enrollment_end'
                                 }
                             }
                         }
                     },
-                    'weight': -20.0
+                    'weight': 20.0
                 },
 
                 # Give a slight boost to enrollable course runs, regardless of seat

@@ -1,15 +1,15 @@
 import os
 
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine',
-        'URL': os.environ.get('TEST_ELASTICSEARCH_URL', 'http://localhost:9200/'),
-        'INDEX_NAME': 'catalog_test',
-    },
-}
+ELASTICSEARCH_DSL = {'default': {'hosts': os.environ.get('TEST_ELASTICSEARCH_URL', 'localhost:9200')}}
 # We use the RealtimeSignalProcessor here to ensure that our index is
 # updated, so that we can search for data that we create in our tests.
-HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = 'course_discovery.apps.course_metadata.search_indexes.signals.RealTimeSignalProcessor'
+ELASTICSEARCH_INDEX_NAMES = {
+    'course_discovery.apps.course_metadata.search_indexes.documents.course': 'test_course',
+    'course_discovery.apps.course_metadata.search_indexes.documents.course_run': 'test_course_run',
+    'course_discovery.apps.course_metadata.search_indexes.documents.person': 'test_person',
+    'course_discovery.apps.course_metadata.search_indexes.documents.program': 'test_program',
+}
 
 SYNONYMS_MODULE = 'course_discovery.settings.test_synonyms'
 
