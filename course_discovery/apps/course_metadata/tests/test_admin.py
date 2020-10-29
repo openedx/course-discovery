@@ -327,7 +327,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week', 'field-courses',
             'field-order_courses_by_start_date', 'field-custom_course_runs_display', 'field-excluded_course_runs',
             'field-authoring_organizations', 'field-credit_backing_organizations', 'field-one_click_purchase_enabled',
-            'field-hidden', 'field-corporate_endorsements', 'field-faq', 'field-individual_endorsements',
+            'field-hidden', 'field-corporate_endorsements', 'field-faq',
             'field-job_outlook_items', 'field-expected_learning_items', 'field-instructor_ordering',
             'field-enrollment_count', 'field-recent_enrollment_count', 'field-credit_value',
         ]
