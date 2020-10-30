@@ -4,7 +4,7 @@ TOX := tox
 
 .PHONY: accept clean clean_static check_keywords detect_changed_source_translations extract_translations \
 	help html_coverage migrate open-devstack production-requirements pull_translations quality requirements.js \
-	requirements start-devstack static stop-devstack test docs static.dev static.watch
+	requirements.python requirements start-devstack static stop-devstack test docs static.dev static.watch
 
 include .travis/docker.mk
 
@@ -35,8 +35,10 @@ requirements.js: ## Install JS requirements for local development
 	npm install
 	$(NODE_BIN)/bower install --allow-root
 
-requirements: requirements.js ## Install Python and JS requirements for local development
+requirements.python: ## Install Python requirements for local development.
 	pip install -r requirements/local.txt -r requirements/django.txt
+
+requirements: requirements.js requirements.python ## Install Python and JS requirements for local development
 
 production-requirements: ## Install Python and JS requirements for production
 	pip install -r requirements.txt
