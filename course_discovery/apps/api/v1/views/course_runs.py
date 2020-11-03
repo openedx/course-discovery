@@ -36,7 +36,10 @@ def writable_request_wrapper(method):
         except (PermissionDenied, ValidationError, Http404):
             raise  # just pass these along
         except Exception as e:  # pylint: disable=broad-except
-            content = e.content.decode('utf8') if hasattr(e, 'content') else str(e)
+            log.info(f'DISCO-1701 Exception class: {e.__class__.__name__}')
+            content = str(e)
+            if hasattr(e, 'content'):
+                content = e.content.decode('utf8') if isinstance(e.content, bytes) else e.content
             msg = _('Failed to set course run data: {}').format(content)
             log.exception(msg)
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
