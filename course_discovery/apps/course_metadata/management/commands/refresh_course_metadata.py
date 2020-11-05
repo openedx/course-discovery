@@ -146,7 +146,7 @@ class Command(BaseCommand):
                     with concurrent.futures.ProcessPoolExecutor() as executor:
                         for loader_class, api_url, max_workers in stage:
                             if api_url:
-                                logger.info('Executing Loader [{}]'.format(api_url))
+                                logger.info(f'Executing Loader [{api_url}]')
                                 futures.append(executor.submit(
                                     execute_parallel_loader,
                                     loader_class,
@@ -161,7 +161,7 @@ class Command(BaseCommand):
                 # Flatten pipeline and run serially.
                 for loader_class, api_url, max_workers in itertools.chain(*(stage for stage in pipeline)):
                     if api_url:
-                        logger.info('Executing Loader [{}]'.format(api_url))
+                        logger.info(f'Executing Loader [{api_url}]')
                         success = execute_loader(
                             loader_class,
                             partner,

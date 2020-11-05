@@ -1,7 +1,7 @@
 import datetime
+from unittest import mock
 
 import ddt
-import mock
 import pytz
 from django.core.management import CommandError
 from django.test import TestCase

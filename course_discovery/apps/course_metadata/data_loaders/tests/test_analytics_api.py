@@ -52,7 +52,7 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
     def test_ingest(self):
         self._define_course_metadata()
 
-        url = '{root_url}course_summaries/'.format(root_url=self.api_url)
+        url = f'{self.api_url}course_summaries/'
         responses.add(
             method=responses.GET,
             url=url,

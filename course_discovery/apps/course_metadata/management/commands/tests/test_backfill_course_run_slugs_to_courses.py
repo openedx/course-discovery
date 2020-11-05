@@ -1,5 +1,6 @@
+from unittest import mock
+
 import ddt
-import mock
 from django.core.management import CommandError, call_command
 from django.test import TestCase
 
@@ -13,7 +14,7 @@ class BackfillCourseRunSlugsToCoursesCommandTests(TestCase):
     LOGGER = 'course_discovery.apps.course_metadata.management.commands.backfill_course_run_slugs_to_courses.logger'
 
     def setUp(self):
-        super(BackfillCourseRunSlugsToCoursesCommandTests, self).setUp()
+        super().setUp()
         self.partner = PartnerFactory(marketing_site_api_password=None)
         self.course1 = CourseFactory(partner=self.partner, draft=False)
         self.course2 = CourseFactory(partner=self.partner, draft=False)

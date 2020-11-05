@@ -22,7 +22,7 @@ class Command(BaseCommand):
         for line in lines:
             tokenized = line.split(':', 1)
             if len(tokenized) != 2:
-                logger.warning('Incorrectly formatted line {line}'.format(line=line))
+                logger.warning(f'Incorrectly formatted line {line}')
                 continue
             try:
                 program_uuid = uuid.UUID(tokenized[0].strip())

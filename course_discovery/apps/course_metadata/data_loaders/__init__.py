@@ -85,7 +85,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         Returns:
             str
         """
-        return '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
+        return f'{course_run_key.org}+{course_run_key.course}'
 
     @classmethod
     def _get_or_create_media(cls, media_type, url):
