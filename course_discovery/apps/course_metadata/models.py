@@ -1668,12 +1668,13 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if seat_type.slug in prices:
             defaults['price'] = prices[seat_type.slug]
 
-        Seat.everything.update_or_create(
+        seat, __ = Seat.everything.update_or_create(
             course_run=self,
             type=seat_type,
             draft=True,
             defaults=defaults,
         )
+        return seat
 
     def update_or_create_seats(self, run_type=None, prices=None):
         """
@@ -1688,13 +1689,15 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
         self.validate_seat_upgrade(seat_types)
 
+        seats = []
         for seat_type in seat_types:
-            self.update_or_create_seat_helper(seat_type, prices)
+            seats.append(self.update_or_create_seat_helper(seat_type, prices))
 
         # Deleting seats here since they would be orphaned otherwise.
         # One example of how this situation can happen is if a course team is switching between
         # professional and verified before actually publishing their course run.
         self.seats.exclude(type__in=seat_types).delete()
+        self.seats.set(seats)  # pylint: disable=no-member
 
     def update_or_create_official_version(self, notify_services=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
