@@ -117,7 +117,7 @@ social-auth-core==3.2.0   # via -c requirements/constraints.txt, edx-auth-backen
 soupsieve==2.0.1          # via beautifulsoup4
 sqlparse==0.4.1           # via django
 stevedore==1.32.0         # via edx-django-utils, edx-opaque-keys
-taxonomy-connector==1.1.0  # via -r requirements/base.in
+taxonomy-connector==1.1.2  # via -r requirements/base.in
 unicode-slugify==0.1.3    # via -r requirements/base.in
 unicodecsv==0.14.1        # via djangorestframework-csv
 unidecode==1.1.1          # via unicode-slugify
