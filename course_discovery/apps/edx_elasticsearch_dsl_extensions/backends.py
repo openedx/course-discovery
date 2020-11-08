@@ -14,6 +14,9 @@ from rest_framework.filters import BaseFilterBackend
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_config import (
     get_elasticsearch_boost_config
 )
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.mixins import (
+    CatalogDataFilterBackendMixin, FieldActionFilterBackendMinix
+)
 
 SEPARATOR_LOOKUP_NAME = ':='
 
@@ -194,23 +197,17 @@ class FacetedQueryFilterBackend(BaseFilterBackend, FilterBackendMixin):
         return self.aggregate(request, queryset, view)
 
 
-class CatalogDataFilterBackend(FilteringFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        """
-        Filter the queryset.
+class CatalogDataFilterBackend(
+    CatalogDataFilterBackendMixin,
+    FieldActionFilterBackendMinix,
+    FilteringFilterBackend
+):
+    """
+    Catalog data filter backend
+    """
 
-        :param request: Django REST framework request.
-        :param queryset: Base queryset.
-        :param view: View.
-        :type request: rest_framework.request.Request
-        :type queryset: elasticsearch_dsl.search.Search
-        :type view: rest_framework.viewsets.ReadOnlyModelViewSet
-        :return: Updated queryset.
-        :rtype: elasticsearch_dsl.search.Search
-        """
-        filter_query_params = self.get_filter_query_params(request, view)
-        if filter_query_params:
-            return super().filter_queryset(request, queryset, view)
-        queryset = self.apply_filter_term(queryset, {'field': 'partner'}, request.site.partner.short_code)
 
-        return queryset
+class AggregateDataFilterBackend(FieldActionFilterBackendMinix, FilteringFilterBackend):
+    """
+    Aggregate data filter backend
+    """

@@ -401,14 +401,15 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         data = response.json()
         self.assertListEqual(data['objects']['results'], [self.serialize_course_run_search(marketable_run)])
 
-    def test_results_filtered_by_default_partner(self):
+    @ddt.data('testX', 'testx', 'TESTX')
+    def test_results_filtered_by_default_partner(self, short_code):
         """ Verify the search results only include items related to the default partner if no partner is
         specified on the request. If a partner is included, the data should be filtered to the requested partner. """
         course_run = CourseRunFactory(course__partner=self.partner, status=CourseRunStatus.Published)
         program = ProgramFactory(partner=self.partner, status=ProgramStatus.Active)
 
         # This data should NOT be in the results
-        other_partner = PartnerFactory()
+        other_partner = PartnerFactory(short_code='testX')
         other_course_run = CourseRunFactory(course__partner=other_partner, status=CourseRunStatus.Published)
         other_program = ProgramFactory(partner=other_partner, status=ProgramStatus.Active)
         assert other_program.partner.short_code != self.partner.short_code
@@ -423,7 +424,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         ]
 
         # Filter results by partner
-        response = self.get_response({'partner': other_partner.short_code})
+        response = self.get_response({'partner': short_code})
         assert response.status_code == 200
         response_data = response.json()
         assert response_data['objects']['results'] == [
@@ -643,13 +644,16 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
     @ddt.data(
         {'content_type': 'course', 'aggregation_key': 'course:edX+DemoX'},
         {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX']},
-        {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX', 'course:edX+Life']}
+        {'content_type': 'course', 'aggregation_key': ['course:edX+DemoX', 'course:edX+Life']},
+        {'content_type': 'course', 'partner': 'testX'},
+        {'content_type': 'course', 'partner': 'testx'},
     )
     def test_post(self, data):
         """
         Verify that POST request works as expected for `AggregateSearchViewSet`
         """
-        course = CourseFactory(key='edX+DemoX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        partner = PartnerFactory(short_code='testX')
+        course = CourseFactory(key='edX+DemoX', title='ABCs of Ͳҽʂէìղց', partner=partner)
         expected = {
             'previous': None,
             'results': [self.serialize_course_search(course)],

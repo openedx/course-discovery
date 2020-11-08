@@ -3,9 +3,7 @@ import uuid
 from django.conf import settings
 from django.db.models import Q as DQ
 from django_elasticsearch_dsl_drf.constants import LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS
-from django_elasticsearch_dsl_drf.filter_backends import (
-    DefaultOrderingFilterBackend, FilteringFilterBackend, OrderingFilterBackend
-)
+from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBackend, OrderingFilterBackend
 from elasticsearch_dsl.query import Q as ESDSLQ
 from rest_framework import status, viewsets
 from rest_framework.exceptions import ValidationError
@@ -21,7 +19,7 @@ from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.search_indexes import documents as search_documents
 from course_discovery.apps.course_metadata.search_indexes import serializers as search_indexes_serializers
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
-    CatalogDataFilterBackend, MultiMatchSearchFilterBackend
+    AggregateDataFilterBackend, CatalogDataFilterBackend, MultiMatchSearchFilterBackend
 )
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import (
     BaseElasticsearchDocumentViewSet, MultiDocumentsWrapper
@@ -173,11 +171,11 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
     }
     ordering_fields = {'start': 'start', 'aggregation_key': 'aggregation_key'}
     filter_fields = {
-        'partner': {'field': 'partner.raw', 'lookups': [LOOKUP_FILTER_TERM]},
+        'partner': {'field': 'partner.lower', 'lookups': [LOOKUP_FILTER_TERM]},
         'content_type': {'field': 'content_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'aggregation_key': {'field': 'aggregation_key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'org': {'field': 'org.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'org': {'field': 'org.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'authoring_organization_uuids': {
             'field': 'authoring_organization_uuids',
             'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]
@@ -226,7 +224,7 @@ class LimitedAggregateSearchView(BaseAggregateSearchViewSet):
     )
     filter_backends = [
         MultiMatchSearchFilterBackend,
-        FilteringFilterBackend,
+        AggregateDataFilterBackend,
         OrderingFilterBackend,
         DefaultOrderingFilterBackend,
     ]

@@ -9,7 +9,7 @@ from django_elasticsearch_dsl import fields
 
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.search import Search
 
-from .analyzers import edge_ngram_completion, html_strip, synonym_text
+from .analyzers import case_insensitive_keyword, edge_ngram_completion, html_strip, synonym_text
 
 
 def filter_visible_runs(course_runs):
@@ -201,9 +201,15 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
     image_url = fields.TextField()
     logo_image_urls = fields.TextField(multi=True)
     level_type = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
-    partner = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
+    partner = fields.TextField(
+        analyzer=html_strip,
+        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
+    )
     outcome = fields.TextField()
-    org = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
+    org = fields.TextField(
+        analyzer=html_strip,
+        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
+    )
     subject_uuids = fields.KeywordField(multi=True)
     short_description = fields.TextField(analyzer=html_strip)
     seat_types = fields.KeywordField(multi=True)

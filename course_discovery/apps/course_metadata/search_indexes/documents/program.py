@@ -4,7 +4,7 @@ from django_elasticsearch_dsl import Index, fields
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Degree, Program
 
-from .analyzers import edge_ngram_completion, html_strip, synonym_text
+from .analyzers import case_insensitive_keyword, edge_ngram_completion, html_strip, synonym_text
 from .common import BaseDocument, OrganizationsMixin
 
 __all__ = ('ProgramDocument',)
@@ -37,7 +37,10 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
     marketing_url = fields.TextField()
     min_hours_effort_per_week = fields.IntegerField()
     max_hours_effort_per_week = fields.IntegerField()
-    partner = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
+    partner = fields.TextField(
+        analyzer=html_strip,
+        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
+    )
     published = fields.BooleanField()
     subtitle = fields.TextField(analyzer=html_strip)
     status = fields.KeywordField()
