@@ -51,7 +51,6 @@ def writable_request_wrapper(method):
         except (PermissionDenied, Http404):
             raise  # just pass these along
         except Exception as e:  # pylint: disable=broad-except
-            logger.info(f'DISCO-1701 Exception class: {e.__class__.__name__}')
             content = str(e)
             if hasattr(e, 'content'):
                 content = e.content.decode('utf8') if isinstance(e.content, bytes) else e.content

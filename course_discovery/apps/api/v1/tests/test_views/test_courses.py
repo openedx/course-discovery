@@ -948,11 +948,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                 log_capture.check(
                     (
                         course_logger.name,
-                        'INFO',
-                        'DISCO-1701 Exception class: IntegrityError',
-                    ),
-                    (
-                        course_logger.name,
                         'ERROR',
                         'Failed to set data: Error',
                     )
