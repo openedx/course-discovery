@@ -92,7 +92,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key',)
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number')
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
@@ -163,7 +163,7 @@ class CourseRunAdmin(admin.ModelAdmin):
     )
     ordering = ('key',)
     raw_id_fields = ('course', 'draft_version',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'hidden')
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'hidden', 'key')
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key')
     save_error = False
 
@@ -327,7 +327,7 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'name',)
     inlines = [OrganizationUserRoleInline, ]
     list_filter = ('partner',)
-    readonly_fields = ('uuid',)
+    readonly_fields = ('uuid', 'key')
     search_fields = ('uuid', 'name', 'key',)
 
 
