@@ -136,7 +136,7 @@ class ProgramSearchViewSet(BaseElasticsearchDocumentViewSet):
     facet_serializer_class = search_indexes_serializers.ProgramFacetSerializer
     serializer_class = search_indexes_serializers.ProgramSearchDocumentSerializer
     faceted_search_fields = {
-        'type': {'field': 'type', 'enabled': True},
+        'type': {'field': 'type.raw', 'enabled': True},
         'status': {'field': 'status', 'enabled': True},
         'seat_types': {'field': 'seat_types', 'enabled': True},
     }
@@ -166,7 +166,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'subjects': {'field': 'subjects.raw', 'enabled': True},
         'transcript_languages': {'field': 'transcript_languages.raw', 'enabled': True},
         'status': {'field': 'status', 'enabled': True},
-        'type': {'field': 'type', 'enabled': True},
+        'type': {'field': 'type.raw', 'enabled': True},
         'content_type': {'field': 'content_type', 'enabled': True},
     }
     ordering_fields = {'start': 'start', 'aggregation_key': 'aggregation_key'}
@@ -176,6 +176,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'aggregation_key': {'field': 'aggregation_key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'org': {'field': 'org.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'type': {'field': 'type.lower', 'lookups': [LOOKUP_FILTER_TERM]},
         'authoring_organization_uuids': {
             'field': 'authoring_organization_uuids',
             'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]
