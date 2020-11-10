@@ -56,7 +56,10 @@ class ProgramDocument(BaseDocument, OrganizationsMixin):
             'edge_ngram_completion': fields.TextField(analyzer=edge_ngram_completion),
         },
     )
-    type = fields.KeywordField()
+    type = fields.TextField(
+        analyzer=html_strip,
+        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
+    )
     weeks_to_complete_min = fields.IntegerField()
     weeks_to_complete_max = fields.IntegerField()
 

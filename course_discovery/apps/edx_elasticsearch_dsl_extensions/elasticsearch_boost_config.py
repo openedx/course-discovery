@@ -37,7 +37,7 @@ def get_elasticsearch_boost_config():
                 {
                     'filter': {
                         'term': {
-                            'type': 'MicroBachelors'
+                            'type.raw': 'MicroBachelors'
                         }
                     },
                     'weight': 5.0
@@ -45,7 +45,7 @@ def get_elasticsearch_boost_config():
                 {
                     'filter': {
                         'term': {
-                            'type': 'MicroMasters'
+                            'type.raw': 'MicroMasters'
                         }
                     },
                     'weight': 5.0
@@ -53,7 +53,7 @@ def get_elasticsearch_boost_config():
                 {
                     'filter': {
                         'term': {
-                            'type': 'Professional Certificate'
+                            'type.raw': 'Professional Certificate'
                         }
                     },
                     'weight': 5.0
