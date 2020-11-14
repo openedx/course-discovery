@@ -11,6 +11,7 @@ from django_elasticsearch_dsl_drf.constants import (
     LOOKUP_QUERY_IN,
     LOOKUP_QUERY_LT,
     LOOKUP_QUERY_LTE,
+    LOOKUP_QUERY_EXCLUDE,
 )
 from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBackend, OrderingFilterBackend
 from elasticsearch_dsl.query import Q as ESDSLQ
@@ -186,7 +187,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'availability': {'field': 'availability.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'level_type': {'field': 'level_type.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'org': {'field': 'org.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'org': {'field': 'org.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]},
         'type': {'field': 'type.lower', 'lookups': [LOOKUP_FILTER_TERM]},
         'authoring_organization_uuids': {
             'field': 'authoring_organization_uuids',
