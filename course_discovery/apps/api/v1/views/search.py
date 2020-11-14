@@ -3,15 +3,8 @@ import uuid
 from django.conf import settings
 from django.db.models import Q as DQ
 from django_elasticsearch_dsl_drf.constants import (
-    LOOKUP_FILTER_TERM,
-    LOOKUP_FILTER_TERMS,
-    LOOKUP_FILTER_RANGE,
-    LOOKUP_QUERY_GT,
-    LOOKUP_QUERY_GTE,
-    LOOKUP_QUERY_IN,
-    LOOKUP_QUERY_LT,
-    LOOKUP_QUERY_LTE,
-    LOOKUP_QUERY_EXCLUDE,
+    LOOKUP_FILTER_RANGE, LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE, LOOKUP_QUERY_GT,
+    LOOKUP_QUERY_GTE, LOOKUP_QUERY_IN, LOOKUP_QUERY_LT, LOOKUP_QUERY_LTE
 )
 from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBackend, OrderingFilterBackend
 from elasticsearch_dsl.query import Q as ESDSLQ
@@ -184,9 +177,9 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'partner': {'field': 'partner.lower', 'lookups': [LOOKUP_FILTER_TERM]},
         'content_type': {'field': 'content_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'aggregation_key': {'field': 'aggregation_key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'availability': {'field': 'availability.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'availability': {'field': 'availability.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'level_type': {'field': 'level_type.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'level_type': {'field': 'level_type.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'org': {'field': 'org.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]},
         'type': {'field': 'type.lower', 'lookups': [LOOKUP_FILTER_TERM]},
         'authoring_organization_uuids': {
