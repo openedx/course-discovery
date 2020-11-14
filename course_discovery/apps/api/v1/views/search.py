@@ -2,7 +2,16 @@ import uuid
 
 from django.conf import settings
 from django.db.models import Q as DQ
-from django_elasticsearch_dsl_drf.constants import LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS
+from django_elasticsearch_dsl_drf.constants import (
+    LOOKUP_FILTER_TERM,
+    LOOKUP_FILTER_TERMS,
+    LOOKUP_FILTER_RANGE,
+    LOOKUP_QUERY_GT,
+    LOOKUP_QUERY_GTE,
+    LOOKUP_QUERY_IN,
+    LOOKUP_QUERY_LT,
+    LOOKUP_QUERY_LTE,
+)
 from django_elasticsearch_dsl_drf.filter_backends import DefaultOrderingFilterBackend, OrderingFilterBackend
 from elasticsearch_dsl.query import Q as ESDSLQ
 from rest_framework import status, viewsets
@@ -182,6 +191,18 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'authoring_organization_uuids': {
             'field': 'authoring_organization_uuids',
             'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]
+        },
+        'first_enrollable_paid_seat_price': {
+            'field': 'first_enrollable_paid_seat_price',
+            'lookups': [
+                LOOKUP_FILTER_RANGE,
+                LOOKUP_QUERY_IN,
+                LOOKUP_QUERY_GT,
+                LOOKUP_QUERY_GTE,
+                LOOKUP_QUERY_LT,
+                LOOKUP_QUERY_LTE,
+                LOOKUP_FILTER_TERMS,
+            ],
         },
     }
 
