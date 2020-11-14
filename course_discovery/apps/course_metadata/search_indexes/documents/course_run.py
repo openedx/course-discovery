@@ -5,7 +5,7 @@ from opaque_keys.edx.keys import CourseKey
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import CourseRun
 
-from .analyzers import html_strip
+from .analyzers import case_insensitive_keyword, html_strip
 from .common import BaseCourseDocument, filter_visible_runs
 
 __all__ = ('CourseRunDocument',)
@@ -26,7 +26,9 @@ class CourseRunDocument(BaseCourseDocument):
     """
 
     announcement = fields.DateField()
-    availability = fields.KeywordField()
+    availability = fields.TextField(
+        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
+    )
     authoring_organization_uuids = fields.KeywordField(multi=True)
     course_key = fields.KeywordField()
     end = fields.DateField()
