@@ -176,6 +176,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'aggregation_key': {'field': 'aggregation_key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'availability': {'field': 'availability.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'level_type': {'field': 'level_type.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'org': {'field': 'org.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'type': {'field': 'type.lower', 'lookups': [LOOKUP_FILTER_TERM]},
         'authoring_organization_uuids': {

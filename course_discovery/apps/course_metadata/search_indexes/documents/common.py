@@ -200,7 +200,9 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
     full_description = fields.TextField(analyzer=html_strip)
     image_url = fields.TextField()
     logo_image_urls = fields.TextField(multi=True)
-    level_type = fields.TextField(analyzer=html_strip, fields={'raw': fields.KeywordField()})
+    level_type = fields.TextField(
+        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
+    )
     partner = fields.TextField(
         analyzer=html_strip,
         fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
