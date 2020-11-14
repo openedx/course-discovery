@@ -4,6 +4,7 @@ from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.course_metadata.models import Course
 
+from .analyzers import case_insensitive_keyword
 from .common import BaseCourseDocument, filter_visible_runs
 
 __all__ = ('CourseDocument',)
@@ -23,7 +24,10 @@ class CourseDocument(BaseCourseDocument):
     Course Elasticsearch document.
     """
 
-    availability = fields.KeywordField(multi=True)
+    availability = fields.TextField(
+        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)},
+        multi=True
+    )
     card_image_url = fields.TextField()
     course_runs = fields.KeywordField(multi=True)
     expected_learning_items = fields.KeywordField(multi=True)
