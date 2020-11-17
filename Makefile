@@ -6,7 +6,7 @@ TOX := tox
 	help html_coverage migrate open-devstack production-requirements pull_translations quality requirements.js \
 	requirements.python requirements start-devstack static stop-devstack test docs static.dev static.watch
 
-include .travis/docker.mk
+include .ci/docker.mk
 
 
 # Generates a help message. Borrowed from https://github.com/pydanny/cookiecutter-djangopackage.
@@ -77,7 +77,7 @@ html_coverage: ## Generate and view HTML coverage report
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 extract_translations: ## Extract strings to be translated, outputting .po and .mo files
-	# NOTE: We need PYTHONPATH defined to avoid ImportError(s) on Travis CI.
+	# NOTE: We need PYTHONPATH defined to avoid ImportError(s) on CI.
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d django
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" django-admin.py makemessages -l en -v1 --ignore="assets/*" --ignore="static/bower_components/*" --ignore="static/build/*" -d djangojs
 	cd course_discovery && PYTHONPATH="..:${PYTHONPATH}" i18n_tool dummy

@@ -179,7 +179,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         ProgramFactory(courses=[course_run.course], status=program_status)
         self.reindex_courses(active_program)
 
-        with self.assertNumQueries(expected_queries, threshold=1):  # travis sometimes adds a query
+        with self.assertNumQueries(expected_queries, threshold=1):  # CI sometimes adds a query
             response = self.get_response('software', path=path)
         assert response.status_code == 200
         response_data = response.data
@@ -686,7 +686,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         response = self.get_response({'q': partial_key})
         self.assertEqual(response.status_code, 200)
 
-        # This call is flaky in Travis. It is reliable locally, but occasionally in our CI environment,
+        # This call is flaky in CI. It is reliable locally, but occasionally in our CI environment,
         # this call won't contain the data for course_runs and programs. Instead of relying on the factories
         # we now explicitly add the authoring organizations to a course_run and program and call .save()
         # in order to update the search indexes.
