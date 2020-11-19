@@ -9,10 +9,10 @@ services:
       MYSQL_ROOT_PASSWORD: "password"
       MYSQL_DATABASE: "discovery"
   es:
-    image: elasticsearch:1.7.6
+    image: elasticsearch:1.7
     container_name: es
   memcached:
-    image: memcached:1.6.8
+    image: memcached:1.6
     container_name: memcached
   discovery:
     # Uncomment this line to use the official course-discovery base image

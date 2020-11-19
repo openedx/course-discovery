@@ -1,8 +1,5 @@
-Course Discovery Service  |Travis|_ |Codecov|_
+Course Discovery Service  |Codecov|_
 ==============================================
-.. |Travis| image:: https://travis-ci.org/edx/course-discovery.svg?branch=master
-.. _Travis: https://travis-ci.org/edx/course-discovery
-
 .. |Codecov| image:: http://codecov.io/github/edx/course-discovery/coverage.svg?branch=master
 .. _Codecov: http://codecov.io/github/edx/course-discovery?branch=master
 
