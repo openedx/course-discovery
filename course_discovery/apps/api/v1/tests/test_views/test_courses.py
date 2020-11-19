@@ -9,6 +9,7 @@ import responses
 from django.conf import settings
 from django.db import IntegrityError
 from django.db.models.functions import Lower
+from django.db.models.query import Prefetch
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
 
@@ -49,6 +50,17 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def mock_ecommerce_publication(self):
         url = f'{self.course.partner.ecommerce_api_url}publication/'
         responses.add(responses.POST, url, json={}, status=200)
+
+    def serialize_course(self, course, many=False, format=None, extra_context=None):  # pylint: disable=redefined-builtin
+        # The course view sorts courses by key and their course runs by start date. Let's emulate that here.
+        queryset = Course.everything.prefetch_related(
+            Prefetch('course_runs', queryset=CourseRun.everything.order_by('start', 'id')),
+        )
+        if many:
+            obj = queryset.filter(id__in=[c.id for c in course]).order_by(Lower('key'))
+        else:
+            obj = queryset.get(id=course.id)
+        return super().serialize_course(obj, many=many, format=format, extra_context=extra_context)
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single course. """
@@ -217,6 +229,24 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         assert response.data == self.serialize_course(self.course)
 
+    def test_course_runs_are_ordered(self):
+        """
+        Verify that course runs inside the course are ordered by start date.
+        """
+        run1 = CourseRunFactory(course=self.course, start=datetime.datetime(2003, 1, 1, tzinfo=pytz.UTC))
+        run2 = CourseRunFactory(course=self.course, start=datetime.datetime(2000, 1, 1, tzinfo=pytz.UTC))
+        run3 = CourseRunFactory(course=self.course, start=datetime.datetime(2007, 1, 1, tzinfo=pytz.UTC))
+        run4 = CourseRunFactory(course=self.course, start=datetime.datetime(2006, 1, 1, tzinfo=pytz.UTC))
+        run5 = CourseRunFactory(course=self.course, start=datetime.datetime(2004, 1, 1, tzinfo=pytz.UTC))
+        run6 = CourseRunFactory(course=self.course, start=datetime.datetime(2005, 1, 1, tzinfo=pytz.UTC))
+        expected_keys = [run2.key, run1.key, run5.key, run6.key, run4.key, run3.key]
+
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertListEqual(response.data['course_run_keys'], expected_keys)
+        self.assertListEqual([run['key'] for run in response.data['course_runs']], expected_keys)
+
     def test_list(self):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
@@ -226,14 +256,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertListEqual(
             response.data['results'],
-            self.serialize_course(Course.objects.all().order_by(Lower('key')), many=True)
+            self.serialize_course(Course.objects.all(), many=True)
         )
 
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """
         title = 'Some random title'
         courses = CourseFactory.create_batch(3, title=title)
-        courses = sorted(courses, key=lambda course: course.key.lower())
         query = 'title:' + title
         url = '{root}?q={query}'.format(root=reverse('api:v1:course-list'), query=query)
 
@@ -246,7 +275,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def test_list_key_filter(self):
         """ Verify the endpoint returns a list of courses filtered by the specified keys. """
         courses = CourseFactory.create_batch(3, partner=self.partner)
-        courses = sorted(courses, key=lambda course: course.key.lower())
         keys = ','.join([course.key for course in courses])
         url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
 
@@ -257,7 +285,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def test_list_uuid_filter(self):
         """ Verify the endpoint returns a list of courses filtered by the specified uuid. """
         courses = CourseFactory.create_batch(3, partner=self.partner)
-        courses = sorted(courses, key=lambda course: course.key.lower())
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
