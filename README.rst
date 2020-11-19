@@ -5,6 +5,8 @@ Course Discovery Service  |Codecov|_
 
 Service providing access to consolidated course and program metadata.
 
+Woooo
+
 Documentation
 -------------
 
