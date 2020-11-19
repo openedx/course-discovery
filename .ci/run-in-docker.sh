@@ -9,9 +9,9 @@ if [ "$1" = "-f" ]; then
   echo '. /edx/app/discovery/discovery_env
         export DJANGO_SETTINGS_MODULE=course_discovery.settings.test' |
   cat - "$2" |
-  exec docker exec -i -w /edx/app/discovery/discovery -e TOXENV discovery sh -s
+  exec docker exec --workdir /edx/app/discovery/discovery --env TOXENV --interactive discovery sh -s
 else
-  exec docker exec -t -w /edx/app/discovery/discovery -e TOXENV discovery sh -c "
+  exec docker exec --workdir /edx/app/discovery/discovery --env TOXENV --tty discovery sh -c "
   . /edx/app/discovery/discovery_env
   export DJANGO_SETTINGS_MODULE=course_discovery.settings.test
   $*
