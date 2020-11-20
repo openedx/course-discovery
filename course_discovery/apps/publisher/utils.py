@@ -28,4 +28,5 @@ def is_publisher_user(user):
     Returns:
         bool: True, if user is an publisher user; otherwise, False.
     """
+    print('MIKE')
     return user.groups.exists()
