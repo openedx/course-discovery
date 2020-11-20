@@ -22,7 +22,7 @@ discovery and its interface in taxonomy are always in sync.
 """
 
 from django.test import TestCase
-from taxonomy.validators import CourseMetadataProviderValidator  # pylint: disable=no-name-in-module,import-error
+from taxonomy.validators import CourseMetadataProviderValidator
 
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
