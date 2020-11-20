@@ -11,12 +11,21 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ['py38']
-        django-version: ['django22', 'django30']
+        django-version: ['django22']
+        status: ['']
+        include:
+          - python-version: 'py38'
+            django-version: 'django30'
+            status: 'ignored'
 
     steps:
       - uses: actions/checkout@v2
       - run: make ci_up
       - run: make ci_test TOXENV=${{ matrix.python-version }}-${{ matrix.django-version }}
+        # Unfortunately, continue-on-error marks the job as successful. We really want something like "allow failure"
+        # that would note the failure, but not fail the entire workflow and not email the author about it.
+        # See https://github.com/actions/toolkit/issues/399
+        continue-on-error: ${{ matrix.status == 'ignored' }}
       - uses: codecov/codecov-action@v1
 
   quality:
@@ -28,7 +37,6 @@ jobs:
 
   semgrep:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v1
       - uses: returntocorp/semgrep-action@v1
