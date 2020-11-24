@@ -1,6 +1,8 @@
+import datetime
 import urllib.parse
 
 import pytest
+import pytz
 from django.test import RequestFactory
 from django.urls import reverse
 
@@ -162,6 +164,19 @@ class TestProgramViewSet(SerializationMixin):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())
+
+    def test_retrieve_has_sorted_courses(self):
+        """ Verify that runs inside a course are sorted properly. """
+        course = CourseFactory(partner=self.partner)
+        run1 = CourseRunFactory(course=course, start=datetime.datetime(2003, 1, 1, tzinfo=pytz.UTC))
+        run2 = CourseRunFactory(course=course, start=datetime.datetime(2002, 1, 1, tzinfo=pytz.UTC))
+        run3 = CourseRunFactory(course=course, start=datetime.datetime(2004, 1, 1, tzinfo=pytz.UTC))
+        program = self.create_program(courses=[course])
+
+        response = self.assert_retrieve_success(program)
+        expected_keys = [run2.key, run1.key, run3.key]
+        response_keys = [run['key'] for run in response.data['courses'][0]['course_runs']]
+        assert expected_keys == response_keys
 
     def test_retrieve_without_course_runs(self, django_assert_num_queries):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
