@@ -9,8 +9,8 @@ algoliasearch==1.20.0     # via algoliasearch-django
 authlib==0.15.2           # via simple-salesforce
 backoff==1.10.0           # via -r requirements/base.in
 beautifulsoup4==4.9.3     # via -r requirements/base.in
-boto3==1.16.14            # via django-ses
-botocore==1.19.14         # via boto3, s3transfer
+boto3==1.16.24            # via django-ses
+botocore==1.19.24         # via boto3, s3transfer
 certifi==2020.11.8        # via -r requirements/production.in, requests
 cffi==1.14.3              # via cryptography
 chardet==3.0.4            # via requests
@@ -25,7 +25,7 @@ django-choices==1.7.1     # via -r requirements/base.in
 django-compressor==2.4    # via -r requirements/base.in, django-libsass
 django-contrib-comments==1.9.2  # via -r requirements/base.in
 django-cors-headers==2.5.3  # via -c requirements/constraints.txt, -r requirements/base.in
-django-crum==0.7.8        # via edx-django-utils
+django-crum==0.7.9        # via edx-django-utils
 django-dynamic-filenames==1.1.4  # via -r requirements/base.in
 django-extensions==3.0.9  # via -r requirements/base.in
 django-filter==2.4.0      # via -r requirements/base.in
@@ -61,7 +61,7 @@ edx-auth-backends==3.1.0  # via -r requirements/base.in
 edx-ccx-keys==1.1.0       # via -r requirements/base.in
 edx-django-release-util==0.4.4  # via -r requirements/base.in
 edx-django-sites-extensions==2.5.1  # via -r requirements/base.in
-edx-django-utils==3.11.0  # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client, taxonomy-connector
+edx-django-utils==3.13.0  # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client, taxonomy-connector
 edx-drf-extensions==6.2.0  # via -r requirements/base.in
 edx-opaque-keys==2.1.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
 edx-rest-api-client==5.2.1  # via -r requirements/base.in, taxonomy-connector
@@ -72,7 +72,7 @@ greenlet==0.4.17          # via gevent
 gunicorn==20.0.4          # via -r requirements/production.in
 html2text==2020.1.16      # via -r requirements/base.in
 idna==2.10                # via requests
-importlib-metadata==2.0.0  # via markdown
+importlib-metadata==2.1.0  # via markdown
 itypes==1.2.0             # via coreapi
 jinja2==2.11.2            # via coreschema
 jmespath==0.10.0          # via boto3, botocore
@@ -94,7 +94,7 @@ pycparser==2.20           # via cffi
 pycryptodomex==3.9.9      # via pyjwkest
 pyjwkest==1.4.2           # via edx-drf-extensions
 pyjwt[crypto]==1.7.1      # via drf-jwt, edx-auth-backends, edx-rest-api-client, social-auth-core
-pymongo==3.11.0           # via edx-opaque-keys
+pymongo==3.11.1           # via edx-opaque-keys
 python-dateutil==2.8.1    # via -r requirements/base.in, botocore, drf-haystack, edx-drf-extensions
 python-memcached==1.59    # via -r requirements/production.in
 python-utils==2.4.0       # via progressbar2
@@ -103,7 +103,7 @@ pytz==2020.4              # via -r requirements/base.in, django, django-ses, tax
 pyyaml==5.3.1             # via -r requirements/production.in, edx-django-release-util
 rcssmin==1.0.6            # via django-compressor
 requests-oauthlib==1.3.0  # via social-auth-core
-requests==2.24.0          # via -r requirements/base.in, algoliasearch, coreapi, edx-analytics-data-api-client, edx-drf-extensions, edx-rest-api-client, pyjwkest, requests-oauthlib, simple-salesforce, slumber, social-auth-core
+requests==2.25.0          # via -r requirements/base.in, algoliasearch, coreapi, edx-analytics-data-api-client, edx-drf-extensions, edx-rest-api-client, pyjwkest, requests-oauthlib, simple-salesforce, slumber, social-auth-core
 rest-condition==1.0.3     # via edx-drf-extensions
 rjsmin==1.1.0             # via django-compressor
 s3transfer==0.3.3         # via boto3
@@ -122,7 +122,7 @@ unicode-slugify==0.1.3    # via -r requirements/base.in
 unicodecsv==0.14.1        # via djangorestframework-csv
 unidecode==1.1.1          # via unicode-slugify
 uritemplate==3.0.1        # via coreapi
-urllib3==1.25.11          # via botocore, elasticsearch, requests
+urllib3==1.26.2           # via botocore, elasticsearch, requests
 xss-utils==0.1.3          # via -r requirements/base.in
 zipp==1.2.0               # via importlib-metadata
 zope.event==4.5.0         # via gevent
