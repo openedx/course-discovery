@@ -1500,6 +1500,7 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
             'uuid', 'title', 'subtitle', 'type', 'type_attrs', 'status', 'marketing_slug', 'marketing_url',
             'banner_image', 'hidden', 'courses', 'authoring_organizations', 'card_image_url',
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
+            'total_hours_of_effort',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
@@ -1654,7 +1655,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     class Meta(MinimalProgramSerializer.Meta):
         model = Program
         fields = MinimalProgramSerializer.Meta.fields + (
-            'overview', 'total_hours_of_effort', 'weeks_to_complete', 'weeks_to_complete_min', 'weeks_to_complete_max',
+            'overview', 'weeks_to_complete', 'weeks_to_complete_min', 'weeks_to_complete_max',
             'min_hours_effort_per_week', 'max_hours_effort_per_week', 'video', 'expected_learning_items',
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
