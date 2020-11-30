@@ -155,6 +155,8 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
     facet_serializer_class = search_indexes_serializers.AggregateFacetSearchSerializer
 
     faceted_search_fields = {
+        'content_type': {'field': 'content_type', 'enabled': True},
+        'first_enrollable_paid_seat_price': {'field': 'first_enrollable_paid_seat_price', 'enabled': True},
         'language': {'field': 'language.raw', 'enabled': True},
         'level_type': {'field': 'level_type.raw', 'enabled': True},
         'mobile_available': {'field': 'mobile_available', 'enabled': True},
@@ -164,28 +166,28 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
             'options': {"size": settings.SEARCH_FACET_LIMIT},
         },
         'pacing_type': {'field': 'pacing_type', 'enabled': True},
-        'first_enrollable_paid_seat_price': {'field': 'first_enrollable_paid_seat_price', 'enabled': True},
         'seat_types': {'field': 'seat_types', 'enabled': True},
         'subjects': {'field': 'subjects.raw', 'enabled': True},
-        'transcript_languages': {'field': 'transcript_languages.raw', 'enabled': True},
         'status': {'field': 'status', 'enabled': True},
+        'transcript_languages': {'field': 'transcript_languages.raw', 'enabled': True},
         'type': {'field': 'type.raw', 'enabled': True},
-        'content_type': {'field': 'content_type', 'enabled': True},
+
     }
-    ordering_fields = {'start': 'start', 'aggregation_key': 'aggregation_key'}
     filter_fields = {
-        'partner': {'field': 'partner.lower', 'lookups': [LOOKUP_FILTER_TERM]},
-        'content_type': {'field': 'content_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'aggregation_key': {'field': 'aggregation_key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'availability': {'field': 'availability.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'level_type': {'field': 'level_type.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
-        'org': {'field': 'org.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]},
-        'type': {'field': 'type.lower', 'lookups': [LOOKUP_FILTER_TERM]},
+        'aggregation_key': {
+            'field': 'aggregation_key',
+            'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]
+        },
         'authoring_organization_uuids': {
             'field': 'authoring_organization_uuids',
             'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]
         },
+        'authoring_organizations': {
+            'field': 'availability.lower',
+            'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]
+        },
+        'availability': {'field': 'availability.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'content_type': {'field': 'content_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'first_enrollable_paid_seat_price': {
             'field': 'first_enrollable_paid_seat_price',
             'lookups': [
@@ -198,7 +200,23 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
                 LOOKUP_FILTER_TERMS,
             ],
         },
+        'end': {'field': 'end', 'lookups': [LOOKUP_QUERY_GT, LOOKUP_QUERY_GTE, LOOKUP_QUERY_LT, LOOKUP_QUERY_LTE]},
+        'has_enrollable_seats': {'field': 'has_enrollable_seats', 'lookups': [LOOKUP_FILTER_TERM]},
+        'hidden': {'field': 'hidden', 'lookups': [LOOKUP_FILTER_TERM]},
+        'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]},
+        'languages': {'field': 'languages', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'level_type': {'field': 'level_type.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'number': {'field': 'number', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'org': {'field': 'org.lower', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]},
+        'pacing_type': {'field': 'pacing_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'partner': {'field': 'partner.lower', 'lookups': [LOOKUP_FILTER_TERM]},
+        'published': {'field': 'published', 'lookups': [LOOKUP_FILTER_TERM]},
+        'status': {'field': 'status', 'lookups': [LOOKUP_FILTER_TERM]},
+        'start': {'field': 'start', 'lookups': [LOOKUP_QUERY_GT, LOOKUP_QUERY_GTE, LOOKUP_QUERY_LT, LOOKUP_QUERY_LTE]},
+        'subject_uuids': {'field': 'status', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'type': {'field': 'type.lower', 'lookups': [LOOKUP_FILTER_TERM]},
     }
+    ordering_fields = {'start': 'start', 'aggregation_key': 'aggregation_key'}
 
 
 class AggregateSearchViewSet(BaseAggregateSearchViewSet):
