@@ -201,6 +201,8 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
             ],
         },
         'end': {'field': 'end', 'lookups': [LOOKUP_QUERY_GT, LOOKUP_QUERY_GTE, LOOKUP_QUERY_LT, LOOKUP_QUERY_LTE]},
+        # FIXME: 'enrollment_mode' is a legacy field. It keeps being supported now, but should be deleted.
+        'enrollment_mode': {'field': 'type.lower', 'lookups': [LOOKUP_FILTER_TERM]},
         'has_enrollable_seats': {'field': 'has_enrollable_seats', 'lookups': [LOOKUP_FILTER_TERM]},
         'hidden': {'field': 'hidden', 'lookups': [LOOKUP_FILTER_TERM]},
         'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]},
