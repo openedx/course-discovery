@@ -34,7 +34,6 @@ class CatalogDataFilterBackendMixin:
         return 'partner' in self.get_filter_query_params(request, view)
 
 
-
 class FieldActionFilterBackendMinix:
     """
     Field action filter backend minix.

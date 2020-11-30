@@ -724,6 +724,7 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
 
         assert response.json() == expected
 
+
 class BrowsableAPIRendererWithoutFormsTests(TestCase):
     def setUp(self):
         super().setUp()
