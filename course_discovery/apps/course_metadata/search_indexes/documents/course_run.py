@@ -58,7 +58,14 @@ class CourseRunDocument(BaseCourseDocument):
     start = fields.DateField()
     slug = fields.TextField()
     staff_uuids = fields.KeywordField(multi=True)
-    type = fields.KeywordField(attr='type_legacy')
+    type = fields.TextField(
+        attr='type_legacy',
+        analyzer=html_strip,
+        fields={
+            'raw': fields.KeywordField(attr='type_legacy'),
+            'lower': fields.TextField(analyzer=case_insensitive_keyword, attr='type_legacy')
+        }
+    )
     transcript_languages = fields.TextField(
         analyzer=html_strip, fields={'raw': fields.KeywordField(multi=True)}, multi=True
     )

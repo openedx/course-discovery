@@ -185,6 +185,8 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
         fields={
             'suggest': fields.CompletionField(),
             'edge_ngram_completion': fields.TextField(analyzer=edge_ngram_completion),
+            'raw': fields.KeywordField(),
+            'lower': fields.TextField(analyzer=case_insensitive_keyword)
         },
     )
     authoring_organization_bodies = fields.TextField(multi=True)
