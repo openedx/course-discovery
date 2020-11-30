@@ -685,7 +685,7 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
 
         assert response.json() == expected
 
-    def test_post_support_for_both_query_and_body_parameters(self):
+    def test_post_supports_for_both_query_and_body_parameters(self):
         """
         Verify that POST request works as expected for `AggregateSearchViewSet`
         when simultaneously query and body request parameters.
@@ -707,6 +707,22 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
 
         assert response.json() == expected
 
+    def test_post_supports_search_all_query(self):
+        course_1 = CourseFactory(key='edX+DemoX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        course_2 = CourseFactory(key='edX+DemoXX', title='ABCs', partner=PartnerFactory(short_code='testX'))
+        expected = {
+            'previous': None,
+            'results': [
+                self.serialize_course_search(course_1),
+                self.serialize_course_search(course_2),
+            ],
+            'next': None,
+            'count': 2,
+            'facets': {}
+        }
+        response = self.client.post(self.path, data={}, format='json')
+
+        assert response.json() == expected
 
 class BrowsableAPIRendererWithoutFormsTests(TestCase):
     def setUp(self):
