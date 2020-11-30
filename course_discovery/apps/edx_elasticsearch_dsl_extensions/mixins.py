@@ -10,6 +10,8 @@ class CatalogDataFilterBackendMixin:
         """
         Filter the queryset.
 
+        Return data for the default partner, if no partner is requested
+
         :param request: Django REST framework request.
         :param queryset: Base queryset.
         :param view: View.
@@ -19,13 +21,18 @@ class CatalogDataFilterBackendMixin:
         :return: Updated queryset.
         :rtype: elasticsearch_dsl.search.Search
         """
-        filter_query_params = self.get_filter_query_params(request, view)
-        if filter_query_params:
-            return super().filter_queryset(request, queryset, view)
-        queryset = self.apply_filter_term(queryset, {'field': 'partner'},
-                                          request.site.partner.short_code)
+        if not self.is_partner_requested(request, view) and request.method == 'GET':
+            queryset = self.apply_filter_term(
+                queryset,
+                {'field': 'partner'},
+                request.site.partner.short_code
+            )
 
-        return queryset
+        return super().filter_queryset(request, queryset, view)
+
+    def is_partner_requested(self, request, view):
+        return 'partner' in self.get_filter_query_params(request, view)
+
 
 
 class FieldActionFilterBackendMinix:
