@@ -9,10 +9,10 @@ algoliasearch==1.20.0     # via algoliasearch-django
 authlib==0.15.2           # via simple-salesforce
 backoff==1.10.0           # via -r requirements/base.in
 beautifulsoup4==4.9.3     # via -r requirements/base.in
-boto3==1.16.24            # via django-ses
-botocore==1.19.24         # via boto3, s3transfer
+boto3==1.16.26            # via django-ses
+botocore==1.19.26         # via boto3, s3transfer
 certifi==2020.11.8        # via -r requirements/production.in, requests
-cffi==1.14.3              # via cryptography
+cffi==1.14.4              # via cryptography
 chardet==3.0.4            # via requests
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
@@ -27,13 +27,13 @@ django-contrib-comments==1.9.2  # via -r requirements/base.in
 django-cors-headers==2.5.3  # via -c requirements/constraints.txt, -r requirements/base.in
 django-crum==0.7.9        # via edx-django-utils
 django-dynamic-filenames==1.1.4  # via -r requirements/base.in
-django-extensions==3.0.9  # via -r requirements/base.in
+django-extensions==3.1.0  # via -r requirements/base.in
 django-filter==2.4.0      # via -r requirements/base.in
 django-fsm==2.7.1         # via -r requirements/base.in
 django-guardian==2.3.0    # via -r requirements/base.in
 django-haystack==3.0      # via -r requirements/base.in, drf-haystack
 django-libsass==0.8       # via -r requirements/base.in
-django-model-utils==4.0.0  # via taxonomy-connector
+django-model-utils==4.1.0  # via taxonomy-connector
 django-parler==2.2        # via -r requirements/base.in
 django-rest-swagger==2.2.0  # via -r requirements/base.in
 django-ses==1.0.3         # via -r requirements/production.in
@@ -78,7 +78,7 @@ jinja2==2.11.2            # via coreschema
 jmespath==0.10.0          # via boto3, botocore
 jsonfield2==3.0.3         # via -c requirements/constraints.txt, -r requirements/base.in
 libsass==0.20.1           # via django-libsass
-lxml==4.6.1               # via -r requirements/base.in
+lxml==4.6.2               # via -r requirements/base.in
 markdown==3.2.2           # via -r requirements/base.in
 markupsafe==1.1.1         # via jinja2
 mysqlclient==2.0.1        # via -r requirements/production.in
