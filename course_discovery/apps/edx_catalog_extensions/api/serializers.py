@@ -1,24 +1,20 @@
 # pylint: disable=abstract-method
+from drf_haystack.fields import FacetDictField, FacetListField
+from drf_haystack.serializers import FacetFieldSerializer
 from rest_framework import serializers
 from rest_framework.fields import DictField
 
-from course_discovery.apps.api.serializers import QueryFacetFieldSerializer
-from course_discovery.apps.course_metadata.search_indexes.serializers.aggregation import AggregateFacetSearchSerializer
-from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import (
-    FacetDictField, FacetFieldSerializer, FacetListField
-)
+from course_discovery.apps.api.serializers import AggregateFacetSearchSerializer, QueryFacetFieldSerializer
 
 
 class DistinctCountsAggregateFacetSearchSerializer(AggregateFacetSearchSerializer):
     """ Custom AggregateFacetSearchSerializer which includes distinct hit and facet counts."""
 
-    def to_representation(self, instance):
-        pres = super().to_representation(instance)
-        return pres
-
     def get_fields(self):
         """ Return the field_mapping needed for serializing the data."""
         # Re-implement the logic from the superclass methods, but make sure to handle field and query facets properly.
+        # https://github.com/edx/course-discovery/blob/master/course_discovery/apps/api/serializers.py#L950
+        # https://github.com/inonit/drf-haystack/blob/master/drf_haystack/serializers.py#L373
         field_data = self.instance.pop('fields', {})
         query_data = self.format_query_facet_data(self.instance.pop('queries', {}))
         field_mapping = super().get_fields()
@@ -48,9 +44,9 @@ class DistinctCountsAggregateFacetSearchSerializer(AggregateFacetSearchSerialize
         """ Format and return the query facet data so that it may be properly serialized."""
         # Re-implement the logic from the superclass method, but make sure to handle changes to the raw query facet
         # data and extract the distinct counts.
+        # https://github.com/edx/course-discovery/blob/master/course_discovery/apps/api/serializers.py#L966
         query_data = {}
-        view = self.context["view"]
-        for field, options in getattr(view, 'faceted_query_filter_fields', {}).items():
+        for field, options in getattr(self.Meta, 'field_queries', {}).items():
             # The query facet data is expected to be formatted as a dictionary with fields mapping to a two-tuple
             # containing count and distinct count.
             count, distinct_count = query_facet_counts.get(field, (0, 0))
@@ -66,20 +62,19 @@ class DistinctCountsAggregateFacetSearchSerializer(AggregateFacetSearchSerialize
 
 class DistinctCountsFacetFieldSerializer(FacetFieldSerializer):
     """ Custom FacetFieldSerializer which includes distinct counts."""
-
     distinct_count = serializers.SerializerMethodField()
 
     def get_distinct_count(self, instance):
         """ Return the distinct count for this facet."""
         # The instance is expected to be formatted as a three tuple containing the field name, normal count and
         # distinct count. This is consistent with the superclass implementation here:
+        # https://github.com/inonit/drf-haystack/blob/master/drf_haystack/serializers.py#L321
         count = instance[2]
         return serializers.IntegerField(read_only=True).to_representation(count)
 
 
 class DistinctCountsQueryFacetFieldSerializer(QueryFacetFieldSerializer):
     """ Custom QueryFacetFieldSerializer which includes distinct counts."""
-
     distinct_count = serializers.SerializerMethodField()
 
     def get_distinct_count(self, instance):
