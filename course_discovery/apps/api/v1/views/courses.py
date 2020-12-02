@@ -129,8 +129,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             else:
                 course_runs = CourseRun.objects.filter(course__partner=partner)
 
-            course_runs = course_runs.order_by('start', 'id')
-
             if not get_query_param(self.request, 'include_hidden_course_runs'):
                 course_runs = course_runs.exclude(hidden=True)
 

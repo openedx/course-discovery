@@ -1023,11 +1023,25 @@ class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         return queryset.select_related('partner', 'type', 'canonical_course_run').prefetch_related(
             'authoring_organizations',
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
-            Prefetch('course_runs', queryset=MinimalCourseRunSerializer.prefetch_queryset(queryset=course_runs)),
+            cls.prefetch_course_runs(MinimalCourseRunSerializer, course_runs),
         )
 
     def get_url_slug(self, obj):  # pylint: disable=unused-argument
         return None  # this has been removed from the MinimalCourseSerializer, set to None to not break APIs
+
+    @classmethod
+    def prefetch_course_runs(cls, serializer_class, course_runs=None):
+        """Returns a Prefetch object for the course runs in a course."""
+        if course_runs is None:
+            course_runs = CourseRun.objects.all()
+
+        # Ordering feels like a sneaky thing to be doing in a prefetch method, but it's done here just so that it's
+        # harder to forget to do. Course runs in a course have an obviously correct ordering, and that ordering wants
+        # to be preserved whether we're in a program or course endpoint. (Course runs in general don't have a default
+        # ordering like this, because it's less obvious in other contexts how runs should be ordered.)
+        course_runs = course_runs.order_by('start', 'id')
+
+        return Prefetch('course_runs', queryset=serializer_class.prefetch_queryset(queryset=course_runs))
 
     class Meta:
         model = Course
@@ -1108,7 +1122,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'topics',
             'url_slug_history',
             'url_redirects',
-            Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
+            cls.prefetch_course_runs(CourseRunSerializer, course_runs),
             'canonical_course_run',
             'canonical_course_run__seats',
             'canonical_course_run__seats__course_run__course',
@@ -1181,7 +1195,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
             'topics',
             'url_slug_history',
             Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset()),
-            Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
+            cls.prefetch_course_runs(CourseRunSerializer, course_runs),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('programs', queryset=NestedProgramSerializer.prefetch_queryset(queryset=programs)),
@@ -1242,7 +1256,7 @@ class CatalogCourseSerializer(CourseSerializer):
             'url_slug_history',
             'editors',
             'url_redirects',
-            Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
+            cls.prefetch_course_runs(CourseRunSerializer, course_runs),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
