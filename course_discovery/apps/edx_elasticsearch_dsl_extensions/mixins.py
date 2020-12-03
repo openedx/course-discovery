@@ -50,27 +50,15 @@ class FieldActionFilterBackendMinix:
             'lower': lambda: str(value).lower(),
         }.get(action, lambda: value)()
 
-    @classmethod
-    def apply_filter_terms(cls, queryset, options, value):
+    def get_filter_query_params(self, request, view):
         """
-        Apply `terms` filter.
-
         Overrides the default behavior of the method
         to be able to apply actions under values defined into field name.
         """
-        action = cls.split_field_action(options['field'])
-        dispatch_action = partial(cls.dispatch_field_action, action)
+        filter_query_params = super().get_filter_query_params(request, view)
+        for key, options in filter_query_params.items():
+            action = self.split_field_action(options['field'])
+            dispatch_action = partial(self.dispatch_field_action, action)
+            options['values'] = list(map(dispatch_action, options['values']))
 
-        if isinstance(value, (list, tuple)):
-            __values = list(map(dispatch_action, value))
-        else:
-            __values = dispatch_action(cls.split_lookup_complex_value(value))  # pylint: disable=no-member
-
-        return cls.apply_filter(  # pylint: disable=no-member
-            queryset=queryset,
-            options=options,
-            args=['terms'],
-            kwargs={
-                options['field']: __values
-            }
-        )
+        return filter_query_params
