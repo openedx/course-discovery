@@ -9,8 +9,8 @@ algoliasearch==1.20.0     # via algoliasearch-django
 authlib==0.15.2           # via simple-salesforce
 backoff==1.10.0           # via -r requirements/base.in
 beautifulsoup4==4.9.3     # via -r requirements/base.in
-boto3==1.16.31            # via django-ses
-botocore==1.19.31         # via boto3, s3transfer
+boto3==1.16.36            # via django-ses
+botocore==1.19.36         # via boto3, s3transfer
 certifi==2020.12.5        # via -r requirements/production.in, requests
 cffi==1.14.4              # via cryptography
 chardet==3.0.4            # via requests
@@ -54,7 +54,7 @@ djangorestframework==3.12.2  # via -r requirements/base.in, django-rest-swagger,
 drf-dynamic-fields==0.3.1  # via -r requirements/base.in
 drf-extensions==0.6.0     # via -r requirements/base.in
 drf-haystack==1.8.9       # via -r requirements/base.in
-drf-jwt==1.17.2           # via edx-drf-extensions
+drf-jwt==1.17.3           # via edx-drf-extensions
 dry-rest-permissions==0.1.10  # via -r requirements/base.in
 edx-analytics-data-api-client==0.16.1  # via -r requirements/base.in
 edx-auth-backends==3.1.0  # via -r requirements/base.in
@@ -64,7 +64,7 @@ edx-django-sites-extensions==2.5.1  # via -r requirements/base.in
 edx-django-utils==3.13.0  # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client, taxonomy-connector
 edx-drf-extensions==6.2.0  # via -r requirements/base.in
 edx-opaque-keys==2.1.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
-edx-rest-api-client==5.2.1  # via -r requirements/base.in, taxonomy-connector
+edx-rest-api-client==5.2.2  # via -r requirements/base.in, taxonomy-connector
 elasticsearch==1.9.0      # via -c requirements/constraints.txt, -r requirements/base.in
 future==0.18.2            # via django-ses, pyjwkest
 gevent==20.9.0            # via -r requirements/production.in
@@ -81,7 +81,7 @@ libsass==0.20.1           # via django-libsass
 lxml==4.6.2               # via -r requirements/base.in
 markdown==3.2.2           # via -r requirements/base.in
 markupsafe==1.1.1         # via jinja2
-mysqlclient==2.0.1        # via -r requirements/production.in
+mysqlclient==2.0.2        # via -r requirements/production.in
 newrelic==5.22.1.152      # via -r requirements/production.in, edx-django-utils
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 openapi-codec==1.3.2      # via django-rest-swagger
@@ -114,7 +114,7 @@ six==1.15.0               # via cryptography, django-choices, django-compressor,
 slumber==0.7.1            # via edx-rest-api-client
 git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in, edx-auth-backends
 social-auth-core==3.2.0   # via -c requirements/constraints.txt, edx-auth-backends, social-auth-app-django
-soupsieve==2.0.1          # via beautifulsoup4
+soupsieve==2.1            # via beautifulsoup4
 sqlparse==0.4.1           # via django
 stevedore==1.32.0         # via edx-django-utils, edx-opaque-keys
 taxonomy-connector==1.1.2  # via -r requirements/base.in
