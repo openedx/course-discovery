@@ -55,8 +55,8 @@ class FieldActionFilterBackendMinix:
         Overrides the default behavior of the method
         to be able to apply actions under values defined into field name.
         """
-        filter_query_params = super().get_filter_query_params(request, view)
-        for key, options in filter_query_params.items():
+        filter_query_params = super().get_filter_query_params(request, view)  # pylint: disable=no-member
+        for __, options in filter_query_params.items():
             action = self.split_field_action(options['field'])
             dispatch_action = partial(self.dispatch_field_action, action)
             options['values'] = list(map(dispatch_action, options['values']))
