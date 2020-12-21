@@ -27,11 +27,12 @@ django-contrib-comments==1.9.2  # via -r requirements/base.in
 django-cors-headers==2.5.3  # via -c requirements/constraints.txt, -r requirements/base.in
 django-crum==0.7.9        # via edx-django-utils
 django-dynamic-filenames==1.1.4  # via -r requirements/base.in
+django-elasticsearch-dsl-drf==0.20.8  # via -r requirements/base.in
+django-elasticsearch-dsl==7.1.4  # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl-drf
 django-extensions==3.1.0  # via -r requirements/base.in
 django-filter==2.4.0      # via -r requirements/base.in
 django-fsm==2.7.1         # via -r requirements/base.in
 django-guardian==2.3.0    # via -r requirements/base.in
-django-haystack==3.0      # via -r requirements/base.in, drf-haystack
 django-libsass==0.8       # via -r requirements/base.in
 django-model-utils==4.1.1  # via taxonomy-connector
 django-parler==2.2        # via -r requirements/base.in
@@ -53,7 +54,6 @@ djangorestframework-xml==2.0.0  # via -r requirements/base.in
 djangorestframework==3.12.2  # via -r requirements/base.in, django-rest-swagger, djangorestframework-csv, drf-extensions, drf-haystack, drf-jwt, edx-drf-extensions, rest-condition, taxonomy-connector
 drf-dynamic-fields==0.3.1  # via -r requirements/base.in
 drf-extensions==0.6.0     # via -r requirements/base.in
-drf-haystack==1.8.9       # via -r requirements/base.in
 drf-jwt==1.17.3           # via edx-drf-extensions
 dry-rest-permissions==0.1.10  # via -r requirements/base.in
 edx-analytics-data-api-client==0.16.1  # via -r requirements/base.in
@@ -64,8 +64,9 @@ edx-django-sites-extensions==2.5.1  # via -r requirements/base.in
 edx-django-utils==3.13.0  # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client, taxonomy-connector
 edx-drf-extensions==6.2.0  # via -r requirements/base.in
 edx-opaque-keys==2.1.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
-edx-rest-api-client==5.2.2  # via -r requirements/base.in, taxonomy-connector
-elasticsearch==1.9.0      # via -c requirements/constraints.txt, -r requirements/base.in
+edx-rest-api-client==5.2.2  # via -r requirements/base.in
+elasticsearch-dsl==7.2.1  # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl, django-elasticsearch-dsl-drf
+elasticsearch==7.9.0      # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl-drf, elasticsearch-dsl
 future==0.18.2            # via django-ses, pyjwkest
 gevent==20.9.0            # via -r requirements/production.in
 greenlet==0.4.17          # via gevent

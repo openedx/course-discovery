@@ -16,7 +16,7 @@ from course_discovery.apps.course_metadata.models import (
     Program
 )
 from course_discovery.apps.edx_catalog_extensions.api.serializers import DistinctCountsAggregateFacetSearchSerializer
-from course_discovery.apps.edx_haystack_extensions.distinct_counts.query import DistinctCountsSearchQuerySet
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.distinct_counts.query import DistinctCountsSearchQuerySet
 
 logger = logging.getLogger(__name__)
 
