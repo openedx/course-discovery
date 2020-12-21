@@ -2010,7 +2010,8 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                     key=course.sponsoring_organizations.first().key,
                     name=course.sponsoring_organizations.first().name,
                 )
-            ]
+            ],
+            'skill_names': [],
         }
 
         serializer = self.serialize_course(course, request)
@@ -2075,6 +2076,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                     name=course.sponsoring_organizations.first().name,
                 )
             ],
+            'skill_names': [],
             'outcome': course.outcome,
             'level_type': course.level_type.name,
             'modified': course.modified.strftime('%Y-%m-%dT%H:%M:%SZ'),
@@ -2120,6 +2122,7 @@ class CourseSearchSerializerTests(TestCase, CourseSearchSerializerMixin):
                 if course_run.language
             ],
             'seat_types': [seat.type.slug],
+            'skill_names': [],
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,
