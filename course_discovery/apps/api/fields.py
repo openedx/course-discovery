@@ -42,7 +42,7 @@ class StdImageSerializerField(serializers.ImageField):
         return super().to_internal_value(data)
 
 
-class ImageField(serializers.Field):  # pylint: disable=abstract-method
+class ImageField(serializers.Field):  # pylint:disable=abstract-method
     """ This field mimics the format of `ImageSerializer`. It is intended to aid the transition away from the
     `Image` model to simple URLs.
     """

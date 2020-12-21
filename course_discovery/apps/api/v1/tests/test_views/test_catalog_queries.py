@@ -93,15 +93,3 @@ class CatalogQueryViewSetTests(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data, self.error_message)
-
-    def test_incorrect_queries(self):
-        """ Verify that a 400 status is returned if request contains incorrect query string. """
-        qs = urllib.parse.urlencode({
-            'query': 'title:',
-            'course_run_ids': self.course_run.key,
-            'course_uuids': self.course.uuid,
-        })
-        url = f'{self.url_base}/?{qs}'
-
-        response = self.client.get(url)
-        assert response.status_code == 400
