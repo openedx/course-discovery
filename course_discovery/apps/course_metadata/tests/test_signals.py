@@ -16,10 +16,10 @@ from course_discovery.apps.course_metadata.algolia_models import (
 )
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
-    BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, CourseRun, Curriculum,
-    CurriculumProgramMembership, DataLoaderConfig, DeletePersonDupsConfig, DrupalPublishUuidConfig,
-    LevelTypeTranslation, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, Program,
-    ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
+    BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, BulkUpdateImagesConfig,
+    CourseRun, Curriculum, CurriculumProgramMembership, DataLoaderConfig, DeletePersonDupsConfig,
+    DrupalPublishUuidConfig, LevelTypeTranslation, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig,
+    Program, ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
@@ -52,7 +52,7 @@ class TestCacheInvalidation:
                          TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
                          BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
                          AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation,
-                         LevelTypeTranslation, SearchDefaultResultsConfiguration]:
+                         LevelTypeTranslation, SearchDefaultResultsConfiguration, BulkUpdateImagesConfig]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
                 continue

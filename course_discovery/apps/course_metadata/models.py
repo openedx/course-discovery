@@ -3004,3 +3004,7 @@ class BulkModifyProgramHookConfig(SingletonModel):
 class BackfillCourseRunSlugsConfig(SingletonModel):
     all = models.BooleanField(default=False, verbose_name=_('Add redirects from all published course url slugs'))
     uuids = models.TextField(default='', null=False, blank=True, verbose_name=_('Course uuids'))
+
+
+class BulkUpdateImagesConfig(SingletonModel):
+    image_urls = models.TextField(blank=True)
