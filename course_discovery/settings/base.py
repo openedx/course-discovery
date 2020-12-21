@@ -78,20 +78,17 @@ PROJECT_APPS = [
     'course_discovery.apps.api',
     'course_discovery.apps.catalogs',
     'course_discovery.apps.course_metadata',
-    'course_discovery.apps.edx_elasticsearch_dsl_extensions',
+    'course_discovery.apps.edx_haystack_extensions',
     'course_discovery.apps.publisher',
     'course_discovery.apps.publisher_comments',
 ]
 
-ES_APPS = [
-    'elasticsearch_dsl',
-    'django_elasticsearch_dsl',
-    'django_elasticsearch_dsl_drf',
-]
 
 INSTALLED_APPS += THIRD_PARTY_APPS
 INSTALLED_APPS += PROJECT_APPS
-INSTALLED_APPS += ES_APPS
+
+# NOTE: Haystack must be installed after core so that we can override Haystack's management commands with our own.
+INSTALLED_APPS += ['haystack']
 
 MIDDLEWARE = (
     'corsheaders.middleware.CorsMiddleware',
@@ -154,10 +151,10 @@ PARLER_LANGUAGES = {
         {'code': LANGUAGE_CODE, },
     ),
     'default': {
-        'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
-        'hide_untranslated': False,
-    }
-}
+         'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
+         'hide_untranslated': False,
+     }
+ }
 
 # Parler seems to be a bit overeager with its caching of translated models,
 # and so we get a large number of sets, but rarely any gets
@@ -177,6 +174,7 @@ USE_TZ = True
 LOCALE_PATHS = (
     root('conf', 'locale'),
 )
+
 
 # MEDIA CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#media-root
@@ -411,6 +409,7 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
+
 # http://chibisov.github.io/drf-extensions/docs/
 REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_ERRORS': False,
@@ -444,42 +443,102 @@ SWAGGER_SETTINGS = {
     'DOC_EXPANSION': 'list',
 }
 
+# Elasticsearch uses index settings to specify available analyzers.
+# We are adding the lowercase analyzer and tweaking the ngram analyzers here,
+# so we need to use these settings rather than the index defaults.
+# We are making these changes to enable autocomplete for the typeahead endpoint.
+# In addition we are specifying the number of shards and replicas that indices
+# will be created with as recommended here:
+# https://aws.amazon.com/blogs/database/get-started-with-amazon-elasticsearch-service-how-many-shards-do-i-need/
+ELASTICSEARCH_INDEX_SETTINGS = {
+    'settings': {
+        'index': {
+            'number_of_shards': 1,
+            'number_of_replicas': 1
+        },
+        'analysis': {
+            'tokenizer': {
+                'haystack_edgengram_tokenizer': {
+                    'type': 'edgeNGram',
+                    'side': 'front',
+                    'min_gram': 2,
+                    'max_gram': 15
+                },
+                'haystack_ngram_tokenizer': {
+                    'type': 'nGram',
+                    'min_gram': 2,
+                    'max_gram': 15
+                }
+            },
+            'analyzer': {
+                'lowercase': {
+                    'type': 'custom',
+                    'tokenizer': 'keyword',
+                    'filter': [
+                        'lowercase',
+                        'synonym',
+                    ]
+                },
+                'snowball_with_synonyms': {
+                    'type': 'custom',
+                    'filter': [
+                        'standard',
+                        'lowercase',
+                        'snowball',
+                        'synonym'
+                    ],
+                    'tokenizer': 'standard'
+                },
+                'ngram_analyzer': {
+                    'type':'custom',
+                    'filter': [
+                        'lowercase',
+                        'haystack_ngram',
+                        'synonym',
+                    ],
+                    'tokenizer': 'keyword'
+                }
+            },
+            'filter': {
+                'haystack_ngram': {
+                    'type': 'nGram',
+                    'min_gram': 2,
+                    'max_gram': 22
+                },
+                'synonym' : {
+                  'type': 'synonym',
+                  'ignore_case': 'true',
+                  'synonyms': []
+                }
+            }
+        }
+    }
+}
+
 SYNONYMS_MODULE = 'course_discovery.settings.synonyms'
 
-# Paginate the django queryset used to populate the index with the specified size
-# (by default it uses the database driver's default setting)
-# https://docs.djangoproject.com/en/3.1/ref/models/querysets/#iterator
-# Thus set the 'chunk_size'
-ELASTICSEARCH_DSL_QUERYSET_PAGINATION = 5000
+# Haystack configuration (http://django-haystack.readthedocs.io/en/v2.5.0/settings.html)
+HAYSTACK_ITERATOR_LOAD_PER_QUERY = 5000
 
-# Defining default pagination for all requests to ElasticSearch,
-# whose parameters 'size' and 'from' are not explicitly set.
-ELASTICSEARCH_DSL_LOAD_PER_QUERY = 5000
-
-ELASTICSEARCH_DSL = {
-    'default': {'hosts': '127.0.0.1:9200'}
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'course_discovery.apps.edx_haystack_extensions.backends.EdxElasticsearchSearchEngine',
+        'URL': 'http://localhost:9200/',
+        'INDEX_NAME': 'catalog',
+    },
 }
-ELASTICSEARCH_INDEX_NAMES = {
-    'course_discovery.apps.course_metadata.search_indexes.documents.course': 'course',
-    'course_discovery.apps.course_metadata.search_indexes.documents.course_run': 'course_run',
-    'course_discovery.apps.course_metadata.search_indexes.documents.person': 'person',
-    'course_discovery.apps.course_metadata.search_indexes.documents.program': 'program',
-}
-ELASTICSEARCH_DSL_INDEX_SETTINGS = {'number_of_shards': 1, 'number_of_replicas': 1}
 
 # We do not use the RealtimeSignalProcessor here to avoid overloading our
 # Elasticsearch instance when running the refresh_course_metadata command
-# If you still want to use please use customized RealTimeSignalProcessor
-# course_discovery.apps.course_metadata.search_indexes.signals.RealTimeSignalProcessor
-ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = 'django_elasticsearch_dsl.signals.BaseSignalProcessor'
-ELASTICSEARCH_DSL_INDEX_RETENTION_LIMIT = 3
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.BaseSignalProcessor'
+HAYSTACK_INDEX_RETENTION_LIMIT = 3
 
 # Update Index Settings
 # Make sure the size of the new index does not change by more than this percentage
 INDEX_SIZE_CHANGE_THRESHOLD = .1
 
 # Elasticsearch search query facet "size" option to increase from the default value of "100"
-# See  https://www.elastic.co/guide/en/elasticsearch/reference/7.8/search-aggregations-metrics-percentile-aggregation.html
+# See  https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-facets-terms-facet.html#_accuracy_control
 SEARCH_FACET_LIMIT = 10000
 
 # Precision settings for the elasticsearch cardinality aggregations used to compute distinct hit and facet counts.
@@ -488,7 +547,7 @@ SEARCH_FACET_LIMIT = 10000
 # precision threshold can be expected to be pretty accurate. Cardinality aggregations for queries that produce more
 # results than the precision_threshold will be less accurate. Setting a higher value for precision_threshold requires
 # a memory tradeoff of rougly precision_threshold * 8 bytes. See the elasticsearch docs for more details:
-# https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations-metrics-cardinality-aggregation.html
+# https://www.elastic.co/guide/en/elasticsearch/reference/1.5/search-aggregations-metrics-cardinality-aggregation.html
 #
 # We use a higher value for hit precision than for facet precision for two reasons:
 #   1.) The hit count is more visible to users than the facet counts.
@@ -496,6 +555,11 @@ SEARCH_FACET_LIMIT = 10000
 #       precision, since the hit count only requires a single aggregation.
 DISTINCT_COUNTS_HIT_PRECISION = 1500
 DISTINCT_COUNTS_FACET_PRECISION = 250
+
+# The number of records that should be requested when warming the SearchQuerySet cache. Set this to equal the
+# number of records typically requested with each search query in order to reduce the number of queries that need
+# to be executed.
+DISTINCT_COUNTS_QUERY_CACHE_WARMING_COUNT = 20
 
 DEFAULT_PARTNER_ID = None
 
@@ -552,7 +616,8 @@ AWS_SES_REGION_ENDPOINT = "email.us-east-1.amazonaws.com"
 AWS_SES_REGION_NAME = "us-east-1"
 CORS_ORIGIN_WHITELIST = []
 CSRF_COOKIE_SECURE = False
-ELASTICSEARCH_CLUSTER_URL = "http://127.0.0.1:9200/"
+ELASTICSEARCH_INDEX_NAME = "catalog"
+ELASTICSEARCH_URL = "http://127.0.0.1:9200/"
 EMAIL_BACKEND = "django_ses.SESBackend"
 EMAIL_HOST = "localhost"
 EMAIL_HOST_PASSWORD = ""
