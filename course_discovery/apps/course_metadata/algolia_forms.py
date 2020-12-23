@@ -9,13 +9,13 @@ class SearchDefaultResultsConfigurationForm(forms.ModelForm):
     class Meta:
         model = SearchDefaultResultsConfiguration
         fields = '__all__'
-
         widgets = {
             # TODO: make this sortable as well (debug sortable-select)
             'courses': SortedModelSelect2Multiple(
                 url='admin_metadata:course-autocomplete',
                 attrs={
                     'data-minimum-input-length': 3,
+                    'class': 'sortable-select',
                 },
             ),
             'programs': SortedModelSelect2Multiple(
