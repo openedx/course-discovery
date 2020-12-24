@@ -77,3 +77,15 @@ class AutoAuthTests(SiteMixin, TestCase):
 
         # Verify that the user has superuser permissions
         self.assertTrue(user.is_superuser)
+
+
+class OtherViewsTests(TestCase):
+    """ Other small view tests """
+
+    def test_javascript_catalog_view(self):
+        """
+        Verify that JavaScriptCatalog view is accessible by reversing 'javascript-catalog'
+        """
+        url = reverse('javascript-catalog')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
