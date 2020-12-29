@@ -72,7 +72,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
                   contained in this catalog.
         """
         contains = {course_id: False for course_id in course_ids}
-        results = self._get_query_results().filter('terms', key=course_ids)
+        results = self._get_query_results().filter('terms', **{'key.raw': course_ids})
         for result in results:
             contains[result.key] = True
 
@@ -90,7 +90,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
                   contained in this catalog.
         """
         contains = {course_run_id: False for course_run_id in course_run_ids}
-        course_runs = CourseRun.search(self.query).filter('terms', key=course_run_ids).source(['key'])
+        course_runs = CourseRun.search(self.query).filter('terms', **{'key.raw': course_run_ids}).source(['key'])
         try:
             course_runs_keys = [i.key for i in course_runs]
         except RequestError:

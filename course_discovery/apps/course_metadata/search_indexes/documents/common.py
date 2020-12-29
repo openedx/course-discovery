@@ -190,7 +190,9 @@ class BaseCourseDocument(OrganizationsMixin, BaseDocument):
         },
     )
     authoring_organization_bodies = fields.TextField(multi=True)
-    key = fields.KeywordField()
+    key = fields.TextField(
+        fields={'raw': fields.KeywordField()}
+    )
     title = fields.TextField(
         analyzer=synonym_text,
         fields={
