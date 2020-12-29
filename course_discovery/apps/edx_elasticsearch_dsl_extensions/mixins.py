@@ -1,5 +1,7 @@
 from functools import partial
 
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.constants import LOOKUP_FILTER_MATCH
+
 
 class CatalogDataFilterBackendMixin:
     """
@@ -32,6 +34,36 @@ class CatalogDataFilterBackendMixin:
 
     def is_partner_requested(self, request, view):
         return 'partner' in self.get_filter_query_params(request, view)
+
+
+class MatchFilterBackendMixin:
+    """
+    Match filter backend minix.
+    """
+
+    @classmethod
+    def apply_filter_term(cls, queryset, options, value):
+        if options.get('lookup') in (LOOKUP_FILTER_MATCH,):
+            return queryset
+        return super().apply_filter_term(queryset, options, value)
+
+    @classmethod
+    def apply_filter_match(cls, queryset, options, value):
+        return cls.apply_filter(
+            queryset=queryset,
+            options=options,
+            args=['match'],
+            kwargs={options['field']: value}
+        )
+
+    def filter_queryset(self, request, queryset, view):
+        filter_query_params = self.get_filter_query_params(request, view)
+        for options in filter_query_params.values():
+            if options['lookup']:
+                for value in options['values']:
+                    if options['lookup'] == LOOKUP_FILTER_MATCH:
+                        queryset = self.apply_filter_match(queryset, options, value)
+        return super().filter_queryset(request, queryset, view)
 
 
 class FieldActionFilterBackendMinix:

@@ -11,14 +11,13 @@ from elasticsearch_dsl.query import Q as ESDSLQ
 from rest_framework.exceptions import ParseError
 from rest_framework.filters import BaseFilterBackend
 
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.constants import SEPARATOR_LOOKUP_NAME
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.elasticsearch_boost_config import (
     get_elasticsearch_boost_config
 )
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.mixins import (
-    CatalogDataFilterBackendMixin, FieldActionFilterBackendMinix
+    CatalogDataFilterBackendMixin, FieldActionFilterBackendMinix, MatchFilterBackendMixin
 )
-
-SEPARATOR_LOOKUP_NAME = ':='
 
 
 # pylint: disable=abstract-method
@@ -200,6 +199,7 @@ class FacetedQueryFilterBackend(BaseFilterBackend, FilterBackendMixin):
 class CatalogDataFilterBackend(
     CatalogDataFilterBackendMixin,
     FieldActionFilterBackendMinix,
+    MatchFilterBackendMixin,
     FilteringFilterBackend
 ):
     """
@@ -207,7 +207,7 @@ class CatalogDataFilterBackend(
     """
 
 
-class AggregateDataFilterBackend(FieldActionFilterBackendMinix, FilteringFilterBackend):
+class AggregateDataFilterBackend(FieldActionFilterBackendMinix, MatchFilterBackendMixin, FilteringFilterBackend):
     """
     Aggregate data filter backend
     """
