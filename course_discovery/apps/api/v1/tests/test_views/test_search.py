@@ -263,7 +263,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
     def setUp(self):
         super().setUp()
         self.desired_key = 'course-v1:edx+DemoX+2018'
-        self.regular_key = 'course-v1:edx+TeamX+2018'
+        self.regular_key = 'course-v1:edx+TeamX+2019'
 
     def get_response(self, query=None, endpoint=None):
         path = endpoint or self.faceted_path
@@ -307,12 +307,40 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             key=self.regular_key,
             type__is_marketable=True
         )
-        response = self.get_response(query={'key': self.desired_key}, endpoint=self.list_path)
+        response = self.get_response(query={'key.raw': self.desired_key}, endpoint=self.list_path)
         assert response.status_code == 200
         response_data = response.json()
         assert response_data["results"] == [
             self.serialize_course_run_search(course_run),
             self.serialize_course_search(course)
+        ]
+
+    def test_results_include_match_key_objects(self):
+        """ Verify the search results include items that match 'key' set to 'course:edX+DemoX' by substring."""
+
+        course = CourseFactory(
+            key=self.regular_key,
+            title='ABCs of Ͳҽʂէìղց',
+            partner=self.partner
+        )
+        CourseFactory(
+            key='course-v1:foo+DemoX+2018',
+            title='ABCs of Ͳҽʂէìղց',
+            partner=self.partner
+        )
+        course_run = CourseRunFactory(
+            course__partner=self.partner,
+            course=course,
+            status=CourseRunStatus.Published,
+            key=self.regular_key,
+            type__is_marketable=True
+        )
+        response = self.get_response(query={'key__match': 'edx'}, endpoint=self.list_path)
+        assert response.status_code == 200
+        response_data = response.json()
+        assert response_data["results"] == [
+            self.serialize_course_run_search(course_run),
+            self.serialize_course_search(course),
         ]
 
     def test_results_only_include_specific_key_objects_which_were_requested_in_the_search(self):
@@ -723,6 +751,18 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         response = self.client.post(self.path, data={}, format='json')
 
         assert response.json() == expected
+
+    def test_post_supports_match_substring_by_key_field(self):
+        course_1 = CourseFactory(key='edX+Foo', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        course_2 = CourseFactory(key='edX+Bar', title='ABCs', partner=self.partner)
+        CourseFactory(key='edX+Baz', title='ABCs', partner=self.partner)
+        data = {'key__match': ['Foo Bar']}
+        response = self.client.post(self.path, data=data, format='json')
+        response_data = response.json()
+        assert response_data["results"] == [
+            self.serialize_course_search(course_2),
+            self.serialize_course_search(course_1),
+        ]
 
 
 class BrowsableAPIRendererWithoutFormsTests(TestCase):

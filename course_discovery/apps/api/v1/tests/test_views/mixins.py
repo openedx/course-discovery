@@ -46,7 +46,7 @@ class SerializationMixin:
         return self._serialize_object(serializers.CourseWithProgramsSerializer, course, many, format, extra_context)
 
     def serialize_course_search(self, course, serializer=None):
-        obj = self._get_search_result(CourseDocument, key=course.key)
+        obj = self._get_search_result(CourseDocument, **{'key.raw': course.key})
         return self._serialize_object(serializer or CourseSearchDocumentSerializer, obj)
 
     def serialize_course_run(self, run, many=False, format=None, extra_context=None):
@@ -56,7 +56,7 @@ class SerializationMixin:
         return self._serialize_object(serializers.MinimalCourseRunSerializer, run, many, format, extra_context)
 
     def serialize_course_run_search(self, run, serializer=None):
-        obj = self._get_search_result(CourseRunDocument, key=run.key)
+        obj = self._get_search_result(CourseRunDocument, **{'key.raw': run.key})
         return self._serialize_object(serializer or CourseRunSearchDocumentSerializer, obj)
 
     def serialize_person(self, person, many=False, format=None, extra_context=None):
@@ -104,7 +104,7 @@ class SerializationMixin:
 
 class TypeaheadSerializationMixin:
     def serialize_course_run_search(self, run):
-        obj, *_ = CourseRunDocument.search().filter('term', key=run.key).execute()
+        obj, *_ = CourseRunDocument.search().filter('term', **{'key.raw': run.key}).execute()
         return serializers.TypeaheadCourseRunSearchSerializer(obj).data
 
     def serialize_program_search(self, program):

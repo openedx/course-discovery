@@ -1929,7 +1929,7 @@ class CourseSearchSerializerMixin:
 
     def serialize_course(self, course, request):
         """ Serializes the given `Course` as a search result. """
-        result = CourseDocument.search().filter('term', key=course.key).execute()[0]
+        result = CourseDocument.search().filter('term', **{'key.raw': course.key}).execute()[0]
 
         return self.serializer_class(result, context={'request': request})  # pylint: disable=not-callable
 
@@ -2175,7 +2175,7 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
 
     def serialize_course_run(self, course_run, request):
         """ Serializes the given `CourseRun` as a search result. """
-        result = CourseRunDocument.search().filter('term', key=course_run.key).execute()[0]
+        result = CourseRunDocument.search().filter('term', **{'key.raw': course_run.key}).execute()[0]
         serializer = self.serializer_class(result, context={'request': request})
         return serializer
 
@@ -2410,7 +2410,7 @@ class TestTypeaheadCourseRunSearchSerializer:
 
     def serialize_course_run(self, course_run):
         """ Serializes the given `CourseRun` as a typeahead result. """
-        result = CourseRunDocument.search().filter('term', key=course_run.key).execute()[0]
+        result = CourseRunDocument.search().filter('term', **{'key.raw': course_run.key}).execute()[0]
         serializer = self.serializer_class(result)
         return serializer
 

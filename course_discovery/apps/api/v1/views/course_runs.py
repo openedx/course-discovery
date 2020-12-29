@@ -401,7 +401,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
             course_run_ids = course_run_ids.split(',')
             course_runs = (
                 CourseRun.search(query)
-                .filter(ESDSLQ('term', partner=partner.short_code) & ESDSLQ('terms', key=course_run_ids))
+                .filter(ESDSLQ('term', partner=partner.short_code) & ESDSLQ('terms', **{'key.raw': course_run_ids}))
                 .source(['key'])
             )
             course_runs_keys = [i.key for i in course_runs]
