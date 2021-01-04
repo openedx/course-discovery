@@ -4,110 +4,106 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
-# Andrey Kryachko, 2018
-# Irene Korotkova <irca.gav@gmail.com>, 2017
-# Marian Slabinoha <mslabinoha@gmail.com>, 2020
-# Natalia Vynogradenko <tannaha@gmail.com>, 2017-2018
-# Olga Filipova <chudaol@gmail.com>, 2017
-# Xenia Korshunova <ksuhakorshunova57@gmail.com>, 2016
-# Марина Сульза <marunasulza1398@gmail.com>, 2020
+# Lucian Horga <lucian.horga@devtelsoftware.com>, 2020
+# Mihaela Caraulasu <mihaela@accelerole.com>, 2017
+# Mihai Iova <mihai@didactiv.org>, 2020
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-25 20:35+0000\n"
-"PO-Revision-Date: 2020-12-23 08:35+0000\n"
-"Last-Translator: Marian Slabinoha <mslabinoha@gmail.com>\n"
-"Language-Team: Ukrainian (http://www.transifex.com/open-edx/edx-platform/language/uk/)\n"
+"PO-Revision-Date: 2020-12-09 18:13+0000\n"
+"Last-Translator: George Turtureanu <contact@didactiv.org>\n"
+"Language-Team: Romanian (http://www.transifex.com/open-edx/edx-platform/language/ro/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: uk\n"
-"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != 11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || (n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+"Language: ro\n"
+"Plural-Forms: nplurals=3; plural=(n==1?0:(((n%100>19)||((n%100==0)&&(n!=0)))?2:1));\n"
 
 #: apps/api/filters.py:46
 #, python-brace-format
 msgid "No user with the username [{username}] exists."
-msgstr "Не існує користувача з ім'ям  [{username}]"
+msgstr "Nu există nici un utilizator cu numele de utilizator [{username}]."
 
 #: apps/api/filters.py:50
 msgid ""
 "Only staff users are permitted to filter by username. Remove the username "
 "parameter."
-msgstr "Тільки персоналу дозволено сортувати за іменем користувача. Видалити параметр ім'я користувача."
+msgstr "Doar utilizatorii personalului au permisiunea de a selecta după numele de utilizator. Eliminați indicele numelui de utilizator."
 
 #: apps/api/serializers.py:664
 msgid "Number of courses contained in this catalog"
-msgstr "Кількість курсів в даному каталозі."
+msgstr "Numărul cursurilor cuprinse in acest catalog"
 
 #: apps/api/serializers.py:667
 msgid "Usernames of users with explicit access to view this catalog"
-msgstr ""
+msgstr "Numele de utilizator ale utilizatorilor cu acces explicit pentru a vizualiza acest catalog"
 
 #: apps/api/serializers.py:826
 msgid "Start date cannot be after the End date"
-msgstr ""
+msgstr "Data de început nu poate apărea după Data de încheiere"
 
 #: apps/api/serializers.py:831
 msgid "Term cannot be changed"
-msgstr ""
+msgstr "Termenii nu pot fi schimbați"
 
 #: apps/api/serializers.py:843
 msgid "Language in which the course is administered"
-msgstr "Мова, якою ведеться курс"
+msgstr "Limba în care este administrat cursul"
 
 #: apps/api/serializers.py:923
 msgid "Course cannot be changed for an existing course run"
-msgstr ""
+msgstr "Cursul nu poate fi schimbat cu un curs în desfășurare"
 
 #: apps/api/serializers.py:928
 msgid "Minimum effort cannot be greater than Maximum effort"
-msgstr ""
+msgstr "Efortul minim nu poate fi mai mare decât Efortul maxim"
 
 #: apps/api/serializers.py:930
 msgid "Minimum effort and Maximum effort cannot be the same"
-msgstr ""
+msgstr "Efortul minim și efortul maxim nu pot fi aceleași"
 
 #: apps/api/serializers.py:972
 msgid "Dictionary mapping course run IDs to boolean values"
-msgstr "Словник термінів ідентифікаторів курсу до булевих значень"
+msgstr "ID-urile cursului în desfășurare, întocmite în dicționar la valori booleane "
 
 #: apps/api/serializers.py:1231
 msgid "Dictionary mapping course IDs to boolean values"
-msgstr ""
+msgstr "ID-urile cursului, întocmite în dicționar la valori booleane "
 
 #: apps/api/serializers.py:1574
 msgid "Languages that course runs in this program are offered in."
-msgstr ""
+msgstr "Limbile disponibile în care se delurează cursul acestui program."
 
 #: apps/api/serializers.py:1578
 msgid ""
 "Languages that course runs in this program have available transcripts in."
-msgstr ""
+msgstr "Transcrierile disponibile pentru limbile în care se delurează cursul acestui program."
 
 #: apps/api/utils.py:187
 #, python-brace-format
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
 "All other fields were successfully saved in Studio."
-msgstr ""
+msgstr "A apărut o eroare în timpul setării imaginii cursului în desfășurare pentru [{key}] în studio. Toate celelalte câmpuri au fost salvate cu succes în Studio."
 
 #: apps/api/v1/exceptions.py:13
 msgid "Specifying both editable=1 and a q parameter is not supported."
-msgstr ""
+msgstr "Precizarea ambelor editabile=1 și un parametru q nu este acceptat."
 
 #: apps/api/v1/views/comments.py:34
 msgid "You must include a course_uuid in your query parameters."
-msgstr ""
+msgstr "Trebuie să includeți un uuid_al cursului în parametrii căutării dumneavoastră."
 
 #: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:187
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
-msgstr ""
+msgstr "Valoarea lipsă pentru: [{name}]. "
 
 #: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:194
 msgid "Incorrect data sent. "
-msgstr ""
+msgstr "Date incorecte trimise."
 
 #: apps/api/v1/views/course_runs.py:42
 msgid "Failed to set course run data: {}"
@@ -115,15 +111,15 @@ msgstr ""
 
 #: apps/api/v1/views/course_runs.py:309
 msgid "Can only update status, ofac restrictions, and ofac comment"
-msgstr ""
+msgstr "Puteți actualiza doar starea, restricțiile ofac și comentariile ofac"
 
 #: apps/api/v1/views/course_runs.py:342
 msgid "Course run is in review. Editing disabled."
-msgstr ""
+msgstr "Desfășurarea cursului este în revizuire. Editarea este dezactivată."
 
 #: apps/api/v1/views/course_runs.py:349
 msgid "Invalid parameter"
-msgstr ""
+msgstr "Parametru invalid"
 
 #: apps/api/v1/views/courses.py:55
 msgid "Failed to set data: {}"
@@ -132,77 +128,77 @@ msgstr ""
 #: apps/api/v1/views/courses.py:189
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
-msgstr ""
+msgstr "Organizația [{org}] nu există. "
 
 #: apps/api/v1/views/courses.py:191
 #, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
-msgstr ""
+msgstr "Tipul Cursului [{course_type}] nu există. "
 
 #: apps/api/v1/views/courses.py:207
 #, python-brace-format
 msgid "A course with key [{key}] already exists."
-msgstr ""
+msgstr "Un curs cu cheia [{key}] există deja."
 
 #: apps/api/v1/views/courses.py:213
 #, python-brace-format
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
-msgstr ""
+msgstr "Crearea cursului a eșuat. \"URL slug-ul\" cursului ‘[{url_slug}]’ este deja folosit. Vă rugăm actualizați acest câmp și încercați din nou."
 
 #: apps/api/v1/views/courses.py:271
 msgid ""
 "Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
-msgstr ""
+msgstr "Modificarea drepturilor după momentul revizuirii, nu este acceptată. Dacă este necesar, vă rugăm să contactați coordinatorul proiectului pentru informații suplimentare."
 
 #: apps/api/v1/views/courses.py:369
 #, python-brace-format
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
 "in use. Please update this field and try again."
-msgstr ""
+msgstr "Editarea cursului a fost fără succes. \"URL slug-ul\" ‘[{url_slug}]’ cursului a fost deja folosit. Vă rugăm actualizați acest câmp și încercați din nou. "
 
 #: apps/api/views.py:58
 msgid "You are not permitted to access the API documentation."
-msgstr ""
+msgstr "Nu aveți permisiunea pentru a accesa documentația API."
 
 #: apps/catalogs/models.py:17
 msgid "Catalog name"
-msgstr "Ім'я каталогу"
+msgstr "Numele Catalogului"
 
 #: apps/catalogs/models.py:18
 msgid "Query to retrieve Course Run catalog contents"
-msgstr ""
+msgstr "Căutare pentru a recupera conținutul catalogului Desfășurarea Cursului"
 
 #: apps/catalogs/models.py:22
 msgid "Query to retrieve Program catalog contents"
-msgstr ""
+msgstr "Căutare pentru a recupera conținutul catalogului Program"
 
 #: apps/catalogs/models.py:25
 msgid "Include archived courses"
-msgstr ""
+msgstr "Include cursurile arhivate"
 
 #: apps/core/admin.py:17
 msgid "Personal info"
-msgstr "Особиста інформація"
+msgstr "Informații personale"
 
 #: apps/core/admin.py:18
 msgid "Permissions"
-msgstr "Дозволи"
+msgstr "Permisiuni"
 
 #: apps/core/admin.py:19
 msgid "Important dates"
-msgstr "Важливі дати"
+msgstr "Date importante"
 
 #: apps/core/admin.py:45
 msgid "API Configuration"
-msgstr ""
+msgstr "Configurația API"
 
 #: apps/core/admin.py:46
 msgid "Configure the APIs that will be used to retrieve data."
-msgstr ""
+msgstr "Configurează API-urile care vor fi folosite pentru recuperarea datelor."
 
 #: apps/core/admin.py:53
 msgid "Marketing Site Configuration"
@@ -212,31 +208,31 @@ msgstr ""
 msgid ""
 "Configure the marketing site URLs that will be used to retrieve data and "
 "create URLs."
-msgstr ""
+msgstr "Configurează URL-urile site-ului de marketing care vor fi folosite pentru a crea URL-uri și pentru a recupera date."
 
 #: apps/core/admin.py:58
 msgid "Analytics Configuration"
-msgstr ""
+msgstr "Configurarea câmpului Analytics"
 
 #: apps/core/admin.py:59
 msgid ""
 "Configure the analytics API that will be used to retrieve enrollment data"
-msgstr ""
+msgstr "Configurează API-urile analitice care vor fi folosite pentru a recupera datele despre înscrieri."
 
 #. Translators: 'period_choices' is a list of possible values, like ('second',
 #. 'minute', 'hour')
 #: apps/core/forms.py:23
 #, python-brace-format
 msgid "period must be one of {period_choices}."
-msgstr ""
+msgstr "perioada trebuie să fie una dintre {period_choices}."
 
 #: apps/core/forms.py:26
 msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
-msgstr ""
+msgstr "'rata' trebuie să fie în formatul definit de către DRF, precum '100/oră'."
 
 #: apps/core/models.py:19
 msgid "Full Name"
-msgstr "Ім'я та прізвище"
+msgstr "Nume complet"
 
 #: apps/core/models.py:20
 msgid "Referral Tracking ID"
@@ -247,7 +243,7 @@ msgid ""
 "The rate of requests to limit this user to. The format is specified by "
 "Django Rest Framework (see http://www.django-rest-framework.org/api-"
 "guide/throttling/)."
-msgstr ""
+msgstr "Rata cererilor pentru a limita acest utilizator. Formatul este definit de către Django Rest Framework (vezi http://www.django-rest-framework.org/api-guide/throttling/)."
 
 #: apps/core/models.py:69
 msgid "Short Code"
@@ -261,7 +257,7 @@ msgstr ""
 
 #: apps/core/models.py:71
 msgid "Courses API URL"
-msgstr ""
+msgstr "API URL Cursurilor"
 
 #: apps/core/models.py:74
 msgid "Course Mode API URL"
@@ -269,11 +265,11 @@ msgstr ""
 
 #: apps/core/models.py:75
 msgid "E-Commerce API URL"
-msgstr ""
+msgstr "E-Commerce API URL"
 
 #: apps/core/models.py:77
 msgid "Organizations API URL"
-msgstr "API URL Організації"
+msgstr ""
 
 #: apps/core/models.py:78
 msgid "Programs API URL"
@@ -297,11 +293,11 @@ msgstr ""
 
 #: apps/core/models.py:88
 msgid "Studio URL"
-msgstr ""
+msgstr "URL Studio"
 
 #: apps/core/models.py:90
 msgid "Publisher URL"
-msgstr ""
+msgstr "URL Editor"
 
 #: apps/core/models.py:91
 msgid ""
@@ -311,21 +307,21 @@ msgstr ""
 
 #: apps/core/models.py:94
 msgid "LMS URL"
-msgstr ""
+msgstr "LMS URL"
 
 #: apps/core/models.py:96
 msgid "LMS Admin URL"
-msgstr ""
+msgstr "LMS Administrator URL"
 
 #: apps/core/models.py:97
 msgid ""
 "The public URL of your LMS Django admin. Example: https://lms-"
 "internal.example.com/admin"
-msgstr ""
+msgstr "URL-ul public al administratorului LMS Django. Exemplu: https://lms-internal.example.com/admin"
 
 #: apps/core/models.py:99
 msgid "Analytics API URL"
-msgstr ""
+msgstr "API URL Analitice"
 
 #: apps/core/models.py:100
 msgid "Analytics Access Token"
@@ -333,11 +329,11 @@ msgstr ""
 
 #: apps/core/models.py:108
 msgid "Partner"
-msgstr ""
+msgstr "Partener"
 
 #: apps/core/models.py:109
 msgid "Partners"
-msgstr ""
+msgstr "Parteneri"
 
 #: apps/core/models.py:181
 msgid "Salesforce Username"
@@ -376,15 +372,15 @@ msgstr ""
 
 #: apps/course_metadata/admin.py:47
 msgid "Yes"
-msgstr ""
+msgstr "Da"
 
 #: apps/course_metadata/admin.py:48
 msgid "No"
-msgstr ""
+msgstr "Nu"
 
 #: apps/course_metadata/admin.py:216 apps/course_metadata/admin.py:412
 msgid "Included course runs"
-msgstr ""
+msgstr "Desfășurările cursului incluse"
 
 #: apps/course_metadata/admin.py:420
 msgid "Edit course run exclusions"
@@ -392,30 +388,30 @@ msgstr ""
 
 #: apps/course_metadata/admin.py:422
 msgid "(save and continue editing to create a link)"
-msgstr ""
+msgstr "(save and continue editing to create a link)"
 
 #: apps/course_metadata/admin.py:424
 msgid "Edit link"
-msgstr ""
+msgstr "Editați link-ul"
 
 #: apps/course_metadata/algolia_models.py:74
 #: apps/course_metadata/algolia_models.py:326
 msgid "Available now"
-msgstr ""
+msgstr "Disponibil acum"
 
 #: apps/course_metadata/algolia_models.py:76
 #: apps/course_metadata/models.py:1620
 msgid "Upcoming"
-msgstr ""
+msgstr "Viitoare"
 
 #: apps/course_metadata/algolia_models.py:78
 #: apps/course_metadata/models.py:1614
 msgid "Archived"
-msgstr ""
+msgstr "Arhivat"
 
 #: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:31
 msgid "Unpublished"
-msgstr "Неопубліковане"
+msgstr "Nepublicat"
 
 #: apps/course_metadata/choices.py:7
 msgid "Awaiting Review from Legal"
@@ -427,67 +423,67 @@ msgstr ""
 
 #: apps/course_metadata/choices.py:9
 msgid "Reviewed"
-msgstr ""
+msgstr "Revizuit"
 
 #: apps/course_metadata/choices.py:10
 msgid "Published"
-msgstr "Опубліковане"
+msgstr "Publicat"
 
 #. Translators: Instructor-paced refers to course runs that operate on a
 #. schedule set by the instructor,
 #. similar to a normal university course.
 #: apps/course_metadata/choices.py:25
 msgid "Instructor-paced"
-msgstr ""
+msgstr "Cursuri pregătite de Profesor"
 
 #. Translators: Self-paced refers to course runs that operate on the student's
 #. schedule.
 #: apps/course_metadata/choices.py:27
 msgid "Self-paced"
-msgstr ""
+msgstr "Cursuri în ritm propriu"
 
 #: apps/course_metadata/choices.py:32
 msgid "Active"
-msgstr ""
+msgstr "Activ"
 
 #: apps/course_metadata/choices.py:33
 msgid "Retired"
-msgstr ""
+msgstr "Retras"
 
 #: apps/course_metadata/choices.py:34
 msgid "Deleted"
-msgstr ""
+msgstr "Șters"
 
 #: apps/course_metadata/choices.py:46
 msgid "Honor"
-msgstr "Честь"
+msgstr "Distincţie"
 
 #: apps/course_metadata/choices.py:47
 msgid "Credit"
-msgstr ""
+msgstr "Credit"
 
 #: apps/course_metadata/choices.py:48
 msgid "Verified"
-msgstr ""
+msgstr "Verificat"
 
 #: apps/course_metadata/choices.py:49
 msgid "Professional"
-msgstr "Професійний"
+msgstr "Profesional"
 
 #: apps/course_metadata/choices.py:53
 msgid "Platform"
-msgstr ""
+msgstr "Platformă"
 
 #: apps/course_metadata/choices.py:54
 msgid "Organization"
-msgstr "Організація"
+msgstr "Organizație"
 
 #: apps/course_metadata/data_loaders/course_type.py:27
 #, python-brace-format
 msgid ""
 "Existing course type {type} for {key} ({id}) doesn't match its own "
 "entitlements."
-msgstr ""
+msgstr "Tipul cursului existent {type} pentru {key} ({id}) nu corespunde propriilor sale permisiuni."
 
 #: apps/course_metadata/data_loaders/course_type.py:61
 #, python-brace-format
@@ -505,12 +501,12 @@ msgstr ""
 #: apps/course_metadata/data_loaders/course_type.py:91
 #, python-brace-format
 msgid "Course {key} ({id}) matched type {type}"
-msgstr ""
+msgstr "Cursul {key} ({id}) a corespuns tipului {type}"
 
 #: apps/course_metadata/data_loaders/course_type.py:101
 #, python-brace-format
 msgid "Could not convert course {key} ({id}) to type {type}"
-msgstr ""
+msgstr "Nu am reușit să acoperim cursul {key} ({id}) a tasta {type}"
 
 #: apps/course_metadata/emails.py:33
 #, python-brace-format
@@ -546,7 +542,7 @@ msgstr ""
 
 #: apps/course_metadata/emails.py:201
 msgid "course team"
-msgstr "команда курсу"
+msgstr ""
 
 #: apps/course_metadata/emails.py:210
 #, python-brace-format
@@ -606,7 +602,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:15
 msgid "CODE"
-msgstr ""
+msgstr "COD"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:16
 #: apps/course_metadata/management/commands/delete_person_dups.py:33
@@ -622,7 +618,7 @@ msgstr ""
 #: apps/course_metadata/models.py:2018 apps/course_metadata/models.py:2689
 #: apps/course_metadata/models.py:2781
 msgid "UUID"
-msgstr ""
+msgstr "UUID"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:22
 msgid "Course to backpopulate."
@@ -630,7 +626,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:27
 msgid "KEY"
-msgstr ""
+msgstr "Cheie"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:29
 msgid "Organization to backpopulate."
@@ -655,7 +651,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:64
 msgid "You must specify --partner"
-msgstr ""
+msgstr "Trebuie să specificați --partener"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:71
 #, python-brace-format
@@ -684,7 +680,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:26
 msgid "PERSON"
-msgstr ""
+msgstr "PERSOANĂ"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:28
 msgid "People to delete, in UUID:TARGET_UUID form."
@@ -692,7 +688,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:32
 msgid "PARTNER"
-msgstr ""
+msgstr "PARTENER"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:43
 msgid ""
@@ -710,7 +706,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Deleting"
-msgstr ""
+msgstr "Șterge"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Would delete"
@@ -718,7 +714,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:86
 msgid "Name"
-msgstr "Ім'я "
+msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:87
 msgid "Endorsements"
@@ -726,7 +722,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:88
 msgid "Programs"
-msgstr ""
+msgstr "Programe"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:89
 msgid "Course Runs"
@@ -734,15 +730,15 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:90
 msgid "Target"
-msgstr ""
+msgstr "Tinta"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:129
 msgid "You must specify --partner-code"
-msgstr ""
+msgstr "Trebuie să specificați --partener-cod"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:132
 msgid "You must specify at least one person"
-msgstr ""
+msgstr "Trebuie să specificați cel puțin o persoană"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:23
 #, python-brace-format
@@ -752,12 +748,12 @@ msgstr ""
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:28
 #, python-brace-format
 msgid "Failed to publish {key}"
-msgstr ""
+msgstr "Am eșuat în a publica {key}"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:31
 #, python-brace-format
 msgid "Successfully published {key}"
-msgstr ""
+msgstr "A fost publicat cu succes {key}"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:34
 msgid "One or more course runs failed to publish."
@@ -779,7 +775,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:32
 msgid "Invalid arguments"
-msgstr ""
+msgstr "Argumente invalide"
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:56
 #, python-brace-format
@@ -912,7 +908,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:638
 msgid "People"
-msgstr ""
+msgstr "Persoane"
 
 #: apps/course_metadata/models.py:746
 msgid ""
@@ -931,33 +927,33 @@ msgstr ""
 
 #: apps/course_metadata/models.py:805 apps/course_metadata/models.py:2009
 msgid "FAQ"
-msgstr "Найбільш поширені питання "
+msgstr "Întrebări frecvente"
 
 #: apps/course_metadata/models.py:808
 msgid "Total number of learners who have enrolled in this course"
-msgstr ""
+msgstr "Numărul total al elevilor care s-au înscris la acest curs"
 
 #: apps/course_metadata/models.py:812
 msgid ""
 "Total number of learners who have enrolled in this course in the last 6 "
 "months"
-msgstr ""
+msgstr "Numărul total al elevilor care s-au înscris la acest curs, în ultimele 6 luni"
 
 #: apps/course_metadata/models.py:826
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
-msgstr ""
+msgstr "Formatul numărului cursului e.g CS002x, BIO1.1x, BIO1.2x"
 
 #: apps/course_metadata/models.py:840
 msgid "Additional Information"
-msgstr ""
+msgstr "Informații Suplimentare"
 
 #: apps/course_metadata/models.py:1203
 msgid "Blocked"
-msgstr ""
+msgstr "Blocat"
 
 #: apps/course_metadata/models.py:1204
 msgid "Unrestricted"
-msgstr ""
+msgstr "Nerestricționat"
 
 #: apps/course_metadata/models.py:1217
 msgid ""
@@ -985,7 +981,7 @@ msgstr ""
 #: apps/course_metadata/models.py:1238
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
-msgstr "Очікувана максимальна кількість годин на тиждень, необхідна для закінчення курсу."
+msgstr ""
 
 #: apps/course_metadata/models.py:1241
 msgid "Estimated number of weeks needed to complete this course run."
@@ -999,7 +995,7 @@ msgstr ""
 msgid ""
 "Total number of learners who have enrolled in this course run in the last 6 "
 "months"
-msgstr ""
+msgstr "Numărul total de cursanți care s-au înscris în acest curs în ultimele 6 luni"
 
 #: apps/course_metadata/models.py:1265
 msgid ""
@@ -1010,7 +1006,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1271
 msgid "Indicates whether the course relation has been manually overridden."
-msgstr ""
+msgstr "Indică dacă relația de curs a fost suprascrisă manual"
 
 #: apps/course_metadata/models.py:1278
 msgid ""
@@ -1024,11 +1020,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1616
 msgid "Current"
-msgstr ""
+msgstr "Curent"
 
 #: apps/course_metadata/models.py:1618
 msgid "Starting Soon"
-msgstr ""
+msgstr "Începe în curând"
 
 #: apps/course_metadata/models.py:1658
 msgid ""
@@ -1038,7 +1034,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2010
 msgid "FAQs"
-msgstr "Найбільш поширені питання "
+msgstr "FAQs"
 
 #: apps/course_metadata/models.py:2020
 msgid "The user-facing display title for this Program."
@@ -1207,7 +1203,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2602
 msgid "Certificate"
-msgstr ""
+msgstr "Certificat"
 
 #: apps/course_metadata/models.py:2603
 msgid "Checkmark"
@@ -1215,7 +1211,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2604
 msgid "Clock"
-msgstr ""
+msgstr "Ceas"
 
 #: apps/course_metadata/models.py:2605
 msgid "Desktop"
@@ -1227,11 +1223,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2607
 msgid "Sitemap"
-msgstr ""
+msgstr "Harta site-ului"
 
 #: apps/course_metadata/models.py:2608
 msgid "User"
-msgstr ""
+msgstr "Utilizator"
 
 #: apps/course_metadata/models.py:2609
 msgid "Dollar"
@@ -1298,7 +1294,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2786
 msgid "Organization name"
-msgstr ""
+msgstr "Numele organizației"
 
 #: apps/course_metadata/models.py:2808
 msgid "These programs are for a different partner than the pathway itself: {}"
@@ -1306,19 +1302,19 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2820
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: apps/course_metadata/models.py:2821
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: apps/course_metadata/models.py:2822
 msgid "Blog"
-msgstr ""
+msgstr "Blog"
 
 #: apps/course_metadata/models.py:2823
 msgid "Others"
-msgstr ""
+msgstr "Altele"
 
 #: apps/course_metadata/models.py:2875
 #, python-brace-format
@@ -1344,11 +1340,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2976
 msgid "Tag"
-msgstr ""
+msgstr "Etichetă"
 
 #: apps/course_metadata/models.py:2977
 msgid "Course UUIDs"
-msgstr ""
+msgstr " UUIDs ale Cursului"
 
 #: apps/course_metadata/models.py:2992
 msgid "Remove All Redirects"
@@ -1364,7 +1360,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3002
 msgid "Course uuids"
-msgstr ""
+msgstr "uuids ale Cursului"
 
 #: apps/course_metadata/salesforce.py:76
 msgid "Attempted to query Salesforce with no client for partner={}"
@@ -1376,11 +1372,11 @@ msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24
 msgid "Cancel"
-msgstr "Відмінити"
+msgstr "Anulează"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:27
 msgid "Back to Program"
-msgstr ""
+msgstr "Înapoi la program"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:29
 msgid "Save Course Run"
@@ -1391,7 +1387,7 @@ msgstr ""
 msgid ""
 "%(user_name)s made the following comment on %(course_name)s on %(date)s at "
 "%(time)s"
-msgstr ""
+msgstr "%(user_name)s a făcut următorul comentariu asupra  %(course_name)s asupra %(date)s la  %(time)s"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:19
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:9
@@ -1401,14 +1397,14 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/comment.html:21
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:11
 msgid "The edX team"
-msgstr ""
+msgstr "Echipa edX"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:3
 #, python-format
 msgid ""
 "%(user_name)s made the following comment on %(course_name)s %(date)s at "
 "%(time)s"
-msgstr ""
+msgstr "%(user_name)s a făcut următorul comentariu asupra  %(course_name)s %(date)s la  %(time)s"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html:9
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:3
@@ -1420,7 +1416,7 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:3
 #, python-format
 msgid "Dear %(recipient_name)s,"
-msgstr ""
+msgstr "Dragă %(recipient_name)s,"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html:17
 #: apps/course_metadata/templates/course_metadata/email/go_live.txt:7
@@ -1580,7 +1576,7 @@ msgstr ""
 #: apps/course_metadata/validators.py:35 apps/course_metadata/validators.py:46
 #, python-brace-format
 msgid "{0} tag is not allowed"
-msgstr ""
+msgstr "{0} etichetarea nu este permisă"
 
 #: apps/course_metadata/validators.py:42
 #, python-brace-format
@@ -1593,7 +1589,7 @@ msgstr ""
 
 #: apps/course_metadata/views.py:34
 msgid "The program was changed successfully."
-msgstr ""
+msgstr "Programul a fost schimbat cu succes."
 
 #: apps/edx_elasticsearch_dsl_extensions/exceptions.py:17
 msgid ""
@@ -1611,7 +1607,7 @@ msgstr ""
 
 #: apps/publisher/models.py:34
 msgid "Organization Role"
-msgstr "Роль організації"
+msgstr ""
 
 #: urls.py:30
 msgid "Discovery Service Administration"
