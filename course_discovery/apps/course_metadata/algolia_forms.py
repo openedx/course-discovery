@@ -9,6 +9,7 @@ class SearchDefaultResultsConfigurationForm(forms.ModelForm):
     class Meta:
         model = SearchDefaultResultsConfiguration
         fields = '__all__'
+
         widgets = {
             # TODO: make this sortable as well (debug sortable-select)
             'courses': SortedModelSelect2Multiple(
