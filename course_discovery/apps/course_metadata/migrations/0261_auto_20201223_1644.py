@@ -14,11 +14,11 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='searchdefaultresultsconfiguration',
             name='courses',
-            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, limit_choices_to={'draft': 0}, to='course_metadata.Course'),
+            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, limit_choices_to={'draft': 0}, null=True, to='course_metadata.Course'),
         ),
         migrations.AlterField(
             model_name='searchdefaultresultsconfiguration',
             name='programs',
-            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, limit_choices_to={'status': 'active'}, to='course_metadata.Program'),
+            field=sortedm2m.fields.SortedManyToManyField(blank=True, help_text=None, limit_choices_to={'status': 'active'}, null=True, to='course_metadata.Program'),
         ),
     ]
