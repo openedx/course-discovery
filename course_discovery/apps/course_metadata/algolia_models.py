@@ -355,5 +355,5 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
 class SearchDefaultResultsConfiguration(models.Model):
     index_name = models.CharField(max_length=32, unique=True)
-    programs = SortedManyToManyField(Program, blank=True)
-    courses = SortedManyToManyField(Course, blank=True)
+    programs = SortedManyToManyField(Program, blank=True, null=True, limit_choices_to={'status': ProgramStatus.Active})
+    courses = SortedManyToManyField(Course, blank=True, null=True, limit_choices_to={'draft': 0})

@@ -16,6 +16,7 @@ class SearchDefaultResultsConfigurationForm(forms.ModelForm):
                 url='admin_metadata:course-autocomplete',
                 attrs={
                     'data-minimum-input-length': 3,
+                    'class': 'sortable-select',
                 },
             ),
             'programs': SortedModelSelect2Multiple(
