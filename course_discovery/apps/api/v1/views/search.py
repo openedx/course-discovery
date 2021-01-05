@@ -172,20 +172,19 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'status': {'field': 'status', 'enabled': True},
         'transcript_languages': {'field': 'transcript_languages.raw', 'enabled': True},
         'type': {'field': 'type.raw', 'enabled': True},
-
     }
     filter_fields = {
         'aggregation_key': {
             'field': 'aggregation_key',
-            'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]
+            'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE],
         },
         'authoring_organization_uuids': {
             'field': 'authoring_organization_uuids',
-            'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]
+            'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS],
         },
         'authoring_organizations': {
             'field': 'availability.lower',
-            'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]
+            'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE],
         },
         'availability': {'field': 'availability.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'content_type': {'field': 'content_type', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
@@ -217,6 +216,11 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'published': {'field': 'published', 'lookups': [LOOKUP_FILTER_TERM]},
         'status': {'field': 'status', 'lookups': [LOOKUP_FILTER_TERM]},
         'start': {'field': 'start', 'lookups': [LOOKUP_QUERY_GT, LOOKUP_QUERY_GTE, LOOKUP_QUERY_LT, LOOKUP_QUERY_LTE]},
+        'short_description': {
+            'field': 'short_description',
+            'lookups': [LOOKUP_FILTER_MATCH],
+            'default_lookup': LOOKUP_FILTER_MATCH,
+        },
         'subject_uuids': {'field': 'status', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'type': {'field': 'type.lower', 'lookups': [LOOKUP_FILTER_TERM]},
     }
@@ -288,6 +292,7 @@ class PersonSearchViewSet(BaseElasticsearchDocumentViewSet):
 
 class PersonTypeaheadSearchView(APIView):
     """ Typeahead for people. """
+
     permission_classes = (IsAuthenticated,)
 
     def get(self, request, *_args, **_kwargs):
@@ -349,6 +354,7 @@ class PersonTypeaheadSearchView(APIView):
 
 class TypeaheadSearchView(APIView):
     """ Typeahead for courses and programs. """
+
     RESULT_COUNT = 3
     permission_classes = (IsAuthenticated,)
 
