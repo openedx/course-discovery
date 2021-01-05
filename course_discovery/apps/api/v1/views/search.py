@@ -207,7 +207,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'has_enrollable_seats': {'field': 'has_enrollable_seats', 'lookups': [LOOKUP_FILTER_TERM]},
         'hidden': {'field': 'hidden', 'lookups': [LOOKUP_FILTER_TERM]},
         'key.raw': {'field': 'key.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]},
-        'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_MATCH]},
+        'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_MATCH], 'default_lookup': LOOKUP_FILTER_MATCH},
         'languages': {'field': 'languages', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'level_type': {'field': 'level_type.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'number': {'field': 'number', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},

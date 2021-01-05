@@ -335,7 +335,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             key=self.regular_key,
             type__is_marketable=True
         )
-        response = self.get_response(query={'key__match': 'edx'}, endpoint=self.list_path)
+        response = self.get_response(query={'key': 'edx'}, endpoint=self.list_path)
         assert response.status_code == 200
         response_data = response.json()
         assert response_data["results"] == [
@@ -756,7 +756,7 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         course_1 = CourseFactory(key='edX+Foo', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
         course_2 = CourseFactory(key='edX+Bar', title='ABCs', partner=self.partner)
         CourseFactory(key='edX+Baz', title='ABCs', partner=self.partner)
-        data = {'key__match': ['Foo Bar']}
+        data = {'key': ['Foo Bar']}
         response = self.client.post(self.path, data=data, format='json')
         response_data = response.json()
         assert response_data["results"] == [
