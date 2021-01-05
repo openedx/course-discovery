@@ -25,6 +25,7 @@ from rest_framework.metadata import SimpleMetadata
 from rest_framework.relations import ManyRelatedField
 from rest_framework.utils.field_mapping import get_field_kwargs
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
+from taxonomy.models import CourseSkills
 
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
@@ -2021,6 +2022,7 @@ class BaseHaystackFacetSerializer(HaystackFacetSerializer):
 class CourseSearchSerializer(HaystackSerializer):
     course_runs = serializers.SerializerMethodField()
     seat_types = serializers.SerializerMethodField()
+    skill_names = serializers.SerializerMethodField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2088,6 +2090,10 @@ class CourseSearchSerializer(HaystackSerializer):
         seat_types = [seat.slug for course_run in result.object.course_runs.all() for seat in course_run.seat_types]
         return list(set(seat_types))
 
+    def get_skill_names(self, result):
+        course_skills = CourseSkills.objects.filter(course_id=result.key)
+        return list(set(course_skill.name for course_skill in course_skills))
+
     class Meta:
         field_aliases = COMMON_SEARCH_FIELD_ALIASES
         ignore_fields = COMMON_IGNORED_FIELDS
@@ -2102,6 +2108,7 @@ class CourseSearchSerializer(HaystackSerializer):
             'course_runs',
             'uuid',
             'seat_types',
+            'skill_names',
             'subjects',
             'languages',
             'organizations',
