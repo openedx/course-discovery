@@ -45,7 +45,7 @@ class ProgramAdminForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(ProgramAdminForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['type'].required = True
         self.fields['marketing_slug'].required = True
         self.fields['courses'].required = False
@@ -69,7 +69,7 @@ class CourseRunSelectionForm(forms.ModelForm):
 
     def __init__(self, data=None, files=None, auto_id='id_%s', prefix=None, initial=None, error_class=ErrorList,
                  label_suffix=':', empty_permitted=False, instance=None):
-        super(CourseRunSelectionForm, self).__init__(
+        super().__init__(
             data, files, auto_id, prefix,
             initial, error_class, label_suffix,
             empty_permitted, instance

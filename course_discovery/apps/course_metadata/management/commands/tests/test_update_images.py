@@ -49,4 +49,4 @@ class UpdateImagesCommandTest(TestCase):
         self.config.image_urls = 'NopeNopeNope'
         self.config.save()
         call_command('update_images')
-        mock_logger.warning.assert_called_with('Incorrectly formatted line NopeNopeNope')
+        mock_logger.warning.assert_called_with('Incorrectly formatted line %s', 'NopeNopeNope')

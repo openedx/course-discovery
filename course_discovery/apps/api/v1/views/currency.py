@@ -62,7 +62,7 @@ class CurrencyView(views.APIView):
 
     # Cache exchange rates for 1 day
     @cache_response(60 * 60 * 24, key_func=exchange_rate_cache_key)
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *_args, **_kwargs):
         rates, currencies, eurozone_countries = self.get_data()
         if not rates:
             return Response({})

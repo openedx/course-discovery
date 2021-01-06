@@ -91,7 +91,7 @@ class SalesforceMissingCaseException(Exception):
     """
     def __init__(self, message):
         self.message = message
-        super(SalesforceMissingCaseException, self).__init__(message)
+        super().__init__(message)
 
 
 class SalesforceUtil:

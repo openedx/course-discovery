@@ -123,7 +123,8 @@ class SlugRelatedFieldWithReadSerializer(serializers.SlugRelatedField):
         return OrderedDict([
             (
                 # this next line here is the only delta from our parent class: from 'self' to 'super(...)'
-                super(SlugRelatedFieldWithReadSerializer, self).to_representation(item),
+                # `super` call needs arguments because it is inside of a list comprehension
+                super(SlugRelatedFieldWithReadSerializer, self).to_representation(item),  # pylint:disable=super-with-arguments
                 self.display_value(item)
             )
             for item in queryset

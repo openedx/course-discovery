@@ -22,7 +22,7 @@ class UserThrottleRateForm(forms.ModelForm):
                     # Translators: 'period_choices' is a list of possible values, like ('second', 'minute', 'hour')
                     error_msg = _("period must be one of {period_choices}.").format(period_choices=period_choices)
                     raise forms.ValidationError(error_msg)
-            except ValueError:
+            except ValueError as value_error:
                 error_msg = _("'rate' must be in the format defined by DRF, such as '100/hour'.")
-                raise forms.ValidationError(error_msg)
+                raise forms.ValidationError(error_msg) from value_error
         return rate

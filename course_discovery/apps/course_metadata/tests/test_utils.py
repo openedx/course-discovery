@@ -38,7 +38,7 @@ class UploadToFieldNamePathTests(TestCase):
     Test the utiltity object 'UploadtoFieldNamePath'
     """
     def setUp(self):
-        super(UploadToFieldNamePathTests, self).setUp()
+        super().setUp()
         self.program = ProgramFactory()
 
     @ddt.data(
@@ -221,7 +221,7 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
     Unit test cases for MarketinSiteAPIClient
     """
     def setUp(self):
-        super(MarketingSiteAPIClientTests, self).setUp()
+        super().setUp()
         self.api_client = utils.MarketingSiteAPIClient(
             self.username,
             self.password,

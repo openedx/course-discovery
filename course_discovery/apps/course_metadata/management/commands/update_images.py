@@ -22,7 +22,7 @@ class Command(BaseCommand):
         for line in lines:
             tokenized = line.strip().split(' ', 1)
             if len(tokenized) != 2:
-                logger.warning(f'Incorrectly formatted line {line}')
+                logger.warning('Incorrectly formatted line %s', line)
                 continue
             try:
                 image = Image.objects.filter(src=tokenized[0]).first()

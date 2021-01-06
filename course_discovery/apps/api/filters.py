@@ -45,9 +45,9 @@ class PermissionsFilter(DRYPermissionFiltersBase):
             if request.user.is_staff:
                 try:
                     user = User.objects.get(username=username)
-                except User.DoesNotExist:
-                    raise NotFound(_('No user with the username [{username}] exists.').format(username=username))
-
+                except User.DoesNotExist as not_found:
+                    raise NotFound(
+                        _('No user with the username [{username}] exists.').format(username=username)) from not_found
             else:
                 raise PermissionDenied(
                     _('Only staff users are permitted to filter by username. Remove the username parameter.')

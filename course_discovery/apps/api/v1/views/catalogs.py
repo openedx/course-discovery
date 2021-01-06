@@ -82,7 +82,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         return super().update(request, *args, **kwargs)  # pylint: disable=no-member
 
     @action(detail=True)
-    def courses(self, request, id=None):  # pylint: disable=redefined-builtin
+    def courses(self, request, id=None):  # pylint: disable=redefined-builtin, unused-argument
         """
         Retrieve the list of courses contained within this catalog.
 
@@ -112,7 +112,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
     @action(detail=True)
-    def contains(self, request, id=None):  # pylint: disable=redefined-builtin
+    def contains(self, request, id=None):  # pylint: disable=redefined-builtin, unused-argument
         """
         Determine if this catalog contains the provided courses.
 

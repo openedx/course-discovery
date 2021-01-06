@@ -89,9 +89,9 @@ class SalesforceRecordFactory(factory.django.DjangoModelFactory):
         from course_discovery.apps.course_metadata.tests.utils import build_salesforce_exception  # pylint: disable=import-outside-toplevel
         try:
             return super()._create(model_class, *args, **kwargs)
-        except requests.ConnectionError:
+        except requests.ConnectionError as connection_error:
             # raise user friendly suggestion to use factory with muted signals
-            raise ConnectionError(build_salesforce_exception(model_class.__name__))
+            raise ConnectionError(build_salesforce_exception(model_class.__name__)) from connection_error
 
 
 class SeatTypeFactory(factory.django.DjangoModelFactory):

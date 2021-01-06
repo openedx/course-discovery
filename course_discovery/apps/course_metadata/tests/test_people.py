@@ -19,7 +19,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     Unit test cases for the MarketingSitePeople
     """
     def setUp(self):
-        super(MarketingSitePublisherTests, self).setUp()
+        super().setUp()
         self.partner = PartnerFactory()
         self.partner.marketing_site_url_root = self.api_root
         self.partner.marketing_site_api_username = self.username

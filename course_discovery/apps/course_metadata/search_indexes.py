@@ -166,7 +166,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         # Pre-fetch all fields required by the CourseSearchSerializer. Unfortunately, there's
         # no way to specify at query time which queryset to use during loading in order to customize
         # it for the serializer being used
-        qset = super(CourseIndex, self).read_queryset(using=using)
+        qset = super().read_queryset(using=using)
         return qset.prefetch_related(
             'course_runs__seats__type'
         )
@@ -255,7 +255,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
         # Pre-fetch all fields required by the CourseRunSearchSerializer. Unfortunately, there's
         # no way to specify at query time which queryset to use during loading in order to customize
         # it for the serializer being used
-        qset = super(CourseRunIndex, self).read_queryset(using=using)
+        qset = super().read_queryset(using=using)
 
         return qset.prefetch_related(
             'seats__type',

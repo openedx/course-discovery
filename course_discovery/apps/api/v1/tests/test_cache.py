@@ -32,7 +32,7 @@ class CompressedCacheResponseTest(TestCase):
             renderer_classes = [JSONRenderer]
 
             @compressed_cache_response(key_func=key_func)
-            def get(self, request, *args, **kwargs):
+            def get(self, request, *_args, **_kwargs):
                 return Response('test response')
 
         view_instance = TestView()
@@ -61,7 +61,7 @@ class CompressedCacheResponseTest(TestCase):
             renderer_classes = [JSONRenderer]
 
             @compressed_cache_response(key_func=key_func)
-            def get(self, request, *args, **kwargs):
+            def get(self, request, *_args, **_kwargs):
                 return Response('test response')
 
         view_instance = TestView()
@@ -91,7 +91,7 @@ class CompressedCacheResponseTest(TestCase):
             renderer_classes = [BrowsableAPIRenderer]  # Non-json responses
 
             @compressed_cache_response(key_func=key_func)
-            def get(self, request, *args, **kwargs):
+            def get(self, request, *_args, **_kwargs):
                 return Response('test response')
 
         view_instance = TestView()
@@ -112,7 +112,7 @@ class CompressedCacheResponseTest(TestCase):
             renderer_classes = [JSONRenderer]
 
             @compressed_cache_response(key_func=key_func)
-            def get(self, request, *args, **kwargs):
+            def get(self, request, *_args, **_kwargs):
                 return Response('test response')
 
         with override_flag('compressed_cache.TestView.get', active=waffle_active):

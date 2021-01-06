@@ -38,7 +38,7 @@ class Command(BaseCommand):
         sorted_indexes_by_timestamp = self.get_indexes_sorted_by_timestamp(indices_client=indices_client,
                                                                            index_prefix=current_alias_name)
         index_count = len(sorted_indexes_by_timestamp)
-        logger.info(f'Found {index_count} indexes')
+        logger.info('Found %d indexes', index_count)
 
         # Remove current index from list so we don't delete it
         current_alias = indices_client.get_alias(name=current_alias_name)

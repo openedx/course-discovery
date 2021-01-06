@@ -59,7 +59,7 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
             program.enrollment_count = program_dict['count']
             program.recent_enrollment_count = program_dict['recent_count']
             program.save(suppress_publication=True)
-            logger.info(f'Updating program: {program.uuid}')
+            logger.info('Updating program: %s', program.uuid)
 
     def _process_course_run_summary(self, course_run_summary):
         # Get course run object from course run key
@@ -69,7 +69,7 @@ class AnalyticsAPIDataLoader(AbstractDataLoader):
         try:
             course_run = CourseRun.objects.get(key__iexact=course_run_key)
         except CourseRun.DoesNotExist:
-            logger.info(f'Course run: [{course_run_key}] not found in DB.')
+            logger.info('Course run: [%s] not found in DB.', course_run_key)
             return
 
         course = course_run.course
