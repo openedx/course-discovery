@@ -443,7 +443,7 @@ class PersonPositionAdminTest(TestCase):
     """Tests for person position admin."""
 
     def setUp(self):
-        super(PersonPositionAdminTest, self).setUp()
+        super().setUp()
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.person = Person.objects.create()
         self.person_position = Position.objects.create(person=self.person, title='foo')

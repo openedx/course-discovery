@@ -209,7 +209,7 @@ class PersonTypeaheadSearchView(APIView):
     """ Typeahead for people. """
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *_args, **_kwargs):
         """
         Typeahead uses the ngram_analyzer as the index_analyzer to generate ngrams of the title during indexing.
         i.e. Data Science -> da, dat, at, ata, data, etc...
@@ -303,7 +303,7 @@ class TypeaheadSearchView(APIView):
 
         return course_run_list, programs
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *_args, **_kwargs):
         """
         Typeahead uses the ngram_analyzer as the index_analyzer to generate ngrams of the title during indexing.
         i.e. Data Science -> da, dat, at, ata, data, etc...

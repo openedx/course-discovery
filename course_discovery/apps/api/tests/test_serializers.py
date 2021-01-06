@@ -2142,10 +2142,10 @@ class CourseSearchModelSerializerTests(TestCase, CourseSearchSerializerMixin):
         course.course_runs.add(course_run)
         course.save()
         serializer = self.serialize_course(course, request)
-        assert serializer.data == self.get_expected_data(course, course_run, request)
+        assert serializer.data == self.get_expected_data(course, request)
 
     @classmethod
-    def get_expected_data(cls, course, course_run, request):
+    def get_expected_data(cls, course, request):
         expected_data = CourseWithProgramsSerializerTests.get_expected_data(course, request)
         expected_data.update({'content_type': 'course'})
         return expected_data

@@ -83,12 +83,12 @@ class CommentViewSet(viewsets.GenericViewSet):
         try:
             course = Course.objects.filter_drafts().get(partner=partner, uuid=course_uuid)
             return ensure_draft_world(course)
-        except Course.DoesNotExist:
-            raise Http404
+        except Course.DoesNotExist as course_does_not_exist:
+            raise Http404 from course_does_not_exist
 
     @staticmethod
     def _get_salesforce_util_or_404(partner):
         try:
             return SalesforceUtil(partner)
-        except SalesforceConfiguration.DoesNotExist:
-            raise Http404
+        except SalesforceConfiguration.DoesNotExist as salesforce_config_does_not_exist:
+            raise Http404 from salesforce_config_does_not_exist

@@ -56,4 +56,4 @@ class ModifyProgramHooksCommandTest(TestCase):
         self.config.program_hooks = 'NopeNopeNope'
         self.config.save()
         call_command('modify_program_hooks')
-        mock_logger.warning.assert_called_with('Incorrectly formatted line NopeNopeNope')
+        mock_logger.warning.assert_called_with('Incorrectly formatted line %s', 'NopeNopeNope')

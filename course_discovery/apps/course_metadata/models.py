@@ -231,13 +231,13 @@ class Organization(CachedMixin, TimeStampedModel):
     def user_organizations(cls, user):
         return cls.objects.filter(organization_extension__group__in=user.groups.all())
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         """
         We cache the key here before saving the record so that we can hit the correct
         endpoint in lms.
         """
         key = self._cache['key']
-        super(Organization, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
         key = key or self.key
         partner = self.partner
         data = {
@@ -525,8 +525,8 @@ class Subject(TranslatableModel, TimeStampedModel):
         )
         ordering = ['created']
 
-    def validate_unique(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        super(Subject, self).validate_unique(*args, **kwargs)
+    def validate_unique(self, *args, **kwargs):  # pylint: disable=signature-differs
+        super().validate_unique(*args, **kwargs)
         qs = Subject.objects.filter(partner=self.partner_id)
         if qs.filter(translations__name=self.name).exclude(pk=self.pk).exists():
             raise ValidationError({'name': ['Subject with this Name and Partner already exists', ]})
@@ -563,8 +563,8 @@ class Topic(TranslatableModel, TimeStampedModel):
         )
         ordering = ['created']
 
-    def validate_unique(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        super(Topic, self).validate_unique(*args, **kwargs)
+    def validate_unique(self, *args, **kwargs):  # pylint: disable=signature-differs
+        super().validate_unique(*args, **kwargs)
         qs = Topic.objects.filter(partner=self.partner_id)
         if qs.filter(translations__name=self.name).exclude(pk=self.pk).exists():
             raise ValidationError({'name': ['Topic with this Name and Partner already exists', ]})
@@ -639,9 +639,9 @@ class Person(TimeStampedModel):
     def __str__(self):
         return self.full_name
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         with transaction.atomic():
-            super(Person, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
             if waffle.switch_is_active('publish_person_to_marketing_site'):
                 MarketingSitePeople().update_or_publish_person(self)
 
@@ -1324,7 +1324,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         )
 
     def __init__(self, *args, **kwargs):
-        super(CourseRun, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._old_status = self.status
 
     def _upgrade_deadline_sort(self, seat):
@@ -2408,7 +2408,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     def is_active(self):
         return self.status == ProgramStatus.Active
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
             self.partner.has_marketing_site and
@@ -2422,10 +2422,10 @@ class Program(PkSearchableMixin, TimeStampedModel):
             previous_obj = Program.objects.get(id=self.id) if self.id else None
 
             with transaction.atomic():
-                super(Program, self).save(*args, **kwargs)
+                super().save(*args, **kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
-            super(Program, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
 
 class Ranking(TimeStampedModel):

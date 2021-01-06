@@ -59,7 +59,7 @@ class Command(BaseCommand):
         """
         site_data = {}
         for config_file in self.find(self.configuration_filename, self.theme_path):
-            logger.info(f"Reading file from {config_file}")
+            logger.info("Reading file from %s", str(config_file))
             configuration_data = json.loads(
                 json.dumps(
                     json.load(
@@ -88,24 +88,24 @@ class Command(BaseCommand):
         self.theme_path = options['theme_path']
 
         logger.info("Using %s configuration...", configuration_prefix)
-        logger.info(f"DNS name: '{self.dns_name}'")
-        logger.info(f"Theme path: '{self.theme_path}'")
+        logger.info("DNS name: '%s'", self.dns_name)
+        logger.info("Theme path: '%s'", self.theme_path)
 
         all_sites = self._get_site_partner_data()
         for site_partner, site_partner_data in all_sites.items():
             partner_data = site_partner_data['partner_data']
 
-            logger.info(f"Creating '{site_partner}' Site")
+            logger.info("Creating '%s' Site", site_partner)
             site, _ = Site.objects.get_or_create(
                 domain=site_partner_data['site_domain'],
                 defaults={"name": site_partner}
             )
-            logger.info(f"Successfully created {site_partner} site")
+            logger.info("Successfully created %s site", site_partner)
             partner_data['site'] = site
 
-            logger.info(f"Creating or Updating '{site_partner}' Partner")
+            logger.info("Creating or Updating '%s' Partner", site_partner)
             Partner.objects.update_or_create(
                 short_code=site_partner,
                 defaults=partner_data
             )
-            logger.info(f"Successfully created {site_partner} Partner")
+            logger.info("Successfully created %s Partner", site_partner)

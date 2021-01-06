@@ -190,7 +190,7 @@ class FuzzyInt(int):
 
 
 class APITestCase(SiteMixin, RestAPITestCase):
-    # pylint: disable=keyword-arg-before-vararg, arguments-differ
+    # pylint: disable=keyword-arg-before-vararg
     def assertNumQueries(self, num, func=None, *args, **kwargs):
         """
         Overridden method to allow a number of queries within a constant range, rather than

@@ -18,7 +18,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 @ddt.ddt
 class TestSalesforce(TestCase):
     def setUp(self):
-        super(TestSalesforce, self).setUp()
+        super().setUp()
         self.salesforce_config = SalesforceConfigurationFactory()
         self.salesforce_path = 'course_discovery.apps.course_metadata.salesforce.Salesforce'
         self.salesforce_util_path = 'course_discovery.apps.course_metadata.salesforce.SalesforceUtil'

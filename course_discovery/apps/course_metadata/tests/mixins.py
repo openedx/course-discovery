@@ -14,7 +14,7 @@ class MarketingSiteAPIClientTestMixin(TestCase):
     The mixing to help mock the responses for marketing site API Client
     """
     def setUp(self):
-        super(MarketingSiteAPIClientTestMixin, self).setUp()
+        super().setUp()
         self.username = FuzzyText().fuzz()
         self.password = FuzzyText().fuzz()
         self.api_root = FuzzyUrlRoot().fuzz()
@@ -81,7 +81,7 @@ class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
     Mixin for mocking Drupal responses when testing marketing site publishers.
     """
     def setUp(self):
-        super(MarketingSitePublisherTestMixin, self).setUp()
+        super().setUp()
         self.node_id = str(random.randint(1, 1000))
 
     def mock_api_client(self, status=200):

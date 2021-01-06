@@ -1162,7 +1162,7 @@ class PersonTests(TestCase):
     """ Tests for the `Person` model. """
 
     def setUp(self):
-        super(PersonTests, self).setUp()
+        super().setUp()
         self.person = factories.PersonFactory()
 
     def test_full_name(self):
@@ -1225,7 +1225,7 @@ class PositionTests(TestCase):
     """ Tests for the `Position` model. """
 
     def setUp(self):
-        super(PositionTests, self).setUp()
+        super().setUp()
         self.position = factories.PositionFactory()
 
     def test_organization_name(self):
@@ -1309,7 +1309,7 @@ class ProgramTests(TestCase):
         """
         Creates fixture subjects, course_runs, courses, and programs from factories.
         """
-        super(ProgramTests, cls).setUpClass()
+        super().setUpClass()
         transcript_languages = LanguageTag.objects.all()[:2]
         cls.subjects = factories.SubjectFactory.create_batch(3)
         cls.course_runs = factories.CourseRunFactory.create_batch(
@@ -1326,7 +1326,7 @@ class ProgramTests(TestCase):
         """
         Resets course canonical_course_runs to initial state.
         """
-        super(ProgramTests, self).tearDown()
+        super().tearDown()
         for course_run in self.course_runs[:2]:
             course = course_run.course
             course.canonical_course_run = None
@@ -2011,7 +2011,7 @@ class PersonSocialNetworkTests(TestCase):
     """Tests of the PersonSocialNetwork model."""
 
     def setUp(self):
-        super(PersonSocialNetworkTests, self).setUp()
+        super().setUp()
         self.network = factories.PersonSocialNetworkFactory()
         self.person = factories.PersonFactory()
 
@@ -2034,7 +2034,7 @@ class PersonAreaOfExpertiseTests(TestCase):
     """Tests for the PersonAreaOfExpertise model."""
 
     def setUp(self):
-        super(PersonAreaOfExpertiseTests, self).setUp()
+        super().setUp()
         self.area_of_expertise = factories.PersonAreaOfExpertiseFactory()
 
     def test_str(self):
@@ -2061,7 +2061,7 @@ class CourseEntitlementTests(TestCase):
     """ Tests of the CourseEntitlement model. """
 
     def setUp(self):
-        super(CourseEntitlementTests, self).setUp()
+        super().setUp()
         self.course = factories.CourseFactory()
         self.mode = factories.SeatTypeFactory()
 
@@ -2078,7 +2078,7 @@ class EndorsementTests(TestCase):
     """ Tests of the Endorsement model. """
 
     def setUp(self):
-        super(EndorsementTests, self).setUp()
+        super().setUp()
         self.person = factories.PersonFactory()
         self.endorsement = Endorsement.objects.create(
             endorser=self.person,
@@ -2093,7 +2093,7 @@ class CorporateEndorsementTests(TestCase):
     """ Tests of the CorporateEndorsement model. """
 
     def setUp(self):
-        super(CorporateEndorsementTests, self).setUp()
+        super().setUp()
         self.corporation_name = 'test org'
         self.individual_endorsements = CorporateEndorsement.objects.create(
             corporation_name=self.corporation_name,
@@ -2354,7 +2354,7 @@ class DegreeTests(TestCase):
     """ Tests of the Degree, Curriculum, and related models. """
 
     def setUp(self):
-        super(DegreeTests, self).setUp()
+        super().setUp()
         self.course_run = factories.CourseRunFactory()
         self.courses = [self.course_run.course]
         self.degree = factories.DegreeFactory(courses=self.courses)

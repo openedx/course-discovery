@@ -367,7 +367,7 @@ class PositionAdmin(admin.ModelAdmin):
         return False
 
     def get_actions(self, request):
-        actions = super(PositionAdmin, self).get_actions(request)
+        actions = super().get_actions(request)
         actions.pop('delete_selected', None)
         return actions
 

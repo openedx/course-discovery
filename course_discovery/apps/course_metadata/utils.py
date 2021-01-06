@@ -300,7 +300,7 @@ class UploadToFieldNamePath(FilePattern):
         kwargs['populate_from'] = populate_from
         if kwargs['path'] and not kwargs['path'].endswith('/'):
             kwargs['path'] += '/'
-        super(UploadToFieldNamePath, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def __call__(self, instance, filename):
         field_value = getattr(instance, self.populate_from)
@@ -308,7 +308,7 @@ class UploadToFieldNamePath(FilePattern):
         self.override_values.update({
             'name': str(field_value) + str(uuid.uuid4())[23:]
         })
-        return super(UploadToFieldNamePath, self).__call__(instance, filename)
+        return super().__call__(instance, filename)
 
 
 def custom_render_variations(file_name, variations, storage, replace=True):
