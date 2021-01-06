@@ -753,10 +753,12 @@ class AggregateCatalogSearchViewSetTests(mixins.SerializationMixin, mixins.Login
         assert response.json() == expected
 
     def test_post_supports_match_substring_by_key_field(self):
-        course_1 = CourseFactory(key='edX+Foo', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
-        course_2 = CourseFactory(key='edX+Bar', title='ABCs', partner=self.partner)
+        course_1 = CourseFactory(key='edx+aj505+3T2019', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        course_2 = CourseFactory(key='edx+SAP-TEST+2019', title='ABCs', partner=self.partner)
+        CourseFactory(key='edX+6.002_CCQ', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        CourseFactory(key='edX+CL101', title='ABCs', partner=self.partner)
         CourseFactory(key='edX+Baz', title='ABCs', partner=self.partner)
-        data = {'key': ['Foo Bar']}
+        data = {'content_type': 'course', 'key': ['edx+SAP-TEST', 'edx+aj505']}
         response = self.client.post(self.path, data=data, format='json')
         response_data = response.json()
         assert response_data["results"] == [

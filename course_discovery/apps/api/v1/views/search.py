@@ -24,7 +24,7 @@ from course_discovery.apps.course_metadata.search_indexes import serializers as 
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
     AggregateDataFilterBackend, CatalogDataFilterBackend, MultiMatchSearchFilterBackend
 )
-from course_discovery.apps.edx_elasticsearch_dsl_extensions.constants import LOOKUP_FILTER_MATCH
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.constants import LOOKUP_FILTER_MATCH_PHRASE
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import (
     BaseElasticsearchDocumentViewSet, MultiDocumentsWrapper
 )
@@ -206,7 +206,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'has_enrollable_seats': {'field': 'has_enrollable_seats', 'lookups': [LOOKUP_FILTER_TERM]},
         'hidden': {'field': 'hidden', 'lookups': [LOOKUP_FILTER_TERM]},
         'key.raw': {'field': 'key.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE]},
-        'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_MATCH], 'default_lookup': LOOKUP_FILTER_MATCH},
+        'key': {'field': 'key', 'lookups': [LOOKUP_FILTER_MATCH_PHRASE], 'default_lookup': LOOKUP_FILTER_MATCH_PHRASE},
         'languages': {'field': 'languages', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'level_type': {'field': 'level_type.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'number': {'field': 'number', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
@@ -218,8 +218,8 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'start': {'field': 'start', 'lookups': [LOOKUP_QUERY_GT, LOOKUP_QUERY_GTE, LOOKUP_QUERY_LT, LOOKUP_QUERY_LTE]},
         'short_description': {
             'field': 'short_description',
-            'lookups': [LOOKUP_FILTER_MATCH],
-            'default_lookup': LOOKUP_FILTER_MATCH,
+            'lookups': [LOOKUP_FILTER_MATCH_PHRASE],
+            'default_lookup': LOOKUP_FILTER_MATCH_PHRASE,
         },
         'subject_uuids': {'field': 'status', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'type': {'field': 'type.lower', 'lookups': [LOOKUP_FILTER_TERM]},

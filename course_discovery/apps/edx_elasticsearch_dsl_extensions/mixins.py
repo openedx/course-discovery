@@ -1,6 +1,8 @@
 from functools import partial
 
-from course_discovery.apps.edx_elasticsearch_dsl_extensions.constants import LOOKUP_FILTER_MATCH
+from elasticsearch_dsl.query import Bool, MatchPhrase
+
+from course_discovery.apps.edx_elasticsearch_dsl_extensions.constants import LOOKUP_FILTER_MATCH_PHRASE
 
 
 class CatalogDataFilterBackendMixin:
@@ -43,26 +45,40 @@ class MatchFilterBackendMixin:
 
     @classmethod
     def apply_filter_term(cls, queryset, options, value):
-        if options.get('lookup') in (LOOKUP_FILTER_MATCH,):
+        if options.get('lookup') in (LOOKUP_FILTER_MATCH_PHRASE,):
             return queryset
         return super().apply_filter_term(queryset, options, value)
 
     @classmethod
-    def apply_filter_match(cls, queryset, options, value):
+    def apply_filter_match_phrase(cls, queryset, options, value):
         return cls.apply_filter(
             queryset=queryset,
             options=options,
-            args=['match'],
+            args=['match_phrase'],
             kwargs={options['field']: value}
+        )
+
+    @classmethod
+    def apply_filter_match_phrases(cls, queryset, options, value):
+        __values = value if isinstance(value, (list, tuple)) else cls.split_lookup_complex_value(value)
+        return cls.apply_filter(
+            queryset=queryset,
+            args=[Bool(should=[MatchPhrase(**{options['field']: i}) for i in __values], minimum_should_match=1)]
         )
 
     def filter_queryset(self, request, queryset, view):
         filter_query_params = self.get_filter_query_params(request, view)
         for options in filter_query_params.values():
             if options['lookup']:
+                if isinstance(options['values'], (list, tuple)):
+                    if options['lookup'] == LOOKUP_FILTER_MATCH_PHRASE:
+                        queryset = self.apply_filter_match_phrases(queryset, options, options['values'])
+                        continue
+
                 for value in options['values']:
-                    if options['lookup'] == LOOKUP_FILTER_MATCH:
-                        queryset = self.apply_filter_match(queryset, options, value)
+                    if options['lookup'] == LOOKUP_FILTER_MATCH_PHRASE:
+                        queryset = self.apply_filter_match_phrase(queryset, options, value)
+
         return super().filter_queryset(request, queryset, view)
 
 
