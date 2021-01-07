@@ -27,7 +27,7 @@ class DistinctCountsAggregateSearchViewSet(AggregateSearchViewSet):
     # Custom serializer that includes distinct hit and facet counts.
     facet_serializer_class = DistinctCountsAggregateFacetSearchSerializer
 
-    def get_queryset(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def get_queryset(self, *args, **kwargs):
         """ Return the base Queryset to use to build up the search query."""
         queryset = super().get_queryset(*args, **kwargs)
         return DistinctCountsSearchQuerySet.from_queryset(queryset).with_distinct_counts('aggregation_key')

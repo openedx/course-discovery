@@ -47,7 +47,7 @@ class Command(DjangoESDSLCommand):
             raise CommandError(msg)
 
         self.backends = (specified_backend,) if specified_backend else supported_backends
-        super(Command, self).handle(**options)
+        super().handle(**options)
 
     def _create(self, models, options):
         for backend in self.backends:

@@ -118,7 +118,7 @@ class FacetFieldSerializer(serializers.Serializer):
         so that each field can query it to see what kind of attribute they are processing.
         """
         self.parent_field = field
-        return super(FacetFieldSerializer, self).to_representation(instance)
+        return super().to_representation(instance)
 
 
 class FacetDictField(DictField):
@@ -229,7 +229,7 @@ class BaseDjangoESDSLFacetSerializer(DjangoESDSLDRFFacetSerializer):
 
     def get_fields(self):
         query_facet_counts = self.instance.pop('queries', {})
-        field_mapping = super(BaseDjangoESDSLFacetSerializer, self).get_fields()
+        field_mapping = super().get_fields()
         query_data = self.format_query_facet_data(query_facet_counts)
         field_mapping['queries'] = DictField(query_data, child=QueryFacetFieldSerializer(), required=False)
 

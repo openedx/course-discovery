@@ -92,7 +92,7 @@ class FacetMixin:
         Defaults to using the views ``self.serializer_class`` if not
         ``self.facet_objects_serializer_class`` is set.
         """
-        return self.facet_objects_serializer_class or super(FacetMixin, self).get_serializer_class()
+        return self.facet_objects_serializer_class or super().get_serializer_class()
 
 
 class ValidElasticSearchQueryRequiredMixin:

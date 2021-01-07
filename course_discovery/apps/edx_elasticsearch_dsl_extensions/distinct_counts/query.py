@@ -16,7 +16,7 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
         """
         Initialize a new instance of the DistinctCountsSearchQuerySet.
         """
-        super(DistinctCountsSearchQuerySet, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.aggregation_key = None
         self._distinct_result_count = None
 
@@ -82,7 +82,7 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
         """
         dicted_aggs = self.aggs.to_dict().get('aggs')
         if dicted_aggs:
-            for agg_name, options in dicted_aggs.items():
+            for _agg_name, options in dicted_aggs.items():
                 aggs = options.get('aggs')
                 if aggs:
                     for field, agg_options in aggs.items():
@@ -107,7 +107,6 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
                 ).format(field=field, supported=','.join(supported_options), provided=','.join(options.keys()))
                 raise RuntimeError(msg)
 
-    # pylint: disable=arguments-differ
     @classmethod
     def from_dict(cls, *args, **kwargs):
         """
@@ -115,7 +114,6 @@ class DistinctCountsSearchQuerySet(FacetedSearch):
         """
         raise RuntimeError('DistinctCountsSearchQuerySet does not support raw queries.')
 
-    # pylint: disable=arguments-differ
     def update_from_dict(self, *args, **kwargs):
         """
         Raise an exception since we do not currently want/need to support raw queries.
