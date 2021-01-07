@@ -15,7 +15,7 @@ class FacetResponse(AggResponse):
     """
     def __init__(self, aggs, search, data):
         data_ = self._process_aggs_results(data)
-        super(FacetResponse, self).__init__(aggs, search, data_)
+        super().__init__(aggs, search, data_)
 
     @staticmethod
     def _process_aggs_results(raw_results):

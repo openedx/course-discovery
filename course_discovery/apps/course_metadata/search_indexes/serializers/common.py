@@ -70,4 +70,4 @@ class DocumentDSLSerializerMixin(ModelObjectDocumentSerializerMixin):
 
     def to_representation(self, instance):
         _object = self.get_model_object_by_instance(instance)
-        return super(DocumentDSLSerializerMixin, self).to_representation(_object)
+        return super().to_representation(_object)
