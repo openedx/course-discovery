@@ -2,7 +2,6 @@ import json
 
 from haystack import indexes
 from opaque_keys.edx.keys import CourseKey
-from taxonomy.models import CourseSkills
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Degree, Person, Position, Program
@@ -160,7 +159,6 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     prerequisites = indexes.MultiValueField(faceted=True)
     languages = indexes.MultiValueField()
     seat_types = indexes.MultiValueField()
-    skill_names = indexes.MultiValueField()
 
     def read_queryset(self, using=None):
         # Pre-fetch all fields required by the CourseSearchSerializer. Unfortunately, there's
@@ -204,10 +202,6 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
             self._prepare_language(course_run.language) for course_run in filter_visible_runs(obj.course_runs)
             if course_run.language
         }
-
-    def prepare_skill_names(self, obj):
-        course_skills = CourseSkills.objects.filter(course_id=obj.key)
-        return list(set(course_skill.name for course_skill in course_skills))
 
 
 class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
