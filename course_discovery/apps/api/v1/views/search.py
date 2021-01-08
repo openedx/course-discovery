@@ -221,7 +221,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
             'lookups': [LOOKUP_FILTER_MATCH_PHRASE],
             'default_lookup': LOOKUP_FILTER_MATCH_PHRASE,
         },
-        'subject_uuids': {'field': 'status', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'subject_uuids': {'field': 'subject_uuids', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'type': {'field': 'type.lower', 'lookups': [LOOKUP_FILTER_TERM]},
     }
     ordering_fields = {'start': 'start', 'aggregation_key': 'aggregation_key'}
