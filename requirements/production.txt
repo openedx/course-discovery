@@ -6,17 +6,24 @@
 #
 algoliasearch-django==1.7.2  # via -r requirements/base.in
 algoliasearch==1.20.0     # via algoliasearch-django
+amqp==5.0.2               # via kombu
 authlib==0.15.2           # via simple-salesforce
 backoff==1.10.0           # via -r requirements/base.in
 beautifulsoup4==4.9.3     # via -r requirements/base.in
-boto3==1.16.48            # via django-ses
-botocore==1.19.48         # via boto3, s3transfer
-certifi==2020.12.5        # via -r requirements/production.in, requests
+billiard==3.6.3.0         # via celery
+boto3==1.16.51            # via django-ses
+botocore==1.19.51         # via boto3, s3transfer
+celery==5.0.5             # via taxonomy-connector
+certifi==2020.12.5        # via -r requirements/production.in, elasticsearch, requests
 cffi==1.14.4              # via cryptography
 chardet==4.0.0            # via requests
+click-didyoumean==0.0.3   # via celery
+click-plugins==1.1.1      # via celery
+click-repl==0.1.6         # via celery
+click==7.1.2              # via celery, click-didyoumean, click-plugins, click-repl
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
-cryptography==3.2.1       # via authlib, pyjwt
+cryptography==3.3.1       # via authlib, pyjwt, social-auth-core
 defusedxml==0.6.0         # via djangorestframework-xml, python3-openid, social-auth-core
 django-admin-sortable2==0.7.7  # via -r requirements/base.in
 django-appconf==1.0.4     # via django-compressor
@@ -27,7 +34,7 @@ django-contrib-comments==2.0.0  # via -r requirements/base.in
 django-cors-headers==2.5.3  # via -c requirements/constraints.txt, -r requirements/base.in
 django-crum==0.7.9        # via edx-django-utils
 django-dynamic-filenames==1.1.4  # via -r requirements/base.in
-django-elasticsearch-dsl-drf==0.20.8  # via -r requirements/base.in
+django-elasticsearch-dsl-drf==0.20.9  # via -r requirements/base.in
 django-elasticsearch-dsl==7.1.4  # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl-drf
 django-extensions==3.1.0  # via -r requirements/base.in
 django-filter==2.4.0      # via -r requirements/base.in
@@ -35,6 +42,7 @@ django-fsm==2.7.1         # via -r requirements/base.in
 django-guardian==2.3.0    # via -r requirements/base.in
 django-libsass==0.8       # via -r requirements/base.in
 django-model-utils==4.1.1  # via taxonomy-connector
+django-nine==0.2.4        # via django-elasticsearch-dsl-drf
 django-parler==2.2        # via -r requirements/base.in
 django-rest-swagger==2.2.0  # via -r requirements/base.in
 django-ses==1.0.3         # via -r requirements/production.in
@@ -48,47 +56,48 @@ django-taggit-serializer==0.1.7  # via -r requirements/base.in
 django-taggit==1.3.0      # via -r requirements/base.in, django-taggit-autosuggest, django-taggit-serializer
 django-waffle==2.0.0      # via -r requirements/base.in, edx-django-utils, edx-drf-extensions
 django-webpack-loader==0.7.0  # via -r requirements/base.in
-django==2.2.17            # via -c requirements/constraints.txt, -r requirements/base.in, algoliasearch-django, django-admin-sortable2, django-appconf, django-choices, django-contrib-comments, django-cors-headers, django-crum, django-dynamic-filenames, django-filter, django-guardian, django-haystack, django-model-utils, django-ses, django-stdimage, django-storages, django-taggit, djangorestframework, drf-haystack, drf-jwt, edx-auth-backends, edx-django-release-util, edx-django-sites-extensions, edx-django-utils, edx-drf-extensions, jsonfield2, rest-condition, taxonomy-connector, xss-utils
+django==2.2.17            # via -c requirements/constraints.txt, -r requirements/base.in, algoliasearch-django, django-admin-sortable2, django-appconf, django-choices, django-contrib-comments, django-cors-headers, django-crum, django-dynamic-filenames, django-filter, django-guardian, django-model-utils, django-nine, django-ses, django-stdimage, django-storages, django-taggit, djangorestframework, drf-jwt, edx-auth-backends, edx-django-release-util, edx-django-sites-extensions, edx-django-utils, edx-drf-extensions, jsonfield2, rest-condition, taxonomy-connector, xss-utils
 djangorestframework-csv==2.1.0  # via -r requirements/base.in
 djangorestframework-xml==2.0.0  # via -r requirements/base.in
-djangorestframework==3.12.2  # via -r requirements/base.in, django-rest-swagger, djangorestframework-csv, drf-extensions, drf-haystack, drf-jwt, edx-drf-extensions, rest-condition, taxonomy-connector
+djangorestframework==3.12.2  # via -r requirements/base.in, django-elasticsearch-dsl-drf, django-rest-swagger, djangorestframework-csv, drf-extensions, drf-jwt, edx-drf-extensions, rest-condition, taxonomy-connector
 drf-dynamic-fields==0.3.1  # via -r requirements/base.in
 drf-extensions==0.6.0     # via -r requirements/base.in
 drf-jwt==1.17.3           # via edx-drf-extensions
 dry-rest-permissions==0.1.10  # via -r requirements/base.in
 edx-analytics-data-api-client==0.16.1  # via -r requirements/base.in
-edx-auth-backends==3.1.0  # via -r requirements/base.in
+edx-auth-backends==3.3.0  # via -r requirements/base.in
 edx-ccx-keys==1.1.0       # via -r requirements/base.in
 edx-django-release-util==0.4.4  # via -r requirements/base.in
 edx-django-sites-extensions==2.5.1  # via -r requirements/base.in
 edx-django-utils==3.13.0  # via -r requirements/base.in, edx-drf-extensions, edx-rest-api-client, taxonomy-connector
 edx-drf-extensions==6.2.0  # via -r requirements/base.in
 edx-opaque-keys==2.1.1    # via -r requirements/base.in, edx-ccx-keys, edx-drf-extensions
-edx-rest-api-client==5.2.2  # via -r requirements/base.in
-elasticsearch-dsl==7.2.1  # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl, django-elasticsearch-dsl-drf
-elasticsearch==7.9.0      # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl-drf, elasticsearch-dsl
+edx-rest-api-client==5.2.3  # via -r requirements/base.in, taxonomy-connector
+elasticsearch-dsl==7.3.0  # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl, django-elasticsearch-dsl-drf
+elasticsearch==7.10.1     # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl-drf, elasticsearch-dsl
 future==0.18.2            # via django-ses, pyjwkest
 gevent==20.12.1           # via -r requirements/production.in
 greenlet==0.4.17          # via gevent
 gunicorn==20.0.4          # via -r requirements/production.in
 html2text==2020.1.16      # via -r requirements/base.in
 idna==2.10                # via requests
-importlib-metadata==2.1.1  # via markdown
 itypes==1.2.0             # via coreapi
 jinja2==2.11.2            # via coreschema
 jmespath==0.10.0          # via boto3, botocore
 jsonfield2==3.0.3         # via -c requirements/constraints.txt, -r requirements/base.in
+kombu==5.0.2              # via celery
 libsass==0.20.1           # via django-libsass
 lxml==4.6.2               # via -r requirements/base.in
-markdown==3.2.2           # via -r requirements/base.in
+markdown==3.3.3           # via -r requirements/base.in
 markupsafe==1.1.1         # via jinja2
 mysqlclient==2.0.3        # via -r requirements/production.in
 newrelic==5.24.0.153      # via -r requirements/production.in, edx-django-utils
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 openapi-codec==1.3.2      # via django-rest-swagger
 pbr==5.5.1                # via stevedore
-pillow==7.2.0             # via -r requirements/base.in, django-stdimage
+pillow==8.1.0             # via -r requirements/base.in, django-stdimage
 progressbar2==3.53.1      # via django-stdimage
+prompt-toolkit==3.0.10    # via click-repl
 psutil==5.8.0             # via edx-django-utils
 pycountry==20.7.3         # via -r requirements/base.in
 pycparser==2.20           # via cffi
@@ -96,11 +105,11 @@ pycryptodomex==3.9.9      # via pyjwkest
 pyjwkest==1.4.2           # via edx-drf-extensions
 pyjwt[crypto]==1.7.1      # via drf-jwt, edx-auth-backends, edx-rest-api-client, social-auth-core
 pymongo==3.11.2           # via edx-opaque-keys
-python-dateutil==2.8.1    # via -r requirements/base.in, botocore, drf-haystack, edx-drf-extensions
+python-dateutil==2.8.1    # via -r requirements/base.in, botocore, edx-drf-extensions, elasticsearch-dsl
 python-memcached==1.59    # via -r requirements/production.in
 python-utils==2.4.0       # via progressbar2
 python3-openid==3.2.0     # via social-auth-core
-pytz==2020.5              # via -r requirements/base.in, django, django-ses, taxonomy-connector
+pytz==2020.5              # via -r requirements/base.in, celery, django, django-ses, taxonomy-connector
 pyyaml==5.3.1             # via -r requirements/production.in, edx-django-release-util
 rcssmin==1.0.6            # via django-compressor
 requests-oauthlib==1.3.0  # via social-auth-core
@@ -111,21 +120,22 @@ s3transfer==0.3.3         # via boto3
 semantic-version==2.8.5   # via edx-drf-extensions
 simple-salesforce==1.10.1  # via -r requirements/base.in
 simplejson==3.17.2        # via django-rest-swagger
-six==1.15.0               # via cryptography, django-choices, django-compressor, django-simple-history, django-taggit-serializer, djangorestframework-csv, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-opaque-keys, libsass, progressbar2, pyjwkest, python-dateutil, python-memcached, python-utils, social-auth-app-django, social-auth-core, stevedore, unicode-slugify
+six==1.15.0               # via click-repl, cryptography, django-choices, django-compressor, django-elasticsearch-dsl, django-elasticsearch-dsl-drf, django-simple-history, django-taggit-serializer, djangorestframework-csv, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-opaque-keys, elasticsearch-dsl, libsass, progressbar2, pyjwkest, python-dateutil, python-memcached, python-utils, social-auth-app-django, social-auth-core, unicode-slugify
 slumber==0.7.1            # via edx-rest-api-client
-git+https://github.com/python-social-auth/social-app-django.git@c00d23c2b45c3317bd35b15ad1b959338689cef8#egg=social-auth-app-django  # via -r requirements/github.in, edx-auth-backends
-social-auth-core==3.2.0   # via -c requirements/constraints.txt, edx-auth-backends, social-auth-app-django
+social-auth-app-django==4.0.0  # via -r requirements/base.in, edx-auth-backends
+social-auth-core==4.0.2   # via edx-auth-backends, social-auth-app-django
 soupsieve==2.1            # via beautifulsoup4
 sqlparse==0.4.1           # via django
-stevedore==1.32.0         # via edx-django-utils, edx-opaque-keys
-taxonomy-connector==1.2.0  # via -r requirements/base.in
+stevedore==3.3.0          # via edx-django-utils, edx-opaque-keys
+taxonomy-connector==1.2.1  # via -r requirements/base.in
 unicode-slugify==0.1.3    # via -r requirements/base.in
 unicodecsv==0.14.1        # via djangorestframework-csv
 unidecode==1.1.2          # via unicode-slugify
 uritemplate==3.0.1        # via coreapi
 urllib3==1.26.2           # via botocore, elasticsearch, requests
-xss-utils==0.1.3          # via -r requirements/base.in
-zipp==1.2.0               # via importlib-metadata
+vine==5.0.0               # via amqp, celery
+wcwidth==0.2.5            # via prompt-toolkit
+xss-utils==0.1.4          # via -r requirements/base.in
 zope.event==4.5.0         # via gevent
 zope.interface==5.2.0     # via gevent
 
