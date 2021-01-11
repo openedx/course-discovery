@@ -7,7 +7,6 @@
 alabaster==0.7.12         # via sphinx
 algoliasearch-django==1.7.2  # via -r requirements/base.in
 algoliasearch==1.20.0     # via algoliasearch-django
-amqp==5.0.2               # via kombu
 apipkg==1.5               # via execnet
 appdirs==1.4.4            # via virtualenv
 astroid==2.4.2            # via pylint, pylint-celery
@@ -17,17 +16,12 @@ babel==2.9.0              # via sphinx
 backoff==1.10.0           # via -r requirements/base.in
 bcrypt==3.2.0             # via paramiko
 beautifulsoup4==4.9.3     # via -r requirements/base.in
-billiard==3.6.3.0         # via celery
 cached-property==1.5.2    # via docker-compose
-celery==5.0.5             # via taxonomy-connector
 certifi==2020.12.5        # via elasticsearch, requests
 cffi==1.14.4              # via bcrypt, cryptography, pynacl
 chardet==4.0.0            # via requests
-click-didyoumean==0.0.3   # via celery
 click-log==0.3.2          # via edx-lint
-click-plugins==1.1.1      # via celery
-click-repl==0.1.6         # via celery
-click==7.1.2              # via celery, click-didyoumean, click-log, click-plugins, click-repl, edx-lint
+click==7.1.2              # via click-log, edx-lint
 coreapi==2.3.3            # via django-rest-swagger, openapi-codec
 coreschema==0.0.4         # via coreapi
 coverage==5.3.1           # via -r requirements/test.in, pytest-cov
@@ -109,7 +103,6 @@ itypes==1.2.0             # via coreapi
 jinja2==2.11.2            # via coreschema, sphinx
 jsonfield2==3.0.3         # via -c requirements/constraints.txt, -r requirements/base.in
 jsonschema==3.2.0         # via docker-compose
-kombu==5.0.2              # via celery
 lazy-object-proxy==1.4.3  # via astroid
 libsass==0.20.1           # via django-libsass
 lxml==4.6.2               # via -r requirements/base.in
@@ -130,7 +123,6 @@ pillow==8.1.0             # via -r requirements/base.in, django-stdimage
 pluggy==0.13.1            # via pytest, tox
 polib==1.1.0              # via edx-i18n-tools
 progressbar2==3.53.1      # via django-stdimage
-prompt-toolkit==3.0.10    # via click-repl
 psutil==5.8.0             # via edx-django-utils
 py==1.10.0                # via pytest, pytest-forked, tox
 pycodestyle==2.6.0        # via -r requirements/test.in
@@ -160,7 +152,7 @@ python-dotenv==0.15.0     # via docker-compose
 python-memcached==1.59    # via -r requirements/test.in
 python-utils==2.4.0       # via progressbar2
 python3-openid==3.2.0     # via social-auth-core
-pytz==2020.5              # via -r requirements/base.in, babel, celery, django, taxonomy-connector
+pytz==2020.5              # via -r requirements/base.in, babel, django, taxonomy-connector
 pywatchman==1.4.1         # via -r requirements/local.in
 pyyaml==5.3.1             # via docker-compose, edx-django-release-util, edx-i18n-tools
 rcssmin==1.0.6            # via django-compressor
@@ -173,7 +165,7 @@ selenium==3.141.0         # via -r requirements/test.in
 semantic-version==2.8.5   # via edx-drf-extensions
 simple-salesforce==1.10.1  # via -r requirements/base.in
 simplejson==3.17.2        # via django-rest-swagger
-six==1.15.0               # via astroid, bcrypt, click-repl, cryptography, django-choices, django-compressor, django-elasticsearch-dsl, django-elasticsearch-dsl-drf, django-simple-history, django-taggit-serializer, djangorestframework-csv, docker, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, elasticsearch-dsl, jsonschema, libsass, progressbar2, pyjwkest, pynacl, python-dateutil, python-memcached, python-utils, responses, social-auth-app-django, social-auth-core, tox, transifex-client, unicode-slugify, virtualenv, websocket-client
+six==1.15.0               # via astroid, bcrypt, cryptography, django-choices, django-compressor, django-elasticsearch-dsl, django-elasticsearch-dsl-drf, django-simple-history, django-taggit-serializer, djangorestframework-csv, docker, dockerpty, edx-auth-backends, edx-ccx-keys, edx-django-release-util, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, edx-sphinx-theme, elasticsearch-dsl, jsonschema, libsass, progressbar2, pyjwkest, pynacl, python-dateutil, python-memcached, python-utils, responses, social-auth-app-django, social-auth-core, tox, transifex-client, unicode-slugify, virtualenv, websocket-client
 slumber==0.7.1            # via edx-rest-api-client
 snowballstemmer==2.0.0    # via sphinx
 social-auth-app-django==4.0.0  # via -r requirements/base.in, edx-auth-backends
@@ -188,7 +180,7 @@ sphinxcontrib-qthelp==1.0.3  # via sphinx
 sphinxcontrib-serializinghtml==1.1.4  # via sphinx
 sqlparse==0.4.1           # via django, django-debug-toolbar
 stevedore==3.3.0          # via edx-django-utils, edx-opaque-keys
-taxonomy-connector==1.2.1  # via -r requirements/base.in
+taxonomy-connector==1.2.0  # via -c requirements/constraints.txt, -r requirements/base.in
 testfixtures==6.17.0      # via -r requirements/test.in
 text-unidecode==1.3       # via faker
 texttable==1.6.3          # via docker-compose
@@ -200,9 +192,7 @@ unicodecsv==0.14.1        # via djangorestframework-csv
 unidecode==1.1.2          # via unicode-slugify
 uritemplate==3.0.1        # via coreapi
 urllib3==1.26.2           # via elasticsearch, requests, responses, selenium, transifex-client
-vine==5.0.0               # via amqp, celery
 virtualenv==20.3.0        # via tox
-wcwidth==0.2.5            # via prompt-toolkit
 websocket-client==0.57.0  # via docker, docker-compose
 wrapt==1.12.1             # via astroid
 xss-utils==0.1.4          # via -r requirements/base.in
