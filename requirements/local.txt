@@ -95,7 +95,7 @@ edx-sphinx-theme==1.6.0   # via -r requirements/docs.in
 elasticsearch-dsl==7.3.0  # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl, django-elasticsearch-dsl-drf
 elasticsearch==7.10.1     # via -c requirements/constraints.txt, -r requirements/base.in, django-elasticsearch-dsl-drf, elasticsearch-dsl
 execnet==1.7.1            # via pytest-xdist
-factory-boy==3.2.0        # via -r requirements/test.in
+factory-boy==3.1.0        # via -c requirements/constraints.txt, -r requirements/test.in
 faker==5.0.0              # via -c requirements/constraints.txt, factory-boy
 filelock==3.0.12          # via tox, virtualenv
 freezegun==1.0.0          # via -r requirements/test.in

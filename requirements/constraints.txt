@@ -15,6 +15,7 @@ django-cors-headers<3
 # Tests fail on newer version with `AttributeError: 'Faker' object has no attribute 'generate'` error.
 # https://openedx.atlassian.net/browse/BOM-2212 for fix
 faker==5.0.0
+factory-boy==3.1.0
 
 # jsonfield2 3.1.0 drops support for python 3.5
 jsonfield2<3.1.0
