@@ -81,9 +81,9 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
         detail_fields = request.GET.get('detail_fields')
         # if detail_fields query_param not in request than do not add the following fields in serializer response.
         if not detail_fields:
-            self.fields.pop('level_type')
-            self.fields.pop('modified')
-            self.fields.pop('outcome')
+            self.fields.pop('level_type', None)
+            self.fields.pop('modified', None)
+            self.fields.pop('outcome', None)
 
     def to_representation(self, instance):
         _object = self.get_model_object_by_instance(instance)
