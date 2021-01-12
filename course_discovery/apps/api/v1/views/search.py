@@ -183,7 +183,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
             'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS],
         },
         'authoring_organizations': {
-            'field': 'availability.lower',
+            'field': 'authoring_organizations.lower',
             'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS, LOOKUP_QUERY_EXCLUDE],
         },
         'availability': {'field': 'availability.raw', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
