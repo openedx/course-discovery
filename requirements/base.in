@@ -55,6 +55,7 @@ python-dateutil
 pytz
 requests
 simple-salesforce
+social-auth-app-django
 unicode-slugify
 xss-utils
 taxonomy-connector

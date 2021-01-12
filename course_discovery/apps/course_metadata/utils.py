@@ -68,6 +68,7 @@ def set_official_state(obj, model, attrs=None):
     """
     # pylint: disable=import-outside-toplevel
     from course_discovery.apps.course_metadata.models import Course, CourseRun
+
     # This is so we don't create the marketing node with an incorrect slug.
     # We correct the slug after setting official state, but the AutoSlugField initially overwrites it.
     if isinstance(obj, CourseRun):
