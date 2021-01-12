@@ -4,6 +4,7 @@ import factory
 from django.db.models.signals import post_save
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
+from taxonomy.models import CourseSkills, Skill
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory, add_m2m_data
 from course_discovery.apps.core.tests.utils import FuzzyURL
@@ -155,6 +156,26 @@ class CourseRunTypeFactory(factory.django.DjangoModelFactory):
     def tracks(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.tracks, extracted)
+
+
+class SkillFactory(factory.django.DjangoModelFactory):
+    external_id = FuzzyText()
+    name = FuzzyText()
+    info_url = FuzzyURL()
+    type_id = FuzzyText()
+    type_name = FuzzyText()
+
+    class Meta:
+        model = Skill
+
+
+class CourseSkillsFactory(factory.django.DjangoModelFactory):
+    course_id = FuzzyText()
+    skill = factory.SubFactory(SkillFactory)
+    confidence = FuzzyDecimal(0.0, 1.0)
+
+    class Meta:
+        model = CourseSkills
 
 
 class CourseTypeFactory(factory.django.DjangoModelFactory):
