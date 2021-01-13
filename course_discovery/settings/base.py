@@ -586,3 +586,47 @@ EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'
 EMSI_API_BASE_URL = 'https://emsiservices.com'
 EMSI_CLIENT_ID = ''
 EMSI_CLIENT_SECRET = ''
+
+
+################################### BEGIN CELERY ###################################
+
+# Message configuration
+CELERY_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_COMPRESSION = 'gzip'
+CELERY_MESSAGE_COMPRESSION = 'gzip'
+
+# Events configuration
+CELERY_TRACK_STARTED = True
+CELERY_SEND_EVENTS = True
+CELERY_SEND_SENT_EVENT = True
+
+# Prevent Celery from removing handlers on the root logger. Allows setting custom logging handlers.
+# See http://celery.readthedocs.io/en/latest/userguide/configuration.html#worker-hijack-root-logger.
+CELERYD_HIJACK_ROOT_LOGGER = False
+
+CELERY_DEFAULT_EXCHANGE = 'discovery'
+CELERY_DEFAULT_ROUTING_KEY = 'discovery'
+CELERY_DEFAULT_QUEUE = 'discovery.default'
+
+# Celery Broker
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', '')
+
+# Disable connection pooling. Connections may be severed by load balancers.
+# This forces the application to connect explicitly to the broker each time
+# rather than assume a long-lived connection.
+BROKER_POOL_LIMIT = 0
+BROKER_CONNECTION_TIMEOUT = 1
+
+# Use heartbeats to prevent broker connection loss. When the broker
+# is behind a load balancer, the load balancer may timeout Celery's
+# connection to the broker, causing messages to be lost.
+BROKER_HEARTBEAT = 10.0
+BROKER_HEARTBEAT_CHECKRATE = 2
+
+CELERY_ALWAYS_EAGER = False
+
+################################### END CELERY ###################################
+
+FIRE_UPDATE_COURSE_SKILLS_SIGNAL = False

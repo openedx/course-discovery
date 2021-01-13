@@ -1,3 +1,5 @@
+import tempfile
+
 from course_discovery.settings.base import *
 from course_discovery.settings.shared.test import *
 
@@ -64,3 +66,15 @@ SITE_CACHE_TTL = 0
 
 # Disable throttling during most testing, as it just adds queries
 REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = ()
+
+################################### BEGIN CELERY ###################################
+
+CELERY_ALWAYS_EAGER = True
+
+CELERY_IGNORE_RESULT = True
+
+CELERY_RESULT_BACKEND = 'file://{}'.format(tempfile.TemporaryDirectory())
+
+CELERY_BROKER_URL = 'memory://localhost/'
+
+################################### END CELERY ###################################

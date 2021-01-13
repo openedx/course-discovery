@@ -2,6 +2,7 @@ import base64
 import logging
 import re
 
+from django.conf import settings
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
@@ -17,6 +18,7 @@ from rest_framework import status, viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
+from taxonomy.signals.signals import UPDATE_COURSE_SKILLS
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.cache import CompressedCacheResponseMixin
@@ -38,6 +40,8 @@ from course_discovery.apps.course_metadata.utils import (
 from course_discovery.apps.publisher.utils import is_publisher_user
 
 logger = logging.getLogger(__name__)
+
+COURSE_FIELDS_FOR_SKILLS = ['full_description']
 
 
 def writable_request_wrapper(method):
@@ -300,7 +304,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     @writable_request_wrapper
     def update_course(self, data, partial=False):  # pylint: disable=too-many-statements
         """ Updates an existing course from incoming data. """
-
         # logging to help debug error around course url slugs incrementing
         logger.info('The raw course data coming from publisher is {}.'.format(data))
 
@@ -360,7 +363,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
         # If price didnt change, check the other fields on the course
         # (besides image and video, they are popped off above)
-        changed = changed or reviewable_data_has_changed(course, serializer.validated_data.items())
+        changed_fields = reviewable_data_has_changed(course, serializer.validated_data.items())
+        changed = changed or bool(changed_fields)
 
         if url_slug:
             validators.validate_slug(url_slug)
@@ -381,6 +385,13 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 if course_run.status == CourseRunStatus.Published:
                     # This will also update the course
                     course_run.update_or_create_official_version()
+
+                    if settings.FIRE_UPDATE_COURSE_SKILLS_SIGNAL:
+                        # If a skills relavant course field is updated than fire signal
+                        # so that a background task in taxonomy update the course skills
+                        if any(field in COURSE_FIELDS_FOR_SKILLS for field in changed_fields):
+                            UPDATE_COURSE_SKILLS.send(self.__class__, course_uuid=course.uuid)
+                            logger.info('Signal fired to update course skills. Course: [%s]', course.uuid)
 
         # Revert any Reviewed course runs back to Unpublished
         if changed:

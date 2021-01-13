@@ -54,6 +54,7 @@ pycountry
 python-dateutil
 pytz
 requests
+redis
 simple-salesforce
 social-auth-app-django
 unicode-slugify
