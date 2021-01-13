@@ -328,8 +328,16 @@ class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'key', 'name',)
     inlines = [OrganizationUserRoleInline, ]
     list_filter = ('partner',)
-    readonly_fields = ('uuid', 'key')
     search_fields = ('uuid', 'name', 'key',)
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Ensure that 'key' cannot be edited after creation.
+        """
+        if obj:
+            return ['uuid', 'key', ]
+        else:
+            return ['uuid', ]
 
 
 @admin.register(Subject)
