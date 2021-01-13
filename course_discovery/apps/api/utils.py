@@ -94,9 +94,10 @@ def reviewable_data_has_changed(obj, new_key_vals, exempt_fields=None):
         exempt_fields (list): List of field names where a change does not affect review status
 
     Returns:
-        bool for whether data for any reviewable fields has changed
+        list of changed field names
     """
     changed = False
+    changed_fields = []
     exempt_fields = exempt_fields or []
     for key, new_value in [x for x in new_key_vals if x[0] not in exempt_fields]:
         original_value = getattr(obj, key, None)
@@ -114,7 +115,13 @@ def reviewable_data_has_changed(obj, new_key_vals, exempt_fields=None):
                         changed = True
         elif new_value != original_value:
             changed = True
-    return changed
+        else:
+            changed = False
+
+        if changed:
+            changed_fields.append(key)
+
+    return changed_fields
 
 
 def conditional_decorator(condition, decorator):

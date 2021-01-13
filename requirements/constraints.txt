@@ -17,9 +17,6 @@ django-cors-headers<3
 faker==5.0.0
 factory-boy==3.1.0
 
-# Latest build fetches celery with it, we might want to handle it separately
-taxonomy-connector==1.2.0
-
 # jsonfield2 3.1.0 drops support for python 3.5
 jsonfield2<3.1.0
 
@@ -29,3 +26,8 @@ sphinx==2.4.4
 
 # FIXME: dal 3.5 requires you to include jquery yourself on the admin page -- needs a proper fix
 django-autocomplete-light<3.5
+
+celery<5.0
+
+# latest version requires PyJWT>=2.0.0 but drf-jwt requires PyJWT[crypto]<2.0.0,>=1.5.2
+social-auth-core<4.0.3

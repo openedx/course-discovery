@@ -77,6 +77,8 @@ ENABLE_PUBLISHER = True
 
 ORG_BASE_LOGO_URL = "http://discovery:18381/media/"
 
+CELERY_ALWAYS_EAGER = False
+
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):

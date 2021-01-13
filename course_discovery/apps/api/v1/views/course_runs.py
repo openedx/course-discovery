@@ -352,9 +352,12 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-        changed = reviewable_data_has_changed(
-            course_run, serializer.validated_data.items(), CourseRun.STATUS_CHANGE_EXEMPT_FIELDS)
-        response = self._update_course_run(course_run, draft, changed, serializer, request, prices)
+        changed_fields = reviewable_data_has_changed(
+            course_run,
+            serializer.validated_data.items(),
+            CourseRun.STATUS_CHANGE_EXEMPT_FIELDS
+        )
+        response = self._update_course_run(course_run, draft, bool(changed_fields), serializer, request, prices)
 
         self.update_course_run_image_in_studio(course_run)
 
