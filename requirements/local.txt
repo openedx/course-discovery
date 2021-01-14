@@ -185,7 +185,7 @@ sphinxcontrib-qthelp==1.0.3  # via sphinx
 sphinxcontrib-serializinghtml==1.1.4  # via sphinx
 sqlparse==0.4.1           # via django, django-debug-toolbar
 stevedore==3.3.0          # via edx-django-utils, edx-opaque-keys
-taxonomy-connector==1.2.1  # via -r requirements/base.in
+taxonomy-connector==1.3.0  # via -r requirements/base.in
 testfixtures==6.17.0      # via -r requirements/test.in
 text-unidecode==1.3       # via faker
 texttable==1.6.3          # via docker-compose
