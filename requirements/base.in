@@ -31,6 +31,7 @@ djangorestframework-csv
 djangorestframework-xml
 django-elasticsearch-dsl
 django-elasticsearch-dsl-drf
+django-object-actions
 drf-dynamic-fields
 drf-extensions
 dry-rest-permissions

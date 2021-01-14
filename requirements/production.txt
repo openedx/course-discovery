@@ -98,6 +98,8 @@ django-model-utils==4.1.1
     # via taxonomy-connector
 django-nine==0.2.4
     # via django-elasticsearch-dsl-drf
+django-object-actions==3.0.1
+    # via -r requirements/base.in
 django-parler==2.2
     # via -r requirements/base.in
 django-rest-swagger==2.2.0

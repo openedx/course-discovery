@@ -1,0 +1,19 @@
+.list-item {
+    background-color: silver;
+    padding: 4px !important;
+    border-radius: 14px;
+    margin-bottom: 5px;
+    width: max-content;
+    list-style: none;
+    display: inline;
+    cursor: pointer;
+}
+
+.item{
+    padding-left: 0px !important;
+    max-width: 70%;
+}
+
+.paragraph{
+    color: red;
+}

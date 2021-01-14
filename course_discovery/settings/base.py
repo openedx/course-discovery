@@ -65,6 +65,7 @@ THIRD_PARTY_APPS = [
     'xss_utils',
     'algoliasearch_django',
     'taxonomy',
+    'django_object_actions',
 ]
 
 ALGOLIA = {
