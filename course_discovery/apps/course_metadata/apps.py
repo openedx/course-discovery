@@ -14,4 +14,3 @@ class CourseMetadataConfig(AppConfig):
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         # noinspection PyUnresolvedReferences
         import course_discovery.apps.course_metadata.signals  # pylint: disable=import-outside-toplevel,unused-import
-        from course_discovery import celery_app  # pylint: disable=import-outside-toplevel,unused-import
