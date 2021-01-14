@@ -804,8 +804,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
         while page:
             params = {'page': page, 'page_size': self.PAGE_SIZE}
             response = self.api_client.get(self.api_url + '/programs/', params=params)
-            if response.status_code != 200:
-                return
+            response.raise_for_status()
             response_json = response.json()
             count = response_json['count']
             results = response_json['results']
