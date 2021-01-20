@@ -246,6 +246,15 @@ class Organization(CachedMixin, TimeStampedModel):
             'name': self.certificate_name or self.name,
             'short_name': self.key,
             'description': self.description,
+            # Whether the organization in LMS/Studio is:
+            #  (a) not-yet-existent,
+            #  (b) existing and active, or
+            #  (c) existing but currently inactive;
+            # editing it in Discovery should result in the LMS organization
+            # being set to Active. We explicitly pass in {'active': True}
+            # to handle case (c). Otherwise, the LMS/Studio organization would be left
+            # as Inactive.
+            'active': True,
         }
         logo = self.certificate_logo_image
         if logo:
