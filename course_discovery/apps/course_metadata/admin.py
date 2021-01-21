@@ -1,5 +1,6 @@
 from adminsortable2.admin import SortableAdminMixin
 from dal import autocomplete
+from django.conf.urls import url
 from django.contrib import admin, messages
 from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
@@ -8,15 +9,18 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
 
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
+from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
 from course_discovery.apps.course_metadata.forms import CourseAdminForm, PathwayAdminForm, ProgramAdminForm
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
+from course_discovery.apps.course_metadata.views import CourseSkillsView
 
 PUBLICATION_FAILURE_MSG_TPL = _(
     'An error occurred while publishing the {model} to the marketing site. '
@@ -87,7 +91,7 @@ class PersonAreaOfExpertiseInline(admin.TabularInline):
 
 
 @admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
+class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = CourseAdminForm
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
@@ -96,6 +100,31 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
+    change_actions = ('course_skills',)
+
+    def course_skills(self, request, obj):
+        """
+        Object tool handler method - redirects to "Course Skills" view
+        """
+        # url names coming from get_urls are prefixed with 'admin' namespace
+        course_skills_url = reverse(f"admin:{COURSE_SKILLS_URL_NAME}", args=(obj.pk,))
+        return HttpResponseRedirect(course_skills_url)
+
+    def get_urls(self):
+        """
+        Returns the additional urls used by the custom object tools.
+        """
+        additional_urls = [
+            url(
+                r"^([^/]+)/course_skills$",
+                self.admin_site.admin_view(CourseSkillsView.as_view()),
+                name=COURSE_SKILLS_URL_NAME
+            ),
+        ]
+        return additional_urls + super().get_urls()
+
+    course_skills.label = "view course skills"
+    course_skills.short_description = "view course skills"
 
 
 @admin.register(CourseEditor)
@@ -421,10 +450,10 @@ class CurriculumCourseMembershipInline(admin.StackedInline):
 
     def get_edit_link(self, obj=None):
         if obj and obj.pk:
-            url = reverse('admin:{}_{}_change'.format(obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
+            edit_url = reverse('admin:{}_{}_change'.format(obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
             return format_html(
                 """<a href="{url}">{text}</a>""",
-                url=url,
+                url=edit_url,
                 text=_("Edit course run exclusions"),
             )
         return _("(save and continue editing to create a link)")
