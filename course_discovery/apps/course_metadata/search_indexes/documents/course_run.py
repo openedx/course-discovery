@@ -1,6 +1,7 @@
 from django.conf import settings
 from django_elasticsearch_dsl import Index, fields
 from opaque_keys.edx.keys import CourseKey
+from taxonomy.models import CourseSkills
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import CourseRun
@@ -54,6 +55,7 @@ class CourseRunDocument(BaseCourseDocument):
     pacing_type = fields.KeywordField()
     program_types = fields.KeywordField(multi=True)
     published = fields.BooleanField()
+    skill_names = fields.KeywordField(multi=True)
     status = fields.KeywordField()
     start = fields.DateField()
     slug = fields.TextField()
@@ -109,6 +111,10 @@ class CourseRunDocument(BaseCourseDocument):
 
     def prepare_seat_types(self, obj):
         return [seat_type.slug for seat_type in obj.seat_types]
+
+    def prepare_skill_names(self, obj):
+        course_skills = CourseSkills.objects.select_related('skill').filter(course_id=obj.course.key)
+        return list(set(course_skill.skill.name for course_skill in course_skills))
 
     def prepare_staff_uuids(self, obj):
         return [str(staff.uuid) for staff in obj.staff.all()]

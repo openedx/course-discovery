@@ -1,6 +1,7 @@
 from django.conf import settings
 from django_elasticsearch_dsl import Index, fields
 from opaque_keys.edx.keys import CourseKey
+from taxonomy.models import CourseSkills
 
 from course_discovery.apps.course_metadata.models import Course
 
@@ -38,6 +39,7 @@ class CourseDocument(BaseCourseDocument):
     languages = fields.KeywordField(multi=True)
     modified = fields.DateField()
     prerequisites = fields.KeywordField(multi=True)
+    skill_names = fields.KeywordField(multi=True)
     status = fields.KeywordField(multi=True)
     start = fields.DateField(multi=True)
 
@@ -80,6 +82,10 @@ class CourseDocument(BaseCourseDocument):
     def prepare_seat_types(self, obj):
         seat_types = [seat.slug for run in filter_visible_runs(obj.course_runs) for seat in run.seat_types]
         return list(set(seat_types))
+
+    def prepare_skill_names(self, obj):
+        course_skills = CourseSkills.objects.select_related('skill').filter(course_id=obj.key)
+        return list(set(course_skill.skill.name for course_skill in course_skills))
 
     def prepare_status(self, obj):
         return [course_run.status for course_run in filter_visible_runs(obj.course_runs)]

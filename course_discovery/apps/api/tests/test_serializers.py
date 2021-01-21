@@ -50,12 +50,12 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalPromoAreaFactory, CollaboratorFactory, CorporateEndorsementFactory, CourseEditorFactory,
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
-    CurriculumProgramMembershipFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory,
-    ExpectedLearningItemFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory,
-    PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory,
-    PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
-    SubjectFactory, TopicFactory, VideoFactory
+    CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseSkillsFactory, CurriculumCourseMembershipFactory,
+    CurriculumFactory, CurriculumProgramMembershipFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory,
+    EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory,
+    OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory,
+    PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory,
+    SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -1951,8 +1951,11 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course.course_runs.add(course_run)
         course.save()
         seat = SeatFactory(course_run=course_run)
+        course_skill = CourseSkillsFactory(
+            course_id=course.key
+        )
         serializer = self.serialize_course(course, request)
-        assert serializer.data == self.get_expected_data(course, course_run, seat)
+        assert serializer.data == self.get_expected_data(course, course_run, course_skill, seat)
 
     def test_exclude_expired_and_keep_current_course_run(self):
         request = make_request({'exclude_expired_course_run': True})
@@ -1974,8 +1977,13 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course.course_runs.add(course_run, course_run_expired)
         course.save()
         seat = SeatFactory(course_run=course_run)
+        course_skill = CourseSkillsFactory(
+            course_id=course.key
+        )
         serializer = self.serialize_course(course, request)
-        assert serializer.data["course_runs"] == self.get_expected_data(course, course_run, seat)["course_runs"]
+        assert serializer.data["course_runs"] == self.get_expected_data(
+            course, course_run, course_skill, seat
+        )["course_runs"]
 
     def test_exclude_expired_course_run(self):
         request = make_request({'exclude_expired_course_run': True})
@@ -1993,6 +2001,9 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course.course_runs.add(course_run)
         course.save()
         seat = SeatFactory(course_run=course_run)
+        course_skill = CourseSkillsFactory(
+            course_id=course.key
+        )
         expected = {
             'key': course.key,
             'title': course.title,
@@ -2010,6 +2021,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                 if course_run.language
             ],
             'seat_types': [seat.type.slug],
+            'skill_names': [course_skill.skill.name],
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,
@@ -2035,6 +2047,9 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course.course_runs.add(course_run)
         course.save()
         seat = SeatFactory(course_run=course_run)
+        course_skill = CourseSkillsFactory(
+            course_id=course.key
+        )
         expected = {
             'key': course.key,
             'title': course.title,
@@ -2074,6 +2089,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                 if course_run.language
             ],
             'seat_types': [seat.type.slug],
+            'skill_names': [course_skill.skill.name],
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,
@@ -2089,7 +2105,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         self.assertDictEqual(serializer.data, expected)
 
     @classmethod
-    def get_expected_data(cls, course, course_run, seat):
+    def get_expected_data(cls, course, course_run, course_skill, seat):
         return {
             'key': course.key,
             'title': course.title,
@@ -2125,6 +2141,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                 if course_run.language
             ],
             'seat_types': [seat.type.slug],
+            'skill_names': [course_skill.skill.name],
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,
@@ -2163,8 +2180,11 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
         SeatFactory.create(course_run=course_run, type=SeatTypeFactory.verified(), price=10, sku='ABCDEF')
         program = ProgramFactory(courses=[course_run.course])
         self.reindex_courses(program)
+        course_skill = CourseSkillsFactory(
+            course_id=course_run.course.key
+        )
         serializer = self.serialize_course_run(course_run, request)
-        assert serializer.data == self.get_expected_data(course_run, request)
+        assert serializer.data == self.get_expected_data(course_run, course_skill, request)
 
     def test_data_without_serializers(self):
         """ Verify a null `LevelType` is properly serialized as None. """
@@ -2180,7 +2200,7 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
         return serializer
 
     @classmethod
-    def get_expected_data(cls, course_run, request):
+    def get_expected_data(cls, course_run, course_skill, request):
         return {
             'transcript_languages': [serialize_language(cr_t_l) for cr_t_l in course_run.transcript_languages.all()],
             'min_effort': course_run.min_effort,
@@ -2203,6 +2223,7 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
             'org': CourseKey.from_string(course_run.key).org,
             'number': CourseKey.from_string(course_run.key).course,
             'seat_types': [seat.slug for seat in course_run.seat_types],
+            'skill_names': [course_skill.skill.name],
             'image_url': course_run.image_url,
             'type': course_run.type_legacy,
             'level_type': course_run.level_type.name,
@@ -2226,7 +2247,7 @@ class CourseRunSearchModelSerializerTests(CourseRunSearchDocumentSerializerTests
     serializer_class = CourseRunSearchModelSerializer
 
     @classmethod
-    def get_expected_data(cls, course_run, request):
+    def get_expected_data(cls, course_run, course_skill, request):
         expected_data = CourseRunWithProgramsSerializerTests.get_expected_data(course_run, request)
         expected_data.update({'content_type': 'courserun'})
         # This explicit conversion needs to happen, apparently because the real type is DRF's 'ReturnDict'. It's weird.

@@ -3,6 +3,7 @@ import datetime
 import pytz
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
+from taxonomy.models import CourseSkills
 
 from course_discovery.apps.api import serializers as cd_serializers
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseWithProgramsSerializer
@@ -23,6 +24,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
 
     course_runs = serializers.SerializerMethodField()
     seat_types = serializers.SerializerMethodField()
+    skill_names = serializers.SerializerMethodField()
 
     def course_run_detail(self, request, detail_fields, course_run):
         course_run_detail = {
@@ -75,6 +77,10 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
         seat_types = [seat.slug for course_run in result.object.course_runs.all() for seat in course_run.seat_types]
         return list(set(seat_types))
 
+    def get_skill_names(self, result):
+        course_skills = CourseSkills.objects.select_related('skill').filter(course_id=result.key)
+        return list(set(course_skill.skill.name for course_skill in course_skills))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         request = self.context['request']
@@ -107,6 +113,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
             'course_runs',
             'uuid',
             'seat_types',
+            'skill_names',
             'subjects',
             'languages',
             'organizations',
