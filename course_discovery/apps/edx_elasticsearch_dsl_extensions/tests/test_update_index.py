@@ -35,7 +35,6 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
     def test_sanity_check_error(self):
         """ Verify the command raises a CommandError if new index fails the sanity check. """
         CourseRunFactory()
-        record_count = 2
         additional_runs = int(100 * settings.INDEX_SIZE_CHANGE_THRESHOLD + 1)
         CourseRunFactory.create_batch(additional_runs)
 
@@ -43,7 +42,7 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
         with pytest.raises(CommandError):
             with mock.patch('course_discovery.apps.core.utils.ElasticsearchUtils.set_alias', return_value=True):
                 with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
-                                'update_index.Command.get_record_count', return_value=record_count):
+                                'update_index.Command.percentage_change', return_value=0.5):
                     call_command('update_index')
 
     def test_sanity_check_success(self):
