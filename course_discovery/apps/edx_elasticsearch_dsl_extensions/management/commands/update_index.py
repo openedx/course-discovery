@@ -105,7 +105,7 @@ class Command(DjangoESDSLCommand):
                 # index, which could be indicative of a bug.
                 if new_index_name in indexes_pending and not options.get('disable_change_limit', False):
                     record_count_is_sane, index_info_string = self.sanity_check_new_index(
-                        doc, new_index_name, record_count
+                        run_attempts, doc, new_index_name, record_count
                     )
                     if record_count_is_sane:
                         ElasticsearchUtils.set_alias(conn, alias, new_index_name)
@@ -135,38 +135,49 @@ class Command(DjangoESDSLCommand):
             # This is done to fail the sanity check
             return 1
 
-    def sanity_check_new_index(self, document, new_index_name, previous_record_count):
+    def sanity_check_new_index(self, attempt, document, new_index_name, previous_record_count):
         """ Ensure that we do not point to an index that looks like it has missing data. """
-        current_record_count = document.search().query().count()
+        current_record_count = self.get_record_count(document)
         percentage_change = self.percentage_change(current_record_count, previous_record_count)
         # Verify there was not a big shift in record count
         record_count_is_sane = percentage_change < settings.INDEX_SIZE_CHANGE_THRESHOLD
         conn = get_connection()
         if not record_count_is_sane:
-            attempts = 0
-            while attempts < 2:
-                attempts += 1
-                current_attempt_record_count = self.get_record_count(document)
-                current_attempt_percentage_change = self.percentage_change(
-                    current_attempt_record_count, previous_record_count)
-                alternate_current_record_count = conn.search({"query": {"match_all": {}}}, index=new_index_name).get(
-                    'hits', {}).get('total', {}).get('value', 0)
-                message = '''
+            alternate_current_record_count = conn.search({"query": {"match_all": {}}}, index=new_index_name).get(
+                'hits', {}).get('total', {}).get('value', 0)
+            message = '''
         Sanity check failed for attempt #{0}.
         Index name: {1}
         Percentage change: {2}
-        Base record count: {3}
-        Search record count: {4}
-                    '''.format(
-                    attempts,
-                    new_index_name,
-                    str(int(round(current_attempt_percentage_change * 100, 0))) + '%',
-                    current_attempt_record_count,
-                    alternate_current_record_count
-                )
-                logger.info(message)
-                logger.info('...sleeping for 5 seconds...')
-                time.sleep(5)
+        Previous record count: {3}
+        Base record count: {4}
+        Search record count: {5}
+                '''.format(
+                attempt,
+                new_index_name,
+                str(int(round(percentage_change * 100, 0))) + '%',
+                previous_record_count,
+                current_record_count,
+                alternate_current_record_count
+            )
+            logger.info(message)
+            logger.info('...sleeping for 5 seconds...')
+            time.sleep(5)
+        else:
+            message = '''
+        Sanity check passed for attempt #{0}.
+        Index name: {1}
+        Percentage change: {2}
+        Previous record count: {3}
+        Current record count: {4}
+                '''.format(
+                attempt,
+                new_index_name,
+                str(int(round(percentage_change * 100, 0))) + '%',
+                previous_record_count,
+                current_record_count
+            )
+            logger.info(message)
 
         index_info_string = (
             'The previous index contained [{}] records. '
