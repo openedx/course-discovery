@@ -32,7 +32,11 @@
     {% if course_skills %}
         <ul class="item">
             {% for course_skill in course_skills %}
-            <li class="list-item">{{ course_skill.skill.name }}</li>
+            <li class="list-item">
+                <a class="black" href="{% url 'admin:taxonomy_skill_change' course_skill.skill.id %}">
+                    {{ course_skill.skill.name }}
+                </a>
+            </li>
             {% endfor %}
         </ul>
     {% else %}

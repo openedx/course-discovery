@@ -4,11 +4,11 @@ from django.conf import settings
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from pytest import mark
-from taxonomy.models import CourseSkills, Skill
+from taxonomy.models import CourseSkills
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseSkillsFactory
 from course_discovery.apps.course_metadata.views import CourseSkillsView
 
 
@@ -68,10 +68,8 @@ class TestCourseSkillView(TestCase):
 
     def _create_course_skills(self, course):
         """Create dummy course skills."""
-        skill1 = Skill(external_id=1, name='machine learning')
-        skill2 = Skill(external_id=2, name='python')
-        course_skill1 = CourseSkills(course_id=course.key, skill=skill1, confidence=2)
-        course_skill2 = CourseSkills(course_id=course.key, skill=skill2, confidence=3)
+        course_skill1 = CourseSkillsFactory(course_id=course.key)
+        course_skill2 = CourseSkillsFactory(course_id=course.key)
         return [course_skill1, course_skill2]
 
     def test_get_user_not_logged_in(self):
