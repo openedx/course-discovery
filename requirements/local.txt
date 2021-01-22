@@ -6,7 +6,7 @@
 #
 alabaster==0.7.12
     # via sphinx
-algoliasearch-django==1.7.2
+algoliasearch-django==1.7.3
     # via -r requirements/base.in
 algoliasearch==1.20.0
     # via algoliasearch-django
@@ -162,7 +162,7 @@ django-taggit==1.3.0
     #   -r requirements/base.in
     #   django-taggit-autosuggest
     #   django-taggit-serializer
-django-waffle==2.0.0
+django-waffle==2.1.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
@@ -217,7 +217,7 @@ djangorestframework==3.12.2
     #   edx-drf-extensions
     #   rest-condition
     #   taxonomy-connector
-docker-compose==1.27.4
+docker-compose==1.28.0
     # via -r requirements/local.in
 docker[ssh]==4.4.1
     # via docker-compose
@@ -241,9 +241,9 @@ edx-auth-backends==3.3.0
     # via -r requirements/base.in
 edx-ccx-keys==1.2.0
     # via -r requirements/base.in
-edx-django-release-util==0.4.4
+edx-django-release-util==1.0.0
     # via -r requirements/base.in
-edx-django-sites-extensions==2.5.1
+edx-django-sites-extensions==3.0.0
     # via -r requirements/base.in
 edx-django-utils==3.13.0
     # via
@@ -251,7 +251,7 @@ edx-django-utils==3.13.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   taxonomy-connector
-edx-drf-extensions==6.3.0
+edx-drf-extensions==6.4.0
     # via -r requirements/base.in
 edx-i18n-tools==0.5.3
     # via -r requirements/local.in
@@ -266,7 +266,7 @@ edx-rest-api-client==5.3.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-edx-sphinx-theme==1.6.0
+edx-sphinx-theme==1.6.1
     # via -r requirements/docs.in
 elasticsearch-dsl==7.3.0
     # via
@@ -282,19 +282,15 @@ elasticsearch==7.10.1
     #   elasticsearch-dsl
 execnet==1.7.1
     # via pytest-xdist
-factory-boy==3.1.0
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/test.in
-faker==5.0.0
-    # via
-    #   -c requirements/constraints.txt
-    #   factory-boy
+factory-boy==3.2.0
+    # via -r requirements/test.in
+faker==5.6.5
+    # via factory-boy
 filelock==3.0.12
     # via
     #   tox
     #   virtualenv
-freezegun==1.0.0
+freezegun==1.1.0
     # via -r requirements/test.in
 future==0.18.2
     # via pyjwkest
@@ -340,7 +336,7 @@ mock==4.0.3
     # via -r requirements/test.in
 mysqlclient==2.0.3
     # via -r requirements/test.in
-newrelic==5.24.0.153
+newrelic==6.0.1.155
     # via edx-django-utils
 oauthlib==3.1.0
     # via
@@ -420,7 +416,7 @@ pyparsing==2.4.7
     # via packaging
 pyrsistent==0.17.3
     # via jsonschema
-pytest-cov==2.11.0
+pytest-cov==2.11.1
     # via -r requirements/test.in
 pytest-django-ordering==1.2.0
     # via -r requirements/test.in
@@ -454,7 +450,7 @@ python-dotenv==0.15.0
     # via docker-compose
 python-memcached==1.59
     # via -r requirements/test.in
-python-utils==2.5.1
+python-utils==2.5.2
     # via progressbar2
 python3-openid==3.2.0
     # via social-auth-core
@@ -467,7 +463,7 @@ pytz==2020.5
     #   taxonomy-connector
 pywatchman==1.4.1
     # via -r requirements/local.in
-pyyaml==5.3.1
+pyyaml==5.4.1
     # via
     #   docker-compose
     #   edx-django-release-util
@@ -552,7 +548,7 @@ six==1.15.0
     #   websocket-client
 slumber==0.7.1
     # via edx-rest-api-client
-snowballstemmer==2.0.0
+snowballstemmer==2.1.0
     # via sphinx
 social-auth-app-django==4.0.0
     # via
@@ -603,7 +599,7 @@ toml==0.10.2
     #   pylint
     #   pytest
     #   tox
-tox==3.21.1
+tox==3.21.2
     # via -r requirements/test.in
 transifex-client==0.12.5
     # via
@@ -628,7 +624,7 @@ vine==1.3.0
     # via
     #   amqp
     #   celery
-virtualenv==20.3.1
+virtualenv==20.4.0
     # via tox
 websocket-client==0.57.0
     # via
