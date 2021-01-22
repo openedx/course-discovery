@@ -14,7 +14,7 @@ chardet==4.0.0
     # via requests
 docutils==0.16
     # via sphinx
-edx-sphinx-theme==1.6.0
+edx-sphinx-theme==1.6.1
     # via -r requirements/docs.in
 idna==2.10
     # via requests
@@ -36,7 +36,7 @@ requests==2.25.1
     # via sphinx
 six==1.15.0
     # via edx-sphinx-theme
-snowballstemmer==2.0.0
+snowballstemmer==2.1.0
     # via sphinx
 sphinx==2.4.4
     # via
