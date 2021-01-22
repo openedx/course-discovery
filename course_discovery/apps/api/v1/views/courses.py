@@ -380,8 +380,19 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         if url_slug:
             course.set_active_url_slug(url_slug)
 
+        # Temporary log --- FIRE_UPDATE_COURSE_SKILLS_SIGNAL is only enabled for stage
+        if settings.FIRE_UPDATE_COURSE_SKILLS_SIGNAL:
+            logger.info(
+                '[UPDATE_COURSE_SKILLS_DEBUG] Draft: [%s], ChangedFields: [%s]',
+                draft,
+                changed_fields
+            )
+
         if not draft:
             for course_run in course.active_course_runs:
+                # Temporary log --- FIRE_UPDATE_COURSE_SKILLS_SIGNAL is only enabled for stage
+                if settings.FIRE_UPDATE_COURSE_SKILLS_SIGNAL:
+                    logger.info('[UPDATE_COURSE_SKILLS_DEBUG] CourseRunStatus: [%s]', course_run.status)
                 if course_run.status == CourseRunStatus.Published:
                     # This will also update the course
                     course_run.update_or_create_official_version()
