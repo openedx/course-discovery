@@ -15,13 +15,13 @@ Including another URLconf
 
 import os
 
-from auth_backends.urls import auth_urlpatterns
+from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
-from django.views.i18n import javascript_catalog
+from django.views.i18n import JavaScriptCatalog
 
 from course_discovery.apps.api.views import SwaggerSchemaView
 from course_discovery.apps.core import views as core_views
@@ -31,28 +31,21 @@ admin.site.site_header = _('Discovery Service Administration')
 admin.site.site_title = admin.site.site_header
 admin.autodiscover()
 
-urlpatterns = auth_urlpatterns + [
+urlpatterns = oauth2_urlpatterns + [
     url(r'^admin/course_metadata/', include('course_discovery.apps.course_metadata.urls', namespace='admin_metadata')),
-    url(r'^admin/core/', include('course_discovery.apps.core.urls', namespace='admin_core')),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
     # Use the same auth views for all logins, including those originating from the browseable API.
-    url(r'^api-auth/', include(auth_urlpatterns, namespace='rest_framework')),
+    url(r'^api-auth/', include((oauth2_urlpatterns, 'rest_framework'))),
     url(r'^api-docs/', SwaggerSchemaView.as_view(), name='api_docs'),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),
     url('^$', QueryPreviewView.as_view()),
     url(r'^publisher/', include('course_discovery.apps.publisher.urls', namespace='publisher')),
-    url(r'^journal/', include('course_discovery.apps.journal.urls', namespace='journal')),
-    url(
-        r'^publisher/comments/', include(
-            'course_discovery.apps.publisher_comments.urls', namespace='publisher_comments'
-        )
-    ),
     url(r'^language-tags/', include('course_discovery.apps.ietf_language_tags.urls', namespace='language_tags')),
     url(r'^comments/', include('django_comments.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^jsi18n/$', javascript_catalog, name='javascript-catalog'),
+    url(r'^jsi18n/$', JavaScriptCatalog, name='javascript-catalog'),
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
 ]
 

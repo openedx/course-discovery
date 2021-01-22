@@ -54,12 +54,6 @@ def get_course_run_states():
     def end_future(course_run):
         course_run.end = future
 
-    def slug_blank(course_run):
-        course_run.slug = ''
-
-    def slug_valid(course_run):
-        course_run.slug = 'foo'
-
     def seats_null(course_run):  # pylint: disable=unused-argument
         pass
 
@@ -91,10 +85,6 @@ def get_course_run_states():
             end_future
         ],
         [
-            slug_blank,
-            slug_valid
-        ],
-        [
             seats_null,
             seats_exist
         ],
@@ -118,9 +108,6 @@ def get_course_run_states():
         [
             end_null,
             end_future
-        ],
-        [
-            slug_valid
         ],
         [
             seats_exist

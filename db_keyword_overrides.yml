@@ -1,0 +1,20 @@
+# This file is used by the 'check_reserved_keywords' management command to allow specific field names to be overridden
+# when checking for conflicts with lists of restricted keywords used in various database/data warehouse tools.
+# For more information, see: https://github.com/edx/edx-django-release-util/release_util/management/commands/check_reserved_keywords.py
+#
+# overrides should be added in the following format:
+#   - ModelName.field_name
+---
+MYSQL:
+    - BackfillCourseRunSlugsConfig.all
+    - Organization.key
+    - Course.key
+    - HistoricalOrganization.key
+    - CourseRun.key
+    - HistoricalCourse.key
+    - HistoricalCourseRun.key
+SNOWFLAKE:
+    - CourseRun.start
+    - BackfillCourseRunSlugsConfig.all
+    - HistoricalCourseRun.start
+STITCH:

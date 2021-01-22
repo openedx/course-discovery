@@ -2,7 +2,7 @@ import logging
 
 import pytest
 from django.contrib.sites.models import Site
-from django.core.cache import cache
+from django.core.cache import cache, caches
 from django.test.client import Client
 from haystack import connections as haystack_connections
 from pytest_django.lazy_django import skip_if_no_django
@@ -25,6 +25,11 @@ def django_cache_add_xdist_key_prefix(request):
 
     if xdist_prefix:
         # Put a prefix like gw0_, gw1_ etc on xdist processes
+        for existing_cache in caches.all():
+            existing_cache.key_prefix = xdist_prefix + '_' + existing_cache.key_prefix
+            existing_cache.clear()
+            logger.info('Set existing cache key prefix to [%s]', existing_cache.key_prefix)
+
         for name, cache_settings in settings.CACHES.items():
             cache_settings['KEY_PREFIX'] = xdist_prefix + '_' + cache_settings.get('KEY_PREFIX', '')
             logger.info('Set cache key prefix for [%s] cache to [%s]', name, cache_settings['KEY_PREFIX'])
@@ -94,5 +99,7 @@ def client():
     return Client(SERVER_NAME=TEST_DOMAIN)
 
 
-def pytest_sessionstart(session):  # pylint: disable=unused-argument
-    cache.clear()
+@pytest.fixture(autouse=True)
+def clear_caches(request):
+    for existing_cache in caches.all():
+        existing_cache.clear()

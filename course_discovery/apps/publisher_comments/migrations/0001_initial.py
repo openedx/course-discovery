@@ -30,8 +30,8 @@ class Migration(migrations.Migration):
                 ('is_public', models.BooleanField(help_text='Uncheck this box to make the comment effectively disappear from the site.', verbose_name='is public', default=True)),
                 ('is_removed', models.BooleanField(help_text='Check this box if the comment is inappropriate. A "This comment has been removed" message will be displayed instead.', verbose_name='is removed', default=False)),
                 ('modified', django_extensions.db.fields.ModificationDateTimeField(verbose_name='modified', auto_now=True)),
-                ('content_type', models.ForeignKey(verbose_name='content type', to='contenttypes.ContentType', related_name='content_type_set_for_comments')),
-                ('site', models.ForeignKey(to='sites.Site')),
+                ('content_type', models.ForeignKey(verbose_name='content type', to='contenttypes.ContentType', related_name='content_type_set_for_comments', on_delete=django.db.models.deletion.CASCADE)),
+                ('site', models.ForeignKey(to='sites.Site', on_delete=django.db.models.deletion.CASCADE)),
                 ('user', models.ForeignKey(verbose_name='user', blank=True, to=settings.AUTH_USER_MODEL, null=True, related_name='comments_comments', on_delete=django.db.models.deletion.SET_NULL)),
             ],
             options={

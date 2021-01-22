@@ -32,6 +32,9 @@ CACHES = {
     },
 }
 
+# Disable the caching mixin for tests
+USE_API_CACHING = False
+
 DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3'),
@@ -46,8 +49,12 @@ DATABASES = {
 
 JWT_AUTH['JWT_SECRET_KEY'] = 'course-discovery-jwt-secret-key'
 
-LOGGING['handlers']['local'] = {'class': 'logging.NullHandler'}
+LOGGING['handlers']['local'] = {
+    'class': 'logging.NullHandler',
+    'level': 'INFO',
+}
 
+ENABLE_PUBLISHER = True
 PUBLISHER_FROM_EMAIL = 'test@example.com'
 
 # Set to 0 to disable edx-django-sites-extensions to retrieve

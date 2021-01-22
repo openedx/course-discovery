@@ -12,7 +12,7 @@ class Command(BaseCommand):
     help = 'This command will purge the oldest indexes, freeing up disk space.  This command will never delete the ' \
            'currently used index.'
 
-    def handle(self, **options):
+    def handle(self, *_args, **options):
         self.backends = options.get('using')
         if not self.backends:
             self.backends = list(haystack_connections.connections_info.keys())

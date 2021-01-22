@@ -1,21 +1,23 @@
 import datetime
 
+from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.http import StreamingHttpResponse
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import status, viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.renderers import CourseRunCSVRenderer
-from course_discovery.apps.api.v1.views import User
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.course_metadata.models import CourseRun
 
+User = get_user_model()
 
-# pylint: disable=no-member
+
+# pylint: disable=useless-super-delegation
 class CatalogViewSet(viewsets.ModelViewSet):
     """ Catalog resource. """
 
@@ -52,7 +54,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         """ Destroy a catalog. """
-        return super(CatalogViewSet, self).destroy(request, *args, **kwargs)
+        return super().destroy(request, *args, **kwargs)  # pylint: disable=no-member
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all catalogs.
@@ -65,22 +67,22 @@ class CatalogViewSet(viewsets.ModelViewSet):
               paramType: query
               multiple: false
         """
-        return super(CatalogViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)  # pylint: disable=no-member
 
     def partial_update(self, request, *args, **kwargs):
         """ Update one, or more, fields for a catalog. """
-        return super(CatalogViewSet, self).partial_update(request, *args, **kwargs)
+        return super().partial_update(request, *args, **kwargs)  # pylint: disable=no-member
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a catalog. """
-        return super(CatalogViewSet, self).retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)  # pylint: disable=no-member
 
     def update(self, request, *args, **kwargs):
         """ Update a catalog. """
-        return super(CatalogViewSet, self).update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs)  # pylint: disable=no-member
 
-    @detail_route()
-    def courses(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
+    @action(detail=True)
+    def courses(self, request, id=None):  # pylint: disable=redefined-builtin
         """
         Retrieve the list of courses contained within this catalog.
 
@@ -109,8 +111,8 @@ class CatalogViewSet(viewsets.ModelViewSet):
         )
         return self.get_paginated_response(serializer.data)
 
-    @detail_route()
-    def contains(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
+    @action(detail=True)
+    def contains(self, request, id=None):  # pylint: disable=redefined-builtin
         """
         Determine if this catalog contains the provided courses.
 
@@ -148,8 +150,8 @@ class CatalogViewSet(viewsets.ModelViewSet):
         serializer = serializers.ContainedCoursesSerializer(instance)
         return Response(serializer.data)
 
-    @detail_route()
-    def csv(self, request, id=None):  # pylint: disable=redefined-builtin,unused-argument
+    @action(detail=True)
+    def csv(self, request, id=None):  # pylint: disable=redefined-builtin
         """
         Retrieve a CSV containing the course runs contained within this catalog.
 

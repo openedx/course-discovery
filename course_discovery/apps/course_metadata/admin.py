@@ -1,10 +1,15 @@
+from adminsortable2.admin import SortableAdminMixin
 from django.contrib import admin, messages
+from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from parler.admin import TranslatableAdmin
 
+from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
+from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
@@ -47,6 +52,7 @@ class ProgramEligibilityFilter(admin.SimpleListFilter):
 class SeatInline(admin.TabularInline):
     model = Seat
     extra = 1
+    readonly_fields = ('_upgrade_deadline',)
 
 
 class PositionInline(admin.TabularInline):
@@ -67,30 +73,71 @@ class PersonAreaOfExpertiseInline(admin.TabularInline):
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     form = CourseAdminForm
-    list_display = ('uuid', 'key', 'title',)
+    list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count',)
-    search_fields = ('uuid', 'key', 'title',)
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug',)
+    search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
+    raw_id_fields = ('canonical_course_run', 'draft_version',)
+    autocomplete_fields = ['canonical_course_run']
+
+
+@admin.register(CourseEditor)
+class CourseEditorAdmin(admin.ModelAdmin):
+    list_display = ('user', 'course',)
+    search_fields = ('user__username', 'course__title', 'course__key',)
+    raw_id_fields = ('user', 'course',)
 
 
 @admin.register(CourseEntitlement)
 class CourseEntitlementAdmin(admin.ModelAdmin):
-    list_display = ['course', 'get_course_number', 'mode']
+    list_display = ['course', 'get_course_key', 'mode', 'draft']
 
-    def get_course_number(self, obj):
-        return obj.course.number
+    def get_course_key(self, obj):
+        return obj.course.key
 
-    get_course_number.short_description = 'Course number'
+    get_course_key.short_description = 'Course key'
 
-    raw_id_fields = ['course']
-    search_fields = ['course__title', 'course__number']
+    raw_id_fields = ('course', 'draft_version',)
+    search_fields = ['course__title', 'course__key']
+
+
+@admin.register(Mode)
+class ModeAdmin(admin.ModelAdmin):
+    list_display = ['slug', 'name']
+
+
+@admin.register(Track)
+class TrackAdmin(admin.ModelAdmin):
+    list_display = ['mode', 'seat_type']
+
+
+@admin.register(CourseRunType)
+class CourseRunTypeAdmin(admin.ModelAdmin):
+    list_display = ['uuid', 'name']
+    search_fields = ['uuid', 'name']
+
+
+class CourseTypeAdminForm(ModelForm):
+    class Meta:
+        model = CourseType
+        fields = '__all__'
+        widgets = {
+            'white_listed_orgs': CheckboxSelectMultiple
+        }
+
+
+@admin.register(CourseType)
+class CourseTypeAdmin(admin.ModelAdmin):
+    list_display = ['uuid', 'name']
+    search_fields = ['uuid', 'name']
+    form = CourseTypeAdminForm
 
 
 @admin.register(CourseRun)
 class CourseRunAdmin(admin.ModelAdmin):
     inlines = (SeatInline,)
-    list_display = ('uuid', 'key', 'title', 'status',)
+    list_display = ('uuid', 'key', 'external_key', 'title', 'status', 'draft',)
     list_filter = (
         'course__partner',
         'hidden',
@@ -99,9 +146,9 @@ class CourseRunAdmin(admin.ModelAdmin):
         'license',
     )
     ordering = ('key',)
-    raw_id_fields = ('course',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count',)
-    search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug',)
+    raw_id_fields = ('course', 'draft_version',)
+    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'hidden')
+    search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key')
     save_error = False
 
     def response_change(self, request, obj):
@@ -118,7 +165,7 @@ class CourseRunAdmin(admin.ModelAdmin):
 
             logger.exception('An error occurred while publishing course run [%s] to the marketing site.', obj.key)
 
-            msg = PUBLICATION_FAILURE_MSG_TPL.format(model='course run')  # pylint: disable=no-member
+            msg = PUBLICATION_FAILURE_MSG_TPL.format(model='course run')
             messages.add_message(request, messages.ERROR, msg)
 
 
@@ -135,13 +182,13 @@ class ProgramAdmin(admin.ModelAdmin):
 
     # ordering the field display on admin page.
     fields = (
-        'uuid', 'title', 'subtitle', 'status', 'type', 'partner', 'banner_image', 'banner_image_url', 'card_image_url',
-        'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'total_hours_of_effort',
+        'uuid', 'title', 'subtitle', 'marketing_hook', 'status', 'type', 'partner', 'banner_image', 'banner_image_url',
+        'card_image_url', 'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'total_hours_of_effort',
         'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses',
         'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
         'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden', 'corporate_endorsements', 'faq',
         'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
-        'enrollment_count', 'recent_enrollment_count',
+        'enrollment_count', 'recent_enrollment_count', 'credit_value',
     )
 
     save_error = False
@@ -183,7 +230,7 @@ class ProgramAdmin(admin.ModelAdmin):
 
             logger.exception('An error occurred while publishing program [%s] to the marketing site.', obj.uuid)
 
-            msg = PUBLICATION_FAILURE_MSG_TPL.format(model='program')  # pylint: disable=no-member
+            msg = PUBLICATION_FAILURE_MSG_TPL.format(model='program')
             messages.add_message(request, messages.ERROR, msg)
 
     class Media:
@@ -200,13 +247,16 @@ class PathwayAdmin(admin.ModelAdmin):
 
 
 @admin.register(ProgramType)
-class ProgramTypeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug',)
+class ProgramTypeAdmin(TranslatableAdmin):
+    fields = ('name_t', 'applicable_seat_types', 'logo_image', 'slug', 'coaching_supported',)
+    list_display = ('name_t', 'slug')
 
 
 @admin.register(Seat)
 class SeatAdmin(admin.ModelAdmin):
-    list_display = ('course_run', 'type')
+    list_display = ('course_run', 'type', 'draft', 'upgrade_deadline_override',)
+    raw_id_fields = ('draft_version',)
+    readonly_fields = ('_upgrade_deadline',)
 
 
 @admin.register(SeatType)
@@ -311,36 +361,78 @@ class VideoAdmin(admin.ModelAdmin):
     search_fields = ('src', 'description',)
 
 
-class NamedModelAdmin(admin.ModelAdmin):
+@admin.register(Prerequisite)
+class PrerequisiteAdmin(admin.ModelAdmin):
     list_display = ('name',)
     ordering = ('name',)
     search_fields = ('name',)
 
 
-class DegreeProgramCurriculumInline(admin.TabularInline):
-    model = DegreeProgramCurriculum
-    extra = 1
+@admin.register(LevelType)
+class LevelTypeAdmin(SortableAdminMixin, TranslatableAdmin):
+    list_display = ('name_t', 'sort_value')
+    search_fields = ('name_t',)
+    fields = ('name_t',)
 
 
-class DegreeCourseCurriculumInline(admin.TabularInline):
-    model = DegreeCourseCurriculum
-    extra = 1
+class CurriculumProgramMembershipInline(admin.TabularInline):
+    model = CurriculumProgramMembership
+    fields = ('program', 'is_active')
+    autocomplete_fields = ['program']
+    extra = 0
 
 
-@admin.register(DegreeProgramCurriculum)
-class DegreeProgramCurriculumAdmin(admin.ModelAdmin):
+class CurriculumCourseMembershipInline(admin.StackedInline):
+    model = CurriculumCourseMembership
+    readonly_fields = ("custom_course_runs_display", "course_run_exclusions", "get_edit_link",)
+    autocomplete_fields = ['course']
+
+    def custom_course_runs_display(self, obj):
+        return mark_safe('<br>'.join([str(run) for run in obj.course_runs]))
+
+    custom_course_runs_display.short_description = _('Included course runs')
+
+    def get_edit_link(self, obj=None):
+        if obj and obj.pk:
+            url = reverse('admin:{}_{}_change'.format(obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
+            return format_html(
+                """<a href="{url}">{text}</a>""",
+                url=url,
+                text=_("Edit course run exclusions"),
+            )
+        return _("(save and continue editing to create a link)")
+
+    get_edit_link.short_description = _("Edit link")
+
+    extra = 0
+
+
+class CurriculumCourseRunExclusionInline(admin.TabularInline):
+    model = CurriculumCourseRunExclusion
+    autocomplete_fields = ['course_run']
+    extra = 0
+
+
+@admin.register(CurriculumProgramMembership)
+class CurriculumProgramMembershipAdmin(admin.ModelAdmin):
     list_display = ('curriculum', 'program')
 
 
-@admin.register(DegreeCourseCurriculum)
-class DegreeCourseCurriculumAdmin(admin.ModelAdmin):
+@admin.register(CurriculumCourseMembership)
+class CurriculumCourseMembershipAdmin(admin.ModelAdmin):
     list_display = ('curriculum', 'course')
+    inlines = (CurriculumCourseRunExclusionInline,)
+
+
+@admin.register(CurriculumCourseRunExclusion)
+class CurriculumCourseRunExclusionAdmin(admin.ModelAdmin):
+    list_display = ("course_membership", "course_run")
 
 
 @admin.register(Curriculum)
 class CurriculumAdmin(admin.ModelAdmin):
-    list_display = ('uuid', 'degree')
-    inlines = (DegreeProgramCurriculumInline, DegreeCourseCurriculumInline)
+    list_display = ('uuid', 'program', 'name', 'is_active')
+    inlines = (CurriculumProgramMembershipInline, CurriculumCourseMembershipInline)
 
 
 class CurriculumAdminInline(admin.StackedInline):
@@ -392,15 +484,26 @@ class DegreeAdmin(admin.ModelAdmin):
         'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title',
         'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
         'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
-        'micromasters_long_title', 'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
-        'faq', 'costs_fine_print', 'deadlines_fine_print',
+        'hubspot_lead_capture_form_id', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url',
+        'micromasters_background_image', 'micromasters_org_name_override', 'faq', 'costs_fine_print',
+        'deadlines_fine_print',
     )
 
-# Register children of AbstractNamedModel
-for model in (LevelType, Prerequisite,):
-    admin.site.register(model, NamedModelAdmin)
+
+@admin.register(SearchDefaultResultsConfiguration)
+class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
+    form = SearchDefaultResultsConfigurationForm
+    list_display = ('index_name',)
+
+    class Media:
+        js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
+              'js/sortable_select.js')
+
 
 # Register remaining models using basic ModelAdmin classes
 for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
-              DeletePersonDupsConfig, DrupalPublishUuidConfig, ProfileImageDownloadConfig, PersonAreaOfExpertise):
+              DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCommentsToSalesforce,
+              MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, PersonAreaOfExpertise,
+              TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig, BulkModifyProgramHookConfig,
+              BackfillCourseRunSlugsConfig):
     admin.site.register(model)

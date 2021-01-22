@@ -18,14 +18,14 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         self.aggregation_key = None
         self._distinct_hit_count = None
 
-    def _clone(self, **kwargs):
+    def _clone(self, klass=None, using=None):
         """
         Create and return a new DistinctCountsSearchQuery with fields set to match those on the original object.
 
         Overrides BaseSearchQuery._clone from:
         https://github.com/django-haystack/django-haystack/blob/v2.5.0/haystack/backends/__init__.py#L981
         """
-        clone = super(DistinctCountsSearchQuery, self)._clone(**kwargs)
+        clone = super(DistinctCountsSearchQuery, self)._clone(klass=klass, using=using)
         if isinstance(clone, DistinctCountsSearchQuery):
             clone.aggregation_key = self.aggregation_key
             clone._distinct_hit_count = self._distinct_hit_count  # pylint: disable=protected-access
@@ -96,23 +96,23 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
                 ).format(field=field, supported=','.join(supported_options), provided=','.join(options.keys()))
                 raise RuntimeError(msg)
 
-    def more_like_this(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def more_like_this(self, _model_instance):
         """ Raise an exception since we do not currently want/need to support more_like_this queries."""
         raise RuntimeError('DistinctCountsSearchQuery does not support more_like_this queries.')
 
-    def run_mlt(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def run_mlt(self, **_kwargs):
         """ Raise an exception since we do not currently want/need to support more_like_this queries."""
         raise RuntimeError('DistinctCountsSearchQuery does not support more_like_this queries.')
 
-    def raw_search(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def raw_search(self, _query_string, **_kwargs):
         """ Raise an exception since we do not currently want/need to support raw queries."""
         raise RuntimeError('DistinctCountsSearchQuery does not support raw queries.')
 
-    def run_raw(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def run_raw(self, **_kwargs):
         """ Raise an exception since we do not currently want/need to support raw queries."""
         raise RuntimeError('DistinctCountsSearchQuery does not support raw queries.')
 
-    def add_date_facet(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def add_date_facet(self, _field, _start_date, _end_date, _gap_by, _gap_amount=1):
         """ Raise an exception since we do not currently want/need to support date facets."""
         raise RuntimeError('DistinctCountsSearchQuery does not support date facets.')
 
@@ -127,7 +127,7 @@ class DistinctCountsSearchQuery(ElasticsearchSearchQuery):
         return super(DistinctCountsSearchQuery, self).add_field_facet(field, **options)
 
 
-class DistinctCountsElasticsearchBackendWrapper(object):
+class DistinctCountsElasticsearchBackendWrapper:
     """
     Custom backend-like class that enables the computation of distinct hit and facet counts during search queries.
     This class is not meant to be a true ElasticsearchSearchBackend. It is meant to wrap an existing
@@ -162,7 +162,7 @@ class DistinctCountsElasticsearchBackendWrapper(object):
         Re-implements ElasticsearchSearchBackend.search from:
         https://github.com/django-haystack/django-haystack/blob/v2.5.0/haystack/backends/elasticsearch_backend.py#L495
         """
-        if len(query_string) == 0:
+        if not query_string:
             return {'results': [], 'hits': 0, 'distinct_hits': 0}
 
         # NOTE (CCB): Haystack by default attempts to read/update the index mapping. Given that our mapping doesn't
@@ -287,7 +287,7 @@ class DistinctCountsElasticsearchBackendWrapper(object):
                 continue
 
             # Field facets:
-            elif 'buckets' in data:
+            if 'buckets' in data:
                 buckets = data['buckets']
                 facets['fields'][name] = [
                     # Extract the facet name, count, and distinct_count

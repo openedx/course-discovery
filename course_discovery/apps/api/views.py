@@ -23,15 +23,21 @@ class SwaggerSchemaView(APIView):
     def get(self, request):
         generator = SchemaGenerator(title='Discovery API')
         schema = generator.get_schema(request=request)
-
         if not schema:
             # get_schema() uses the same permissions check as the API endpoints.
             # If we don't get a schema document back, it means the user is not
             # authenticated or doesn't have permission to access the API.
             # api_docs_permission_denied_handler() handles both of these cases.
             return api_docs_permission_denied_handler(request)
+        elif schema and request.user and request.user.is_anonymous:
+            return _redirect_to_login(request)
 
         return Response(schema)
+
+
+def _redirect_to_login(request):
+    login_url = '{path}?next={next}'.format(path=reverse('login'), next=request.path)
+    return redirect(login_url, permanent=False)
 
 
 def api_docs_permission_denied_handler(request):
@@ -48,8 +54,6 @@ def api_docs_permission_denied_handler(request):
         HttpResponseRedirect: Redirect to the login page if the user is not logged in. After a
             successful login, the user will be redirected back to the original path.
     """
-    if request.user and request.user.is_authenticated():
+    if request.user and request.user.is_authenticated:
         raise PermissionDenied(_('You are not permitted to access the API documentation.'))
-
-    login_url = '{path}?next={next}'.format(path=reverse('login'), next=request.path)
-    return redirect(login_url, permanent=False)
+    return _redirect_to_login(request)

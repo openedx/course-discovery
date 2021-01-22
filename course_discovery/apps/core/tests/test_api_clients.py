@@ -2,7 +2,6 @@ import logging
 
 import mock
 import responses
-from django.core.cache import cache
 from django.test import TestCase
 
 from course_discovery.apps.core.api_client import lms
@@ -22,13 +21,13 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
         cls.log_messages = cls.log_handler.messages
 
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def setUp(self, mock_access_token):  # pylint: disable=unused-argument
+    def setUp(self, _mock_access_token):  # pylint: disable=arguments-differ
         super(TestLMSAPIClient, self).setUp()
         # Reset mock logger for each test.
         self.log_handler.reset()
 
         self.user = UserFactory.create()
-        self.partner = PartnerFactory.create()
+        self.partner = PartnerFactory.create(lms_url='http://127.0.0.1:8000')
         self.lms = lms.LMSAPIClient(self.partner.site)
         self.response = {
             'id': 1,
@@ -43,7 +42,6 @@ class TestLMSAPIClient(LMSAPIClientMixin, TestCase):
             'site': 1,
             'contacted': True
         }
-        cache.clear()
 
     @responses.activate
     @mock.patch.object(Partner, 'access_token', return_value='JWT fake')

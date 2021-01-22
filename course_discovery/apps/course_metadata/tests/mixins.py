@@ -27,7 +27,7 @@ class MarketingSiteAPIClientTestMixin(TestCase):
             root=self.api_root
         )
 
-        def request_callback(request):  # pylint: disable=unused-argument
+        def request_callback(request):
             headers = {
                 'location': response_url
             }

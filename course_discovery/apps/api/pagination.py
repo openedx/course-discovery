@@ -1,5 +1,5 @@
-from rest_framework.pagination import PageNumberPagination as BasePageNumberPagination
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.pagination import PageNumberPagination as BasePageNumberPagination
 
 
 class PageNumberPagination(BasePageNumberPagination):

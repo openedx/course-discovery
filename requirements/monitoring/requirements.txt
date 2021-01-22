@@ -4,9 +4,5 @@
 # It can not be used to do the full installation because it is not in the correct
 # order.
 
--r ../base.txt
--r ../docs.txt
 -r ../local.txt
--r ../optional.txt
 -r ../production.txt
--r ../test.txt

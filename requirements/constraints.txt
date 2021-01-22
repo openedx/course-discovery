@@ -1,0 +1,33 @@
+# Stay on an LTS release
+django<2.3
+
+# FIXME: 1.x is an ancient version that we should upgrade off of
+elasticsearch<2
+
+# FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
+transifex-client<0.13
+
+# FIXME: 3+ require schemes in CORS_ORIGIN_WHITELIST URLs - remember to update configuration when you remove this
+django-cors-headers<3
+
+# jsonfield2 3.1.0 drops support for python 3.5
+jsonfield2<3.1.0
+
+# django-storages version 1.9 drops support for boto storage backend.
+django-storages<1.9
+
+# Not properly supporting latest version of drf-jwt
+drf-jwt<1.15.0
+
+# the upgrade to 3.3.0 is what triggered users to lose superuser status; see ARCHBOM-1078 for details.
+social-auth-core==3.2.0
+
+# sphinx has dropped support for python 3.5, latest version requires at least python3.6
+# see https://www.sphinx-doc.org/en/master/intro.html#prerequisites
+sphinx==2.4.4
+
+# FIXME: dal 3.5 requires you to include jquery yourself on the admin page -- needs a proper fix
+django-autocomplete-light<3.5
+
+# pip20+ requires for greater version of pip-tools. But installing 19.3.1 in all our containers and VMs.
+pip-tools==4.5.1

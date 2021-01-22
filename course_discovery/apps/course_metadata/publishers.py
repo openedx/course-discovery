@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.exceptions import (
     AliasCreateError, AliasDeleteError, FormRetrievalError, NodeCreateError, NodeDeleteError, NodeEditError,
-    NodeLookupError, RedirectCreateError
+    NodeLookupError
 )
 from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient, uslugify
 
@@ -64,8 +64,8 @@ class BaseMarketingSitePublisher:
             obj (django.db.models.Model): Model instance to be deleted.
         """
         node_id = self.node_id(obj)
-
-        self.delete_node(node_id)
+        if node_id:
+            self.delete_node(node_id)
 
     def serialize_obj(self, obj):
         """
@@ -304,36 +304,6 @@ class BaseMarketingSitePublisher:
             if response.status_code != 200:
                 raise AliasCreateError
 
-    def add_url_redirect(self, obj, previous_obj):
-        """
-        Add a url redirect from the previous object to the new node_id
-
-        Arguments:
-            obj (CourseRun): string of the node id
-            previous_obj (CourseRun): the old course run to redirect to
-        """
-        logger.info('Setting redirect from [%s] to [%s].', previous_obj.slug, obj.slug)
-
-        node_id = self.node_id(obj)
-        previous_node_id = self.node_id(previous_obj)
-
-        headers = {
-            'content-type': 'application/x-www-form-urlencoded'
-        }
-
-        data = {
-            **self.form_inputs(self.redirect_add_url),
-            'form_id': 'redirect_edit_form',
-            'op': 'Save',
-            'source': 'node/{}'.format(previous_node_id),
-            'redirect': 'node/{}'.format(node_id),
-        }
-
-        response = self.client.api_session.post(self.redirect_add_url, headers=headers, data=data)
-
-        if response.status_code != 200:
-            raise RedirectCreateError
-
 
 class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
     """
@@ -342,7 +312,7 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
     unique_field = 'key'
     node_lookup_field = 'field_course_id'
 
-    def publish_obj(self, obj, previous_obj=None, include_uuid=False):
+    def publish_obj(self, obj, previous_obj=None, include_uuid=False):  # pylint: disable=arguments-differ
         """
         Publish a CourseRun to the marketing site.
 
@@ -382,7 +352,6 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
             logger.info('Created new marketing site node [%s] for course run [%s].', node_id, obj.key)
 
         if node_id and (not previous_obj or obj.slug != previous_obj.slug):
-
             logger.info('Setting marketing alias of [%s] for course [%s].', obj.slug, obj.key)
             # Don't pass previous_obj to update_node_alias, because we don't want to delete the old alias.
             # Not deleting it means that Drupal will automatically have old alias point to new alias.
@@ -444,9 +413,13 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
         if obj.type.name in types_to_publish:
             node_data = self.serialize_obj(obj)
 
+            changed = False
             node_id = None
-            if not previous_obj:
+            if previous_obj:
+                node_id = self.node_id(obj)  # confirm that it already exists on marketing side
+            if not node_id:
                 node_id = self.create_node(node_data)
+                changed = True
             else:
                 trigger_fields = (
                     'marketing_slug',
@@ -456,13 +429,13 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
                 )
 
                 if any(getattr(obj, field) != getattr(previous_obj, field) for field in trigger_fields):
-                    node_id = self.node_id(obj)
                     # Drupal does not allow modification of the UUID field.
                     node_data.pop('uuid', None)
 
                     self.edit_node(node_id, node_data)
+                    changed = True
 
-            if node_id:
+            if changed:
                 self.get_and_delete_alias(uslugify(obj.title))
                 self.update_node_alias(obj, node_id, previous_obj)
 

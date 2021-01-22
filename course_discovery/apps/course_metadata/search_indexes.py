@@ -40,6 +40,10 @@ TITLE_FIELD_BOOST = 25.0
 ORG_FIELD_BOOST = TITLE_FIELD_BOOST
 
 
+def filter_visible_runs(course_runs):
+    return course_runs.exclude(type__is_marketable=False)
+
+
 class OrganizationsMixin:
     def format_organization(self, organization):
         return '{key}: {name}'.format(key=organization.key, name=organization.name)
@@ -90,12 +94,7 @@ class BaseIndex(indexes.SearchIndex):
 
     def _prepare_language(self, language):
         if language:
-            # ECOM-5466: Render the macro language for all languages except Chinese
-            if language.code.startswith('zh'):
-                return language.name
-            else:
-                return language.macrolanguage
-
+            return language.get_search_facet_display()
         return None
 
 
@@ -113,17 +112,18 @@ class BaseCourseIndex(OrganizationsMixin, BaseIndex):
     logo_image_urls = indexes.MultiValueField()
     sponsoring_organizations = indexes.MultiValueField(faceted=True)
     level_type = indexes.CharField(null=True, faceted=True)
+    outcome = indexes.CharField(model_attr='outcome', null=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
 
     def prepare_logo_image_urls(self, obj):
         orgs = obj.authoring_organizations.all()
-        return [org.logo_image_url for org in orgs]
+        return [org.logo_image.url for org in orgs if org.logo_image]
 
     def prepare_subjects(self, obj):
         return [subject.name for subject in obj.subjects.all()]
 
     def prepare_organizations(self, obj):
-        return self.prepare_authoring_organizations(obj) + self.prepare_sponsoring_organizations(obj)
+        return set(self.prepare_authoring_organizations(obj) + self.prepare_sponsoring_organizations(obj))
 
     def prepare_authoring_organizations(self, obj):
         return self._prepare_organizations(obj.authoring_organizations.all())
@@ -140,11 +140,13 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
 
     uuid = indexes.CharField(model_attr='uuid')
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
+    image_url = indexes.CharField(model_attr='image_url', null=True)
     org = indexes.CharField()
 
     status = indexes.CharField(model_attr='course_runs__status')
     start = indexes.DateTimeField(model_attr='course_runs__start', null=True)
     end = indexes.DateTimeField(model_attr='course_runs__end', null=True)
+    modified = indexes.DateTimeField(model_attr='modified', null=True)
     enrollment_start = indexes.DateTimeField(model_attr='course_runs__enrollment_start', null=True)
     enrollment_end = indexes.DateTimeField(model_attr='course_runs__enrollment_end', null=True)
     availability = indexes.CharField(model_attr='course_runs__availability')
@@ -155,12 +157,23 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     expected_learning_items = indexes.MultiValueField()
 
     prerequisites = indexes.MultiValueField(faceted=True)
+    languages = indexes.MultiValueField()
+    seat_types = indexes.MultiValueField()
+
+    def read_queryset(self, using=None):
+        # Pre-fetch all fields required by the CourseSearchSerializer. Unfortunately, there's
+        # no way to specify at query time which queryset to use during loading in order to customize
+        # it for the serializer being used
+        qset = super(CourseIndex, self).read_queryset(using=using)
+        return qset.prefetch_related(
+            'course_runs__seats__type'
+        )
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
 
     def prepare_course_runs(self, obj):
-        return [course_run.key for course_run in obj.course_runs.all()]
+        return [course_run.key for course_run in filter_visible_runs(obj.course_runs)]
 
     def prepare_expected_learning_items(self, obj):
         return [item.value for item in obj.expected_learning_items.all()]
@@ -169,7 +182,7 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
         return [prerequisite.name for prerequisite in obj.prerequisites.all()]
 
     def prepare_org(self, obj):
-        course_run = obj.course_runs.all().first()
+        course_run = filter_visible_runs(obj.course_runs).first()
         if course_run:
             return CourseKey.from_string(course_run.key).org
         return None
@@ -177,8 +190,18 @@ class CourseIndex(BaseCourseIndex, indexes.Indexable):
     def prepare_first_enrollable_paid_seat_price(self, obj):
         return obj.first_enrollable_paid_seat_price
 
+    def prepare_seat_types(self, obj):
+        seat_types = [seat.slug for run in filter_visible_runs(obj.course_runs) for seat in run.seat_types]
+        return list(set(seat_types))
+
     def prepare_subject_uuids(self, obj):
         return [str(subject.uuid) for subject in obj.subjects.all()]
+
+    def prepare_languages(self, obj):
+        return {
+            self._prepare_language(course_run.language) for course_run in filter_visible_runs(obj.course_runs)
+            if course_run.language
+        }
 
 
 class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
@@ -190,8 +213,10 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     status = indexes.CharField(model_attr='status', faceted=True)
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
     end = indexes.DateTimeField(model_attr='end', null=True)
+    go_live_date = indexes.DateTimeField(model_attr='go_live_date', null=True)
     enrollment_start = indexes.DateTimeField(model_attr='enrollment_start', null=True)
     enrollment_end = indexes.DateTimeField(model_attr='enrollment_end', null=True)
+    availability = indexes.CharField(model_attr='availability')
     announcement = indexes.DateTimeField(model_attr='announcement', null=True)
     min_effort = indexes.IntegerField(model_attr='min_effort', null=True)
     max_effort = indexes.IntegerField(model_attr='max_effort', null=True)
@@ -201,8 +226,8 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     pacing_type = indexes.CharField(model_attr='pacing_type', null=True, faceted=True)
     marketing_url = indexes.CharField(null=True)
     slug = indexes.CharField(model_attr='slug', null=True)
-    seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
-    type = indexes.CharField(model_attr='type', null=True, faceted=True)
+    seat_types = indexes.MultiValueField(model_attr='seat_types__slug', null=True, faceted=True)
+    type = indexes.CharField(model_attr='type_legacy', null=True, faceted=True)
     image_url = indexes.CharField(model_attr='image_url', null=True)
     partner = indexes.CharField(null=True, faceted=True)
     program_types = indexes.MultiValueField()
@@ -219,6 +244,19 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     license = indexes.MultiValueField(model_attr='license', faceted=True)
     has_enrollable_seats = indexes.BooleanField(model_attr='has_enrollable_seats', null=False)
     is_current_and_still_upgradeable = indexes.BooleanField(null=False)
+
+    def read_queryset(self, using=None):
+        # Pre-fetch all fields required by the CourseRunSearchSerializer. Unfortunately, there's
+        # no way to specify at query time which queryset to use during loading in order to customize
+        # it for the serializer being used
+        qset = super(CourseRunIndex, self).read_queryset(using=using)
+
+        return qset.prefetch_related(
+            'seats__type',
+        )
+
+    def index_queryset(self, using=None):
+        return filter_visible_runs(super().index_queryset(using=using))
 
     def prepare_aggregation_key(self, obj):
         # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.
@@ -279,7 +317,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     title = indexes.CharField(model_attr='title', boost=TITLE_FIELD_BOOST)
     title_autocomplete = indexes.NgramField(model_attr='title', boost=TITLE_FIELD_BOOST)
     subtitle = indexes.CharField(model_attr='subtitle')
-    type = indexes.CharField(model_attr='type__name', faceted=True)
+    type = indexes.CharField(model_attr='type__name_t', faceted=True)
     marketing_url = indexes.CharField(null=True)
     search_card_display = indexes.MultiValueField()
     organizations = indexes.MultiValueField(faceted=True)
@@ -294,7 +332,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
     status = indexes.CharField(model_attr='status', faceted=True)
     partner = indexes.CharField(model_attr='partner__short_code', null=True, faceted=True)
     start = indexes.DateTimeField(model_attr='start', null=True, faceted=True)
-    seat_types = indexes.MultiValueField(model_attr='seat_types', null=True, faceted=True)
+    seat_types = indexes.MultiValueField(model_attr='seat_types__slug', null=True, faceted=True)
     published = indexes.BooleanField(null=False, faceted=True)
     min_hours_effort_per_week = indexes.IntegerField(model_attr='min_hours_effort_per_week', null=True)
     max_hours_effort_per_week = indexes.IntegerField(model_attr='max_hours_effort_per_week', null=True)
@@ -319,7 +357,7 @@ class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):
         return [str(subject.uuid) for subject in obj.subjects]
 
     def prepare_staff_uuids(self, obj):
-        return set([str(staff.uuid) for course_run in obj.course_runs for staff in course_run.staff.all()])
+        return {str(staff.uuid) for course_run in obj.course_runs for staff in course_run.staff.all()}
 
     def prepare_credit_backing_organizations(self, obj):
         return self._prepare_organizations(obj.credit_backing_organizations.all())
@@ -349,9 +387,16 @@ class PersonIndex(BaseIndex, indexes.Indexable):
     bio_language = indexes.CharField(model_attr='bio_language', null=True)
     get_profile_image_url = indexes.CharField(model_attr='get_profile_image_url', null=True)
     position = indexes.MultiValueField()
+    organizations = indexes.MultiValueField(faceted=True)
 
     def prepare_aggregation_key(self, obj):
         return 'person:{}'.format(obj.uuid)
+
+    def prepare_organizations(self, obj):
+        course_runs = obj.courses_staffed.all()
+        all_organizations = [course_run.course.authoring_organizations.all() for course_run in course_runs]
+        formatted_organizations = [org.key for orgs in all_organizations for org in orgs]
+        return formatted_organizations
 
     def prepare_position(self, obj):
         try:
@@ -363,4 +408,4 @@ class PersonIndex(BaseIndex, indexes.Indexable):
     def prepare_bio_language(self, obj):
         if obj.bio_language:
             return obj.bio_language.name
-        return
+        return None

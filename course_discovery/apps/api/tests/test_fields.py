@@ -1,13 +1,17 @@
-# pylint: disable=no-member
 import base64
 
 import pytest
 from django.core.files.base import ContentFile
+from django.test import TestCase
 
-from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
+from course_discovery.apps.api.fields import (
+    ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
+)
+from course_discovery.apps.api.serializers import ProgramSerializer
 from course_discovery.apps.api.tests.test_serializers import make_request
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
+from course_discovery.apps.course_metadata.models import Program, Subject
+from course_discovery.apps.course_metadata.tests.factories import ProgramFactory, SubjectFactory
 
 
 @pytest.mark.django_db
@@ -27,9 +31,9 @@ class TestStdImageSerializerField:
         expected = {
             size_key: {
                 'url': '{}{}'.format('http://testserver', getattr(program.banner_image, size_key).url),
-                'width': program.banner_image.field.variations[size_key]['width'],
-                'height': program.banner_image.field.variations[size_key]['height']
-            } for size_key in program.banner_image.field.variations}
+                'width': program.banner_image.field.variations[size_key]['width'],  # pylint: disable=no-member
+                'height': program.banner_image.field.variations[size_key]['height']  # pylint: disable=no-member
+            } for size_key in program.banner_image.field.variations}  # pylint: disable=no-member
         assert field.to_representation(program.banner_image) == expected
 
     def test_to_internal_value(self):
@@ -68,3 +72,37 @@ class TestStdImageSerializerField:
     @pytest.mark.parametrize('falsey_value', ("", False, None, []))
     def test_to_internal_value_falsey(self, falsey_value):
         assert StdImageSerializerField().to_internal_value(falsey_value) is None
+
+
+class SlugRelatedFieldWithReadSerializerTests(TestCase):
+    """ Tests for SlugRelatedFieldWithReadSerializer """
+    def test_get_choices_no_queryset(self):
+        """ Make sure that we reproduce the empty-state edge case of the parent class's version """
+        serializer = SlugRelatedFieldWithReadSerializer(slug_field='uuid', read_only=True,
+                                                        read_serializer=ProgramSerializer())
+        self.assertIsNone(serializer.get_queryset())
+        self.assertEqual(serializer.get_choices(), {})
+
+    def test_get_choices_cutoff(self):
+        """ We should slice the queryset if provided a cutoff parameter """
+        ProgramFactory()
+        ProgramFactory()
+        serializer = SlugRelatedFieldWithReadSerializer(slug_field='uuid', queryset=Program.objects.all(),
+                                                        read_serializer=ProgramSerializer())
+        self.assertEqual(len(serializer.get_choices()), 2)
+        self.assertEqual(len(serializer.get_choices(cutoff=1)), 1)
+
+    def test_to_representation(self):
+        """ Should be using provided serializer, rather than the slug """
+        program = ProgramFactory()
+        serializer = SlugRelatedFieldWithReadSerializer(slug_field='uuid', queryset=Program.objects.all(),
+                                                        read_serializer=ProgramSerializer())
+        self.assertIsInstance(serializer.to_representation(program), dict)
+
+
+class SlugRelatedTranslatableFieldTest(TestCase):
+    """ Test for SlugRelatedTranslatableField """
+    def test_to_internal_value(self):
+        subject = SubjectFactory(name='Subject')  # 'name' is a translated field on Subject
+        serializer = SlugRelatedTranslatableField(slug_field='name', queryset=Subject.objects.all())
+        self.assertEqual(serializer.to_internal_value('Subject'), subject)

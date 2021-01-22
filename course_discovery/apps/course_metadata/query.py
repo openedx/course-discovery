@@ -39,6 +39,8 @@ class CourseQuerySet(models.QuerySet):
         marketable = (
             ~Q(course_runs__slug='') &
             Q(course_runs__seats__isnull=False) &
+            Q(course_runs__draft=False) &
+            ~Q(course_runs__type__is_marketable=False) &
             Q(course_runs__status=CourseRunStatus.Published)
         )
 
@@ -48,14 +50,14 @@ class CourseQuerySet(models.QuerySet):
         # runs is published while the other is not. If you used exclude(), the Course
         # would be dropped from the queryset even though it has one run which matches
         # our availability criteria.
-        query = self.filter(enrollable & not_ended & marketable)
 
-        # By itself, the query above performs a join across several tables and would return
-        # a copy of the same course multiple times (a separate copy for each available
+        # By itself, the query performs a join across several tables and would return
+        # the id of the same course multiple times (a separate copy for each available
         # seat in each available run).
-        # We use distinct() to make sure it only returns a single copy of each available
-        # course.
-        return query.distinct()
+        ids = self.filter(enrollable & not_ended & marketable).values('id').distinct()
+
+        # Now return the full object for each of the selected ids
+        return self.filter(id__in=ids)
 
 
 class CourseRunQuerySet(models.QuerySet):
@@ -114,6 +116,10 @@ class CourseRunQuerySet(models.QuerySet):
         ).exclude(
             # This will exclude any course run without seats (e.g., CCX runs).
             seats__isnull=True
+        ).filter(
+            draft=False
+        ).exclude(
+            type__is_marketable=False
         ).filter(
             status=CourseRunStatus.Published
         )

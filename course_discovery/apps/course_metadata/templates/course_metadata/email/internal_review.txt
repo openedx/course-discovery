@@ -1,0 +1,22 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Dear {{ recipient_name }},
+{% endblocktrans %}
+{% blocktrans trimmed %}
+    {{ org_name }} has submitted {{ course_key }} for review.
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    Publisher page: {{ course_page_url }}
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+     Studio page: {{ studio_url }}
+{% endblocktrans %}
+
+{% if restricted_admin_url %}
+{% blocktrans trimmed %}
+    Restricted Course admin: {{ restricted_admin_url }}
+{% endblocktrans %}
+{% endif %}

@@ -8,9 +8,9 @@ from django.urls import reverse
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory
 )
-from course_discovery.apps.publisher.tests import factories
+from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
 
 @pytest.mark.django_db
@@ -49,6 +49,34 @@ class TestAutocomplete:
         self.assert_valid_query_result(admin_client, path, course_run.key[14:], course_run)
         self.assert_valid_query_result(admin_client, path, course_run.title[12:], course_run)
 
+        course = course_run.course
+        CourseRunFactory.create_batch(3, course=course)
+        response = admin_client.get(path + '?forward={f}'.format(f=json.dumps({'course': course.pk})))
+        data = json.loads(response.content.decode('utf-8'))
+        assert response.status_code == 200
+        assert len(data['results']) == 4
+
+    def test_program_autocomplete(self, admin_client):
+        """ Verify Program autocomplete returns the data. """
+        programs = ProgramFactory.create_batch(3)
+        path = reverse('admin_metadata:program-autocomplete')
+        response = admin_client.get(path)
+        data = json.loads(response.content.decode('utf-8'))
+        assert response.status_code == 200
+        assert len(data['results']) == 3
+
+        # Search for substrings of program titles
+        program = programs[0]
+        self.assert_valid_query_result(admin_client, path, program.title[5:], program)
+        program = programs[1]
+        self.assert_valid_query_result(admin_client, path, program.title[5:], program)
+
+        admin_client.logout()
+        response = admin_client.get(path)
+        data = json.loads(response.content.decode('utf-8'))
+        assert response.status_code == 200
+        assert not data['results']
+
     def test_organization_autocomplete(self, admin_client):
         """ Verify Organization autocomplete returns the data. """
         organizations = OrganizationFactory.create_batch(3)
@@ -80,32 +108,40 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
     Tests for person autocomplete lookups
     """
 
-    def setUp(self):
-        super(AutoCompletePersonTests, self).setUp()
-        self.user = UserFactory(is_staff=True)
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.courses = factories.CourseFactory.create_batch(3, title='Some random course title')
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = UserFactory(is_staff=True)
 
-        for course in self.courses:
-            factories.CourseRunFactory(course=course)
-
-        self.organizations = OrganizationFactory.create_batch(3)
-        self.organization_extensions = []
-
-        for organization in self.organizations:
-            self.organization_extensions.append(factories.OrganizationExtensionFactory(organization=organization))
-
-        self.user.groups.add(self.organization_extensions[0].group)
         first_instructor = PersonFactory(given_name="First", family_name="Instructor")
         second_instructor = PersonFactory(given_name="Second", family_name="Instructor")
-        self.instructors = [first_instructor, second_instructor]
+        cls.instructors = [first_instructor, second_instructor]
 
-        for instructor in self.instructors:
-            PositionFactory(organization=self.organizations[0], title="professor", person=instructor)
+        cls.organizations = OrganizationFactory.create_batch(3)
+        cls.organization_extensions = []
+
+        for instructor in cls.instructors:
+            PositionFactory(organization=cls.organizations[0], title="professor", person=instructor)
+
+        for organization in cls.organizations:
+            cls.organization_extensions.append(OrganizationExtensionFactory(organization=organization))
+
+        disco_course = CourseFactory(authoring_organizations=[cls.organizations[0]])
+        disco_course2 = CourseFactory(authoring_organizations=[cls.organizations[1]])
+        CourseRunFactory(course=disco_course, staff=[first_instructor])
+        CourseRunFactory(course=disco_course2, staff=[second_instructor])
+
+        cls.user.groups.add(cls.organization_extensions[0].group)
+
+    def setUp(self):
+        super().setUp()
+        self._set_user_is_staff_and_login(True)
 
     def query(self, q):
+        query_params = '?q={q}'.format(q=q)
+
         return self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q=q)
+            reverse('admin_metadata:person-autocomplete') + query_params
         )
 
     def test_instructor_autocomplete(self):
@@ -113,16 +149,13 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         response = self.query('ins')
         self._assert_response(response, 2)
 
-        # update first instructor's name
-        self.instructors[0].given_name = 'dummy_name'
-        self.instructors[0].save()
-
-        response = self.query('dummy')
+        # look for the name of the first instructor
+        response = self.query('First')
         self._assert_response(response, 1)
 
     def test_instructor_autocomplete_un_authorize_user(self):
         """ Verify instructor autocomplete returns empty list for un-authorized users. """
-        self._make_user_non_staff()
+        self._set_user_is_staff_and_login(False)
         response = self.client.get(reverse('admin_metadata:person-autocomplete'))
         self._assert_response(response, 0)
 
@@ -140,22 +173,6 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         """ Verify instructor autocomplete allows last name first. """
         response = self.query('instructor first')
         self._assert_response(response, 1)
-
-    def test_instructor_position_in_label(self):
-        """ Verify that instructor label contains position of instructor if it exists."""
-        position_title = 'professor'
-
-        response = self.query('ins')
-
-        self.assertContains(response, '<p>{position} at {organization}</p>'.format(
-            position=position_title,
-            organization=self.organizations[0].name))
-
-    def test_instructor_image_in_label(self):
-        """ Verify that instructor label contains profile image url."""
-        response = self.query('ins')
-        self.assertContains(response, self.instructors[0].get_profile_image_url)
-        self.assertContains(response, self.instructors[1].get_profile_image_url)
 
     def _assert_response(self, response, expected_length):
         """ Assert autocomplete response. """
@@ -207,17 +224,17 @@ class AutoCompletePersonTests(SiteMixin, TestCase):
         self.client.logout()
         self.client.login(username=admin_user.username, password=USER_PASSWORD)
 
-        response = self.client.get(
-            reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins'),
-            HTTP_REFERER=reverse('admin:publisher_courserun_add')
-        )
+        response = self.client.get(reverse('admin_metadata:person-autocomplete') + '?q={q}'.format(q='ins'))
         assert response.status_code == 200
         data = json.loads(response.content.decode('utf-8'))
-        expected_results = [{'id': instructor.id, 'text': str(instructor)} for instructor in self.instructors]
-        assert data.get('results') == expected_results
+        expected_results = [{'id': str(instructor.id), 'text': str(instructor), 'selected_text': str(instructor)}
+                            for instructor in self.instructors]
 
-    def _make_user_non_staff(self):
+        assert (sorted(data.get('results'), key=lambda x: sorted(x.keys())) ==
+                sorted(expected_results, key=lambda x: sorted(x.keys())))
+
+    def _set_user_is_staff_and_login(self, is_staff=True):
         self.client.logout()
-        self.user = UserFactory(is_staff=False)
+        self.user.is_staff = is_staff
         self.user.save()
         self.client.login(username=self.user.username, password=USER_PASSWORD)

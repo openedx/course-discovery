@@ -1,20 +1,22 @@
+import datetime
 import logging
 
+import pytz
 from django.contrib.auth import get_user_model
-from django.db.models import QuerySet
+from django.db.models import Q, QuerySet
 from django.utils.translation import ugettext as _
 from django_filters import rest_framework as filters
-from drf_haystack.filters import HaystackFilter as DefaultHaystackFilter
 from drf_haystack.filters import HaystackFacetFilter
+from drf_haystack.filters import HaystackFilter as DefaultHaystackFilter
 from drf_haystack.query import FacetQueryBuilder
 from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.exceptions import NotFound, PermissionDenied
 
 from course_discovery.apps.api.utils import cast2int
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Organization, Person, Program, Subject, Topic
+    Course, CourseEditor, CourseRun, LevelType, Organization, Person, Program, ProgramType, Subject, Topic
 )
 
 logger = logging.getLogger(__name__)
@@ -65,7 +67,7 @@ class FacetQueryBuilderWithQueries(FacetQueryBuilder):
 class HaystackRequestFilterMixin:
     @staticmethod
     def get_request_filters(request):
-        filters = HaystackFacetFilter.get_request_filters(request)
+        request_filters = HaystackFacetFilter.get_request_filters(request)
 
         # Remove items with empty values.
         #
@@ -75,11 +77,11 @@ class HaystackRequestFilterMixin:
         # is a `QueryDict` object, not a `dict`. Dictionary comprehension will not preserve the values of
         # `QueryDict.getlist()`. Since we support multiple values for a single parameter, dictionary comprehension is a
         # dealbreaker (and production breaker).
-        for key in list(filters.keys()):
-            if not filters[key]:
-                del filters[key]
+        for key in list(request_filters.keys()):
+            if not request_filters[key]:
+                del request_filters[key]
 
-        return filters
+        return request_filters
 
 
 class HaystackFacetFilterWithQueries(HaystackRequestFilterMixin, HaystackFacetFilter):
@@ -89,19 +91,19 @@ class HaystackFacetFilterWithQueries(HaystackRequestFilterMixin, HaystackFacetFi
 class HaystackFilter(HaystackRequestFilterMixin, DefaultHaystackFilter):
     @staticmethod
     def get_request_filters(request):
-        filters = HaystackRequestFilterMixin.get_request_filters(request)
+        request_filters = HaystackRequestFilterMixin.get_request_filters(request)
 
         # Return data for the default partner, if no partner is requested
-        if not any(field in filters for field in ('partner', 'partner_exact')):
-            filters['partner'] = request.site.partner.short_code
+        if not any(field in request_filters for field in ('partner', 'partner_exact')):
+            request_filters['partner'] = request.site.partner.short_code
 
-        return filters
+        return request_filters
 
 
 class CharListFilter(filters.CharFilter):
     """ Filters a field via a comma-delimited list of values. """
 
-    def filter(self, qs, value):  # pylint: disable=method-hidden
+    def filter(self, qs, value):
         if value not in (None, ''):
             value = value.split(',')
 
@@ -111,9 +113,9 @@ class CharListFilter(filters.CharFilter):
 class UUIDListFilter(CharListFilter):
     """ Filters a field via a comma-delimited list of UUIDs. """
 
-    def __init__(self, name='uuid', label=None, widget=None, method=None, lookup_expr='in', required=False,
+    def __init__(self, field_name='uuid', label=None, widget=None, method=None, lookup_expr='in', required=False,
                  distinct=False, exclude=False, **kwargs):
-        super().__init__(name=name, label=label, widget=widget, method=method, lookup_expr=lookup_expr,
+        super().__init__(field_name=field_name, label=label, widget=widget, method=method, lookup_expr=lookup_expr,
                          required=required, distinct=distinct, exclude=exclude, **kwargs)
 
 
@@ -129,19 +131,41 @@ class FilterSetMixin:
 
 
 class CourseFilter(filters.FilterSet):
-    keys = CharListFilter(name='key', lookup_expr='in')
+    keys = CharListFilter(field_name='key', lookup_expr='in')
     uuids = UUIDListFilter()
+    course_run_statuses = CharListFilter(method='filter_by_course_run_statuses')
+    editors = CharListFilter(field_name='editors__user__pk', lookup_expr='in', distinct=True)
 
     class Meta:
         model = Course
         fields = ('keys', 'uuids',)
 
+    def filter_by_course_run_statuses(self, queryset, _, value):
+        statuses = set(value.split(','))
+        or_queries = []  # a list of Q() expressions to add to our filter as alternatives to status check
+
+        if 'in_review' in statuses:  # any of our review statuses
+            statuses.remove('in_review')
+            statuses.add(CourseRunStatus.LegalReview)
+            statuses.add(CourseRunStatus.InternalReview)
+        if 'unsubmitted' in statuses:  # unpublished and unarchived
+            statuses.remove('unsubmitted')
+            # "is not archived" logic stolen from CourseRun.has_ended
+            now = datetime.datetime.now(pytz.UTC)
+            or_queries.append(Q(course_runs__status=CourseRunStatus.Unpublished) & ~Q(course_runs__end__lt=now))
+
+        status_check = Q(course_runs__status__in=statuses)
+        for query in or_queries:
+            status_check |= query
+
+        return queryset.filter(status_check, course_runs__hidden=False).distinct()
+
 
 class CourseRunFilter(FilterSetMixin, filters.FilterSet):
     active = filters.BooleanFilter(method='filter_active')
     marketable = filters.BooleanFilter(method='filter_marketable')
-    keys = CharListFilter(name='key', lookup_expr='in')
-    license = filters.CharFilter(name='license', lookup_expr='iexact')
+    keys = CharListFilter(field_name='key', lookup_expr='in')
+    license = filters.CharFilter(field_name='license', lookup_expr='iexact')
 
     @property
     def qs(self):
@@ -160,8 +184,8 @@ class CourseRunFilter(FilterSetMixin, filters.FilterSet):
 class ProgramFilter(FilterSetMixin, filters.FilterSet):
     marketable = filters.BooleanFilter(method='filter_marketable')
     status = filters.MultipleChoiceFilter(choices=ProgramStatus.choices)
-    type = filters.CharFilter(name='type__name', lookup_expr='iexact')
-    types = CharListFilter(name='type__slug', lookup_expr='in')
+    type = filters.CharFilter(field_name='type__translations__name_t', lookup_expr='iexact')
+    types = CharListFilter(field_name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
 
     class Meta:
@@ -169,8 +193,30 @@ class ProgramFilter(FilterSetMixin, filters.FilterSet):
         fields = ('hidden', 'marketable', 'marketing_slug', 'status', 'type', 'types',)
 
 
+class ProgramTypeFilter(filters.FilterSet):
+    language_code = filters.CharFilter(method='_set_language')
+
+    def _set_language(self, queryset, _, language_code):
+        return queryset.language(language_code)
+
+    class Meta:
+        model = ProgramType
+        fields = ('language_code',)
+
+
+class LevelTypeFilter(filters.FilterSet):
+    language_code = filters.CharFilter(method='_set_language')
+
+    def _set_language(self, queryset, _, language_code):
+        return queryset.language(language_code)
+
+    class Meta:
+        model = LevelType
+        fields = ('language_code',)
+
+
 class OrganizationFilter(filters.FilterSet):
-    tags = CharListFilter(name='tags__name', lookup_expr='in')
+    tags = CharListFilter(field_name='tags__name', lookup_expr='in')
     uuids = UUIDListFilter()
 
     class Meta:
@@ -204,3 +250,11 @@ class TopicFilter(filters.FilterSet):
     class Meta:
         model = Topic
         fields = ('slug', 'language_code')
+
+
+class CourseEditorFilter(filters.FilterSet):
+    course = filters.CharFilter(field_name='course__uuid')
+
+    class Meta:
+        model = CourseEditor
+        fields = ('course',)

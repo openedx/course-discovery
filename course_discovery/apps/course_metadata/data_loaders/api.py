@@ -6,70 +6,25 @@ import time
 from decimal import Decimal
 from io import BytesIO
 
+import backoff
 import requests
-import waffle
+from django.conf import settings
 from django.core.files import File
 from django.core.management import CommandError
+from django.db.models import Q
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
+from course_discovery.apps.course_metadata.data_loaders.course_type import calculate_course_type
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEntitlement, CourseRun, Organization, Program, ProgramType, Seat, SeatType, Video
+    Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType,
+    Video
 )
-from course_discovery.apps.publisher.constants import ENABLE_EDLY_MARKETING_SITE_SWITCH, PUBLISHER_ENABLE_READ_ONLY_FIELDS
+from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run, subtract_deadline_delta
 
 logger = logging.getLogger(__name__)
-
-
-class OrganizationsApiDataLoader(AbstractDataLoader):
-    """ Loads organizations from the Organizations API. """
-
-    def ingest(self):
-        api_url = self.partner.organizations_api_url
-        count = None
-        page = 1
-
-        logger.info('Refreshing Organizations from %s...', api_url)
-
-        while page:
-            response = self.api_client.organizations().get(page=page, page_size=self.PAGE_SIZE)
-            count = response['count']
-            results = response['results']
-            logger.info('Retrieved %d organizations...', len(results))
-
-            if response['next']:
-                page += 1
-            else:
-                page = None
-            for body in results:
-                body = self.clean_strings(body)
-                self.update_organization(body)
-
-        logger.info('Retrieved %d organizations from %s.', count, api_url)
-
-        self.delete_orphans()
-
-    def update_organization(self, body):
-        key = body['short_name']
-        logo = body['logo']
-
-        defaults = {
-            'key': key,
-            'partner': self.partner,
-            'certificate_logo_image_url': logo,
-        }
-
-        if not self.partner.has_marketing_site or waffle.switch_is_active(ENABLE_EDLY_MARKETING_SITE_SWITCH):
-            defaults.update({
-                'name': body['name'],
-                'description': body['description'],
-                'logo_image_url': logo,
-            })
-
-        Organization.objects.update_or_create(key__iexact=key, partner=self.partner, defaults=defaults)
-        logger.info('Processed organization "%s"', key)
 
 
 class CoursesApiDataLoader(AbstractDataLoader):
@@ -85,6 +40,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         self._process_response(response)
 
         pagerange = range(initial_page + 1, pages + 1)
+        logger.info('Looping to request all %d pages...', pages)
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:  # pragma: no cover
             if self.is_threadsafe:
@@ -98,26 +54,38 @@ class CoursesApiDataLoader(AbstractDataLoader):
                     executor.submit(self._load_data, page)
             else:
                 for future in [executor.submit(self._make_request, page) for page in pagerange]:
-                    # This time.sleep is to make it very likely that this method does not encounter a 429 status
-                    # code by increasing the amount of time between each code. More details at LEARNER-5560
-                    # The current crude estimation is for ~3000 courses with a PAGE_SIZE=50 which means this method
-                    # will take ~30 minutes.
-                    # TODO Ticket to gracefully handle 429 https://openedx.atlassian.net/browse/LEARNER-5565
-                    time.sleep(30)
                     response = future.result()
                     self._process_response(response)
 
         logger.info('Retrieved %d course runs from %s.', count, self.partner.courses_api_url)
-
-        self.delete_orphans()
 
     def _load_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
         response = self._make_request(page)
         self._process_response(response)
 
+    def _fatal_code(ex):  # pylint: disable=no-self-argument
+        return ex.response.status_code != 429 and ex.response.status_code != 504  # pylint: disable=no-member
+
+    # The courses endpoint has a 40 requests/minute rate limit.
+    # This will back off at a rate of 60/120/240 seconds (from the factor 60 and default value of base 2).
+    # This backoff code can still fail because of the concurrent requests all requesting at the same time.
+    # So even in the case of entering into the next minute, if we still exceed our limit for that min,
+    # any requests that failed in both limits are still approaching their max_tries limit.
+    @backoff.on_exception(
+        backoff.expo,
+        factor=60,
+        jitter=None,
+        max_tries=4,
+        exception=requests.exceptions.RequestException,
+        giveup=_fatal_code,
+    )
     def _make_request(self, page):
-        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, username=self.username)
+        logger.info('Requesting course run page %d...', page)
+        params = {'page': page, 'page_size': self.PAGE_SIZE, 'username': self.username}
+        response = self.api_client.get(self.api_url + '/courses/', params=params)
+        response.raise_for_status()
+        return response.json()
 
     def _process_response(self, response):
         results = response['results']
@@ -128,23 +96,22 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
             try:
                 body = self.clean_strings(body)
-                course_run = self.get_course_run(body)
-                if course_run:
-                    self.update_course_run(course_run, body)
-                    course = getattr(course_run, 'canonical_for_course', False)
-                    if course and (not self.partner.has_marketing_site or waffle.switch_is_active(ENABLE_EDLY_MARKETING_SITE_SWITCH)):
-                        # If the partner have marketing site,
-                        # we should only update the course information from the marketing site.
-                        # Therefore, we don't need to do the statements below
-                        course = self.update_course(course, body)
-                        logger.info('Processed course with key [%s].', course.key)
+                official_run, draft_run = self.get_course_run(body)
+                if official_run or draft_run:
+                    self.update_course_run(official_run, draft_run, body)
+                    if not self.partner.uses_publisher:
+                        # Without publisher, we'll use Studio as the source of truth for course data
+                        official_course = getattr(official_run, 'canonical_for_course', None)
+                        draft_course = getattr(draft_run, 'canonical_for_course', None)
+                        if official_course or draft_course:
+                            self.update_course(official_course, draft_course, body)
                 else:
                     course, created = self.get_or_create_course(body)
                     course_run = self.create_course_run(course, body)
                     if created:
                         course.canonical_course_run = course_run
                         course.save()
-            except:  # pylint: disable=bare-except
+            except Exception:  # pylint: disable=broad-except
                 msg = 'An error occurred while updating {course_run} from {api_url}'.format(
                     course_run=course_run_id,
                     api_url=self.partner.courses_api_url
@@ -152,22 +119,54 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 logger.exception(msg)
 
     def get_course_run(self, body):
+        """
+        Returns:
+            Tuple of (official, draft) versions of the run.
+        """
         course_run_key = body['id']
-        try:
-            return CourseRun.objects.get(key__iexact=course_run_key)
-        except CourseRun.DoesNotExist:
-            return None
+        run = CourseRun.objects.filter_drafts(key__iexact=course_run_key).first()
+        if not run:
+            return None, None
+        elif run.draft:
+            return run.official_version, run
+        else:
+            return run, run.draft_version
 
-    def update_course_run(self, course_run, body):
+    def update_course_run(self, official_run, draft_run, body):
+        run = draft_run or official_run
+
         validated_data = self.format_course_run_data(body)
-        self._update_instance(course_run, validated_data, suppress_publication=True)
+        end_has_updated = validated_data.get('end') != run.end
+        self._update_instance(official_run, validated_data, suppress_publication=True)
+        self._update_instance(draft_run, validated_data, suppress_publication=True)
+        if end_has_updated:
+            self._update_verified_deadline_for_course_run(official_run)
+            self._update_verified_deadline_for_course_run(draft_run)
+            has_upgrade_deadline_override = run.seats.filter(upgrade_deadline_override__isnull=False)
+            if not has_upgrade_deadline_override and official_run:
+                push_to_ecommerce_for_course_run(official_run)
 
-        logger.info('Processed course run with UUID [%s].', course_run.uuid)
+        logger.info('Processed course run with UUID [%s].', run.uuid)
 
     def create_course_run(self, course, body):
         defaults = self.format_course_run_data(body, course=course)
 
-        return CourseRun.objects.create(**defaults)
+        # Set type to be the same as the most recent run as a best guess.
+        # Else mark the run type as empty and RCM will upgrade if it can.
+        latest_run = course.course_runs.order_by('-created').first()
+        if latest_run and latest_run.type:
+            defaults['type'] = latest_run.type
+        else:
+            defaults['type'] = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
+
+        # Course will always be an official version. But if it _does_ have a draft version, the run should too.
+        if course.draft_version:
+            # Start with draft version and then make official (since our utility functions expect that flow)
+            defaults['course'] = course.draft_version
+            draft_run = CourseRun.objects.create(**defaults, draft=True)
+            return draft_run.update_or_create_official_version(notify_services=False)
+        else:
+            return CourseRun.objects.create(**defaults)
 
     def get_or_create_course(self, body):
         course_run_key = CourseKey.from_string(body['id'])
@@ -177,6 +176,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
         # separators when constructing the create request
         defaults['key'] = course_key
         defaults['partner'] = self.partner
+        defaults['type'] = CourseType.objects.get(slug=CourseType.EMPTY)
+
+        draft_version = Course.everything.filter(key__iexact=course_key, partner=self.partner, draft=True).first()
+        defaults['draft_version'] = draft_version
 
         course, created = Course.objects.get_or_create(key__iexact=course_key, partner=self.partner, defaults=defaults)
 
@@ -192,53 +195,55 @@ class CoursesApiDataLoader(AbstractDataLoader):
 
         return (course, created)
 
-    def update_course(self, course, body):
+    def update_course(self, official_course, draft_course, body):
         validated_data = self.format_course_data(body)
-        self._update_instance(course, validated_data)
+        self._update_instance(official_course, validated_data)
+        self._update_instance(draft_course, validated_data)
 
+        course = official_course or draft_course
         logger.info('Processed course with key [%s].', course.key)
 
-        return course
+    def _update_verified_deadline_for_course_run(self, course_run):
+        seats = course_run.seats.filter(type=Seat.VERIFIED) if course_run and course_run.end else []
+        for seat in seats:
+            seat.upgrade_deadline = subtract_deadline_delta(
+                seat.course_run.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS
+            )
+            seat.save()
 
     def _update_instance(self, instance, validated_data, **kwargs):
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        if not instance:
+            return
 
-        instance.save(**kwargs)
+        updated = False
+
+        for attr, value in validated_data.items():
+            if getattr(instance, attr) != value:
+                setattr(instance, attr, value)
+                updated = True
+
+        if updated:
+            instance.save(**kwargs)
 
     def format_course_run_data(self, body, course=None):
         defaults = {
             'key': body['id'],
+            'start': self.parse_date(body['start']),
             'end': self.parse_date(body['end']),
             'enrollment_start': self.parse_date(body['enrollment_start']),
             'enrollment_end': self.parse_date(body['enrollment_end']),
             'hidden': body.get('hidden', False),
-            'invite_only': body.get('invitation_only', False),
+            'license': body.get('license') or '',  # license cannot be None
+            'title_override': body['name'],  # we support Studio edits, even though Publisher also owns titles
+            'pacing_type': self.get_pacing_type(body),
+            'invite_only': body.get('invitation_only', False)
         }
 
-        # NOTE: The license field is non-nullable.
-        defaults['license'] = body.get('license') or ''
-
-        start = self.parse_date(body['start'])
-        pacing_type = self.get_pacing_type(body)
-
-        # When the switch is active, dates and pacing type should come from the Course API.
-        if waffle.switch_is_active(PUBLISHER_ENABLE_READ_ONLY_FIELDS):
+        if not self.partner.uses_publisher:
             defaults.update({
-                'start': start,
-                'pacing_type': pacing_type
-            })
-
-        # When using a marketing site, only dates (excluding start) should come from the Course API.
-        if not self.partner.has_marketing_site or waffle.switch_is_active(ENABLE_EDLY_MARKETING_SITE_SWITCH):
-            defaults.update({
-                'start': start,
-                'card_image_url': body['media'].get('image', {}).get('raw'),
-                'title_override': body['name'],
                 'short_description_override': body['short_description'],
                 'video': self.get_courserun_video(body),
                 'status': CourseRunStatus.Published,
-                'pacing_type': pacing_type,
                 'mobile_available': body.get('mobile_available') or False,
             })
 
@@ -251,6 +256,11 @@ class CoursesApiDataLoader(AbstractDataLoader):
         defaults = {
             'title': body['name'],
         }
+
+        if not self.partner.uses_publisher:
+            defaults.update({
+                'card_image_url': body['media'].get('image', {}).get('raw'),
+            })
 
         return defaults
 
@@ -282,11 +292,8 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
     LOADER_MAX_RETRY = 2
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
-                 is_threadsafe=False, **kwargs):
-        super(EcommerceApiDataLoader, self).__init__(
-            partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
-        )
+    def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False, **kwargs):
+        super(EcommerceApiDataLoader, self).__init__(partner, api_url, max_workers, is_threadsafe, **kwargs)
         self.initial_page = 1
         self.enrollment_skus = []
         self.entitlement_skus = []
@@ -321,13 +328,11 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 if attempt_count >= EcommerceApiDataLoader.LOADER_MAX_RETRY:
                     raise CommandError('Max retries exceeded and Ecommerce Data Loader failed to successfully load')
             else:
-                # If no errors were detected clean up Orphans
-                self.delete_orphans()
                 self._delete_entitlements()
 
     def _load_ecommerce_data(self):
         course_runs = self._request_course_runs(self.initial_page)
-        entitlements = self._request_entitlments(self.initial_page)
+        entitlements = self._request_entitlements(self.initial_page)
         enrollment_codes = self._request_enrollment_codes(self.initial_page)
 
         self.entitlement_skus = []
@@ -359,37 +364,24 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             else:
                 # Process in batches and wait for the result from the futures
                 pagerange = pageranges['course_runs']
-                for future in [executor.submit(self._request_course_runs, page) for page in pagerange]:
-                    check_exception = future.exception()
-                    if check_exception is None:
-                        response = future.result()
-                        self._process_course_runs(response)
-                    else:
-                        logger.exception(check_exception)
-                        # Protect against deletes if exceptions occurred
-                        self.processing_failure_occurred = True
+                for i, future in enumerate([executor.submit(self._request_course_runs, page) for page in pagerange]):
+                    self._check_future_and_process(
+                        future, self._process_course_runs, self._request_course_runs, pagerange[0] + i
+                    )
 
                 pagerange = pageranges['entitlements']
-                for future in [executor.submit(self._request_entitlments, page) for page in pagerange]:
-                    check_exception = future.exception()
-                    if check_exception is None:
-                        response = future.result()
-                        self._process_entitlements(response)
-                    else:
-                        logger.exception(check_exception)
-                        # Protect against deletes if exceptions occurred
-                        self.processing_failure_occurred = True
+                for i, future in enumerate([executor.submit(self._request_entitlements, page) for page in pagerange]):
+                    self._check_future_and_process(
+                        future, self._process_entitlements, self._request_entitlements, pagerange[0] + i
+                    )
 
                 pagerange = pageranges['enrollment_codes']
-                for future in [executor.submit(self._request_enrollment_codes, page) for page in pagerange]:
-                    check_exception = future.exception()
-                    if check_exception is None:
-                        response = future.result()
-                        self._process_enrollment_codes(response)
-                    else:
-                        logger.exception(check_exception)
-                        # Protect against deletes if exceptions occurred
-                        self.processing_failure_occurred = True
+                for i, future in enumerate(
+                    [executor.submit(self._request_enrollment_codes, page) for page in pagerange]
+                ):
+                    self._check_future_and_process(
+                        future, self._process_enrollment_codes, self._request_enrollment_codes, pagerange[0] + i
+                    )
 
         logger.info('Expected %d course seats, %d course entitlements, and %d enrollment codes from %s.',
                     course_runs['count'], entitlements['count'],
@@ -400,6 +392,16 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                     self.entitlement_count,
                     self.enrollment_code_count,
                     self.partner.ecommerce_api_url)
+
+        # Try to upgrade empty run types to real ones, now that we have seats from ecommerce
+        empty_course_type = CourseType.objects.get(slug=CourseType.EMPTY)
+        empty_course_run_type = CourseRunType.objects.get(slug=CourseRunType.EMPTY)
+        has_empty_type = (Q(type=empty_course_type, course_runs__seats__isnull=False) |
+                          Q(course_runs__type=empty_course_run_type, course_runs__seats__isnull=False))
+        for course in Course.everything.filter(has_empty_type, partner=self.partner).distinct().iterator():
+            if not calculate_course_type(course, commit=True):
+                logger.warning('Calculating course type failure occurred for [%s].', course)
+                self.processing_failure_occurred = True
 
         if (self.course_run_count != course_runs['count'] or
                 self.entitlement_count != entitlements['count'] or
@@ -425,7 +427,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def _load_entitlements_data(self, page):  # pragma: no cover
         """Make a request for the given page and process the response."""
         try:
-            entitlements = self._request_entitlments(page)
+            entitlements = self._request_entitlements(page)
             self._process_entitlements(entitlements)
 
         except requests.exceptions.RequestException as ex:
@@ -442,13 +444,16 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             self.processing_failure_occurred = True
 
     def _request_course_runs(self, page):
-        return self.api_client.courses().get(page=page, page_size=self.PAGE_SIZE, include_products=True)
+        params = {'page': page, 'page_size': self.PAGE_SIZE, 'include_products': True}
+        return self.api_client.get(self.api_url + '/courses/', params=params).json()
 
-    def _request_entitlments(self, page):
-        return self.api_client.products().get(page=page, page_size=self.PAGE_SIZE, product_class='Course Entitlement')
+    def _request_entitlements(self, page):
+        params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Course Entitlement'}
+        return self.api_client.get(self.api_url + '/products/', params=params).json()
 
     def _request_enrollment_codes(self, page):
-        return self.api_client.products().get(page=page, page_size=self.PAGE_SIZE, product_class='Enrollment Code')
+        params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Enrollment Code'}
+        return self.api_client.get(self.api_url + '/products/', params=params).json()
 
     def _process_course_runs(self, response):
         results = response['results']
@@ -496,13 +501,28 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             logger.info(msg)
         entitlements_to_delete.delete()
 
+    def _check_future_and_process(self, future, process_fn, request_fn, page):
+        check_exception = future.exception()
+        if check_exception is None:
+            response = future.result()
+            process_fn(response)
+        # The OSError we are catching here is a Connection Aborted OSError("(104, 'ECONNRESET')")
+        # This will just retry the request which should refresh the connection.
+        elif isinstance(check_exception, OSError):
+            response = request_fn(page)
+            process_fn(response)
+        else:
+            logger.exception(check_exception)
+            # Protect against deletes if exceptions occurred
+            self.processing_failure_occurred = True
+
     def update_seats(self, body):
         course_run_key = body['id']
         try:
             course_run = CourseRun.objects.get(key__iexact=course_run_key)
         except CourseRun.DoesNotExist:
             logger.warning('Could not find course run [%s]', course_run_key)
-            return None
+            return
 
         for product_body in body['products']:
             if product_body['structure'] != 'child':
@@ -513,7 +533,15 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         # Remove seats which no longer exist for that course run
         certificate_types = [self.get_certificate_type(product) for product in body['products']
                              if product['structure'] == 'child']
-        course_run.seats.exclude(type__in=certificate_types).delete()
+
+        seats_to_remove = course_run.seats.exclude(type__slug__in=certificate_types)
+        if seats_to_remove.count() > 0:
+            logger.info(
+                'Removing seats [%s] for course run with key [%s].',
+                ', '.join(s.type.slug for s in seats_to_remove),
+                course_run_key,
+            )
+        seats_to_remove.delete()
 
     def update_seat(self, course_run, product_body):
         stock_record = product_body['stockrecords'][0]
@@ -525,11 +553,28 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             currency = Currency.objects.get(code=currency_code)
         except Currency.DoesNotExist:
             logger.warning("Could not find currency [%s]", currency_code)
-            return None
+            return
 
         attributes = {attribute['name']: attribute['value'] for attribute in product_body['attribute_values']}
 
-        seat_type = attributes.get('certificate_type', Seat.AUDIT)
+        certificate_type = attributes.get('certificate_type', Seat.AUDIT)
+        try:
+            seat_type = SeatType.objects.get(slug=certificate_type)
+        except SeatType.DoesNotExist:
+            msg = ('Could not find seat type {seat_type} while loading seat with sku {sku} for course run with key '
+                   '{key}'.format(seat_type=certificate_type, sku=sku, key=course_run.key))
+            logger.warning(msg)
+            self.processing_failure_occurred = True
+            return
+        if not course_run.type.empty and not course_run.type.tracks.filter(seat_type=seat_type).exists():
+            logger.warning(
+                'Seat type {seat_type} is not compatible with course run type {run_type} for course run {key}'.format(
+                    seat_type=seat_type.slug, run_type=course_run.type.slug, key=course_run.key,
+                )
+            )
+            self.processing_failure_occurred = True
+            return
+
         credit_provider = attributes.get('credit_provider')
 
         credit_hours = attributes.get('credit_hours')
@@ -543,12 +588,15 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'credit_hours': credit_hours,
         }
 
-        course_run.seats.update_or_create(
+        _, created = course_run.seats.update_or_create(
             type=seat_type,
             credit_provider=credit_provider,
             currency=currency,
             defaults=defaults
         )
+
+        if created:
+            logger.info('Created seat for course with key [%s] and sku [%s].', course_run.key, sku)
 
     def validate_stockrecord(self, stockrecords, title, product_class):
         """
@@ -658,6 +706,15 @@ class EcommerceApiDataLoader(AbstractDataLoader):
                 mode=mode_name, title=title, sku=sku
             )
             logger.warning(msg)
+            self.processing_failure_occurred = True
+            return None
+        if not course.type.empty and mode not in course.type.entitlement_types.all():
+            logger.warning(
+                'Seat type {seat_type} is not compatible with course type {course_type} for course {uuid}'.format(
+                    seat_type=mode.slug, course_type=course.type.slug, uuid=course_uuid,
+                )
+            )
+            self.processing_failure_occurred = True
             return None
 
         defaults = {
@@ -665,7 +722,6 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             'price': price,
             'currency': currency,
             'sku': sku,
-            'expires': self.parse_date(body['expires'])
         }
         msg = 'Creating entitlement {title} with sku {sku} for partner {partner}'.format(
             title=title, sku=sku, partner=self.partner
@@ -718,6 +774,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             title=title, sku=sku, partner=self.partner
         )
         logger.info(msg)
+
         course_run.seats.update_or_create(type=seat_type, defaults=defaults)
         return sku
 
@@ -734,12 +791,9 @@ class ProgramsApiDataLoader(AbstractDataLoader):
     image_height = 480
     XSERIES = None
 
-    def __init__(self, partner, api_url, access_token=None, token_type=None, max_workers=None,
-                 is_threadsafe=False, **kwargs):
-        super(ProgramsApiDataLoader, self).__init__(
-            partner, api_url, access_token, token_type, max_workers, is_threadsafe, **kwargs
-        )
-        self.XSERIES = ProgramType.objects.get(name='XSeries')
+    def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
+        super(ProgramsApiDataLoader, self).__init__(partner, api_url, max_workers, is_threadsafe)
+        self.XSERIES = ProgramType.objects.get(translations__name_t='XSeries')
 
     def ingest(self):
         api_url = self.partner.programs_api_url
@@ -749,12 +803,15 @@ class ProgramsApiDataLoader(AbstractDataLoader):
         logger.info('Refreshing programs from %s...', api_url)
 
         while page:
-            response = self.api_client.programs.get(page=page, page_size=self.PAGE_SIZE)
-            count = response['count']
-            results = response['results']
+            params = {'page': page, 'page_size': self.PAGE_SIZE}
+            response = self.api_client.get(self.api_url + '/programs/', params=params)
+            response.raise_for_status()
+            response_json = response.json()
+            count = response_json['count']
+            results = response_json['results']
             logger.info('Retrieved %d programs...', len(results))
 
-            if response['next']:
+            if response_json['next']:
                 page += 1
             else:
                 page = None

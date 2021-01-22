@@ -1,5 +1,4 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Group
 from guardian.admin import GuardedModelAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
@@ -10,28 +9,14 @@ from course_discovery.apps.publisher.constants import (
     INTERNAL_USER_GROUP_NAME, PARTNER_MANAGER_GROUP_NAME, PROJECT_COORDINATOR_GROUP_NAME, PUBLISHER_GROUP_NAME,
     REVIEWER_GROUP_NAME
 )
-from course_discovery.apps.publisher.forms import (
-    CourseRunAdminForm, CourseRunStateAdminForm, CourseStateAdminForm, OrganizationExtensionForm,
-    PublisherUserCreationForm, UserAttributesAdminForm
-)
-from course_discovery.apps.publisher.models import (
-    Course, CourseEntitlement, CourseRun, CourseRunState, CourseState, CourseUserRole, DrupalLoaderConfig,
-    OrganizationExtension, OrganizationUserRole, PublisherUser, Seat, UserAttributes
-)
-
-
-@admin.register(CourseUserRole)
-class CourseUserRoleAdmin(SimpleHistoryAdmin):
-    raw_id_fields = ('changed_by', 'course', 'user',)
-    list_display = ['role', 'course', 'user']
-    search_fields = ['course__title']
+from course_discovery.apps.publisher.models import OrganizationExtension, OrganizationUserRole, UserAttributes
 
 
 @admin.register(OrganizationExtension)
 class OrganizationExtensionAdmin(GuardedModelAdminMixin, SimpleHistoryAdmin):
-    form = OrganizationExtensionForm
     list_display = ['organization', 'group']
     search_fields = ['organization__name', 'group__name']
+    autocomplete_fields = ['organization', 'group']
 
     def save_model(self, request, obj, form, change):
         obj.save()
@@ -40,14 +25,14 @@ class OrganizationExtensionAdmin(GuardedModelAdminMixin, SimpleHistoryAdmin):
 
 @admin.register(UserAttributes)
 class UserAttributesAdmin(admin.ModelAdmin):
-    form = UserAttributesAdminForm
+    autocomplete_fields = ['user']
 
 
 @admin.register(OrganizationUserRole)
 class OrganizationUserRoleAdmin(SimpleHistoryAdmin):
-    raw_id_fields = ('user', 'organization',)
     list_display = ['role', 'organization', 'user']
     search_fields = ['organization__name']
+    autocomplete_fields = ['organization', 'user']
     role_groups_dict = {
         InternalUserRole.MarketingReviewer: REVIEWER_GROUP_NAME,
         InternalUserRole.ProjectCoordinator: PROJECT_COORDINATOR_GROUP_NAME,
@@ -57,91 +42,8 @@ class OrganizationUserRoleAdmin(SimpleHistoryAdmin):
 
     def save_model(self, request, obj, form, change):
         obj.save()
-        publisher_courses = obj.organization.publisher_courses
-
-        courses_without_role = publisher_courses.exclude(course_user_roles__role=obj.role)
-
-        CourseUserRole.objects.bulk_create(
-            [CourseUserRole(course=course, user=obj.user, role=obj.role) for course in courses_without_role]
-        )
-
-        CourseUserRole.objects.filter(course__organizations__in=[obj.organization], role=obj.role).update(user=obj.user)
 
         # Assign user a group according to its role.
         group = Group.objects.get(name=self.role_groups_dict.get(obj.role))
         if group not in obj.user.groups.all():
             obj.user.groups.add(*(group, Group.objects.get(name=INTERNAL_USER_GROUP_NAME)))
-
-
-@admin.register(CourseState)
-class CourseStateAdmin(SimpleHistoryAdmin):
-    form = CourseStateAdminForm
-    raw_id_fields = ('changed_by',)
-    list_display = ['id', 'name', 'approved_by_role', 'owner_role', 'course', 'marketing_reviewed']
-    search_fields = ['id', 'course__title']
-    list_filter = ('name',)
-
-
-@admin.register(CourseRunState)
-class CourseRunStateAdmin(SimpleHistoryAdmin):
-    form = CourseRunStateAdminForm
-    raw_id_fields = ('changed_by',)
-    list_display = ['id', 'name', 'approved_by_role', 'owner_role',
-                    'course_run', 'owner_role_modified', 'preview_accepted']
-    list_filter = ('name',)
-    search_fields = ['id', 'course_run__course__title']
-    ordering = ['id']
-
-
-@admin.register(Course)
-class CourseAdmin(SimpleHistoryAdmin):
-    raw_id_fields = ('changed_by',)
-    list_display = ['title', 'number']
-    search_fields = ['title', 'number']
-
-
-@admin.register(CourseRun)
-class CourseRunAdmin(SimpleHistoryAdmin):
-    form = CourseRunAdminForm
-    raw_id_fields = ('changed_by',)
-    list_display = ['course_name', 'lms_course_id', 'start', 'end']
-    search_fields = ['id', 'lms_course_id', 'course__title']
-
-    def course_name(self, obj):
-        return obj.course.title
-
-
-@admin.register(Seat)
-class SeatAdmin(SimpleHistoryAdmin):
-    raw_id_fields = ('changed_by',)
-    list_display = ['course_run', 'type']
-    search_fields = ['course_run__course__title', 'type']
-
-
-@admin.register(CourseEntitlement)
-class CourseEntitlementAdmin(SimpleHistoryAdmin):
-    list_display = ['course', 'get_course_number', 'mode']
-
-    def get_course_number(self, obj):
-        return obj.course.number
-    get_course_number.short_description = 'Course number'
-
-    raw_id_fields = ['course']
-    search_fields = ['course__title', 'course__number']
-
-
-@admin.register(PublisherUser)
-class PublisherUserAdmin(UserAdmin):
-    add_form_template = 'publisher/admin/add_user_form.html'
-    add_fieldsets = (
-        (None, {'fields': ('username', 'groups',)}),
-    )
-    add_form = PublisherUserCreationForm
-
-    def get_queryset(self, request):
-        """
-        Return only those users which belongs to any group.
-        """
-        return self.model.objects.filter(groups__in=Group.objects.all()).distinct()
-
-admin.site.register(DrupalLoaderConfig)

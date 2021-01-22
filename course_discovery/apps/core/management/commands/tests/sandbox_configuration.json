@@ -4,10 +4,7 @@
         "site_partner": "dummy",
         "partner_data": {
             "name": "dummy",
-            "oidc_key": "key-dummy",
             "studio_url": "https://studio-dummy-{dns_name}.example.com",
-            "oidc_secret": "secret-{dns_name}",
-            "oidc_url_root": "https://dummy-{dns_name}.example.com/oauth2",
             "courses_api_url": "https://dummy-{dns_name}.example.com/api/courses/v1/",
             "ecommerce_api_url": "https://ecommerce-dummy-{dns_name}.example.com/",
             "organizations_api_url": "https://dummy-{dns_name}.example.com/api/organizations/v0/"

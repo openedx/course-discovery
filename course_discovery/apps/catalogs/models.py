@@ -7,17 +7,23 @@ from guardian.shortcuts import get_users_with_perms
 from haystack.query import SearchQuerySet
 
 from course_discovery.apps.core.mixins import ModelPermissionsMixin
-from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 
 
 class Catalog(ModelPermissionsMixin, TimeStampedModel):
     VIEW_PERMISSION = 'view_catalog'
     name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Catalog name'))
-    query = models.TextField(null=False, blank=False, help_text=_('Query to retrieve catalog contents'))
+    query = models.TextField(null=False, blank=False, help_text=_('Query to retrieve Course Run catalog contents'))
+    program_query = models.TextField(
+        null=False,
+        blank=True,
+        help_text=_('Query to retrieve Program catalog contents'),
+        default=''
+    )
     include_archived = models.BooleanField(default=False, help_text=_('Include archived courses'))
 
     def __str__(self):
-        return 'Catalog #{id}: {name}'.format(id=self.id, name=self.name)  # pylint: disable=no-member
+        return 'Catalog #{id}: {name}'.format(id=self.id, name=self.name)
 
     def _get_query_results(self):
         """
@@ -36,11 +42,19 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         """
         return Course.search(self.query)
 
+    def programs(self):
+        """ Returns the list of Programs contained within this catalog.
+
+        Returns:
+            QuerySet
+        """
+        return Program.search(self.program_query)
+
     @property
     def courses_count(self):
         return self._get_query_results().count()
 
-    def contains(self, course_ids):  # pylint: disable=unused-argument
+    def contains(self, course_ids):
         """ Determines if the given courses are contained in this catalog.
 
         Arguments:
@@ -57,7 +71,7 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
 
         return contains
 
-    def contains_course_runs(self, course_run_ids):  # pylint: disable=unused-argument
+    def contains_course_runs(self, course_run_ids):
         """
         Determines if the given course runs are contained in this catalog.
 
@@ -125,3 +139,6 @@ class Catalog(ModelPermissionsMixin, TimeStampedModel):
         permissions = (
             ('view_catalog', 'Can view catalog'),
         )
+        # The view permission was added in 2.1, as result two view permissions tries to insert into db and triggers
+        # integrity error. Customize the default permission list and removed view from there
+        default_permissions = ('add', 'change', 'delete',)

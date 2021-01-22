@@ -1,23 +1,23 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters as rest_framework_filters
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.api import filters, serializers
+from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Organization, Program
 
 
-# pylint: disable=no-member
-class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
+class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ Program resource. """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (IsAuthenticated,)
-    filter_backends = (DjangoFilterBackend,)
-    filter_class = filters.ProgramFilter
+    filter_backends = (DjangoFilterBackend, rest_framework_filters.OrderingFilter)
+    filterset_class = filters.ProgramFilter
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
@@ -41,8 +41,8 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
 
         return self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner, edx_org_short_name=edx_org_short_name)
 
-    def get_serializer_context(self, *args, **kwargs):
-        context = super().get_serializer_context(*args, **kwargs)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
         query_params = ['exclude_utm', 'use_full_course_serializer', 'published_course_runs_only',
                         'marketable_enrollable_course_runs_with_archived']
         for query_param in query_params:

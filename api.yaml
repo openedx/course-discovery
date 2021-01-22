@@ -1,202 +1,248 @@
 # This file is a "de-compacted" version of api-compact.yaml. The consuming tools are unable to process YAML anchors.
 # This file was generated using http://www.yamllint.com/.
 
----
-apigateway_responses:
-  200:
+--- 
+apigateway_responses: 
+  200: 
     statusCode: "200"
-  401:
+  401: 
     statusCode: "401"
-  403:
+  403: 
     statusCode: "403"
-  404:
+  404: 
     statusCode: "404"
-  429:
+  429: 
     statusCode: "429"
-  500:
+  500: 
     statusCode: "500"
-  default:
+  default: 
     statusCode: "400"
-auth_header:
+auth_header: 
   in: header
   name: Authorization
   required: true
   type: string
-endpoints:
-  v1:
-    catalogById:
-      get:
+endpoints: 
+  v1: 
+    catalogById: 
+      get: 
         operationId: get_catalog_by_id
-        parameters:
-          -
+        parameters: 
+          - 
             in: header
             name: Authorization
             required: true
             type: string
-          -
+          - 
             in: path
             name: id
             required: true
             type: number
-        produces:
+        produces: 
           - application/json
           - application/csv
-        responses:
-          200:
+        responses: 
+          200: 
             description: OK
-          400:
+          400: 
             description: "Bad Request"
-          401:
+          401: 
             description: Unauthorized
-          403:
+          403: 
             description: Forbidden
-          404:
+          404: 
             description: "Not Found"
-          429:
+          429: 
             description: "Too Many Requests"
-          500:
+          500: 
             description: "Internal Server Error"
-        x-amazon-apigateway-integration:
+        x-amazon-apigateway-integration: 
           httpMethod: GET
-          requestParameters:
+          requestParameters: 
             integration.request.header.Authorization: method.request.header.Authorization
             integration.request.path.id: method.request.path.id
-          responses:
-            200:
+          responses: 
+            200: 
               statusCode: "200"
-            401:
+            401: 
               statusCode: "401"
-            403:
+            403: 
               statusCode: "403"
-            404:
+            404: 
               statusCode: "404"
-            429:
+            429: 
               statusCode: "429"
-            500:
+            500: 
               statusCode: "500"
-            default:
+            default: 
               statusCode: "400"
           type: http
           uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/"
-    catalogCourses:
-      get:
+    catalogCourses: 
+      get: 
         operationId: get_catalog_courses
-        parameters:
-          -
+        parameters: 
+          - 
             in: header
             name: Authorization
             required: true
             type: string
-          -
+          - 
             in: path
             name: id
             required: true
             type: number
-          -
-            in: querystring
-            name: limit
-            required: false
-            type: number
-          -
-            in: querystring
-            name: offset
-            required: false
-            type: number
-        produces:
+        produces: 
           - application/json
           - application/csv
-        responses:
-          200:
+        responses: 
+          200: 
             description: OK
-          400:
+          400: 
             description: "Bad Request"
-          401:
+          401: 
             description: Unauthorized
-          403:
+          403: 
             description: Forbidden
-          404:
+          404: 
             description: "Not Found"
-          429:
+          429: 
             description: "Too Many Requests"
-          500:
+          500: 
             description: "Internal Server Error"
-        x-amazon-apigateway-integration:
+        x-amazon-apigateway-integration: 
           httpMethod: GET
-          requestParameters:
+          requestParameters: 
             integration.request.header.Authorization: method.request.header.Authorization
             integration.request.path.id: method.request.path.id
-          responses:
-            200:
+          responses: 
+            200: 
               statusCode: "200"
-            401:
+            401: 
               statusCode: "401"
-            403:
+            403: 
               statusCode: "403"
-            404:
+            404: 
               statusCode: "404"
-            429:
+            429: 
               statusCode: "429"
-            500:
+            500: 
               statusCode: "500"
-            default:
+            default: 
               statusCode: "400"
           type: http
           uri: "https://${stageVariables.discovery_host}/v1/catalogs/{id}/courses/"
-    catalogs:
-      get:
+    catalogs: 
+      get: 
         operationId: get_catalogs
-        parameters:
-          -
+        parameters: 
+          - 
             in: header
             name: Authorization
             required: true
             type: string
-          -
-            in: querystring
-            name: limit
-            required: false
-            type: number
-          -
-            in: querystring
-            name: offset
-            required: false
-            type: number
-        produces:
+        produces: 
           - application/json
           - application/csv
-        responses:
-          200:
+        responses: 
+          200: 
             description: OK
-          400:
+          400: 
             description: "Bad Request"
-          401:
+          401: 
             description: Unauthorized
-          403:
+          403: 
             description: Forbidden
-          404:
+          404: 
             description: "Not Found"
-          429:
+          429: 
             description: "Too Many Requests"
-          500:
+          500: 
             description: "Internal Server Error"
-        x-amazon-apigateway-integration:
+        x-amazon-apigateway-integration: 
           httpMethod: GET
-          requestParameters:
+          requestParameters: 
             integration.request.header.Authorization: method.request.header.Authorization
-          responses:
-            200:
+          responses: 
+            200: 
               statusCode: "200"
-            401:
+            401: 
               statusCode: "401"
-            403:
+            403: 
               statusCode: "403"
-            404:
+            404: 
               statusCode: "404"
-            429:
+            429: 
               statusCode: "429"
-            500:
+            500: 
               statusCode: "500"
-            default:
+            default: 
               statusCode: "400"
           type: http
           uri: "https://${stageVariables.discovery_host}/v1/catalogs/"
+id_parameter: 
+  in: path
+  name: id
+  required: true
+  type: number
+produces: 
+  - application/json
+  - application/csv
+produces_json: 
+  - application/json
+responses: 
+  200: 
+    description: OK
+  400: 
+    description: "Bad Request"
+  401: 
+    description: Unauthorized
+  403: 
+    description: Forbidden
+  404: 
+    description: "Not Found"
+  429: 
+    description: "Too Many Requests"
+  500: 
+    description: "Internal Server Error"
+x-amazon-apigateway-integration: 
+  httpMethod: GET
+  requestParameters: 
+    integration.request.header.Authorization: method.request.header.Authorization
+  responses: 
+    200: 
+      statusCode: "200"
+    401: 
+      statusCode: "401"
+    403: 
+      statusCode: "403"
+    404: 
+      statusCode: "404"
+    429: 
+      statusCode: "429"
+    500: 
+      statusCode: "500"
+    default: 
+      statusCode: "400"
+  type: http
+x-amazon-apigateway-integration-with-id: 
+  httpMethod: GET
+  requestParameters: 
+    integration.request.header.Authorization: method.request.header.Authorization
+    integration.request.path.id: method.request.path.id
+  responses: 
+    200: 
+      statusCode: "200"
+    401: 
+      statusCode: "401"
+    403: 
+      statusCode: "403"
+    404: 
+      statusCode: "404"
+    429: 
+      statusCode: "429"
+    500: 
+      statusCode: "500"
+    default: 
+      statusCode: "400"
+  type: http

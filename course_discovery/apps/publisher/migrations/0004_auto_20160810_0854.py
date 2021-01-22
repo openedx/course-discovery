@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='courserun',
             name='state',
-            field=models.ForeignKey(blank=True, to='publisher.State', null=True),
+            field=models.ForeignKey(blank=True, to='publisher.State', null=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='historicalcourserun',

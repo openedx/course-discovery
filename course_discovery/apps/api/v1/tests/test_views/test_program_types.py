@@ -21,7 +21,7 @@ class ProgramTypeViewSetTests(SerializationMixin, APITestCase):
 
         self.client.logout()
         response = self.client.get(self.list_path)
-        assert response.status_code == 403
+        assert response.status_code == 401
 
     def test_list(self):
         """ Verify the endpoint returns a list of all program types. """

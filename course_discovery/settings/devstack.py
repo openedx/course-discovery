@@ -1,6 +1,5 @@
 # noinspection PyUnresolvedReferences
 from course_discovery.settings._debug_toolbar import *  # isort:skip
-from corsheaders.defaults import default_headers as corsheaders_default_headers
 from course_discovery.settings.production import *
 
 DEBUG = True
@@ -13,12 +12,9 @@ LOGGING['handlers']['local'] = {
 # Determine which requests should render Django Debug Toolbar
 INTERNAL_IPS = ('127.0.0.1',)
 
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = corsheaders_default_headers + (
-    'use-jwt-cookie',
-)
 CORS_ORIGIN_WHITELIST = (
-    'localhost:18400',  # publisher-frontend
+    'localhost:18400',  # frontend-app-publisher
+    'localhost:18450',  # frontend-app-support-tools
 )
 
 HAYSTACK_CONNECTIONS['default']['URL'] = 'http://edx.devstack.elasticsearch:9200/'
@@ -26,13 +22,21 @@ HAYSTACK_CONNECTIONS['default']['URL'] = 'http://edx.devstack.elasticsearch:9200
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
 JWT_AUTH.update({
-    # Must match public signing key used in LMS.
+    'JWT_SECRET_KEY': 'lms-secret',
+    'JWT_ISSUER': 'http://localhost:18000/oauth2',
+    'JWT_AUDIENCE': None,
+    'JWT_VERIFY_AUDIENCE': False,
     'JWT_PUBLIC_SIGNING_JWK_SET': (
         '{"keys": [{"kid": "devstack_key", "e": "AQAB", "kty": "RSA", "n": "smKFSYowG6nNUAdeqH1jQQnH1PmIHphzBmwJ5vRf1vu'
         '48BUI5VcVtUWIPqzRK_LDSlZYh9D0YFL0ZTxIrlb6Tn3Xz7pYvpIAeYuQv3_H5p8tbz7Fb8r63c1828wXPITVTv8f7oxx5W3lFFgpFAyYMmROC'
         '4Ee9qG5T38LFe8_oAuFCEntimWxN9F3P-FJQy43TL7wG54WodgiM0EgzkeLr5K6cDnyckWjTuZbWI-4ffcTgTZsL_Kq1owa_J2ngEfxMCObnzG'
         'y5ZLcTUomo4rZLjghVpq6KZxfS6I1Vz79ZsMVUWEdXOYePCKKsrQG20ogQEkmTf9FT_SouC6jPcHLXw"}]}'
     ),
+    'JWT_ISSUERS': [{
+        'AUDIENCE': 'lms-key',
+        'ISSUER': 'http://localhost:18000/oauth2',
+        'SECRET_KEY': 'lms-secret',
+    }],
 })
 
 # MEDIA CONFIGURATION
@@ -59,7 +63,18 @@ PARLER_LANGUAGES = {
          'fallbacks': [PARLER_DEFAULT_LANGUAGE_CODE],
          'hide_untranslated': False,
      }
- }
+}
+
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER = "http://localhost:18000"
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://edx.devstack.lms:18000"
+SOCIAL_AUTH_EDX_OAUTH2_PUBLIC_URL_ROOT = "http://localhost:18000"
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://localhost:18000/logout"
+
+BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://edx.devstack.lms:18000/oauth2"
+
+ENABLE_PUBLISHER = True
+
+ORG_BASE_LOGO_URL = "http://discovery:18381/media/"
 
 #####################################################################
 # Lastly, see if the developer has any local overrides.

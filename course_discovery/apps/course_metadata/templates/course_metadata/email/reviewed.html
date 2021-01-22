@@ -1,0 +1,43 @@
+{% extends "course_metadata/email/email_base.html" %}
+{% load i18n %}
+{% load django_markup %}
+{% block body %}
+<!-- Message Body -->
+
+<p>
+    {% filter force_escape %}
+        {% blocktrans trimmed %}
+            Dear {{ recipient_name }},
+        {% endblocktrans %}
+    {% endfilter %}
+</p>
+<p>
+    {% blocktrans trimmed asvar tmsg %}
+        The {link_start}{course_page_url}{link_middle}{course_run_number} course run{link_end} of {course_name} has been reviewed and approved by {platform_name}.
+    {% endblocktrans %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe course_run_number=course_run_number|safe course_name=course_name|safe course_page_url=course_page_url|safe platform_name=platform_name %}
+
+    {% if go_live_date %}
+        {% filter force_escape %}
+            {% blocktrans trimmed %}
+                The course run about page will be published on {{ go_live_date }}, pending no further edits.
+            {% endblocktrans %}
+        {% endfilter %}
+    {% else %}
+        {% filter force_escape %}
+            {% blocktrans trimmed %}
+                The course run about page is now published.
+            {% endblocktrans %}
+        {% endfilter %}
+    {% endif %}
+</p>
+
+<p>
+    {% blocktrans trimmed asvar tmsg %}
+        Note: This email address is unable to receive replies. For questions or comments, please contact {link_start}{contact_us_email}{link_middle}your Project Coordinator{link_end}.
+    {% endblocktrans %}
+    {% interpolate_html tmsg link_start='<a href="mailto:'|safe link_middle='">'|safe link_end='</a>'|safe contact_us_email=contact_us_email|safe %}
+</p>
+
+<!-- End Message Body -->
+{% endblock body %}

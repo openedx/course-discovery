@@ -18,7 +18,7 @@ Discovery application code uses an `index alias`_ to refer to the search index i
 Boosting
 ++++++++
 
-Discovery uses Elasticsearch's `function score`_ query to modify ("boost") the relevance score of documents retrieved by search queries. You can find the service's boosting config at ``course_discovery/apps/edx_haystack_extensions/elasticsearch_boost_config.py``, complete with comments explaining what each part does and how it's been tuned. 
+Discovery uses Elasticsearch's `function score`_ query to modify ("boost") the relevance score of documents retrieved by search queries. You can find the service's boosting config at ``course_discovery/apps/edx_haystack_extensions/elasticsearch_boost_config.py``, complete with comments explaining what each part does and how it's been tuned.
 
 .. _function score: https://www.elastic.co/guide/en/elasticsearch/reference/1.5/query-dsl-function-score-query.html
 
@@ -73,39 +73,49 @@ Internationalization
 
 All user-facing strings should be marked for translation. edX runs this application in English, but our open source users may choose to use another language. Marking strings for translation ensures our users have this choice. Refer to edX's `i18n guidelines`_ for more details.
 
-.. _i18n guidelines: http://edx.readthedocs.io/projects/edx-developer-guide/en/latest/conventions/internationalization/index.html
+.. _i18n guidelines: https://edx.readthedocs.io/projects/edx-developer-guide/en/latest/internationalization/i18n.html
 
 Updating Translated Strings
 +++++++++++++++++++++++++++
 
-Like most edX projects, Discovery uses Transifex to translate content. Most of the translation process is automated. Transifex pulls new strings from this repo on a daily basis. Translated strings are merged back into the repo every week.
+Like most edX projects, Discovery uses Transifex to translate content. At edX, the translation process is automated. Every week, changes to source code strings are extracted as translations, which are merged back to the repo and pushed to edX's Transifex resources. Translated strings are also merged back into the repo every week.
 
-If you change or introduce new strings, run ``make fake_translations`` to extract all strings marked for translation, generate fake translations in the Esperanto (eo) language directory, and compile the translations. You can trigger the display of the translations by setting your browser's language to Esperanto (eo), and navigating to a page on the site. Instead of plain English strings, you should see specially-accented English strings that look like this:
+Open Source contributors can use ``make extract_translations`` to extract source file string changes, ``make push_translations`` to push changes to Transifex (assuming credentials are available), and ``make pull_translations`` to pull translations from Transifex.
 
-    Thé Fütüré øf Ønlïné Édüçätïøn Ⱡσяєм ι# Før änýøné, änýwhéré, änýtïmé Ⱡσяєм #
+OAuth2
+------
 
-OpenID Connect
---------------
+The Discovery service uses the OAuth 2.0 protocol for authentication. The LMS currently serves as the OAuth2 provider.
 
-`OpenID Connect`_ (OIDC) is a simple identity layer on top of the OAuth 2.0 protocol which allows clients to verify the identity of and obtain basic profile information about an end-user based on authentication performed by an authorization server. Discovery uses the edX's OIDC provider for login at ``/login``. The LMS currently serves as the authentication provider.
-
-.. _OpenID Connect: https://openid.net/specs/openid-connect-core-1_0.html
-
-If you're using `devstack`_, OIDC should be configured for you. If you need to configure OIDC manually, you need to register a new client with the authentication provider (the LMS) and update Discovery's Django settings with the newly created client credentials.
+If you're using `devstack`_, OAuth2 should be configured for you. If you need to configure OAuth2 manually, you need to register a new client with the OAuth2 provider (the LMS) and update Discovery's Django settings with the newly created credentials.
 
 .. _devstack: https://github.com/edx/devstack
 
-You can create a new OAuth 2.0 client on the LMS at ``/admin/oauth2/client/``:
+A new OAuth 2.0 client can be created at ``http://localhost:18000/admin/oauth2_provider/application/``.
 
-    1. Click the ``Add client`` button.
+    1. Click the :guilabel:`Add Application` button.
+    2. Leave the user field blank.
+    3. Specify the name of this service, ``credentials``, as the client name.
+    4. Set the :guilabel:`URL` to the root path of this service: ``http://localhost:8150/``.
+    5. Set the :guilabel:`Redirect URL` to the complete endpoint: ``http://localhost:18150/complete/edx-oauth2/``.
+    6. Copy the :guilabel:`Client ID` and :guilabel:`Client Secret` values. They will be used later.
+    7. Select :guilabel:`Confidential` as the client type.
+    8. Select :guilabel:`Authorization code` as the authorization grant type.
+    9. Click :guilabel:`Save`.
+
+You can create a new OAuth 2.0 application on the LMS at ``/admin/oauth2_provider/application/``:
+
+    1. Click the ``Add Application`` button.
     2. Leave the user field blank.
     3. Specify the name of this service, ``discovery``, as the client name.
     4. Set the ``URL`` to the root path of this service: ``http://localhost:18381``.
-    5. Set the ``Redirect URL`` to the OIDC client endpoint: ``http://localhost:18381/complete/edx-oidc/``.
-    6. Select ``Confidential (Web applications)`` as the client type.
-    7. Click ``Save``.
+    5. Set the ``Redirect URL`` to the complete endpoint: ``http://localhost:18381/complete/edx-oauth2/``.
+    6. Copy the ``Client ID`` and ``Client Secret`` values. They will be used later.
+    7. Select ``Confidential (Web applications)`` as the client type.
+    8. Select ``Authorization code`` as the authorization grant type.
+    9. Click ``Save``.
 
-Designated the new client as trusted by creating a new entry for it at ``/admin/edx_oauth2_provider/trustedclient/``. Finally, copy the newly created ``Client ID`` and ``Client Secret`` values to Discovery's settings (in ``course_discovery/settings/private.py``, if running locally).
+Finally, copy the newly created ``Client ID`` and ``Client Secret`` values to Discovery's settings (in ``course_discovery/settings/private.py``, if running locally).
 
 Publisher
 ---------

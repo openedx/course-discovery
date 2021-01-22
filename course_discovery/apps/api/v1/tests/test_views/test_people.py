@@ -1,27 +1,33 @@
-# pylint: disable=redefined-builtin,no-member
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 from django.db import IntegrityError
 from mock import mock
 from rest_framework.reverse import reverse
 from testfixtures import LogCapture
+from waffle.testutils import override_switch
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, SerializationMixin
 from course_discovery.apps.api.v1.views.people import logger as people_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.models import Person, Position
 from course_discovery.apps.course_metadata.people import MarketingSitePeople
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import (
-    OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonAreaOfExpertiseFactory, PersonFactory,
+    PersonSocialNetworkFactory, PositionFactory
 )
 
 User = get_user_model()
 
 
+@override_switch('publish_person_to_marketing_site', True)
 class PersonViewSetTests(SerializationMixin, APITestCase):
     """ Tests for the person resource. """
     people_list_url = reverse('api:v1:person-list')
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls._original_partner_marketing_site_api_username = cls.partner.marketing_site_api_username
 
     def setUp(self):
         super(PersonViewSetTests, self).setUp()
@@ -34,17 +40,19 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.internal_test_group.permissions.add(*self.target_permissions)
         self.user.groups.add(self.internal_test_group)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+        with override_switch('publish_person_to_marketing_site', False):
             self.person = PersonFactory(partner=self.partner)
         self.organization = OrganizationFactory(partner=self.partner)
         PositionFactory(person=self.person, organization=self.organization)
-        toggle_switch('publish_person_to_marketing_site', True)
         self.expected_node = {
             'resource': 'node',
             'id': '28691',
             'uuid': '18d5542f-fa80-418e-b416-455cfdeb4d4e',
             'uri': 'https://stage.edx.org/node/28691'
         }
+
+        self.partner.marketing_site_api_username = self._original_partner_marketing_site_api_username
+        self.partner.save()
 
     def person_exists(self, data):
         return Person.objects.filter(
@@ -146,7 +154,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         Person.objects.all().delete()
 
         response = self.client.post(self.people_list_url)
-        assert response.status_code == 403
+        assert response.status_code == 401
         assert Person.objects.count() == 0
 
     def test_create_without_permission(self):
@@ -172,13 +180,13 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.client.logout()
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_list_with_publisher_user(self):
         """ Verify the endpoint returns a list of all people with the publisher user """
         response = self.client.get(self.people_list_url)
         self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['results'], self.serialize_person(Person.objects.all(), many=True))
+        self.assertCountEqual(response.data['results'], self.serialize_person(Person.objects.all(), many=True))
 
     def test_list_different_partner(self):
         """ Verify the endpoint only shows people for the current partner. """
@@ -187,7 +195,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         response = self.client.get(self.people_list_url)
         self.assertEqual(response.status_code, 200)
         # Make sure the list does not include the new person above
-        self.assertListEqual(response.data['results'], self.serialize_person([self.person], many=True))
+        self.assertCountEqual(response.data['results'], self.serialize_person([self.person], many=True))
 
     def test_list_filter_by_slug(self):
         """ Verify the endpoint allows people to be filtered by slug. """
@@ -196,11 +204,58 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         url = '{root}?slug={slug}'.format(root=self.people_list_url, slug=person.slug)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertListEqual(response.data['results'], self.serialize_person([person], many=True))
+        self.assertCountEqual(response.data['results'], self.serialize_person([person], many=True))
 
+    def test_with_no_org(self):
+        org1 = OrganizationFactory()
+        course = CourseFactory(authoring_organizations=[org1])
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+            person1 = PersonFactory(partner=self.partner)
+            PersonFactory(partner=self.partner)
+            CourseRunFactory(staff=[person1], course=course)
+            url = '{url}?org='.format(url=self.people_list_url)
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.data['results']), 0)
+
+    def test_list_with_org_single(self):
+        org1 = OrganizationFactory()
+        course = CourseFactory(authoring_organizations=[org1])
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+            person1 = PersonFactory(partner=self.partner)
+            PersonFactory(partner=self.partner)
+            PersonFactory(partner=self.partner)
+            CourseRunFactory(staff=[person1], course=course)
+            url = '{url}?org={org_key}'.format(url=self.people_list_url, org_key=org1.key)
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.data['results']), 1)
+            self.assertEqual(response.data['results'], self.serialize_person([person1], many=True))
+
+    def test_list_with_org_multiple(self):
+        org1 = OrganizationFactory()
+        org2 = OrganizationFactory()
+        course1 = CourseFactory(authoring_organizations=[org1])
+        course2 = CourseFactory(authoring_organizations=[org2])
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
+            person1 = PersonFactory(partner=self.partner)
+            person2 = PersonFactory(partner=self.partner)
+            PersonFactory(partner=self.partner)
+            CourseRunFactory(staff=[person1], course=course1)
+            CourseRunFactory(staff=[person2], course=course2)
+            url = '{url}?org={org1_key}&org={org2_key}'.format(
+                url=self.people_list_url,
+                org1_key=org1.key,
+                org2_key=org2.key,
+            )
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(response.data['results']), 2)
+            self.assertCountEqual(response.data['results'], self.serialize_person([person1, person2], many=True))
+
+    @override_switch('publish_person_to_marketing_site', False)
     def test_create_without_waffle_switch(self):
         """ Verify endpoint proceeds if waffle switch is disabled. """
-        toggle_switch('publish_person_to_marketing_site', False)
         data = self._person_data()
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             response = self.client.post(self.people_list_url, data, format='json')
@@ -212,12 +267,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         return {
             'given_name': "Robert",
             'family_name': "Ford",
-            'bio': "The maze is not for him.",
+            'bio': "<p>The maze is not for him.</p>",
             'position': {
                 'title': "Park Director",
                 'organization': self.organization.id
             },
-            'major_works': 'Delores\nTeddy\nMaive',
+            'major_works': '<p>Delores<br />\nTeddy<br />\nMaive</p>',
             'urls_detailed': [
                 {
                     'id': '1',
@@ -264,12 +319,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         return {
             'given_name': "updated",
             'family_name': "name",
-            'bio': "updated bio",
+            'bio': "<p>updated bio</p>",
             'position': {
                 'title': "new title",
                 'organization': self.organization.id
             },
-            'major_works': 'new works',
+            'major_works': '<p>new works</p>',
             'urls_detailed': [
                 {
                     'id': '1',
@@ -354,10 +409,10 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                         )
                     )
 
+    @override_switch('publish_person_to_marketing_site', False)
     def test_update_without_waffle_switch(self):
         """ Verify update endpoint proceeds if waffle switch is disabled. """
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
-        toggle_switch('publish_person_to_marketing_site', False)
         data = self._update_person_data()
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             response = self.client.patch(url, data, format='json')
@@ -433,3 +488,36 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         updated_person = Person.objects.get(id=self.person.id)
 
         self.assertEqual(updated_person.position.title, data['position']['title'])
+
+    def test_update_with_org_restrictions(self):
+        url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
+        url = url + '?org=invalid-org'
+
+        data = self._update_person_data()
+        with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value={}):
+            response = self.client.patch(url, data, format='json')
+            self.assertEqual(response.status_code, 404)
+
+        # Verify that the person wasn't updated.
+        updated_person = Person.objects.get(id=self.person.id)
+        self.assertEqual(updated_person.given_name, self.person.given_name)
+
+    def test_options_org_choices(self):
+        """ Verify that an OPTIONS request will provide a list of organizations. """
+
+        self.organization.key = 'bbb'
+        self.organization.name = 'Test'
+        self.organization.save()
+        org2 = OrganizationFactory(partner=self.partner, name='', key='aaa')
+
+        response = self.client.options(self.people_list_url)
+        self.assertEqual(response.status_code, 200)
+
+        data = response.data['actions']['POST']
+        self.assertEqual(
+            data['position']['children']['organization']['choices'],
+            [
+                {'display_name': 'aaa', 'value': org2.id},
+                {'display_name': 'bbb: Test', 'value': self.organization.id},
+            ]
+        )

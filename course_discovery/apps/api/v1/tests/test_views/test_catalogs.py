@@ -1,4 +1,3 @@
-# pylint: disable=redefined-builtin,no-member
 import csv
 import datetime
 import urllib
@@ -7,19 +6,17 @@ from io import StringIO
 import ddt
 import pytest
 import pytz
-import responses
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 from rest_framework.reverse import reverse
 
 from course_discovery.apps.api.tests.jwt_utils import generate_jwt_header_for_user
-from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, FuzzyInt, OAuth2Mixin, SerializationMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.models import Course
-from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, SeatFactory, SeatTypeFactory
 from course_discovery.conftest import get_course_run_states
 
 User = get_user_model()
@@ -48,7 +45,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         )
         self.course = self.course_run.course
         self.refresh_index()
-        cache.clear()
 
     def assert_catalog_created(self, **headers):
         name = 'The Kitchen Sink'
@@ -96,7 +92,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         Catalog.objects.all().delete()
 
         response = self.client.post(self.catalog_list_url, {}, format='json')
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
         self.assertEqual(Catalog.objects.count(), 0)
 
     @ddt.data('put', 'patch', 'delete')
@@ -106,7 +102,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         url = reverse('api:v1:catalog-detail', kwargs={'id': self.catalog.id})
 
         response = getattr(self.client, http_method)(url, {}, format='json')
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
 
     def test_create_with_session_authentication(self):
         """ Verify the endpoint creates a new catalog when the client is authenticated via session authentication. """
@@ -116,12 +112,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         """ Verify the endpoint creates a new catalog when the client is authenticated via JWT authentication. """
         self.client.logout()
         self.assert_catalog_created(HTTP_AUTHORIZATION=generate_jwt_header_for_user(self.user))
-
-    @responses.activate
-    def test_create_with_oauth2_authentication(self):
-        self.client.logout()
-        self.mock_user_info_response(self.user)
-        self.assert_catalog_created(HTTP_AUTHORIZATION=self.generate_oauth2_token_header(self.user))
 
     def test_create_with_new_user(self):
         """ Verify that new users are created if the list of viewers includes the usernames of non-existent users. """
@@ -181,7 +171,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             # to be included.
             filtered_course_run = CourseRunFactory(course=course)
 
-            with self.assertNumQueries(FuzzyInt(23, 2)):
+            with self.assertNumQueries(31, threshold=3):
                 response = self.client.get(url)
 
             assert response.status_code == 200
@@ -192,7 +182,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             assert response.data['results'] == self.serialize_catalog_course([course], many=True)
 
             # Any course appearing in the response must have at least one serialized run.
-            assert len(response.data['results'][0]['course_runs']) > 0
+            assert response.data['results'][0]['course_runs']
         else:
             response = self.client.get(url)
 
@@ -253,66 +243,68 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.assert_catalog_contains_query_string(query_string_kwargs, course_run_key)
 
     def test_csv(self):
-        SeatFactory(type='audit', course_run=self.course_run)
-        SeatFactory(type='verified', course_run=self.course_run)
-        SeatFactory(type='credit', course_run=self.course_run, credit_provider='ASU', credit_hours=9)
-        SeatFactory(type='credit', course_run=self.course_run, credit_provider='Hogwarts', credit_hours=4)
+        SeatFactory(type=SeatTypeFactory.audit(), course_run=self.course_run)
+        SeatFactory(type=SeatTypeFactory.verified(), course_run=self.course_run)
+        SeatFactory(type=SeatTypeFactory.credit(), course_run=self.course_run, credit_provider='ASU', credit_hours=9)
+        SeatFactory(type=SeatTypeFactory.credit(), course_run=self.course_run, credit_provider='Hogwarts',
+                    credit_hours=4)
 
         url = reverse('api:v1:catalog-csv', kwargs={'id': self.catalog.id})
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(23):
             response = self.client.get(url)
 
         course_run = self.serialize_catalog_flat_course_run(self.course_run)
         expected = [
-            course_run['key'],
-            course_run['title'],
-            course_run['pacing_type'],
-            course_run['start'],
-            course_run['end'],
-            course_run['enrollment_start'],
-            course_run['enrollment_end'],
             course_run['announcement'],
-            course_run['full_description'],
-            course_run['short_description'],
-            course_run['marketing_url'],
-            course_run['image']['src'],
-            '',
-            '',
-            '',
-            course_run['video']['src'],
-            course_run['video']['description'],
-            course_run['video']['image']['src'],
-            course_run['video']['image']['description'],
-            str(course_run['video']['image']['height']),
-            str(course_run['video']['image']['width']),
             course_run['content_language'],
+            course_run['course_key'],
+            course_run['end'],
+            course_run['enrollment_end'],
+            course_run['enrollment_start'],
+            course_run['expected_learning_items'],
+            course_run['full_description'],
+            '',  # image description
+            '',  # image height
+            course_run['image']['src'],
+            '',  # image width
+            course_run['key'],
             str(course_run['level_type']),
+            course_run['marketing_url'],
             str(course_run['max_effort']),
             str(course_run['min_effort']),
-            course_run['subjects'],
-            course_run['expected_learning_items'],
-            course_run['prerequisites'],
-            course_run['owners'],
-            course_run['sponsors'],
-            course_run['seats']['audit']['type'],
-            course_run['seats']['honor']['type'],
-            course_run['seats']['professional']['type'],
-            str(course_run['seats']['professional']['price']),
-            course_run['seats']['professional']['currency'],
-            course_run['seats']['professional']['upgrade_deadline'],
-            course_run['seats']['verified']['type'],
-            str(course_run['seats']['verified']['price']),
-            course_run['seats']['verified']['currency'],
-            course_run['seats']['verified']['upgrade_deadline'],
-            '{}'.format(course_run['seats']['credit']['type']),
-            '{}'.format(str(course_run['seats']['credit']['price'])),
-            '{}'.format(course_run['seats']['credit']['currency']),
-            '{}'.format(course_run['seats']['credit']['upgrade_deadline']),
-            '{}'.format(course_run['seats']['credit']['credit_provider']),
-            '{}'.format(course_run['seats']['credit']['credit_hours']),
             course_run['modified'],
-            course_run['course_key'],
+            course_run['owners'],
+            course_run['pacing_type'],
+            course_run['prerequisites'],
+            course_run['seats']['audit']['type'],
+            '{}'.format(course_run['seats']['credit']['credit_hours']),
+            '{}'.format(course_run['seats']['credit']['credit_provider']),
+            '{}'.format(course_run['seats']['credit']['currency']),
+            '{}'.format(str(course_run['seats']['credit']['price'])),
+            '{}'.format(course_run['seats']['credit']['type']),
+            '{}'.format(course_run['seats']['credit']['upgrade_deadline']),
+            course_run['seats']['honor']['type'],
+            course_run['seats']['masters']['type'],
+            course_run['seats']['professional']['currency'],
+            str(course_run['seats']['professional']['price']),
+            course_run['seats']['professional']['type'],
+            course_run['seats']['professional']['upgrade_deadline'],
+            course_run['seats']['verified']['currency'],
+            str(course_run['seats']['verified']['price']),
+            course_run['seats']['verified']['type'],
+            course_run['seats']['verified']['upgrade_deadline'],
+            course_run['short_description'],
+            course_run['sponsors'],
+            course_run['start'],
+            course_run['subjects'],
+            course_run['title'],
+            course_run['video']['description'],
+            course_run['video']['image']['description'],
+            str(course_run['video']['image']['height']),
+            course_run['video']['image']['src'],
+            str(course_run['video']['image']['width']),
+            course_run['video']['src'],
         ]
 
         # collect streamed content
@@ -326,7 +318,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         content = list(reader)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(set(expected), set(content[1]))
+        self.assertEqual(expected, content[1])
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single catalog. """

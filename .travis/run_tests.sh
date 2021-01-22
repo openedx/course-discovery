@@ -3,7 +3,7 @@
 . /edx/app/discovery/nodeenvs/discovery/bin/activate
 
 apt update
-apt install -y xvfb firefox gettext wget
+apt install -y xvfb firefox gettext
 
 cd /edx/app/discovery/discovery
 export PATH=$PATH:$PWD/node_modules/.bin
@@ -17,9 +17,6 @@ make requirements.js
 
 # Ensure documentation can be compiled
 make docs
-
-# Check if translation files are up-to-date
-make validate_translations
 
 # Compile assets and run validation
 make clean_static

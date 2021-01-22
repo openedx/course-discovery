@@ -4,6 +4,21 @@ EXISTING_COURSE = {
     'title': 'A partial course',
 }
 
+STAGE_TAG_FIELD_RESPONSE_DATA = [
+    {
+        'uri': 'https://www.edx.org/taxonomy_term/1721',
+        'id': '1721',
+        'resource': 'taxonomy_term',
+        'uuid': 'c53b2abf-d4bd-429f-a0a5-211aac95487d'
+    },
+    {
+        'uri': 'https://www.edx.org/taxonomy_term/1706',
+        'id': '1706',
+        'resource': 'taxonomy_term',
+        'uuid': '57dc60cb-e05c-464c-900f-333d60d249d1'
+    }
+]
+
 EXISTING_COURSE_AND_RUN_DATA = (
     {
         'course_run_key': 'course-v1:SC+BreadX+3T2015',
@@ -95,8 +110,8 @@ COURSES_API_BODIES = [
 COURSES_API_BODY_ORIGINAL = {
     'effort': None,
     'end': None,
-    'enrollment_start': None,
-    'enrollment_end': None,
+    'enrollment_start': '2015-05-15T13:00:00Z',
+    'enrollment_end': '2015-06-29T13:00:00Z',
     'id': 'course-v1:KyotoUx+000x+3T2016',
     'media': {
         'course_image': {
@@ -204,7 +219,7 @@ ECOMMERCE_API_BODIES = [
                 "attribute_values": [
                     {
                         "name": "certificate_type",
-                        "value": "honor"
+                        "value": "audit"
                     }
                 ],
                 "stockrecords": [
@@ -1315,7 +1330,7 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_has_prerequisites': True,
         'field_course_enrollment_credit': None,
         'field_course_is_disabled': None,
-        'field_course_tags': [],
+        'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
         'field_course_sub_title_short': 'An introduction to the intellectual enterprises of computer science and the '
                                         'art of programming.',
         'field_course_length_weeks': None,
@@ -1327,7 +1342,7 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_required_weeks': None,
         'field_course_required_days': None,
         'field_course_required_hours': None,
-        'node_id': '254',
+        'nid': '254',
         'vid': '8078',
         'is_new': False,
         'type': 'course',
@@ -1666,7 +1681,7 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_has_prerequisites': True,
         'field_course_enrollment_credit': False,
         'field_course_is_disabled': None,
-        'field_course_tags': [],
+        'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
         'field_course_sub_title_short': 'PH207x is the online adaptation of material from the Harvard School of Public '
                                         'Health\u0027s classes in epidemiology and biostatistics.',
         'field_course_length_weeks': '13 weeks',
@@ -1678,7 +1693,7 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_required_weeks': '4',
         'field_course_required_days': '0',
         'field_course_required_hours': '0',
-        'node_id': '354',
+        'nid': '354',
         'vid': '112156',
         'is_new': False,
         'type': 'course',
@@ -1935,7 +1950,7 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_has_prerequisites': True,
         'field_course_enrollment_credit': None,
         'field_course_is_disabled': None,
-        'field_course_tags': [],
+        'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
         'field_course_sub_title_short': 'A survey of ancient Greek literature focusing on classical concepts of the '
                                         'hero and how they can inform our understanding of the human condition.',
         'field_course_length_weeks': '23 weeks',
@@ -1947,7 +1962,7 @@ UNIQUE_MARKETING_SITE_API_COURSE_BODIES = [
         'field_course_required_weeks': None,
         'field_course_required_days': None,
         'field_course_required_hours': None,
-        'node_id': '563',
+        'nid': '563',
         'vid': '8080',
         'is_new': False,
         'type': 'course',
@@ -2206,7 +2221,7 @@ ORIGINAL_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_has_prerequisites': True,
     'field_course_enrollment_credit': None,
     'field_course_is_disabled': None,
-    'field_course_tags': [],
+    'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
     'field_course_sub_title_short': 'ORIGINAL A survey of ancient Greek literature focusing on classical concepts of'
                                     ' the hero and how they can inform our understanding of the human condition.',
     'field_course_length_weeks': '23 weeks',
@@ -2218,7 +2233,7 @@ ORIGINAL_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_required_weeks': None,
     'field_course_required_days': None,
     'field_course_required_hours': None,
-    'node_id': '563',
+    'nid': '563',
     'vid': '8080',
     'is_new': False,
     'type': 'course',
@@ -2476,7 +2491,7 @@ UPDATED_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_has_prerequisites': True,
     'field_course_enrollment_credit': None,
     'field_course_is_disabled': None,
-    'field_course_tags': [],
+    'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
     'field_course_sub_title_short': 'UPDATED A survey of ancient Greek literature focusing on classical concepts of'
                                     ' the hero and how they can inform our understanding of the human condition.',
     'field_course_length_weeks': '23 weeks',
@@ -2488,7 +2503,7 @@ UPDATED_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_required_weeks': None,
     'field_course_required_days': None,
     'field_course_required_hours': None,
-    'node_id': '563',
+    'nid': '563',
     'vid': '8080',
     'is_new': False,
     'type': 'course',
@@ -2746,7 +2761,7 @@ NEW_RUN_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_has_prerequisites': True,
     'field_course_enrollment_credit': None,
     'field_course_is_disabled': None,
-    'field_course_tags': [],
+    'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
     'field_course_sub_title_short': 'NEW_RUN A survey of ancient Greek literature focusing on classical concepts of'
                                     ' the hero and how they can inform our understanding of the human condition.',
     'field_course_length_weeks': '23 weeks',
@@ -2758,7 +2773,7 @@ NEW_RUN_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_required_weeks': None,
     'field_course_required_days': None,
     'field_course_required_hours': None,
-    'node_id': '563',
+    'nid': '563',
     'vid': '8080',
     'is_new': False,
     'type': 'course',
@@ -3018,7 +3033,7 @@ DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_has_prerequisites': True,
     'field_course_enrollment_credit': None,
     'field_course_is_disabled': None,
-    'field_course_tags': [],
+    'field_course_tags': STAGE_TAG_FIELD_RESPONSE_DATA,
     'field_course_sub_title_short': 'NEW_RUN A survey of ancient Greek literature focusing on classical concepts of'
                                     ' the hero and how they can inform our understanding of the human condition.',
     'field_course_length_weeks': '23 weeks',
@@ -3030,7 +3045,7 @@ DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_required_weeks': None,
     'field_course_required_days': None,
     'field_course_required_hours': None,
-    'node_id': '563',
+    'nid': '563',
     'vid': '8080',
     'is_new': False,
     'type': 'course',

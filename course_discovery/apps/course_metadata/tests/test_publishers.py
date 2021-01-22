@@ -4,17 +4,17 @@ import ddt
 import mock
 import pytest
 import responses
+from waffle.testutils import override_switch
 
 from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.exceptions import (
     AliasCreateError, AliasDeleteError, FormRetrievalError, NodeCreateError, NodeDeleteError, NodeEditError,
-    NodeLookupError, RedirectCreateError
+    NodeLookupError
 )
 from course_discovery.apps.course_metadata.publishers import (
     BaseMarketingSitePublisher, CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
-from course_discovery.apps.course_metadata.tests import toggle_switch
 from course_discovery.apps.course_metadata.tests.factories import CourseRunFactory, ProgramFactory
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 
@@ -47,17 +47,23 @@ class BaseMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         with pytest.raises(NotImplementedError):
             self.publisher.publish_obj(self.obj)
 
-    @mock.patch.object(BaseMarketingSitePublisher, 'node_id', return_value='123')
     @mock.patch.object(BaseMarketingSitePublisher, 'delete_node', return_value=None)
-    def test_delete_obj(self, mock_delete_node, mock_node_id):
+    def test_delete_obj(self, mock_delete_node):
         """
         Verify that object deletion looks up the corresponding node ID and then
         attempts to delete the node with that ID.
         """
-        self.publisher.delete_obj(self.obj)
+        # Confirm we don't do anything if it doesn't exist
+        with mock.patch.object(BaseMarketingSitePublisher, 'node_id', return_value=None) as mock_node_id:
+            self.publisher.delete_obj(self.obj)
+            self.assertTrue(mock_node_id.called)
+            self.assertFalse(mock_delete_node.called)
 
-        mock_node_id.assert_called_with(self.obj)
-        mock_delete_node.assert_called_with('123')
+        # Now the happy path
+        with mock.patch.object(BaseMarketingSitePublisher, 'node_id', return_value='123') as mock_node_id:
+            self.publisher.delete_obj(self.obj)
+            mock_node_id.assert_called_with(self.obj)
+            mock_delete_node.assert_called_with('123')
 
     @responses.activate
     def test_serialize_obj(self):
@@ -213,13 +219,13 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     @mock.patch.object(CourseRunMarketingSitePublisher, 'node_id', return_value=None)
     @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node', return_value='node_id')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
+    @override_switch('auto_course_about_page_creation', True)
     def test_publish_obj_create_successful(
         self,
         mock_update_node_alias,
         mock_create_node,
         *args
     ):  # pylint: disable=unused-argument
-        toggle_switch('auto_course_about_page_creation', True)
         self.publisher.publish_obj(self.obj)
         mock_create_node.assert_called_with({'data': 'test', 'field_course_uuid': str(self.obj.uuid)})
         mock_update_node_alias.assert_called_with(self.obj, 'node_id', None)
@@ -228,6 +234,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value={'data': 'test'})
     @mock.patch.object(CourseRunMarketingSitePublisher, 'create_node', return_value='node1')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
+    @override_switch('auto_course_about_page_creation', True)
     def test_publish_obj_create_if_exists_on_discovery(
         self,
         mock_update_node_alias,
@@ -236,7 +243,6 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         mock_node_id,
         *args
     ):  # pylint: disable=unused-argument
-        toggle_switch('auto_course_about_page_creation', True)
         self.publisher.publish_obj(self.obj)
         mock_node_id.assert_called_with(self.obj)
         mock_serialize_obj.assert_called_with(self.obj)
@@ -351,33 +357,6 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
 
         assert actual == expected
 
-    @responses.activate
-    @ddt.data(200, 500)
-    def test_redirect_url(self, status):
-        """
-        Verify that the publisher attempts to create a new redirect url from
-        an old course run to the new course run and that appropriate
-        exceptions are raised for non-200 status codes.
-        """
-        previous_obj = CourseRunFactory()
-        self.mock_api_client()
-
-        # Need to mock the node retrievals that happen inside of the add_url_redirect method
-        lookup_value = getattr(self.obj, self.publisher.unique_field)
-        self.mock_node_retrieval(self.publisher.node_lookup_field, lookup_value)
-        lookup_value = getattr(previous_obj, self.publisher.unique_field)
-        self.mock_node_retrieval(self.publisher.node_lookup_field, lookup_value)
-
-        self.mock_get_redirect_form()
-        self.mock_add_redirect(status=status)
-
-        if status == 200:
-            self.publisher.add_url_redirect(self.obj, previous_obj)
-            self.assertEqual(responses.calls[-1].request.url, '{}/add'.format(self.publisher.redirect_api_base))
-        else:
-            with pytest.raises(RedirectCreateError):
-                self.publisher.add_url_redirect(self.obj, previous_obj)
-
 
 class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     """
@@ -393,6 +372,26 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.username = self.publisher.client.username
 
         self.obj = ProgramFactory()
+
+    @mock.patch.object(ProgramMarketingSitePublisher, 'serialize_obj', return_value={'uuid': 'foo'})
+    @mock.patch.object(ProgramMarketingSitePublisher, 'node_id', return_value=None)
+    @mock.patch.object(ProgramMarketingSitePublisher, 'create_node', return_value='node_id')
+    @mock.patch.object(ProgramMarketingSitePublisher, 'update_node_alias', return_value=None)
+    @mock.patch.object(ProgramMarketingSitePublisher, 'get_and_delete_alias', return_value=None)
+    def test_publish_obj_missed_in_drupal(
+            self, mock_get_and_delete_alias, mock_update_node_alias, mock_create_node, mock_node_id, _mock_serialize
+    ):
+        """
+        Verify that the publisher correctly creates a node on drupal if for whatever reason, we think it should
+        already exist, but it does not on the marketing side.
+        """
+        self.obj.type.name = 'Professional Certificate'
+        self.publisher.publish_obj(self.obj, previous_obj=self.obj)
+
+        self.assertTrue(mock_node_id.called)
+        self.assertTrue(mock_create_node.called)
+        self.assertTrue(mock_get_and_delete_alias.called)
+        self.assertTrue(mock_update_node_alias.called)
 
     @mock.patch.object(ProgramMarketingSitePublisher, 'serialize_obj', return_value={'uuid': 'foo'})
     @mock.patch.object(ProgramMarketingSitePublisher, 'node_id', return_value='node_id')

@@ -46,15 +46,13 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         # Create a program with all of the courses we created
         program = ProgramFactory()
-        program.courses = courses.values()
-        program.save()
+        program.courses.set(courses.values())  # pylint: disable=no-member
 
     @responses.activate
     def test_ingest(self):
         self._define_course_metadata()
 
         url = '{root_url}course_summaries/'.format(root_url=self.api_url)
-
         responses.add(
             method=responses.GET,
             url=url,
@@ -68,8 +66,8 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
         expected_course_enrollment_counts = {}
         course_runs = CourseRun.objects.all()
         for course_run in course_runs:
-            self.assertTrue(course_run.enrollment_count > 0)
-            self.assertTrue(course_run.recent_enrollment_count > 0)
+            self.assertGreater(course_run.enrollment_count, 0)
+            self.assertGreater(course_run.recent_enrollment_count, 0)
             course = course_run.course
             if course.key in expected_course_enrollment_counts.keys():
                 expected_course_enrollment_counts[course.key]['count'] += course_run.enrollment_count

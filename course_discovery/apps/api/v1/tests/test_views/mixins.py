@@ -3,15 +3,14 @@
 import json
 
 import responses
-from django.conf import settings
 from haystack.query import SearchQuerySet
-from rest_framework.test import APITestCase as RestAPITestCase
 from rest_framework.test import APIRequestFactory
+from rest_framework.test import APITestCase as RestAPITestCase
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
-from course_discovery.apps.course_metadata.models import CourseRun, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Program
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -42,15 +41,15 @@ class SerializationMixin:
     def serialize_course(self, course, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.CourseWithProgramsSerializer, course, many, format, extra_context)
 
+    def serialize_course_search(self, course, serializer=None):
+        obj = self._get_search_result(Course, key=course.key)
+        return self._serialize_object(serializer or serializers.CourseSearchSerializer, obj)
+
     def serialize_course_run(self, run, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.CourseRunWithProgramsSerializer, run, many, format, extra_context)
 
     def serialize_minimal_course_run(self, run, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.MinimalCourseRunSerializer, run, many, format, extra_context)
-
-    def serialize_minimal_publisher_course_run(self, run, many=False, format=None, extra_context=None):
-        return self._serialize_object(serializers.MinimalPublisherCourseRunSerializer, run, many, format,
-                                      extra_context)
 
     def serialize_course_run_search(self, run, serializer=None):
         obj = self._get_search_result(CourseRun, key=run.key)
@@ -83,6 +82,9 @@ class SerializationMixin:
             serializers.FlattenedCourseRunWithCourseSerializer, course_run, many, format, extra_context
         )
 
+    def serialize_level_type(self, level_type, many=False, format=None, extra_context=None):
+        return self._serialize_object(serializers.LevelTypeSerializer, level_type, many, format, extra_context)
+
     def serialize_organization(self, organization, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.OrganizationSerializer, organization, many, format, extra_context)
 
@@ -106,27 +108,13 @@ class TypeaheadSerializationMixin:
         return serializers.TypeaheadProgramSearchSerializer(obj).data
 
 
-class OAuth2Mixin(object):
-    def generate_oauth2_token_header(self, user):
-        """ Generates a Bearer authorization header to simulate OAuth2 authentication. """
-        return 'Bearer {token}'.format(token=user.username)
-
-    def mock_user_info_response(self, user, status=200):
-        """ Mock the user info endpoint response of the OAuth2 provider. """
-
-        data = {
-            'family_name': user.last_name,
-            'preferred_username': user.username,
-            'given_name': user.first_name,
-            'email': user.email,
-        }
-
+class OAuth2Mixin:
+    def mock_access_token(self):
         responses.add(
-            responses.GET,
-            settings.EDX_DRF_EXTENSIONS['OAUTH2_USER_INFO_URL'],
-            body=json.dumps(data),
-            content_type='application/json',
-            status=status
+            responses.POST,
+            self.partner.lms_url + '/oauth2/access_token',
+            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
+            status=200,
         )
 
 
@@ -175,7 +163,7 @@ class LoginMixin:
         super(LoginMixin, self).setUp()
         self.user = UserFactory()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        if getattr(self, 'request'):
+        if hasattr(self, 'request'):
             self.request.user = self.user
 
 
@@ -192,21 +180,22 @@ class FuzzyInt(int):
         return obj
 
     def __eq__(self, other):
-        return (self.value - self.threshold) <= other <= (self.value + self.threshold)
+        return (self.value - self.threshold) <= other <= (self.value + self.threshold)  # pylint: disable=no-member
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __str__(self):
-        return 'FuzzyInt(value={}, threshold={})'.format(self.value, self.threshold)
+        return 'FuzzyInt(value={}, threshold={})'.format(self.value, self.threshold)  # pylint: disable=no-member
 
 
 class APITestCase(SiteMixin, RestAPITestCase):
-    def assertNumQueries(self, expected, threshold=2):
+    # pylint: disable=keyword-arg-before-vararg, arguments-differ
+    def assertNumQueries(self, num, func=None, *args, **kwargs):
         """
         Overridden method to allow a number of queries within a constant range, rather than
         an exact amount of queries.  This allows us to make changes to views and models that
         may slightly modify the query count without having to update expected counts in tests,
         while still ensuring that we don't inflate the number of queries by an order of magnitude.
         """
-        return super(APITestCase, self).assertNumQueries(FuzzyInt(expected, threshold))
+        return super().assertNumQueries(FuzzyInt(num, kwargs.pop('threshold', 2)), func=func, *args, **kwargs)

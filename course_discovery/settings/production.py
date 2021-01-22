@@ -1,7 +1,9 @@
 import warnings
+from copy import deepcopy
 from os import environ
 
 import certifi
+import memcache
 import MySQLdb
 import yaml
 
@@ -29,7 +31,7 @@ except KeyError:
     CONFIG_FILE = environ['COURSE_DISCOVERY_CFG']
 
 with open(CONFIG_FILE, encoding='utf-8') as f:
-    config_from_yaml = yaml.load(f)
+    config_from_yaml = yaml.safe_load(f)
 
     # Remove the items that should be used to update dicts, and apply them separately rather
     # than pumping them into the local vars.
@@ -44,6 +46,9 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
     # Unpack media storage settings.
     # It's important we unpack here because of https://github.com/edx/configuration/pull/3307
     vars().update(MEDIA_STORAGE_BACKEND)
+
+# Reset our cache when memcache versions change
+CACHES['default']['KEY_PREFIX'] = CACHES['default'].get('KEY_PREFIX', '') + '_' + memcache.__version__
 
 if 'EXTRA_APPS' in locals():
     INSTALLED_APPS += EXTRA_APPS
@@ -69,6 +74,9 @@ HAYSTACK_CONNECTIONS['default'].update({
 for override, value in DB_OVERRIDES.items():
     DATABASES['default'][override] = value
 
+if 'read_replica' not in DATABASES:
+    DATABASES['read_replica'] = deepcopy(DATABASES['default'])
+
 # NOTE (CCB): Treat all MySQL warnings as exceptions. This is especially
 # desired for truncation warnings, which hide potential data integrity issues.
 warnings.filterwarnings('error', category=MySQLdb.Warning)
@@ -81,3 +89,6 @@ COMPRESS_CSS_FILTERS += [
 # Enable offline compression of CSS/JS
 COMPRESS_ENABLED = True
 COMPRESS_OFFLINE = True
+
+# Have images and such that we upload be publicly readable
+AWS_DEFAULT_ACL = 'public-read'

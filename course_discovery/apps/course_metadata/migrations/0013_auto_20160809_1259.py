@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import uuid
 
+import django.db.models.deletion
 import django_extensions.db.fields
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -60,7 +61,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subject',
             name='partner',
-            field=models.ForeignKey(to='core.Partner', null=True),
+            field=models.ForeignKey(to='core.Partner', null=True, on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AddField(
             model_name='subject',
@@ -93,6 +94,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='subject',
             name='partner',
-            field=models.ForeignKey(to='core.Partner'),
+            field=models.ForeignKey(to='core.Partner', on_delete=django.db.models.deletion.CASCADE),
         ),
     ]

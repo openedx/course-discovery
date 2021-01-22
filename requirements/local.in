@@ -1,0 +1,13 @@
+# Packages required for local development
+-c constraints.txt
+-r github.in              # Forks and other dependencies not yet on PyPI
+-r base.in
+-r test.in
+-r docs.in
+
+django-debug-toolbar
+django-elasticsearch-debug-toolbar
+docker-compose
+edx-i18n-tools
+pywatchman                                 # For devserver code reloading
+transifex-client

@@ -11,13 +11,14 @@
 # Pierre TASSEL <pierre.tassel@outlook.fr>, 2016
 # Richard Moch <richard.moch@gmail.com>, 2016
 # said machwate <machwate@gmail.com>, 2018
+# Sébastien Vigneau <sebastien.vigneau@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-10 17:59+0000\n"
-"PO-Revision-Date: 2018-12-12 19:01+0000\n"
-"Last-Translator: Ned Batchelder <ned@edx.org>\n"
+"POT-Creation-Date: 2020-05-11 05:52+0000\n"
+"PO-Revision-Date: 2020-01-21 15:01+0000\n"
+"Last-Translator: edx_transifex_bot <i18n-working-group+edx-transifex-bot@edx.org>\n"
 "Language-Team: French (http://www.transifex.com/open-edx/edx-platform/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -28,134 +29,3 @@ msgstr ""
 #: static/js/catalogs-change-form.js:17
 msgid "Preview"
 msgstr "Aperçu"
-
-#: static/js/publisher/change-state.js:15
-msgid "Something went wrong! please try again later."
-msgstr "Quelque chose s'est mal passé ! Veuillez réessayer plus tard."
-
-#: static/js/publisher/comparing-objects.js:7
-msgid "Hide changes"
-msgstr "Cacher les changements"
-
-#: static/js/publisher/comparing-objects.js:12
-msgid "Show changes"
-msgstr "Afficher les changement"
-
-#: static/js/publisher/image-validation.js:9
-msgid "The image file size cannot exceed 1 MB."
-msgstr "Le poids de l'image ne peut exéder 1MB."
-
-#: static/js/publisher/instructors.js:28
-msgid "New Instructor"
-msgstr "Nouveau professeur."
-
-#: static/js/publisher/instructors.js:30
-msgid "Add staff member"
-msgstr "Ajouter un membre à l'équipe."
-
-#: static/js/publisher/instructors.js:44
-msgid "Please upload a instructor image."
-msgstr ""
-
-#: static/js/publisher/instructors.js:107
-#: static/js/publisher/preview-url.js:12
-msgid "Something went wrong!"
-msgstr "Quelque chose s'est mal passé."
-
-#: static/js/publisher/instructors.js:138
-msgid "Type"
-msgstr ""
-
-#: static/js/publisher/instructors.js:142
-msgid "Facebook"
-msgstr ""
-
-#: static/js/publisher/instructors.js:143
-msgid "Twitter"
-msgstr ""
-
-#: static/js/publisher/instructors.js:144
-msgid "Blog"
-msgstr ""
-
-#: static/js/publisher/instructors.js:145
-msgid "Other"
-msgstr ""
-
-#: static/js/publisher/instructors.js:148
-msgid "Title"
-msgstr ""
-
-#: static/js/publisher/instructors.js:149
-msgid "optional"
-msgstr ""
-
-#: static/js/publisher/instructors.js:152
-msgid "URL"
-msgstr ""
-
-#: static/js/publisher/instructors.js:180
-msgid "Please specify a type and url for each social link."
-msgstr ""
-
-#: static/js/publisher/instructors.js:191
-msgid "Social links with the same type must have different titles."
-msgstr ""
-
-#: static/js/publisher/instructors.js:222
-msgid "Area of Expertise"
-msgstr ""
-
-#: static/js/publisher/instructors.js:243
-msgid "Please specify a value for each area of expertise."
-msgstr ""
-
-#: static/js/publisher/instructors.js:290
-msgid "The image size must be smaller than 256kb"
-msgstr ""
-
-#: static/js/publisher/instructors.js:301
-msgid "The image dimensions must be "
-msgstr ""
-
-#: static/js/publisher/instructors.js:314
-msgid " Unsupported Image extension"
-msgstr ""
-
-#: static/js/publisher/instructors.js:431
-msgid "Update staff member"
-msgstr "Mettre à jour les membres de l'équipe."
-
-#: static/js/publisher/instructors.js:432
-msgid "Update Instructor"
-msgstr ""
-
-#: static/js/publisher/preview-url.js:25
-msgid "Save"
-msgstr "Enregistrer"
-
-#: static/js/publisher/preview-url.js:57
-msgid "Please enter a valid URL."
-msgstr "Veuillez entrer une URL valide."
-
-#: static/js/publisher/views/courserun_list.js:21
-msgid ""
-"You have successfully created a Studio URL ({studioLinkTag}) for "
-"{courseRunDetail}"
-msgstr ""
-
-#: static/js/publisher/views/courserun_list.js:50
-msgid "There was an error in saving your data."
-msgstr "Erreur lors de la sauvegarde de vos données."
-
-#: static/js/publisher/views/courses.js:83
-msgid "No courses have been created."
-msgstr "Aucune cours n’était crée"
-
-#: static/js/publisher/views/navbar.js:33
-msgid "OFF"
-msgstr "OFF"
-
-#: static/js/publisher/views/navbar.js:42
-msgid "ON"
-msgstr "ON"

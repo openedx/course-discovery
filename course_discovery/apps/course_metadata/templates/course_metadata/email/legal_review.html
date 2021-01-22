@@ -1,0 +1,28 @@
+{% extends "course_metadata/email/email_base.html" %}
+{% load i18n %}
+{% load django_markup %}
+{% block body %}
+<!-- Message Body -->
+
+<p>
+    {% filter force_escape %}
+    {% blocktrans trimmed %}
+        Dear {{ recipient_name }},
+    {% endblocktrans %}
+    {% endfilter %}
+</p>
+<p>
+    {% blocktrans trimmed asvar tmsg %}
+        {org_name} has submitted {course_name} for review. {link_start}{course_page_url}{link_middle}View this course run in Publisher{link_end} to determine OFAC status.
+    {% endblocktrans %}
+    {% interpolate_html tmsg link_start='<a href="'|safe link_middle='">'|safe link_end='</a>'|safe org_name=org_name|safe course_name=course_name|safe course_page_url=course_page_url|safe %}
+</p>
+<p>
+    {% blocktrans trimmed asvar tmsg %}
+        Note: This email address is unable to receive replies. For questions or comments, please contact {link_start}{contact_us_email}{link_middle}the Project Coordinator{link_end}.
+    {% endblocktrans %}
+    {% interpolate_html tmsg link_start='<a href="mailto:'|safe link_middle='">'|safe link_end='</a>'|safe contact_us_email=contact_us_email|safe  %}
+</p>
+
+<!-- End Message Body -->
+{% endblock body %}

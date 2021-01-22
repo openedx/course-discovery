@@ -28,9 +28,30 @@ Contributions are welcome. Please read `How To Contribute <https://github.com/ed
 Development
 -----------
 
-Is the build failing because translations are out of date?
+Using elasticsearch locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Run ``make check_translations_up_to_date`` and check in the generated *.mo & *.po files to your PR.
+To use elasticsearch locally, and to update your index after adding new data that you want elasticsearch to access
+run:
+
+.. code-block:: shell
+
+    $ ./manage.py update_index --disable-change-limit
+
+
+Working with memcached locally
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Some endpoints, such as /api/v1/courses, have their responses cached in memcached through mechanisms such as the
+CompressedCacheResponseMixin. This caching may make it difficult to see code changes reflected in various endpoints
+without first clearing the cache or updating the cache keys. You can update the cache keys by going to any
+course_metadata model in the admin dashboard and clicking save. To flush your local memcached, make sure the
+edx.devstack.memcached container is up and run:
+
+.. code-block:: shell
+
+    $ telnet localhost 11211
+    $ flush_all
+    $ quit
+
 
 Running Tests Locally, Fast
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

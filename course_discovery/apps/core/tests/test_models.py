@@ -75,14 +75,14 @@ class PartnerTests(TestCase):
     )
     def test_has_marketing_site(self, marketing_site_url_root, expected):
         partner = PartnerFactory(marketing_site_url_root=marketing_site_url_root)
-        self.assertEqual(partner.has_marketing_site, expected)  # pylint: disable=no-member
+        self.assertEqual(partner.has_marketing_site, expected)
 
     @responses.activate
     def test_access_token(self):
         """ Verify the property retrieves, and caches, an access token from the OAuth 2.0 provider. """
         token = 'abc123'
         partner = PartnerFactory()
-        url = '{root}/access_token'.format(root=partner.oidc_url_root)
+        url = '{root}/access_token'.format(root=partner.oauth2_provider_url)
         body = {
             'access_token': token,
             'expires_in': 3600,

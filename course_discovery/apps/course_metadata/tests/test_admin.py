@@ -9,11 +9,13 @@ from django.test import LiveServerTestCase, TestCase
 from django.urls import reverse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.wait import WebDriverWait
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
+from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
@@ -21,7 +23,7 @@ from course_discovery.apps.course_metadata.admin import PositionAdmin, ProgramEl
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.forms import PathwayAdminForm, ProgramAdminForm
-from course_discovery.apps.course_metadata.models import Person, Position, Program, ProgramType, Seat, SeatType
+from course_discovery.apps.course_metadata.models import Person, Position, Program, ProgramType
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -30,17 +32,23 @@ from course_discovery.apps.course_metadata.tests import factories
 class AdminTests(SiteMixin, TestCase):
     """ Tests Admin page."""
 
-    def setUp(self):
-        super(AdminTests, self).setUp()
-        self.user = UserFactory(is_staff=True, is_superuser=True)
-        self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.course_runs = factories.CourseRunFactory.create_batch(3)
-        self.courses = [course_run.course for course_run in self.course_runs]
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = UserFactory(is_staff=True, is_superuser=True)
+        cls.course_runs = factories.CourseRunFactory.create_batch(3)
+        cls.courses = [course_run.course for course_run in cls.course_runs]
 
-        self.excluded_course_run = factories.CourseRunFactory(course=self.courses[0])
-        self.program = factories.ProgramFactory(
-            courses=self.courses, excluded_course_runs=[self.excluded_course_run]
+        cls.excluded_course_run = factories.CourseRunFactory(course=cls.courses[0])
+        cls.program = factories.ProgramFactory(
+            courses=cls.courses,
+            excluded_course_runs=[cls.excluded_course_run],
+            partner=cls.partner,  # cls.partner provided by SiteMixin.setUpClass()
         )
+
+    def setUp(self):
+        super().setUp()
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
 
     def _post_data(self, status=ProgramStatus.Unpublished, marketing_slug='/foo'):
         return {
@@ -111,6 +119,27 @@ class AdminTests(SiteMixin, TestCase):
 
         for run in self.course_runs:
             self.assertContains(response, run.key)
+
+    def test_updating_order_of_authoring_orgs(self):
+        org1 = factories.OrganizationFactory(key='org1')
+        org2 = factories.OrganizationFactory(key='org2')
+        org3 = factories.OrganizationFactory(key='org3')
+
+        course = factories.CourseFactory(authoring_organizations=[org1, org2, org3])
+
+        new_ordering = (',').join(map(lambda org: str(org.id), [org2, org3, org1]))
+        params = {'authoring_organizations': new_ordering}
+
+        post_url = reverse('admin:course_metadata_course_change', args=(course.id,))
+        response = self.client.post(post_url, params)
+        self.assertEqual(response.status_code, 200)
+
+        html = BeautifulSoup(response.content)
+
+        orgs_dropdown_text = html.find(class_='field-authoring_organizations').get_text()
+
+        self.assertLess(orgs_dropdown_text.index('org2'), orgs_dropdown_text.index('org3'))
+        self.assertLess(orgs_dropdown_text.index('org3'), orgs_dropdown_text.index('org1'))
 
     def test_page_with_post_new_course_run(self):
         """ Verify that course selection page with posting the data. """
@@ -205,7 +234,9 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.browser = webdriver.Firefox()
+        opts = Options()
+        opts.set_headless()
+        cls.browser = webdriver.Firefox(options=opts)
         cls.browser.set_window_size(1024, 768)
 
     @classmethod
@@ -289,15 +320,16 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             actual += [_class for _class in element.get_attribute('class').split(' ') if _class.startswith('field-')]
 
         expected = [
-            'field-uuid', 'field-title', 'field-subtitle', 'field-status', 'field-type', 'field-partner',
-            'field-banner_image', 'field-banner_image_url', 'field-card_image_url', 'field-marketing_slug',
-            'field-overview', 'field-credit_redemption_overview', 'field-video', 'field-total_hours_of_effort',
-            'field-weeks_to_complete', 'field-min_hours_effort_per_week', 'field-max_hours_effort_per_week',
-            'field-courses', 'field-order_courses_by_start_date', 'field-custom_course_runs_display',
-            'field-excluded_course_runs', 'field-authoring_organizations', 'field-credit_backing_organizations',
-            'field-one_click_purchase_enabled', 'field-hidden', 'field-corporate_endorsements', 'field-faq',
-            'field-individual_endorsements', 'field-job_outlook_items', 'field-expected_learning_items',
-            'field-instructor_ordering', 'field-enrollment_count', 'field-recent_enrollment_count',
+            'field-uuid', 'field-title', 'field-subtitle', 'field-marketing_hook',
+            'field-status', 'field-type', 'field-partner', 'field-banner_image', 'field-banner_image_url',
+            'field-card_image_url', 'field-marketing_slug', 'field-overview', 'field-credit_redemption_overview',
+            'field-video', 'field-total_hours_of_effort', 'field-weeks_to_complete', 'field-min_hours_effort_per_week',
+            'field-max_hours_effort_per_week', 'field-courses', 'field-order_courses_by_start_date',
+            'field-custom_course_runs_display', 'field-excluded_course_runs', 'field-authoring_organizations',
+            'field-credit_backing_organizations', 'field-one_click_purchase_enabled', 'field-hidden',
+            'field-corporate_endorsements', 'field-faq', 'field-individual_endorsements', 'field-job_outlook_items',
+            'field-expected_learning_items', 'field-instructor_ordering', 'field-enrollment_count',
+            'field-recent_enrollment_count', 'field-credit_value',
         ]
         self.assertEqual(actual, expected)
 
@@ -361,11 +393,11 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
 
     def test_queryset_method_returns_all_programs(self):
         """ Verify that all programs pass the filter. """
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        verified_seat_type = factories.SeatTypeFactory.verified()
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         program_filter = ProgramEligibilityFilter(None, {}, None, None)
         course_run = factories.CourseRunFactory()
-        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
+        factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
         one_click_purchase_eligible_program = factories.ProgramFactory(
             type=program_type,
             courses=[course_run.course],
@@ -380,17 +412,17 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
 
     def test_queryset_method_returns_eligible_programs(self):
         """ Verify that one click purchase eligible programs pass the filter. """
-        verified_seat_type, __ = SeatType.objects.get_or_create(name=Seat.VERIFIED)
+        verified_seat_type = factories.SeatTypeFactory.verified()
         program_type = factories.ProgramTypeFactory(applicable_seat_types=[verified_seat_type])
         program_filter = ProgramEligibilityFilter(None, {self.parameter_name: 1}, None, None)
         course_run = factories.CourseRunFactory(end=None, enrollment_end=None,)
-        factories.SeatFactory(course_run=course_run, type='verified', upgrade_deadline=None)
+        factories.SeatFactory(course_run=course_run, type=verified_seat_type, upgrade_deadline=None)
         one_click_purchase_eligible_program = factories.ProgramFactory(
             type=program_type,
             courses=[course_run.course],
             one_click_purchase_enabled=True,
         )
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(FuzzyInt(11, 2)):
             self.assertEqual(
                 list(program_filter.queryset({}, Program.objects.all())),
                 [one_click_purchase_eligible_program]

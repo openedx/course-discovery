@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 import stdimage.models
-import stdimage.utils
+from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 
 
 class Migration(migrations.Migration):
@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='degree',
             name='micromasters_background_image',
-            field=stdimage.models.StdImageField(blank=True, help_text='Customized background image for the MicroMasters section.', null=True, upload_to=stdimage.utils.UploadToAutoSlug('uuid', path='media/degree_marketing/mm_images/')),
+            field=stdimage.models.StdImageField(blank=True, help_text='Customized background image for the MicroMasters section.', null=True, upload_to=UploadToFieldNamePath('uuid', path='media/degree_marketing/mm_images/')),
         ),
     ]

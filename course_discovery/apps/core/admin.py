@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ugettext_lazy as _
 
 from course_discovery.apps.core.forms import UserThrottleRateForm
-from course_discovery.apps.core.models import Currency, Partner, User, UserThrottleRate
+from course_discovery.apps.core.models import Currency, Partner, SalesforceConfiguration, User, UserThrottleRate
 
 
 @admin.register(User)
@@ -40,16 +40,15 @@ class CurrencyAdmin(admin.ModelAdmin):
 class PartnerAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-            'fields': ('name', 'short_code', 'lms_url', 'studio_url', 'site')
-        }),
-        (_('OpenID Connect'), {
-            'description': _(
-                'OpenID Connect is used for front-end authentication as well as getting access to the APIs.'),
-            'fields': ('oidc_url_root', 'oidc_key', 'oidc_secret',)
+            'fields': ('name', 'short_code', 'lms_url', 'lms_admin_url', 'studio_url', 'publisher_url', 'site')
         }),
         (_('API Configuration'), {
             'description': _('Configure the APIs that will be used to retrieve data.'),
-            'fields': ('courses_api_url', 'ecommerce_api_url', 'organizations_api_url', 'programs_api_url',)
+            'fields': ('courses_api_url',
+                       'lms_coursemode_api_url',
+                       'ecommerce_api_url',
+                       'organizations_api_url',
+                       'programs_api_url',)
         }),
         (_('Marketing Site Configuration'), {
             'description': _('Configure the marketing site URLs that will be used to retrieve data and create URLs.'),
@@ -64,3 +63,15 @@ class PartnerAdmin(admin.ModelAdmin):
     list_display = ('name', 'short_code', 'site')
     ordering = ('name', 'short_code', 'site')
     search_fields = ('name', 'short_code')
+
+
+@admin.register(SalesforceConfiguration)
+class SalesforceConfigurationAdmin(admin.ModelAdmin):
+    list_display = (
+        'username',
+        'password',
+        'organization_id',
+        'security_token',
+        'is_sandbox'
+    )
+    search_fields = ('organization_id', 'partner')

@@ -26,17 +26,28 @@
 # 1. Edit the pylintrc file in the edx-lint repo at
 #    https://github.com/edx/edx-lint/blob/master/edx_lint/files/pylintrc
 #
-# 2. Make a new version of edx_lint, which involves the usual steps of
-#    incrementing the version number, submitting and reviewing a pull
-#    request, and updating the edx-lint version reference in this repo.
+# 2. install the updated version of edx-lint (in edx-lint):
 #
-# 3. Install the newer version of edx-lint.
+#       $ pip install .
 #
-# 4. Run:
+# 3. Run (in edx-lint):
 #
+#       # uses pylintrc_tweaks from edx-lint for linting in edx-lint
+#       # NOTE: Use Python 3.x, which no longer includes comments in the output file
 #       $ edx_lint write pylintrc
 #
-# 5. This will modify the local file.  Submit a pull request to get it
+# 4. Make a new version of edx_lint, submit and review a pull request with the
+#    pylintrc update, and after merging, update the edx-lint version by
+#    creating a new tag in the repo (uses pbr).
+#
+# 5. In your local repo, install the newer version of edx-lint.
+#
+# 6. Run:
+#
+#       # uses local pylintrc_tweaks
+#       $ edx_lint write pylintrc
+#
+# 7. This will modify the local file.  Submit a pull request to get it
 #    checked in so that others will benefit.
 #
 #
@@ -154,6 +165,7 @@ enable =
 	assert-on-tuple,
 	attribute-defined-outside-init,
 	bad-staticmethod-argument,
+	arguments-differ,
 	signature-differs,
 	abstract-method,
 	super-init-not-called,
@@ -247,7 +259,6 @@ enable =
 	too-many-statements,
 	too-many-boolean-expressions,
 	
-	ungrouped-imports,
 	wrong-import-order,
 	wrong-import-position,
 	wildcard-import,
@@ -261,22 +272,20 @@ enable =
 	
 	bad-option-value,
 	unrecognized-inline-option,
+	useless-suppression,
 	bad-inline-option,
 	deprecated-pragma,
 disable = 
-	arguments-differ,
 	bad-continuation,
 	invalid-name,
 	misplaced-comparison-constant,
 	file-ignored,
 	bad-indentation,
 	lowercase-l-suffix,
-	len-as-condition,
 	unused-wildcard-import,
 	global-statement,
 	no-else-return,
-	useless-suppression,
-	useless-super-delegation,
+	
 	apply-builtin,
 	backtick,
 	basestring-builtin,
@@ -290,11 +299,13 @@ disable =
 	dict-view-method,
 	duplicate-code,
 	execfile-builtin,
+	feature-toggle-needs-doc,
 	file-builtin,
 	filter-builtin-not-iterating,
 	fixme,
 	getslice-method,
 	hex-method,
+	illegal-waffle-usage,
 	import-star-module-level,
 	indexing-exception,
 	input-builtin,
@@ -321,7 +332,6 @@ disable =
 	raising-string,
 	range-builtin-not-iterating,
 	raw_input-builtin,
-	redefined-outer-name,
 	reduce-builtin,
 	reload-builtin,
 	round-builtin,
@@ -337,12 +347,13 @@ disable =
 	too-many-locals,
 	too-many-public-methods,
 	too-many-return-statements,
+	ungrouped-imports,
 	unichr-builtin,
 	unicode-builtin,
 	unpacking-in-except,
 	using-cmp-argument,
 	xrange-builtin,
-	zip-builtin-not-iterating,,invalid-name,missing-docstring,cyclic-import
+	zip-builtin-not-iterating,,invalid-name,missing-docstring,cyclic-import,modelform-uses-exclude
 
 [REPORTS]
 output-format = text
@@ -369,7 +380,7 @@ docstring-min-length = 5
 
 [FORMAT]
 max-line-length = 120
-ignore-long-lines = ^\s*(# )?<?https?://\S+>?$
+ignore-long-lines = ^\s*(# )?((<?https?://\S+>?)|(\.\. \w+: .*))$
 single-line-if-stmt = no
 no-space-check = trailing-comma,dict-separator
 max-module-lines = 1000
@@ -442,4 +453,4 @@ int-import-graph =
 [EXCEPTIONS]
 overgeneral-exceptions = Exception
 
-# 920813c69c99b1c08d661f10d47b76e93e6cd63e
+# 0a95647bd24d7700094f314da300124599ee097d

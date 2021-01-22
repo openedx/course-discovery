@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import uuid
 
+import django.db.models.deletion
 import django_extensions.db.fields
 import sortedm2m.fields
 from django.db import migrations, models
@@ -162,7 +163,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='course',
             name='partner',
-            field=models.ForeignKey(to='core.Partner'),
+            field=models.ForeignKey(to='core.Partner', on_delete=django.db.models.deletion.CASCADE),
         ),
         migrations.AlterField(
             model_name='historicalcourse',

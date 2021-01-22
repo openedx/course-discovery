@@ -8,7 +8,8 @@ ALLOWED_HOSTS = ['*']
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#caches
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
     }
 }
 # END CACHE CONFIGURATION
@@ -38,11 +39,12 @@ INTERNAL_IPS = ('127.0.0.1',)
 # AUTHENTICATION
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
-# Set these to the correct values for your OAuth2/OpenID Connect provider (e.g., devstack)
-SOCIAL_AUTH_EDX_OIDC_KEY = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_SECRET = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
+# Set these to the correct values for your OAuth2 Connect provider (e.g., devstack)
+SOCIAL_AUTH_EDX_OAUTH2_KEY = 'replace-me'
+SOCIAL_AUTH_EDX_OAUTH2_SECRET = 'replace-me'
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/logout"
 
 ENABLE_AUTO_AUTH = True
 
@@ -51,6 +53,7 @@ JWT_AUTH.update({
     'JWT_ISSUER': 'http://127.0.0.1:8000/oauth2',
     'JWT_AUDIENCE': 'lms-key',
     'JWT_VERIFY_AUDIENCE': False,
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
 })
 
 #####################################################################

@@ -3,8 +3,20 @@ from djchoices import ChoiceItem, DjangoChoices
 
 
 class CourseRunStatus(DjangoChoices):
-    Published = ChoiceItem('published', _('Published'))
     Unpublished = ChoiceItem('unpublished', _('Unpublished'))
+    LegalReview = ChoiceItem('review_by_legal', _('Awaiting Review from Legal'))
+    InternalReview = ChoiceItem('review_by_internal', _('Awaiting Internal Review'))
+    Reviewed = ChoiceItem('reviewed', _('Reviewed'))
+    Published = ChoiceItem('published', _('Published'))
+
+    INTERNAL_STATUS_TRANSITIONS = (
+        InternalReview.value,
+        Reviewed.value,
+    )
+
+    @classmethod
+    def REVIEW_STATES(cls):
+        return [cls.LegalReview, cls.InternalReview]
 
 
 class CourseRunPacing(DjangoChoices):
@@ -28,3 +40,15 @@ class ReportingType(DjangoChoices):
     test = ChoiceItem('test', 'test')
     demo = ChoiceItem('demo', 'demo')
     other = ChoiceItem('other', 'other')
+
+
+class CertificateType(DjangoChoices):
+    Honor = ChoiceItem('honor', _('Honor'))
+    Credit = ChoiceItem('credit', _('Credit'))
+    Verified = ChoiceItem('verified', _('Verified'))
+    Professional = ChoiceItem('professional', _('Professional'))
+
+
+class PayeeType(DjangoChoices):
+    Platform = ChoiceItem('platform', _('Platform'))
+    Organization = ChoiceItem('organization', _('Organization'))

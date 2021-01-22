@@ -6,12 +6,12 @@ from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 
 
-# pylint: disable=no-member
+# pylint: disable=useless-super-delegation
 class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
     """ Subject resource. """
 
     filter_backends = (DjangoFilterBackend,)
-    filter_class = filters.SubjectFilter
+    filterset_class = filters.SubjectFilter
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (IsAuthenticated,)
@@ -26,8 +26,8 @@ class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all subjects. """
-        return super(SubjectViewSet, self).list(request, *args, **kwargs)
+        return super().list(request, *args, **kwargs)  # pylint: disable=no-member
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for an subject. """
-        return super(SubjectViewSet, self).retrieve(request, *args, **kwargs)
+        return super().retrieve(request, *args, **kwargs)

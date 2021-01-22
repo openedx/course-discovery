@@ -4,6 +4,8 @@ from logging.handlers import SysLogHandler
 from os.path import abspath, dirname, join
 from sys import path
 
+from corsheaders.defaults import default_headers as corsheaders_default_headers
+
 here = lambda *x: join(abspath(dirname(__file__)), *x)
 PROJECT_ROOT = here('..')
 root = lambda *x: abspath(join(abspath(PROJECT_ROOT), *x))
@@ -59,7 +61,15 @@ THIRD_PARTY_APPS = [
     # edx-drf-extensions
     'csrf.apps.CsrfAppConfig',  # Enables frontend apps to retrieve CSRF tokens.
     'corsheaders',
+    'adminsortable2',
+    'xss_utils',
+    'algoliasearch_django',
 ]
+
+ALGOLIA = {
+    'APPLICATION_ID': '',
+    'API_KEY': '',
+}
 
 PROJECT_APPS = [
     'course_discovery.apps.core',
@@ -80,15 +90,15 @@ INSTALLED_APPS += PROJECT_APPS
 # NOTE: Haystack must be installed after core so that we can override Haystack's management commands with our own.
 INSTALLED_APPS += ['haystack']
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'corsheaders.middleware.CorsMiddleware',
     'edx_django_utils.cache.middleware.RequestCacheMiddleware',
+    'edx_rest_framework_extensions.auth.jwt.middleware.JwtAuthCookieMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -111,12 +121,22 @@ WSGI_APPLICATION = 'course_discovery.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+        'NAME': 'discovery',
+        'USER': 'discov001',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',  # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
         'PORT': '',  # Set to empty string for default.
-    }
+        'ATOMIC_REQUESTS': False,
+    },
+    'read_replica': {
+        'ENGINE': 'django.db.backends.',
+        'NAME': 'discovery',
+        'USER': 'discov001',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '',
+        'ATOMIC_REQUESTS': False,
+    },
 }
 
 # Internationalization
@@ -135,6 +155,13 @@ PARLER_LANGUAGES = {
          'hide_untranslated': False,
      }
  }
+
+# Parler seems to be a bit overeager with its caching of translated models,
+# and so we get a large number of sets, but rarely any gets
+PARLER_ENABLE_CACHING = False
+
+# Determines whether the caching mixin in course_discovery/apps/api/cache.py is used
+USE_API_CACHING = True
 
 TIME_ZONE = 'UTC'
 
@@ -212,7 +239,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.messages.context_processors.messages',
                 'course_discovery.apps.core.context_processors.core',
-                'course_discovery.apps.publisher.context_processors.publisher',
             ),
             'debug': True,  # Django will only display debug pages if the global DEBUG setting is set to True.
         }
@@ -237,10 +263,16 @@ LOGOUT_URL = '/logout/'
 AUTH_USER_MODEL = 'core.User'
 
 AUTHENTICATION_BACKENDS = (
-    'auth_backends.backends.EdXOpenIdConnect',
+    'auth_backends.backends.EdXOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'guardian.backends.ObjectPermissionBackend',
 )
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = corsheaders_default_headers + (
+    'use-jwt-cookie',
+)
+# CORS_ORIGIN_WHITELIST is empty by default so above is not used unless the whitelist is set elsewhere
 
 # Guardian settings
 ANONYMOUS_USER_NAME = None  # Do not allow anonymous user access
@@ -251,12 +283,16 @@ AUTO_AUTH_USERNAME_PREFIX = 'auto_auth_'
 
 SOCIAL_AUTH_STRATEGY = 'auth_backends.strategies.EdxDjangoStrategy'
 
-# Set these to the correct values for your OAuth2/OpenID Connect provider (e.g., devstack)
-SOCIAL_AUTH_EDX_OIDC_KEY = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_SECRET = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_URL_ROOT = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_LOGOUT_URL = 'replace-me'
-SOCIAL_AUTH_EDX_OIDC_ID_TOKEN_DECRYPTION_KEY = SOCIAL_AUTH_EDX_OIDC_SECRET
+# Set these to the correct values for your OAuth2 provider (e.g., devstack)
+SOCIAL_AUTH_EDX_OAUTH2_KEY = "discovery-sso-key"
+SOCIAL_AUTH_EDX_OAUTH2_SECRET = "discovery-sso-secret"
+SOCIAL_AUTH_EDX_OAUTH2_ISSUER = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_URL_ROOT = "http://127.0.0.1:8000"
+SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://127.0.0.1:8000/logout"
+
+BACKEND_SERVICE_EDX_OAUTH2_KEY = "discovery-backend-service-key"
+BACKEND_SERVICE_EDX_OAUTH2_SECRET = "discovery-backend-service-secret"
+BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://127.0.0.1:8000/oauth2"
 
 # Request the user's permissions in the ID token
 EXTRA_SCOPE = ['permissions']
@@ -344,9 +380,8 @@ LOGGING = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'edx_rest_framework_extensions.auth.bearer.authentication.BearerAuthentication',
         'edx_rest_framework_extensions.auth.jwt.authentication.JwtAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_PAGINATION_CLASS': 'course_discovery.apps.api.pagination.PageNumberPagination',
@@ -365,7 +400,9 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',
     },
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
+
 
 # http://chibisov.github.io/drf-extensions/docs/
 REST_FRAMEWORK_EXTENSIONS = {
@@ -380,9 +417,20 @@ REST_FRAMEWORK_EXTENSIONS = {
 JWT_AUTH = {
     'JWT_ALGORITHM': 'HS256',
     'JWT_AUDIENCE': 'course-discovery',
-    'JWT_ISSUER': 'course-discovery',
+    'JWT_ISSUER': [
+        {
+            'AUDIENCE': 'SET-ME-PLEASE',
+            'ISSUER': 'http://127.0.0.1:8000/oauth2',
+            'SECRET_KEY': 'SET-ME-PLEASE'
+        }
+    ],
     'JWT_DECODE_HANDLER': 'edx_rest_framework_extensions.auth.jwt.decoder.jwt_decode_handler',
     'JWT_VERIFY_AUDIENCE': False,
+    'JWT_AUTH_COOKIE': 'edx-jwt-cookie',
+    'JWT_PUBLIC_SIGNING_JWK_SET': None,
+    'JWT_AUTH_COOKIE_HEADER_PAYLOAD': 'edx-jwt-cookie-header-payload',
+    'JWT_AUTH_COOKIE_SIGNATURE': 'edx-jwt-cookie-signature',
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
 
 SWAGGER_SETTINGS = {
@@ -513,15 +561,16 @@ DEFAULT_PARTNER_ID = None
 # edx-django-sites-extensions will fallback to this site if we cannot identify the site from the hostname.
 SITE_ID = 1
 
-COMMENTS_APP = 'course_discovery.apps.publisher_comments'
-
 TAGGIT_CASE_INSENSITIVE = True
 
 # django-solo configuration (https://github.com/lazybird/django-solo#settings)
 SOLO_CACHE = 'default'
 SOLO_CACHE_TIMEOUT = 3600
 
+ENABLE_PUBLISHER = False  # either old (publisher djangoapp) or new (frontend-app-publisher)
 PUBLISHER_FROM_EMAIL = None
+
+USERNAME_REPLACEMENT_WORKER = "REPLACE WITH VALID USERNAME"
 
 # If no upgrade deadline is specified for a course run seat, when the course is published the deadline will default to
 # the course run end date minus the specified number of days.
@@ -535,7 +584,7 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'elastic_panel',
     ]
 
-    MIDDLEWARE_CLASSES += (
+    MIDDLEWARE += (
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     )
 
@@ -556,3 +605,33 @@ if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         'debug_toolbar.panels.redirects.RedirectsPanel',
         'elastic_panel.panel.ElasticDebugPanel'
     ]
+
+AWS_SES_REGION_ENDPOINT = "email.us-east-1.amazonaws.com"
+AWS_SES_REGION_NAME = "us-east-1"
+CORS_ORIGIN_WHITELIST = []
+CSRF_COOKIE_SECURE = False
+ELASTICSEARCH_INDEX_NAME = "catalog"
+ELASTICSEARCH_URL = "http://127.0.0.1:9200/"
+EMAIL_BACKEND = "django_ses.SESBackend"
+EMAIL_HOST = "localhost"
+EMAIL_HOST_PASSWORD = ""
+EMAIL_HOST_USER = ""
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
+EXTRA_APPS = []
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+EDX_DRF_EXTENSIONS = {
+    "OAUTH2_USER_INFO_URL": "http://127.0.0.1:8000/oauth2/user_info"
+}
+API_ROOT = None
+MEDIA_STORAGE_BACKEND = {
+    'DEFAULT_FILE_STORAGE': 'django.core.files.storage.FileSystemStorage',
+    'MEDIA_ROOT': MEDIA_ROOT,
+    'MEDIA_URL': MEDIA_URL
+}

@@ -20,8 +20,8 @@ def add_currencies(apps, schema_editor):
     """
     Currency = apps.get_model('core', 'Currency')
     Currency.objects.bulk_create(
-        [Currency(code=currency.letter, name=currency.name) for currency in pycountry.currencies if
-            not currency.letter.startswith('X')]
+        [Currency(code=currency.alpha_3, name=currency.name) for currency in pycountry.currencies if
+            not currency.alpha_3.startswith('X')]
     )
 
 

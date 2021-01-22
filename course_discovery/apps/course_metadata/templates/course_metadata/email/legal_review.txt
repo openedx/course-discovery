@@ -1,0 +1,17 @@
+{% load i18n %}
+
+{% blocktrans trimmed %}
+    Dear {{ recipient_name }},
+{% endblocktrans %}
+{% blocktrans trimmed %}
+    {{ org_name }} has submitted {{ course_name }} for review.
+{% endblocktrans %}
+
+{{ course_page_url }}
+{% blocktrans trimmed %}
+    View this course run in Publisher above to determine OFAC status.
+{% endblocktrans %}
+
+{% blocktrans trimmed %}
+    Note: This email address is unable to receive replies. For questions or comments, please contact the Project Coordinator at {{ contact_us_email }}.
+{% endblocktrans %}
