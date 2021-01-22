@@ -400,9 +400,14 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                     if settings.FIRE_UPDATE_COURSE_SKILLS_SIGNAL:
                         # If a skills relavant course field is updated than fire signal
                         # so that a background task in taxonomy update the course skills
-                        if any(field in COURSE_FIELDS_FOR_SKILLS for field in changed_fields):
-                            UPDATE_COURSE_SKILLS.send(self.__class__, course_uuid=course.uuid)
+                        relevant_fields_changed = any(field in COURSE_FIELDS_FOR_SKILLS for field in changed_fields)
+                        logger.info(
+                            '[UPDATE_COURSE_SKILLS_DEBUG] RelevantFieldsChanged: [%s]',
+                            relevant_fields_changed
+                        )
+                        if relevant_fields_changed:
                             logger.info('Signal fired to update course skills. Course: [%s]', course.uuid)
+                            UPDATE_COURSE_SKILLS.send(self.__class__, course_uuid=course.uuid)
 
         # Revert any Reviewed course runs back to Unpublished
         if changed:
