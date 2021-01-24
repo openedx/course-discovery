@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-10 20:35+0000\n"
+"POT-Creation-Date: 2021-01-24 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1755,6 +1755,14 @@ msgstr "Bäçk tö Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html
 msgid "Save Course Run"
 msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/course_metadata/templates/admin/course_metadata/course_skills.html
+msgid "Home"
+msgstr "Hömé Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/templates/admin/course_metadata/course_skills.html
+msgid "Course Skills"
+msgstr "Çöürsé Skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html
 #, python-format
