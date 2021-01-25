@@ -1,4 +1,4 @@
-""" Utilities for working with JWT during testing."""
+""" Utilities for working with JWT during testing"""
 from time import time
 
 import jwt
