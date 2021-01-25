@@ -592,32 +592,31 @@ EMSI_CLIENT_SECRET = ''
 ################################### BEGIN CELERY ###################################
 
 # Message configuration
-CELERY_TASK_SERIALIZER = 'json'
+CELERY_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TASK_COMPRESSION = 'gzip'
-CELERY_RESULT_COMPRESSION = 'gzip'
+CELERY_COMPRESSION = 'gzip'
+CELERY_MESSAGE_COMPRESSION = 'gzip'
 
 # Results configuration
-CELERY_TASK_IGNORE_RESULT = False
-CELERY_TASK_STORE_ERRORS_EVEN_IF_IGNORED = True
+CELERY_IGNORE_RESULT = False
 
 # Events configuration
-CELERY_TASK_TRACK_STARTED = True
-CELERY_WORKER_SEND_TASK_EVENTS = True
-CELERY_TASK_SEND_SENT_EVENT = True
+CELERY_TRACK_STARTED = True
+CELERY_SEND_EVENTS = True
+CELERY_SEND_SENT_EVENT = True
 
 # Prevent Celery from removing handlers on the root logger. Allows setting custom logging handlers.
-CELERY_WORKER_HIJACK_ROOT_LOGGER = False
+CELERYD_HIJACK_ROOT_LOGGER = False
 
-CELERY_TASK_DEFAULT_EXCHANGE = 'discovery'
-CELERY_TASK_DEFAULT_ROUTING_KEY = 'discovery'
-CELERY_TASK_DEFAULT_QUEUE = 'discovery.default'
+CELERY_DEFAULT_EXCHANGE = 'discovery'
+CELERY_DEFAULT_ROUTING_KEY = 'discovery'
+CELERY_DEFAULT_QUEUE = 'discovery.default'
 
 # Celery Broker
 CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', '')
 
-CELERY_TASK_ALWAYS_EAGER = False
+CELERY_ALWAYS_EAGER = False
 
 ################################### END CELERY ###################################
 

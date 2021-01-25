@@ -69,7 +69,7 @@ REST_FRAMEWORK['DEFAULT_THROTTLE_CLASSES'] = ()
 
 ################################### BEGIN CELERY ###################################
 
-CELERY_TASK_ALWAYS_EAGER = True
+CELERY_ALWAYS_EAGER = True
 
 CELERY_TASK_IGNORE_RESULT = True
 
