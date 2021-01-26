@@ -18,9 +18,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.3.0
     # via celery
-boto3==1.16.58
+boto3==1.16.59
     # via django-ses
-botocore==1.19.58
+botocore==1.19.59
     # via
     #   boto3
     #   s3transfer
@@ -191,7 +191,7 @@ dry-rest-permissions==0.1.10
     # via -r requirements/base.in
 edx-analytics-data-api-client==0.17.0
     # via -r requirements/base.in
-edx-auth-backends==3.3.0
+edx-auth-backends==3.3.1
     # via -r requirements/base.in
 edx-ccx-keys==1.2.0
     # via -r requirements/base.in
@@ -310,7 +310,7 @@ python-dateutil==2.8.1
     #   elasticsearch-dsl
 python-memcached==1.59
     # via -r requirements/production.in
-python-utils==2.5.2
+python-utils==2.5.3
     # via progressbar2
 python3-openid==3.2.0
     # via social-auth-core

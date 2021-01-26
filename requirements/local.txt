@@ -58,7 +58,10 @@ click-log==0.3.2
 click==7.1.2
     # via
     #   click-log
+    #   code-annotations
     #   edx-lint
+code-annotations==1.0.2
+    # via edx-lint
 coreapi==2.3.3
     # via
     #   django-rest-swagger
@@ -174,6 +177,7 @@ django-webpack-loader==0.7.0
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   algoliasearch-django
+    #   code-annotations
     #   django-admin-sortable2
     #   django-appconf
     #   django-choices
@@ -197,6 +201,7 @@ django-webpack-loader==0.7.0
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-i18n-tools
+    #   edx-lint
     #   jsonfield2
     #   pytest-django-ordering
     #   rest-condition
@@ -237,7 +242,7 @@ dry-rest-permissions==0.1.10
     # via -r requirements/base.in
 edx-analytics-data-api-client==0.17.0
     # via -r requirements/base.in
-edx-auth-backends==3.3.0
+edx-auth-backends==3.3.1
     # via -r requirements/base.in
 edx-ccx-keys==1.2.0
     # via -r requirements/base.in
@@ -255,7 +260,7 @@ edx-drf-extensions==6.4.0
     # via -r requirements/base.in
 edx-i18n-tools==0.5.3
     # via -r requirements/local.in
-edx-lint==1.6
+edx-lint==3.0
     # via -r requirements/test.in
 edx-opaque-keys==2.1.1
     # via
@@ -284,7 +289,7 @@ execnet==1.7.1
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==5.6.5
+faker==5.7.0
     # via factory-boy
 filelock==3.0.12
     # via
@@ -310,6 +315,7 @@ itypes==1.2.0
     # via coreapi
 jinja2==2.11.2
     # via
+    #   code-annotations
     #   coreschema
     #   sphinx
 jsonfield2==3.0.3
@@ -430,7 +436,7 @@ pytest-responses==0.4.0
     # via -r requirements/test.in
 pytest-xdist==2.2.0
     # via -r requirements/test.in
-pytest==6.2.1
+pytest==6.2.2
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -450,7 +456,9 @@ python-dotenv==0.15.0
     # via docker-compose
 python-memcached==1.59
     # via -r requirements/test.in
-python-utils==2.5.2
+python-slugify==4.0.1
+    # via code-annotations
+python-utils==2.5.3
     # via progressbar2
 python3-openid==3.2.0
     # via social-auth-core
@@ -465,6 +473,7 @@ pywatchman==1.4.1
     # via -r requirements/local.in
 pyyaml==5.4.1
     # via
+    #   code-annotations
     #   docker-compose
     #   edx-django-release-util
     #   edx-i18n-tools
@@ -584,6 +593,7 @@ sqlparse==0.4.1
     #   django-debug-toolbar
 stevedore==3.3.0
     # via
+    #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
 taxonomy-connector==1.3.2
@@ -591,7 +601,9 @@ taxonomy-connector==1.3.2
 testfixtures==6.17.1
     # via -r requirements/test.in
 text-unidecode==1.3
-    # via faker
+    # via
+    #   faker
+    #   python-slugify
 texttable==1.6.3
     # via docker-compose
 toml==0.10.2
