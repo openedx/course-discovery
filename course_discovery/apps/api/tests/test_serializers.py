@@ -197,6 +197,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'course_run_statuses': course.course_run_statuses,
             'editors': CourseEditorSerializer(course.editors, many=True, read_only=True).data,
             'collaborators': [],
+            'skill_names': [],
         })
 
         return expected
