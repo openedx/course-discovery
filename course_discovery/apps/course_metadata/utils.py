@@ -337,8 +337,7 @@ def custom_render_variations(file_name, variations, storage, replace=True):
 
 def uslugify(s):
     """Slugifies a string, while handling unicode"""
-    # only_ascii=True asks slugify to convert unicode to ascii
-    slug = slugify(s, only_ascii=True)
+    slug = slugify(s)
 
     # Version 0.1.3 of unicode-slugify does not do the following for us.
     # But 0.1.4 does! So once it's available and we upgrade, we can drop this extra logic.
