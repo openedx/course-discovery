@@ -36,15 +36,20 @@ API
 Access to information about courses, course runs, catalogs, programs, and more is provided by a REST API. For more about the API, use your browser to visit ``/api-docs`` hosted by a running Discovery instance.
 
 
-Creating/Accessing the Discovery Service Super Admin
----
-To access the super admin Django panel, follow the below steps.
-1. Login to your openedx instance
-2. sudo -H -u discovery bash
-3. source ~/discovery_env
-4. cd ~/discovery
-5. python ./manage.py createsuperuser --username=USERNAME --email=username@example.com
+Creating/Accessing the Discovery Service Django Admin
+----------------------------------------------------
 
-Now you can access Discovery Django admin at http://yourdomain:18381/admin
-login with the username and password created above.
+To access the Django admin panel, you must create a superuser account.
+Login to the machine where Discovery is installed, and run the ``createsuperuser`` management command.
+For example, from the devstack discovery shell:
 
+.. code-block:: bash
+
+    $ sudo -Hs -u discovery
+    $ source ~/discovery_env
+    $ source ~/venvs/discovery/bin/activate
+    $ cd ~/discovery
+    $ ./manage.py createsuperuser --username=USERNAME --email=username@example.com
+
+Now you can access Discovery Django admin at ``http://yourdomain:18381/admin``.
+Login with the username and password created above.
