@@ -1,7 +1,7 @@
 from django.conf import settings
 from django_elasticsearch_dsl import Index, fields
 from opaque_keys.edx.keys import CourseKey
-from taxonomy.models import CourseSkills
+from taxonomy.utils import get_whitelisted_course_skills
 
 from course_discovery.apps.course_metadata.models import Course
 
@@ -84,7 +84,7 @@ class CourseDocument(BaseCourseDocument):
         return list(set(seat_types))
 
     def prepare_skill_names(self, obj):
-        course_skills = CourseSkills.objects.select_related('skill').filter(course_id=obj.key)
+        course_skills = get_whitelisted_course_skills(obj.key)
         return list(set(course_skill.skill.name for course_skill in course_skills))
 
     def prepare_status(self, obj):

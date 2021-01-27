@@ -1,6 +1,6 @@
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
-from taxonomy.models import CourseSkills
+from taxonomy.utils import get_whitelisted_course_skills
 
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseRunWithProgramsSerializer
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
@@ -36,7 +36,7 @@ class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSeriali
         return self.handle_datetime_field(obj.enrollment_end)
 
     def get_skill_names(self, result):
-        course_skills = CourseSkills.objects.select_related('skill').filter(course_id=result.course_key)
+        course_skills = get_whitelisted_course_skills(result.course_key)
         return list(set(course_skill.skill.name for course_skill in course_skills))
 
     class Meta:
