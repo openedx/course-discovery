@@ -104,3 +104,25 @@ class PathwayAdminForm(forms.ModelForm):
             Pathway.validate_partner_programs(partner, programs)
 
         return self.cleaned_data
+
+
+class ExcludeSkillsForm(forms.Form):
+    """
+    Form to handle excluding skills from course.
+    """
+    exclude_skills = forms.MultipleChoiceField()
+    include_skills = forms.MultipleChoiceField()
+
+    def __init__(self, course_skills, excluded_skills, *args, **kwargs):
+        """
+        Initialize multi choice fields.
+        """
+        super().__init__(*args, **kwargs)
+        self.fields['exclude_skills'] = forms.MultipleChoiceField(
+            choices=((course_skill.skill.id, course_skill.skill.name) for course_skill in course_skills),
+            required=False,
+        )
+        self.fields['include_skills'] = forms.MultipleChoiceField(
+            choices=((course_skill.skill.id, course_skill.skill.name) for course_skill in excluded_skills),
+            required=False,
+        )

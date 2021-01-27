@@ -22,6 +22,7 @@ module.exports = {
 
     entry: {
         'query-preview': './js/query-preview.js',
+        'course-skills-admin': './js/course-skills-admin.js',
         'query-preview.style': './sass/query-preview.scss'
     },
 

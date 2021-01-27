@@ -173,6 +173,7 @@ class CourseSkillsFactory(factory.django.DjangoModelFactory):
     course_id = FuzzyText()
     skill = factory.SubFactory(SkillFactory)
     confidence = FuzzyDecimal(0.0, 1.0)
+    is_blacklisted = False
 
     class Meta:
         model = CourseSkills

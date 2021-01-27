@@ -3,7 +3,7 @@ import datetime
 import pytz
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
-from taxonomy.models import CourseSkills
+from taxonomy.utils import get_whitelisted_course_skills
 
 from course_discovery.apps.api import serializers as cd_serializers
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseWithProgramsSerializer
@@ -78,7 +78,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
         return list(set(seat_types))
 
     def get_skill_names(self, result):
-        course_skills = CourseSkills.objects.select_related('skill').filter(course_id=result.key)
+        course_skills = get_whitelisted_course_skills(result.key)
         return list(set(course_skill.skill.name for course_skill in course_skills))
 
     def __init__(self, *args, **kwargs):

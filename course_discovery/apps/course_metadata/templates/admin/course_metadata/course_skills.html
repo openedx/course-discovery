@@ -1,5 +1,6 @@
 {% extends 'admin/base_site.html' %}
 {% load i18n static admin_urls %}
+{% load render_bundle from webpack_loader %}
 
 {% block extrastyle %}
   <link rel="stylesheet" type="text/css" href="{% static 'admin/css/skills-tags.css' %}"/>
@@ -28,20 +29,65 @@
 
 {% block content %}
 <div id="content-main">
-    <h1>{{ "Course Skills for "|add:course.title }}</h1>
-    {% if course_skills %}
-        <ul class="item">
-            {% for course_skill in course_skills %}
-            <li class="list-item">
-                <a class="black" href="{% url 'admin:taxonomy_skill_change' course_skill.skill.id %}">
-                    {{ course_skill.skill.name }}
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p class="paragraph">No course skills found...</p>
-    {% endif %}
-</div>
+    <div class="course-skills-wrapper grid">
+        <div class="course-skill">
+           <h1>{{ "Skills for "|add:course.title }}</h1>
+           {% if course_skills %}
+                <ul class="item">
+                    {% for course_skill in course_skills %}
+                    <li class="list-item" data-skill-id="{{ course_skill.skill.id }}">
+                        <a class="black" href="{% url 'admin:taxonomy_skill_change' course_skill.skill.id %}">
+                            {{ course_skill.skill.name }}
+                        </a>
+                        <span class="remove" title="Remove this skill from the list.">x</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <ul class="item">
+                </ul>
+            {% endif %}
+        </div>
+        <hr class="vertical" />
+        <div class="excluded-skills">
+            <h1>{{ "Excluded Skills for "|add:course.title }}</h1>
+           {% if excluded_skills %}
+                <ul class="item">
+                    {% for excluded_skill in excluded_skills %}
+                    <li class="list-item" data-skill-id="{{ excluded_skill.skill.id }}">
+                        <a class="black" href="{% url 'admin:taxonomy_skill_change' excluded_skill.skill.id %}">
+                            {{ excluded_skill.skill.name }}
+                        </a>
+                        <span class="remove" title="Remove this skill from the list.">x</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <ul class="item">
+                </ul>
+            {% endif %}
 
+        </div>
+    </div>
+    <br />
+    <div class="forms-panel">
+        <form action="" method="post" enctype="multipart/form-data" id="exclude-skills-form">
+            {% csrf_token %}
+            {# as_p will render the form fields wrapped in <p> tags: #}
+            <div style="display: none">
+                {{ exclude_skills_form.as_p }}
+            </div>
+            <div class="submit-row">
+              <input style="float: right" type="submit" class="default" value="Save"/>
+            </div>
+        </form>
+    </div>
+
+ </div>
+
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  {% render_bundle 'course-skills-admin' 'js' %}
 {% endblock %}
