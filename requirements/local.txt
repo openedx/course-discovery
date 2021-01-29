@@ -65,7 +65,7 @@ coreapi==2.3.3
     #   openapi-codec
 coreschema==0.0.4
     # via coreapi
-coverage==5.3.1
+coverage==5.4
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -86,7 +86,7 @@ distlib==0.3.1
     # via virtualenv
 distro==1.5.0
     # via docker-compose
-django-admin-sortable2==0.7.7
+django-admin-sortable2==0.7.8
     # via -r requirements/base.in
 django-appconf==1.0.4
     # via django-compressor
@@ -217,7 +217,7 @@ djangorestframework==3.12.2
     #   edx-drf-extensions
     #   rest-condition
     #   taxonomy-connector
-docker-compose==1.28.0
+docker-compose==1.28.2
     # via -r requirements/local.in
 docker[ssh]==4.4.1
     # via docker-compose
@@ -237,7 +237,7 @@ dry-rest-permissions==0.1.10
     # via -r requirements/base.in
 edx-analytics-data-api-client==0.17.0
     # via -r requirements/base.in
-edx-auth-backends==3.3.0
+edx-auth-backends==3.3.1
     # via -r requirements/base.in
 edx-ccx-keys==1.2.0
     # via -r requirements/base.in
@@ -256,8 +256,10 @@ edx-drf-extensions==6.4.0
 edx-i18n-tools==0.5.3
     # via -r requirements/local.in
 edx-lint==1.6
-    # via -r requirements/test.in
-edx-opaque-keys==2.1.1
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/test.in
+edx-opaque-keys==2.2.0
     # via
     #   -r requirements/base.in
     #   edx-ccx-keys
@@ -280,11 +282,11 @@ elasticsearch==7.10.1
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
     #   elasticsearch-dsl
-execnet==1.7.1
+execnet==1.8.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==5.6.5
+faker==5.8.0
     # via factory-boy
 filelock==3.0.12
     # via
@@ -353,7 +355,7 @@ paramiko==2.7.2
     # via docker
 path.py==12.5.0
     # via edx-i18n-tools
-path==15.0.1
+path==15.1.0
     # via path.py
 pbr==5.5.1
     # via stevedore
@@ -430,7 +432,7 @@ pytest-responses==0.4.0
     # via -r requirements/test.in
 pytest-xdist==2.2.0
     # via -r requirements/test.in
-pytest==6.2.1
+pytest==6.2.2
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -450,7 +452,7 @@ python-dotenv==0.15.0
     # via docker-compose
 python-memcached==1.59
     # via -r requirements/test.in
-python-utils==2.5.2
+python-utils==2.5.5
     # via progressbar2
 python3-openid==3.2.0
     # via social-auth-core
@@ -527,7 +529,6 @@ six==1.15.0
     #   edx-drf-extensions
     #   edx-i18n-tools
     #   edx-lint
-    #   edx-opaque-keys
     #   edx-sphinx-theme
     #   elasticsearch-dsl
     #   jsonschema
@@ -556,6 +557,7 @@ social-auth-app-django==4.0.0
     #   edx-auth-backends
 social-auth-core==4.0.2
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
     #   edx-auth-backends
     #   social-auth-app-django
@@ -586,7 +588,7 @@ stevedore==3.3.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.3.4
+taxonomy-connector==1.3.6
     # via -r requirements/base.in
 testfixtures==6.17.1
     # via -r requirements/test.in
@@ -599,7 +601,7 @@ toml==0.10.2
     #   pylint
     #   pytest
     #   tox
-tox==3.21.2
+tox==3.21.3
     # via -r requirements/test.in
 transifex-client==0.12.5
     # via
@@ -613,7 +615,7 @@ unidecode==1.1.2
     # via unicode-slugify
 uritemplate==3.0.1
     # via coreapi
-urllib3==1.26.2
+urllib3==1.26.3
     # via
     #   elasticsearch
     #   requests

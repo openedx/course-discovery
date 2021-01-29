@@ -3,7 +3,7 @@ django<2.3
 
 # Common constraints for edx repos
 -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
- 
+
 # Elasticsearch upgrades need to be done in lockstep across Open edX
 elasticsearch>=7.8,<8.0
 django-elasticsearch-dsl>=7.1,<8.0
@@ -30,3 +30,7 @@ celery<5.0
 
 # latest version requires PyJWT>=2.0.0 but drf-jwt requires PyJWT[crypto]<2.0.0,>=1.5.2
 social-auth-core<4.0.3
+
+# latest version of edx-lint is pulling code-annotations and code-annotations is pulling python-slugify and
+# python-slugify is conflicting with unicode-slugify
+edx-lint<=1.6
