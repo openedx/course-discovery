@@ -11,9 +11,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-10 20:35+0000\n"
-"PO-Revision-Date: 2021-01-10 21:01+0000\n"
-"Last-Translator: edx_transifex_bot <i18n-working-group+edx-transifex-bot@edx.org>\n"
+"POT-Creation-Date: 2021-01-24 20:35+0000\n"
+"PO-Revision-Date: 2021-01-24 21:01+0000\n"
+"Last-Translator: hafizhuddin amin\n"
 "Language-Team: Indonesian (http://www.transifex.com/open-edx/edx-platform/language/id/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -81,7 +81,7 @@ msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr "Bahasa yang terdaftar dan memiliki transkrip untuk kursus ini."
 
-#: apps/api/utils.py:222
+#: apps/api/utils.py:229
 #, python-brace-format
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
@@ -96,12 +96,12 @@ msgstr ""
 msgid "You must include a course_uuid in your query parameters."
 msgstr ""
 
-#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:189
+#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:193
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr ""
 
-#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:196
+#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:200
 msgid "Incorrect data sent. "
 msgstr ""
 
@@ -121,39 +121,39 @@ msgstr ""
 msgid "Invalid parameter"
 msgstr ""
 
-#: apps/api/v1/views/courses.py:57
+#: apps/api/v1/views/courses.py:61
 msgid "Failed to set data: {}"
 msgstr ""
 
-#: apps/api/v1/views/courses.py:191
+#: apps/api/v1/views/courses.py:195
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:193
+#: apps/api/v1/views/courses.py:197
 #, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
 msgstr ""
 
-#: apps/api/v1/views/courses.py:209
+#: apps/api/v1/views/courses.py:213
 #, python-brace-format
 msgid "A course with key [{key}] already exists."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:215
+#: apps/api/v1/views/courses.py:219
 #, python-brace-format
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:273
+#: apps/api/v1/views/courses.py:277
 msgid ""
 "Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
 msgstr ""
 
-#: apps/api/v1/views/courses.py:371
+#: apps/api/v1/views/courses.py:375
 #, python-brace-format
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
@@ -359,38 +359,38 @@ msgstr ""
 msgid "Case Record Type Id"
 msgstr ""
 
-#: apps/course_metadata/admin.py:22
+#: apps/course_metadata/admin.py:26
 #, python-brace-format
 msgid ""
 "An error occurred while publishing the {model} to the marketing site. Please"
 " try again. If the error persists, please contact the Engineering Team."
 msgstr "Terjadi kesalahan saat menerbitkan {model} ke situs marketing. Silakan coba kembali. Jika kesalahan masih terjadi, silakan hubungi Tim Teknis."
 
-#: apps/course_metadata/admin.py:42
+#: apps/course_metadata/admin.py:46
 msgid "eligible for one-click purchase"
 msgstr "dapat dibeli dengan satu-klik"
 
-#: apps/course_metadata/admin.py:47
+#: apps/course_metadata/admin.py:51
 msgid "Yes"
 msgstr "Ya"
 
-#: apps/course_metadata/admin.py:48
+#: apps/course_metadata/admin.py:52
 msgid "No"
 msgstr "Tidak"
 
-#: apps/course_metadata/admin.py:216 apps/course_metadata/admin.py:412
+#: apps/course_metadata/admin.py:245 apps/course_metadata/admin.py:449
 msgid "Included course runs"
 msgstr "Termasuk kursus berjalan"
 
-#: apps/course_metadata/admin.py:420
+#: apps/course_metadata/admin.py:457
 msgid "Edit course run exclusions"
 msgstr ""
 
-#: apps/course_metadata/admin.py:422
+#: apps/course_metadata/admin.py:459
 msgid "(save and continue editing to create a link)"
 msgstr ""
 
-#: apps/course_metadata/admin.py:424
+#: apps/course_metadata/admin.py:461
 msgid "Edit link"
 msgstr ""
 
@@ -1386,6 +1386,14 @@ msgstr ""
 msgid "Save Course Run"
 msgstr ""
 
+#: apps/course_metadata/templates/admin/course_metadata/course_skills.html:10
+msgid "Home"
+msgstr ""
+
+#: apps/course_metadata/templates/admin/course_metadata/course_skills.html:25
+msgid "Course Skills"
+msgstr ""
+
 #: apps/course_metadata/templates/course_metadata/email/comment.html:7
 #, python-format
 msgid ""
@@ -1564,7 +1572,7 @@ msgstr ""
 msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr ""
 
-#: apps/course_metadata/utils.py:374
+#: apps/course_metadata/utils.py:375
 msgid "Special characters not allowed in Course Number."
 msgstr ""
 
@@ -1587,11 +1595,11 @@ msgstr ""
 msgid "{0} attribute is not allowed on the {1} tag"
 msgstr ""
 
-#: apps/course_metadata/views.py:27
+#: apps/course_metadata/views.py:30
 msgid "Update excluded course runs"
 msgstr ""
 
-#: apps/course_metadata/views.py:34
+#: apps/course_metadata/views.py:37
 msgid "The program was changed successfully."
 msgstr ""
 

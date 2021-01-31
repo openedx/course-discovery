@@ -4,47 +4,44 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
-# Innocent Masue <translations_7@camara.ie>, 2017
-# Mathieu Lacasse <mathieulacasse@camara.org>, 2017
-# Nasry Uronu <translations_4@camara.ie>, 2017
-# swalehe manture <translations_3@camara.ie>, 2017
-# YAHAYA MWAVURIZI <translations_1@camara.ie>, 2017
+# Anna Chromá <anicka.chroma@gmail.com>, 2017
+# Jan Chromý <jan.chromy@gmail.com>, 2017
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-24 20:35+0000\n"
 "PO-Revision-Date: 2021-01-24 21:01+0000\n"
-"Last-Translator: swaleh amin <mkupuofirstnameswaleh@yahoo.com>\n"
-"Language-Team: Swahili (Kenya) (http://www.transifex.com/open-edx/edx-platform/language/sw_KE/)\n"
+"Last-Translator: Anna Chromá <anicka.chroma@gmail.com>\n"
+"Language-Team: Czech (http://www.transifex.com/open-edx/edx-platform/language/cs/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: sw_KE\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: cs\n"
+"Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n >= 2 && n <= 4 && n % 1 == 0) ? 1: (n % 1 != 0 ) ? 2 : 3;\n"
 
 #: apps/api/filters.py:47
 #, python-brace-format
 msgid "No user with the username [{username}] exists."
-msgstr "Hamna mtumiaji mwenye jina [{username}]."
+msgstr "Uživatelské jméno [{username}] neexistuje."
 
 #: apps/api/filters.py:50
 msgid ""
 "Only staff users are permitted to filter by username. Remove the username "
 "parameter."
-msgstr "Watumiaji ambao ni wafanyakazi tu ndiyo wameruhusiwa kuchuja kwa jina la mtumiaji. Kuondoa parameta ya mtumiaji."
+msgstr "Pouze členové týmu můžou vyhledávat podle uživatelských jmen. Odstraňte prosím parametr uživatelského jména."
 
 #: apps/api/serializers.py:664
 msgid "Number of courses contained in this catalog"
-msgstr "Idadi ya kozi zilizomo kwenye hii katalogi"
+msgstr "Počet kurzů v tomto katalogu"
 
 #: apps/api/serializers.py:667
 msgid "Usernames of users with explicit access to view this catalog"
-msgstr "Watumiaji wenye idhini ya kuangalia hii katalogi"
+msgstr "Uživatelská jména uživatelů s přímým přístupem k prohlížení tohoto katalogu"
 
 #: apps/api/serializers.py:826
 msgid "Start date cannot be after the End date"
-msgstr ""
+msgstr "Počáteční datum nemůže předcházet koncové datum"
 
 #: apps/api/serializers.py:831
 msgid "Term cannot be changed"
@@ -52,7 +49,7 @@ msgstr ""
 
 #: apps/api/serializers.py:843
 msgid "Language in which the course is administered"
-msgstr "Lugha inayotumika kufundishia kozi"
+msgstr "Jazyk, v němž kurz probíhá."
 
 #: apps/api/serializers.py:923
 msgid "Course cannot be changed for an existing course run"
@@ -60,7 +57,7 @@ msgstr ""
 
 #: apps/api/serializers.py:928
 msgid "Minimum effort cannot be greater than Maximum effort"
-msgstr ""
+msgstr "Minimální úsilí nemůže být větší než maximální úsilí"
 
 #: apps/api/serializers.py:930
 msgid "Minimum effort and Maximum effort cannot be the same"
@@ -68,20 +65,20 @@ msgstr ""
 
 #: apps/api/serializers.py:972
 msgid "Dictionary mapping course run IDs to boolean values"
-msgstr "Kozi ya upangaji kamusi inapeleka vitambulisho kwenye thamani ya buli."
+msgstr ""
 
 #: apps/api/serializers.py:1245
 msgid "Dictionary mapping course IDs to boolean values"
-msgstr "Vitambulisho vya kozi ya upangaji kamusi  kwenye thamani ya buli."
+msgstr ""
 
 #: apps/api/serializers.py:1589
 msgid "Languages that course runs in this program are offered in."
-msgstr "Lugha ambazo zinatumika kufundishia masomo haya."
+msgstr "V jakých jazycích jsou nabízeny běhy kurzů v tomto programu."
 
 #: apps/api/serializers.py:1593
 msgid ""
 "Languages that course runs in this program have available transcripts in."
-msgstr "Lugha zinazotumika kufundishia kozi za programu hii zina nakala zake."
+msgstr "V jakých jazycích jsou k dispozici transkripty běhů kurzů v tomto programu."
 
 #: apps/api/utils.py:229
 #, python-brace-format
@@ -164,11 +161,11 @@ msgstr ""
 
 #: apps/api/views.py:58
 msgid "You are not permitted to access the API documentation."
-msgstr "Huna ruhusa ya kupata nyaraka za API."
+msgstr "Nemáte povolen přístup do API dokumentace."
 
 #: apps/catalogs/models.py:17
 msgid "Catalog name"
-msgstr "Jina la katalogi"
+msgstr "Název katalogu"
 
 #: apps/catalogs/models.py:18
 msgid "Query to retrieve Course Run catalog contents"
@@ -184,23 +181,23 @@ msgstr ""
 
 #: apps/core/admin.py:17
 msgid "Personal info"
-msgstr "Taarifa za mtu binafsi"
+msgstr "Osobní údaje"
 
 #: apps/core/admin.py:18
 msgid "Permissions"
-msgstr "Ruhusa"
+msgstr "Povolení"
 
 #: apps/core/admin.py:19
 msgid "Important dates"
-msgstr "Tarehe muhimu"
+msgstr "Důležitá data"
 
 #: apps/core/admin.py:45
 msgid "API Configuration"
-msgstr "Usabidi wa API"
+msgstr ""
 
 #: apps/core/admin.py:46
 msgid "Configure the APIs that will be used to retrieve data."
-msgstr "Sabidi APIs ambazo zitatumika kurejesha taarifa."
+msgstr ""
 
 #: apps/core/admin.py:53
 msgid "Marketing Site Configuration"
@@ -210,7 +207,7 @@ msgstr ""
 msgid ""
 "Configure the marketing site URLs that will be used to retrieve data and "
 "create URLs."
-msgstr "Sabidi tovuti za biashara za URLa ambazo zitatumika kurejesha taarifa na kuunda URLs."
+msgstr ""
 
 #: apps/core/admin.py:58
 msgid "Analytics Configuration"
@@ -226,15 +223,15 @@ msgstr ""
 #: apps/core/forms.py:23
 #, python-brace-format
 msgid "period must be one of {period_choices}."
-msgstr "kipindi lazima kiwe kimoja kati ya {period_choices}."
+msgstr ""
 
 #: apps/core/forms.py:26
 msgid "'rate' must be in the format defined by DRF, such as '100/hour'."
-msgstr "'rate' lazima iwe katika mtindo unaotambulika na DRF, kama vile '100/saa'."
+msgstr ""
 
 #: apps/core/models.py:19
 msgid "Full Name"
-msgstr "Jina Kamili"
+msgstr "Celé jméno"
 
 #: apps/core/models.py:20
 msgid "Referral Tracking ID"
@@ -249,17 +246,17 @@ msgstr ""
 
 #: apps/core/models.py:69
 msgid "Short Code"
-msgstr "Mficho Mfupi"
+msgstr ""
 
 #: apps/core/models.py:70
 msgid ""
 "Convenient code/slug used to identify this Partner (e.g. for management "
 "commands.)"
-msgstr "Namba na msimbo rahisi unaotumika kumtambua Mshirika huyu (mfano. kwa ajili ya sheria za utawala.)"
+msgstr ""
 
 #: apps/core/models.py:71
 msgid "Courses API URL"
-msgstr "Tovuti ya API za Kozi"
+msgstr ""
 
 #: apps/core/models.py:74
 msgid "Course Mode API URL"
@@ -271,31 +268,31 @@ msgstr ""
 
 #: apps/core/models.py:77
 msgid "Organizations API URL"
-msgstr "Tovuti ya API ya Shirika"
+msgstr ""
 
 #: apps/core/models.py:78
 msgid "Programs API URL"
-msgstr "Tovuti ya API ya Programu"
+msgstr ""
 
 #: apps/core/models.py:80
 msgid "Marketing Site API URL"
-msgstr "URL API ya Tovuti ya Masoko"
+msgstr ""
 
 #: apps/core/models.py:82
 msgid "Marketing Site URL"
-msgstr "URL ya Tovuti ya Masoko"
+msgstr ""
 
 #: apps/core/models.py:84
 msgid "Marketing Site API Username"
-msgstr "API ya jina la mtumiaji wa Tovuti ya Masoko"
+msgstr ""
 
 #: apps/core/models.py:86
 msgid "Marketing Site API Password"
-msgstr "API ya Nenosiri la Tovuti ya Masoko"
+msgstr ""
 
 #: apps/core/models.py:88
 msgid "Studio URL"
-msgstr "URL ya Studio"
+msgstr ""
 
 #: apps/core/models.py:90
 msgid "Publisher URL"
@@ -331,11 +328,11 @@ msgstr ""
 
 #: apps/core/models.py:108
 msgid "Partner"
-msgstr "Mshirika"
+msgstr ""
 
 #: apps/core/models.py:109
 msgid "Partners"
-msgstr "Washirika"
+msgstr ""
 
 #: apps/core/models.py:181
 msgid "Salesforce Username"
@@ -366,7 +363,7 @@ msgstr ""
 msgid ""
 "An error occurred while publishing the {model} to the marketing site. Please"
 " try again. If the error persists, please contact the Engineering Team."
-msgstr "Hitilafu imetokea wakati wa kuchapisha {model} kwenda kwenye tovuti ya biashara. Tafadhali jaribu tena. Kama hitilafu inaaendelea, tafadhali wasiliana na Timu ya Mafundi."
+msgstr ""
 
 #: apps/course_metadata/admin.py:46
 msgid "eligible for one-click purchase"
@@ -374,15 +371,15 @@ msgstr ""
 
 #: apps/course_metadata/admin.py:51
 msgid "Yes"
-msgstr "Ndiyo"
+msgstr "Ano"
 
 #: apps/course_metadata/admin.py:52
 msgid "No"
-msgstr "Hapana"
+msgstr "Ne"
 
 #: apps/course_metadata/admin.py:245 apps/course_metadata/admin.py:449
 msgid "Included course runs"
-msgstr ""
+msgstr "Zahrnuté běhy kurzu"
 
 #: apps/course_metadata/admin.py:457
 msgid "Edit course run exclusions"
@@ -404,16 +401,16 @@ msgstr ""
 #: apps/course_metadata/algolia_models.py:76
 #: apps/course_metadata/models.py:1620
 msgid "Upcoming"
-msgstr "Ijayo"
+msgstr "Nadcházející"
 
 #: apps/course_metadata/algolia_models.py:78
 #: apps/course_metadata/models.py:1614
 msgid "Archived"
-msgstr "Iliyohifadhiwa"
+msgstr "Archivováno"
 
 #: apps/course_metadata/choices.py:6 apps/course_metadata/choices.py:31
 msgid "Unpublished"
-msgstr "Haijachapishwa"
+msgstr "Nepublikováno"
 
 #: apps/course_metadata/choices.py:7
 msgid "Awaiting Review from Legal"
@@ -425,40 +422,40 @@ msgstr ""
 
 #: apps/course_metadata/choices.py:9
 msgid "Reviewed"
-msgstr "Imepitiwa upya"
+msgstr ""
 
 #: apps/course_metadata/choices.py:10
 msgid "Published"
-msgstr "Imechapishwa"
+msgstr "Publikováno"
 
 #. Translators: Instructor-paced refers to course runs that operate on a
 #. schedule set by the instructor,
 #. similar to a normal university course.
 #: apps/course_metadata/choices.py:25
 msgid "Instructor-paced"
-msgstr ""
+msgstr "Řízeno instruktorem"
 
 #. Translators: Self-paced refers to course runs that operate on the student's
 #. schedule.
 #: apps/course_metadata/choices.py:27
 msgid "Self-paced"
-msgstr ""
+msgstr "Vlastním tempem"
 
 #: apps/course_metadata/choices.py:32
 msgid "Active"
-msgstr "Hai"
+msgstr "Aktivní"
 
 #: apps/course_metadata/choices.py:33
 msgid "Retired"
-msgstr ""
+msgstr "Vyřazený"
 
 #: apps/course_metadata/choices.py:34
 msgid "Deleted"
-msgstr "Imefutwa"
+msgstr "Odstraněný"
 
 #: apps/course_metadata/choices.py:46
 msgid "Honor"
-msgstr "Heshima"
+msgstr "Čestný"
 
 #: apps/course_metadata/choices.py:47
 msgid "Credit"
@@ -466,11 +463,11 @@ msgstr ""
 
 #: apps/course_metadata/choices.py:48
 msgid "Verified"
-msgstr ""
+msgstr "Ověřený"
 
 #: apps/course_metadata/choices.py:49
 msgid "Professional"
-msgstr ""
+msgstr "Profesní"
 
 #: apps/course_metadata/choices.py:50
 msgid "Executive Education"
@@ -482,7 +479,7 @@ msgstr ""
 
 #: apps/course_metadata/choices.py:55
 msgid "Organization"
-msgstr "Taasisi"
+msgstr "Organizace"
 
 #: apps/course_metadata/data_loaders/course_type.py:27
 #, python-brace-format
@@ -553,7 +550,7 @@ msgstr ""
 #: apps/course_metadata/emails.py:210
 #, python-brace-format
 msgid "Legal review requested: {title}"
-msgstr "Mapitio ya kisheria yameombwa: {title}"
+msgstr ""
 
 #: apps/course_metadata/emails.py:223
 #, python-brace-format
@@ -582,7 +579,7 @@ msgstr ""
 
 #: apps/course_metadata/forms.py:59
 msgid "Programs can only be activated if they have a banner image."
-msgstr ""
+msgstr "Programy můžou být aktivované, pouze pokud mají bannerový obrázek."
 
 #: apps/course_metadata/management/commands/add_tag_to_courses.py:15
 msgid "Tag to add to courses"
@@ -624,7 +621,7 @@ msgstr ""
 #: apps/course_metadata/models.py:2022 apps/course_metadata/models.py:2693
 #: apps/course_metadata/models.py:2785
 msgid "UUID"
-msgstr ""
+msgstr "UUID"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:22
 msgid "Course to backpopulate."
@@ -712,7 +709,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Deleting"
-msgstr ""
+msgstr "Mazání"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Would delete"
@@ -728,7 +725,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:88
 msgid "Programs"
-msgstr ""
+msgstr "Programy"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:89
 msgid "Course Runs"
@@ -736,7 +733,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:90
 msgid "Target"
-msgstr ""
+msgstr "Cíl"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:129
 msgid "You must specify --partner-code"
@@ -864,7 +861,7 @@ msgstr ""
 #: apps/course_metadata/models.py:339 apps/course_metadata/models.py:516
 #: apps/course_metadata/models.py:554 apps/course_metadata/models.py:776
 msgid "Leave this field blank to have the value generated automatically."
-msgstr ""
+msgstr "Pro automatické vygenerování hodnoty ponechte toto pole prázdné."
 
 #: apps/course_metadata/models.py:377
 msgid "ProgramType model translations"
@@ -914,7 +911,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:638
 msgid "People"
-msgstr "Watu"
+msgstr ""
 
 #: apps/course_metadata/models.py:746
 msgid ""
@@ -933,7 +930,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:805 apps/course_metadata/models.py:2013
 msgid "FAQ"
-msgstr "'FAQ'"
+msgstr ""
 
 #: apps/course_metadata/models.py:808
 msgid "Total number of learners who have enrolled in this course"
@@ -951,7 +948,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:840
 msgid "Additional Information"
-msgstr ""
+msgstr "Dodatečné informace"
 
 #: apps/course_metadata/models.py:1203
 msgid "Blocked"
@@ -982,7 +979,7 @@ msgstr ""
 #: apps/course_metadata/models.py:1235
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
-msgstr "Kadirio la chini la saa zinazohitajika kwa wiki kuendesha kozi moja."
+msgstr ""
 
 #: apps/course_metadata/models.py:1238
 msgid ""
@@ -1026,11 +1023,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1616
 msgid "Current"
-msgstr "Sasa"
+msgstr "Současné"
 
 #: apps/course_metadata/models.py:1618
 msgid "Starting Soon"
-msgstr "Itaanza Hivi Karibuni"
+msgstr "Brzy začínající"
 
 #: apps/course_metadata/models.py:1658
 msgid ""
@@ -1040,7 +1037,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2014
 msgid "FAQs"
-msgstr "FAQs"
+msgstr ""
 
 #: apps/course_metadata/models.py:2024
 msgid "The user-facing display title for this Program."
@@ -1091,7 +1088,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2104
 msgid "Allow courses in this program to be purchased in a single transaction"
-msgstr "Ruhusu kozi kwenye programu hii kununuliwa kwa muamala mmoja"
+msgstr ""
 
 #: apps/course_metadata/models.py:2108
 msgid ""
@@ -1217,7 +1214,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2608
 msgid "Clock"
-msgstr ""
+msgstr "Hodiny"
 
 #: apps/course_metadata/models.py:2609
 msgid "Desktop"
@@ -1229,11 +1226,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2611
 msgid "Sitemap"
-msgstr ""
+msgstr "Mapa stránky"
 
 #: apps/course_metadata/models.py:2612
 msgid "User"
-msgstr ""
+msgstr "Uživatel"
 
 #: apps/course_metadata/models.py:2613
 msgid "Dollar"
@@ -1308,7 +1305,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2824
 msgid "Facebook"
-msgstr "Facebook "
+msgstr "Facebook"
 
 #: apps/course_metadata/models.py:2825
 msgid "Twitter"
@@ -1316,11 +1313,11 @@ msgstr "Twitter"
 
 #: apps/course_metadata/models.py:2826
 msgid "Blog"
-msgstr "Blogi"
+msgstr "Blog"
 
 #: apps/course_metadata/models.py:2827
 msgid "Others"
-msgstr "Nyingine"
+msgstr "Další"
 
 #: apps/course_metadata/models.py:2879
 #, python-brace-format
@@ -1346,7 +1343,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2980
 msgid "Tag"
-msgstr ""
+msgstr "Štítek"
 
 #: apps/course_metadata/models.py:2981
 msgid "Course UUIDs"
@@ -1378,15 +1375,15 @@ msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:24
 msgid "Cancel"
-msgstr "Futa"
+msgstr "Zrušit"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:27
 msgid "Back to Program"
-msgstr ""
+msgstr "Zpět k Programu"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:29
 msgid "Save Course Run"
-msgstr ""
+msgstr "Uložit běh kurzu"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:10
 msgid "Home"
@@ -1411,7 +1408,7 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/comment.html:21
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:11
 msgid "The edX team"
-msgstr "Timu ya edX"
+msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/comment.txt:3
 #, python-format
@@ -1603,7 +1600,7 @@ msgstr ""
 
 #: apps/course_metadata/views.py:37
 msgid "The program was changed successfully."
-msgstr "Programu imefaulu kubadilishwa."
+msgstr ""
 
 #: apps/edx_elasticsearch_dsl_extensions/exceptions.py:17
 msgid ""
@@ -1621,7 +1618,7 @@ msgstr ""
 
 #: apps/publisher/models.py:34
 msgid "Organization Role"
-msgstr "Jukumu la Shirika"
+msgstr "Role v organizaci"
 
 #: urls.py:30
 msgid "Discovery Service Administration"
