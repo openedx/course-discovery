@@ -18,9 +18,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.3.0
     # via celery
-boto3==1.16.62
+boto3==1.16.63
     # via django-ses
-botocore==1.19.62
+botocore==1.19.63
     # via
     #   boto3
     #   s3transfer
@@ -191,8 +191,10 @@ dry-rest-permissions==0.1.10
     # via -r requirements/base.in
 edx-analytics-data-api-client==0.17.0
     # via -r requirements/base.in
-edx-auth-backends==3.3.1
-    # via -r requirements/base.in
+edx-auth-backends==3.3.0
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.in
 edx-ccx-keys==1.2.0
     # via -r requirements/base.in
 edx-django-release-util==1.0.0
@@ -244,7 +246,7 @@ idna==2.10
     # via requests
 itypes==1.2.0
     # via coreapi
-jinja2==2.11.2
+jinja2==2.11.3
     # via coreschema
 jmespath==0.10.0
     # via
