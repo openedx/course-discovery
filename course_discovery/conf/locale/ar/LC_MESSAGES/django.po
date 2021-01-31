@@ -25,9 +25,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-10 20:35+0000\n"
-"PO-Revision-Date: 2021-01-10 21:01+0000\n"
-"Last-Translator: NELC Open edX Translation <openedx@elc.edu.sa>\n"
+"POT-Creation-Date: 2021-01-24 20:35+0000\n"
+"PO-Revision-Date: 2021-01-24 21:01+0000\n"
+"Last-Translator: abdallah.nassif <abdallah_n@hotmail.com>\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -95,7 +95,7 @@ msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr "اللغات التي تتوفر بها نصوص للدورات في هذا البرنامج."
 
-#: apps/api/utils.py:222
+#: apps/api/utils.py:229
 #, python-brace-format
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
@@ -110,12 +110,12 @@ msgstr "لا يتم دعم تحديد كل من المعامل القابل لل
 msgid "You must include a course_uuid in your query parameters."
 msgstr "يجب تضمين course_UUID في معطيات البحث."
 
-#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:189
+#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:193
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr "قيمة مفقودة لـ: [{name}]."
 
-#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:196
+#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:200
 msgid "Incorrect data sent. "
 msgstr "تم إرسال بيانات غير صحيحة."
 
@@ -135,39 +135,39 @@ msgstr "مشغل المساق تحت المراجعة، تم تعطيل خاصي
 msgid "Invalid parameter"
 msgstr "معلمة غير صحيحة"
 
-#: apps/api/v1/views/courses.py:57
+#: apps/api/v1/views/courses.py:61
 msgid "Failed to set data: {}"
 msgstr "فشل ضبط البيانات: {}"
 
-#: apps/api/v1/views/courses.py:191
+#: apps/api/v1/views/courses.py:195
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
 msgstr "المؤسسة [{org}] غير موجودة."
 
-#: apps/api/v1/views/courses.py:193
+#: apps/api/v1/views/courses.py:197
 #, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
 msgstr "نوع الكورس [{course_type}] غير موجود"
 
-#: apps/api/v1/views/courses.py:209
+#: apps/api/v1/views/courses.py:213
 #, python-brace-format
 msgid "A course with key [{key}] already exists."
 msgstr "يوجد كورس يحمل نفس المفتاح [{key}] مسبقًا"
 
-#: apps/api/v1/views/courses.py:215
+#: apps/api/v1/views/courses.py:219
 #, python-brace-format
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
 msgstr "فشلت عملية إنشاء المساق، ولكن مازال رابط المساق قيد الاستخدام ‘[{url_slug}]’ يرجى تحديث هذا الحقل وإعادة المحاولة مرة أخرى."
 
-#: apps/api/v1/views/courses.py:273
+#: apps/api/v1/views/courses.py:277
 msgid ""
 "Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
 msgstr "لا يتم دعم تحويل أنواع التخويل بعد مراجعتها. يرجى الاتصال بمنسق المشروع للحصول على مساعدة إضافية إذا لزم الأمر."
 
-#: apps/api/v1/views/courses.py:371
+#: apps/api/v1/views/courses.py:375
 #, python-brace-format
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
@@ -373,38 +373,38 @@ msgstr "هل تم وضع آلية تحديد فريق المبيعات؟"
 msgid "Case Record Type Id"
 msgstr "رمز نوع سجل الحالة"
 
-#: apps/course_metadata/admin.py:22
+#: apps/course_metadata/admin.py:26
 #, python-brace-format
 msgid ""
 "An error occurred while publishing the {model} to the marketing site. Please"
 " try again. If the error persists, please contact the Engineering Team."
 msgstr "لقد حدث خطأ أثناء نشر {model} في موقع التسويق. حاول مرة اخرى. إذا استمر الخطأ، يرجى الاتصال بفريق الهندسة."
 
-#: apps/course_metadata/admin.py:42
+#: apps/course_metadata/admin.py:46
 msgid "eligible for one-click purchase"
 msgstr "قابل للشراء بنقرة واحدة"
 
-#: apps/course_metadata/admin.py:47
+#: apps/course_metadata/admin.py:51
 msgid "Yes"
 msgstr "نعم"
 
-#: apps/course_metadata/admin.py:48
+#: apps/course_metadata/admin.py:52
 msgid "No"
 msgstr "كلا"
 
-#: apps/course_metadata/admin.py:216 apps/course_metadata/admin.py:412
+#: apps/course_metadata/admin.py:245 apps/course_metadata/admin.py:449
 msgid "Included course runs"
 msgstr "مجريات الدورات الموجودة"
 
-#: apps/course_metadata/admin.py:420
+#: apps/course_metadata/admin.py:457
 msgid "Edit course run exclusions"
 msgstr "تحرير تضمينات مشغل المساق"
 
-#: apps/course_metadata/admin.py:422
+#: apps/course_metadata/admin.py:459
 msgid "(save and continue editing to create a link)"
 msgstr "(حفظ والاستمرار في التحرير لإنشاء الرابط )"
 
-#: apps/course_metadata/admin.py:424
+#: apps/course_metadata/admin.py:461
 msgid "Edit link"
 msgstr "تحرير الرابط"
 
@@ -1400,6 +1400,14 @@ msgstr "عودة إلى البرنامج"
 msgid "Save Course Run"
 msgstr "حفظ تشغيل الدورة"
 
+#: apps/course_metadata/templates/admin/course_metadata/course_skills.html:10
+msgid "Home"
+msgstr ""
+
+#: apps/course_metadata/templates/admin/course_metadata/course_skills.html:25
+msgid "Course Skills"
+msgstr ""
+
 #: apps/course_metadata/templates/course_metadata/email/comment.html:7
 #, python-format
 msgid ""
@@ -1578,7 +1586,7 @@ msgstr "تمت مراجعة واعتماد %(course_run_number)sمشغل مسا�
 msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr "عرض المساق في صفحة الناشر: %(course_page_url)s"
 
-#: apps/course_metadata/utils.py:374
+#: apps/course_metadata/utils.py:375
 msgid "Special characters not allowed in Course Number."
 msgstr "لا يسمح بحالة الأحرف الخاصة في رقم المساق."
 
@@ -1601,11 +1609,11 @@ msgstr "{0} علامة غير مسموح بها"
 msgid "{0} attribute is not allowed on the {1} tag"
 msgstr "سمة {0} غير مسموح بها على العلامة {1}"
 
-#: apps/course_metadata/views.py:27
+#: apps/course_metadata/views.py:30
 msgid "Update excluded course runs"
 msgstr "تحديث المساقات المستبعدة"
 
-#: apps/course_metadata/views.py:34
+#: apps/course_metadata/views.py:37
 msgid "The program was changed successfully."
 msgstr "لقد تم تغيير البرنامج بنجاح."
 
