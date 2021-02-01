@@ -70,8 +70,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-10 20:35+0000\n"
-"PO-Revision-Date: 2021-01-10 21:01+0000\n"
+"POT-Creation-Date: 2021-01-24 20:35+0000\n"
+"PO-Revision-Date: 2021-01-24 21:01+0000\n"
 "Last-Translator: Pierre Mailhot <pierre.mailhot@gmail.com>\n"
 "Language-Team: French (Canada) (http://www.transifex.com/open-edx/edx-platform/language/fr_CA/)\n"
 "MIME-Version: 1.0\n"
@@ -140,7 +140,7 @@ msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr "Langages dans lesquels sont offerts des transcriptions pour les instances de cours de ce programme."
 
-#: apps/api/utils.py:222
+#: apps/api/utils.py:229
 #, python-brace-format
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
@@ -155,12 +155,12 @@ msgstr "La spécification de editable = 1 et d'un paramètre q n'est pas support
 msgid "You must include a course_uuid in your query parameters."
 msgstr "Vous devez inclure un course_uuid dans vos paramètres de recherche."
 
-#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:189
+#: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:193
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
 msgstr "Valeur manquante pour : [{name}]. "
 
-#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:196
+#: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:200
 msgid "Incorrect data sent. "
 msgstr "Données incorrectes envoyées."
 
@@ -180,39 +180,39 @@ msgstr "L'instance de cours est en cours de révision. Modification désactivée
 msgid "Invalid parameter"
 msgstr "Paramètre invalide"
 
-#: apps/api/v1/views/courses.py:57
+#: apps/api/v1/views/courses.py:61
 msgid "Failed to set data: {}"
 msgstr "Impossible de paramétrer la donnée : {}"
 
-#: apps/api/v1/views/courses.py:191
+#: apps/api/v1/views/courses.py:195
 #, python-brace-format
 msgid "Organization [{org}] does not exist. "
 msgstr "L'organisation [{org}] n'existe pas."
 
-#: apps/api/v1/views/courses.py:193
+#: apps/api/v1/views/courses.py:197
 #, python-brace-format
 msgid "Course Type [{course_type}] does not exist. "
 msgstr "Le type de cours [{course_type}] n'existe pas."
 
-#: apps/api/v1/views/courses.py:209
+#: apps/api/v1/views/courses.py:213
 #, python-brace-format
 msgid "A course with key [{key}] already exists."
 msgstr "Un cours avec la clé [{key}] existe déjà."
 
-#: apps/api/v1/views/courses.py:215
+#: apps/api/v1/views/courses.py:219
 #, python-brace-format
 msgid ""
 "Course creation was unsuccessful. The course URL slug ‘[{url_slug}]’ is "
 "already in use. Please update this field and try again."
 msgstr "La création de cours a échouée. Le URL du cours ‘[{url_slug}]’ est déjà utilisé. Veuillez mettre à jour ce champs et réessayer."
 
-#: apps/api/v1/views/courses.py:273
+#: apps/api/v1/views/courses.py:277
 msgid ""
 "Switching entitlement types after being reviewed is not supported. Please "
 "reach out to your project coordinator for additional help if necessary."
 msgstr "Changer le type de privilège après la revue n'est pas supporté. Veuillez contacter votre coordinateur pour de l'aide supplémentaire au besoin."
 
-#: apps/api/v1/views/courses.py:371
+#: apps/api/v1/views/courses.py:375
 #, python-brace-format
 msgid ""
 "Course edit was unsuccessful. The course URL slug ‘[{url_slug}]’ is already "
@@ -418,38 +418,38 @@ msgstr "Est-ce un carré de sable Salesforce ?"
 msgid "Case Record Type Id"
 msgstr "ID du type de cas enregistré"
 
-#: apps/course_metadata/admin.py:22
+#: apps/course_metadata/admin.py:26
 #, python-brace-format
 msgid ""
 "An error occurred while publishing the {model} to the marketing site. Please"
 " try again. If the error persists, please contact the Engineering Team."
 msgstr "Une erreur s'est produite lors de la publication du {model} sur le site de marketing. Veuillez réessayer. Si l'erreur persiste, contactez l'équipe d'ingénierie."
 
-#: apps/course_metadata/admin.py:42
+#: apps/course_metadata/admin.py:46
 msgid "eligible for one-click purchase"
 msgstr "admissible à un achat à un clic"
 
-#: apps/course_metadata/admin.py:47
+#: apps/course_metadata/admin.py:51
 msgid "Yes"
 msgstr "Oui"
 
-#: apps/course_metadata/admin.py:48
+#: apps/course_metadata/admin.py:52
 msgid "No"
 msgstr "Non"
 
-#: apps/course_metadata/admin.py:216 apps/course_metadata/admin.py:412
+#: apps/course_metadata/admin.py:245 apps/course_metadata/admin.py:449
 msgid "Included course runs"
 msgstr "Sessions de cours incluses"
 
-#: apps/course_metadata/admin.py:420
+#: apps/course_metadata/admin.py:457
 msgid "Edit course run exclusions"
 msgstr "Éditer les exclusions de session de cours"
 
-#: apps/course_metadata/admin.py:422
+#: apps/course_metadata/admin.py:459
 msgid "(save and continue editing to create a link)"
 msgstr "(sauvegarder et continuer l'édition pour créer un lien)"
 
-#: apps/course_metadata/admin.py:424
+#: apps/course_metadata/admin.py:461
 msgid "Edit link"
 msgstr "Éditer le lien"
 
@@ -1445,6 +1445,14 @@ msgstr "Retour au Programme"
 msgid "Save Course Run"
 msgstr "Sauvegarder l'instance de cours"
 
+#: apps/course_metadata/templates/admin/course_metadata/course_skills.html:10
+msgid "Home"
+msgstr ""
+
+#: apps/course_metadata/templates/admin/course_metadata/course_skills.html:25
+msgid "Course Skills"
+msgstr ""
+
 #: apps/course_metadata/templates/course_metadata/email/comment.html:7
 #, python-format
 msgid ""
@@ -1623,7 +1631,7 @@ msgstr "Session de cours %(course_run_number)s de %(course_name)s a été révis
 msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr "Voir la session de cours dans Publisher : %(course_page_url)s"
 
-#: apps/course_metadata/utils.py:374
+#: apps/course_metadata/utils.py:375
 msgid "Special characters not allowed in Course Number."
 msgstr "Les caractères spéciaux sont interdits dans le numéro de cours."
 
@@ -1646,11 +1654,11 @@ msgstr "Étiquette {0} n'est pas permise"
 msgid "{0} attribute is not allowed on the {1} tag"
 msgstr "Paramètre {0} est interdit sur l'étiquette {1}"
 
-#: apps/course_metadata/views.py:27
+#: apps/course_metadata/views.py:30
 msgid "Update excluded course runs"
 msgstr "Mettre à jour les instances de cours exclues"
 
-#: apps/course_metadata/views.py:34
+#: apps/course_metadata/views.py:37
 msgid "The program was changed successfully."
 msgstr "Ce programme a été modifié avec succès."
 
