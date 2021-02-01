@@ -191,10 +191,8 @@ dry-rest-permissions==0.1.10
     # via -r requirements/base.in
 edx-analytics-data-api-client==0.17.0
     # via -r requirements/base.in
-edx-auth-backends==3.3.0
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/base.in
+edx-auth-backends==3.3.2
+    # via -r requirements/base.in
 edx-ccx-keys==1.2.0
     # via -r requirements/base.in
 edx-django-release-util==1.0.0
@@ -316,7 +314,7 @@ python-utils==2.5.5
     # via progressbar2
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2020.5
+pytz==2021.1
     # via
     #   -r requirements/base.in
     #   celery

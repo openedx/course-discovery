@@ -34,7 +34,3 @@ social-auth-core<4.0.3
 # latest version of edx-lint is pulling code-annotations and code-annotations is pulling python-slugify and
 # python-slugify is conflicting with unicode-slugify
 edx-lint<=1.6
-
-
-# latest version causing issues in IDAs.
-edx-auth-backends==3.3.0
