@@ -134,7 +134,7 @@ django-waffle==2.1.0
     #   edx-drf-extensions
 django-webpack-loader==0.7.0
     # via -r requirements/base.in
-django==2.2.17
+django==2.2.18
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -316,7 +316,7 @@ python-utils==2.5.5
     # via progressbar2
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2020.5
+pytz==2021.1
     # via
     #   -r requirements/base.in
     #   celery
