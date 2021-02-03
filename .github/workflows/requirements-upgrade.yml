@@ -43,7 +43,7 @@ jobs:
 
     - name: setup testeng-ci
       run: |
-        ls -a
+        echo "target branch: ${{ github.event.inputs.branch }}"
         cd $GITHUB_WORKSPACE/testeng-ci
         pip install -r requirements/base.txt
 
