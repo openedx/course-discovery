@@ -43,7 +43,7 @@ jobs:
 
     - name: setup default branch
       if: ${{ github.event.inputs.branch }}==''
-      run: echo "target_branch=$(if ['${{ github.event.inputs.branch }}' = '']; echo 'master'; else echo '${{ github.event.inputs.branch }}'; fi)" >> $GITHUB_ENV
+      run: echo "target_branch=$(if ['${{ github.event.inputs.branch }}' = '']; then echo 'master'; else echo '${{ github.event.inputs.branch }}'; fi)" >> $GITHUB_ENV
 
     - name: setup testeng-ci
       run: |
