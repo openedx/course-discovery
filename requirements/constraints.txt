@@ -38,3 +38,5 @@ edx-lint<=1.6
 
 # latest version causing issues in IDAs.
 edx-auth-backends==3.3.0
+
+pip-tools==5.3.1
