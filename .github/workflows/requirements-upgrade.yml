@@ -43,13 +43,7 @@ jobs:
 
     - name: setup default branch
       if: ${{ github.event.inputs.branch }}==''
-      env:
-        TARGET_BRANCH: 'master'
-
-    - name: setup target branch
-      if: ${{ github.event.inputs.branch }} != ''
-      env:
-        TARGET_BRANCH: ${{ github.event.inputs.branch }}
+      run: echo "target_branch=$(if [${{ github.event.inputs.branch }} = '']; "master"; else ${{ github.event.inputs.branch }}; fi)" >> $GITHUB_ENV
 
     - name: setup testeng-ci
       run: |
@@ -65,7 +59,7 @@ jobs:
         ls -a
         cd $GITHUB_WORKSPACE/testeng-ci
         python -m jenkins.pull_request_creator --repo-root=$GITHUB_WORKSPACE \
-        --target-branch=${{ env.TARGET_BRANCH }} --base-branch-name="upgrade-python-requirements" \
+        --target-branch=${{ env.target_branch }} --base-branch-name="upgrade-python-requirements" \
         --commit-message="Updating Python Requirements" --pr-title="Python Requirements Update" \
         --pr-body="Python requirements update.  Please review the [changelogs](\https://openedx.atlassian.net/wiki/spaces/TE/pages/1001521320/Python+Package+Changelogs\) for the upgraded packages." \
         --user-reviewers="" --team-reviewers="course-discovery-admins" --delete-old-pull-requests
