@@ -14,7 +14,7 @@ chardet==4.0.0
     # via requests
 docutils==0.16
     # via sphinx
-edx-sphinx-theme==1.6.1
+edx-sphinx-theme==2.0.0
     # via -r requirements/docs.in
 idna==2.10
     # via requests
