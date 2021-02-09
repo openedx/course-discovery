@@ -69,7 +69,7 @@ coverage==5.4
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==3.3.1
+cryptography==3.4.3
     # via
     #   authlib
     #   paramiko
@@ -114,14 +114,14 @@ django-dynamic-filenames==1.1.4
     # via -r requirements/base.in
 django-elasticsearch-debug-toolbar==2.0.0
     # via -r requirements/local.in
-django-elasticsearch-dsl-drf==0.20.9
+django-elasticsearch-dsl-drf==0.21
     # via -r requirements/base.in
 django-elasticsearch-dsl==7.1.4
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
-django-extensions==3.1.0
+django-extensions==3.1.1
     # via -r requirements/base.in
 django-filter==2.4.0
     # via -r requirements/base.in
@@ -270,7 +270,7 @@ edx-rest-api-client==5.3.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-edx-sphinx-theme==1.6.1
+edx-sphinx-theme==2.0.0
     # via -r requirements/docs.in
 elasticsearch-dsl==7.3.0
     # via
@@ -288,7 +288,7 @@ execnet==1.8.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==5.8.0
+faker==6.0.0
     # via factory-boy
 filelock==3.0.12
     # via
@@ -454,7 +454,7 @@ python-dotenv==0.15.0
     # via docker-compose
 python-memcached==1.59
     # via -r requirements/test.in
-python-utils==2.5.5
+python-utils==2.5.6
     # via progressbar2
 python3-openid==3.2.0
     # via social-auth-core
@@ -515,7 +515,6 @@ six==1.15.0
     # via
     #   astroid
     #   bcrypt
-    #   cryptography
     #   django-choices
     #   django-compressor
     #   django-elasticsearch-dsl
@@ -613,7 +612,7 @@ unicode-slugify==0.1.3
     # via -r requirements/base.in
 unicodecsv==0.14.1
     # via djangorestframework-csv
-unidecode==1.1.2
+unidecode==1.2.0
     # via unicode-slugify
 uritemplate==3.0.1
     # via coreapi
