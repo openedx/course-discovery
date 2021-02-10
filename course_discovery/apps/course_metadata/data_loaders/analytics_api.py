@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class AnalyticsAPIDataLoader(AbstractDataLoader):
 
-    API_TIMEOUT = 120  # time in seconds
+    API_TIMEOUT = 300  # time in seconds, was increased to address timeouts when connecting to the analytics service
 
     def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
