@@ -51,6 +51,7 @@ lxml
 jsonfield2
 markdown
 pillow
+pulsar-client
 pycountry
 python-dateutil
 pytz
