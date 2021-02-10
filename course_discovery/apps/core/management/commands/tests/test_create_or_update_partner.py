@@ -14,9 +14,13 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
     partner_code = 'abc'
     partner_name = 'ABC Partner'
     courses_api_url = 'https://courses.fake.org/api/v1/courses/'
+    lms_coursemode_api_url = 'http://courses.fake.org/api/course_modes/v1/'
     ecommerce_api_url = 'https://ecommerce.fake.org/api/v1/courses/'
     organizations_api_url = 'https://orgs.fake.org/api/v1/organizations/'
     programs_api_url = 'https://programs.fake.org/api/v1/programs/'
+    lms_url = 'http://courses.fake.org/'
+    studio_url = 'http://studio.fake.org/'
+    publisher_url = 'http://publisher.fake.org/'
     marketing_site_api_url = 'https://www.fake.org/api/v1/courses/'
     marketing_site_url_root = 'https://www.fake.org/'
     marketing_site_api_username = 'marketing-username'
@@ -27,9 +31,13 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
         self.assertEqual(partner.short_code, self.partner_code)
         self.assertEqual(partner.name, self.partner_name)
         self.assertEqual(partner.courses_api_url, self.courses_api_url)
+        self.assertEqual(partner.lms_coursemode_api_url, self.lms_coursemode_api_url)
         self.assertEqual(partner.ecommerce_api_url, self.ecommerce_api_url)
         self.assertEqual(partner.organizations_api_url, self.organizations_api_url)
         self.assertEqual(partner.programs_api_url, self.programs_api_url)
+        self.assertEqual(partner.lms_url, self.lms_url)
+        self.assertEqual(partner.studio_url, self.studio_url)
+        self.assertEqual(partner.publisher_url, self.publisher_url)
         self.assertEqual(partner.marketing_site_api_url, self.marketing_site_api_url)
         self.assertEqual(partner.marketing_site_url_root, self.marketing_site_url_root)
         self.assertEqual(partner.marketing_site_api_username, self.marketing_site_api_username)
@@ -51,9 +59,13 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
             'site_domain': 'site-domain',
             'partner_name': 'name',
             'courses_api_url': 'courses-api-url',
+            'lms_coursemode_api_url': 'lms-coursemode-api-url',
             'ecommerce_api_url': 'ecommerce-api-url',
             'organizations_api_url': 'organizations-api-url',
             'programs_api_url': 'programs-api-url',
+            'lms_url': 'lms-url',
+            'studio_url': 'studio-url',
+            'publisher_url': 'publisher-url',
             'marketing_site_api_url': 'marketing-site-api-url',
             'marketing_site_url_root': 'marketing-site-url-root',
             'marketing_site_api_username': 'marketing-site-api-username',
@@ -73,9 +85,13 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
             partner_code=self.partner_code,
             partner_name=self.partner_name,
             courses_api_url=self.courses_api_url,
+            lms_coursemode_api_url=self.lms_coursemode_api_url,
             ecommerce_api_url=self.ecommerce_api_url,
             organizations_api_url=self.organizations_api_url,
             programs_api_url=self.programs_api_url,
+            lms_url=self.lms_url,
+            studio_url=self.studio_url,
+            publisher_url=self.publisher_url,
             marketing_site_api_url=self.marketing_site_api_url,
             marketing_site_url_root=self.marketing_site_url_root,
             marketing_site_api_username=self.marketing_site_api_username,
@@ -102,9 +118,13 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
 
         self.partner_name = 'Updated Partner'
         self.courses_api_url = 'https://courses.updated.org/api/v1/courses/'
+        self.lms_coursemode_api_url = 'http://courses.updated.org/api/course_modes/v1/'
         self.ecommerce_api_url = 'https://ecommerce.updated.org/api/v1/courses/'
         self.organizations_api_url = 'https://orgs.updated.org/api/v1/organizations/'
         self.programs_api_url = 'https://programs.updated.org/api/v1/programs/'
+        self.lms_url = 'http://courses.updated.org/'
+        self.studio_url = 'http://studio.updated.org/'
+        self.publisher_url = 'http://publisher.updated.org/'
         self.marketing_site_api_url = 'https://www.updated.org/api/v1/courses/'
         self.marketing_site_url_root = 'https://www.updated.org/'
         self.marketing_site_api_username = 'updated-username'
@@ -116,9 +136,13 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
             partner_code=self.partner_code,
             partner_name=self.partner_name,
             courses_api_url=self.courses_api_url,
+            lms_coursemode_api_url=self.lms_coursemode_api_url,
             ecommerce_api_url=self.ecommerce_api_url,
             organizations_api_url=self.organizations_api_url,
             programs_api_url=self.programs_api_url,
+            lms_url=self.lms_url,
+            studio_url=self.studio_url,
+            publisher_url=self.publisher_url,
             marketing_site_api_url=self.marketing_site_api_url,
             marketing_site_url_root=self.marketing_site_url_root,
             marketing_site_api_username=self.marketing_site_api_username,
