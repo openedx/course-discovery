@@ -38,12 +38,10 @@ jobs:
       run: git clone https://github.com/edx/testeng-ci.git
 
     - name: setup target branch
-      if: ${{ github.event.inputs.branch }}==''
       run: target_branch=$(if ['${{ github.event.inputs.branch }}' = '']; then echo 'master'; else echo '${{ github.event.inputs.branch }}'; fi) >> $GITHUB_ENV
 
     - name: setup testeng-ci
       run: |
-        echo "target branch: ${{ github.event.inputs.branch }}"
         cd $GITHUB_WORKSPACE/testeng-ci
         pip install -r requirements/base.txt
 
