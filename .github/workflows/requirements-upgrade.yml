@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Target branch to run make upgrade in'
+        description: 'Target branch to run make upgrade against'
         required: true
         default: 'master'
 
@@ -38,12 +38,10 @@ jobs:
       run: git clone https://github.com/edx/testeng-ci.git
 
     - name: setup target branch
-      if: ${{ github.event.inputs.branch }}==''
-      run: target_branch=$(if ['${{ github.event.inputs.branch }}' = '']; then echo 'master'; else echo '${{ github.event.inputs.branch }}'; fi) >> $GITHUB_ENV
+      run: echo "target_branch=$(if ['${{ github.event.inputs.branch }}' = '']; then echo 'master'; else echo '${{ github.event.inputs.branch }}'; fi)" >> $GITHUB_ENV
 
     - name: setup testeng-ci
       run: |
-        echo "target branch: ${{ github.event.inputs.branch }}"
         cd $GITHUB_WORKSPACE/testeng-ci
         pip install -r requirements/base.txt
 
@@ -54,7 +52,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/testeng-ci
         python -m jenkins.pull_request_creator --repo-root=$GITHUB_WORKSPACE \
-        --target-branch=${{ env.target_branch }} --base-branch-name="upgrade-python-requirements" \
+        --target-branch="${{ env.target_branch }}" --base-branch-name="upgrade-python-requirements" \
         --commit-message="Updating Python Requirements" --pr-title="Python Requirements Update" \
         --pr-body="Python requirements update.Please review the [changelogs](https://openedx.atlassian.net/wiki/spaces/TE/pages/1001521320/Python+Package+Changelogs) for the upgraded packages." \
         --user-reviewers="" --team-reviewers="course-discovery-admins" --delete-old-pull-requests
