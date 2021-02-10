@@ -69,7 +69,7 @@ coverage==5.4
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==3.4.3
+cryptography==3.4.4
     # via
     #   authlib
     #   paramiko
@@ -229,7 +229,7 @@ docutils==0.16
     # via sphinx
 drf-dynamic-fields==0.3.1
     # via -r requirements/base.in
-drf-extensions==0.6.0
+drf-extensions==0.7.0
     # via -r requirements/base.in
 drf-jwt==1.17.3
     # via edx-drf-extensions
@@ -288,7 +288,7 @@ execnet==1.8.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==6.0.0
+faker==6.1.1
     # via factory-boy
 filelock==3.0.12
     # via
@@ -386,7 +386,7 @@ pycountry==20.7.3
     # via -r requirements/base.in
 pycparser==2.20
     # via cffi
-pycryptodomex==3.9.9
+pycryptodomex==3.10.1
     # via pyjwkest
 pygments==2.7.4
     # via sphinx
@@ -432,7 +432,7 @@ pytest-forked==1.3.0
     # via pytest-xdist
 pytest-responses==0.4.0
     # via -r requirements/test.in
-pytest-xdist==2.2.0
+pytest-xdist==2.2.1
     # via -r requirements/test.in
 pytest==6.2.2
     # via
@@ -562,7 +562,7 @@ social-auth-core==4.0.2
     #   -c requirements/constraints.txt
     #   edx-auth-backends
     #   social-auth-app-django
-soupsieve==2.1
+soupsieve==2.2
     # via beautifulsoup4
 sphinx==2.4.4
     # via
