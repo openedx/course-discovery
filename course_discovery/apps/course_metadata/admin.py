@@ -100,7 +100,21 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
-    change_actions = ('course_skills',)
+    change_actions = ('course_skills', )
+
+    def get_change_actions(self, request, object_id, form_url):
+        """
+        Get a list of change actions.
+
+        Hide `Course Skills` action button for draft courses.
+        """
+        actions = super().get_change_actions(request, object_id, form_url)
+        actions = list(actions)
+
+        if not Course.objects.filter(id=object_id).exists():
+            actions.remove('course_skills')
+
+        return actions
 
     def course_skills(self, request, obj):
         """

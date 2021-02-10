@@ -1,7 +1,7 @@
 from django.contrib import admin, messages
 from django.contrib.auth import get_permission_codename
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView, UpdateView, View
@@ -79,7 +79,7 @@ class CourseSkillsView(View):
         """
         Return the default context parameters.
         """
-        course = Course.objects.get(id=course_pk)
+        course = get_object_or_404(Course, id=course_pk)
         course_skills = get_whitelisted_course_skills(course.key)
         excluded_skills = get_blacklisted_course_skills(course.key)
         return {
@@ -139,10 +139,9 @@ class CourseSkillsView(View):
             for skill_id in form.cleaned_data['include_skills']:
                 remove_course_skill_from_blacklist(course.key, skill_id)
 
-        context = self._build_context(request, course_pk)
-        context['exclude_skills_form'] = self.form(
-            context[self.ContextParameters.COURSE_SKILLS],
-            context[self.ContextParameters.EXCLUDED_SKILLS],
-        )
+        message = _('The course skills were updated successfully.')
+        messages.add_message(self.request, messages.SUCCESS, message)
 
-        return render(request, self.template, context)
+        return HttpResponseRedirect(
+            reverse('admin:course_skills', args=(course_pk,))
+        )
