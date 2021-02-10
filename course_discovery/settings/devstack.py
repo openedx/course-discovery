@@ -76,6 +76,9 @@ ENABLE_PUBLISHER = True
 
 ORG_BASE_LOGO_URL = "http://discovery:18381/media/"
 
+WORDPRESS_APP_AUTH_USERNAME = 'coursediscoveryworker'
+WORDPRESS_APP_AUTH_PASSWORD = ''
+
 #####################################################################
 # Lastly, see if the developer has any local overrides.
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):

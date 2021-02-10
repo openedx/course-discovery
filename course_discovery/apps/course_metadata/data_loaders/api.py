@@ -20,7 +20,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.data_loaders.course_type import calculate_course_type
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType,
-    Video
+    Subject, Video
 )
 from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run, subtract_deadline_delta
 
@@ -899,3 +899,98 @@ class ProgramsApiDataLoader(AbstractDataLoader):
             program.save()
         else:
             logger.exception('Loading the banner image %s for program %s failed', image_url, program.title)
+
+
+class WordPressApiDataLoader(AbstractDataLoader):
+    """
+    Loads course runs from the Courses API in WordPress.
+    """
+
+    def ingest(self):
+        """
+        Load courses data from the WordPress.
+        """
+        logger.info('Refreshing Courses Data from WordPress %s...', self.partner.marketing_site_api_url)
+        initial_page = 1
+        response = self._make_request(initial_page)
+        count = response['pagination']['count']
+        pages = response['pagination']['num_pages']
+        self._process_response(response)
+
+        pagerange = range(initial_page + 1, pages + 1)
+        logger.info('Looping to request all %d WordPress pages...', pages)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            if self.is_threadsafe:
+                for page in pagerange:
+                    time.sleep(30)
+                    executor.submit(self._load_data, page)
+            else:
+                for future in [executor.submit(self._make_request, page) for page in pagerange]:
+                    response = future.result()
+                    self._process_response(response)
+
+        logger.info('Retrieved %d course from %s.', count, self.partner.marketing_site_api_url)
+
+    def _make_request(self, page):
+        """
+        Send request to WordPress.
+        """
+        logger.info('Requesting WordPress course run page %d...', page)
+        params = {'page': page, 'page_size': self.PAGE_SIZE}
+        auth = requests.auth.HTTPBasicAuth(
+            settings.WORDPRESS_APP_AUTH_USERNAME,
+            settings.WORDPRESS_APP_AUTH_PASSWORD
+        )
+        response = requests.get(self.api_url, auth=auth, params=params)
+        response.raise_for_status()
+        return response.json()
+
+    def _load_data(self, page):
+        """
+        Make a request for the given page and process the response.
+        """
+        response = self._make_request(page)
+        self._process_response(response)
+
+    def _process_response(self, response):
+        """
+        Process the response from the WordPress.
+        """
+        results = response['results']
+        logger.info('Retrieved %d WordPress course runs...', len(results))
+
+        for body in results:
+            course_run_key = body['course_id']
+            try:
+                body = self.clean_strings(body)
+                course_run = CourseRun.objects.get(key__iexact=course_run_key)
+                course_run.short_description_override = body['excerpt']
+                course_run.full_description_override = body['description']
+                course_run.featured = body['featured']
+                course_run.card_image_url = body['featured_image_url']
+                course_run.slug = body['slug']
+                categories = body['categories']
+
+                course_run.tags.clear()
+                for tag in body['tags']:
+                    course_run.tags.add(tag)
+
+                course_run.course.subjects.clear()
+                for category in categories:
+                    subject, _ = Subject.objects.get_or_create(
+                        slug=category['slug'],
+                        partner=self.partner,
+                        defaults={'name': category['title'], 'description': category['description']}
+                    )
+                    course_run.course.subjects.add(subject)
+
+                course_run.save()
+            except CourseRun.DoesNotExist:
+                logger.exception('Could not find course run [%s]', course_run_key)
+            except Exception:  # pylint: disable=broad-except
+                msg = 'An error occurred while updating {course_run} from {api_url}'.format(
+                    course_run=course_run_key,
+                    api_url=self.partner.marketing_site_api_url
+                )
+                logger.exception(msg)

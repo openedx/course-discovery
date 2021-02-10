@@ -13,7 +13,7 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
+    CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader, WordPressApiDataLoader
 )
 from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig, Image, Video
 
@@ -119,6 +119,9 @@ class Command(BaseCommand):
             pipeline = (
                 (
                     (CoursesApiDataLoader, partner.courses_api_url, max_workers),
+                ),
+                (
+                    (WordPressApiDataLoader, partner.marketing_site_api_url, max_workers),
                 ),
                 (
                     (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),

@@ -12,11 +12,12 @@ from django.test import TestCase
 from edx_django_utils.cache import TieredCache
 from pytz import UTC
 from slumber.exceptions import HttpClientError
+from testfixtures import LogCapture
 
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    AbstractDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
+    AbstractDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader, WordPressApiDataLoader
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
@@ -1075,3 +1076,81 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         for program in programs:
             self.assert_program_loaded(program)
             self.assert_program_banner_image_loaded(program)
+
+
+@ddt.ddt
+class WordPressApiDataLoaderTests(DataLoaderTestMixin, TestCase):
+    loader_class = WordPressApiDataLoader
+
+    @property
+    def api_url(self):
+        return self.partner.marketing_site_api_url
+
+    def mock_api(self):
+        """
+        Mock the WordPress course run API.
+        """
+        bodies = mock_data.WORDPRESS_API_BODIES
+        url = self.api_url.strip('/')
+        responses.add_callback(
+            responses.GET,
+            url,
+            callback=mock_api_callback(url, bodies, pagination=True),
+            content_type=JSON
+        )
+        return bodies
+
+    def assert_tags_equal(self, qs, tags, sort=True, attr="name"):
+        """
+        Helper function to assert the course tags.
+        """
+        got = [getattr(obj, attr) for obj in qs]
+        if sort:
+            got.sort()
+            tags.sort()
+
+        assert got == tags
+
+    def test_ingest(self):
+        """
+        Test the WordPress data loader.
+        """
+        TieredCache.dangerous_clear_all_tiers()
+        api_data = self.mock_api()
+        expected_course = api_data[0]
+        CourseRunFactory(key=expected_course['course_id'])
+
+        self.loader.ingest()
+
+        course = CourseRun.objects.filter(key__iexact=expected_course['course_id']).first()
+        assert course.slug == expected_course['slug']
+        assert course.short_description_override == expected_course['excerpt']
+        assert course.full_description_override == expected_course['description']
+        assert course.featured == expected_course['featured']
+        assert course.card_image_url == expected_course['featured_image_url']
+        self.assert_tags_equal(course.tags.all(), expected_course['tags'])
+
+        for category in expected_course['categories']:
+            subject = course.subjects.get(slug=category['slug'])
+            assert subject.slug == category['slug']
+            assert subject.name == category['title']
+            assert subject.description == category['description']
+
+    def test_ingest_with_fail(self):
+        """
+        Test that data loader raise logs errors if course run not found.
+        """
+        TieredCache.dangerous_clear_all_tiers()
+        api_data = self.mock_api()
+
+        with LogCapture('course_discovery.apps.course_metadata.data_loaders.api') as logger:
+            self.loader.ingest()
+            logger.check_present(
+                (
+                    'course_discovery.apps.course_metadata.data_loaders.api',
+                    'ERROR',
+                    'Could not find course run [{course_run}]'.format(
+                        course_run=api_data[0]['course_id']
+                    )
+                )
+            )

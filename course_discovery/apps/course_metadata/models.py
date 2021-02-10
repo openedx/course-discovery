@@ -1266,6 +1266,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Course_Run__c in Salesforce
 
     invite_only = models.BooleanField(default=False)
+    featured = models.BooleanField(default=False)
 
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',

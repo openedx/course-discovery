@@ -3070,3 +3070,29 @@ DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY = {
     'uuid': '6b8b779f-f567-4e98-aa41-a265d6fa073a',
     'vuuid': 'e0f8c80a-b377-4546-b247-1c94ab3a218a'
 }
+
+WORDPRESS_API_BODIES = [
+    {
+        'course_id': 'course-v1:edX+DemoX+Demo_Course',
+        'slug': 'demo-course',
+        'permalink': 'https://example.com/course/demo-course',
+        'title': 'Demo Course',
+        'description': 'This is long description',
+        'excerpt': 'This is short description',
+        'featured': True,
+        'categories': [
+            {
+                'title': 'Technology',
+                'slug': 'technology',
+                'description': 'Technology category description'
+            },
+            {
+                'title': 'General',
+                'slug': 'general',
+                'description': 'General category description'
+            }
+        ],
+        'tags': ['tag1', 'tag2', 'tag3'],
+        'featured_image_url': 'http://example.com/demo-course-image.jpg'
+    }
+]
