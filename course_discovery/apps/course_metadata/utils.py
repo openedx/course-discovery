@@ -452,10 +452,10 @@ def push_to_ecommerce_for_course_run(course_run):
         course_run: Official version of a course_metadata CourseRun
     """
     course = course_run.course
-    api = course.partner.lms_api_client
-    if not api or not course.partner.ecommerce_api_url:
+    if not course.partner.ecommerce_api_url:
         return False
 
+    api = course.partner.oauth_api_client
     entitlements = course.entitlements.all()
 
     # Figure out which seats to send (skip ones that have no ecom products - like Masters - or are just misconfigured).
@@ -531,15 +531,12 @@ def push_tracks_to_lms_for_course_run(course_run):
         return
 
     partner = course_run.course.partner
-    if not partner.lms_api_client:
-        logger.info('LMS api client is not initiated. Cannot publish LMS tracks for [%s].', course_run.key)
-        return
     if not partner.lms_coursemode_api_url:
         logger.info('No LMS coursemode api url configured. Cannot publish LMS tracks for [%s].', course_run.key)
         return
 
     url = partner.lms_coursemode_api_url.rstrip('/') + '/courses/{}/'.format(course_run.key)
-    course_modes = {mode['mode_slug'] for mode in partner.lms_api_client.get(url).json()}
+    course_modes = {mode['mode_slug'] for mode in partner.oauth_api_client.get(url).json()}
 
     for track in tracks_without_seats:
         if track.mode.slug in course_modes:
@@ -553,7 +550,7 @@ def push_tracks_to_lms_for_course_run(course_run):
             'currency': 'usd',
             'min_price': 0,
         }
-        response = partner.lms_api_client.post(url, json=data)
+        response = partner.oauth_api_client.post(url, json=data)
 
         if response.ok:
             logger.info('Successfully published [%s] LMS mode for [%s].', track.mode.slug, course_run.key)

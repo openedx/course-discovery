@@ -253,13 +253,12 @@ class Organization(CachedMixin, TimeStampedModel):
             logo_url = '{}{}'.format(base_url, logo) if base_url else logo.url
             data['logo_url'] = logo_url
         organizations_url = '{}organizations/{}/'.format(partner.organizations_api_url, key)
-        if partner.lms_api_client:
-            try:
-                partner.lms_api_client.put(organizations_url, json=data)
-            except requests.exceptions.ConnectionError as e:
-                logger.error('[%s]: Unable to push organization [%s] to lms.', e, self.uuid)
-            except Exception as e:
-                raise e
+        try:
+            partner.oauth_api_client.put(organizations_url, json=data)
+        except requests.exceptions.ConnectionError as e:
+            logger.error('[%s]: Unable to push organization [%s] to lms.', e, self.uuid)
+        except Exception as e:
+            raise e
 
 
 class Image(AbstractMediaModel):

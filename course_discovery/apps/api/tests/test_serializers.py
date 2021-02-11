@@ -2,7 +2,6 @@
 import datetime
 import itertools
 import re
-from unittest import mock
 from urllib.parse import urlencode
 
 import ddt
@@ -34,7 +33,7 @@ from course_discovery.apps.api.serializers import (
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
-from course_discovery.apps.core.models import Partner, User
+from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
@@ -2480,12 +2479,12 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
 
     def setUp(self):
         super().setUp()
+        self.mock_access_token()
         self.user = UserFactory.create()
         self.partner = PartnerFactory.create()
 
     @override_switch('use_company_name_as_utm_source_value', active=False)
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_with_waffle_switch_turned_off(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_with_waffle_switch_turned_off(self):
         """
         Verify that `get_utm_source_for_user` returns User's username when waffle switch
         `use_company_name_as_utm_source_value` is turned off.
@@ -2493,8 +2492,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
 
         assert get_utm_source_for_user(self.partner, self.user) == self.user.username
 
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_with_missing_lms_url(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_with_missing_lms_url(self):
         """
         Verify that `get_utm_source_for_user` returns default value if
         `Partner.lms_url` is not set in the database.
@@ -2502,8 +2500,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         assert get_utm_source_for_user(self.partner, self.user) == self.user.username
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_when_api_response_is_not_valid(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_when_api_response_is_not_valid(self):
         """
         Verify that `get_utm_source_for_user` returns default value if
         LMS API does not return a valid response.
@@ -2513,8 +2510,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         assert get_utm_source_for_user(self.partner, self.user) == self.user.username
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_get_utm_source_for_user(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_get_utm_source_for_user(self):
         """
         Verify that `get_utm_source_for_user` returns correct value.
         """

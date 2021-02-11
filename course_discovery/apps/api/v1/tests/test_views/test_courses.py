@@ -1,12 +1,10 @@
 import datetime
-import json
 from unittest import mock
 
 import ddt
 import pytest
 import pytz
 import responses
-from django.conf import settings
 from django.db import IntegrityError
 from django.db.models.functions import Lower
 from django.db.models.query import Prefetch
@@ -42,6 +40,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.course = CourseFactory(partner=self.partner, title='Fake Test', key='edX+Fake101', type=self.audit_type)
         self.org = OrganizationFactory(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)
+        self.mock_access_token()
 
     def tearDown(self):
         super().tearDown()
@@ -619,12 +618,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         else:
             course_data = data or {}
 
-        responses.add(
-            responses.POST,
-            settings.BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL + '/access_token',
-            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
-            status=200,
-        )
         studio_url = '{root}/api/v1/course_runs/'.format(root=self.partner.studio_url.strip('/'))
         responses.add(responses.POST, studio_url, status=200)
         key = 'course-v1:{org}+{number}+1T2001'.format(org=course_data['org'], number=course_data['number'])
@@ -641,8 +634,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                                key='edX+6688',
                                type=self.audit_type,
                                authoring_organizations=[org1, org2, org3])
-
-        self.mock_access_token()
 
         url = reverse('api:v1:course-detail', kwargs={'key': course.key})
         response = self.client.get(url)
@@ -666,7 +657,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     def test_create_makes_draft(self):
         """ When creating a course, it should start as a draft. """
-        self.mock_access_token()
         response = self.create_course({'type': str(self.verified_type.uuid), 'prices': {'verified': 77}})
         assert response.status_code == 201
 
@@ -676,7 +666,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     def test_create_makes_editor(self):
         """ When creating a course, it should set the current user as the only editor for that course. """
-        self.mock_access_token()
         response = self.create_course()
         assert response.status_code == 201
 
@@ -711,7 +700,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         When creating a course and supplying a course_run, it should create both the course
         and course run as drafts. When mode = 'verified', a verified seat and an audit seat should be created.
         """
-        self.mock_access_token()
         data = {
             'number': 'test101',
             'org': self.org.key,
@@ -736,7 +724,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert audit_seat.draft
 
     def test_create_auto_creates_slug_if_not_set(self):
-        self.mock_access_token()
         response = self.create_course()
         assert response.status_code == 201
         course = Course.everything.last()
@@ -744,7 +731,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert course.active_url_slug == 'course-title'
 
     def test_add_collaborator_uuid_list(self):
-        self.mock_access_token()
         collaborator = {
             'name': 'Collaborator 1',
             # The API is expecting the image to be base64 encoded. We are simulating that here.
@@ -764,7 +750,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert course['collaborators'][0]['name'] == 'Collaborator 1'
 
     def test_modify_collaborator_uuid_list(self):
-        self.mock_access_token()
         collaborator = {
             'name': 'Collaborator 1',
             # The API is expecting the image to be base64 encoded. We are simulating that here.
@@ -798,14 +783,12 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert len(response.json()['collaborators']) == 2
 
     def test_create_saves_manual_url_slug(self):
-        self.mock_access_token()
         response = self.create_course({'url_slug': 'manual'})
         assert response.status_code == 201
         course = Course.everything.last()
         assert course.active_url_slug == 'manual'
 
     def test_create_increments_auto_url_slug(self):
-        self.mock_access_token()
         response = self.create_course()
         assert response.status_code == 201
         course = Course.everything.last()
@@ -817,7 +800,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert course.active_url_slug == 'course-title-2'
 
     def test_create_with_course_type_verified(self):
-        self.mock_access_token()
         data = {
             'title': 'Test Course',
             'number': 'test101',
@@ -839,7 +821,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert entitlement.price == 77
 
     def test_create_with_course_type_audit(self):
-        self.mock_access_token()
         data = {
             'title': 'Test Course',
             'number': 'test101',
@@ -856,7 +837,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert 0 == CourseEntitlement.everything.count()
 
     def test_create_fails_if_manual_slug_exists(self):
-        self.mock_access_token()
         response = self.create_course()
         assert response.status_code == 201
         course = Course.everything.last()
@@ -871,7 +851,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     def test_create_fails_if_official_version_exists(self):
         """ When creating a course, it should not create one if an official version already exists. """
-        self.mock_access_token()
         response = self.create_course({'number': 'Fake101'})
         assert response.status_code == 400
         expected_error_message = 'Failed to set data: A course with key [{key}] already exists.'
@@ -988,7 +967,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     @ddt.data('put', 'patch')
     @responses.activate
     def test_update_success(self, method):
-        self.mock_access_token()
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
             'title': 'Course title',
@@ -1016,7 +994,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         beginner.set_current_language('en')
         beginner.name_t = 'Beginner'
         beginner.save()
-        self.mock_access_token()
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
             'level_type': 'Beginner'
@@ -1028,7 +1005,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_update_success_with_course_type_verified(self):
-        self.mock_access_token()
         verified_mode = SeatTypeFactory.verified()
         CourseEntitlementFactory(course=self.course, mode=verified_mode)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
@@ -1051,7 +1027,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_update_success_with_course_type_audit(self):
-        self.mock_access_token()
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
             'title': 'Course title',
@@ -1068,7 +1043,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert 0 == course.entitlements.count()
 
     def test_update_keeps_url_slug_if_removed_from_form(self):
-        self.mock_access_token()
         self.course.set_active_url_slug('fake-test')
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         course_data = {
@@ -1081,7 +1055,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_update_operates_on_drafts(self):
-        self.mock_access_token()
         CourseEntitlementFactory(course=self.course)
         assert not Course.everything.filter(uuid=self.course.uuid, draft=True).exists()
         # sanity check
@@ -1102,7 +1075,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_patch_resets_run_status(self):
-        self.mock_access_token()
         self.mock_ecommerce_publication()
         self.create_course_and_course_run()
 
@@ -1129,7 +1101,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_patch_non_review_fields_does_not_reset_run_status(self):
-        self.mock_access_token()
         self.mock_ecommerce_publication()
         self.create_course_and_course_run()
 
@@ -1162,7 +1133,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         Verify that draft rows can be updated and re-published with draft=False. This should also
         update and publish the official version.
         """
-        self.mock_access_token()
         self.mock_ecommerce_publication()
         data = {
             'type': str(CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT).uuid),
@@ -1216,7 +1186,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert official_course.entitlements.first().price == 1000
 
     def test_patch_publish_saves_old_url_in_history(self):
-        self.mock_access_token()
         self.mock_ecommerce_publication()
         self.create_course_and_course_run()
         draft_course = Course.everything.last()
@@ -1245,7 +1214,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert 'course-title' in url_history_strings
 
     def test_unpublished_url_slugs_not_added_to_history(self):
-        self.mock_access_token()
         self.mock_ecommerce_publication()
         self.create_course_and_course_run()
         draft_course = Course.everything.last()
@@ -1298,7 +1266,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         Verify that draft rows can be updated and re-published with draft=False. This should also
         update and publish the official version.
         """
-        self.mock_access_token()
         self.mock_ecommerce_publication()
         self.create_course_and_course_run()
 
@@ -1341,7 +1308,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         Verify that draft rows can be updated from a "Verified and Audit" Course with
         a Verified Entitlement to an "Audit Only" course with no entitlements
         """
-        self.mock_access_token()
         self.mock_ecommerce_publication()
         data = {'type': str(CourseType.objects.get(slug=CourseType.VERIFIED_AUDIT).uuid)}
         self.create_course_and_course_run(data)
@@ -1365,7 +1331,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         we attempt to create an entitlement based on the seat data from the course runs. As long as all seat
         data from active course runs (see Course.active_course_runs) match, we will create an entitlement.
         """
-        self.mock_access_token()
         future = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
         run = CourseRunFactory(course=self.course, end=future, enrollment_end=None)
         seat = SeatFactory(course_run=run, type=SeatTypeFactory.verified())
@@ -1404,7 +1369,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                 'project coordinator for additional help if necessary.')
 
     def test_update_fails_if_manual_slug_exists(self):
-        self.mock_access_token()
         response = self.create_course()
         assert response.status_code == 201
         course = Course.everything.last()
@@ -1420,7 +1384,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert response.data == expected_error_message
 
     def test_update_fails_if_manual_slug_in_other_course_history(self):
-        self.mock_access_token()
         self.mock_ecommerce_publication()
         self.create_course_and_course_run()
         draft_course = Course.everything.last()
@@ -1451,7 +1414,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert response.data == expected_error_message
 
     def test_update_succeeds_if_reusing_previous_slug_on_same_course(self):
-        self.mock_access_token()
         self.mock_ecommerce_publication()
         self.create_course_and_course_run()
         draft_course = Course.everything.last()
@@ -1523,7 +1485,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_options(self):
-        self.mock_access_token()
         SubjectFactory(name='Subject1')
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
 
@@ -1561,8 +1522,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     @ddt.data(True, False)
     def test_retrieve_will_create_entitlement(self, has_entitlement):
         """ When retrieving a course, test that an entitlement gets created if needed """
-        self.mock_access_token()
-
         assert not self.course.entitlements.exists()
         # sanity check
 
@@ -1590,7 +1549,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_html_stripped(self):
-        self.mock_access_token()
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         response = self.client.patch(url, {'full_description': '<p class="test">Desc</p>'}, format='json')
         assert response.status_code == 200
@@ -1599,7 +1557,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_html_restricted(self):
-        self.mock_access_token()
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         response = self.client.patch(url, {'full_description': '<h1>Header</h1>'}, format='json')
         self.assertContains(response, 'Invalid HTML received: h1 tag is not allowed', status_code=400)

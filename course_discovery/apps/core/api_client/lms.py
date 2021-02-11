@@ -2,12 +2,11 @@
 API Client for LMS.
 """
 import logging
+from urllib.parse import urljoin
 
 from django.core.cache import cache
 from edx_django_utils.cache import get_cache_key
-from edx_rest_api_client.client import EdxRestApiClient
-from edx_rest_api_client.exceptions import SlumberBaseException
-from requests.exceptions import ConnectionError, Timeout  # pylint: disable=redefined-builtin
+from requests.exceptions import RequestException
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +20,9 @@ class LMSAPIClient:
     API Client for communication between discovery and LMS.
     """
 
-    def __init__(self, site):
-        self.client = EdxRestApiClient(site.partner.lms_url, jwt=site.partner.access_token)
+    def __init__(self, partner):
+        self.client = partner.oauth_api_client
+        self.lms_url = partner.lms_url
 
     def get_api_access_request(self, user):
         """
@@ -67,7 +67,10 @@ class LMSAPIClient:
 
         api_access_request = None
         try:
-            results = getattr(self.client, resource).get(**query_parameters)['results']
+            resource_url = urljoin(self.lms_url, resource)
+            response = self.client.get(resource_url, params=query_parameters)
+            response.raise_for_status()
+            results = response.json()['results']
             if results:
                 if len(results) > 1:
                     logger.warning(
@@ -80,7 +83,7 @@ class LMSAPIClient:
                 cache.set(cache_key, SENTINEL_NO_RESULT, ONE_HOUR)
                 logger.info('No results for ApiAccessRequest for user [%s].', user.username)
 
-        except (SlumberBaseException, ConnectionError, Timeout, KeyError) as exception:
+        except (RequestException, KeyError) as exception:
             cache.set(cache_key, SENTINEL_NO_RESULT, ONE_MINUTE)
             logger.exception('%s: Failed to fetch ApiAccessRequest from LMS for user [%s].',
                              exception.__class__.__name__, user.username)
