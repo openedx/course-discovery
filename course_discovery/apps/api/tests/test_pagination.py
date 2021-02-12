@@ -1,3 +1,4 @@
+import pytest
 from django.test import TestCase
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.request import Request
@@ -34,11 +35,11 @@ class ProxiedPaginationTests(TestCase):
     def assert_proxied(self, expected_paginator, request):
         proxied_queryset = self.paginate_queryset(self.proxied_paginator, request)
         expected_queryset = self.paginate_queryset(expected_paginator, request)
-        self.assertEqual(proxied_queryset, expected_queryset)
+        assert proxied_queryset == expected_queryset
 
         proxied_data = self.get_paginated_content(self.proxied_paginator, proxied_queryset)
         expected_data = self.get_paginated_content(expected_paginator, expected_queryset)
-        self.assertEqual(proxied_data, expected_data)
+        assert proxied_data == expected_data
 
     def test_default_pagination(self):
         """
@@ -70,24 +71,15 @@ class ProxiedPaginationTests(TestCase):
         PageNumberPagination and LimitOffsetPagination.
         """
         # Access an attribute unique to PageNumberPagination.
-        self.assertEqual(
-            self.proxied_paginator.page_query_param,
-            self.page_number_paginator.page_query_param
-        )
+        assert self.proxied_paginator.page_query_param == self.page_number_paginator.page_query_param
 
         # Access an attribute unique to LimitOffsetPagination.
-        self.assertEqual(
-            self.proxied_paginator.limit_query_param,
-            self.limit_offset_paginator.limit_query_param
-        )
+        assert self.proxied_paginator.limit_query_param == self.limit_offset_paginator.limit_query_param
 
         # Access an attribute common to both PageNumberPagination and LimitOffsetPagination.
-        self.assertEqual(
-            self.proxied_paginator.display_page_controls,
-            self.limit_offset_paginator.display_page_controls
-        )
+        assert self.proxied_paginator.display_page_controls == self.limit_offset_paginator.display_page_controls
 
         # Access an attribute found on neither PageNumberPagination nor LimitOffsetPagination.
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             zach = self.proxied_paginator
             zach.cool  # pylint: disable=pointless-statement

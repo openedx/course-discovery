@@ -1,6 +1,7 @@
 from unittest import mock
 
 import ddt
+import pytest
 from django.core.management import CommandError, call_command
 from django.test import TestCase
 
@@ -23,15 +24,15 @@ class BackfillCourseRunSlugsToCoursesCommandTests(TestCase):
         self.course2PublishedRun = CourseRunFactory(course=self.course2, status=CourseRunStatus.Published)
 
     def test_missing_arguments(self):
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             call_command('backfill_course_run_slugs_to_courses')
 
     def test_conflicting_arguments(self):
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             call_command('backfill_course_run_slugs_to_courses', '--args-from-database', '--all')
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             call_command('backfill_course_run_slugs_to_courses', '--all', '-uuids', self.course1.uuid)
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             call_command('backfill_course_run_slugs_to_courses', '-uuids', self.course1.uuid, '--args-from-database')
 
     @ddt.data(
@@ -53,11 +54,11 @@ class BackfillCourseRunSlugsToCoursesCommandTests(TestCase):
         course2_url_slugs = [slug_obj.url_slug for slug_obj in self.course2.url_slug_history.all()]
 
         # make sure active url_slugs remain unchanged
-        self.assertEqual(self.course1.active_url_slug, course1_active_url_slug)
-        self.assertIn(self.course1PublishedRun.slug, course1_url_slugs)
-        self.assertNotIn(self.course1UnpublishedRun.slug, course1_url_slugs)
-        self.assertEqual(self.course2.active_url_slug, course2_active_url_slug)
-        self.assertIn(self.course2PublishedRun.slug, course2_url_slugs)
+        assert self.course1.active_url_slug == course1_active_url_slug
+        assert self.course1PublishedRun.slug in course1_url_slugs
+        assert self.course1UnpublishedRun.slug not in course1_url_slugs
+        assert self.course2.active_url_slug == course2_active_url_slug
+        assert self.course2PublishedRun.slug in course2_url_slugs
 
     @ddt.data('command_line', 'database',)
     def test_backfill_specific_course(self, argument_source):
@@ -72,12 +73,12 @@ class BackfillCourseRunSlugsToCoursesCommandTests(TestCase):
             call_command('backfill_course_run_slugs_to_courses', '-uuids', self.course1.uuid)
 
         course1_url_slugs = [slug_obj.url_slug for slug_obj in self.course1.url_slug_history.all()]
-        self.assertEqual(self.course1.active_url_slug, course1_active_url_slug)
-        self.assertIn(self.course1PublishedRun.slug, course1_url_slugs)
+        assert self.course1.active_url_slug == course1_active_url_slug
+        assert self.course1PublishedRun.slug in course1_url_slugs
 
         # check we didn't change anything for course2
-        self.assertEqual(self.course2.active_url_slug, course2_active_url_slug)
-        self.assertEqual(self.course2.url_slug_history.count(), 1)
+        assert self.course2.active_url_slug == course2_active_url_slug
+        assert self.course2.url_slug_history.count() == 1
 
     def test_specific_uuids_take_priority_in_database_config(self):
         course1_active_url_slug = self.course1.active_url_slug
@@ -90,12 +91,12 @@ class BackfillCourseRunSlugsToCoursesCommandTests(TestCase):
         call_command('backfill_course_run_slugs_to_courses', '--args-from-database')
 
         course1_url_slugs = [slug_obj.url_slug for slug_obj in self.course1.url_slug_history.all()]
-        self.assertEqual(self.course1.active_url_slug, course1_active_url_slug)
-        self.assertIn(self.course1PublishedRun.slug, course1_url_slugs)
+        assert self.course1.active_url_slug == course1_active_url_slug
+        assert self.course1PublishedRun.slug in course1_url_slugs
 
         # check we didn't change anything for course2
-        self.assertEqual(self.course2.active_url_slug, course2_active_url_slug)
-        self.assertEqual(self.course2.url_slug_history.count(), 1)
+        assert self.course2.active_url_slug == course2_active_url_slug
+        assert self.course2.url_slug_history.count() == 1
 
     @mock.patch(LOGGER)
     def test_unable_to_add_duplicate_slugs(self, mock_logger):

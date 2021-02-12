@@ -16,4 +16,4 @@ class SortedModelSelect2MultipleTests(TestCase):
         choices = ((1, 'one'), (2, 'two'), (3, 'three'))
         widget = SortedModelSelect2Multiple(url='requiredurl', choices=choices)
         result = widget.optgroups('test', value)
-        self.assertEqual(result_order, [x[1][0]['value'] for x in result])
+        assert result_order == [x[1][0]['value'] for x in result]

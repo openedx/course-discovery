@@ -138,7 +138,7 @@ class ProgramStructureValidationTests(TestCase):
         else:
             curriculum.save()
             curriculum.refresh_from_db()
-            self.assertEqual(curriculum.program.title, program_title)
+            assert curriculum.program.title == program_title
 
     def test_create_new_curriculum(self):
         """ create should be unaffected, impossible to create circular ref """
@@ -365,7 +365,7 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
                 curriculum_4.program = self.program_1
                 curriculum_4.save()
         curriculum_4.refresh_from_db()
-        self.assertEqual(curriculum_4.program, new_program)
+        assert curriculum_4.program == new_program
 
     @ddt.data(
         None,
@@ -381,7 +381,7 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
             course=self.course_1,
             external_key=external_key_to_test,
         )
-        self.assertEqual(course_run_1a.external_key, copy_course_run_1a.external_key)
+        assert course_run_1a.external_key == copy_course_run_1a.external_key
 
         # Same curriculum test but different courses
         new_course_run = factories.CourseRunFactory(
@@ -392,7 +392,7 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
             course=new_course,
             curriculum=self.curriculum_1,
         )
-        self.assertEqual(course_run_1a.external_key, new_course_run.external_key)
+        assert course_run_1a.external_key == new_course_run.external_key
 
         # Same programs but different curriculum test
         _, curriculum_4 = self._create_single_course_curriculum(external_key_to_test, 'curriculum_4')
@@ -635,7 +635,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
         # and that the external_key is properly copied over to the official version
         self.draft_course_run_1.update_or_create_official_version()
         official_run = self.draft_course_run_1.official_version
-        self.assertEqual(self.draft_course_run_1.external_key, official_run.external_key)
+        assert self.draft_course_run_1.external_key == official_run.external_key
 
 
 class SalesforceTests(TestCase):
@@ -674,7 +674,7 @@ class SalesforceTests(TestCase):
             course.title = 'changed'
             course.save()
 
-            self.assertEqual(1, mock_salesforce_util().update_course.call_count)
+            assert 1 == mock_salesforce_util().update_course.call_count
 
     def test_update_or_create_salesforce_course_run(self):
         with mock.patch(self.salesforce_util_path) as mock_salesforce_util:

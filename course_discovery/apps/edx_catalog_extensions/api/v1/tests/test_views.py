@@ -5,6 +5,7 @@ from collections import defaultdict
 from unittest import mock
 
 import ddt
+import pytest
 import pytz
 from django.urls import reverse
 
@@ -333,7 +334,7 @@ class ProgramFixtureViewTests(APITestCase):
         uuids = [program.uuid for program in programs]
 
         response = self.get(uuids)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         fixture = json.loads(response.content.decode('utf-8'))
 
         # To make this tests less brittle, allow (inclusive) ranges for each model count.
@@ -362,7 +363,7 @@ class ProgramFixtureViewTests(APITestCase):
             pk = record['pk']
             model_label = record['model']
             # Assert no duplicate objects
-            self.assertNotIn(pk, actual_appearances_by_model_label[model_label])
+            assert pk not in actual_appearances_by_model_label[model_label]
             actual_appearances_by_model_label[model_label].add(pk)
 
         for model, (min_expected, max_expected) in expected_count_ranges_by_model.items():
@@ -371,23 +372,23 @@ class ProgramFixtureViewTests(APITestCase):
             err_string = "object count of {} for {} outside expected range [{}, {}]".format(
                 actual_count, model_label, min_expected, max_expected
             )
-            self.assertGreaterEqual(actual_count, min_expected, err_string)
-            self.assertLessEqual(actual_count, max_expected, err_string)
+            assert actual_count >= min_expected, err_string
+            assert actual_count <= max_expected, err_string
 
     def test_401(self):
         response = self.get(None)
-        self.assertEqual(response.status_code, 401)
+        assert response.status_code == 401
 
     def test_403(self):
         self.login_user()
         response = self.get(None)
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
     def test_404_no_programs(self):
         self.login_staff()
         with self.assertNumQueries(self.queries(0)):
             response = self.get(None)
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     def test_422_too_many_programs(self):
         self.login_staff()
@@ -397,13 +398,13 @@ class ProgramFixtureViewTests(APITestCase):
         with mock.patch.object(ProgramFixtureView, 'MAX_REQUESTED_PROGRAMS', 1):
             with self.assertNumQueries(self.queries(2)):
                 response = self.get([program_1.uuid, program_2.uuid])
-        self.assertEqual(response.status_code, 422)
+        assert response.status_code == 422
 
     def test_404_bad_input(self):
         self.login_staff()
         with self.assertNumQueries(self.queries(0)):
             response = self.get(['this-is-not-a-uuid'])
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     def test_404_nonexistent(self):
         self.login_staff()
@@ -411,7 +412,7 @@ class ProgramFixtureViewTests(APITestCase):
         bad_uuid = 'e9222eb7-7218-4a8b-9dff-b42bafbf6ed7'
         with self.assertNumQueries(self.queries(1)):
             response = self.get([program.uuid, bad_uuid])
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     def test_exception_failed_load_objects(self):
         self.login_staff()
@@ -424,6 +425,6 @@ class ProgramFixtureViewTests(APITestCase):
                 autospec=True,
                 return_value=course_base_manager.none(),
         ):
-            with self.assertRaises(Exception) as ex:
+            with pytest.raises(Exception) as ex:
                 self.get([program.uuid])
-        self.assertIn('Failed to load', str(ex.exception))
+        assert 'Failed to load' in str(ex.value)

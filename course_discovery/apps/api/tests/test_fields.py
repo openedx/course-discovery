@@ -80,8 +80,8 @@ class SlugRelatedFieldWithReadSerializerTests(TestCase):
         """ Make sure that we reproduce the empty-state edge case of the parent class's version """
         serializer = SlugRelatedFieldWithReadSerializer(slug_field='uuid', read_only=True,
                                                         read_serializer=ProgramSerializer())
-        self.assertIsNone(serializer.get_queryset())
-        self.assertEqual(serializer.get_choices(), {})
+        assert serializer.get_queryset() is None
+        assert serializer.get_choices() == {}
 
     def test_get_choices_cutoff(self):
         """ We should slice the queryset if provided a cutoff parameter """
@@ -89,15 +89,15 @@ class SlugRelatedFieldWithReadSerializerTests(TestCase):
         ProgramFactory()
         serializer = SlugRelatedFieldWithReadSerializer(slug_field='uuid', queryset=Program.objects.all(),
                                                         read_serializer=ProgramSerializer())
-        self.assertEqual(len(serializer.get_choices()), 2)
-        self.assertEqual(len(serializer.get_choices(cutoff=1)), 1)
+        assert len(serializer.get_choices()) == 2
+        assert len(serializer.get_choices(cutoff=1)) == 1
 
     def test_to_representation(self):
         """ Should be using provided serializer, rather than the slug """
         program = ProgramFactory()
         serializer = SlugRelatedFieldWithReadSerializer(slug_field='uuid', queryset=Program.objects.all(),
                                                         read_serializer=ProgramSerializer())
-        self.assertIsInstance(serializer.to_representation(program), dict)
+        assert isinstance(serializer.to_representation(program), dict)
 
 
 class SlugRelatedTranslatableFieldTest(TestCase):
@@ -105,4 +105,4 @@ class SlugRelatedTranslatableFieldTest(TestCase):
     def test_to_internal_value(self):
         subject = SubjectFactory(name='Subject')  # 'name' is a translated field on Subject
         serializer = SlugRelatedTranslatableField(slug_field='name', queryset=Subject.objects.all())
-        self.assertEqual(serializer.to_internal_value('Subject'), subject)
+        assert serializer.to_internal_value('Subject') == subject

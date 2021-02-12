@@ -4,6 +4,7 @@ from decimal import Decimal
 from unittest import mock
 
 import ddt
+import pytest
 import pytz
 import responses
 from django.core.management import CommandError
@@ -34,27 +35,27 @@ class AbstractDataLoaderTest(TestCase):
     def test_clean_string(self):
         """ Verify the method leading and trailing spaces, and returns None for empty strings. """
         # Do nothing for non-string input
-        self.assertIsNone(AbstractDataLoader.clean_string(None))
-        self.assertEqual(AbstractDataLoader.clean_string(3.14), 3.14)
+        assert AbstractDataLoader.clean_string(None) is None
+        assert AbstractDataLoader.clean_string(3.14) == 3.14
 
         # Return None for empty strings
-        self.assertIsNone(AbstractDataLoader.clean_string(''))
-        self.assertIsNone(AbstractDataLoader.clean_string('    '))
-        self.assertIsNone(AbstractDataLoader.clean_string('\t'))
+        assert AbstractDataLoader.clean_string('') is None
+        assert AbstractDataLoader.clean_string('    ') is None
+        assert AbstractDataLoader.clean_string('\t') is None
 
         # Return the stripped value for non-empty strings
         for s in ('\tabc', 'abc', ' abc ', 'abc ', '\tabc\t '):
-            self.assertEqual(AbstractDataLoader.clean_string(s), 'abc')
+            assert AbstractDataLoader.clean_string(s) == 'abc'
 
     def test_parse_date(self):
         """ Verify the method properly parses dates. """
         # Do nothing for empty values
-        self.assertIsNone(AbstractDataLoader.parse_date(''))
-        self.assertIsNone(AbstractDataLoader.parse_date(None))
+        assert AbstractDataLoader.parse_date('') is None
+        assert AbstractDataLoader.parse_date(None) is None
 
         # Parse datetime strings
         dt = datetime.datetime.utcnow()
-        self.assertEqual(AbstractDataLoader.parse_date(dt.isoformat()), dt)
+        assert AbstractDataLoader.parse_date(dt.isoformat()) == dt
 
 
 @ddt.ddt
@@ -82,10 +83,10 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         response_with_400 = HttpResponse(status=400)
         response_with_429 = HttpResponse(status=429)
         response_with_504 = HttpResponse(status=504)
-        self.assertFalse(_fatal_code(HttpClientError(response=response_with_200)))
-        self.assertTrue(_fatal_code(HttpClientError(response=response_with_400)))
-        self.assertFalse(_fatal_code(HttpClientError(response=response_with_429)))
-        self.assertFalse(_fatal_code(HttpClientError(response=response_with_504)))
+        assert not _fatal_code(HttpClientError(response=response_with_200))
+        assert _fatal_code(HttpClientError(response=response_with_400))
+        assert not _fatal_code(HttpClientError(response=response_with_429))
+        assert not _fatal_code(HttpClientError(response=response_with_504))
 
     def assert_course_run_loaded(self, body, partner_uses_publisher=True, draft=False, new_pub=False):
         """ Assert a CourseRun corresponding to the specified data body was properly loaded into the database. """
@@ -126,10 +127,10 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             })
 
             # Check if the course card_image_url was correctly updated
-            self.assertEqual(course.card_image_url, body['media'].get('image', {}).get('raw'),)
+            assert course.card_image_url == body['media'].get('image', {}).get('raw')
 
         for field, value in expected_values.items():
-            self.assertEqual(getattr(course_run, field), value, f'Field {field} is invalid.')
+            assert getattr(course_run, field) == value, f'Field {field} is invalid.'
 
         return course_run
 
@@ -149,8 +150,8 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             self.partner.publisher_url = None
             self.partner.save()
 
-        self.assertEqual(Course.objects.count(), 0)
-        self.assertEqual(CourseRun.objects.count(), 0)
+        assert Course.objects.count() == 0
+        assert CourseRun.objects.count() == 0
 
         # Assume that while we are relying on ORGS_ON_OLD_PUBLISHER it will never be empty
         with self.settings(ORGS_ON_OLD_PUBLISHER='MITx' if not on_new_publisher else 'OTHER'):
@@ -161,7 +162,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         # Verify the CourseRuns were created correctly
         expected_num_course_runs = len(api_data)
-        self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
+        assert CourseRun.objects.count() == expected_num_course_runs
 
         for datum in api_data:
             self.assert_course_run_loaded(datum, partner_uses_publisher, new_pub=on_new_publisher)
@@ -176,8 +177,8 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         TieredCache.dangerous_clear_all_tiers()
         api_data = self.mock_api()
 
-        self.assertEqual(Course.objects.count(), 0)
-        self.assertEqual(CourseRun.objects.count(), 0)
+        assert Course.objects.count() == 0
+        assert CourseRun.objects.count() == 0
 
         # Assume that while we are relying on ORGS_ON_OLD_PUBLISHER it will never be empty
         with self.settings(ORGS_ON_OLD_PUBLISHER='OTHER'):
@@ -215,7 +216,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         # Verify the CourseRuns were created correctly
         expected_num_course_runs = len(api_data)
-        self.assertEqual(CourseRun.objects.count(), expected_num_course_runs)
+        assert CourseRun.objects.count() == expected_num_course_runs
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
         self.loader.ingest()
@@ -225,9 +226,9 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         ]
         mock_push_to_ecomm.assert_has_calls(calls)
         # Make sure the verified seat with a course run end date is changed
-        self.assertNotEqual(original_run2_deadline, run2.seats.first().upgrade_deadline)
+        assert original_run2_deadline != run2.seats.first().upgrade_deadline
         # Make sure the credit seat with a course run end date is unchanged
-        self.assertIsNone(run3.seats.first().upgrade_deadline)
+        assert run3.seats.first().upgrade_deadline is None
 
     @responses.activate
     def test_ingest_exception_handling(self):
@@ -237,7 +238,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         with mock.patch.object(self.loader, 'clean_strings', side_effect=Exception):
             with mock.patch(LOGGER_PATH) as mock_logger:
                 self.loader.ingest()
-                self.assertEqual(mock_logger.exception.call_count, len(api_data))
+                assert mock_logger.exception.call_count == len(api_data)
                 msg = 'An error occurred while updating {} from {}'.format(
                     api_data[-1]['id'],
                     self.partner.courses_api_url
@@ -248,8 +249,8 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     @ddt.data(True, False)
     def test_ingest_canonical(self, partner_uses_publisher):
         """ Verify the method ingests data from the Courses API. """
-        self.assertEqual(Course.objects.count(), 0)
-        self.assertEqual(CourseRun.objects.count(), 0)
+        assert Course.objects.count() == 0
+        assert CourseRun.objects.count() == 0
 
         self.mock_api([
             mock_data.COURSES_API_BODY_ORIGINAL,
@@ -273,19 +274,19 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         course_run_second = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_SECOND['id'])
 
         # Verify not set as canonical
-        with self.assertRaises(AttributeError):
+        with pytest.raises(AttributeError):
             course_run_second.canonical_for_course  # pylint: disable=pointless-statement
 
         # Verify second course not used to update course
-        self.assertNotEqual(mock_data.COURSES_API_BODY_SECOND['name'], course.title)
+        assert mock_data.COURSES_API_BODY_SECOND['name'] != course.title
         if partner_uses_publisher:
             # Verify the course remains unchanged by api update if we have publisher
-            self.assertEqual(mock_data.COURSES_API_BODY_ORIGINAL['name'], course.title)
+            assert mock_data.COURSES_API_BODY_ORIGINAL['name'] == course.title
         else:
             # Verify updated canonical course used to update course
-            self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['name'], course.title)
+            assert mock_data.COURSES_API_BODY_UPDATED['name'] == course.title
         # Verify the updated course run updated the original course run
-        self.assertEqual(mock_data.COURSES_API_BODY_UPDATED['hidden'], course_run_orig.hidden)
+        assert mock_data.COURSES_API_BODY_UPDATED['hidden'] == course_run_orig.hidden
 
     def assert_run_and_course_updated(self, datum, run, exists, draft, partner_uses_publisher):
         course_key = '{org}+{number}'.format(org=datum['org'], number=datum['number'])
@@ -293,12 +294,12 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         if run:
             self.assert_course_run_loaded(datum, partner_uses_publisher, draft=draft)
             if partner_uses_publisher and exists:  # will not update course
-                self.assertNotEqual(Course.everything.get(key=course_key, draft=draft).title, datum['name'])
+                assert Course.everything.get(key=course_key, draft=draft).title != datum['name']
             else:
-                self.assertEqual(Course.everything.get(key=course_key, draft=draft).title, datum['name'])
+                assert Course.everything.get(key=course_key, draft=draft).title == datum['name']
         else:
-            self.assertFalse(CourseRun.everything.filter(key=run_key, draft=draft).exists())
-            self.assertFalse(Course.everything.filter(key=course_key, draft=draft).exists())
+            assert not CourseRun.everything.filter(key=run_key, draft=draft).exists()
+            assert not Course.everything.filter(key=course_key, draft=draft).exists()
 
     @responses.activate
     @ddt.data(
@@ -359,15 +360,15 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.loader.ingest()
 
         if draft_exists or official_exists:
-            self.assertEqual(set(Course.everything.all()), all_courses)
-            self.assertEqual(set(CourseRun.everything.all()), all_runs)
+            assert set(Course.everything.all()) == all_courses
+            assert set(CourseRun.everything.all()) == all_runs
         else:
             # We should have made official versions of the data
             official_course = Course.everything.get()
             official_run = CourseRun.everything.get()
-            self.assertFalse(official_course.draft)
-            self.assertFalse(official_run.draft)
-            self.assertEqual(official_course.canonical_course_run, official_run)
+            assert not official_course.draft
+            assert not official_run.draft
+            assert official_course.canonical_course_run == official_run
 
         self.assert_run_and_course_updated(datum, draft_run, draft_exists, True, partner_uses_publisher)
         self.assert_run_and_course_updated(datum, official_run, official_exists, False, partner_uses_publisher)
@@ -390,14 +391,14 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         draft_course = Course.everything.get(partner=self.partner, key=course_key, draft=True)
         official_course = Course.everything.get(partner=self.partner, key=course_key, draft=False)
-        self.assertEqual(official_course.draft_version, draft_course)
-        self.assertEqual(draft_course.course_runs.count(), 1)
-        self.assertEqual(official_course.course_runs.count(), 1)
+        assert official_course.draft_version == draft_course
+        assert draft_course.course_runs.count() == 1
+        assert official_course.course_runs.count() == 1
 
         draft_run = draft_course.course_runs.first()
         official_run = official_course.course_runs.first()
-        self.assertNotEqual(draft_run, official_run)
-        self.assertEqual(official_run.draft_version, draft_run)
+        assert draft_run != official_run
+        assert official_run.draft_version == draft_run
 
     def test_assigns_types(self):
         """
@@ -409,12 +410,12 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.loader.ingest()
 
         course_run = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_ORIGINAL['id'])
-        self.assertIsNotNone(course_run.type)
-        self.assertEqual(course_run.type.slug, CourseRunType.EMPTY)
+        assert course_run.type is not None
+        assert course_run.type.slug == CourseRunType.EMPTY
 
         course = course_run.course
-        self.assertIsNotNone(course.type)
-        self.assertEqual(course.type.slug, CourseType.EMPTY)
+        assert course.type is not None
+        assert course.type.slug == CourseType.EMPTY
 
         # Now confirm that we will copy the last run type if available.
         course_run.type = CourseRunType.objects.get(slug=CourseRunType.VERIFIED_AUDIT)
@@ -424,11 +425,11 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.loader.ingest()
 
         course_run2 = CourseRun.objects.get(key=mock_data.COURSES_API_BODY_SECOND['id'])
-        self.assertEqual(course_run2.type, course_run.type)
+        assert course_run2.type == course_run.type
 
     def test_get_pacing_type_field_missing(self):
         """ Verify the method returns None if the API response does not include a pacing field. """
-        self.assertIsNone(self.loader.get_pacing_type({}))
+        assert self.loader.get_pacing_type({}) is None
 
     @ddt.unpack
     @ddt.data(
@@ -442,7 +443,7 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     )
     def test_get_pacing_type(self, pacing, expected_pacing_type):
         """ Verify the method returns a pacing type corresponding to the API response's pacing field. """
-        self.assertEqual(self.loader.get_pacing_type({'pacing': pacing}), expected_pacing_type)
+        assert self.loader.get_pacing_type({'pacing': pacing}) == expected_pacing_type
 
     @ddt.unpack
     @ddt.data(
@@ -461,9 +462,9 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         actual = self.loader.get_courserun_video(body)
 
         if expected_video_src:
-            self.assertEqual(actual.src, expected_video_src)
+            assert actual.src == expected_video_src
         else:
-            self.assertIsNone(actual)
+            assert actual is None
 
 
 @ddt.ddt
@@ -511,7 +512,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         # If product_class is given, make sure it's either entitlement or enrollment_code
         if product_class:
-            self.assertIn(product_class, ['entitlement', 'enrollment_code'])
+            assert product_class in ['entitlement', 'enrollment_code']
 
         data = {
             "entitlement": {
@@ -654,7 +655,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         course_run = CourseRun.objects.get(key=body['id'])
         products = [p for p in body['products'] if p['structure'] == 'child']
         # Verify that the old seat is removed
-        self.assertEqual(course_run.seats.count(), len(products))
+        assert course_run.seats.count() == len(products)
 
         # Validate each seat
         for product in products:
@@ -684,20 +685,20 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             seat = course_run.seats.get(type__slug=certificate_type, credit_provider=credit_provider,
                                         currency=price_currency)
 
-            self.assertEqual(seat.course_run, course_run)
-            self.assertEqual(seat.type.slug, certificate_type)
-            self.assertEqual(seat.price, price)
-            self.assertEqual(seat.currency.code, price_currency)
-            self.assertEqual(seat.credit_provider, credit_provider)
-            self.assertEqual(seat.credit_hours, credit_hours)
-            self.assertEqual(seat.upgrade_deadline, upgrade_deadline)
-            self.assertEqual(seat.sku, sku)
-            self.assertEqual(seat.bulk_sku, bulk_sku)
+            assert seat.course_run == course_run
+            assert seat.type.slug == certificate_type
+            assert seat.price == price
+            assert seat.currency.code == price_currency
+            assert seat.credit_provider == credit_provider
+            assert seat.credit_hours == credit_hours
+            assert seat.upgrade_deadline == upgrade_deadline
+            assert seat.sku == sku
+            assert seat.bulk_sku == bulk_sku
 
     def assert_entitlements_loaded(self, body):
         """ Assert a Course Entitlement was loaded into the database for each entry in the specified data body. """
         body = [d for d in body if d['product_class'] == 'Course Entitlement']
-        self.assertEqual(CourseEntitlement.objects.count(), len(body))
+        assert CourseEntitlement.objects.count() == len(body)
         for datum in body:
             attributes = {attribute['name']: attribute['value'] for attribute in datum['attribute_values']}
             course = Course.objects.get(uuid=attributes['UUID'])
@@ -711,10 +712,10 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
             entitlement = course.entitlements.get(mode=mode)
 
-            self.assertEqual(entitlement.course, course)
-            self.assertEqual(entitlement.price, price)
-            self.assertEqual(entitlement.currency.code, price_currency)
-            self.assertEqual(entitlement.sku, sku)
+            assert entitlement.course == course
+            assert entitlement.price == price
+            assert entitlement.currency.code == price_currency
+            assert entitlement.sku == sku
 
     def assert_enrollment_codes_loaded(self, body):
         """ Assert a Course Enrollment Code was loaded into the database for each entry in the specified data body. """
@@ -728,8 +729,8 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             mode_name = attributes['seat_type']
             seat = course_run.seats.get(type__slug=mode_name)
 
-            self.assertEqual(seat.course_run, course_run)
-            self.assertEqual(seat.bulk_sku, bulk_sku)
+            assert seat.course_run == course_run
+            assert seat.bulk_sku == bulk_sku
 
     @responses.activate
     def test_ingest(self):
@@ -738,13 +739,13 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         courses_api_data = self.mock_courses_api()
         loaded_course_run_data = courses_api_data[:-1]
         loaded_seat_data = courses_api_data[:-2]
-        self.assertEqual(CourseRun.objects.count(), len(loaded_course_run_data))
+        assert CourseRun.objects.count() == len(loaded_course_run_data)
 
         products_api_data = self.mock_products_api()
 
         # Verify a seat exists on all courses already
         for course_run in CourseRun.objects.all():
-            self.assertEqual(course_run.seats.count(), 1)
+            assert course_run.seats.count() == 1
 
         self.loader.ingest()
 
@@ -820,7 +821,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.mock_products_api(alt_course=str(course.uuid))
 
         with mock.patch(LOGGER_PATH) as mock_logger:
-            with self.assertRaises(CommandError):
+            with pytest.raises(CommandError):
                 self.loader.ingest()
             mock_logger.warning.assert_any_call(
                 'Seat type verified is not compatible with course type professional for course {uuid}'.format(
@@ -835,8 +836,8 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
 
         course.refresh_from_db()
         course_run.refresh_from_db()
-        self.assertEqual(course.entitlements.count(), 0)
-        self.assertEqual(course_run.seats.count(), 0)
+        assert course.entitlements.count() == 0
+        assert course_run.seats.count() == 0
 
     @responses.activate
     @ddt.data(
@@ -858,7 +859,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         )
         with mock.patch(LOGGER_PATH) as mock_logger:
             if raises:
-                with self.assertRaises(CommandError):
+                with pytest.raises(CommandError):
                     self.loader.ingest()
             else:
                 self.loader.ingest()
@@ -882,7 +883,7 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
     )
     def test_get_certificate_type(self, product, expected_certificate_type):
         """ Verify the method returns the correct certificate type"""
-        self.assertEqual(self.loader.get_certificate_type(product), expected_certificate_type)
+        assert self.loader.get_certificate_type(product) == expected_certificate_type
 
     @responses.activate
     def test_upgrade_empty_types(self):
@@ -907,21 +908,21 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         audit_run.course.type = CourseType.objects.get(slug=CourseType.PROFESSIONAL)
         audit_run.course.save()
 
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             self.loader.ingest()
 
         # Audit will have failed to match and nothing should have changed
         audit_run = CourseRun.objects.get(key='audit/course/run')
-        self.assertEqual(audit_run.type.slug, CourseRunType.EMPTY)
-        self.assertEqual(audit_run.course.type.slug, CourseType.PROFESSIONAL)
+        assert audit_run.type.slug == CourseRunType.EMPTY
+        assert audit_run.course.type.slug == CourseType.PROFESSIONAL
 
         verified_run = CourseRun.objects.get(key='verified/course/run')
-        self.assertEqual(verified_run.type.slug, CourseRunType.VERIFIED_AUDIT)
-        self.assertEqual(verified_run.course.type.slug, CourseType.VERIFIED_AUDIT)
+        assert verified_run.type.slug == CourseRunType.VERIFIED_AUDIT
+        assert verified_run.course.type.slug == CourseType.VERIFIED_AUDIT
 
         credit_run = CourseRun.objects.get(key='credit/course/run')
-        self.assertEqual(credit_run.type.slug, CourseType.CREDIT_VERIFIED_AUDIT)
-        self.assertEqual(credit_run.course.type.slug, CourseType.CREDIT_VERIFIED_AUDIT)
+        assert credit_run.type.slug == CourseType.CREDIT_VERIFIED_AUDIT
+        assert credit_run.course.type.slug == CourseType.CREDIT_VERIFIED_AUDIT
 
         # Let's fix audit's type and try again.
         audit_run.course.type = empty_type
@@ -929,8 +930,8 @@ class EcommerceApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.loader.ingest()
 
         audit_run = CourseRun.objects.get(key='audit/course/run')
-        self.assertEqual(audit_run.type.slug, CourseType.AUDIT)
-        self.assertEqual(audit_run.course.type.slug, CourseType.AUDIT)
+        assert audit_run.type.slug == CourseType.AUDIT
+        assert audit_run.course.type.slug == CourseType.AUDIT
 
 
 @ddt.ddt
@@ -978,19 +979,19 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         """ Assert a Program corresponding to the specified data body was properly loaded into the database. """
         program = Program.objects.get(uuid=AbstractDataLoader.clean_string(body['uuid']), partner=self.partner)
 
-        self.assertEqual(program.title, body['name'])
+        assert program.title == body['name']
         for attr in ('subtitle', 'status', 'marketing_slug',):
-            self.assertEqual(getattr(program, attr), AbstractDataLoader.clean_string(body[attr]))
+            assert getattr(program, attr) == AbstractDataLoader.clean_string(body[attr])
 
-        self.assertEqual(program.type, ProgramType.objects.get(translations__name_t='XSeries'))
+        assert program.type == ProgramType.objects.get(translations__name_t='XSeries')
 
         keys = [org['key'] for org in body['organizations']]
         expected_organizations = list(Organization.objects.filter(key__in=keys))
-        self.assertEqual(keys, [org.key for org in expected_organizations])
+        assert keys == [org.key for org in expected_organizations]
         self.assertListEqual(list(program.authoring_organizations.all()), expected_organizations)
 
         banner_image_url = body.get('banner_image_urls', {}).get('w1440h480')
-        self.assertEqual(program.banner_image_url, banner_image_url)
+        assert program.banner_image_url == banner_image_url
 
         course_run_keys = set()
         course_codes = body.get('course_codes', [])
@@ -998,10 +999,10 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             course_run_keys.update([course_run['course_key'] for course_run in course_code['run_modes']])
 
         courses = list(Course.objects.filter(course_runs__key__in=course_run_keys).distinct().order_by('key'))
-        self.assertEqual(list(program.courses.order_by('key')), courses)
+        assert list(program.courses.order_by('key')) == courses
 
         # Verify the additional course runs added in create_mock_courses_and_runs are excluded.
-        self.assertEqual(program.excluded_course_runs.count(), len(course_codes))
+        assert program.excluded_course_runs.count() == len(course_codes)
 
     def assert_program_banner_image_loaded(self, body):
         """ Assert a program corresponding to the specified data body has banner image loaded into DB """
@@ -1012,19 +1013,19 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                 # Get different sizes specs from the model field
                 # Then get the file path from the available files
                 sized_image = getattr(program.banner_image, size_key, None)
-                self.assertIsNotNone(sized_image)
+                assert sized_image is not None
                 if sized_image:
                     path = getattr(program.banner_image, size_key).url
-                    self.assertIsNotNone(path)
-                    self.assertIsNotNone(program.banner_image.field.variations[size_key]['width'])
-                    self.assertIsNotNone(program.banner_image.field.variations[size_key]['height'])
+                    assert path is not None
+                    assert program.banner_image.field.variations[size_key]['width'] is not None
+                    assert program.banner_image.field.variations[size_key]['height'] is not None
 
     @responses.activate
     def test_ingest(self):
         """ Verify the method ingests data from the Organizations API. """
         TieredCache.dangerous_clear_all_tiers()
         api_data = self.mock_api()
-        self.assertEqual(Program.objects.count(), 0)
+        assert Program.objects.count() == 0
 
         self.loader.ingest()
 
@@ -1032,7 +1033,7 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.assert_api_called(6)
 
         # Verify the Programs were created correctly
-        self.assertEqual(Program.objects.count(), len(api_data))
+        assert Program.objects.count() == len(api_data)
 
         for datum in api_data:
             self.assert_program_loaded(datum)
@@ -1044,16 +1045,16 @@ class ProgramsApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         api_data = self.mock_api()
         Organization.objects.all().delete()
 
-        self.assertEqual(Program.objects.count(), 0)
-        self.assertEqual(Organization.objects.count(), 0)
+        assert Program.objects.count() == 0
+        assert Organization.objects.count() == 0
 
         with mock.patch(LOGGER_PATH) as mock_logger:
             self.loader.ingest()
             calls = [mock.call('Organizations for program [%s] are invalid!', datum['uuid']) for datum in api_data]
             mock_logger.error.assert_has_calls(calls)
 
-        self.assertEqual(Program.objects.count(), len(api_data))
-        self.assertEqual(Organization.objects.count(), 0)
+        assert Program.objects.count() == len(api_data)
+        assert Organization.objects.count() == 0
 
     @responses.activate
     def test_ingest_with_existing_banner_image(self):

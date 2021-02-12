@@ -172,33 +172,33 @@ class TestLoadProgramFixture(TestCase):
         # objects have been created
         stored_program = Program.objects.get(uuid=self.program.uuid)
         stored_program_2 = Program.objects.get(uuid=self.program_2.uuid)
-        self.assertEqual(stored_program.title, self.program.title)
-        self.assertEqual(stored_program_2.title, self.program_2.title)
+        assert stored_program.title == self.program.title
+        assert stored_program_2.title == self.program_2.title
 
         stored_organization = stored_program.authoring_organizations.first()
-        self.assertEqual(stored_organization.name, self.organization.name)
+        assert stored_organization.name == self.organization.name
 
         # partner should use existing edx value
-        self.assertEqual(stored_program.partner, self.default_partner)
-        self.assertEqual(stored_organization.partner, self.default_partner)
+        assert stored_program.partner == self.default_partner
+        assert stored_organization.partner == self.default_partner
 
         stored_program_type = stored_program.type
-        self.assertEqual(stored_program_type.name_t, self.program_type_masters.name)
+        assert stored_program_type.name_t == self.program_type_masters.name
 
         stored_seat_type = stored_program_type.applicable_seat_types.first()
-        self.assertEqual(stored_seat_type.name, self.seat_type_verified.name)
+        assert stored_seat_type.name == self.seat_type_verified.name
 
         stored_curriculum = stored_program.curricula.first()
-        self.assertEqual(stored_curriculum.uuid, self.curriculum.uuid)
+        assert stored_curriculum.uuid == self.curriculum.uuid
 
         stored_course = stored_curriculum.course_curriculum.first()
-        self.assertEqual(stored_course.key, self.course.key)
+        assert stored_course.key == self.course.key
 
         stored_mm = stored_curriculum.program_curriculum.first()
-        self.assertEqual(stored_mm.uuid, self.program_mm.uuid)
+        assert stored_mm.uuid == self.program_mm.uuid
 
         stored_course_run = stored_course.course_runs.first()
-        self.assertEqual(stored_course_run.key, self.course_run.key)
+        assert stored_course_run.key == self.course_run.key
 
     @responses.activate
     def test_update_existing_program_type(self):
@@ -220,12 +220,12 @@ class TestLoadProgramFixture(TestCase):
 
         # assert existing DB value is used
         stored_program_type = stored_program.type
-        self.assertEqual(stored_program_type, existing_program_type)
+        assert stored_program_type == existing_program_type
 
         # assert existing DB value is updated to match fixture
         stored_seat_types = list(stored_program_type.applicable_seat_types.all())
-        self.assertEqual(len(stored_seat_types), 1)
-        self.assertEqual(stored_seat_types[0].name, self.seat_type_verified.name)
+        assert len(stored_seat_types) == 1
+        assert stored_seat_types[0].name == self.seat_type_verified.name
 
     @responses.activate
     def test_remapping_courserun_programtype(self):
@@ -258,7 +258,7 @@ class TestLoadProgramFixture(TestCase):
         stored_courserun = CourseRun.objects.get(key=self.course_run.key)
         stored_program_type = stored_courserun.expected_program_type
 
-        self.assertEqual(existing_program_type, stored_program_type)
+        assert existing_program_type == stored_program_type
 
     @responses.activate
     def test_existing_seat_types(self):
@@ -282,8 +282,8 @@ class TestLoadProgramFixture(TestCase):
         stored_program = Program.objects.get(uuid=self.program.uuid)
         stored_seat_type = stored_program.type.applicable_seat_types.first()
 
-        self.assertEqual(stored_seat_type.id, new_pk)
-        self.assertEqual(stored_seat_type.name, self.seat_type_verified.name)
+        assert stored_seat_type.id == new_pk
+        assert stored_seat_type.name == self.seat_type_verified.name
 
     @responses.activate
     def test_fail_on_save_error(self):
@@ -323,7 +323,7 @@ class TestLoadProgramFixture(TestCase):
         expected_msg = (
             r'Checking database constraints failed trying to load fixtures. Unable to save program\(s\):'
         ).format(pk=self.organization.id)
-        assert re.match(expected_msg, str(err.value))
+        assert re.match(expected_msg, err.value.args[0])
 
     @responses.activate
     def test_ignore_program_external_key(self):
@@ -387,12 +387,12 @@ class TestLoadProgramFixture(TestCase):
         self._call_load_program_fixture([str(self.program.uuid)])
 
         stored_program = Program.objects.get(uuid=self.program.uuid)
-        self.assertEqual(stored_program.title, 'program-title-modified')
+        assert stored_program.title == 'program-title-modified'
 
         stored_program_courses = stored_program.curricula.first().course_curriculum.all()
         modified_existing_course = stored_program_courses.get(uuid=self.course.uuid)
         stored_new_course = stored_program_courses.get(uuid=new_course.uuid)
 
-        self.assertEqual(len(stored_program_courses), 2)
-        self.assertEqual(modified_existing_course.title, 'course-title-modified')
-        self.assertEqual(stored_new_course.key, new_course.key)
+        assert len(stored_program_courses) == 2
+        assert modified_existing_course.title == 'course-title-modified'
+        assert stored_new_course.key == new_course.key

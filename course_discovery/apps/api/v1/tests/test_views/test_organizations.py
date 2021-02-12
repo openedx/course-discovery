@@ -23,11 +23,11 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
     def test_authentication(self):
         """ Verify the endpoint requires the user to be authenticated. """
         response = self.client.get(self.list_path)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         self.client.logout()
         response = self.client.get(self.list_path)
-        self.assertEqual(response.status_code, 401)
+        assert response.status_code == 401
 
     def assert_response_data_valid(self, response, organizations, many=True):
         """ Asserts the response data (only) contains the expected organizations. """
@@ -46,7 +46,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
             url = f'{self.list_path}?uuids={uuids}'
             response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assert_response_data_valid(response, organizations)
 
     def assert_list_tag_filter(self, organizations, tags, expected_query_count=7):
@@ -56,7 +56,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
             url = f'{self.list_path}?tags={tags}'
             response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assert_response_data_valid(response, organizations)
 
     def test_list(self):
@@ -66,7 +66,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         with self.assertNumQueries(7):
             response = self.client.get(self.list_path)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assert_response_data_valid(response, Organization.objects.all())
 
     def test_list_not_staff(self):
@@ -84,7 +84,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         # Check Staff user get all groups
         response = self.client.get(self.list_path)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assert_response_data_valid(response, Organization.objects.all())
 
         # Check non staff user gets 1 group
@@ -93,7 +93,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
 
         response = self.client.get(self.list_path)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assert_response_data_valid(response, [org1])
 
     def test_list_uuid_filter(self):
@@ -132,7 +132,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         url = reverse('api:v1:organization-detail', kwargs={'uuid': organization.uuid})
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assert_response_data_valid(response, organization, many=False)
 
     def test_retrieve_not_staff(self):
@@ -151,7 +151,7 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         # Check Staff user get all groups
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assert_response_data_valid(response, org2, many=False)
 
         # Check non staff user gets 1 group
@@ -160,12 +160,12 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
 
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
         url = reverse('api:v1:organization-detail', kwargs={'uuid': org1.uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assert_response_data_valid(response, org1, many=False)
 
     def test_retrieve_not_found(self):
@@ -173,4 +173,4 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
         url = reverse('api:v1:organization-detail', kwargs={'uuid': uuid.uuid4()})
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404

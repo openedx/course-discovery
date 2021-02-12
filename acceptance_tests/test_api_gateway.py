@@ -29,7 +29,7 @@ class ApiGatewayTests(TestCase):
         """
         url = self.get_discovery_api_gateway_url(path)
         response = requests.get(url, headers=headers)
-        self.assertEqual(response.status_code, expected_status_code)
+        assert response.status_code == expected_status_code
 
     @ddt.data(*PATHS)
     def test_endpoint_ok(self, path):
