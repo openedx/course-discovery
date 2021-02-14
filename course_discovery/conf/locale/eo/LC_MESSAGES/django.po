@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-01-24 20:35+0000\n"
+"POT-Creation-Date: 2021-02-14 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1167,6 +1167,14 @@ msgid "Additional Information"
 msgstr "Àddïtïönäl Ìnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
 #: apps/course_metadata/models.py
+msgid "Future"
+msgstr "Fütüré Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+msgid "Past"
+msgstr "Päst Ⱡ'σяєм ι#"
+
+#: apps/course_metadata/models.py
 msgid "Blocked"
 msgstr "Blöçkéd Ⱡ'σяєм ιρѕυм #"
 
@@ -2037,6 +2045,12 @@ msgid "The program was changed successfully."
 msgstr ""
 "Thé prögräm wäs çhängéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/views.py
+msgid "The course skills were updated successfully."
+msgstr ""
+"Thé çöürsé skïlls wéré üpdätéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/edx_elasticsearch_dsl_extensions/exceptions.py
 msgid ""
