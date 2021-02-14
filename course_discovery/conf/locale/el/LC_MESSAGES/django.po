@@ -4,7 +4,7 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
-# Angelos Chraniotis <chraniotis@gmail.com>, 2016
+# Angel Chr. <chraniotis@gmail.com>, 2016
 # Katerina Ligkovanli <kaligova@gmail.com>, 2016-2017,2019
 # Nikos Diakos <nikos.diakos.lomnios@gmail.com>, 2019
 msgid ""

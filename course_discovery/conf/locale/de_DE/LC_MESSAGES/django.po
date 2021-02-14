@@ -18,15 +18,15 @@
 # Markus Maurer <admin@ryuum3gum1n.de>, 2020
 # johmik <mikulasc@in.tum.de>, 2016
 # 9e6d57405f548b8b8d60fb744413d707, 2017
-# Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018-2020
+# Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018-2021
 # Tobi, 2020
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-24 20:35+0000\n"
-"PO-Revision-Date: 2021-01-24 21:01+0000\n"
-"Last-Translator: Shan <shanmathuran.sritharan@paluno.uni-due.de>\n"
+"PO-Revision-Date: 2021-02-10 13:56+0000\n"
+"Last-Translator: Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -485,7 +485,7 @@ msgstr "Experte"
 
 #: apps/course_metadata/choices.py:50
 msgid "Executive Education"
-msgstr ""
+msgstr "Ausbildung von Führungskräften"
 
 #: apps/course_metadata/choices.py:54
 msgid "Platform"
@@ -930,7 +930,7 @@ msgstr "Personen"
 #: apps/course_metadata/models.py:746
 msgid ""
 "Add the collaborator image, please make sure its dimensions are 200x100px"
-msgstr ""
+msgstr "Füge das Teilnehmerbild hinzu. Bitte stell sicher, dass die Abmessungen 200 x 100 Pixel betragen."
 
 #: apps/course_metadata/models.py:772
 msgid ""
@@ -1087,7 +1087,7 @@ msgstr "Dieses Feld ist jetzt veraltet (ECOM-6021). Geschätzte Anzahl von Woche
 
 #: apps/course_metadata/models.py:2081
 msgid "DEPRECATED: Use the card image field"
-msgstr ""
+msgstr "ENTFERNT: Verwenden Sie das Kartenbildfeld"
 
 #: apps/course_metadata/models.py:2088
 msgid ""
@@ -1401,11 +1401,11 @@ msgstr "Kursverlauf speichern"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:10
 msgid "Home"
-msgstr ""
+msgstr "Home"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:25
 msgid "Course Skills"
-msgstr ""
+msgstr "Kurskenntnisse"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:7
 #, python-format
@@ -1620,7 +1620,7 @@ msgstr "Das Programm wurde erfolgreich geändert."
 msgid ""
 "Request could not be completed due to an incorrect ElasticSearch query "
 "parameters"
-msgstr ""
+msgstr "Anfrage konnte aufgrund eines falschen ElasticSearch-Abfrageparameters nicht abgeschlossen werden"
 
 #: apps/ietf_language_tags/models.py:34
 msgid "Name for translation"
