@@ -71,7 +71,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-01-24 20:35+0000\n"
-"PO-Revision-Date: 2021-01-24 21:01+0000\n"
+"PO-Revision-Date: 2021-02-12 21:56+0000\n"
 "Last-Translator: Pierre Mailhot <pierre.mailhot@gmail.com>\n"
 "Language-Team: French (Canada) (http://www.transifex.com/open-edx/edx-platform/language/fr_CA/)\n"
 "MIME-Version: 1.0\n"
@@ -531,7 +531,7 @@ msgstr "Professionnel"
 
 #: apps/course_metadata/choices.py:50
 msgid "Executive Education"
-msgstr ""
+msgstr "Formation des cadres"
 
 #: apps/course_metadata/choices.py:54
 msgid "Platform"
