@@ -925,37 +925,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         )
 
     @property
-    def end_date(self):
-        """
-        Returns the "end" date of the course run falling at the last. Every course run has an end date and this property
-        returns the max value of those end dates.
-        """
-        course_runs = self.course_runs.all()
-        last_course_run_end = None
-        if course_runs:
-            try:
-                last_course_run_end = max(
-                    course_run.end
-                    for course_run in course_runs
-                    if course_run.end is not None and course_run.status == CourseRunStatus.Published
-                )
-            except ValueError:
-                last_course_run_end = None
-        return last_course_run_end
-
-    @property
-    def course_ends(self):
-        """
-        Returns a string depending on if course.end_date falls in past or future. Course.end_date is the "end" date of
-        the last course run.
-        """
-        now = datetime.datetime.now(pytz.UTC)
-        if not self.end_date or self.end_date > now:
-            return _('Future')
-        else:
-            return _('Past')
-
-    @property
     def first_enrollable_paid_seat_price(self):
         """
         Sort the course runs with sorted rather than order_by to avoid

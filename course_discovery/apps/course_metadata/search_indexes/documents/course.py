@@ -33,10 +33,6 @@ class CourseDocument(BaseCourseDocument):
     course_runs = fields.KeywordField(multi=True)
     expected_learning_items = fields.KeywordField(multi=True)
     end = fields.DateField(multi=True)
-    course_ends = fields.TextField(
-        fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
-    )
-    end_date = fields.DateField()
     enrollment_start = fields.DateField(multi=True)
     enrollment_end = fields.DateField(multi=True)
     first_enrollable_paid_seat_price = fields.IntegerField()
@@ -70,12 +66,6 @@ class CourseDocument(BaseCourseDocument):
 
     def prepare_end(self, obj):
         return [course_run.end for course_run in filter_visible_runs(obj.course_runs)]
-
-    def prepare_end_date(self, obj):
-        return obj.end_date
-
-    def prepare_course_ends(self, obj):
-        return str(obj.course_ends)
 
     def prepare_enrollment_start(self, obj):
         return [course_run.enrollment_start for course_run in filter_visible_runs(obj.course_runs)]
