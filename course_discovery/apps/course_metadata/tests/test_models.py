@@ -161,36 +161,6 @@ class TestCourse(TestCase):
         ]
         self.assertEqual(sorted(out_of_order_runs, key=course.course_run_sort), expected_order)
 
-    now = datetime.datetime.now(pytz.UTC)
-
-    @ddt.data(
-        (now + datetime.timedelta(days=10), now + datetime.timedelta(days=20), True, now + datetime.timedelta(days=20)),
-        (None, now + datetime.timedelta(days=10), True, now + datetime.timedelta(days=10)),
-        (None, None, True, None),
-        (None, None, False, None)
-    )
-    @ddt.unpack
-    def test_end_date(self, end1, end2, create_course_runs, expected):
-        """ Verify the property returns the appropriate end_date value based on the course run end dates. """
-        course = factories.CourseFactory.create()
-        # To test the scenario when a course has no course runs
-        if create_course_runs:
-            factories.CourseRunFactory(course=course, end=end1)
-            factories.CourseRunFactory(course=course, end=end2)
-        self.assertEqual(course.end_date, expected)
-
-    @ddt.data(
-        (now + datetime.timedelta(days=10), 'Future'),
-        (now - datetime.timedelta(days=10), 'Past'),
-        (None, 'Future')
-    )
-    @ddt.unpack
-    def test_course_ends(self, end, expected):
-        """ Verify the property returns the appropriate 'course_ends' string based on the end_date value. """
-        course = factories.CourseFactory.create()
-        factories.CourseRunFactory(course=course, end=end)
-        self.assertEqual(course.course_ends, expected)
-
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
     @classmethod
