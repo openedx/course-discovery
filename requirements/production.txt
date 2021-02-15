@@ -18,9 +18,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.3.0
     # via celery
-boto3==1.17.4
+boto3==1.17.7
     # via django-ses
-botocore==1.20.4
+botocore==1.20.7
     # via
     #   boto3
     #   s3transfer
@@ -33,7 +33,7 @@ certifi==2020.12.5
     #   -r requirements/production.in
     #   elasticsearch
     #   requests
-cffi==1.14.4
+cffi==1.14.5
     # via cryptography
 chardet==4.0.0
     # via requests
@@ -43,7 +43,7 @@ coreapi==2.3.3
     #   openapi-codec
 coreschema==0.0.4
     # via coreapi
-cryptography==3.4.3
+cryptography==3.4.5
     # via
     #   authlib
     #   pyjwt
@@ -183,7 +183,7 @@ djangorestframework==3.12.2
     #   taxonomy-connector
 drf-dynamic-fields==0.3.1
     # via -r requirements/base.in
-drf-extensions==0.6.0
+drf-extensions==0.7.0
     # via -r requirements/base.in
 drf-jwt==1.17.3
     # via edx-drf-extensions
@@ -207,7 +207,7 @@ edx-django-utils==3.13.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   taxonomy-connector
-edx-drf-extensions==6.4.0
+edx-drf-extensions==6.5.0
     # via -r requirements/base.in
 edx-opaque-keys==2.2.0
     # via
@@ -224,7 +224,7 @@ elasticsearch-dsl==7.3.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-elasticsearch==7.10.1
+elasticsearch==7.11.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -292,7 +292,7 @@ pycountry==20.7.3
     # via -r requirements/base.in
 pycparser==2.20
     # via cffi
-pycryptodomex==3.9.9
+pycryptodomex==3.10.1
     # via pyjwkest
 pyjwkest==1.4.2
     # via edx-drf-extensions
@@ -393,7 +393,7 @@ social-auth-core==4.0.2
     #   -c requirements/constraints.txt
     #   edx-auth-backends
     #   social-auth-app-django
-soupsieve==2.1
+soupsieve==2.2
     # via beautifulsoup4
 sqlparse==0.4.1
     # via django
