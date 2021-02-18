@@ -54,7 +54,7 @@ class CatalogViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         """ Destroy a catalog. """
-        return super().destroy(request, *args, **kwargs)  # pylint: disable=no-member
+        return super().destroy(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all catalogs.
@@ -67,19 +67,19 @@ class CatalogViewSet(viewsets.ModelViewSet):
               paramType: query
               multiple: false
         """
-        return super().list(request, *args, **kwargs)  # pylint: disable=no-member
+        return super().list(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
         """ Update one, or more, fields for a catalog. """
-        return super().partial_update(request, *args, **kwargs)  # pylint: disable=no-member
+        return super().partial_update(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a catalog. """
-        return super().retrieve(request, *args, **kwargs)  # pylint: disable=no-member
+        return super().retrieve(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         """ Update a catalog. """
-        return super().update(request, *args, **kwargs)  # pylint: disable=no-member
+        return super().update(request, *args, **kwargs)
 
     @action(detail=True)
     def courses(self, request, id=None):  # pylint: disable=redefined-builtin, unused-argument

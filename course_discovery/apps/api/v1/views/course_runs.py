@@ -175,7 +175,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
               paramType: query
               multiple: false
         """
-        return super().list(request, *args, **kwargs)  # pylint: disable=no-member
+        return super().list(request, *args, **kwargs)
 
     @classmethod
     def push_to_studio(cls, request, course_run, create=False, old_course_run_key=None):
@@ -315,6 +315,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         serializer.save()
         return Response(serializer.data)
 
+    # pylint: disable=arguments-differ
     def update(self, request, **kwargs):
         # logging to help debug error around course url slugs incrementing
         log.info('The raw course run data coming from publisher is {}.'.format(request.data))
@@ -365,7 +366,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for a course run. """
-        return super().retrieve(request, *args, **kwargs)  # pylint: disable=no-member
+        return super().retrieve(request, *args, **kwargs)
 
     @action(detail=False)
     def contains(self, request):
@@ -414,6 +415,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
             return Response(serializer.data)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    # pylint: disable=arguments-differ
     def destroy(self, _request, *_args, **_kwargs):
         """ Delete a course run. """
         # Not supported
