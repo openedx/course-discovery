@@ -97,7 +97,7 @@ class Command(DjangoESDSLCommand):
         run_attempts = 0
         indexes_pending = {key: '' for key in [x.new_index_name for x in alias_mappings]}
         conn = get_connection()
-        while indexes_pending and run_attempts < 2:
+        while indexes_pending and run_attempts < 1:  # Only try once, as retries gave buggy results. See VAN-391
             run_attempts += 1
             self._populate(models, options)
             for doc, __, new_index_name, alias, record_count in alias_mappings:
