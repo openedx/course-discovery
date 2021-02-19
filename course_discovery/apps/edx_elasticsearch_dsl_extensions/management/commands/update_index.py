@@ -144,17 +144,14 @@ class Command(DjangoESDSLCommand):
         # Verify there was not a big shift in record count
         record_count_is_sane = percentage_change < settings.INDEX_SIZE_CHANGE_THRESHOLD
 
-        # Get query hit count a second way to help detect intermittent VAN-391 ticket symptoms
-        conn = get_connection()
-        alternate_current_record_count = conn.search({"query": {"match_all": {}}}, index=new_index_name).get(
-            'hits', {}).get('total', {}).get('value', 0)
-        record_count_is_sane = record_count_is_sane and alternate_current_record_count == current_record_count
-
         # Spot check a known-flaky field type to detect VAN-391
         aggregation_type = Mapping.from_es(new_index_name)['aggregation_key'].name
         record_count_is_sane = record_count_is_sane and aggregation_type == 'keyword'
 
         if not record_count_is_sane:
+            conn = get_connection()
+            alternate_current_record_count = conn.search({"query": {"match_all": {}}}, index=new_index_name).get(
+                'hits', {}).get('total', {}).get('value', 0)
             message = '''
         Sanity check failed for attempt #{0}.
         Index name: {1}

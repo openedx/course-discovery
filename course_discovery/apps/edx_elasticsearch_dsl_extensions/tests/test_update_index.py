@@ -50,7 +50,7 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
         CourseRunFactory.create_batch(59)
         ProgramFactory.create_batch(59)
         PersonFactory.create_batch(59)
-        record_count = 59
+        record_count = 60
 
         # Ensure that no error is raised and the sanity check passes the second time
         with mock.patch('course_discovery.apps.core.utils.ElasticsearchUtils.set_alias', return_value=True):
