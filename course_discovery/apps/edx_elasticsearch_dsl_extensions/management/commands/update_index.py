@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.management import CommandError
 from django_elasticsearch_dsl.management.commands.search_index import Command as DjangoESDSLCommand
 from django_elasticsearch_dsl.registries import registry
+from elasticsearch_dsl import Mapping
 from elasticsearch_dsl.connections import get_connection
 
 from course_discovery.apps.core.utils import ElasticsearchUtils
@@ -139,12 +140,21 @@ class Command(DjangoESDSLCommand):
         """ Ensure that we do not point to an index that looks like it has missing data. """
         current_record_count = self.get_record_count(document)
         percentage_change = self.percentage_change(current_record_count, previous_record_count)
+
         # Verify there was not a big shift in record count
         record_count_is_sane = percentage_change < settings.INDEX_SIZE_CHANGE_THRESHOLD
+
+        # Get query hit count a second way to help detect intermittent VAN-391 ticket symptoms
         conn = get_connection()
+        alternate_current_record_count = conn.search({"query": {"match_all": {}}}, index=new_index_name).get(
+            'hits', {}).get('total', {}).get('value', 0)
+        record_count_is_sane = record_count_is_sane and alternate_current_record_count == current_record_count
+
+        # Spot check a known-flaky field type to detect VAN-391
+        aggregation_type = Mapping.from_es(new_index_name)['aggregation_key'].name
+        record_count_is_sane = record_count_is_sane and aggregation_type == 'keyword'
+
         if not record_count_is_sane:
-            alternate_current_record_count = conn.search({"query": {"match_all": {}}}, index=new_index_name).get(
-                'hits', {}).get('total', {}).get('value', 0)
             message = '''
         Sanity check failed for attempt #{0}.
         Index name: {1}
@@ -152,13 +162,15 @@ class Command(DjangoESDSLCommand):
         Previous record count: {3}
         Base record count: {4}
         Search record count: {5}
+        Aggregation key type: {6}
                 '''.format(
                 attempt,
                 new_index_name,
                 str(int(round(percentage_change * 100, 0))) + '%',
                 previous_record_count,
                 current_record_count,
-                alternate_current_record_count
+                alternate_current_record_count,
+                aggregation_type,
             )
             logger.info(message)
             logger.info('...sleeping for 5 seconds...')
