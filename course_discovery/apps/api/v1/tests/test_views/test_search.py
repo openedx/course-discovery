@@ -566,15 +566,15 @@ class LimitedAggregateSearchViewSetTests(
 ):
     path = reverse('api:v1:search-limited-facets')
 
-    # pylint: disable=no-member
+    # pylint: disable=arguments-differ
     def serialize_course_run_search(self, run):
         return super().serialize_course_run_search(run, LimitedAggregateSearchSerializer)
 
-    # pylint: disable=no-member
+    # pylint: disable=arguments-differ
     def serialize_program_search(self, program):
         return super().serialize_program_search(program, LimitedAggregateSearchSerializer)
 
-    # pylint: disable=no-member
+    # pylint: disable=arguments-differ
     def serialize_course_search(self, course):
         return super().serialize_course_search(course, LimitedAggregateSearchSerializer)
 

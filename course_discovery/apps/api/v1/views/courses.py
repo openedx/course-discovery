@@ -414,6 +414,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         """ Partially update details for a course. """
         return self.update_course(request.data, partial=True)
 
+    # pylint: disable=arguments-differ
     def destroy(self, _request, *_args, **_kwargs):
         """ Delete a course. """
         # Not supported

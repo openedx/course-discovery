@@ -30,10 +30,10 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         logger.info('The raw collaborator data coming from the publisher PATCH is {}.'.format(request.data))
 
-        return super().update(request, *args, **kwargs)  # pylint: disable=no-member
+        return super().update(request, *args, **kwargs)
 
     def partial_update(self, request, *args, **kwargs):
-        return super().partial_update(request, *args, **kwargs)  # pylint: disable=no-member
+        return super().partial_update(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all collaborators. """

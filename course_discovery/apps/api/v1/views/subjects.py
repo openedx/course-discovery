@@ -26,7 +26,7 @@ class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all subjects. """
-        return super().list(request, *args, **kwargs)  # pylint: disable=no-member
+        return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for an subject. """

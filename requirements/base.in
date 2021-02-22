@@ -48,7 +48,7 @@ elasticsearch
 elasticsearch-dsl
 html2text
 lxml
-jsonfield2
+jsonfield
 markdown
 pillow
 pycountry
