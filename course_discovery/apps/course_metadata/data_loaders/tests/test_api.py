@@ -22,7 +22,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType
+    Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Person, Program, ProgramType, Seat, SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory
@@ -1135,6 +1135,19 @@ class WordPressApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             assert subject.slug == category['slug']
             assert subject.name == category['title']
             assert subject.description == category['description']
+
+        for course_instructor in expected_course['course_instructors']:
+            instructor = Person.objects.get(given_name=course_instructor['given_name'])
+            assert instructor.designation == course_instructor['designation']
+            assert instructor.email == course_instructor['email']
+            assert instructor.bio == course_instructor['bio']
+            assert instructor.profile_image_url == course_instructor['profile_image_url']
+            assert instructor.marketing_id == course_instructor['marketing_id']
+            assert instructor.marketing_url == course_instructor['marketing_url']
+            assert instructor.phone_number == course_instructor['phone_number']
+            assert instructor.website == course_instructor['website']
+            assert instructor.person_networks.first().type == course_instructor['instructor_socials'][0]['field_name']
+            assert instructor.person_networks.first().url == course_instructor['instructor_socials'][0]['url']
 
     def test_ingest_with_fail(self):
         """

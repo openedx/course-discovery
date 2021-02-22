@@ -20,7 +20,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.data_loaders.course_type import calculate_course_type
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType,
-    Subject, Video
+    Subject, Video, Person, PersonSocialNetwork
 )
 from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run, subtract_deadline_delta
 
@@ -953,6 +953,39 @@ class WordPressApiDataLoader(AbstractDataLoader):
         response = self._make_request(page)
         self._process_response(response)
 
+    def _add_course_instructors(self, course_instructors, course_run):
+        """
+        Create and add instructors to a course run.
+        """
+        for course_instructor in course_instructors:
+            course_instructor['partner'] = course_run.course.partner
+            instructor_socials = course_instructor.pop('instructor_socials')
+            instructor, created = Person.objects.get_or_create(
+                marketing_id=course_instructor['marketing_id'],
+                defaults=course_instructor
+            )
+            if created:
+                for instructor_social in instructor_socials:
+                    PersonSocialNetwork.objects.create(
+                        person=instructor,
+                        type=instructor_social['field_name'],
+                        title=instructor_social['field_name'].upper(),
+                        url=instructor_social['url'],
+                    )
+
+                course_run.staff.add(instructor)
+            else:
+                for key, value in course_instructor.items():
+                    setattr(instructor, key, value)
+
+                instructor.save()
+
+                socials = list(instructor.person_networks.all())
+                for index, instructor_social in enumerate(socials):
+                    instructor_social.url = instructor_socials[index]['url']
+
+                PersonSocialNetwork.objects.bulk_update(socials, ['url'])
+
     def _process_response(self, response):
         """
         Process the response from the WordPress.
@@ -986,6 +1019,7 @@ class WordPressApiDataLoader(AbstractDataLoader):
                     course_run.course.subjects.add(subject)
 
                 course_run.save()
+                self._add_course_instructors(body['course_instructors'], course_run)
             except CourseRun.DoesNotExist:
                 logger.exception('Could not find course run [%s]', course_run_key)
             except Exception:  # pylint: disable=broad-except

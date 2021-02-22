@@ -12,7 +12,7 @@ import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, RegexValidator
 from django.db import models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
@@ -629,6 +629,13 @@ class Person(TimeStampedModel):
         help_text=_('A list of major works by this person. Must be valid HTML.'),
     )
     published = models.BooleanField(default=False)
+    designation = models.TextField(null=True, blank=True)
+    profile_image_url = models.URLField(null=True, blank=True)
+    marketing_id = models.PositiveIntegerField(null=True, blank=True, help_text=_('This field contains instructor post ID from wordpress.'))
+    marketing_url = models.URLField(null=True, blank=True)
+    phone_regex = RegexValidator(regex=r'^\+?1?\d*$', message="Phone number can only contain numbers.")
+    phone_number = models.CharField(validators=[phone_regex], null=True, blank=True, max_length=50)
+    website = models.URLField(null=True, blank=True)
 
     class Meta:
         unique_together = (
@@ -2741,10 +2748,26 @@ class PersonSocialNetwork(TimeStampedModel):
     FACEBOOK = 'facebook'
     TWITTER = 'twitter'
     BLOG = 'blog'
+    LINKEDIN = 'linkedin'
+    DRIBBBLE = 'dribbble'
+    YOUTUBE = 'youtube'
+    SKYPE = 'skype'
+    INSTAGRAM = 'instagram'
+    GITHUB = 'github'
+    STACKOVERFLOW = 'stackoverflow'
+    MEDIUM = 'medium'
     OTHERS = 'others'
 
     SOCIAL_NETWORK_CHOICES = {
         FACEBOOK: _('Facebook'),
+        LINKEDIN: _('LinkedIn'),
+        DRIBBBLE: _('Dribbble'),
+        YOUTUBE: _('Youtube'),
+        SKYPE: _('Skype'),
+        INSTAGRAM: _('Instagram'),
+        GITHUB: _('github'),
+        STACKOVERFLOW: _('stackoverflow'),
+        MEDIUM: _('medium'),
         TWITTER: _('Twitter'),
         BLOG: _('Blog'),
         OTHERS: _('Others'),
