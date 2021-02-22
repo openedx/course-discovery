@@ -2023,6 +2023,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
+            'course_ends': course.course_ends,
+            'end_date': serialize_datetime(course.end_date),
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,
@@ -2091,6 +2093,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
+            'course_ends': course.course_ends,
+            'end_date': serialize_datetime(course.end_date),
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,
@@ -2143,6 +2147,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
+            'course_ends': course.course_ends,
+            'end_date': serialize_datetime(course.end_date),
             'organizations': [
                 '{key}: {name}'.format(
                     key=course.sponsoring_organizations.first().key,
