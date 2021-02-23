@@ -18,9 +18,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.3.0
     # via celery
-boto3==1.17.10
+boto3==1.17.13
     # via django-ses
-botocore==1.20.10
+botocore==1.20.13
     # via
     #   boto3
     #   s3transfer
@@ -134,7 +134,7 @@ django-waffle==2.1.0
     #   edx-drf-extensions
 django-webpack-loader==0.7.0
     # via -r requirements/base.in
-django==2.2.18
+django==2.2.19
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt

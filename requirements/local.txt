@@ -217,9 +217,9 @@ djangorestframework==3.12.2
     #   edx-drf-extensions
     #   rest-condition
     #   taxonomy-connector
-docker-compose==1.28.3
+docker-compose==1.28.4
     # via -r requirements/local.in
-docker[ssh]==4.4.2
+docker[ssh]==4.4.3
     # via docker-compose
 dockerpty==0.4.1
     # via docker-compose
@@ -288,7 +288,7 @@ execnet==1.8.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==6.3.0
+faker==6.4.1
     # via factory-boy
 filelock==3.0.12
     # via
@@ -355,7 +355,7 @@ paramiko==2.7.2
     # via docker
 path.py==12.5.0
     # via edx-i18n-tools
-path==15.1.0
+path==15.1.2
     # via path.py
 pbr==5.5.1
     # via stevedore
