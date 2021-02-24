@@ -2408,3 +2408,44 @@ class CourseUrlSlugHistoryTest(TestCase):
                 ' url slug {url_slug}'
                    .format(partner_key=mismatch_partner.name, course_partner_key=slug_object.course.partner.name,
                            url_slug=slug_object.url_slug)]
+
+
+# Experiment WS-1681: Course recommendations
+class TestCourseRecommendations(TestCase):
+    def setUp(self):
+        super().setUp()
+        cooking = factories.SubjectFactory(name="Cooking")
+        not_cooking = factories.SubjectFactory(name="Not Cooking")
+        brewing = factories.SubjectFactory(name="Brewing")
+        not_brewing = factories.SubjectFactory(name="Not Brewing")
+
+        self.org1 = factories.OrganizationFactory()
+
+        self.course1_with_subject = factories.CourseFactory(subjects=[cooking])
+        self.course2_with_subject = factories.CourseFactory(subjects=[cooking])
+        self.course3_with_different_subject = factories.CourseFactory(subjects=[brewing])
+        self.course4_with_2_subjects = factories.CourseFactory(subjects=[brewing, cooking])
+        self.course5_with_subject = factories.CourseFactory(subjects=[not_cooking])
+        self.course6_with_subject = factories.CourseFactory(subjects=[not_brewing])
+
+        self.course1_with_subject.authoring_organizations.add(self.org1)
+        self.course3_with_different_subject.authoring_organizations.add(self.org1)
+        self.course4_with_2_subjects.authoring_organizations.add(self.org1)
+
+        self.program1 = factories.ProgramFactory(courses=[
+            self.course1_with_subject,
+            self.course3_with_different_subject,
+            self.course5_with_subject])
+        self.program2 = factories.ProgramFactory(courses=[self.course2_with_subject])
+
+    def test_no_course_recommendations(self):
+        unique_subject = factories.SubjectFactory(name="Unique Subject")
+        course_with_unique_subject = factories.CourseFactory(subjects=[unique_subject])
+        assert len(course_with_unique_subject.recommendations()) == 0
+
+    def test_matching_program_recommendations(self):
+        course1_recs = self.course1_with_subject.recommendations()
+        assert len(course1_recs) == 4
+        assert self.course3_with_different_subject in course1_recs
+        assert self.course4_with_2_subjects in course1_recs
+        assert self.course5_with_subject in course1_recs

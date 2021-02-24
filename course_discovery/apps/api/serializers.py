@@ -1207,6 +1207,50 @@ class CourseWithProgramsSerializer(CourseSerializer):
         )
 
 
+# Experiment WS-1681: Course recommendations
+class CourseWithRecommendationsSerializer(DynamicFieldsMixin, TimestampModelSerializer):
+    uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
+    recommendations = serializers.SerializerMethodField()
+
+    def get_recommendations(self, course):
+        return CourseRecommendationSerializer(
+            course.recommendations(),
+            many=True,
+            context={
+                'request': self.context.get('request'),
+                'exclude_utm': self.context.get('exclude_utm'),
+            }
+        ).data
+
+    class Meta(MinimalCourseSerializer.Meta):
+        model = Course
+        fields = ('uuid', 'recommendations', )
+
+
+class CourseRecommendationSerializer(MinimalCourseSerializer):
+    course_run_keys = serializers.SerializerMethodField()
+    marketing_url = serializers.SerializerMethodField()
+
+    def get_marketing_url(self, obj):
+        return get_marketing_url_for_user(
+            obj.partner,
+            self.context['request'].user,
+            obj.marketing_url,
+            exclude_utm=self.context.get('exclude_utm'),
+            draft=obj.draft,
+            official_version=obj.official_version,
+        )
+
+    def get_course_run_keys(self, course):
+        return [course_run.key for course_run in course.course_runs.all()]
+
+    class Meta(CourseSerializer.Meta):
+        model = Course
+        fields = ('key', 'uuid', 'title', 'owners', 'image',
+                  'short_description', 'type', 'url_slug', 'course_run_keys', 'marketing_url')
+# end experiment code
+
+
 class CatalogCourseSerializer(CourseSerializer):
     """
     A CourseSerializer which only includes course runs that can be enrolled in
