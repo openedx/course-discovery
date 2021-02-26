@@ -115,7 +115,7 @@ You can create a new OAuth 2.0 application on the LMS at ``/admin/oauth2_provide
     8. Select ``Authorization code`` as the authorization grant type.
     9. Click ``Save``.
 
-Finally, copy the newly created ``Client ID`` and ``Client Secret`` values to Discovery's settings (in ``course_discovery/settings/private.py``, if running locally).
+Finally, copy the newly created ``Client ID`` value to the ``SOCIAL_AUTH_EDX_OAUTH2_KEY`` field and ``Client Secret`` to the ``SOCIAL_AUTH_EDX_OAUTH2_SECRET`` field in Discovery's settings (in ``course_discovery/settings/private.py``, if running locally).
 
 Publisher
 ---------
