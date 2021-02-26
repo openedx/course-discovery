@@ -32,7 +32,7 @@ class OrganizationGroupUserViewTests(APITestCase):
         return self.client.get(path=url, content_type=JSON_CONTENT_TYPE)
 
     def assertExpectedUsers(self, response):
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         expected_results = [
             {
                 "id": self.org_user1.id,
@@ -65,7 +65,7 @@ class OrganizationGroupUserViewTests(APITestCase):
         Verify that view returns status=404 if organization is not found in OrganizationExtension.
         """
         response = self.query(org_id=0)
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     def test_get_organization_user_group_without_publisher_user_permissions(self):
         """
@@ -74,7 +74,7 @@ class OrganizationGroupUserViewTests(APITestCase):
         """
         self.user.groups.remove(self.internal_user_group)
         response = self.query()
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
     def test_get_organization_by_uuid(self):
         """ Verify that endpoint accepts a UUID. """
@@ -106,8 +106,8 @@ class OrganizationUserViewTests(APITestCase):
 
         response = self.query()
         results = response.json().get('results')
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0].get('full_name'), self.expected_user.full_name)
+        assert len(results) == 1
+        assert results[0].get('full_name') == self.expected_user.full_name
 
     def test_response_for_non_staff_user(self):
         self.expected_user.groups.add(self.organization_extension.group)
@@ -115,7 +115,7 @@ class OrganizationUserViewTests(APITestCase):
 
         response = self.query()
         results = response.json().get('results')
-        self.assertEqual(len(results), 2)
+        assert len(results) == 2
 
 
 class OrganizationUserRoleViewTests(APITestCase):
@@ -141,7 +141,7 @@ class OrganizationUserRoleViewTests(APITestCase):
         return self.client.get(path=url, content_type=JSON_CONTENT_TYPE)
 
     def assertExpectedRoles(self, response, roles=None):
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         roles = roles or [self.role.role]
         self.assertListEqual(sorted(roles), sorted(role['role'] for role in response.json()['results']))
 
@@ -188,7 +188,7 @@ class OrganizationUserRoleViewTests(APITestCase):
         """
         self.user.groups.remove(self.internal_user_group)
         response = self.query()
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
     def test_get_organization_by_uuid(self):
         """ Verify that endpoint accepts a UUID. """

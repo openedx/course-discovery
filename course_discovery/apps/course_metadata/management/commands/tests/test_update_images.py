@@ -23,8 +23,8 @@ class UpdateImagesCommandTest(TestCase):
         call_command('update_images')
         image0.refresh_from_db()
         image1.refresh_from_db()
-        self.assertEqual(image0.src, 'https://www.edx.org/bananas-in-pajamas.jpg')
-        self.assertEqual(image1.src, 'http://www.edx.org/are_coming_down_the_stairs.jpg')
+        assert image0.src == 'https://www.edx.org/bananas-in-pajamas.jpg'
+        assert image1.src == 'http://www.edx.org/are_coming_down_the_stairs.jpg'
 
     @mock.patch(LOGGER_PATH)
     def testBadUrl(self, mock_logger):
@@ -35,7 +35,7 @@ class UpdateImagesCommandTest(TestCase):
         call_command('update_images')
         mock_logger.warning.assert_called_with('Invalid image url: "not-a-url"')
         image.refresh_from_db()
-        self.assertEqual(image.src, initial_src)
+        assert image.src == initial_src
 
     @mock.patch(LOGGER_PATH)
     def testImageDoesntExist(self, mock_logger):

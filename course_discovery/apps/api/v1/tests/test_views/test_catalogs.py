@@ -62,12 +62,12 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         }
 
         response = self.client.post(self.catalog_list_url, data, format='json', **headers)
-        self.assertEqual(response.status_code, 201)
+        assert response.status_code == 201
 
         catalog = Catalog.objects.latest()
         self.assertDictEqual(response.data, self.serialize_catalog(catalog))
-        self.assertEqual(catalog.name, name)
-        self.assertEqual(catalog.query, query)
+        assert catalog.name == name
+        assert catalog.query == query
         self.assertListEqual(list(catalog.viewers), [viewer])
 
     def assert_catalog_contains_query_string(self, query_string_kwargs, course_key):
@@ -81,15 +81,15 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
             query_string=query_string
         )
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, {'courses': {course_key: True}})
+        assert response.status_code == 200
+        assert response.data == {'courses': {course_key: True}}
 
     def grant_catalog_permission_to_user(self, user, action, catalog=None):
         """ Grant the user access to view `self.catalog`. """
         catalog = catalog or self.catalog
         perm = f'{action}_catalog'
         user.add_obj_perm(perm, catalog)
-        self.assertTrue(user.has_perm('catalogs.' + perm, catalog))
+        assert user.has_perm(('catalogs.' + perm), catalog)
 
     def test_create_without_authentication(self):
         """ Verify authentication is required when creating, updating, or deleting a catalog. """
@@ -97,8 +97,8 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         Catalog.objects.all().delete()
 
         response = self.client.post(self.catalog_list_url, {}, format='json')
-        self.assertEqual(response.status_code, 401)
-        self.assertEqual(Catalog.objects.count(), 0)
+        assert response.status_code == 401
+        assert Catalog.objects.count() == 0
 
     @ddt.data('put', 'patch', 'delete')
     def test_modify_without_authentication(self, http_method):
@@ -107,7 +107,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         url = reverse('api:v1:catalog-detail', kwargs={'id': self.catalog.id})
 
         response = getattr(self.client, http_method)(url, {}, format='json')
-        self.assertEqual(response.status_code, 401)
+        assert response.status_code == 401
 
     def test_create_with_session_authentication(self):
         """ Verify the endpoint creates a new catalog when the client is authenticated via session authentication. """
@@ -131,7 +131,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         # NOTE: We explicitly avoid using the JSON data type so that we properly test string parsing.
         response = self.client.post(self.catalog_list_url, data)
-        self.assertEqual(response.status_code, 201)
+        assert response.status_code == 201
 
         catalog = Catalog.objects.latest()
         latest_user = User.objects.latest()
@@ -147,8 +147,8 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         original_user_count = User.objects.count()
         response = self.client.post(self.catalog_list_url, data)
 
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(User.objects.count(), original_user_count)
+        assert response.status_code == 400
+        assert User.objects.count() == original_user_count
 
     def test_catalog_if_query_is_incorrect(self):
         catalog = CatalogFactory(query='title:')
@@ -462,21 +462,21 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         reader = csv.reader(f)
         content = list(reader)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(expected, content[1])
+        assert response.status_code == 200
+        assert expected == content[1]
 
     def test_get(self):
         """ Verify the endpoint returns the details for a single catalog. """
         url = reverse('api:v1:catalog-detail', kwargs={'id': self.catalog.id})
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, self.serialize_catalog(self.catalog))
+        assert response.status_code == 200
+        assert response.data == self.serialize_catalog(self.catalog)
 
     def test_list(self):
         """ Verify the endpoint returns a list of all catalogs. """
         response = self.client.get(self.catalog_list_url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertListEqual(response.data['results'], self.serialize_catalog(Catalog.objects.all(), many=True))
 
     def test_destroy(self):
@@ -484,8 +484,8 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         url = reverse('api:v1:catalog-detail', kwargs={'id': self.catalog.id})
 
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, 204)
-        self.assertFalse(Catalog.objects.filter(id=self.catalog.id).exists())
+        assert response.status_code == 204
+        assert not Catalog.objects.filter(id=self.catalog.id).exists()
 
     def test_update(self):
         """ Verify the endpoint updates a catalog. """
@@ -499,11 +499,11 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         }
 
         response = self.client.put(url, data, format='json')
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         catalog = Catalog.objects.get(id=self.catalog.id)
-        self.assertEqual(catalog.name, name)
-        self.assertEqual(catalog.query, query)
+        assert catalog.name == name
+        assert catalog.query == query
 
     def test_partial_update(self):
         """ Verify the endpoint supports partially updating a catalog's fields. """
@@ -515,11 +515,11 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         }
 
         response = self.client.patch(url, data, format='json')
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         catalog = Catalog.objects.get(id=self.catalog.id)
-        self.assertEqual(catalog.name, name)
-        self.assertEqual(catalog.query, query)
+        assert catalog.name == name
+        assert catalog.query == query
 
     def test_retrieve_permissions(self):
         """ Verify only users with the correct permissions can create, read, or modify a Catalog. """
@@ -529,14 +529,14 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         url = reverse('api:v1:catalog-detail', kwargs={'id': self.catalog.id})
 
         # A user with no permissions should NOT be able to view a Catalog.
-        self.assertFalse(user.has_perm('catalogs.view_catalog', self.catalog))
+        assert not user.has_perm('catalogs.view_catalog', self.catalog)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
         # The permitted user should be able to view the Catalog.
         self.grant_catalog_permission_to_user(user, 'view')
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
     def test_list_permissions(self):
         """ Verify only catalogs accessible to the user are returned in the list view. """
@@ -545,13 +545,13 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         # An user with no permissions should not see any catalogs
         response = self.client.get(self.catalog_list_url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertListEqual(response.data['results'], [])
 
         # The client should be able to see permissions for which it has access
         self.grant_catalog_permission_to_user(user, 'view')
         response = self.client.get(self.catalog_list_url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertListEqual(response.data['results'], self.serialize_catalog([self.catalog], many=True))
 
     def test_write_permissions(self):
@@ -562,18 +562,18 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         # Unprivileged users cannot modify Catalogs
         response = self.client.put(url)
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
         # With the right permissions, the user can perform the specified actions
         self.grant_catalog_permission_to_user(user, 'change')
         response = self.client.patch(url, {'query': '*:*'})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         self.grant_catalog_permission_to_user(user, 'delete')
         response = self.client.delete(url)
-        self.assertEqual(response.status_code, 204)
+        assert response.status_code == 204
 
     def test_username_filter_as_non_staff_user(self):
         """ Verify HTTP 403 is returned when a non-staff user attempts to filter the Catalog list by username. """
@@ -581,7 +581,7 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         self.client.force_authenticate(user)
 
         response = self.client.get(self.catalog_list_url + '?username=jack')
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
         expected = {'detail': 'Only staff users are permitted to filter by username. Remove the username parameter.'}
         self.assertDictEqual(response.data, expected)
 
@@ -593,13 +593,13 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
 
         path = f'{self.catalog_list_url}?username={user.username}'
         response = self.client.get(path)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertListEqual(response.data['results'], [])
 
         self.grant_catalog_permission_to_user(user, 'view', catalog)
 
         response = self.client.get(path)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertListEqual(response.data['results'], self.serialize_catalog([catalog], many=True))
 
     def test_username_filter_as_staff_user_with_invalid_username(self):
@@ -607,6 +607,6 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         username = 'jack'
         path = f'{self.catalog_list_url}?username={username}'
         response = self.client.get(path)
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
         expected = {'detail': f'No user with the username [{username}] exists.'}
         self.assertDictEqual(response.data, expected)

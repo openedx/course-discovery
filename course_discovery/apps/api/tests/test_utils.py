@@ -3,6 +3,7 @@ from itertools import product
 from unittest import mock
 
 import ddt
+import pytest
 from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.request import Request
@@ -26,15 +27,15 @@ class Cast2IntTests(TestCase):
     )
     @ddt.unpack
     def test_cast_success(self, value, expected):
-        self.assertEqual(cast2int(value, self.name), expected)
+        assert cast2int(value, self.name) == expected
 
     @ddt.data('beep', '1.1')
     def test_cast_failure(self, value):
         with mock.patch(LOGGER_PATH) as mock_logger:
-            with self.assertRaises(ValueError):
+            with pytest.raises(ValueError):
                 cast2int(value, self.name)
 
-        self.assertTrue(mock_logger.called)
+        assert mock_logger.called
 
 
 class TestGetQueryParam:
@@ -87,7 +88,7 @@ class StudioAPITests(TestCase):
             'team': expected_team_data,
             'pacing_type': course_run.pacing_type_temporary,
         }
-        self.assertEqual(StudioAPI.generate_data_for_studio_api(course_run, creating=creating), expected)
+        assert StudioAPI.generate_data_for_studio_api(course_run, creating=creating) == expected
 
     def test_create_rerun(self):
         run1 = CourseRunFactory()
@@ -95,23 +96,23 @@ class StudioAPITests(TestCase):
         self.api.create_course_rerun_in_studio(run2, run1.key)
 
         expected_data = self.make_studio_data(run2)
-        self.assertEqual(self.client.course_runs.call_args_list, [mock.call(run1.key)])
-        self.assertEqual(self.client.course_runs.return_value.rerun.post.call_args_list[0][0][0], expected_data)
+        assert self.client.course_runs.call_args_list == [mock.call(run1.key)]
+        assert self.client.course_runs.return_value.rerun.post.call_args_list[0][0][0] == expected_data
 
     def test_create_run(self):
         run = CourseRunFactory()
         self.api.create_course_run_in_studio(run)
 
         expected_data = self.make_studio_data(run)
-        self.assertEqual(self.client.course_runs.post.call_args_list[0][0][0], expected_data)
+        assert self.client.course_runs.post.call_args_list[0][0][0] == expected_data
 
     def test_update_run(self):
         run = CourseRunFactory()
         self.api.update_course_run_details_in_studio(run)
 
         expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False)
-        self.assertEqual(self.client.course_runs.call_args_list, [mock.call(run.key)])
-        self.assertEqual(self.client.course_runs.return_value.patch.call_args_list[0][0][0], expected_data)
+        assert self.client.course_runs.call_args_list == [mock.call(run.key)]
+        assert self.client.course_runs.return_value.patch.call_args_list[0][0][0] == expected_data
 
     @ddt.data(
         *product(range(1, 5), ['1T2017']),
@@ -121,7 +122,7 @@ class StudioAPITests(TestCase):
     @ddt.unpack
     def test_calculate_course_run_key_run_value(self, month, expected):
         start = datetime.datetime(2017, month, 1)
-        self.assertEqual(StudioAPI.calculate_course_run_key_run_value('NONE', start=start), expected)
+        assert StudioAPI.calculate_course_run_key_run_value('NONE', start=start) == expected
 
     def test_generate_data_for_studio_api(self):
         run = CourseRunFactory()
@@ -132,12 +133,12 @@ class StudioAPITests(TestCase):
                 'role': 'instructor',
             },
         ]
-        self.assertEqual(StudioAPI.generate_data_for_studio_api(run, True), self.make_studio_data(run, team=team))
+        assert StudioAPI.generate_data_for_studio_api(run, True) == self.make_studio_data(run, team=team)
 
     def test_generate_data_for_studio_api_without_team(self):
         run = CourseRunFactory()
         with mock.patch('course_discovery.apps.api.utils.logger.warning') as mock_logger:
-            self.assertEqual(StudioAPI.generate_data_for_studio_api(run, True), self.make_studio_data(run))
+            assert StudioAPI.generate_data_for_studio_api(run, True) == self.make_studio_data(run)
         mock_logger.assert_called_with(
             'No course team admin specified for course [%s]. This may result in a Studio course run '
             'being created without a course team.',
@@ -148,10 +149,10 @@ class StudioAPITests(TestCase):
         start = datetime.datetime(2017, 2, 1)
 
         CourseRunFactory(key='course-v1:TestX+Testing101x+1T2017')
-        self.assertEqual(StudioAPI.calculate_course_run_key_run_value('TestX', start), '1T2017a')
+        assert StudioAPI.calculate_course_run_key_run_value('TestX', start) == '1T2017a'
 
         CourseRunFactory(key='course-v1:TestX+Testing101x+1T2017a')
-        self.assertEqual(StudioAPI.calculate_course_run_key_run_value('TestX', start), '1T2017b')
+        assert StudioAPI.calculate_course_run_key_run_value('TestX', start) == '1T2017b'
 
     def test_update_course_run_image_in_studio_without_course_image(self):
         run = CourseRunFactory(course__image=None)

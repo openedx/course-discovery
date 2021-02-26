@@ -47,16 +47,16 @@ class UsernameReplacementViewTests(APITestCase):
 
         # Test unauthenticated
         response = self.client.post(self.url)
-        self.assertEqual(response.status_code, 401)
+        assert response.status_code == 401
 
         # Test non-service worker
         random_user = UserFactory()
         response = self.call_api(random_user, data)
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
         # Test service worker
         response = self.call_api(self.service_user, data)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
     @ddt.data(
         [{}, {}],
@@ -69,7 +69,7 @@ class UsernameReplacementViewTests(APITestCase):
             "username_mappings": mapping_data
         }
         response = self.call_api(self.service_user, data)
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
 
     def test_existing_and_non_existing_users(self):
         """
@@ -89,5 +89,5 @@ class UsernameReplacementViewTests(APITestCase):
             'successful_replacements': existing_users + non_existing_users
         }
         response = self.call_api(self.service_user, data)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data, expected_response)
+        assert response.status_code == 200
+        assert response.data == expected_response

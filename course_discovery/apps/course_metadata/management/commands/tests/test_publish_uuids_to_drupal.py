@@ -1,5 +1,6 @@
 from unittest import mock
 
+import pytest
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
@@ -34,7 +35,7 @@ class TestPublishUuidsToDrupal(TestCase):
 
     def test_handle_with_no_config(self):
         configs = DrupalPublishUuidConfig.objects.all()
-        self.assertEqual(configs.count(), 0)
+        assert configs.count() == 0
         command = Command()
         command_failed = False
         try:
@@ -63,8 +64,8 @@ class TestPublishUuidsToDrupal(TestCase):
 
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             command.handle()
-        self.assertEqual(cm.call_count, 1)
-        self.assertEqual(cm.call_args[0][0], person)
+        assert cm.call_count == 1
+        assert cm.call_args[0][0] == person
 
     def test_handle_with_push_people_error(self):
         DrupalPublishUuidConfigFactory(
@@ -75,7 +76,7 @@ class TestPublishUuidsToDrupal(TestCase):
         command = Command()
 
         # First test that a normal exception bubbles up like we expect
-        with self.assertRaises(Exception):
+        with pytest.raises(Exception):
             with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', side_effect=Exception):
                 command.handle()
 
@@ -84,4 +85,4 @@ class TestPublishUuidsToDrupal(TestCase):
             MarketingSitePeople, 'update_or_publish_person', side_effect=MarketingSiteAPIClientException
         ) as cm:
             command.handle()
-            self.assertEqual(cm.call_count, 1)
+            assert cm.call_count == 1

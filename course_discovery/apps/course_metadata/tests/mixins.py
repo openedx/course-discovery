@@ -73,7 +73,7 @@ class MarketingSiteAPIClientTestMixin(TestCase):
         )
 
     def assert_responses_call_count(self, count):
-        self.assertEqual(len(responses.calls), count)
+        assert len(responses.calls) == count
 
 
 class MarketingSitePublisherTestMixin(MarketingSiteAPIClientTestMixin):
