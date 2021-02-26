@@ -73,6 +73,7 @@ class SeatInline(admin.TabularInline):
     model = Seat
     extra = 1
     readonly_fields = ('_upgrade_deadline',)
+    raw_id_fields = ('draft_version', )
 
 
 class PositionInline(admin.TabularInline):
