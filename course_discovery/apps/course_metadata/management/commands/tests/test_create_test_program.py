@@ -22,4 +22,4 @@ class CreateTestProgramCommandTests(TestCase):
         ProgramFactory(title='test-program', subtitle='test')
         call_command('create_test_program', *self.command_args)
         test_program = Program.objects.get(title='test-program')
-        self.assertNotEqual(test_program.subtitle, 'test')
+        assert test_program.subtitle != 'test'

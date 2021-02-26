@@ -32,8 +32,8 @@ class HealthTests(SiteMixin, TestCase):
     def _assert_health(self, status_code, overall_status, database_status):
         """Verify that the response matches expectations."""
         response = self.client.get(reverse('health'))
-        self.assertEqual(response.status_code, status_code)
-        self.assertEqual(response['content-type'], 'application/json')
+        assert response.status_code == status_code
+        assert response['content-type'] == 'application/json'
 
         expected_data = {
             'overall_status': overall_status,
@@ -53,7 +53,7 @@ class AutoAuthTests(SiteMixin, TestCase):
     def test_setting_disabled(self):
         """When the ENABLE_AUTO_AUTH setting is False, the view should raise a 404."""
         response = self.client.get(self.AUTO_AUTH_PATH)
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     @override_settings(ENABLE_AUTO_AUTH=True)
     def test_setting_enabled(self):
@@ -65,18 +65,18 @@ class AutoAuthTests(SiteMixin, TestCase):
         response = self.client.get(self.AUTO_AUTH_PATH)
 
         # Verify that a redirect has occured and that a new user has been created
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(User.objects.count(), original_user_count + 1)
+        assert response.status_code == 302
+        assert User.objects.count() == (original_user_count + 1)
 
         # Get the latest user
         user = User.objects.latest()
 
         # Verify that the user is logged in and that their username has the expected prefix
-        self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
-        self.assertTrue(user.username.startswith(settings.AUTO_AUTH_USERNAME_PREFIX))
+        assert int(self.client.session['_auth_user_id']) == user.pk
+        assert user.username.startswith(settings.AUTO_AUTH_USERNAME_PREFIX)
 
         # Verify that the user has superuser permissions
-        self.assertTrue(user.is_superuser)
+        assert user.is_superuser
 
 
 class OtherViewsTests(TestCase):
@@ -88,4 +88,4 @@ class OtherViewsTests(TestCase):
         """
         url = reverse('javascript-catalog')
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200

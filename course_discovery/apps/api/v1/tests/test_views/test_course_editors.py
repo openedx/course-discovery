@@ -34,7 +34,7 @@ class CourseEditorsViewSetTests(SerializationMixin, APITestCase):
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         response = self.client.get(self.list_path)
 
-        self.assertFalse(response.data['results'])
+        assert not response.data['results']
 
     def test_course_query_param(self):
         """Verify GET endpoint with course query param returns editors relative to that course"""

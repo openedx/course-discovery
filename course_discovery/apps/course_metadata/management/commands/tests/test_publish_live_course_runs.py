@@ -2,6 +2,7 @@ import datetime
 from unittest import mock
 
 import ddt
+import pytest
 import pytz
 from django.core.management import CommandError
 from django.test import TestCase
@@ -36,26 +37,26 @@ class PublishLiveCourseRunsTests(TestCase):
 
         self.handle()
 
-        self.assertEqual(mock_publish.call_count, 1 if published else 0)
+        assert mock_publish.call_count == (1 if published else 0)
 
     def test_ignores_drafts(self, mock_publish):
         # Draft run doesn't get published
         run = CourseRunFactory(draft=True, status=CourseRunStatus.Reviewed, go_live_date=self.past)
         self.handle()
-        self.assertEqual(mock_publish.call_count, 0)
+        assert mock_publish.call_count == 0
 
         # But sanity check by confirming that if it *is* an official version, it does.
         run.draft = False
         run.save()
         self.handle()
-        self.assertEqual(mock_publish.call_count, 1)
+        assert mock_publish.call_count == 1
 
     def test_exception_does_not_stop_publishing(self, mock_publish):
         CourseRunFactory(status=CourseRunStatus.Reviewed, go_live_date=self.past)
         CourseRunFactory(status=CourseRunStatus.Reviewed, go_live_date=self.past)
 
         mock_publish.side_effect = [Exception, None]
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             self.handle()
 
-        self.assertEqual(mock_publish.call_count, 2)
+        assert mock_publish.call_count == 2

@@ -66,7 +66,7 @@ class CourseRunQuerySetTests(TestCase):
         # Create course with end date in past and no enrollment_end.
         CourseRunFactory(end=inactive_course_end, enrollment_end=None)
 
-        self.assertEqual(CourseRun.objects.active().count(), 0)
+        assert CourseRun.objects.active().count() == 0
 
         # Create course with end date in future and enrollment_end in future.
         active_enrollment_end = CourseRunFactory(end=active_course_end, enrollment_end=open_enrollment_end)
@@ -77,10 +77,7 @@ class CourseRunQuerySetTests(TestCase):
         # Create course with no end date and enrollment date in future.
         active_no_end_date = CourseRunFactory(end=None, enrollment_end=open_enrollment_end)
 
-        self.assertEqual(
-            set(CourseRun.objects.active()),
-            {active_enrollment_end, active_no_enrollment_end, active_no_end_date}
-        )
+        assert set(CourseRun.objects.active()) == {active_enrollment_end, active_no_enrollment_end, active_no_end_date}
 
     def test_enrollable(self):
         """ Verify the method returns only course runs currently open for enrollment. """
@@ -103,7 +100,7 @@ class CourseRunQuerySetTests(TestCase):
         course_run = CourseRunFactory()
         SeatFactory(course_run=course_run)
 
-        self.assertEqual(list(CourseRun.objects.marketable()), [course_run])
+        assert list(CourseRun.objects.marketable()) == [course_run]
 
     @ddt.data(True, False)
     def test_marketable_seats_exclusions(self, has_seats):
@@ -113,7 +110,7 @@ class CourseRunQuerySetTests(TestCase):
         if has_seats:
             SeatFactory(course_run=course_run)
 
-        self.assertEqual(CourseRun.objects.marketable().exists(), has_seats)
+        assert CourseRun.objects.marketable().exists() == has_seats
 
     @ddt.data(True, False)
     def test_marketable_unpublished_exclusions(self, is_published):
@@ -125,7 +122,7 @@ class CourseRunQuerySetTests(TestCase):
             course_run.status = CourseRunStatus.Published
             course_run.save()
 
-        self.assertEqual(CourseRun.objects.marketable().exists(), is_published)
+        assert CourseRun.objects.marketable().exists() == is_published
 
 
 @ddt.ddt
@@ -139,9 +136,9 @@ class ProgramQuerySetTests(TestCase):
         """ Verify the method filters Programs to those which are active and have marketing slugs. """
         program = ProgramFactory(status=status)
         expected = [program] if is_marketable else []
-        self.assertEqual(list(Program.objects.marketable()), expected)
+        assert list(Program.objects.marketable()) == expected
 
     def test_marketable_exclusions(self):
         """ Verify the method excludes Programs without a marketing slug. """
         ProgramFactory(marketing_slug='')
-        self.assertEqual(Program.objects.marketable().count(), 0)
+        assert Program.objects.marketable().count() == 0

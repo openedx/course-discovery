@@ -1,3 +1,4 @@
+import pytest
 from django.db import IntegrityError
 from django.test import TestCase
 
@@ -11,13 +12,8 @@ class UserAttributeTests(TestCase):
         """ Verify casting an instance to a string returns a string containing the user name and
         current enable status. """
         user_attr = factories.UserAttributeFactory()
-        self.assertEqual(
-            str(user_attr),
-            '{user}: {enable_email_notification}'.format(
-                user=user_attr.user,
-                enable_email_notification=user_attr.enable_email_notification
-            )
-        )
+        assert str(user_attr) == '{user}: {enable_email_notification}'.format(
+            user=user_attr.user, enable_email_notification=user_attr.enable_email_notification)
 
 
 class OrganizationUserRoleTests(TestCase):
@@ -27,17 +23,12 @@ class OrganizationUserRoleTests(TestCase):
 
     def test_str(self):
         """Verify that a OrganizationUserRole is properly converted to a str."""
-        self.assertEqual(
-            str(self.org_user_role), '{organization}: {user}: {role}'.format(
-                organization=self.org_user_role.organization,
-                user=self.org_user_role.user,
-                role=self.org_user_role.role
-            )
-        )
+        assert str(self.org_user_role) == '{organization}: {user}: {role}'.format(
+            organization=self.org_user_role.organization, user=self.org_user_role.user, role=self.org_user_role.role)
 
     def test_unique_constraint(self):
         """ Verify a user cannot have multiple rows for the same organization-role combination. """
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             OrganizationUserRole.objects.create(
                 user=self.org_user_role.user,
                 organization=self.org_user_role.organization,
@@ -56,12 +47,12 @@ class GroupOrganizationTests(TestCase):
         expected_str = '{organization}: {group}'.format(
             organization=self.organization_extension.organization, group=self.organization_extension.group
         )
-        self.assertEqual(str(self.organization_extension), expected_str)
+        assert str(self.organization_extension) == expected_str
 
     def test_one_to_one_constraint(self):
         """ Verify that same group or organization have only one record."""
 
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             OrganizationExtension.objects.create(
                 group=self.group_2,
                 organization=self.organization_extension.organization

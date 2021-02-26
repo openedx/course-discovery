@@ -17,32 +17,32 @@ class UserTests(TestCase):
 
     def test_access_token_without_social_auth(self):
         """ Verify the property returns None if the user is not associated with a UserSocialAuth. """
-        self.assertIsNone(self.user.access_token)
+        assert self.user.access_token is None
 
     def test_access_token(self):
         """ Verify the property returns the value of the access_token stored with the UserSocialAuth. """
         social_auth = UserSocialAuth.objects.create(user=self.user, provider='test', uid=self.user.username)
-        self.assertIsNone(self.user.access_token)
+        assert self.user.access_token is None
 
         access_token = 'My voice is my passport. Verify me.'
         social_auth.extra_data.update({'access_token': access_token})
         social_auth.save()
-        self.assertEqual(self.user.access_token, access_token)
+        assert self.user.access_token == access_token
 
     def test_get_full_name(self):
         """ Test that the user model concatenates first and last name if the full name is not set. """
         full_name = "George Costanza"
         user = UserFactory(full_name=full_name)
-        self.assertEqual(user.get_full_name(), full_name)
+        assert user.get_full_name() == full_name
 
         first_name = "Jerry"
         last_name = "Seinfeld"
         user = UserFactory(full_name=None, first_name=first_name, last_name=last_name)
         expected = f"{first_name} {last_name}"
-        self.assertEqual(user.get_full_name(), expected)
+        assert user.get_full_name() == expected
 
         user = UserFactory(full_name=full_name, first_name=first_name, last_name=last_name)
-        self.assertEqual(user.get_full_name(), full_name)
+        assert user.get_full_name() == full_name
 
 
 class CurrencyTests(TestCase):
@@ -54,7 +54,7 @@ class CurrencyTests(TestCase):
         code = 'USD'
         name = 'U.S. Dollar'
         instance = Currency(code=code, name=name)
-        self.assertEqual(str(instance), f'{code} - {name}')
+        assert str(instance) == f'{code} - {name}'
 
 
 @ddt.ddt
@@ -65,7 +65,7 @@ class PartnerTests(TestCase):
         """ Verify the method returns the name of the Partner. """
 
         partner = PartnerFactory()
-        self.assertEqual(str(partner), partner.name)
+        assert str(partner) == partner.name
 
     @ddt.unpack
     @ddt.data(
@@ -75,7 +75,7 @@ class PartnerTests(TestCase):
     )
     def test_has_marketing_site(self, marketing_site_url_root, expected):
         partner = PartnerFactory(marketing_site_url_root=marketing_site_url_root)
-        self.assertEqual(partner.has_marketing_site, expected)
+        assert partner.has_marketing_site == expected
 
     @responses.activate
     def test_access_token(self):

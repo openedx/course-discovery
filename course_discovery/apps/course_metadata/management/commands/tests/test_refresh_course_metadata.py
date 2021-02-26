@@ -2,6 +2,7 @@ import json
 from unittest import mock
 
 import ddt
+import pytest
 import responses
 from django.core.management import CommandError, call_command
 from django.test import TransactionTestCase
@@ -146,7 +147,7 @@ class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
 
     def test_refresh_course_metadata_with_invalid_partner_code(self):
         """ Verify an error is raised if an invalid partner code is passed on the command line. """
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             command_args = ['--partner_code=invalid']
             call_command('refresh_course_metadata', *command_args)
 
@@ -173,5 +174,5 @@ class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
         with self.assertRaisesMessage(CommandError, 'One or more of the data loaders above failed.'):
             call_command('refresh_course_metadata')
 
-        self.assertEqual(mock_delete_orphans.call_count, 2)
-        self.assertEqual({x[0][0] for x in mock_delete_orphans.call_args_list}, {Image, Video})
+        assert mock_delete_orphans.call_count == 2
+        assert {x[0][0] for x in mock_delete_orphans.call_args_list} == {Image, Video}

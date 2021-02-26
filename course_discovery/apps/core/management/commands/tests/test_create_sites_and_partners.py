@@ -1,5 +1,6 @@
 import os
 
+import pytest
 from django.contrib.sites.models import Site
 from django.core.management import CommandError, call_command
 from django.test import TestCase
@@ -25,32 +26,20 @@ class CreateSitesAndPartnersTests(TestCase):
         partners = Partner.objects.all()
 
         # there is an extra default site.
-        self.assertEqual(len(sites), len(SITES))
-        self.assertEqual(len(partners), len(SITES))
+        assert len(sites) == len(SITES)
+        assert len(partners) == len(SITES)
 
         for site in sites:
             if site.name in SITES:
                 site_name = site.name
-                self.assertEqual(
-                    site.domain,
-                    f"discovery-{site_name}-{self.dns_name}.example.com"
-                )
+                assert site.domain == f'discovery-{site_name}-{self.dns_name}.example.com'
                 partner = Partner.objects.get(site=site)
 
-                self.assertEqual(partner.short_code, site_name)
-                self.assertEqual(partner.name, "dummy")
-                self.assertEqual(
-                    partner.courses_api_url,
-                    f"https://dummy-{self.dns_name}.example.com/api/courses/v1/"
-                )
-                self.assertEqual(
-                    partner.ecommerce_api_url,
-                    f"https://ecommerce-dummy-{self.dns_name}.example.com/"
-                )
-                self.assertEqual(
-                    partner.organizations_api_url,
-                    "https://dummy-{dns_name}.example.com/api/organizations/v0/"
-                )
+                assert partner.short_code == site_name
+                assert partner.name == 'dummy'
+                assert partner.courses_api_url == f'https://dummy-{self.dns_name}.example.com/api/courses/v1/'
+                assert partner.ecommerce_api_url == f'https://ecommerce-dummy-{self.dns_name}.example.com/'
+                assert partner.organizations_api_url == 'https://dummy-{dns_name}.example.com/api/organizations/v0/'
 
     def test_missing_required_arguments(self):
         """
@@ -58,13 +47,13 @@ class CreateSitesAndPartnersTests(TestCase):
         """
 
         # If a required argument is not specified the system should raise a CommandError
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             call_command(
                 "create_sites_and_partners",
                 "--dns-name", self.dns_name,
             )
 
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             call_command(
                 "create_sites_and_partners",
                 "--theme-path", self.theme_path,

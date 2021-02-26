@@ -1,3 +1,4 @@
+import pytest
 from ddt import data, ddt
 from django.core.management import CommandError, call_command
 from django.test import TestCase
@@ -27,21 +28,21 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
     marketing_site_api_password = 'marketing-password'
 
     def _check_partner(self, partner):
-        self.assertEqual(partner.site.domain, self.site_domain)
-        self.assertEqual(partner.short_code, self.partner_code)
-        self.assertEqual(partner.name, self.partner_name)
-        self.assertEqual(partner.courses_api_url, self.courses_api_url)
-        self.assertEqual(partner.lms_coursemode_api_url, self.lms_coursemode_api_url)
-        self.assertEqual(partner.ecommerce_api_url, self.ecommerce_api_url)
-        self.assertEqual(partner.organizations_api_url, self.organizations_api_url)
-        self.assertEqual(partner.programs_api_url, self.programs_api_url)
-        self.assertEqual(partner.lms_url, self.lms_url)
-        self.assertEqual(partner.studio_url, self.studio_url)
-        self.assertEqual(partner.publisher_url, self.publisher_url)
-        self.assertEqual(partner.marketing_site_api_url, self.marketing_site_api_url)
-        self.assertEqual(partner.marketing_site_url_root, self.marketing_site_url_root)
-        self.assertEqual(partner.marketing_site_api_username, self.marketing_site_api_username)
-        self.assertEqual(partner.marketing_site_api_password, self.marketing_site_api_password)
+        assert partner.site.domain == self.site_domain
+        assert partner.short_code == self.partner_code
+        assert partner.name == self.partner_name
+        assert partner.courses_api_url == self.courses_api_url
+        assert partner.ecommerce_api_url == self.ecommerce_api_url
+        assert partner.lms_coursemode_api_url == self.lms_coursemode_api_url
+        assert partner.lms_url == self.lms_url
+        assert partner.studio_url == self.studio_url
+        assert partner.publisher_url == self.publisher_url
+        assert partner.organizations_api_url == self.organizations_api_url
+        assert partner.programs_api_url == self.programs_api_url
+        assert partner.marketing_site_api_url == self.marketing_site_api_url
+        assert partner.marketing_site_url_root == self.marketing_site_url_root
+        assert partner.marketing_site_api_username == self.marketing_site_api_username
+        assert partner.marketing_site_api_password == self.marketing_site_api_password
 
     def _call_command(self, **kwargs):
         """
@@ -102,7 +103,7 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
         """ Verify the command creates a new Partner. """
 
         partners = Partner.objects.all()
-        self.assertEqual(partners.count(), 0)
+        assert partners.count() == 0
 
         self._create_partner()
 
@@ -153,8 +154,8 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
         self._check_partner(partner)
 
         site.refresh_from_db()
-        self.assertEqual(site.domain, self.site_domain)
-        self.assertEqual(partner.site, site)
+        assert site.domain == self.site_domain
+        assert partner.site == site
 
     @data(
         [''],
@@ -165,5 +166,5 @@ class CreateOrUpdatePartnerCommandTests(TestCase):
         """ Verify CommandError is raised when required arguments are missing """
 
         # If a required argument is not specified the system should raise a CommandError
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             call_command(self.command_name, *command_args)
