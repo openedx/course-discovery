@@ -56,8 +56,8 @@ class BaseMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         # Confirm we don't do anything if it doesn't exist
         with mock.patch.object(BaseMarketingSitePublisher, 'node_id', return_value=None) as mock_node_id:
             self.publisher.delete_obj(self.obj)
-            self.assertTrue(mock_node_id.called)
-            self.assertFalse(mock_delete_node.called)
+            assert mock_node_id.called
+            assert not mock_delete_node.called
 
         # Now the happy path
         with mock.patch.object(BaseMarketingSitePublisher, 'node_id', return_value='123') as mock_node_id:
@@ -388,10 +388,10 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.obj.type.name = 'Professional Certificate'
         self.publisher.publish_obj(self.obj, previous_obj=self.obj)
 
-        self.assertTrue(mock_node_id.called)
-        self.assertTrue(mock_create_node.called)
-        self.assertTrue(mock_get_and_delete_alias.called)
-        self.assertTrue(mock_update_node_alias.called)
+        assert mock_node_id.called
+        assert mock_create_node.called
+        assert mock_get_and_delete_alias.called
+        assert mock_update_node_alias.called
 
     @mock.patch.object(ProgramMarketingSitePublisher, 'serialize_obj', return_value={'uuid': 'foo'})
     @mock.patch.object(ProgramMarketingSitePublisher, 'node_id', return_value='node_id')

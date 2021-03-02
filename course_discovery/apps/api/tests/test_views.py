@@ -52,5 +52,5 @@ class ApiDocsPermissionDeniedHandlerTests(TestCase):
         self.request.user = user
         response = api_docs_permission_denied_handler(self.request)
         expected_url = '{path}?next={next}'.format(path=reverse('login'), next=self.request_path)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, expected_url)
+        assert response.status_code == 302
+        assert response.url == expected_url

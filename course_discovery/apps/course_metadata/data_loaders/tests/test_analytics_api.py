@@ -66,8 +66,8 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
         expected_course_enrollment_counts = {}
         course_runs = CourseRun.objects.all()
         for course_run in course_runs:
-            self.assertGreater(course_run.enrollment_count, 0)
-            self.assertGreater(course_run.recent_enrollment_count, 0)
+            assert course_run.enrollment_count > 0
+            assert course_run.recent_enrollment_count > 0
             course = course_run.course
             if course.key in expected_course_enrollment_counts.keys():
                 expected_course_enrollment_counts[course.key]['count'] += course_run.enrollment_count
@@ -84,11 +84,11 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
             expected_counts = expected_course_enrollment_counts[course.key]
             expected_program_enrollment_count += expected_counts['count']
             expected_program_recent_enrollment_count += expected_counts['recent_count']
-            self.assertEqual(course.enrollment_count, expected_counts['count'])
-            self.assertEqual(course.recent_enrollment_count, expected_counts['recent_count'])
+            assert course.enrollment_count == expected_counts['count']
+            assert course.recent_enrollment_count == expected_counts['recent_count']
         courses = Course.objects.all()
 
         # For programs, let's confirm that the program math is right in the ingest method
         programs = Program.objects.all()
-        self.assertEqual(programs[0].enrollment_count, expected_program_enrollment_count)
-        self.assertEqual(programs[0].recent_enrollment_count, expected_program_recent_enrollment_count)
+        assert programs[0].enrollment_count == expected_program_enrollment_count
+        assert programs[0].recent_enrollment_count == expected_program_recent_enrollment_count

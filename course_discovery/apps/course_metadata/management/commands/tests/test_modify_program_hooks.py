@@ -23,8 +23,8 @@ class ModifyProgramHooksCommandTest(TestCase):
         call_command('modify_program_hooks')
         program.refresh_from_db()
         program1.refresh_from_db()
-        self.assertEqual(program.marketing_hook, 'Bananas in pajamas')
-        self.assertEqual(program1.marketing_hook, 'Are coming down the stairs')
+        assert program.marketing_hook == 'Bananas in pajamas'
+        assert program1.marketing_hook == 'Are coming down the stairs'
 
     def testWeirdCharactersInHookText(self):
         program = ProgramFactory()
@@ -32,7 +32,7 @@ class ModifyProgramHooksCommandTest(TestCase):
         self.config.save()
         call_command('modify_program_hooks')
         program.refresh_from_db()
-        self.assertEqual(program.marketing_hook, '+:[{])(%')
+        assert program.marketing_hook == '+:[{])(%'
 
     @mock.patch(LOGGER_PATH)
     def testBadUUID(self, mock_logger):

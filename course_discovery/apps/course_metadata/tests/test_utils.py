@@ -53,7 +53,7 @@ class UploadToFieldNamePathTests(TestCase):
         upload_to = utils.UploadToFieldNamePath(populate_from=field, path=path)
         upload_path = upload_to(self.program, 'name' + ext)
         regex = re.compile(path + str(getattr(self.program, field)) + '-[a-f0-9]{12}' + ext)
-        self.assertTrue(regex.match(upload_path))
+        assert regex.match(upload_path)
 
 
 @ddt.ddt
@@ -69,7 +69,7 @@ class UslugifyTests(TestCase):
     @ddt.unpack
     def test_uslugify(self, string, expected):
         output = utils.uslugify(string)
-        self.assertEqual(output, expected)
+        assert output == expected
 
 
 class PushToEcommerceTests(OAuth2Mixin, TestCase):
@@ -128,39 +128,39 @@ class PushToEcommerceTests(OAuth2Mixin, TestCase):
         self.partner.lms_url = 'http://127.0.0.1:8000'
         self.mock_access_token()
         self.mock_publication()
-        self.assertTrue(utils.push_to_ecommerce_for_course_run(self.course_run))
+        assert utils.push_to_ecommerce_for_course_run(self.course_run)
         for s in self.seats:
             s.refresh_from_db()
         self.entitlement.refresh_from_db()
-        self.assertEqual({s.sku for s in self.seats}, {'XXXXXXXX', 'YYYYYYYY'})
-        self.assertEqual(self.entitlement.sku, 'ZZZZZZZZ')
+        assert {s.sku for s in self.seats} == {'XXXXXXXX', 'YYYYYYYY'}
+        assert self.entitlement.sku == 'ZZZZZZZZ'
 
         # Check draft versions too
-        self.assertEqual({s.sku for s in self.course_run.draft_version.seats.all()}, {'XXXXXXXX', 'YYYYYYYY'})
-        self.assertEqual(self.course.draft_version.entitlements.first().sku, 'ZZZZZZZZ')
+        assert {s.sku for s in self.course_run.draft_version.seats.all()} == {'XXXXXXXX', 'YYYYYYYY'}
+        assert self.course.draft_version.entitlements.first().sku == 'ZZZZZZZZ'
 
     def test_status_failure(self):
         self.partner.lms_url = 'http://127.0.0.1:8000'
         self.mock_access_token()
         self.mock_publication(status=500)
-        with self.assertRaises(requests.HTTPError):
+        with pytest.raises(requests.HTTPError):
             utils.push_to_ecommerce_for_course_run(self.course_run)
 
         responses.reset()
         self.mock_publication(status=500, json={'error': 'Test error message'})
-        with self.assertRaises(EcommerceSiteAPIClientException):
+        with pytest.raises(EcommerceSiteAPIClientException):
             utils.push_to_ecommerce_for_course_run(self.course_run)
 
     def test_no_products(self):
         for seat in self.seats:
             seat.delete()
         self.entitlement.delete()
-        self.assertFalse(utils.push_to_ecommerce_for_course_run(self.course_run))
+        assert not utils.push_to_ecommerce_for_course_run(self.course_run)
 
     def test_no_ecommerce_url(self):
         self.partner.ecommerce_api_url = None
         self.partner.save()
-        self.assertFalse(utils.push_to_ecommerce_for_course_run(self.course_run))
+        assert not utils.push_to_ecommerce_for_course_run(self.course_run)
 
 
 @ddt.ddt
@@ -190,11 +190,11 @@ class TestSerializeSeatForEcommerceApi(TestCase):
                 }
             ]
         }
-        self.assertEqual(actual, expected)
+        assert actual == expected
         seat.sku = None
         actual = serialize_seat_for_ecommerce_api(seat, mode)
         expected['stockrecords'][0]['partner_sku'] = None
-        self.assertEqual(actual, expected)
+        assert actual == expected
 
 
 @pytest.mark.django_db
@@ -233,12 +233,12 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
         self.mock_login_response(200)
         session = self.api_client.init_session
         self.assert_responses_call_count(2)
-        self.assertIsNotNone(session)
+        assert session is not None
 
     @responses.activate
     def test_init_session_failed(self):
         self.mock_login_response(500)
-        with self.assertRaises(MarketingSiteAPIClientException):
+        with pytest.raises(MarketingSiteAPIClientException):
             self.api_client.init_session  # pylint: disable=pointless-statement
 
     @responses.activate
@@ -247,13 +247,13 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
         self.mock_csrf_token_response(200)
         csrf_token = self.api_client.csrf_token
         self.assert_responses_call_count(3)
-        self.assertEqual(self.csrf_token, csrf_token)
+        assert self.csrf_token == csrf_token
 
     @responses.activate
     def test_csrf_token_failed(self):
         self.mock_login_response(200)
         self.mock_csrf_token_response(500)
-        with self.assertRaises(MarketingSiteAPIClientException):
+        with pytest.raises(MarketingSiteAPIClientException):
             self.api_client.csrf_token  # pylint: disable=pointless-statement
 
     @responses.activate
@@ -262,13 +262,13 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
         self.mock_user_id_response(200)
         user_id = self.api_client.user_id
         self.assert_responses_call_count(3)
-        self.assertEqual(self.user_id, user_id)
+        assert self.user_id == user_id
 
     @responses.activate
     def test_user_id_failed(self):
         self.mock_login_response(200)
         self.mock_user_id_response(500)
-        with self.assertRaises(MarketingSiteAPIClientException):
+        with pytest.raises(MarketingSiteAPIClientException):
             self.api_client.user_id  # pylint: disable=pointless-statement
 
     @responses.activate
@@ -277,15 +277,15 @@ class MarketingSiteAPIClientTests(MarketingSiteAPIClientTestMixin):
         self.mock_csrf_token_response(200)
         api_session = self.api_client.api_session
         self.assert_responses_call_count(3)
-        self.assertIsNotNone(api_session)
-        self.assertEqual(api_session.headers.get('Content-Type'), 'application/json')
-        self.assertEqual(api_session.headers.get('X-CSRF-Token'), self.csrf_token)
+        assert api_session is not None
+        assert api_session.headers.get('Content-Type') == 'application/json'
+        assert api_session.headers.get('X-CSRF-Token') == self.csrf_token
 
     @responses.activate
     def test_api_session_failed(self):
         self.mock_login_response(500)
         self.mock_csrf_token_response(500)
-        with self.assertRaises(MarketingSiteAPIClientException):
+        with pytest.raises(MarketingSiteAPIClientException):
             self.api_client.api_session  # pylint: disable=pointless-statement
 
 
@@ -300,11 +300,11 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         course_run = CourseRunFactory()
         draft_course_run, original_course_run = utils.set_draft_state(course_run, CourseRun, attrs)
 
-        self.assertEqual(1, len(CourseRun.objects.all()))
-        self.assertEqual(2, len(CourseRun.everything.all()))
+        assert 1 == len(CourseRun.objects.all())
+        assert 2 == len(CourseRun.everything.all())
 
-        self.assertTrue(draft_course_run.draft)
-        self.assertFalse(original_course_run.draft)
+        assert draft_course_run.draft
+        assert not original_course_run.draft
 
         if attrs:
             model_fields = [field.name for field in CourseRun._meta.get_fields()]
@@ -314,8 +314,8 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
             ))
             for key, value in attrs.items():
                 # Make sure that any attributes we changed are different in the draft course run from the original
-                self.assertIn(key, diff_of_fields)
-                self.assertEqual(getattr(draft_course_run, key), value)
+                assert key in diff_of_fields
+                assert getattr(draft_course_run, key) == value
 
     def test_set_draft_state_with_foreign_key(self):
         course = CourseFactory()
@@ -323,29 +323,29 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         draft_course, original_course = utils.set_draft_state(course, Course)
         draft_course_run, original_course_run = utils.set_draft_state(course_run, CourseRun, {'course': draft_course})
 
-        self.assertEqual(1, len(CourseRun.objects.all()))
-        self.assertEqual(2, len(CourseRun.everything.all()))
-        self.assertEqual(1, len(Course.objects.all()))
-        self.assertEqual(2, len(Course.everything.all()))
+        assert 1 == len(CourseRun.objects.all())
+        assert 2 == len(CourseRun.everything.all())
+        assert 1 == len(Course.objects.all())
+        assert 2 == len(Course.everything.all())
 
-        self.assertTrue(draft_course_run.draft)
-        self.assertFalse(original_course_run.draft)
+        assert draft_course_run.draft
+        assert not original_course_run.draft
 
-        self.assertTrue(draft_course.draft)
-        self.assertFalse(original_course.draft)
+        assert draft_course.draft
+        assert not original_course.draft
 
-        self.assertNotEqual(draft_course_run.course, original_course_run.course)
-        self.assertEqual(draft_course_run.course, draft_course)
-        self.assertEqual(original_course_run.course, original_course)
+        assert draft_course_run.course != original_course_run.course
+        assert draft_course_run.course == draft_course
+        assert original_course_run.course == original_course
 
     def test_ensure_draft_world_draft_obj_given(self):
         course_run = CourseRunFactory(draft=True)
         ensured_draft_course_run = utils.ensure_draft_world(course_run)
 
-        self.assertEqual(ensured_draft_course_run, course_run)
-        self.assertEqual(ensured_draft_course_run.id, course_run.id)
-        self.assertEqual(ensured_draft_course_run.uuid, course_run.uuid)
-        self.assertEqual(ensured_draft_course_run.draft, course_run.draft)
+        assert ensured_draft_course_run == course_run
+        assert ensured_draft_course_run.id == course_run.id
+        assert ensured_draft_course_run.uuid == course_run.uuid
+        assert ensured_draft_course_run.draft == course_run.draft
 
     def test_ensure_draft_world_not_draft_course_run_given(self):
         course = CourseFactory()
@@ -357,38 +357,38 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         ensured_draft_course_run = utils.ensure_draft_world(course_run)
         not_draft_course_run = CourseRun.objects.get(uuid=course_run.uuid)
 
-        self.assertNotEqual(ensured_draft_course_run, not_draft_course_run)
-        self.assertEqual(ensured_draft_course_run.uuid, not_draft_course_run.uuid)
-        self.assertTrue(ensured_draft_course_run.draft)
-        self.assertNotEqual(ensured_draft_course_run.course, not_draft_course_run.course)
-        self.assertEqual(ensured_draft_course_run.course.uuid, not_draft_course_run.course.uuid)
+        assert ensured_draft_course_run != not_draft_course_run
+        assert ensured_draft_course_run.uuid == not_draft_course_run.uuid
+        assert ensured_draft_course_run.draft
+        assert ensured_draft_course_run.course != not_draft_course_run.course
+        assert ensured_draft_course_run.course.uuid == not_draft_course_run.course.uuid
 
         # Check slugs are equal
-        self.assertEqual(ensured_draft_course_run.slug, not_draft_course_run.slug)
+        assert ensured_draft_course_run.slug == not_draft_course_run.slug
 
         # Seat checks
         draft_seats = ensured_draft_course_run.seats.all()
         not_draft_seats = not_draft_course_run.seats.all()
-        self.assertNotEqual(draft_seats, not_draft_seats)
-        self.assertEqual(len(draft_seats), len(not_draft_seats))
+        assert draft_seats != not_draft_seats
+        assert len(draft_seats) == len(not_draft_seats)
         for i, __ in enumerate(draft_seats):
-            self.assertEqual(draft_seats[i].price, not_draft_seats[i].price)
-            self.assertEqual(draft_seats[i].sku, not_draft_seats[i].sku)
-            self.assertNotEqual(draft_seats[i].course_run, not_draft_seats[i].course_run)
-            self.assertEqual(draft_seats[i].course_run.uuid, not_draft_seats[i].course_run.uuid)
-            self.assertEqual(draft_seats[i].official_version, not_draft_seats[i])
-            self.assertEqual(not_draft_seats[i].draft_version, draft_seats[i])
+            assert draft_seats[i].price == not_draft_seats[i].price
+            assert draft_seats[i].sku == not_draft_seats[i].sku
+            assert draft_seats[i].course_run != not_draft_seats[i].course_run
+            assert draft_seats[i].course_run.uuid == not_draft_seats[i].course_run.uuid
+            assert draft_seats[i].official_version == not_draft_seats[i]
+            assert not_draft_seats[i].draft_version == draft_seats[i]
 
         # Check draft course is also created
         draft_course = ensured_draft_course_run.course
         not_draft_course = Course.objects.get(uuid=course.uuid)
-        self.assertNotEqual(draft_course, not_draft_course)
-        self.assertEqual(draft_course.uuid, not_draft_course.uuid)
-        self.assertTrue(draft_course.draft)
+        assert draft_course != not_draft_course
+        assert draft_course.uuid == not_draft_course.uuid
+        assert draft_course.draft
 
         # Check official and draft versions match up
-        self.assertEqual(ensured_draft_course_run.official_version, not_draft_course_run)
-        self.assertEqual(not_draft_course_run.draft_version, ensured_draft_course_run)
+        assert ensured_draft_course_run.official_version == not_draft_course_run
+        assert not_draft_course_run.draft_version == ensured_draft_course_run
 
     def test_ensure_draft_world_not_draft_course_given(self):
         course = CourseFactory()
@@ -406,25 +406,25 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         ensured_draft_course = utils.ensure_draft_world(course)
         not_draft_course = Course.objects.get(uuid=course.uuid)
 
-        self.assertNotEqual(ensured_draft_course, not_draft_course)
-        self.assertEqual(ensured_draft_course.uuid, not_draft_course.uuid)
-        self.assertTrue(ensured_draft_course.draft)
+        assert ensured_draft_course != not_draft_course
+        assert ensured_draft_course.uuid == not_draft_course.uuid
+        assert ensured_draft_course.draft
 
         # Check slugs are equal
-        self.assertEqual(ensured_draft_course.slug, not_draft_course.slug)
+        assert ensured_draft_course.slug == not_draft_course.slug
 
         # Check authoring orgs are equal
-        self.assertEqual(list(ensured_draft_course.authoring_organizations.all()),
-                         list(not_draft_course.authoring_organizations.all()))
+        assert list(ensured_draft_course.authoring_organizations.all()) ==\
+               list(not_draft_course.authoring_organizations.all())
 
         # Check canonical course run was updated
-        self.assertNotEqual(ensured_draft_course.canonical_course_run, not_draft_course.canonical_course_run)
-        self.assertTrue(ensured_draft_course.canonical_course_run.draft)
-        self.assertEqual(ensured_draft_course.canonical_course_run.uuid, not_draft_course.canonical_course_run.uuid)
+        assert ensured_draft_course.canonical_course_run != not_draft_course.canonical_course_run
+        assert ensured_draft_course.canonical_course_run.draft
+        assert ensured_draft_course.canonical_course_run.uuid == not_draft_course.canonical_course_run.uuid
 
         # Check course editors are moved from the official version to the draft version
-        self.assertEqual(CourseEditor.objects.count(), 1)
-        self.assertEqual(editor.course, ensured_draft_course)
+        assert CourseEditor.objects.count() == 1
+        assert editor.course == ensured_draft_course
 
         # Check course runs all share the same UUIDs, but are now all drafts
         not_draft_course_runs_uuids = [run.uuid for run in course_runs]
@@ -436,22 +436,22 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         # Entitlement checks
         draft_entitlement = ensured_draft_course.entitlements.first()
         not_draft_entitlement = not_draft_course.entitlements.first()
-        self.assertNotEqual(draft_entitlement, not_draft_entitlement)
-        self.assertEqual(draft_entitlement.price, not_draft_entitlement.price)
-        self.assertEqual(draft_entitlement.sku, not_draft_entitlement.sku)
-        self.assertNotEqual(draft_entitlement.course, not_draft_entitlement.course)
-        self.assertEqual(draft_entitlement.course.uuid, not_draft_entitlement.course.uuid)
+        assert draft_entitlement != not_draft_entitlement
+        assert draft_entitlement.price == not_draft_entitlement.price
+        assert draft_entitlement.sku == not_draft_entitlement.sku
+        assert draft_entitlement.course != not_draft_entitlement.course
+        assert draft_entitlement.course.uuid == not_draft_entitlement.course.uuid
 
         # check slug history not copied over
-        self.assertEqual(ensured_draft_course.url_slug_history.count(), 0)
-        self.assertEqual(not_draft_course.url_slug_history.count(), 1)
+        assert ensured_draft_course.url_slug_history.count() == 0
+        assert not_draft_course.url_slug_history.count() == 1
 
         # Check official and draft versions match up
-        self.assertEqual(ensured_draft_course.official_version, not_draft_course)
-        self.assertEqual(not_draft_course.draft_version, ensured_draft_course)
+        assert ensured_draft_course.official_version == not_draft_course
+        assert not_draft_course.draft_version == ensured_draft_course
 
-        self.assertEqual(draft_entitlement.official_version, not_draft_entitlement)
-        self.assertEqual(not_draft_entitlement.draft_version, draft_entitlement)
+        assert draft_entitlement.official_version == not_draft_entitlement
+        assert not_draft_entitlement.draft_version == draft_entitlement
 
     def test_ensure_draft_world_creates_course_entitlement_from_seats(self):
         """
@@ -464,9 +464,9 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         ensured_draft_course = utils.ensure_draft_world(course)
 
         draft_entitlement = ensured_draft_course.entitlements.first()
-        self.assertEqual(draft_entitlement.price, seat.price)
-        self.assertEqual(draft_entitlement.currency, seat.currency)
-        self.assertEqual(draft_entitlement.mode.slug, Seat.VERIFIED)
+        assert draft_entitlement.price == seat.price
+        assert draft_entitlement.currency == seat.currency
+        assert draft_entitlement.mode.slug == Seat.VERIFIED
 
 
 @ddt.ddt
@@ -507,17 +507,19 @@ class TestCreateMissingEntitlement(TestCase):
                     seat['type'] = SeatType.objects.get_or_create(slug=seat['type'])[0]
                 SeatFactory(**seat, course_run=run)
 
-        self.assertFalse(course.entitlements.exists())  # sanity check
+        assert not course.entitlements.exists()
+        # sanity check
         create_missing_entitlement(course)
 
-        self.assertEqual(course.entitlements.count(), 1 if expected else 0)
+        assert course.entitlements.count() == (1 if expected else 0)
         if expected:
             entitlement = course.entitlements.first()
-            self.assertEqual(entitlement.mode.slug, expected[0])
-            self.assertEqual(entitlement.price, expected[1])
-            self.assertEqual(entitlement.currency.code, expected[2])
-            self.assertEqual(entitlement.partner, course.partner)
-            self.assertFalse(entitlement.draft)  # tested below
+            assert entitlement.mode.slug == expected[0]
+            assert entitlement.price == expected[1]
+            assert entitlement.currency.code == expected[2]
+            assert entitlement.partner == course.partner
+            assert not entitlement.draft
+            # tested below
 
     def test_draft_course(self):
         """ Verifies that a draft course will create a draft entitlement """
@@ -526,15 +528,16 @@ class TestCreateMissingEntitlement(TestCase):
         run = CourseRunFactory(course=course, end=future, enrollment_end=None, draft=True)
         seat = SeatFactory(course_run=run, type=SeatTypeFactory.verified(), draft=True)
 
-        self.assertFalse(course.entitlements.exists())  # sanity check
+        assert not course.entitlements.exists()
+        # sanity check
         create_missing_entitlement(course)
 
-        self.assertEqual(course.entitlements.count(), 1)
+        assert course.entitlements.count() == 1
         entitlement = course.entitlements.first()
-        self.assertEqual(entitlement.mode.slug, Seat.VERIFIED)
-        self.assertEqual(entitlement.price, seat.price)
-        self.assertEqual(entitlement.currency, seat.currency)
-        self.assertTrue(entitlement.draft)
+        assert entitlement.mode.slug == Seat.VERIFIED
+        assert entitlement.price == seat.price
+        assert entitlement.currency == seat.currency
+        assert entitlement.draft
 
     @ddt.data(
         ((10, -10), 10),
@@ -562,11 +565,12 @@ class TestCreateMissingEntitlement(TestCase):
             run = CourseRunFactory(course=course, end=now + datetime.timedelta(days=date), enrollment_end=None)
             SeatFactory(course_run=run, type=SeatTypeFactory.verified(), price=date_to_price(date), currency=usd)
 
-        self.assertFalse(course.entitlements.exists())  # sanity check
-        self.assertTrue(create_missing_entitlement(course))
+        assert not course.entitlements.exists()
+        # sanity check
+        assert create_missing_entitlement(course)
 
         entitlement = course.entitlements.first()
-        self.assertEqual(entitlement.price, date_to_price(expected))
+        assert entitlement.price == date_to_price(expected)
 
     @mock.patch('course_discovery.apps.course_metadata.utils.push_to_ecommerce_for_course_run')
     def test_push_to_ecommerce(self, mock_push):
@@ -579,11 +583,12 @@ class TestCreateMissingEntitlement(TestCase):
         course.canonical_course_run = run
         course.save()
 
-        self.assertFalse(course.entitlements.exists())  # sanity check
-        self.assertTrue(create_missing_entitlement(course))
+        assert not course.entitlements.exists()
+        # sanity check
+        assert create_missing_entitlement(course)
 
-        self.assertEqual(mock_push.call_count, 1)
-        self.assertEqual(mock_push.call_args[0][0], run)
+        assert mock_push.call_count == 1
+        assert mock_push.call_args[0][0] == run
 
 
 # pylint: disable=line-too-long
@@ -652,4 +657,4 @@ class CleanHtmlTests(TestCase):
     def test_clean_html(self, content, expected):
         """ Verify the method removes unnecessary HTML attributes. """
         self.maxDiff = None
-        self.assertEqual(clean_html(content), expected)
+        assert clean_html(content) == expected

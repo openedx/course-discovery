@@ -61,4 +61,4 @@ class OrganizationExtensionAdminTests(SiteMixin, TestCase):
 
     def _assert_permissions(self, organization_extension, group, expected_permissions):
         permissions = get_group_perms(group, organization_extension)
-        self.assertEqual(sorted(permissions), sorted(expected_permissions))
+        assert sorted(permissions) == sorted(expected_permissions)

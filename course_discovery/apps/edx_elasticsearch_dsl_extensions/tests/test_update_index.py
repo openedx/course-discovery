@@ -64,4 +64,4 @@ class UpdateIndexTests(ElasticsearchTestMixin, SearchIndexTestMixin, TestCase):
         with mock.patch('course_discovery.apps.edx_elasticsearch_dsl_extensions.management.commands.'
                         'update_index.Command.sanity_check_new_index') as mock_sanity_check_new_index:
             call_command('update_index', disable_change_limit=True)
-            self.assertFalse(mock_sanity_check_new_index.called)
+            assert not mock_sanity_check_new_index.called

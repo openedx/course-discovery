@@ -26,15 +26,15 @@ class AutocompleteTests(SiteMixin, TestCase):
             reverse('language_tags:language-tag-autocomplete') + f'?q={query}'
         )
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(data['results'][0]['text'], str(self.language_tag_test))
+        assert data['results'][0]['text'] == str(self.language_tag_test)
 
     def test_language_tag_autocomplete_no_query(self):
         """ Verify course autocomplete returns all the data. """
         response = self.client.get(reverse('language_tags:language-tag-autocomplete'))
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         # Lookup returns top 10 results by default
-        self.assertEqual(len(data['results']), 10)
+        assert len(data['results']) == 10
 
     def test_language_tag_autocomplete_no_data(self):
         """ Verify course autocomplete returns the data. """
@@ -42,5 +42,5 @@ class AutocompleteTests(SiteMixin, TestCase):
             reverse('language_tags:language-tag-autocomplete') + '?q={query}'.format(query='no results query')
         )
         data = json.loads(response.content.decode('utf-8'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(data['results']), 0)
+        assert response.status_code == 200
+        assert len(data['results']) == 0

@@ -1,6 +1,7 @@
 import itertools
 
 import ddt
+import pytest
 from bs4 import BeautifulSoup
 from django.contrib.admin.sites import AdminSite
 from django.contrib.contenttypes.models import ContentType
@@ -62,37 +63,34 @@ class AdminTests(SiteMixin, TestCase):
 
     def assert_form_valid(self, data, files):
         form = ProgramAdminForm(data=data, files=files)
-        self.assertTrue(form.is_valid())
+        assert form.is_valid()
         program = form.save()
         response = self.client.get(reverse('admin:course_metadata_program_change', args=(program.id,)))
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
     def assert_form_invalid(self, data, files):
         form = ProgramAdminForm(data=data, files=files)
-        self.assertFalse(form.is_valid())
-        self.assertEqual(
-            form.errors['__all__'],
-            ['Programs can only be activated if they have a banner image.']
-        )
-        with self.assertRaises(ValueError):
+        assert not form.is_valid()
+        assert form.errors['__all__'] == ['Programs can only be activated if they have a banner image.']
+        with pytest.raises(ValueError):
             form.save()
 
     def test_program_detail_form(self):
         """ Verify in admin panel program detail form load successfully. """
         response = self.client.get(reverse('admin:course_metadata_program_change', args=(self.program.id,)))
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
     def test_custom_course_selection_page(self):
         """ Verify that course selection page loads successfully. """
         response = self.client.get(reverse('admin_metadata:update_course_runs', args=(self.program.id,)))
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertContains(response, reverse('admin:course_metadata_program_change', args=(self.program.id,)))
         self.assertContains(response, reverse('admin:course_metadata_program_changelist'))
 
     def test_custom_course_selection_page_with_invalid_id(self):
         """ Verify that course selection page will return 404 for invalid program id. """
         response = self.client.get(reverse('admin_metadata:update_course_runs', args=(10,)))
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     def test_custom_course_selection_page_with_non_staff(self):
         """ Verify that course selection page will return 404 for non authorized user. """
@@ -102,7 +100,7 @@ class AdminTests(SiteMixin, TestCase):
         self.user.save()
         self.client.login(username=self.user.username, password=USER_PASSWORD)
         response = self.client.get(reverse('admin_metadata:update_course_runs', args=(self.program.id,)))
-        self.assertEqual(response.status_code, 404)
+        assert response.status_code == 404
 
     def test_page_loads_only_course_related_runs(self):
         """ Verify that course selection page loads only all course runs. Also marked checkboxes with
@@ -132,20 +130,20 @@ class AdminTests(SiteMixin, TestCase):
 
         post_url = reverse('admin:course_metadata_course_change', args=(course.id,))
         response = self.client.post(post_url, params)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         html = BeautifulSoup(response.content)
 
         orgs_dropdown_text = html.find(class_='field-authoring_organizations').get_text()
 
-        self.assertLess(orgs_dropdown_text.index('org2'), orgs_dropdown_text.index('org3'))
-        self.assertLess(orgs_dropdown_text.index('org3'), orgs_dropdown_text.index('org1'))
+        assert orgs_dropdown_text.index('org2') < orgs_dropdown_text.index('org3')
+        assert orgs_dropdown_text.index('org3') < orgs_dropdown_text.index('org1')
 
     def test_page_with_post_new_course_run(self):
         """ Verify that course selection page with posting the data. """
 
-        self.assertEqual(1, self.program.excluded_course_runs.all().count())
-        self.assertEqual(3, sum(1 for _ in self.program.course_runs))
+        assert 1 == self.program.excluded_course_runs.all().count()
+        assert 3 == sum((1 for _ in self.program.course_runs))
 
         params = {
             'excluded_course_runs': [self.excluded_course_run.id, self.course_runs[0].id],
@@ -158,13 +156,13 @@ class AdminTests(SiteMixin, TestCase):
             status_code=302,
             target_status_code=200
         )
-        self.assertEqual(2, self.program.excluded_course_runs.all().count())
-        self.assertEqual(2, sum(1 for _ in self.program.course_runs))
+        assert 2 == self.program.excluded_course_runs.all().count()
+        assert 2 == sum((1 for _ in self.program.course_runs))
 
     def test_page_with_post_without_course_run(self):
         """ Verify that course selection page without posting any selected excluded check run. """
 
-        self.assertEqual(1, self.program.excluded_course_runs.all().count())
+        assert 1 == self.program.excluded_course_runs.all().count()
         params = {
             'excluded_course_runs': [],
         }
@@ -176,8 +174,8 @@ class AdminTests(SiteMixin, TestCase):
             status_code=302,
             target_status_code=200
         )
-        self.assertEqual(0, self.program.excluded_course_runs.all().count())
-        self.assertEqual(4, sum(1 for _ in self.program.course_runs))
+        assert 0 == self.program.excluded_course_runs.all().count()
+        assert 4 == sum((1 for _ in self.program.course_runs))
         response = self.client.get(reverse('admin_metadata:update_course_runs', args=(self.program.id,)))
         self.assertNotContains(response, '<input checked="checked")')
 
@@ -216,11 +214,11 @@ class AdminTests(SiteMixin, TestCase):
         data = self._post_data()
         data['courses'] = []
         form = ProgramAdminForm(data)
-        self.assertTrue(form.is_valid())
+        assert form.is_valid()
         program = form.save()
-        self.assertEqual(0, program.courses.all().count())
+        assert 0 == program.courses.all().count()
         response = self.client.get(reverse('admin:course_metadata_program_change', args=(program.id,)))
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
 
 class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
@@ -331,7 +329,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             'field-job_outlook_items', 'field-expected_learning_items', 'field-instructor_ordering',
             'field-enrollment_count', 'field-recent_enrollment_count', 'field-credit_value',
         ]
-        self.assertEqual(actual, expected)
+        assert actual == expected
 
     def test_program_creation(self):
         url = self._build_url(reverse(self.create_view_name))
@@ -354,12 +352,12 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         self._submit_program_form()
 
         actual = Program.objects.latest()
-        self.assertEqual(actual.title, program.title)
-        self.assertEqual(actual.subtitle, program.subtitle)
-        self.assertEqual(actual.marketing_slug, program.marketing_slug)
-        self.assertEqual(actual.status, program.status)
-        self.assertEqual(actual.type, program.type)
-        self.assertEqual(actual.partner, program.partner)
+        assert actual.title == program.title
+        assert actual.subtitle == program.subtitle
+        assert actual.marketing_slug == program.marketing_slug
+        assert actual.status == program.status
+        assert actual.type == program.type
+        assert actual.partner == program.partner
 
     def test_program_update(self):
         self._navigate_to_edit_page()
@@ -383,8 +381,8 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
 
         # Verify the program was updated
         self.program = Program.objects.get(pk=self.program.pk)
-        self.assertEqual(self.program.title, title)
-        self.assertEqual(self.program.subtitle, subtitle)
+        assert self.program.title == title
+        assert self.program.subtitle == subtitle
 
 
 class ProgramEligibilityFilterTests(SiteMixin, TestCase):
@@ -405,10 +403,8 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
         )
         one_click_purchase_ineligible_program = factories.ProgramFactory(courses=[course_run.course])
         with self.assertNumQueries(1):
-            self.assertEqual(
-                list(program_filter.queryset({}, Program.objects.all())),
-                [one_click_purchase_eligible_program, one_click_purchase_ineligible_program]
-            )
+            assert list(program_filter.queryset({}, Program.objects.all())) == \
+                   [one_click_purchase_eligible_program, one_click_purchase_ineligible_program]
 
     def test_queryset_method_returns_eligible_programs(self):
         """ Verify that one click purchase eligible programs pass the filter. """
@@ -423,20 +419,14 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
             one_click_purchase_enabled=True,
         )
         with self.assertNumQueries(FuzzyInt(11, 2)):
-            self.assertEqual(
-                list(program_filter.queryset({}, Program.objects.all())),
-                [one_click_purchase_eligible_program]
-            )
+            assert list(program_filter.queryset({}, Program.objects.all())) == [one_click_purchase_eligible_program]
 
     def test_queryset_method_returns_ineligible_programs(self):
         """ Verify programs ineligible for one-click purchase do not pass the filter. """
         program_filter = ProgramEligibilityFilter(None, {self.parameter_name: 0}, None, None)
         one_click_purchase_ineligible_program = factories.ProgramFactory(one_click_purchase_enabled=False)
         with self.assertNumQueries(4):
-            self.assertEqual(
-                list(program_filter.queryset({}, Program.objects.all())),
-                [one_click_purchase_ineligible_program]
-            )
+            assert list(program_filter.queryset({}, Program.objects.all())) == [one_click_purchase_ineligible_program]
 
 
 class PersonPositionAdminTest(TestCase):
@@ -455,11 +445,11 @@ class PersonPositionAdminTest(TestCase):
         """
         Tests that users cannot delete entries
         """
-        self.assertFalse(self.person_position_admin.has_delete_permission(self.request))
+        assert not self.person_position_admin.has_delete_permission(self.request)
 
     def test_delete_action(self):
         """Tests that user can not have delete action"""
-        self.assertNotIn('delete_selected', self.person_position_admin.get_actions(self.request))
+        assert 'delete_selected' not in self.person_position_admin.get_actions(self.request)
 
 
 class PathwayAdminTest(TestCase):

@@ -60,11 +60,11 @@ class EmailTests(TestCase):
                             html_regexes=None, index=0):
         email = mail.outbox[index]
         if to_users is not None:
-            self.assertEqual(set(email.to), {u.email for u in to_users})
+            assert set(email.to) == {u.email for u in to_users}
         if subject is not None:
             self.assertRegex(str(email.subject), subject)
-        self.assertEqual(len(email.alternatives), 1)
-        self.assertEqual(email.alternatives[0][1], 'text/html')
+        assert len(email.alternatives) == 1
+        assert email.alternatives[0][1] == 'text/html'
 
         text = email.body
         html = email.alternatives[0][0]
@@ -98,7 +98,7 @@ class EmailTests(TestCase):
                         html_regexes=None, index=0, total=1):
         function(self.course_run)
 
-        self.assertEqual(len(mail.outbox), total)
+        assert len(mail.outbox) == total
         self.assertEmailContains(subject=subject, to_users=to_users, both_regexes=both_regexes,
                                  text_regexes=text_regexes, html_regexes=html_regexes, index=index)
 
@@ -106,7 +106,7 @@ class EmailTests(TestCase):
         with LogCapture(emails.logger.name) as log_capture:
             function(self.course_run)
 
-        self.assertEqual(len(mail.outbox), 0)
+        assert len(mail.outbox) == 0
 
         if reason:
             log_capture.check(
@@ -347,7 +347,7 @@ class EmailTests(TestCase):
             'created': datetime.datetime.now(datetime.timezone.utc).isoformat(),
         }, self.course, self.editor)
 
-        self.assertEqual(len(mail.outbox), 1)
+        assert len(mail.outbox) == 1
         self.assertEmailContains(
             both_regexes=[
                 '{} made the following comment on'.format(self.editor.username),

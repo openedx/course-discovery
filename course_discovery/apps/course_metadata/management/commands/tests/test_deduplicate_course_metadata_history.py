@@ -49,9 +49,9 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
         # Ensure that there are multiple history records for each course run.  For each
         # course run, there should be 2 (baseline) + the amount we added at the
         # beginning of this test.
-        self.assertEqual(courserun1_count_initial, 2 + 2)
-        self.assertEqual(courserun2_count_initial, 2 + 0)
-        self.assertEqual(courserun3_count_initial, 2 + 3)
+        assert courserun1_count_initial == (2 + 2)
+        assert courserun2_count_initial == (2 + 0)
+        assert courserun3_count_initial == (2 + 3)
 
         self.run_command('course_metadata.CourseRun')
 
@@ -60,6 +60,6 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
         courserun3_count_final = len(CourseRun.history.filter(id=self.courserun3.id).all())  # pylint: disable=no-member
 
         # Ensure that the only history records left are the 3 original creates.
-        self.assertEqual(courserun1_count_final, 1)
-        self.assertEqual(courserun2_count_final, 1)
-        self.assertEqual(courserun3_count_final, 1)
+        assert courserun1_count_final == 1
+        assert courserun2_count_final == 1
+        assert courserun3_count_final == 1

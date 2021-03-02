@@ -22,7 +22,7 @@ class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def test_get(self):
         url = reverse('api:v1:collaborator-list')
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
     def test_add(self):
         self.mock_access_token()
@@ -34,7 +34,7 @@ class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                      '42YAAAAASUVORK5CYII=',
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 201)
+        assert response.status_code == 201
 
     def test_add_fails_when_no_image(self):
         self.mock_access_token()
@@ -43,7 +43,7 @@ class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             'name': 'Collaborator 1',
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 400)
+        assert response.status_code == 400
 
     def test_modify(self):
         self.mock_access_token()
@@ -55,7 +55,7 @@ class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                      '42YAAAAASUVORK5CYII=',
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, 201)
+        assert response.status_code == 201
         collab = response.json()
         patch_url = reverse('api:v1:collaborator-detail', kwargs={'uuid': collab['uuid']})
         data = {
@@ -64,4 +64,4 @@ class CollaboratorViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         }
         response2 = self.client.patch(patch_url, data, format='json')
         modified_collab = response2.json()
-        self.assertEqual(modified_collab['name'], 'Collaborator 2')
+        assert modified_collab['name'] == 'Collaborator 2'

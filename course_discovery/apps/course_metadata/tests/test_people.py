@@ -1,5 +1,6 @@
 import ddt
 import mock
+import pytest
 import responses
 from testfixtures import LogCapture
 
@@ -52,7 +53,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_create(self.expected_node, 201)
         people = MarketingSitePeople()
         data = people._create_node(self.api_client, {})  # pylint: disable=protected-access
-        self.assertEqual(data, self.expected_node)
+        assert data == self.expected_node
 
     @responses.activate
     def test_update_node(self):
@@ -60,14 +61,14 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_edit(200)
         people = MarketingSitePeople()
         data = people._update_node(self.api_client, self.node_id, {})  # pylint: disable=protected-access
-        self.assertEqual(data, {})
+        assert data == {}
 
     @responses.activate
     def test_update_node_failed(self):
         self.mock_api_client(200)
         self.mock_node_edit(500)
         people = MarketingSitePeople()
-        with self.assertRaises(PersonToMarketingException):
+        with pytest.raises(PersonToMarketingException):
             people._update_node(self.api_client, self.node_id, {})  # pylint: disable=protected-access
 
     @responses.activate
@@ -82,9 +83,9 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         people = MarketingSitePeople()
         result = people.update_or_publish_person(self.person)
         if exists:
-            self.assertEqual(result, {})
+            assert result == {}
         else:
-            self.assertEqual(result, self.expected_node)
+            assert result == self.expected_node
 
     @responses.activate
     @mock.patch('course_discovery.apps.course_metadata.people.MarketingSitePeople._update_node')
@@ -93,7 +94,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval('uuid', self.uuid, status=200)
         people = MarketingSitePeople()
         people.update_or_publish_person(self.person)
-        self.assertEqual(mock_update_node.call_count, 1)
+        assert mock_update_node.call_count == 1
         data = mock_update_node.call_args[0][2]
         self.assertDictEqual(data, self.expected_data)
 
@@ -103,7 +104,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_edit(500)
         self.mock_node_retrieval('uuid', self.uuid, status=200)
         people = MarketingSitePeople()
-        with self.assertRaises(PersonToMarketingException):
+        with pytest.raises(PersonToMarketingException):
             people.update_or_publish_person(self.person)
 
     @responses.activate
@@ -112,14 +113,14 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval('uuid', self.uuid, status=200)
         people = MarketingSitePeople()
         data = people._get_node_id_from_uuid(self.api_client, self.uuid)  # pylint: disable=protected-access
-        self.assertEqual(data, self.node_id)
+        assert data == self.node_id
 
     @responses.activate
     def test_get_node_id_from_uuid_failed(self):
         self.mock_api_client(200)
         self.mock_node_retrieval('uuid', self.uuid, status=500)
         people = MarketingSitePeople()
-        with self.assertRaises(PersonToMarketingException):
+        with pytest.raises(PersonToMarketingException):
             people._get_node_id_from_uuid(self.api_client, self.uuid)  # pylint: disable=protected-access
 
     @responses.activate
@@ -128,7 +129,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_create({}, 500)
         people = MarketingSitePeople()
         people_data = people._get_node_data(self.person)  # pylint: disable=protected-access
-        with self.assertRaises(PersonToMarketingException):
+        with pytest.raises(PersonToMarketingException):
             people._create_node(self.api_client, people_data)  # pylint: disable=protected-access
 
     @mock.patch('course_discovery.apps.course_metadata.people.MarketingSitePeople._create_node')
@@ -137,7 +138,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_retrieval('uuid', self.uuid, exists=False, status=200)
         people = MarketingSitePeople()
         people.update_or_publish_person(self.person)
-        self.assertEqual(mock_create_node.call_count, 1)
+        assert mock_create_node.call_count == 1
         data = mock_create_node.call_args[0][1]
         expected = self.expected_data
         expected.update({
@@ -152,7 +153,7 @@ class MarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         self.mock_node_create({}, 500)
         self.mock_node_retrieval('uuid', self.uuid, exists=False, status=200)
         people = MarketingSitePeople()
-        with self.assertRaises(PersonToMarketingException):
+        with pytest.raises(PersonToMarketingException):
             people.update_or_publish_person(self.person)
 
     @responses.activate
