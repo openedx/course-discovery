@@ -1,8 +1,6 @@
 """ Tests for core models. """
 import ddt
-import responses
 from django.test import TestCase
-from social_django.models import UserSocialAuth
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
@@ -14,20 +12,6 @@ class UserTests(TestCase):
     def setUp(self):
         super().setUp()
         self.user = UserFactory()
-
-    def test_access_token_without_social_auth(self):
-        """ Verify the property returns None if the user is not associated with a UserSocialAuth. """
-        assert self.user.access_token is None
-
-    def test_access_token(self):
-        """ Verify the property returns the value of the access_token stored with the UserSocialAuth. """
-        social_auth = UserSocialAuth.objects.create(user=self.user, provider='test', uid=self.user.username)
-        assert self.user.access_token is None
-
-        access_token = 'My voice is my passport. Verify me.'
-        social_auth.extra_data.update({'access_token': access_token})
-        social_auth.save()
-        assert self.user.access_token == access_token
 
     def test_get_full_name(self):
         """ Test that the user model concatenates first and last name if the full name is not set. """
@@ -76,21 +60,3 @@ class PartnerTests(TestCase):
     def test_has_marketing_site(self, marketing_site_url_root, expected):
         partner = PartnerFactory(marketing_site_url_root=marketing_site_url_root)
         assert partner.has_marketing_site == expected
-
-    @responses.activate
-    def test_access_token(self):
-        """ Verify the property retrieves, and caches, an access token from the OAuth 2.0 provider. """
-        token = 'abc123'
-        partner = PartnerFactory()
-        url = f'{partner.oauth2_provider_url}/access_token'
-        body = {
-            'access_token': token,
-            'expires_in': 3600,
-        }
-        responses.add(responses.POST, url, json=body, status=200)
-        assert partner.access_token == token
-        assert len(responses.calls) == 1
-
-        # No HTTP calls should be made if the access token is cached.
-        responses.reset()
-        assert partner.access_token == token

@@ -28,7 +28,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         """
         self.partner = partner
         self.api_url = api_url.strip('/')
-        self.api_client = self.partner.lms_api_client
+        self.api_client = self.partner.oauth_api_client
         self.username = self.get_username_from_client(self.api_client)
 
         self.max_workers = max_workers

@@ -3,6 +3,7 @@
 import json
 
 import responses
+from django.conf import settings
 from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase as RestAPITestCase
 
@@ -116,7 +117,7 @@ class OAuth2Mixin:
     def mock_access_token(self):
         responses.add(
             responses.POST,
-            self.partner.lms_url + '/oauth2/access_token',
+            settings.BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL + '/access_token',
             body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
             status=200,
         )

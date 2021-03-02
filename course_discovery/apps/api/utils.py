@@ -1,12 +1,13 @@
 import functools
 import logging
 import math
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urljoin
 
 from django.db.models.fields.related import ManyToManyField
 from django.utils.http import limited_parse_qsl
 from django.utils.translation import ugettext as _
 from opaque_keys.edx.keys import CourseKey
+from requests.exceptions import HTTPError
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.core.utils import serialize_datetime
@@ -138,8 +139,10 @@ class StudioAPI:
     metadata ones.
     """
 
-    def __init__(self, api_client):
-        self._api = api_client
+    def __init__(self, partner):
+        self._api = partner.oauth_api_client
+        # In our unit tests, urljoin has trouble with a mock str object vs a real str, so we ensure a real string here.
+        self._url = str(partner.studio_url)
 
     @classmethod
     def _get_next_run(cls, root, suffix, existing_runs):
@@ -208,13 +211,27 @@ class StudioAPI:
 
         return data
 
+    def _make_studio_url(self, path):
+        return urljoin(self._url, 'api/v1/' + path)
+
+    def _request(self, method, path, **kwargs):
+        url = self._make_studio_url(path)
+        response = self._api.request(method, url, **kwargs)
+        try:
+            response.raise_for_status()
+        except HTTPError as exc:
+            # Add a content field as extra debugging info for logging above us. This used to be automatically added
+            # by slumber, but now with requests module, we need to manually add it.
+            exc.content = response.content
+            raise exc
+
     def create_course_rerun_in_studio(self, course_run, old_course_run_key, user=None):
         data = self.generate_data_for_studio_api(course_run, creating=True, user=user)
-        return self._api.course_runs(old_course_run_key).rerun.post(data)
+        self._request('post', f'course_runs/{old_course_run_key}/rerun/', json=data)
 
     def create_course_run_in_studio(self, publisher_course_run, user=None):
         data = self.generate_data_for_studio_api(publisher_course_run, creating=True, user=user)
-        return self._api.course_runs.post(data)
+        self._request('post', 'course_runs/', json=data)
 
     def update_course_run_image_in_studio(self, course_run):
         course = course_run.course
@@ -223,7 +240,7 @@ class StudioAPI:
         if image:
             files = {'card_image': image}
             try:
-                self._api.course_runs(course_run.key).images.post(files=files)
+                self._request('post', f'course_runs/{course_run.key}/images/', files=files)
             except Exception:  # pylint: disable=broad-except
                 logger.exception(
                     _('An error occurred while setting the course run image for [{key}] in studio. All other fields '
@@ -239,14 +256,12 @@ class StudioAPI:
     def update_course_run_details_in_studio(self, course_run):
         data = self.generate_data_for_studio_api(course_run, creating=False)
         # NOTE: We use PATCH to avoid overwriting existing team data that may have been manually input in Studio.
-        return self._api.course_runs(course_run.key).patch(data)
+        self._request('patch', f'course_runs/{course_run.key}/', json=data)
 
     def push_to_studio(self, course_run, create=False, old_course_run_key=None, user=None):
         if create and old_course_run_key:
-            response = self.create_course_rerun_in_studio(course_run, old_course_run_key, user=user)
+            self.create_course_rerun_in_studio(course_run, old_course_run_key, user=user)
         elif create:
-            response = self.create_course_run_in_studio(course_run, user=user)
+            self.create_course_run_in_studio(course_run, user=user)
         else:
-            response = self.update_course_run_details_in_studio(course_run)
-
-        return response
+            self.update_course_run_details_in_studio(course_run)

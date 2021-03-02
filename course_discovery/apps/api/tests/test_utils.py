@@ -4,12 +4,14 @@ from unittest import mock
 
 import ddt
 import pytest
+import responses
 from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 
 from course_discovery.apps.api.utils import StudioAPI, cast2int, get_query_param
+from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseRunFactory
 
@@ -50,11 +52,12 @@ class TestGetQueryParam:
 
 
 @ddt.ddt
-class StudioAPITests(TestCase):
+class StudioAPITests(OAuth2Mixin, APITestCase):
     def setUp(self):
         super().setUp()
-        self.client = mock.Mock()
-        self.api = StudioAPI(self.client)
+        self.mock_access_token()
+        self.api = StudioAPI(self.partner)
+        self.studio_url = self.partner.studio_url
 
     def make_studio_data(self, run, add_pacing=True, add_schedule=True, team=None):
         key = CourseKey.from_string(run.key)
@@ -93,26 +96,30 @@ class StudioAPITests(TestCase):
     def test_create_rerun(self):
         run1 = CourseRunFactory()
         run2 = CourseRunFactory(course=run1.course)
-        self.api.create_course_rerun_in_studio(run2, run1.key)
 
         expected_data = self.make_studio_data(run2)
-        assert self.client.course_runs.call_args_list == [mock.call(run1.key)]
-        assert self.client.course_runs.return_value.rerun.post.call_args_list[0][0][0] == expected_data
+        responses.add(responses.POST, f'{self.studio_url}api/v1/course_runs/{run1.key}/rerun/',
+                      match=[responses.json_params_matcher(expected_data)])
+
+        self.api.create_course_rerun_in_studio(run2, run1.key)
 
     def test_create_run(self):
         run = CourseRunFactory()
-        self.api.create_course_run_in_studio(run)
 
         expected_data = self.make_studio_data(run)
-        assert self.client.course_runs.post.call_args_list[0][0][0] == expected_data
+        responses.add(responses.POST, f'{self.studio_url}api/v1/course_runs/',
+                      match=[responses.json_params_matcher(expected_data)])
+
+        self.api.create_course_run_in_studio(run)
 
     def test_update_run(self):
         run = CourseRunFactory()
-        self.api.update_course_run_details_in_studio(run)
 
         expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False)
-        assert self.client.course_runs.call_args_list == [mock.call(run.key)]
-        assert self.client.course_runs.return_value.patch.call_args_list[0][0][0] == expected_data
+        responses.add(responses.PATCH, f'{self.studio_url}api/v1/course_runs/{run.key}/',
+                      match=[responses.json_params_matcher(expected_data)])
+
+        self.api.update_course_run_details_in_studio(run)
 
     @ddt.data(
         *product(range(1, 5), ['1T2017']),
