@@ -60,6 +60,12 @@ if 'course_discovery.apps.edx_catalog_extensions' in settings.INSTALLED_APPS:
         url(r'^extensions/', include('course_discovery.apps.edx_catalog_extensions.urls', namespace='extensions'))
     )
 
+# Add the taxonomy urls if taxonomy app is installed.
+if 'taxonomy' in settings.INSTALLED_APPS:
+    urlpatterns.append(
+        url(r'', include('taxonomy.urls'))
+    )
+
 if settings.DEBUG:  # pragma: no cover
     # We need this url pattern to serve user uploaded assets according to
     # https://docs.djangoproject.com/en/1.11/howto/static-files/#serving-files-uploaded-by-a-user-during-development
