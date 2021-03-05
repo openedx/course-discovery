@@ -18,7 +18,9 @@ from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NA
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
-from course_discovery.apps.course_metadata.forms import CourseAdminForm, PathwayAdminForm, ProgramAdminForm
+from course_discovery.apps.course_metadata.forms import (
+    CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm
+)
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.course_metadata.views import CourseSkillsView
 
@@ -72,8 +74,8 @@ class ProgramEligibilityFilter(admin.SimpleListFilter):
 class SeatInline(admin.TabularInline):
     model = Seat
     extra = 1
-    readonly_fields = ('_upgrade_deadline',)
-    raw_id_fields = ('draft_version', )
+    readonly_fields = ('_upgrade_deadline', )
+    raw_id_fields = ('draft_version', 'currency')
 
 
 class PositionInline(admin.TabularInline):
@@ -210,6 +212,7 @@ class CourseRunAdmin(admin.ModelAdmin):
     readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'hidden', 'key')
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key')
     save_error = False
+    form = CourseRunAdminForm
 
     def response_change(self, request, obj):
         if self.save_error:

@@ -90,6 +90,35 @@ class CourseAdminForm(forms.ModelForm):
         exclude = ('slug', 'url_slug', )
 
 
+class CourseRunAdminForm(forms.ModelForm):
+    class Meta:
+        model = CourseRun
+        fields = '__all__'
+        widgets = {
+            'staff': SortedModelSelect2Multiple(
+                url='admin_metadata:person-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                    'class': 'sortable-select',
+                },
+            ),
+            'transcript_languages': SortedModelSelect2Multiple(
+                url='language_tags:language-tag-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                    'class': 'sortable-select',
+                },
+            ),
+            'video_translation_languages': SortedModelSelect2Multiple(
+                url='language_tags:language-tag-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 3,
+                    'class': 'sortable-select',
+                },
+            ),
+        }
+
+
 class PathwayAdminForm(forms.ModelForm):
     class Meta:
         model = Pathway
