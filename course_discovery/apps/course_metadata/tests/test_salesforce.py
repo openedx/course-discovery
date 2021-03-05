@@ -94,7 +94,9 @@ class TestSalesforce(TestCase):
                     # 2 calls, one for initialization, one for login before exception
                     assert len(mock_salesforce.call_args_list) == 2
                     mock_logger.warning.assert_called_with(
-                        'An OSError occurred while attempting to call get_comments_for_course'
+                        'An OSError occurred while attempting to call get_comments_for_course for {}'.format(
+                            str(course)
+                        )
                     )
 
     def test_wrapper_salesforce_without_client_raises_not_configured_exception(self):
