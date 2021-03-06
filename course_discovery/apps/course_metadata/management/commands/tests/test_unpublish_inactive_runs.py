@@ -1,5 +1,6 @@
 from unittest import mock
 
+import pytest
 from django.core.management import CommandError
 from django.test import TestCase
 
@@ -27,16 +28,16 @@ class PublishLiveCourseRunsTests(TestCase):
         self.handle()
 
         self.assertNumQueries(3)
-        self.assertEqual(mock_unpublish.call_count, 2)
-        self.assertEqual(mock_unpublish.call_args_list[0], mock.call(published_runs={run4}))
-        self.assertEqual(mock_unpublish.call_args_list[1], mock.call(published_runs={run1, run5}))
+        assert mock_unpublish.call_count == 2
+        assert mock_unpublish.call_args_list[0] == mock.call(published_runs={run4})
+        assert mock_unpublish.call_args_list[1] == mock.call(published_runs={run1, run5})
 
     def test_exception_does_not_stop_command(self, mock_unpublish):
         CourseRunFactory(status=CourseRunStatus.Published)
         CourseRunFactory(status=CourseRunStatus.Published)
 
         mock_unpublish.side_effect = [UnpublishError, None]
-        with self.assertRaises(CommandError):
+        with pytest.raises(CommandError):
             self.handle()
 
-        self.assertEqual(mock_unpublish.call_count, 2)
+        assert mock_unpublish.call_count == 2

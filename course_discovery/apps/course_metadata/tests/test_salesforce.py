@@ -1,5 +1,6 @@
 import ddt
 import mock
+import pytest
 from django.test import TestCase
 from simple_salesforce import SalesforceExpiredSession
 
@@ -66,10 +67,10 @@ class TestSalesforce(TestCase):
             with mock.patch(self.salesforce_path) as mock_salesforce:
                 util = SalesforceUtil(self.salesforce_config.partner)
                 # Any method that has the decorator
-                with self.assertRaises(SalesforceExpiredSession):
+                with pytest.raises(SalesforceExpiredSession):
                     util.get_comments_for_course(course)
                 # 2 calls, one for initialization, one for login before exception
-                self.assertEqual(len(mock_salesforce.call_args_list), 2)
+                assert len(mock_salesforce.call_args_list) == 2
 
     def test_wrapper_salesforce_os_error_calls_login(self):
         """
@@ -88,10 +89,10 @@ class TestSalesforce(TestCase):
                 with mock.patch('course_discovery.apps.course_metadata.salesforce.logger') as mock_logger:
                     util = SalesforceUtil(self.salesforce_config.partner)
                     # Any method that has the decorator
-                    with self.assertRaises(OSError):
+                    with pytest.raises(OSError):
                         util.get_comments_for_course(course)
                     # 2 calls, one for initialization, one for login before exception
-                    self.assertEqual(len(mock_salesforce.call_args_list), 2)
+                    assert len(mock_salesforce.call_args_list) == 2
                     mock_logger.warning.assert_called_with(
                         'An OSError occurred while attempting to call get_comments_for_course'
                     )
@@ -109,7 +110,7 @@ class TestSalesforce(TestCase):
             util = SalesforceUtil(self.salesforce_config.partner)
             SalesforceUtil.instances[self.salesforce_config.partner].client = None
             # Any method that has the decorator
-            with self.assertRaises(SalesforceNotConfiguredException):
+            with pytest.raises(SalesforceNotConfiguredException):
                 util.get_comments_for_course(course)
 
     def test_singleton(self):
@@ -120,16 +121,13 @@ class TestSalesforce(TestCase):
             SalesforceUtil(self.salesforce_config.partner)
             SalesforceUtil(new_config.partner)
             SalesforceUtil(new_config.partner)
-        self.assertEqual(len(SalesforceUtil.instances), 2)
+        assert len(SalesforceUtil.instances) == 2
 
     def test_soql_escape(self):
         with mock.patch(self.salesforce_path):
             util = SalesforceUtil(self.salesforce_config.partner)
             escaped_string = util.soql_escape(r"Some 'test' \string")
-            self.assertEqual(
-                escaped_string,
-                r"Some \'test\' \\string",
-            )
+            assert escaped_string == "Some \\'test\\' \\\\string"
 
     def test_create_account_salesforce_id_set(self):
         organization = OrganizationFactoryNoSignals(
@@ -157,7 +155,7 @@ class TestSalesforce(TestCase):
                 'Organization_Name__c': organization.name,
                 'Organization_Key__c': organization.key,
             })
-            self.assertEqual(organization.salesforce_id, return_value.get('id'))
+            assert organization.salesforce_id == return_value.get('id')
 
     def test_create_course_salesforce_id_set(self):
         course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_id='Test')
@@ -194,7 +192,7 @@ class TestSalesforce(TestCase):
                 'Course_Key__c': course.key,
                 'Publisher_Organization__c': organization.salesforce_id,
             })
-            self.assertEqual(course.salesforce_id, return_value.get('id'))
+            assert course.salesforce_id == return_value.get('id')
 
     def test_create_course_organization_salesforce_id_not_set(self):
         create_pub_org_path = (self.salesforce_util_path + '.create_publisher_organization')
@@ -217,7 +215,7 @@ class TestSalesforce(TestCase):
             with mock.patch(create_pub_org_path, new=new_create_organization):
                 mock_salesforce().Course__c.create.return_value = return_value
                 util = SalesforceUtil(self.salesforce_config.partner)
-                self.assertIsNone(organization.salesforce_id)
+                assert organization.salesforce_id is None
                 util.create_course(course)
                 organization.refresh_from_db()
                 mock_salesforce().Course__c.create.assert_called_with({
@@ -232,8 +230,8 @@ class TestSalesforce(TestCase):
                     'Publisher_Organization__c': organization.salesforce_id,
                 })
 
-                self.assertIsNotNone(organization.salesforce_id)
-                self.assertEqual(course.salesforce_id, return_value.get('id'))
+                assert organization.salesforce_id is not None
+                assert course.salesforce_id == return_value.get('id')
 
     def test_create_course_run_salesforce_id_set(self):
         course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_id='Test')
@@ -271,7 +269,7 @@ class TestSalesforce(TestCase):
                 # Expected return value from _get_equivalent_ofac_review_decision
                 'OFAC_Review_Decision__c': 'OFAC Enabled',
             })
-            self.assertEqual(course_run.salesforce_id, return_value.get('id'))
+            assert course_run.salesforce_id == return_value.get('id')
 
     def test_create_course_run_course_salesforce_id_not_set(self):
         create_course_path = self.salesforce_util_path + '.create_course'
@@ -293,7 +291,7 @@ class TestSalesforce(TestCase):
             with mock.patch(create_course_path, new=new_create_course):
                 mock_salesforce().Course_Run__c.create.return_value = return_value
                 util = SalesforceUtil(self.salesforce_config.partner)
-                self.assertIsNone(course.salesforce_id)
+                assert course.salesforce_id is None
                 util.create_course_run(course_run)
                 mock_salesforce().Course_Run__c.create.assert_called_with({
                     'Course__c': course_run.course.salesforce_id,
@@ -309,8 +307,8 @@ class TestSalesforce(TestCase):
                     # Expected return value from _get_equivalent_ofac_review_decision
                     'OFAC_Review_Decision__c': 'OFAC Enabled',
                 })
-            self.assertIsNotNone(course.salesforce_id)
-            self.assertEqual(course_run.salesforce_id, return_value.get('id'))
+            assert course.salesforce_id is not None
+            assert course_run.salesforce_id == return_value.get('id')
 
     def test_create_case_for_course_salesforce_case_id_set(self):
         course = CourseFactoryNoSignals(partner=self.salesforce_config.partner, salesforce_case_id='Test')
@@ -346,8 +344,8 @@ class TestSalesforce(TestCase):
                 'Description': 'This case is required to be Open for the Publisher comment service.',
                 'RecordTypeId': self.salesforce_config.case_record_type_id,
             })
-            self.assertEqual(course.salesforce_case_id, return_value.get('id'))
-            self.assertEqual(official_course.salesforce_case_id, return_value.get('id'))
+            assert course.salesforce_case_id == return_value.get('id')
+            assert official_course.salesforce_case_id == return_value.get('id')
 
     def test_create_case_for_course_salesforce_case_id_not_set_salesforce_id_not_set(self):
         create_course_path = self.salesforce_util_path + '.create_course'
@@ -369,7 +367,7 @@ class TestSalesforce(TestCase):
             with mock.patch(create_course_path, new=new_create_course):
                 mock_salesforce().Case.create.return_value = return_value
                 util = SalesforceUtil(self.salesforce_config.partner)
-                self.assertIsNone(course.salesforce_id)
+                assert course.salesforce_id is None
                 util.create_case_for_course(course)
                 mock_salesforce().Case.create.assert_called_with({
                     'Course__c': course.salesforce_id,
@@ -379,8 +377,8 @@ class TestSalesforce(TestCase):
                     'Description': 'This case is required to be Open for the Publisher comment service.',
                     'RecordTypeId': self.salesforce_config.case_record_type_id,
                 })
-                self.assertIsNotNone(course.salesforce_id)
-                self.assertEqual(course.salesforce_case_id, return_value.get('id'))
+                assert course.salesforce_id is not None
+                assert course.salesforce_case_id == return_value.get('id')
 
     def test_create_comment_for_course_case_salesforce_case_id_set(self):
         create_case_path = self.salesforce_util_path + '.create_case_for_course'
@@ -416,13 +414,13 @@ class TestSalesforce(TestCase):
         with mock.patch(self.salesforce_path) as mock_salesforce:
             with mock.patch(create_case_path, new=new_create_course_case):
                 util = SalesforceUtil(self.salesforce_config.partner)
-                self.assertIsNone(course.salesforce_case_id)
+                assert course.salesforce_case_id is None
                 util.create_comment_for_course_case(course, user, body)
                 mock_salesforce().FeedItem.create.assert_called_with({
                     'ParentId': course.salesforce_case_id,
                     'Body': util.format_user_comment_body(user, body, None)
                 })
-                self.assertIsNotNone(course.salesforce_case_id)
+                assert course.salesforce_case_id is not None
 
     def test_create_comment_for_course_case_raises_exceptions(self):
         create_case_path = self.salesforce_util_path + '.create_case_for_course'
@@ -440,8 +438,8 @@ class TestSalesforce(TestCase):
         with mock.patch(self.salesforce_path):
             with mock.patch(create_case_path, new=new_create_course_case):
                 util = SalesforceUtil(self.salesforce_config.partner)
-                self.assertIsNone(course.salesforce_case_id)
-                with self.assertRaises(SalesforceMissingCaseException):
+                assert course.salesforce_case_id is None
+                with pytest.raises(SalesforceMissingCaseException):
                     util.create_comment_for_course_case(course, user, body)
 
     def test_get_comments_for_course_case_id_not_set(self):
@@ -450,7 +448,7 @@ class TestSalesforce(TestCase):
         with mock.patch(self.salesforce_path):
             util = SalesforceUtil(self.salesforce_config.partner)
             comments = util.get_comments_for_course(course)
-            self.assertEqual(comments, [])
+            assert comments == []
 
     def test_get_comments_for_course_case_id_set(self):
         user = UserFactory()
@@ -489,30 +487,15 @@ class TestSalesforce(TestCase):
                         course.salesforce_case_id
                     )
                 )
-                self.assertEqual(comments, [
-                    {
-                        'user': {
-                            'username': user.username,
-                            'email': user.email,
-                            'first_name': user.first_name,
-                            'last_name': user.last_name,
-                        },
-                        'course_run_key': 'course-v1:testX+TestX+Test',
-                        'comment': 'This is a formatted test message.',
-                        'created': '2000-01-01',
-                    },
-                    {
-                        'user': {
-                            'username': 'internal',
-                            'email': None,
-                            'first_name': None,
-                            'last_name': None,
-                        },
-                        'course_run_key': None,
-                        'comment': 'This is an internal user comment without formatting.',
-                        'created': '2000-01-01',
-                    },
-                ])
+                assert comments == [{'user': {'username': user.username, 'email': user.email,
+                                              'first_name': user.first_name, 'last_name': user.last_name},
+                                     'course_run_key': 'course-v1:testX+TestX+Test',
+                                     'comment': 'This is a formatted test message.',
+                                     'created': '2000-01-01'},
+                                    {'user': {'username': 'internal', 'email': None, 'first_name': None,
+                                              'last_name': None}, 'course_run_key': None,
+                                     'comment': 'This is an internal user comment without formatting.',
+                                     'created': '2000-01-01'}]
 
     def test_format_and_parse(self):
         user = UserFactory()
@@ -525,24 +508,21 @@ class TestSalesforce(TestCase):
             expected_formatted_message = '[User]\n{}\n\n[Course Run]\n{}\n\n[Body]\n{}'.format(
                 '{} {} ({})'.format(user.first_name, user.last_name, user.username), course_run_key, body
             )
-            self.assertEqual(
-                formatted_message,
-                expected_formatted_message
-            )
+            assert formatted_message == expected_formatted_message
             parsed_message = util._parse_user_comment_body(  # pylint: disable=protected-access
                 {
                     'Body': formatted_message
                 }
             )
             parsed_user = parsed_message.get('user')
-            self.assertEqual(parsed_user.get('username'), user.username)
+            assert parsed_user.get('username') == user.username
             # Below 3 will always be None for a matched comment
-            self.assertEqual(parsed_user.get('email'), None)
-            self.assertEqual(parsed_user.get('first_name'), None)
-            self.assertEqual(parsed_user.get('last_name'), None)
+            assert parsed_user.get('email') is None
+            assert parsed_user.get('first_name') is None
+            assert parsed_user.get('last_name') is None
 
-            self.assertEqual(parsed_message.get('course_run_key'), course_run_key)
-            self.assertEqual(parsed_message.get('comment'), body)
+            assert parsed_message.get('course_run_key') == course_run_key
+            assert parsed_message.get('comment') == body
             user.first_name = ''
             user.last_name = ''
             user.save()
@@ -551,10 +531,7 @@ class TestSalesforce(TestCase):
             expected_formatted_message = '[User]\n{}\n\n[Course Run]\n{}\n\n[Body]\n{}'.format(
                 '{}'.format(user.username), course_run_key, body
             )
-            self.assertEqual(
-                formatted_message,
-                expected_formatted_message
-            )
+            assert formatted_message == expected_formatted_message
 
     @ddt.data('test-id', None)
     def test_update_publisher_organization(self, salesforce_id):
@@ -604,24 +581,24 @@ class TestSalesforce(TestCase):
     def test_requires_salesforce_update(self):
         org = OrganizationFactoryNoSignals(partner=self.salesforce_config.partner)
         org.description = 'changed'
-        self.assertEqual(requires_salesforce_update('organization', org), False)
+        assert requires_salesforce_update('organization', org) is False
 
         org.name = 'changed'
-        self.assertEqual(requires_salesforce_update('organization', org), True)
+        assert requires_salesforce_update('organization', org) is True
 
         course = CourseFactory()
         course.short_description = 'changed'
-        self.assertEqual(requires_salesforce_update('course', course), False)
+        assert requires_salesforce_update('course', course) is False
 
         course.title = 'changed'
-        self.assertEqual(requires_salesforce_update('course', course), True)
+        assert requires_salesforce_update('course', course) is True
 
         course_run = CourseRunFactory()
         course_run.full_description = 'changed'
-        self.assertEqual(requires_salesforce_update('course_run', course_run), False)
+        assert requires_salesforce_update('course_run', course_run) is False
 
         course_run.key = 'changed'
-        self.assertEqual(requires_salesforce_update('course_run', course_run), True)
+        assert requires_salesforce_update('course_run', course_run) is True
 
     def test_populate_official_with_existing_draft(self):
         course_run = CourseRunFactory(draft=True, course=CourseFactory(draft=True))
@@ -658,23 +635,23 @@ class TestSalesforce(TestCase):
                             created = populate_official_with_existing_draft(
                                 course_run.official_version, mock_salesforce_util
                             )
-                            self.assertTrue(created)
-                            self.assertEqual(course_run.official_version.salesforce_id, salesforce_id)
+                            assert created
+                            assert course_run.official_version.salesforce_id == salesforce_id
 
                             created = populate_official_with_existing_draft(
                                 course_run.official_version.course, mock_salesforce_util
                             )
-                            self.assertTrue(created)
-                            self.assertEqual(course_run.official_version.course.salesforce_id, salesforce_id)
+                            assert created
+                            assert course_run.official_version.course.salesforce_id == salesforce_id
 
                             created = populate_official_with_existing_draft(
                                 course_run_2.official_version, mock_salesforce_util
                             )
-                            self.assertFalse(created)
-                            self.assertEqual(course_run_2.official_version.salesforce_id, salesforce_id)
+                            assert not created
+                            assert course_run_2.official_version.salesforce_id == salesforce_id
 
                             created = populate_official_with_existing_draft(
                                 course_run_2.official_version.course, mock_salesforce_util
                             )
-                            self.assertFalse(created)
-                            self.assertEqual(course_run_2.official_version.course.salesforce_id, salesforce_id)
+                            assert not created
+                            assert course_run_2.official_version.course.salesforce_id == salesforce_id

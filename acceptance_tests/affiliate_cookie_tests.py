@@ -48,7 +48,7 @@ class AffiliateCookieTestMixin:
     def test_without_query(self):
         """Verify that no cookie is set without affiliate query parameters."""
         self.browser.get(self.url)
-        self.assertIsNone(self.browser.get_cookie(self.cookie_name))
+        assert self.browser.get_cookie(self.cookie_name) is None
 
     def test_with_query(self):
         """Verify that GTM drops a cookie when the correct query parameters are present."""
@@ -58,9 +58,9 @@ class AffiliateCookieTestMixin:
             )
         )
         cookie = self.browser.get_cookie(self.cookie_name)
-        self.assertIsNotNone(cookie)
-        self.assertEqual(cookie['value'], self.cookie_value)
-        self.assertEqual(cookie['domain'], self.cookie_domain)
+        assert cookie is not None
+        assert cookie['value'] == self.cookie_value
+        assert cookie['domain'] == self.cookie_domain
 
     def test_with_query_wrong_medium(self):
         """Verify that requests without utm_medium=affiliate_partner do not get a cookie."""
@@ -68,7 +68,7 @@ class AffiliateCookieTestMixin:
             root=self.url,
             partner=self.cookie_value
         ))
-        self.assertIsNone(self.browser.get_cookie(self.cookie_name))
+        assert self.browser.get_cookie(self.cookie_name) is None
 
 
 class MarketingSiteCookieTest(AffiliateCookieTestMixin, TestCase):

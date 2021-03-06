@@ -26,14 +26,8 @@ class CatalogQueryViewSetTests(APITestCase):
         })
         url = f'{self.url_base}/?{qs}'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.data,
-            {
-                self.course_run.key: True,
-                str(self.course.uuid): False
-            }
-        )
+        assert response.status_code == 200
+        assert response.data == {self.course_run.key: True, str(self.course.uuid): False}
 
     def test_contains_single_course(self):
         """ Verify that a single course is contained in a query. """
@@ -44,14 +38,8 @@ class CatalogQueryViewSetTests(APITestCase):
         })
         url = f'{self.url_base}/?{qs}'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.data,
-            {
-                self.course_run.key: False,
-                str(self.course.uuid): True
-            }
-        )
+        assert response.status_code == 200
+        assert response.data == {self.course_run.key: False, str(self.course.uuid): True}
 
     def test_contains_course_and_run(self):
         """ Verify that both the course and the run are contained in the broadest query. """
@@ -64,14 +52,8 @@ class CatalogQueryViewSetTests(APITestCase):
         })
         url = f'{self.url_base}/?{qs}'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.data,
-            {
-                self.course_run.key: True,
-                str(self.course.uuid): True
-            }
-        )
+        assert response.status_code == 200
+        assert response.data == {self.course_run.key: True, str(self.course.uuid): True}
 
     def test_no_identifiers(self):
         """ Verify that a 400 status is returned if request does not contain any identifier lists. """
@@ -80,8 +62,8 @@ class CatalogQueryViewSetTests(APITestCase):
         })
         url = f'{self.url_base}/?{qs}'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, self.error_message)
+        assert response.status_code == 400
+        assert response.data == self.error_message
 
     def test_no_query(self):
         """ Verify that a 400 status is returned if request does not contain a querystring. """
@@ -91,8 +73,8 @@ class CatalogQueryViewSetTests(APITestCase):
         })
         url = f'{self.url_base}/?{qs}'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, self.error_message)
+        assert response.status_code == 400
+        assert response.data == self.error_message
 
     def test_incorrect_queries(self):
         """ Verify that a 400 status is returned if request contains incorrect query string. """

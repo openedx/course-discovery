@@ -65,7 +65,7 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         """ Verify authentication is required when accessing the endpoint. """
         self.client.logout()
         response = self.client.get(self.affiliate_url)
-        self.assertEqual(response.status_code, 401)
+        assert response.status_code == 401
 
     def test_affiliate_with_approved_programs(self):
         """Verify that only the expected Program types are returned, No Masters programs"""
@@ -129,15 +129,15 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         """ Verify authentication is required when accessing the endpoint. """
         self.client.logout()
         response = self.client.get(self.affiliate_url)
-        self.assertEqual(response.status_code, 401)
+        assert response.status_code == 401
 
     def test_affiliate_with_supported_seats(self):
         """ Verify that endpoint returns course runs for verified and professional seats only. """
         response = self.client.get(self.affiliate_url)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         root = ET.fromstring(response.content)
-        self.assertEqual(1, len(root.findall('product')))
+        assert 1 == len(root.findall('product'))
         self.assert_product_xml(
             root.findall(f'product/[pid="{self.course_run.key}-{self.seat_verified.type.slug}"]')[0],
             self.seat_verified
@@ -148,7 +148,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
         response = self.client.get(self.affiliate_url)
         root = ET.fromstring(response.content)
-        self.assertEqual(2, len(root.findall('product')))
+        assert 2 == len(root.findall('product'))
 
         self.assert_product_xml(
             root.findall(f'product/[pid="{self.course_run.key}-{self.seat_verified.type.slug}"]')[0],
@@ -167,9 +167,9 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         self.seat_verified.save()
 
         response = self.client.get(self.affiliate_url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         root = ET.fromstring(response.content)
-        self.assertEqual(0, len(root.findall('product')))
+        assert 0 == len(root.findall('product'))
 
     def test_with_closed_enrollment(self):
         """ Verify that endpoint returns no data if enrollment is close. """
@@ -182,9 +182,9 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
         response = self.client.get(self.affiliate_url)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         root = ET.fromstring(response.content)
-        self.assertEqual(0, len(root.findall('product')))
+        assert 0 == len(root.findall('product'))
 
     def assert_product_xml(self, content, seat):
         """ Helper method to verify product data in xml format. """
@@ -218,17 +218,17 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
         with self.assertNumQueries(6, threshold=1):  # CI is often 7
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
+            assert response.status_code == 200
 
         # Regular users can only view catalogs belonging to them
         self.client.force_authenticate(self.user)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        assert response.status_code == 403
 
         catalog.viewers = [self.user]
         with self.assertNumQueries(9, threshold=1):  # CI is often 10
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
+            assert response.status_code == 200
 
     def test_unpublished_status(self):
         """ Verify the endpoint does not return CourseRuns in a non-published state. """
@@ -239,6 +239,6 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
 
         response = self.client.get(self.affiliate_url)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         root = ET.fromstring(response.content)
-        self.assertEqual(0, len(root.findall('product')))
+        assert 0 == len(root.findall('product'))

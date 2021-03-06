@@ -1,15 +1,12 @@
 """ Core models. """
-import datetime
-
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.sites.models import Site
-from django.core.cache import cache
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from edx_rest_api_client.client import EdxRestApiClient, OAuthAPIClient
+from edx_rest_api_client.client import OAuthAPIClient
 from guardian.mixins import GuardianUserMixin
 from simple_history.models import HistoricalRecords
 
@@ -18,19 +15,6 @@ class User(GuardianUserMixin, AbstractUser):
     """Custom user model for use with OpenID Connect."""
     full_name = models.CharField(_('Full Name'), max_length=255, blank=True, null=True)
     referral_tracking_id = models.CharField(_('Referral Tracking ID'), max_length=255, default='affiliate_partner')
-
-    @property
-    def access_token(self):
-        """ Returns an OAuth2 access token for this user, if one exists; otherwise None.
-
-        Assumes user has authenticated at least once with edX Open ID Connect.
-        """
-        social_auth = self.social_auth.first()  # pylint: disable=no-member
-
-        if social_auth:
-            return social_auth.access_token
-
-        return None
 
     class Meta:
         get_latest_by = 'date_joined'
@@ -109,18 +93,6 @@ class Partner(TimeStampedModel):
         verbose_name_plural = _('Partners')
 
     @property
-    def oauth2_provider_url(self):
-        return settings.BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL
-
-    @property
-    def oauth2_client_id(self):
-        return settings.BACKEND_SERVICE_EDX_OAUTH2_KEY
-
-    @property
-    def oauth2_client_secret(self):
-        return settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET
-
-    @property
     def has_marketing_site(self):
         return bool(self.marketing_site_url_root)
 
@@ -128,49 +100,15 @@ class Partner(TimeStampedModel):
     def uses_publisher(self):
         return settings.ENABLE_PUBLISHER and self.publisher_url
 
-    @property
-    def access_token(self):
-        """
-        Returns the access token for this service.
-
-        We don't use a cached_property decorator because we aren't sure how to
-        set custom expiration dates for those.
-
-        Returns:
-            str: JWT access token
-        """
-        key = 'oauth2_access_token'
-        access_token = cache.get(key)
-
-        if not access_token:
-            url = f'{self.oauth2_provider_url}/access_token'
-            access_token, expiration_datetime = EdxRestApiClient.get_oauth_access_token(
-                url,
-                self.oauth2_client_id,
-                self.oauth2_client_secret,
-                token_type='jwt'
-            )
-
-            expires = (expiration_datetime - datetime.datetime.utcnow()).seconds
-            cache.set(key, access_token, expires)
-
-        return access_token
-
     @cached_property
-    def studio_api_client(self):
-        studio_api_url = '{root}/api/v1/'.format(root=self.studio_url.strip('/'))
-        return EdxRestApiClient(studio_api_url, jwt=self.access_token)
-
-    @cached_property
-    def lms_api_client(self):
-        if not self.lms_url:
-            return None
-
+    def oauth_api_client(self):
+        # Does not need to be on the Partner model, but is here for historical reasons and this client is usually used
+        # along with URLs from this model. So might as well have it here for convenience.
         return OAuthAPIClient(
-            self.lms_url.strip('/'),
-            self.oauth2_client_id,
-            self.oauth2_client_secret,
-            timeout=settings.OAUTH_API_TIMEOUT
+            settings.BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL,
+            settings.BACKEND_SERVICE_EDX_OAUTH2_KEY,
+            settings.BACKEND_SERVICE_EDX_OAUTH2_SECRET,
+            timeout=settings.OAUTH_API_TIMEOUT,
         )
 
 

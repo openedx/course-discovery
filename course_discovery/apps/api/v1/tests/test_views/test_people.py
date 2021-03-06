@@ -64,17 +64,17 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         """ Verify endpoint successfully creates a person. """
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value=self.expected_node):
             response = self.client.post(self.people_list_url, self._person_data(), format='json')
-            self.assertEqual(response.status_code, 201)
+            assert response.status_code == 201
 
         data = self._person_data()
         person = Person.objects.last()
         self.assertDictEqual(response.data, self.serialize_person(person))
-        self.assertEqual(person.given_name, data['given_name'])
-        self.assertEqual(person.family_name, data['family_name'])
-        self.assertEqual(person.bio, data['bio'])
-        self.assertEqual(person.position.title, data['position']['title'])
-        self.assertEqual(person.position.organization, self.organization)
-        self.assertEqual(person.major_works, data['major_works'])
+        assert person.given_name == data['given_name']
+        assert person.family_name == data['family_name']
+        assert person.bio == data['bio']
+        assert person.position.title == data['position']['title']
+        assert person.position.organization == self.organization
+        assert person.major_works == data['major_works']
         self.assertListEqual(
             sorted([social_network.url for social_network in person.person_networks.all()]),
             sorted([url_detailed['url'] for url_detailed in data['urls_detailed']])
@@ -86,16 +86,12 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
         # Test display_title
         # Test that empty string titles get changed to type when looking at display title for not OTHERS
-        self.assertEqual('Facebook', person.person_networks.get(type='facebook', title='').display_title)
+        assert 'Facebook' == person.person_networks.get(type='facebook', title='').display_title
         # Test that defined titles are shown
-        self.assertEqual(
-            'Hopkins Twitter', person.person_networks.get(type='twitter', title='Hopkins Twitter').display_title
-        )
-        self.assertEqual('blog', person.person_networks.get(type='blog', title='blog').display_title)
+        assert 'Hopkins Twitter' == person.person_networks.get(type='twitter', title='Hopkins Twitter').display_title
+        assert 'blog' == person.person_networks.get(type='blog', title='blog').display_title
         # Test that empty string titles get changed to url when looking at display title for OTHERS
-        self.assertEqual(
-            'http://www.others.com/hopkins', person.person_networks.get(type='others', title='').display_title
-        )
+        assert 'http://www.others.com/hopkins' == person.person_networks.get(type='others', title='').display_title
 
         self.assertListEqual(
             sorted([area_of_expertise.value for area_of_expertise in person.areas_of_expertise.all()]),
@@ -110,7 +106,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
         with LogCapture(people_logger.name) as log_capture:
             response = self.client.post(self.people_list_url, self._person_data(), format='json')
-            self.assertEqual(response.status_code, 400)
+            assert response.status_code == 400
             log_capture.check(
                 (
                     people_logger.name,
@@ -121,7 +117,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                 )
             )
 
-        self.assertFalse(self.person_exists(data))
+        assert not self.person_exists(data)
 
     def test_create_with_api_exception(self):
         """ Verify that after creating drupal page if serializer fail due to any error, message
@@ -136,7 +132,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                 with mock.patch.object(MarketingSitePeople, 'delete_person', return_value=None):
                     with LogCapture(people_logger.name) as log_capture:
                         response = self.client.post(self.people_list_url, self._person_data(), format='json')
-                        self.assertEqual(response.status_code, 400)
+                        assert response.status_code == 400
                         log_capture.check(
                             (
                                 people_logger.name,
@@ -147,7 +143,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                             )
                         )
 
-        self.assertFalse(self.person_exists(data))
+        assert not self.person_exists(data)
 
     def test_create_without_authentication(self):
         """ Verify authentication is required when creating a person. """
@@ -173,7 +169,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single person. """
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertDictEqual(response.data, self.serialize_person(self.person))
 
     def test_get_without_authentication(self):
@@ -181,13 +177,13 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         self.client.logout()
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertDictEqual(response.data, self.serialize_person(self.person))
 
     def test_list_with_publisher_user(self):
         """ Verify the endpoint returns a list of all people with the publisher user """
         response = self.client.get(self.people_list_url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertCountEqual(response.data['results'], self.serialize_person(Person.objects.all(), many=True))
 
     def test_list_different_partner(self):
@@ -195,7 +191,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person'):
             PersonFactory()  # create person for a partner that isn't self.partner; we expect this to not show up later
         response = self.client.get(self.people_list_url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         # Make sure the list does not include the new person above
         self.assertCountEqual(response.data['results'], self.serialize_person([self.person], many=True))
 
@@ -205,7 +201,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             person = PersonFactory(partner=self.partner)
         url = f'{self.people_list_url}?slug={person.slug}'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertCountEqual(response.data['results'], self.serialize_person([person], many=True))
 
     def test_list_filter_by_slug_unauthenticated(self):
@@ -215,7 +211,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             person = PersonFactory(partner=self.partner)
         url = f'{self.people_list_url}?slug={person.slug}'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         self.assertCountEqual(response.data['results'], self.serialize_person([person], many=True))
 
     def test_with_no_org(self):
@@ -227,8 +223,8 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             CourseRunFactory(staff=[person1], course=course)
             url = f'{self.people_list_url}?org='
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(response.data['results']), 0)
+            assert response.status_code == 200
+            assert len(response.data['results']) == 0
 
     def test_list_with_org_single(self):
         org1 = OrganizationFactory()
@@ -240,9 +236,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             CourseRunFactory(staff=[person1], course=course)
             url = f'{self.people_list_url}?org={org1.key}'
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(response.data['results']), 1)
-            self.assertEqual(response.data['results'], self.serialize_person([person1], many=True))
+            assert response.status_code == 200
+            assert len(response.data['results']) == 1
+            assert response.data['results'] == self.serialize_person([person1], many=True)
 
     def test_list_with_org_multiple(self):
         org1 = OrganizationFactory()
@@ -261,8 +257,8 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
                 org2_key=org2.key,
             )
             response = self.client.get(url)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(len(response.data['results']), 2)
+            assert response.status_code == 200
+            assert len(response.data['results']) == 2
             self.assertCountEqual(response.data['results'], self.serialize_person([person1, person2], many=True))
 
     @override_switch('publish_person_to_marketing_site', False)
@@ -271,9 +267,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         data = self._person_data()
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             response = self.client.post(self.people_list_url, data, format='json')
-            self.assertEqual(cm.call_count, 0)
-        self.assertEqual(response.status_code, 201)
-        self.assertTrue(self.person_exists(data))
+            assert cm.call_count == 0
+        assert response.status_code == 201
+        assert self.person_exists(data)
 
     def _person_data(self):
         return {
@@ -388,7 +384,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
         with LogCapture(people_logger.name) as log_capture:
             response = self.client.patch(url, data, format='json')
-            self.assertEqual(response.status_code, 400)
+            assert response.status_code == 400
             log_capture.check(
                 (
                     people_logger.name,
@@ -410,7 +406,7 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             ):
                 with LogCapture(people_logger.name) as log_capture:
                     response = self.client.patch(url, self._update_person_data(), format='json')
-                    self.assertEqual(response.status_code, 400)
+                    assert response.status_code == 400
                     log_capture.check(
                         (
                             people_logger.name,
@@ -428,9 +424,9 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         data = self._update_person_data()
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person') as cm:
             response = self.client.patch(url, data, format='json')
-            self.assertEqual(cm.call_count, 0)
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(self.person_exists(data))
+            assert cm.call_count == 0
+        assert response.status_code == 200
+        assert self.person_exists(data)
 
     def test_update(self):
         """Verify that people data can be updated using endpoint."""
@@ -444,15 +440,15 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value={}):
             response = self.client.patch(url, data, format='json')
-            self.assertEqual(response.status_code, 200)
+            assert response.status_code == 200
 
         updated_person = Person.objects.get(id=self.person.id)
 
-        self.assertEqual(updated_person.given_name, data['given_name'])
-        self.assertEqual(updated_person.family_name, data['family_name'])
-        self.assertEqual(updated_person.bio, data['bio'])
-        self.assertEqual(updated_person.position.title, data['position']['title'])
-        self.assertEqual(updated_person.major_works, data['major_works'])
+        assert updated_person.given_name == data['given_name']
+        assert updated_person.family_name == data['family_name']
+        assert updated_person.bio == data['bio']
+        assert updated_person.position.title == data['position']['title']
+        assert updated_person.major_works == data['major_works']
         self.assertListEqual(
             sorted([social_network.url for social_network in updated_person.person_networks.all()]),
             sorted([url_detailed['url'] for url_detailed in data['urls_detailed']])
@@ -461,28 +457,23 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
             sorted([social_network.title for social_network in updated_person.person_networks.all()]),
             sorted([url_detailed['title'] for url_detailed in data['urls_detailed']])
         )
-        self.assertFalse(updated_person.person_networks.filter(type='blog').exists())
+        assert not updated_person.person_networks.filter(type='blog').exists()
 
         # Test display_title
         # Test that empty string titles get changed to type when looking at display title for not OTHERS
-        self.assertEqual('Facebook', updated_person.person_networks.get(type='facebook', title='').display_title)
+        assert 'Facebook' == updated_person.person_networks.get(type='facebook', title='').display_title
         # Test that defined titles are shown
-        self.assertEqual(
-            'Hopkins new Twitter',
-            updated_person.person_networks.get(type='twitter', title='Hopkins new Twitter').display_title
-        )
-        self.assertEqual(
-            'new others', updated_person.person_networks.get(type='others', title='new others').display_title
-        )
-        self.assertEqual(
-            'Create new', updated_person.person_networks.get(type='others', title='Create new').display_title
-        )
+        assert 'Hopkins new Twitter' == updated_person.person_networks\
+            .get(type='twitter', title='Hopkins new Twitter').display_title
+
+        assert 'new others' == updated_person.person_networks.get(type='others', title='new others').display_title
+        assert 'Create new' == updated_person.person_networks.get(type='others', title='Create new').display_title
 
         self.assertListEqual(
             sorted([area_of_expertise.value for area_of_expertise in updated_person.areas_of_expertise.all()]),
             sorted([area_of_expertise['value'] for area_of_expertise in data['areas_of_expertise']])
         )
-        self.assertFalse(updated_person.areas_of_expertise.filter(value=removed_value).exists())
+        assert not updated_person.areas_of_expertise.filter(value=removed_value).exists()
 
     def test_update_without_position(self):
         """
@@ -495,11 +486,11 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
 
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value={}):
             response = self.client.patch(url, data, format='json')
-            self.assertEqual(response.status_code, 200)
+            assert response.status_code == 200
 
         updated_person = Person.objects.get(id=self.person.id)
 
-        self.assertEqual(updated_person.position.title, data['position']['title'])
+        assert updated_person.position.title == data['position']['title']
 
     def test_update_with_org_restrictions(self):
         url = reverse('api:v1:person-detail', kwargs={'uuid': self.person.uuid})
@@ -508,11 +499,11 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         data = self._update_person_data()
         with mock.patch.object(MarketingSitePeople, 'update_or_publish_person', return_value={}):
             response = self.client.patch(url, data, format='json')
-            self.assertEqual(response.status_code, 404)
+            assert response.status_code == 404
 
         # Verify that the person wasn't updated.
         updated_person = Person.objects.get(id=self.person.id)
-        self.assertEqual(updated_person.given_name, self.person.given_name)
+        assert updated_person.given_name == self.person.given_name
 
     def test_options_org_choices(self):
         """ Verify that an OPTIONS request will provide a list of organizations. """
@@ -523,13 +514,8 @@ class PersonViewSetTests(SerializationMixin, APITestCase):
         org2 = OrganizationFactory(partner=self.partner, name='', key='aaa')
 
         response = self.client.options(self.people_list_url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         data = response.data['actions']['POST']
-        self.assertEqual(
-            data['position']['children']['organization']['choices'],
-            [
-                {'display_name': 'aaa', 'value': org2.id},
-                {'display_name': 'bbb: Test', 'value': self.organization.id},
-            ]
-        )
+        assert data['position']['children']['organization']['choices'] ==\
+               [{'display_name': 'aaa', 'value': org2.id}, {'display_name': 'bbb: Test', 'value': self.organization.id}]

@@ -93,9 +93,9 @@ class TestCourse(TestCase):
 
         # Bad HTML
         setattr(course, field_name, '<?proc>')
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             course.clean_fields()
-        self.assertEqual(cm.exception.message_dict[field_name], ['Invalid HTML received'])
+        assert cm.value.message_dict[field_name] == ['Invalid HTML received']
 
     def test_first_enrollable_paid_seat_price(self):
         """
@@ -159,7 +159,7 @@ class TestCourse(TestCase):
             third_course_run,
             fourth_course_run,
         ]
-        self.assertEqual(sorted(out_of_order_runs, key=course.course_run_sort), expected_order)
+        assert sorted(out_of_order_runs, key=course.course_run_sort) == expected_order
 
     now = datetime.datetime.now(pytz.UTC)
 
@@ -213,16 +213,17 @@ class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCa
             succeed: Whether the unpublish should return True or False
         """
 
-        self.assertEqual(self.course.unpublish_inactive_runs(published_runs=published_runs), succeed)
+        assert self.course.unpublish_inactive_runs(published_runs=published_runs) == succeed
 
         if succeed:
             self.active.refresh_from_db()
-            self.assertEqual(self.active.status, CourseRunStatus.Published)  # should have stayed the same
+            assert self.active.status == CourseRunStatus.Published
+            # should have stayed the same
 
             self.inactive.refresh_from_db()
-            self.assertEqual(self.inactive.status, CourseRunStatus.Unpublished)
+            assert self.inactive.status == CourseRunStatus.Unpublished
             if self.inactive.draft_version:
-                self.assertEqual(self.inactive.draft_version.status, CourseRunStatus.Unpublished)
+                assert self.inactive.draft_version.status == CourseRunStatus.Unpublished
 
     def test_simple_happy_path(self):
         self.assertUnpublish()
@@ -339,8 +340,8 @@ class TestCourseEditor(TestCase):
             with self.assertNumQueries(queries):
                 result = list(method())
 
-        self.assertEqual(len(result), len(expected_result))
-        self.assertEqual(set(result), set(expected_result))
+        assert len(result) == len(expected_result)
+        assert set(result) == set(expected_result)
 
     def test_editable_is_staff(self):
         """ Verify staff users can see everything. """
@@ -412,17 +413,17 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         professional_seat = factories.SeatFactory(course_run=course_run, type=professional_seat_type,
                                                   upgrade_deadline=None)
         honor_seat = factories.SeatFactory(course_run=course_run, type=honor_seat_type, upgrade_deadline=None)
-        self.assertEqual(course_run.enrollable_seats([verified_seat_type, professional_seat_type]),
-                         [verified_seat, professional_seat])
+        assert course_run.enrollable_seats([verified_seat_type, professional_seat_type]) == \
+               [verified_seat, professional_seat]
 
         # The method should not care about the course run's start date.
         course_run.start = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=1)
         course_run.save()
-        self.assertEqual(course_run.enrollable_seats([verified_seat_type, professional_seat_type]),
-                         [verified_seat, professional_seat])
+        assert course_run.enrollable_seats([verified_seat_type, professional_seat_type]) ==\
+               [verified_seat, professional_seat]
 
         # Enrollable seats of any type should be returned when no type parameter is specified.
-        self.assertEqual(course_run.enrollable_seats(), [verified_seat, professional_seat, honor_seat])
+        assert course_run.enrollable_seats() == [verified_seat, professional_seat, honor_seat]
 
     def test_has_enrollable_seats(self):
         """ Verify the expected value of has_enrollable_seats is returned. """
@@ -437,7 +438,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
         course_run = self.course_run
-        self.assertEqual(str(course_run), '{key}: {title}'.format(key=course_run.key, title=course_run.title))
+        assert str(course_run) == '{key}: {title}'.format(key=course_run.key, title=course_run.title)
 
     @ddt.data('full_description_override', 'outcome_override', 'short_description_override')
     def test_html_fields_are_validated(self, field_name):
@@ -447,29 +448,29 @@ class CourseRunTests(OAuth2Mixin, TestCase):
 
         # Bad HTML
         setattr(self.course_run, field_name, '<?proc>')
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             self.course_run.clean_fields()
-        self.assertEqual(cm.exception.message_dict[field_name], ['Invalid HTML received'])
+        assert cm.value.message_dict[field_name] == ['Invalid HTML received']
 
     @ddt.data('title', 'short_description', 'full_description')
     def test_override_fields(self, field_name):
         """ Verify the `CourseRun`'s override field overrides the related `Course`'s field. """
         override_field_name = "{}_override".format(field_name)
-        self.assertIsNone(getattr(self.course_run, override_field_name))
-        self.assertEqual(getattr(self.course_run, field_name), getattr(self.course_run.course, field_name))
+        assert getattr(self.course_run, override_field_name) is None
+        assert getattr(self.course_run, field_name) == getattr(self.course_run.course, field_name)
 
         # Setting the property to a non-empty value should set the override field,
         # and trigger the field property getter to use the override.
         override_text = 'A Better World'
         setattr(self.course_run, field_name, override_text)
-        self.assertEqual(getattr(self.course_run, override_field_name), override_text)
-        self.assertEqual(getattr(self.course_run, field_name), override_text)
+        assert getattr(self.course_run, override_field_name) == override_text
+        assert getattr(self.course_run, field_name) == override_text
 
         # Setting the title property to an empty value should set the title_override field to None,
         # and trigger the title property getter to use the title of the parent course.
         setattr(self.course_run, field_name, None)
-        self.assertIsNone(getattr(self.course_run, override_field_name))
-        self.assertEqual(getattr(self.course_run, field_name), getattr(self.course_run.course, field_name))
+        assert getattr(self.course_run, override_field_name) is None
+        assert getattr(self.course_run, field_name) == getattr(self.course_run.course, field_name)
 
     def test_search(self):
         """ Verify the method returns a filtered queryset of course runs. """
@@ -478,22 +479,22 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         query = 'title:' + title
         actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search(query)), key=lambda course_run: course_run.key)
         expected_sorted = sorted(course_runs, key=lambda course_run: course_run.key)
-        self.assertEqual(actual_sorted, expected_sorted)
+        assert actual_sorted == expected_sorted
 
     def test_wildcard_search(self):
         """ Verify the method returns an unfiltered queryset of course runs. """
         course_runs = factories.CourseRunFactory.create_batch(3)
         actual_sorted = sorted(SearchQuerySetWrapper(CourseRun.search('*')), key=lambda course_run: course_run.key)
         expected_sorted = sorted(course_runs + [self.course_run], key=lambda course_run: course_run.key)
-        self.assertEqual(actual_sorted, expected_sorted)
+        assert actual_sorted == expected_sorted
 
     def test_seat_types(self):
         """ Verify the property returns a list of all seat types associated with the course run. """
-        self.assertEqual(self.course_run.seat_types, [])
+        assert self.course_run.seat_types == []
 
         seats = factories.SeatFactory.create_batch(3, course_run=self.course_run)
         expected = sorted(seat.type.slug for seat in seats)
-        self.assertEqual(sorted(seat_type.slug for seat_type in self.course_run.seat_types), expected)
+        assert sorted((seat_type.slug for seat_type in self.course_run.seat_types)) == expected
 
     @ddt.data(
         ('obviously-wrong', None,),
@@ -510,11 +511,11 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         for seat_type in seat_types:
             type_obj = SeatType.objects.update_or_create(slug=seat_type, defaults={'name': seat_type})[0]
             factories.SeatFactory(course_run=self.course_run, type=type_obj)
-        self.assertEqual(self.course_run.type_legacy, expected_course_run_type)
+        assert self.course_run.type_legacy == expected_course_run_type
 
     def test_level_type(self):
         """ Verify the property returns the associated Course's level type. """
-        self.assertEqual(self.course_run.level_type, self.course_run.course.level_type)
+        assert self.course_run.level_type == self.course_run.course.level_type
 
     @freeze_time('2016-06-21 00:00:00Z')
     @ddt.data(
@@ -535,24 +536,24 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         if end:
             end = parse(end)
         course_run = factories.CourseRunFactory(start=start, end=end)
-        self.assertEqual(course_run.availability, expected_availability)
+        assert course_run.availability == expected_availability
 
     def test_marketing_url(self):
         """ Verify the property constructs a marketing URL based on the marketing slug. """
         expected = '{root}/course/{slug}'.format(root=self.partner.marketing_site_url_root.strip('/'),
                                                  slug=self.course_run.slug)
-        self.assertEqual(self.course_run.marketing_url, expected)
+        assert self.course_run.marketing_url == expected
 
     def test_marketing_url_with_empty_marketing_slug(self):
         """ Verify the property returns None if the CourseRun has no marketing_slug value. """
         self.course_run.slug = ''
-        self.assertIsNone(self.course_run.marketing_url)
+        assert self.course_run.marketing_url is None
 
     def test_slug_defined_on_create(self):
         """ Verify the slug is created on first save from the title and key. """
         course_run = CourseRunFactory(title='Test Title')
         slug_key = uslugify(course_run.key)
-        self.assertEqual(course_run.slug, 'test-title-{slug_key}'.format(slug_key=slug_key))
+        assert course_run.slug == 'test-title-{slug_key}'.format(slug_key=slug_key)
 
     def test_empty_slug_defined_on_save(self):
         """ Verify the slug is defined on save if it wasn't set already. """
@@ -560,7 +561,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         self.course_run.title = 'Test Title'
         self.course_run.save()
         slug_key = uslugify(self.course_run.key)
-        self.assertEqual(self.course_run.slug, 'test-title-{slug_key}'.format(slug_key=slug_key))
+        assert self.course_run.slug == 'test-title-{slug_key}'.format(slug_key=slug_key)
 
     def test_program_types(self):
         """ Verify the property retrieves program types correctly based on programs. """
@@ -574,13 +575,13 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         courses = [self.course_run.course]
         program = factories.ProgramFactory(courses=courses)
         factories.ProgramFactory(courses=courses, status=ProgramStatus.Unpublished)
-        self.assertEqual(self.course_run.program_types, [program.type.name])
+        assert self.course_run.program_types == [program.type.name]
 
     def test_exclude_deleted_program_types(self):
         """ Verify the program types property exclude programs that are deleted """
         active_program = factories.ProgramFactory(courses=[self.course_run.course])
         factories.ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Deleted)
-        self.assertEqual(self.course_run.program_types, [active_program.type.name])
+        assert self.course_run.program_types == [active_program.type.name]
 
     def test_new_course_run_excluded_in_retired_programs(self):
         """ Verify the newly created course run must be excluded in associated retired programs"""
@@ -593,8 +594,8 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run.save()
         new_course_run = factories.CourseRunFactory(course=course)
         new_course_run.save()
-        self.assertEqual(program.excluded_course_runs.count(), 1)
-        self.assertEqual(len(list(program.course_runs)), 1)
+        assert program.excluded_course_runs.count() == 1
+        assert len(list(program.course_runs)) == 1
 
     @ddt.data(
         # Case 1: Return False when there are no paid Seats.
@@ -617,7 +618,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run = factories.CourseRunFactory.create()
         for seat_type, price in seat_config:
             factories.SeatFactory.create(course_run=course_run, type=SeatType.objects.get(slug=seat_type), price=price)
-        self.assertEqual(course_run.has_enrollable_paid_seats(), expected_result)
+        assert course_run.has_enrollable_paid_seats() == expected_result
 
     def test_first_enrollable_paid_seat_sku(self):
         """
@@ -626,7 +627,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run = factories.CourseRunFactory.create()
         factories.SeatFactory.create(course_run=course_run, type=factories.SeatTypeFactory.verified(), price=10,
                                      sku='ABCDEF')
-        self.assertEqual(course_run.first_enrollable_paid_seat_sku(), 'ABCDEF')
+        assert course_run.first_enrollable_paid_seat_sku() == 'ABCDEF'
 
     def test_first_enrollable_paid_seat_price(self):
         """
@@ -635,7 +636,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run = factories.CourseRunFactory.create()
         factories.SeatFactory.create(course_run=course_run, type=factories.SeatTypeFactory.verified(), price=10,
                                      sku='ABCDEF')
-        self.assertEqual(course_run.first_enrollable_paid_seat_price, 10)
+        assert course_run.first_enrollable_paid_seat_price == 10
 
     @ddt.data(
         # Case 1: Return None when there are no enrollable paid Seats.
@@ -690,7 +691,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
                                          upgrade_deadline=deadline)
 
         expected_result = parse(expected_result) if expected_result else None
-        self.assertEqual(course_run.get_paid_seat_enrollment_end(), expected_result)
+        assert course_run.get_paid_seat_enrollment_end() == expected_result
 
     now = datetime.datetime.now(pytz.timezone('utc'))
     one_month = relativedelta(months=1)
@@ -748,7 +749,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         draft.course.save()
 
         # force this prop to be cached, to catch any errors if we assume .official_version is valid after creation
-        self.assertIsNone(draft.official_version)
+        assert draft.official_version is None
 
         draft.status = CourseRunStatus.Reviewed
         draft.save()
@@ -757,18 +758,18 @@ class CourseRunTests(OAuth2Mixin, TestCase):
 
         for run in [draft, official_version]:
             if published:
-                self.assertEqual(run.status, CourseRunStatus.Published)
-                self.assertIsNotNone(run.announcement)
-                self.assertEqual(mock_email.call_count, 0)
+                assert run.status == CourseRunStatus.Published
+                assert run.announcement is not None
+                assert mock_email.call_count == 0
             else:
-                self.assertEqual(run.status, CourseRunStatus.Reviewed)
-                self.assertIsNone(run.announcement)
-                self.assertEqual(mock_email.call_count, 1)
+                assert run.status == CourseRunStatus.Reviewed
+                assert run.announcement is None
+                assert mock_email.call_count == 1
 
     def test_publish_ignores_draft_input(self):
         draft = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, draft=True)
-        self.assertFalse(draft.publish())
-        self.assertEqual(draft.status, CourseRunStatus.Unpublished)
+        assert not draft.publish()
+        assert draft.status == CourseRunStatus.Unpublished
 
     def test_publish_affects_draft_version_too(self):
         end = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=10)
@@ -781,36 +782,36 @@ class CourseRunTests(OAuth2Mixin, TestCase):
             course=draft.course, draft_version=draft, end=end, enrollment_end=end,
         )
 
-        self.assertTrue(official.publish())
+        assert official.publish()
         draft.refresh_from_db()
 
-        self.assertEqual(draft.status, CourseRunStatus.Published)
-        self.assertIsNotNone(draft.announcement)
-        self.assertEqual(official.status, CourseRunStatus.Published)
-        self.assertIsNotNone(official.announcement)
+        assert draft.status == CourseRunStatus.Published
+        assert draft.announcement is not None
+        assert official.status == CourseRunStatus.Published
+        assert official.announcement is not None
 
     def test_publish_adds_slug_to_course(self):
         to_publish = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, draft=False)
         current_active_course_slug = to_publish.course.active_url_slug
         to_publish.publish()
         all_slugs_as_list = [slug_obj.url_slug for slug_obj in to_publish.course.url_slug_history.all()]
-        self.assertIn(to_publish.slug, all_slugs_as_list)
-        self.assertEqual(to_publish.course.active_url_slug, current_active_course_slug)
+        assert to_publish.slug in all_slugs_as_list
+        assert to_publish.course.active_url_slug == current_active_course_slug
 
     def test_publish_does_not_add_duplicate_slugs(self):
         course = factories.CourseFactory(draft=False)
         to_publish = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, draft=False, course=course)
         course.set_active_url_slug(to_publish.slug)
         to_publish.publish()
-        self.assertEqual(course.active_url_slug, to_publish.slug)
-        self.assertEqual(course.url_slug_history.count(), 2)
+        assert course.active_url_slug == to_publish.slug
+        assert course.url_slug_history.count() == 2
 
     def test_publish_errors_if_slug_exists_on_other_course(self):
         course1 = factories.CourseFactory(draft=False)
         course2 = factories.CourseFactory(draft=False, partner=course1.partner)
         to_publish = factories.CourseRunFactory(status=CourseRunStatus.Unpublished, draft=False, course=course1)
         course2.set_active_url_slug(to_publish.slug)
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             to_publish.publish()
 
     @ddt.data(
@@ -846,7 +847,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run = factories.CourseRunFactory.create(
             end=None, enrollment_start=enrollment_start, enrollment_end=enrollment_end,
         )
-        self.assertEqual(course_run.is_enrollable, expected)
+        assert course_run.is_enrollable == expected
 
     @ddt.data(
         (CourseRunStatus.Unpublished, False, False, False),  # Not published, no seats, no marketing url
@@ -867,7 +868,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         if create_seats:
             factories.SeatFactory.create(course_run=course_run)
 
-        self.assertEqual(course_run.is_marketable, expected)
+        assert course_run.is_marketable == expected
 
     @ddt.data(
         (True, False, False),  # Draft, CourseRunType.is_marketable, expected
@@ -880,13 +881,13 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run = factories.CourseRunFactory(status=CourseRunStatus.Published, draft=draft,
                                                 type__is_marketable=type_is_marketable)
         factories.SeatFactory.create(course_run=course_run)
-        self.assertEqual(course_run.is_marketable, expected)
-        self.assertEqual(course_run.could_be_marketable, expected)
+        assert course_run.is_marketable == expected
+        assert course_run.could_be_marketable == expected
 
         with mock.patch.object(CourseRunMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
             with override_switch('publish_course_runs_to_marketing_site', True):
                 course_run.save()
-                self.assertEqual(mock_publish_obj.called, expected)
+                assert mock_publish_obj.called == expected
 
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
@@ -1144,7 +1145,7 @@ class OrganizationTests(TestCase):
         """
         for char in invalid_char_list:
             self.organization.key = 'key{}'.format(char)
-            self.assertRaises(ValidationError, self.organization.clean)
+            pytest.raises(ValidationError, self.organization.clean)
 
     @ddt.data(
         ["keywithoutspace", "correct-key", "correct_key", "correct.key"]
@@ -1155,29 +1156,28 @@ class OrganizationTests(TestCase):
         """
         for valid_key in valid_key_list:
             self.organization.key = valid_key
-            self.assertEqual(self.organization.clean(), None)
+            assert self.organization.clean() is None
 
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and name. """
-        self.assertEqual(str(self.organization), '{key}: {name}'.format(key=self.organization.key,
-                                                                        name=self.organization.name))
+        assert str(self.organization) == '{key}: {name}'.format(key=self.organization.key, name=self.organization.name)
 
     def test_marketing_url(self):
         """ Verify the property creates a complete marketing URL. """
         expected = '{root}/school/{slug}'.format(root=self.organization.partner.marketing_site_url_root.strip('/'),
                                                  slug=self.organization.slug)
-        self.assertEqual(self.organization.marketing_url, expected)
+        assert self.organization.marketing_url == expected
 
     def test_marketing_url_without_slug(self):
         """ Verify the property returns None if the Organization has no slug set. """
         self.organization.slug = ''
-        self.assertIsNone(self.organization.marketing_url)
+        assert self.organization.marketing_url is None
 
     def test_user_organizations(self):
         """Verify that the user_organizations method returns organizations for a given user"""
         user = factories.UserFactory()
 
-        self.assertFalse(Organization.user_organizations(user))
+        assert not Organization.user_organizations(user)
 
         org_ext = OrganizationExtensionFactory()
         user.groups.add(org_ext.group)
@@ -1196,7 +1196,7 @@ class PersonTests(TestCase):
     def test_full_name(self):
         """ Verify the property returns the person's full name. """
         expected = self.person.given_name + ' ' + self.person.family_name
-        self.assertEqual(self.person.full_name, expected)
+        assert self.person.full_name == expected
 
     def test_full_name_with_salutation(self):
         """ Verify the property returns the person's full name
@@ -1204,37 +1204,37 @@ class PersonTests(TestCase):
         """
         self.person = factories.PersonFactory(salutation='Dr.')
         expected = ' '.join((self.person.salutation, self.person.given_name, self.person.family_name))
-        self.assertEqual(self.person.full_name, expected)
+        assert self.person.full_name == expected
 
     def test_empty_family_name(self):
         """ Verify the property returns the person's given name when family name is set None. """
         self.person.family_name = None
         expected = self.person.given_name
-        self.assertEqual(self.person.full_name, expected)
+        assert self.person.full_name == expected
 
     def test_unicode_slug(self):
         """ Verify the slug is reasonable with a unicode name. """
         self.person = factories.PersonFactory(given_name='商汤科', family_name='')
-        self.assertEqual(self.person.slug, 'shang-tang-ke')
+        assert self.person.slug == 'shang-tang-ke'
 
     def test_get_profile_image_url(self):
         """
         Verify that property returns profile_image_url, which should always be the
         profile_image.url.
         """
-        self.assertEqual(self.person.get_profile_image_url, self.person.profile_image.url)
+        assert self.person.get_profile_image_url == self.person.profile_image.url
 
         # create another person with out profile_image_url
         person = factories.PersonFactory()
-        self.assertEqual(person.get_profile_image_url, person.profile_image.url)
+        assert person.get_profile_image_url == person.profile_image.url
 
         # create another person with out profile_image
         person = factories.PersonFactory(profile_image=None)
-        self.assertIsNone(person.get_profile_image_url)
+        assert person.get_profile_image_url is None
 
     def test_str(self):
         """ Verify casting an instance to a string returns the person's full name. """
-        self.assertEqual(str(self.person), self.person.full_name)
+        assert str(self.person) == self.person.full_name
 
     @ddt.data('bio', 'major_works')
     def test_html_fields_are_validated(self, field_name):
@@ -1244,9 +1244,9 @@ class PersonTests(TestCase):
 
         # Bad HTML
         setattr(self.person, field_name, '<?proc>')
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             self.person.clean_fields()
-        self.assertEqual(cm.exception.message_dict[field_name], ['Invalid HTML received'])
+        assert cm.value.message_dict[field_name] == ['Invalid HTML received']
 
 
 class PositionTests(TestCase):
@@ -1258,15 +1258,15 @@ class PositionTests(TestCase):
 
     def test_organization_name(self):
         """ Verify the property returns the name of the related Organization or the overridden value. """
-        self.assertEqual(self.position.organization_name, self.position.organization.name)
+        assert self.position.organization_name == self.position.organization.name
 
         self.position.organization_override = 'ACME'
-        self.assertEqual(self.position.organization_name, self.position.organization_override)
+        assert self.position.organization_name == self.position.organization_override
 
     def test_str(self):
         """ Verify casting an instance to a string returns the title and organization. """
         expected = self.position.title + ' at ' + self.position.organization_name
-        self.assertEqual(str(self.position), expected)
+        assert str(self.position) == expected
 
 
 class AbstractNamedModelTests(TestCase):
@@ -1280,7 +1280,7 @@ class AbstractNamedModelTests(TestCase):
 
         name = 'abc'
         instance = TestAbstractNamedModel(name=name)
-        self.assertEqual(str(instance), name)
+        assert str(instance) == name
 
 
 class AbstractMediaModelTests(TestCase):
@@ -1294,7 +1294,7 @@ class AbstractMediaModelTests(TestCase):
 
         src = 'http://example.com/image.jpg'
         instance = TestAbstractMediaModel(src=src)
-        self.assertEqual(str(instance), src)
+        assert str(instance) == src
 
 
 class AbstractValueModelTests(TestCase):
@@ -1308,7 +1308,7 @@ class AbstractValueModelTests(TestCase):
 
         value = 'abc'
         instance = TestAbstractValueModel(value=value)
-        self.assertEqual(str(instance), value)
+        assert str(instance) == value
 
 
 class AbstractTitleDescriptionModelTests(TestCase):
@@ -1322,10 +1322,10 @@ class AbstractTitleDescriptionModelTests(TestCase):
         description = 'Description'
 
         instance = TestAbstractTitleDescriptionModel(title=None, description=description)
-        self.assertEqual(str(instance), description)
+        assert str(instance) == description
 
         instance = TestAbstractTitleDescriptionModel(title=title, description=description)
-        self.assertEqual(str(instance), title)
+        assert str(instance) == title
 
 
 @ddt.ddt
@@ -1443,7 +1443,7 @@ class ProgramTests(TestCase):
             one_click_purchase_enabled=one_click_purchase_enabled,
             type=program_type,
         )
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+        assert not program.is_program_eligible_for_one_click_purchase
 
     def test_clean_enrollment_counts_on_save(self):
         """ Verify that the 'clean' method ensures that we don't save NULL counts to DB """
@@ -1454,16 +1454,16 @@ class ProgramTests(TestCase):
         course_run.clean()
         course_run.save()
         course_run_from_db = CourseRun.objects.get(uuid=course_run.uuid)
-        self.assertEqual(0, course_run_from_db.enrollment_count)
-        self.assertEqual(0, course_run_from_db.recent_enrollment_count)
+        assert 0 == course_run_from_db.enrollment_count
+        assert 0 == course_run_from_db.recent_enrollment_count
 
         course_run.enrollment_count = 3
         course_run.recent_enrollment_count = 2
         course_run.clean()
         course_run.save()
         course_run_from_db = CourseRun.objects.get(uuid=course_run.uuid)
-        self.assertEqual(3, course_run_from_db.enrollment_count)
-        self.assertEqual(2, course_run_from_db.recent_enrollment_count)
+        assert 3 == course_run_from_db.enrollment_count
+        assert 2 == course_run_from_db.recent_enrollment_count
 
         course = course_run.course
         course.enrollment_count = None
@@ -1471,16 +1471,16 @@ class ProgramTests(TestCase):
         course.clean()
         course.save()
         course_from_db = Course.objects.get(uuid=course.uuid)
-        self.assertEqual(0, course_from_db.enrollment_count)
-        self.assertEqual(0, course_from_db.recent_enrollment_count)
+        assert 0 == course_from_db.enrollment_count
+        assert 0 == course_from_db.recent_enrollment_count
 
         course.enrollment_count = 4
         course.recent_enrollment_count = 5
         course.clean()
         course.save()
         course_from_db = Course.objects.get(uuid=course.uuid)
-        self.assertEqual(4, course_from_db.enrollment_count)
-        self.assertEqual(5, course_from_db.recent_enrollment_count)
+        assert 4 == course_from_db.enrollment_count
+        assert 5 == course_from_db.recent_enrollment_count
 
         program = factories.ProgramFactory(courses=[course])
         program.enrollment_count = None
@@ -1489,8 +1489,8 @@ class ProgramTests(TestCase):
         program.save()
 
         program_from_db = Program.objects.get(uuid=program.uuid)
-        self.assertEqual(0, program_from_db.enrollment_count)
-        self.assertEqual(0, program_from_db.recent_enrollment_count)
+        assert 0 == program_from_db.enrollment_count
+        assert 0 == program_from_db.recent_enrollment_count
 
     def test_one_click_purchase_eligible(self):
         """ Verify that program is one click purchase eligible. """
@@ -1513,7 +1513,7 @@ class ProgramTests(TestCase):
             one_click_purchase_enabled=True,
             type=program_type,
         )
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+        assert program.is_program_eligible_for_one_click_purchase
 
         # Program has one_click_purchase_enabled set to True,
         # course has all course runs excluded except one which
@@ -1534,14 +1534,14 @@ class ProgramTests(TestCase):
             one_click_purchase_enabled=True,
             type=program_type,
         )
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+        assert program.is_program_eligible_for_one_click_purchase
 
     def test_one_click_purchase_eligible_with_entitlements(self):
         """ Verify that program is one click purchase eligible when its courses have entitlement products. """
         # Program has one_click_purchase_enabled set to True,
         # all courses have a verified mode entitlement product and multiple course runs.
         program, __ = self.create_program_with_entitlements_and_seats()
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+        assert program.is_program_eligible_for_one_click_purchase
 
     def test_one_click_purchase_ineligible_wrong_mode(self):
         """ Verify that program is not one click purchase eligible if course entitlement product has the wrong mode. """
@@ -1551,7 +1551,7 @@ class ProgramTests(TestCase):
         original_mode = honor_mode_entitlement.mode
         honor_mode_entitlement.mode = honor_seat_type
         honor_mode_entitlement.save()
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+        assert not program.is_program_eligible_for_one_click_purchase
 
         # clean up local modifications
         honor_mode_entitlement.mode = original_mode
@@ -1567,7 +1567,7 @@ class ProgramTests(TestCase):
         program.type.applicable_seat_types.add(credit_seat_type)
         # We are limiting each course to a single entitlement so this should raise an IntegrityError
         with transaction.atomic():
-            with self.assertRaises(IntegrityError):
+            with pytest.raises(IntegrityError):
                 factories.CourseEntitlementFactory(mode=credit_seat_type, course=courses[0])
 
     def test_one_click_purchase_eligible_with_unpublished_runs(self):
@@ -1593,7 +1593,7 @@ class ProgramTests(TestCase):
             one_click_purchase_enabled=True,
             type=program_type,
         )
-        self.assertTrue(program.is_program_eligible_for_one_click_purchase)
+        assert program.is_program_eligible_for_one_click_purchase
 
     def test_one_click_purchase_ineligible(self):
         """ Verify that program is one click purchase ineligible. """
@@ -1619,14 +1619,14 @@ class ProgramTests(TestCase):
             one_click_purchase_enabled=True,
             type=program_type,
         )
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+        assert not program.is_program_eligible_for_one_click_purchase
 
         # Program has one_click_purchase_enabled set to True and
         # one course with one course run excluded from the program
         second_course_run.delete()
         program.excluded_course_runs.set([course_run])
         program.save()
-        self.assertFalse(program.is_program_eligible_for_one_click_purchase)
+        assert not program.is_program_eligible_for_one_click_purchase
 
         # Program has one_click_purchase_enabled set to True, one course
         # with one course run, course run end date passed
@@ -1665,7 +1665,7 @@ class ProgramTests(TestCase):
 
     def test_str(self):
         """Verify that a program is properly converted to a str."""
-        self.assertEqual(str(self.program), self.program.title)
+        assert str(self.program) == self.program.title
 
     def test_weeks_to_complete_range(self):
         """ Verify that weeks to complete range works correctly """
@@ -1679,8 +1679,8 @@ class ProgramTests(TestCase):
         expected_max = max(weeks_to_complete_values) if weeks_to_complete_values else None
         # property does not have the right values while being indexed
         del self.program._course_run_weeks_to_complete
-        self.assertEqual(self.program.weeks_to_complete_min, expected_min)
-        self.assertEqual(self.program.weeks_to_complete_max, expected_max)
+        assert self.program.weeks_to_complete_min == expected_min
+        assert self.program.weeks_to_complete_max == expected_max
 
     def test_marketing_url(self):
         """ Verify the property creates a complete marketing URL. """
@@ -1690,12 +1690,12 @@ class ProgramTests(TestCase):
         self.program.type.slug = '8675309'
         expected = '{root}/{type}/{slug}'.format(root=self.program.partner.marketing_site_url_root.strip('/'),
                                                  type=self.program.type.slug, slug=self.program.marketing_slug)
-        self.assertEqual(self.program.marketing_url, expected)
+        assert self.program.marketing_url == expected
 
     def test_marketing_url_without_slug(self):
         """ Verify the property returns None if the Program has no marketing_slug set. """
         self.program.marketing_slug = ''
-        self.assertIsNone(self.program.marketing_url)
+        assert self.program.marketing_url is None
 
     def test_course_runs(self):
         """
@@ -1704,7 +1704,7 @@ class ProgramTests(TestCase):
         CourseRuns minus those that are explicitly excluded.
         """
         # Verify that self.other_course_run is not returned in set
-        self.assertEqual(set(self.program.course_runs), set(self.course_runs))
+        assert set(self.program.course_runs) == set(self.course_runs)
 
     def test_canonical_course_runs(self):
         for course_run in self.course_runs[:2]:
@@ -1714,7 +1714,7 @@ class ProgramTests(TestCase):
 
         expected_canonical_runs = [self.course_runs[0], self.course_runs[1]]
         # Verify only canonical course runs are returned in set
-        self.assertEqual(set(self.program.canonical_course_runs), set(expected_canonical_runs))
+        assert set(self.program.canonical_course_runs) == set(expected_canonical_runs)
 
     def test_canonical_course_seats(self):
         """ Test canonical course seats returns only canonical course run's applicable seats """
@@ -1732,7 +1732,7 @@ class ProgramTests(TestCase):
 
         program = factories.ProgramFactory(type=program_type, courses=[course])
 
-        self.assertEqual(set(course.canonical_course_run.seats.all()), set(program.canonical_seats))
+        assert set(course.canonical_course_run.seats.all()) == set(program.canonical_seats)
 
     def test_entitlements(self):
         """ Test entitlements returns only applicable course entitlements. """
@@ -1748,13 +1748,13 @@ class ProgramTests(TestCase):
         program = factories.ProgramFactory(type=program_type, courses=courses)
         expected = {c.entitlements.filter(mode__in=applicable_seat_types).first() for c in courses}
         expected.remove(None)
-        self.assertEqual(expected, set(program.entitlements))
+        assert expected == set(program.entitlements)
 
     def test_languages(self):
         expected_languages = {course_run.language for course_run in self.course_runs}
         actual_languages = self.program.languages
-        self.assertGreater(len(actual_languages), 0)
-        self.assertEqual(actual_languages, expected_languages)
+        assert len(actual_languages) > 0
+        assert actual_languages == expected_languages
 
     def test_transcript_languages(self):
         expected_transcript_languages = itertools.chain.from_iterable(
@@ -1762,8 +1762,8 @@ class ProgramTests(TestCase):
         expected_transcript_languages = set(expected_transcript_languages)
         actual_transcript_languages = self.program.transcript_languages
 
-        self.assertGreater(len(actual_transcript_languages), 0)
-        self.assertEqual(actual_transcript_languages, expected_transcript_languages)
+        assert len(actual_transcript_languages) > 0
+        assert actual_transcript_languages == expected_transcript_languages
 
     def test_subject_order(self):
         """
@@ -1774,12 +1774,12 @@ class ProgramTests(TestCase):
         course3 = factories.CourseFactory(subjects=self.subjects[::-1])  # C, B, A
 
         program1 = factories.ProgramFactory(courses=[course1, course2, course3])
-        self.assertEqual(program1.subjects, self.subjects)
+        assert program1.subjects == self.subjects
 
         course4 = factories.CourseFactory(subjects=self.subjects[::-2])  # C, A; these make C the most common primary
         course5 = factories.CourseFactory(subjects=self.subjects[::-2])  # C, A; and A the most common overall in p2
         program2 = factories.ProgramFactory(courses=[course1, course2, course3, course4, course5])
-        self.assertEqual(program2.subjects, [self.subjects[2], self.subjects[0], self.subjects[1]])
+        assert program2.subjects == [self.subjects[2], self.subjects[0], self.subjects[1]]
 
     def test_program_topics(self):
         """
@@ -1797,29 +1797,29 @@ class ProgramTests(TestCase):
         course3.topics.set(topicB, topicC)
 
         program1 = factories.ProgramFactory(courses=[course1, course2, course3])
-        self.assertEqual(program1.topics, set((topicA, topicB, topicC)))
+        assert program1.topics == set((topicA, topicB, topicC))
 
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
         program's courses. """
         expected_start = min([course_run.start for course_run in self.course_runs])
-        self.assertEqual(self.program.start, expected_start)
+        assert self.program.start == expected_start
 
         # Verify start is None for programs with no courses.
         self.program.courses.clear()
-        self.assertIsNone(self.program.start)
+        assert self.program.start is None
 
         # Verify start is None if no course runs have a start date.
         course_run = CourseRunFactory(start=None)
         self.program.courses.add(course_run.course)
-        self.assertIsNone(self.program.start)
+        assert self.program.start is None
 
     def test_price_ranges(self):
         """ Verify the price_ranges property of the program is returning expected price values """
         program = self.create_program_with_seats()
 
         expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(600), 'total': Decimal(600)}]
-        self.assertEqual(program.price_ranges, expected_price_ranges)
+        assert program.price_ranges == expected_price_ranges
 
     def test_price_ranges_multiple_course(self):
         """ Verifies the price_range property of a program with multiple courses """
@@ -1839,7 +1839,7 @@ class ProgramTests(TestCase):
         self.program.type = program_type
 
         expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(300), 'total': Decimal(600)}]
-        self.assertEqual(self.program.price_ranges, expected_price_ranges)
+        assert self.program.price_ranges == expected_price_ranges
 
     @ddt.data(True, False)
     def test_price_ranges_with_entitlements(self, create_seats):
@@ -1863,7 +1863,7 @@ class ProgramTests(TestCase):
         self.program.type = program_type
 
         expected_price_ranges = [{'currency': 'USD', 'min': Decimal(100), 'max': Decimal(300), 'total': Decimal(600)}]
-        self.assertEqual(self.program.price_ranges, expected_price_ranges)
+        assert self.program.price_ranges == expected_price_ranges
 
     def create_program_with_multiple_course_runs(self, set_all_dates=True):
         currency = Currency.objects.get(code='USD')
@@ -1914,7 +1914,7 @@ class ProgramTests(TestCase):
         program = self.create_program_with_multiple_course_runs()
 
         expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(300), 'total': Decimal(330)}]
-        self.assertEqual(program.price_ranges, expected_price_ranges)
+        assert program.price_ranges == expected_price_ranges
 
     def test_price_ranges_with_multiple_course_runs_and_none_dates(self):
         """
@@ -1925,7 +1925,7 @@ class ProgramTests(TestCase):
         program = self.create_program_with_multiple_course_runs(set_all_dates=False)
 
         expected_price_ranges = [{'currency': 'USD', 'min': Decimal(10), 'max': Decimal(300), 'total': Decimal(330)}]
-        self.assertEqual(program.price_ranges, expected_price_ranges)
+        assert program.price_ranges == expected_price_ranges
 
     def test_staff(self):
         TWO_WEEKS_FROM_TODAY = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=14)
@@ -1951,36 +1951,36 @@ class ProgramTests(TestCase):
         )
         self.program.courses.set([advertised_course_run.course, ignored_course_run.course])
 
-        self.assertEqual(self.program.staff, set(expected_staff))
+        assert self.program.staff == set(expected_staff)
 
     def test_staff_no_advertised_course_run(self):
         staff = factories.PersonFactory.create_batch(2)
         self.course_runs[0].staff.add(staff[0])
         self.course_runs[1].staff.add(staff[1])
 
-        self.assertEqual(self.program.staff, set())
+        assert self.program.staff == set()
 
     def test_banner_image(self):
         self.program.banner_image = make_image_file('test_banner.jpg')
         self.program.save()
         image_url_prefix = '{}media/programs/banner_images/'.format(settings.MEDIA_URL)
-        self.assertIn(image_url_prefix, self.program.banner_image.url)
+        assert image_url_prefix in self.program.banner_image.url
         for size_key in self.program.banner_image.field.variations:
             # Get different sizes specs from the model field
             # Then get the file path from the available files
             sized_file = getattr(self.program.banner_image, size_key, None)
-            self.assertIsNotNone(sized_file)
-            self.assertIn(image_url_prefix, sized_file.url)
+            assert sized_file is not None
+            assert image_url_prefix in sized_file.url
 
     def test_seat_types(self):
         program = self.create_program_with_seats()
-        self.assertEqual({t.slug for t in program.seat_types}, {Seat.CREDIT, Seat.VERIFIED})
+        assert {t.slug for t in program.seat_types} == {Seat.CREDIT, Seat.VERIFIED}
 
     @ddt.data(ProgramStatus.choices)
     def test_is_active(self, status):
         initial_status = self.program.status
         self.program.status = status
-        self.assertEqual(self.program.is_active, status == ProgramStatus.Active)
+        assert self.program.is_active == (status == ProgramStatus.Active)
         self.program.status = initial_status
 
     def test_publication_disabled(self):
@@ -2029,7 +2029,7 @@ class ProgramTests(TestCase):
         program.save()
 
         program_from_db = Program.objects.get(uuid=program.uuid)
-        self.assertEqual(1, program_from_db.credit_value)
+        assert 1 == program_from_db.credit_value
 
 
 class PathwayTests(TestCase):
@@ -2037,7 +2037,7 @@ class PathwayTests(TestCase):
 
     def test_str(self):
         pathway = factories.PathwayFactory()
-        self.assertEqual(str(pathway), pathway.name)
+        assert str(pathway) == pathway.name
 
 
 class PersonSocialNetworkTests(TestCase):
@@ -2050,16 +2050,14 @@ class PersonSocialNetworkTests(TestCase):
 
     def test_str(self):
         """Verify that a person-social-network is properly converted to a str."""
-        self.assertEqual(
-            str(self.network), '{title}: {url}'.format(title=self.network.display_title, url=self.network.url)
-        )
+        assert str(self.network) == '{title}: {url}'.format(title=self.network.display_title, url=self.network.url)
 
     def test_unique_constraint(self):
         """Verify that a person-social-network does not allow multiple accounts for same
         social network.
         """
         factories.PersonSocialNetworkFactory(person=self.person, type='facebook', title='@Mikix')
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             factories.PersonSocialNetworkFactory(person=self.person, type='facebook', title='@Mikix')
 
 
@@ -2071,7 +2069,7 @@ class PersonAreaOfExpertiseTests(TestCase):
         self.area_of_expertise = factories.PersonAreaOfExpertiseFactory()
 
     def test_str(self):
-        self.assertEqual(str(self.area_of_expertise), self.area_of_expertise.value)
+        assert str(self.area_of_expertise) == self.area_of_expertise.value
 
 
 class SeatTypeTests(TestCase):
@@ -2079,7 +2077,7 @@ class SeatTypeTests(TestCase):
 
     def test_str(self):
         seat_type = factories.SeatTypeFactory()
-        self.assertEqual(str(seat_type), seat_type.name)
+        assert str(seat_type) == seat_type.name
 
 
 class ProgramTypeTests(TestCase):
@@ -2087,7 +2085,7 @@ class ProgramTypeTests(TestCase):
 
     def test_str(self):
         program_type = factories.ProgramTypeFactory()
-        self.assertEqual(str(program_type), program_type.name_t)
+        assert str(program_type) == program_type.name_t
 
 
 class CourseEntitlementTests(TestCase):
@@ -2103,7 +2101,7 @@ class CourseEntitlementTests(TestCase):
         Verify that a CourseEntitlement does not allow multiple skus or prices for the same course and mode.
         """
         factories.CourseEntitlementFactory(course=self.course, mode=self.mode)
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             factories.CourseEntitlementFactory(course=self.course, mode=self.mode)
 
 
@@ -2119,7 +2117,7 @@ class EndorsementTests(TestCase):
         )
 
     def test_str(self):
-        self.assertEqual(str(self.endorsement), self.person.full_name)
+        assert str(self.endorsement) == self.person.full_name
 
 
 class CorporateEndorsementTests(TestCase):
@@ -2135,7 +2133,7 @@ class CorporateEndorsementTests(TestCase):
         )
 
     def test_str(self):
-        self.assertEqual(str(self.individual_endorsements), self.corporation_name)
+        assert str(self.individual_endorsements) == self.corporation_name
 
 
 class FAQTests(TestCase):
@@ -2144,7 +2142,7 @@ class FAQTests(TestCase):
     def test_str(self):
         question = 'test question'
         faq = FAQ.objects.create(question=question, answer='test')
-        self.assertEqual(str(faq), question)
+        assert str(faq) == question
 
 
 class RankingTests(TestCase):
@@ -2153,7 +2151,7 @@ class RankingTests(TestCase):
     def test_str(self):
         description = 'test rank'
         ranking = Ranking.objects.create(rank='#1', description=description, source='test')
-        self.assertEqual(str(ranking), description)
+        assert str(ranking) == description
 
 
 @ddt.ddt
@@ -2167,7 +2165,7 @@ class CurriculumTests(TestCase):
         self.curriculum = Curriculum(program=self.degree)
 
     def test_str(self):
-        self.assertEqual(str(self.curriculum), str(self.curriculum.uuid))
+        assert str(self.curriculum) == str(self.curriculum.uuid)
 
     @ddt.data('marketing_text', 'marketing_text_brief')
     def test_html_fields_are_validated(self, field_name):
@@ -2180,9 +2178,9 @@ class CurriculumTests(TestCase):
 
         # Bad HTML
         setattr(self.curriculum, field_name, '<?proc>')
-        with self.assertRaises(ValidationError) as cm:
+        with pytest.raises(ValidationError) as cm:
             self.curriculum.clean_fields()
-        self.assertEqual(cm.exception.message_dict[field_name], ['Invalid HTML received'])
+        assert cm.value.message_dict[field_name] == ['Invalid HTML received']
 
 
 class CurriculumProgramMembershipTests(TestCase):
@@ -2201,7 +2199,7 @@ class CurriculumProgramMembershipTests(TestCase):
         )
         # Add the same program curriculum relationship again.
         # Make sure this throws db integrity exception
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             CurriculumProgramMembership.objects.create(
                 program=self.program,
                 curriculum=self.curriculum
@@ -2217,10 +2215,7 @@ class CurriculumProgramMembershipTests(TestCase):
             program=self.program,
             curriculum=new_curriculum
         )
-        self.assertEqual(
-            self.curriculum.program_curriculum.all()[0],
-            new_curriculum.program_curriculum.all()[0]
-        )
+        assert self.curriculum.program_curriculum.all()[0] == new_curriculum.program_curriculum.all()[0]
 
 
 class CurriculumCourseMembershipTests(TestCase):
@@ -2247,9 +2242,9 @@ class CurriculumCourseMembershipTests(TestCase):
             course_membership=course_membership,
             course_run=course_runs[1]
         )
-        self.assertEqual(course_membership.course_runs, set(course_runs[2:]))
-        self.assertIn(str(self.curriculum), str(course_membership))
-        self.assertIn(str(self.course), str(course_membership))
+        assert course_membership.course_runs == set(course_runs[2:])
+        assert str(self.curriculum) in str(course_membership)
+        assert str(self.course) in str(course_membership)
 
     def test_course_unique_within_same_curriculum(self):
         CurriculumCourseMembership.objects.create(
@@ -2258,7 +2253,7 @@ class CurriculumCourseMembershipTests(TestCase):
         )
         # Add the same course curriculum relationship again.
         # Make sure this throws db integrity exception
-        with self.assertRaises(IntegrityError):
+        with pytest.raises(IntegrityError):
             CurriculumCourseMembership.objects.create(
                 course=self.course,
                 curriculum=self.curriculum
@@ -2274,10 +2269,7 @@ class CurriculumCourseMembershipTests(TestCase):
             course=self.course,
             curriculum=new_curriculum
         )
-        self.assertEqual(
-            self.curriculum.course_curriculum.all()[0],
-            new_curriculum.course_curriculum.all()[0]
-        )
+        assert self.curriculum.course_curriculum.all()[0] == new_curriculum.course_curriculum.all()[0]
 
 
 @ddt.ddt
@@ -2297,8 +2289,8 @@ class DegreeDeadlineTests(TestCase):
             name=self.deadline_name,
             date=self.deadline_date,
         )
-        self.assertEqual(str(degree_deadline), "{} {}".format(self.deadline_name, self.deadline_date))
-        self.assertEqual(degree_deadline.time, '')
+        assert str(degree_deadline) == '{} {}'.format(self.deadline_name, self.deadline_date)
+        assert degree_deadline.time == ''
 
     @ddt.data('12:30PM EST', '')
     def test_time_field(self, deadline_time):
@@ -2308,7 +2300,7 @@ class DegreeDeadlineTests(TestCase):
             date=self.deadline_date,
             time=deadline_time
         )
-        self.assertEqual(degree_deadline.time, deadline_time)
+        assert degree_deadline.time == deadline_time
 
 
 class DegreeCostTests(TestCase):
@@ -2327,7 +2319,7 @@ class DegreeCostTests(TestCase):
             description=cost_name,
             amount=cost_amount,
         )
-        self.assertEqual(str(degree_cost), str('{}, {}').format(cost_name, cost_amount))
+        assert str(degree_cost) == str('{}, {}').format(cost_name, cost_amount)
 
 
 class SubjectTests(SiteMixin, TestCase):
@@ -2339,7 +2331,7 @@ class SubjectTests(SiteMixin, TestCase):
             partner_id=self.partner.id,
             banner_image_url="http://www.example.com",
             card_image_url="http://www.example.com")
-        self.assertIsNone(subject.full_clean())
+        assert subject.full_clean() is None
 
         duplicate_subject = Subject(
             name="name1",
@@ -2347,11 +2339,9 @@ class SubjectTests(SiteMixin, TestCase):
             banner_image_url="http://www.example.com",
             card_image_url="http://www.example.com")
 
-        with self.assertRaises(ValidationError) as validation_error:
+        with pytest.raises(ValidationError) as validation_error:
             duplicate_subject.full_clean()
-        self.assertEqual(
-            str(validation_error.exception),
-            "{'name': ['Subject with this Name and Partner already exists']}")
+        assert str(validation_error.value) == "{'name': ['Subject with this Name and Partner already exists']}"
 
 
 class TopicTests(SiteMixin, TestCase):
@@ -2363,7 +2353,7 @@ class TopicTests(SiteMixin, TestCase):
             partner_id=self.partner.id,
             banner_image_url="http://www.example.com",
         )
-        self.assertIsNone(topic.full_clean())
+        assert topic.full_clean() is None
 
         duplicate_topic = Topic(
             name="name1",
@@ -2371,16 +2361,14 @@ class TopicTests(SiteMixin, TestCase):
             banner_image_url="http://www.example.com",
         )
 
-        with self.assertRaises(ValidationError) as validation_error:
+        with pytest.raises(ValidationError) as validation_error:
             duplicate_topic.full_clean()
-        self.assertEqual(
-            str(validation_error.exception),
-            "{'name': ['Topic with this Name and Partner already exists']}")
+        assert str(validation_error.value) == "{'name': ['Topic with this Name and Partner already exists']}"
 
     def test_str(self):
         name = "name"
         topic = Topic.objects.create(name=name, partner_id=self.partner.id)
-        self.assertEqual(topic.__str__(), name)
+        assert topic.__str__() == name
 
 
 class DegreeTests(TestCase):
@@ -2413,11 +2401,10 @@ class CourseUrlSlugHistoryTest(TestCase):
         mismatch_partner = factories.PartnerFactory()
         slug_object.partner = mismatch_partner
 
-        with self.assertRaises(ValidationError) as validation_error:
+        with pytest.raises(ValidationError) as validation_error:
             slug_object.save()
-        self.assertEqual(
-            validation_error.exception.message_dict['partner'],
-            ['Partner {partner_key} and course partner {course_partner_key} do not match when attempting to save url '
-             'slug {url_slug}'.format(partner_key=mismatch_partner.name,
-                                      course_partner_key=slug_object.course.partner.name,
-                                      url_slug=slug_object.url_slug)])
+        assert validation_error.value.message_dict['partner'] == \
+               ['Partner {partner_key} and course partner {course_partner_key} do not match when attempting to save'
+                ' url slug {url_slug}'
+                   .format(partner_key=mismatch_partner.name, course_partner_key=slug_object.course.partner.name,
+                           url_slug=slug_object.url_slug)]

@@ -3,6 +3,7 @@ import logging
 
 import pytest
 import responses
+from django.conf import settings
 from django_elasticsearch_dsl.registries import registry
 from elasticsearch_dsl.connections import get_connection
 
@@ -40,6 +41,14 @@ class ElasticsearchTestMixin:
 
 
 class LMSAPIClientMixin:
+    def mock_access_token(self):
+        responses.add(
+            responses.POST,
+            settings.BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL + '/access_token',
+            body=json.dumps({'access_token': 'abcd', 'expires_in': 60}),
+            status=200,
+        )
+
     def mock_api_access_request(self, lms_url, user, status=200, api_access_request_overrides=None):
         """
         Mock the api access requests endpoint response of the LMS.

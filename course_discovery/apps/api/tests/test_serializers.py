@@ -2,7 +2,6 @@
 import datetime
 import itertools
 import re
-from unittest import mock
 from urllib.parse import urlencode
 
 import ddt
@@ -34,7 +33,7 @@ from course_discovery.apps.api.serializers import (
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
-from course_discovery.apps.core.models import Partner, User
+from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
@@ -116,8 +115,8 @@ class CatalogSerializerTests(ElasticsearchTestMixin, TestCase):
             'query': '',
         }
         serializer = CatalogSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-        self.assertEqual(User.objects.filter(username=username).count(), 0)
+        assert not serializer.is_valid()
+        assert User.objects.filter(username=username).count() == 0
 
 
 class MinimalCourseSerializerTests(SiteMixin, TestCase):
@@ -209,7 +208,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         course.canonical_course_run = course_runs[0]
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1})
 
-        self.assertEqual(serializer.data['marketing_url'], course.marketing_url)
+        assert serializer.data['marketing_url'] == course.marketing_url
 
     def test_canonical_course_run_key(self):
         request = make_request()
@@ -219,7 +218,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         course.canonical_course_run = course_runs[0]
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1})
 
-        self.assertEqual(serializer.data['canonical_course_run_key'], course_runs[0].key)
+        assert serializer.data['canonical_course_run_key'] == course_runs[0].key
 
     def test_draft_no_marketing_url(self):
         request = make_request()
@@ -229,7 +228,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         course_draft.save()
         serializer = self.serializer_class(course_draft, context={'request': request, 'exclude_utm': 1, 'editable': 1})
 
-        self.assertIsNone(serializer.data['marketing_url'])
+        assert serializer.data['marketing_url'] is None
 
     def test_draft_and_official(self):
         request = make_request()
@@ -244,8 +243,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         course.save()
 
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1, 'editable': 1})
-        self.assertIsNotNone(serializer.data['marketing_url'])
-        self.assertEqual(serializer.data['marketing_url'], course.marketing_url)
+        assert serializer.data['marketing_url'] is not None
+        assert serializer.data['marketing_url'] == course.marketing_url
 
 
 class CourseEditorSerializerTests(TestCase):
@@ -264,7 +263,7 @@ class CourseEditorSerializerTests(TestCase):
             }
         }
 
-        self.assertEqual(expected, serializer.data)
+        assert expected == serializer.data
 
 
 @ddt.ddt
@@ -375,7 +374,7 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             self.create_upgradeable_seat_for_course_run(cr)
 
         serializer = self.serializer_class(self.course, context={'request': self.request})
-        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
+        assert serializer.data['advertised_course_run_uuid'] == expected_advertised_course_run.uuid
 
     def test_advertised_course_run_is_upgradeable_and_starts_in_the_future(self):
         start_days = [
@@ -431,7 +430,7 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
             self.create_upgradeable_seat_for_course_run(cr)
 
         serializer = self.serializer_class(self.course, context={'request': self.request})
-        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
+        assert serializer.data['advertised_course_run_uuid'] == expected_advertised_course_run.uuid
 
     def test_advertise_course_run_else_condition(self):
         start_days = [
@@ -475,7 +474,7 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
                 self.create_not_upgradeable_seat_for_course_run(cr)
 
         serializer = self.serializer_class(self.course, context={'request': self.request})
-        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
+        assert serializer.data['advertised_course_run_uuid'] == expected_advertised_course_run.uuid
 
     def test_advertised_course_run_no_start_date(self):
         expected_advertised_course_run = CourseRunFactory(
@@ -494,7 +493,7 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         )
         self.create_not_upgradeable_seat_for_course_run(other_run_no_start)
         serializer = self.serializer_class(self.course, context={'request': self.request})
-        self.assertEqual(serializer.data['advertised_course_run_uuid'], expected_advertised_course_run.uuid)
+        assert serializer.data['advertised_course_run_uuid'] == expected_advertised_course_run.uuid
 
 
 class CurriculumSerializerTests(TestCase):
@@ -604,12 +603,12 @@ class MinimalCourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         partner = PartnerFactory()
         course_key = 'course-v1:testX+test1.23+2018T1'
         lms_course_url = get_lms_course_url_for_archived(partner, '')
-        self.assertIsNone(lms_course_url)
+        assert lms_course_url is None
 
         partner.lms_url = 'http://127.0.0.1:8000'
         lms_course_url = get_lms_course_url_for_archived(partner, course_key)
         expected_url = f'{partner.lms_url}/courses/{course_key}/course/'
-        self.assertEqual(lms_course_url, expected_url)
+        assert lms_course_url == expected_url
 
 
 class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
@@ -668,14 +667,14 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         course_run = CourseRunFactory()
         serializer = self.serializer_class(course_run, context={'request': request, 'exclude_utm': 1})
 
-        self.assertEqual(serializer.data['marketing_url'], course_run.marketing_url)
+        assert serializer.data['marketing_url'] == course_run.marketing_url
 
     def test_draft_no_marketing_url(self):
         request = make_request()
         draft_course_run = CourseRunFactory(draft=True)
         serializer = self.serializer_class(draft_course_run, context={'request': request, 'editable': 1})
 
-        self.assertIsNone(serializer.data['marketing_url'])
+        assert serializer.data['marketing_url'] is None
 
     def test_draft_and_official(self):
         request = make_request()
@@ -683,8 +682,8 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
         course_run = CourseRunFactory(draft=False, draft_version_id=draft_course_run.id)
 
         serializer = self.serializer_class(course_run, context={'request': request, 'exclude_utm': 1, 'editable': 1})
-        self.assertIsNotNone(serializer.data['marketing_url'])
-        self.assertEqual(serializer.data['marketing_url'], course_run.marketing_url)
+        assert serializer.data['marketing_url'] is not None
+        assert serializer.data['marketing_url'] == course_run.marketing_url
 
 
 class CourseRunWithProgramsSerializerTests(TestCase):
@@ -716,7 +715,7 @@ class CourseRunWithProgramsSerializerTests(TestCase):
         """
         ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Unpublished)
         serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
-        self.assertEqual(serializer.data['programs'], [])
+        assert serializer.data['programs'] == []
 
     def test_include_unpublished_programs(self):
         """
@@ -726,10 +725,8 @@ class CourseRunWithProgramsSerializerTests(TestCase):
         unpublished_program = ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Unpublished)
         self.serializer_context['include_unpublished_programs'] = 1
         serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
-        self.assertEqual(
-            serializer.data['programs'],
-            NestedProgramSerializer([unpublished_program], many=True, context=self.serializer_context).data
-        )
+        assert serializer.data['programs'] ==\
+               NestedProgramSerializer([unpublished_program], many=True, context=self.serializer_context).data
 
     def test_exclude_retired_program(self):
         """
@@ -737,7 +734,7 @@ class CourseRunWithProgramsSerializerTests(TestCase):
         """
         ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Retired)
         serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
-        self.assertEqual(serializer.data['programs'], [])
+        assert serializer.data['programs'] == []
 
     def test_include_retired_programs(self):
         """
@@ -747,10 +744,8 @@ class CourseRunWithProgramsSerializerTests(TestCase):
         retired_program = ProgramFactory(courses=[self.course_run.course], status=ProgramStatus.Retired)
         self.serializer_context['include_retired_programs'] = 1
         serializer = CourseRunWithProgramsSerializer(self.course_run, context=self.serializer_context)
-        self.assertEqual(
-            serializer.data['programs'],
-            NestedProgramSerializer([retired_program], many=True, context=self.serializer_context).data
-        )
+        assert serializer.data['programs'] == NestedProgramSerializer([retired_program],
+                                                                      many=True, context=self.serializer_context).data
 
     @classmethod
     def get_expected_data(cls, course_run, request):
@@ -926,7 +921,7 @@ class MinimalProgramCourseSerializerTests(TestCase):
         expected = MinimalCourseSerializer(course, context={'request': request}).data
         expected['course_runs'] = [course_run for course_run in expected['course_runs'] if
                                    course_run['key'] != str(unpublished_course_run.key)]
-        self.assertEqual(len(expected['course_runs']), 1)
+        assert len(expected['course_runs']) == 1
 
         serializer = MinimalProgramCourseSerializer(
             course,
@@ -1138,7 +1133,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             context={'request': request, 'program': program, 'course_runs': list(program.course_runs)}
         ).data
 
-        self.assertEqual(serializer.data['courses'], expected)
+        assert serializer.data['courses'] == expected
 
     def test_course_ordering_with_exclusions(self):
         """
@@ -1187,7 +1182,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             context={'request': request, 'program': program, 'course_runs': list(program.course_runs)}
         ).data
 
-        self.assertEqual(serializer.data['courses'], expected)
+        assert serializer.data['courses'] == expected
 
     def test_course_ordering_with_no_start(self):
         """
@@ -1227,7 +1222,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             context={'request': request, 'program': program, 'course_runs': list(program.course_runs)}
         ).data
 
-        self.assertEqual(serializer.data['courses'], expected)
+        assert serializer.data['courses'] == expected
 
     def test_data_without_course_sorting(self):
         request = make_request()
@@ -1640,7 +1635,7 @@ class CourseEntitlementSerializerTests(TestCase):
         serializer = CourseEntitlementSerializer(data=self.entitlement.__dict__)
         serializer.is_valid()
 
-        self.assertTrue(serializer.errors['price'])
+        assert serializer.errors['price']
 
 
 @ddt.ddt
@@ -1673,7 +1668,7 @@ class SeatSerializerTests(TestCase):
         serializer = SeatSerializer(data=self.seat.__dict__)
         serializer.is_valid()
 
-        self.assertTrue(serializer.errors['price'])
+        assert serializer.errors['price']
 
 
 class MinimalPersonSerializerTests(TestCase):
@@ -1752,11 +1747,11 @@ class MinimalPersonSerializerTests(TestCase):
 
         # Test display_title
         # Test that empty string titles get changed to type when looking at display title for not OTHERS
-        self.assertEqual('Facebook', self.person.person_networks.get(type='facebook', title='').display_title)
+        assert 'Facebook' == self.person.person_networks.get(type='facebook', title='').display_title
         # Test that defined titles are shown
-        self.assertEqual('@MrTerry', self.person.person_networks.get(type='twitter', title='@MrTerry').display_title)
+        assert '@MrTerry' == self.person.person_networks.get(type='twitter', title='@MrTerry').display_title
         # Test that empty string titles get changed to url when looking at display title for OTHERS
-        self.assertEqual(others.url, self.person.person_networks.get(type='others', title='').display_title)
+        assert others.url == self.person.person_networks.get(type='others', title='').display_title
 
     def test_areas_of_expertise(self):
         area_1 = PersonAreaOfExpertiseFactory(person=self.person)
@@ -2484,12 +2479,12 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
 
     def setUp(self):
         super().setUp()
+        self.mock_access_token()
         self.user = UserFactory.create()
         self.partner = PartnerFactory.create()
 
     @override_switch('use_company_name_as_utm_source_value', active=False)
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_with_waffle_switch_turned_off(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_with_waffle_switch_turned_off(self):
         """
         Verify that `get_utm_source_for_user` returns User's username when waffle switch
         `use_company_name_as_utm_source_value` is turned off.
@@ -2497,8 +2492,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
 
         assert get_utm_source_for_user(self.partner, self.user) == self.user.username
 
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_with_missing_lms_url(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_with_missing_lms_url(self):
         """
         Verify that `get_utm_source_for_user` returns default value if
         `Partner.lms_url` is not set in the database.
@@ -2506,8 +2500,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         assert get_utm_source_for_user(self.partner, self.user) == self.user.username
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_when_api_response_is_not_valid(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_when_api_response_is_not_valid(self):
         """
         Verify that `get_utm_source_for_user` returns default value if
         LMS API does not return a valid response.
@@ -2517,8 +2510,7 @@ class TestGetUTMSourceForUser(LMSAPIClientMixin, TestCase):
         assert get_utm_source_for_user(self.partner, self.user) == self.user.username
 
     @responses.activate
-    @mock.patch.object(Partner, 'access_token', return_value='JWT fake')
-    def test_get_utm_source_for_user(self, mock_access_token):  # pylint: disable=unused-argument
+    def test_get_utm_source_for_user(self):
         """
         Verify that `get_utm_source_for_user` returns correct value.
         """

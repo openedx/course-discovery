@@ -1,5 +1,6 @@
 from unittest import mock
 
+import pytest
 from django.core.exceptions import ValidationError
 from django.core.management import CommandError, call_command
 from django.test import TestCase
@@ -52,29 +53,29 @@ class DeletePersonDupsCommandTests(TestCase):
         partner_code = f'--partner-code={self.partner.short_code}'
         uuid_arg = f'{self.person.uuid}:{self.target.uuid}'
 
-        with self.assertRaises(CommandError) as cm:
+        with pytest.raises(CommandError) as cm:
             self.call_command(partner_code)  # no uuid
-        self.assertEqual(cm.exception.args[0], 'You must specify at least one person')
+        assert cm.value.args[0] == 'You must specify at least one person'
 
-        with self.assertRaises(CommandError) as cm:
+        with pytest.raises(CommandError) as cm:
             self.call_command(uuid_arg)  # no partner
-        self.assertEqual(cm.exception.args[0], 'You must specify --partner-code')
+        assert cm.value.args[0] == 'You must specify --partner-code'
 
-        with self.assertRaises(Partner.DoesNotExist):
+        with pytest.raises(Partner.DoesNotExist):
             self.call_command('--partner=NotAPartner', uuid_arg)
 
-        with self.assertRaises(CommandError) as cm:
+        with pytest.raises(CommandError) as cm:
             self.call_command(partner_code, 'a')
-        self.assertEqual(cm.exception.args[0], 'Malformed argument "a", should be in form of UUID:TARGET_UUID')
+        assert cm.value.args[0] == 'Malformed argument "a", should be in form of UUID:TARGET_UUID'
 
-        with self.assertRaises(CommandError) as cm:
+        with pytest.raises(CommandError) as cm:
             self.call_command(partner_code, 'a:a')
-        self.assertEqual(cm.exception.args[0], 'Malformed argument "a:a", UUIDs cannot be equal')
+        assert cm.value.args[0] == 'Malformed argument "a:a", UUIDs cannot be equal'
 
-        with self.assertRaises(ValidationError):
+        with pytest.raises(ValidationError):
             self.call_command(partner_code, 'a:b')
 
-        with self.assertRaises(Person.DoesNotExist):
+        with pytest.raises(Person.DoesNotExist):
             self.call_command(partner_code, '00000000-0000-0000-0000-000000000000:00000000-0000-0000-0000-000000000001')
 
     def test_non_committal_run(self):
@@ -84,29 +85,29 @@ class DeletePersonDupsCommandTests(TestCase):
         Person.objects.get(uuid=self.person.uuid)  # will raise if it doesn't exist
 
         # Spot check one course run just to feel a little more confident
-        self.assertEqual(CourseRun.objects.get(id=self.courserun1.id).staff, self.courserun1.staff)
+        assert CourseRun.objects.get(id=self.courserun1.id).staff == self.courserun1.staff
 
     def test_remove_from_marketing(self):
         method = 'course_discovery.apps.course_metadata.people.MarketingSitePeople.delete_person_by_uuid'
 
         with mock.patch(method) as cm:
             self.run_command()
-        self.assertEqual(cm.call_count, 1)
+        assert cm.call_count == 1
         args = cm.call_args[0]
-        self.assertEqual(args[0], self.person.partner)
-        self.assertEqual(args[1], self.person.uuid)
+        assert args[0] == self.person.partner
+        assert args[1] == self.person.uuid
 
     def test_normal_run(self):
         self.run_command()
 
         # Straight deleted
-        self.assertEqual(Person.objects.filter(id=self.person.id).count(), 0)
-        self.assertEqual(Position.objects.filter(id=self.position.id).count(), 0)
-        self.assertEqual(PersonSocialNetwork.objects.filter(id=self.social1.id).count(), 0)
-        self.assertEqual(PersonSocialNetwork.objects.filter(id=self.social2.id).count(), 0)
+        assert Person.objects.filter(id=self.person.id).count() == 0
+        assert Position.objects.filter(id=self.position.id).count() == 0
+        assert PersonSocialNetwork.objects.filter(id=self.social1.id).count() == 0
+        assert PersonSocialNetwork.objects.filter(id=self.social2.id).count() == 0
 
         # Migrated
-        self.assertEqual(Endorsement.objects.get(id=self.endorsement.id).endorser, self.target)
+        assert Endorsement.objects.get(id=self.endorsement.id).endorser == self.target
         self.assertListEqual(list(CourseRun.objects.get(id=self.courserun1.id).staff.all()), [
             self.instructor1, self.target, self.instructor2, self.instructor3,
         ])
@@ -135,14 +136,14 @@ class DeletePersonDupsCommandTests(TestCase):
         self.run_command(people=[(self.person, self.target), (self.instructor1, self.instructor2)])
 
         # Straight deleted
-        self.assertEqual(Person.objects.filter(id=self.person.id).count(), 0)
-        self.assertEqual(Person.objects.filter(id=self.instructor1.id).count(), 0)
-        self.assertEqual(Position.objects.filter(id=self.position.id).count(), 0)
-        self.assertEqual(PersonSocialNetwork.objects.filter(id=self.social1.id).count(), 0)
-        self.assertEqual(PersonSocialNetwork.objects.filter(id=self.social2.id).count(), 0)
+        assert Person.objects.filter(id=self.person.id).count() == 0
+        assert Person.objects.filter(id=self.instructor1.id).count() == 0
+        assert Position.objects.filter(id=self.position.id).count() == 0
+        assert PersonSocialNetwork.objects.filter(id=self.social1.id).count() == 0
+        assert PersonSocialNetwork.objects.filter(id=self.social2.id).count() == 0
 
         # Migrated
-        self.assertEqual(Endorsement.objects.get(id=self.endorsement.id).endorser, self.target)
+        assert Endorsement.objects.get(id=self.endorsement.id).endorser == self.target
         self.assertListEqual(list(CourseRun.objects.get(id=self.courserun1.id).staff.all()), [
             self.target, self.instructor2, self.instructor3,
         ])
@@ -163,17 +164,17 @@ class DeletePersonDupsCommandTests(TestCase):
         # First ensure we do correctly grab arguments from the db
         with mock.patch(module + '.Command.delete_person_dups') as cm:
             self.call_command('--args-from-database', '--partner-code=b', 'c:d')
-        self.assertEqual(cm.call_count, 1)
+        assert cm.call_count == 1
         args = cm.call_args[0][0]
-        self.assertEqual(args['partner_code'], 'a')
-        self.assertEqual(args['commit'], True)
-        self.assertEqual(args['people'], ['a:b'])
+        assert args['partner_code'] == 'a'
+        assert args['commit'] is True
+        assert args['people'] == ['a:b']
 
         # Then confirm that we don't when not asked to
         with mock.patch(module + '.Command.delete_person_dups') as cm:
             self.call_command('--partner-code=b', 'c:d')
-        self.assertEqual(cm.call_count, 1)
+        assert cm.call_count == 1
         args = cm.call_args[0][0]
-        self.assertEqual(args['partner_code'], 'b')
-        self.assertEqual(args['commit'], False)
-        self.assertEqual(args['people'], ['c:d'])
+        assert args['partner_code'] == 'b'
+        assert args['commit'] is False
+        assert args['people'] == ['c:d']

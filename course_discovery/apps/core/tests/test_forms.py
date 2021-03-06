@@ -16,7 +16,7 @@ class UserThrottleRateFormTest(TestCase):
 
     def test_form_valid(self):
         form = UserThrottleRateForm({'rate': '100/day', 'user': self.user.id})
-        self.assertTrue(form.is_valid())
+        assert form.is_valid()
 
     @ddt.data(
         ('100', ["'rate' must be in the format defined by DRF, such as '100/hour'."]),
@@ -27,7 +27,5 @@ class UserThrottleRateFormTest(TestCase):
     @ddt.unpack
     def test_form_invalid_rate(self, rate, expected_error):
         form = UserThrottleRateForm({'rate': rate, 'user': self.user.id})
-        self.assertFalse(form.is_valid())
-        self.assertEqual(form.errors, {
-            'rate': expected_error
-        })
+        assert not form.is_valid()
+        assert form.errors == {'rate': expected_error}

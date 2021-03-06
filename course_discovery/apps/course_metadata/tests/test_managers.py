@@ -1,3 +1,4 @@
+import pytest
 from django.db import models
 from django.test import TestCase
 
@@ -16,39 +17,39 @@ class DraftManagerTests(TestCase):
         """
         Verify the query set filters draft states out at a base level, not just by overriding all().
         """
-        self.assertEqual(CourseRun.objects.count(), 1)
-        self.assertEqual(CourseRun.objects.first(), self.nondraft)
-        self.assertEqual(CourseRun.objects.last(), self.nondraft)
-        self.assertEqual(list(CourseRun.objects.all()), [self.nondraft])
+        assert CourseRun.objects.count() == 1
+        assert CourseRun.objects.first() == self.nondraft
+        assert CourseRun.objects.last() == self.nondraft
+        assert list(CourseRun.objects.all()) == [self.nondraft]
 
     def test_with_drafts(self):
         """
         Verify the query set allows access to draft rows too.
         """
-        self.assertEqual(CourseRun._base_manager.count(), 2)  # pylint: disable=protected-access, no-member
-        self.assertEqual(CourseRun.objects._with_drafts().count(), 2)  # pylint: disable=protected-access
-        self.assertEqual(CourseRun.objects.count(), 1)  # sanity check
+        assert CourseRun._base_manager.count() == 2  # pylint: disable=protected-access, no-member
+        assert CourseRun.objects._with_drafts().count() == 2  # pylint: disable=protected-access
+        assert CourseRun.objects.count() == 1  # sanity check
 
     def test_filter_drafts(self):
         extra = CourseRunFactory()
 
         result = CourseRun.objects.filter_drafts()
-        self.assertIsInstance(result, models.QuerySet)
-        self.assertEqual(result.count(), 2)
-        self.assertEqual(set(result), {extra, self.draft})
+        assert isinstance(result, models.QuerySet)
+        assert result.count() == 2
+        assert set(result) == {extra, self.draft}
 
     def test_filter_drafts_with_kwargs(self):
         extra = CourseRunFactory()
 
         result = CourseRun.objects.filter_drafts(course=extra.course)
-        self.assertEqual(result.count(), 1)
-        self.assertEqual(result.first(), extra)
+        assert result.count() == 1
+        assert result.first() == extra
 
     def test_get_draft(self):
         extra = CourseRunFactory(course=self.draft.course)
 
-        with self.assertRaises(CourseRun.DoesNotExist):
+        with pytest.raises(CourseRun.DoesNotExist):
             CourseRun.objects.get_draft(hidden=True)
-        with self.assertRaises(CourseRun.MultipleObjectsReturned):
+        with pytest.raises(CourseRun.MultipleObjectsReturned):
             CourseRun.objects.get_draft(course=extra.course)
-        self.assertEqual(CourseRun.objects.get_draft(uuid=self.draft.uuid), self.draft)
+        assert CourseRun.objects.get_draft(uuid=self.draft.uuid) == self.draft

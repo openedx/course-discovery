@@ -38,8 +38,8 @@ class M2MRelatedModel(models.Model):
 class ModelUtilTests(TestCase):
     def test_get_all_related_field_names(self):
         """ Verify the method returns the names of all relational fields for a model. """
-        self.assertEqual(get_all_related_field_names(UnrelatedModel), [])
-        self.assertEqual(set(get_all_related_field_names(RelatedModel)), {'foreignrelatedmodel', 'm2mrelatedmodel'})
+        assert get_all_related_field_names(UnrelatedModel) == []
+        assert set(get_all_related_field_names(RelatedModel)) == {'foreignrelatedmodel', 'm2mrelatedmodel'}
 
     def test_delete_orphans(self):
         """ Verify the delete_orphans method deletes orphaned instances. """
@@ -48,8 +48,8 @@ class ModelUtilTests(TestCase):
 
         delete_orphans(Video)
 
-        self.assertTrue(used.__class__.objects.filter(pk=used.pk).exists())
-        self.assertFalse(orphan.__class__.objects.filter(pk=orphan.pk).exists())
+        assert used.__class__.objects.filter(pk=used.pk).exists()
+        assert not orphan.__class__.objects.filter(pk=orphan.pk).exists()
 
     def test_delete_orphans_with_exclusions(self):
         """Verify an orphan is not deleted if it is passed in as excluded"""
@@ -57,7 +57,7 @@ class ModelUtilTests(TestCase):
 
         delete_orphans(Video, {orphan.pk})
 
-        self.assertTrue(orphan.__class__.objects.filter(pk=orphan.pk).exists())
+        assert orphan.__class__.objects.filter(pk=orphan.pk).exists()
 
 
 class SearchQuerySetWrapperTests(TestCase):
@@ -72,10 +72,10 @@ class SearchQuerySetWrapperTests(TestCase):
         self.wrapper = SearchQuerySetWrapper(self.search_queryset)
 
     def test_count(self):
-        self.assertEqual(self.search_queryset.count(), self.wrapper.count())
+        assert self.search_queryset.count() == self.wrapper.count()
 
     def test_iter(self):
-        self.assertEqual(self.course_runs, list(self.wrapper))
+        assert self.course_runs == list(self.wrapper)
 
     def test_getitem(self):
-        self.assertEqual(self.course_runs[0], self.wrapper[0])
+        assert self.course_runs[0] == self.wrapper[0]

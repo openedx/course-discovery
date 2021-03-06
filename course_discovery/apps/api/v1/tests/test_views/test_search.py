@@ -657,7 +657,7 @@ class LimitedAggregateSearchViewSetTests(
         qs = urllib.parse.urlencode(query)
         url = '{path}?{qs}'.format(path=self.path, qs=qs)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         expected = [self.serialize_course_run_search(mit_run), self.serialize_program_search(mit_program)]
         data = response.json()
 
@@ -801,7 +801,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
 
     def process_response(self, response):
         response = self.get_response(response).json()
-        self.assertTrue(response['course_runs'] or response['programs'])
+        assert (response['course_runs'] or response['programs'])
         return response
 
     def test_typeahead(self):
@@ -810,7 +810,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         course_run = CourseRunFactory(title=title, course__partner=self.partner)
         program = ProgramFactory(title=title, status=ProgramStatus.Active, partner=self.partner)
         response = self.get_response({'q': title})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         response_data = response.json()
         self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run_search(course_run)],
                                              'programs': [self.serialize_program_search(program)]})
@@ -823,10 +823,10 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
             CourseRunFactory(title=f"{title}{i}", course__partner=self.partner)
             ProgramFactory(title=f"{title}{i}", status=ProgramStatus.Active, partner=self.partner)
         response = self.get_response({'q': title})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         response_data = response.json()
-        self.assertEqual(len(response_data['course_runs']), RESULT_COUNT)
-        self.assertEqual(len(response_data['programs']), RESULT_COUNT)
+        assert len(response_data['course_runs']) == RESULT_COUNT
+        assert len(response_data['programs']) == RESULT_COUNT
 
     def test_typeahead_deduplicate_course_runs(self):
         """ Verify the typeahead response will only include the first course run per course. """
@@ -862,7 +862,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
             status=ProgramStatus.Active, partner=self.partner
         )
         response = self.get_response({'q': title})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         response_data = response.json()
         self.assertDictEqual(response_data, {'course_runs': [self.serialize_course_run_search(course_run)],
                                              'programs': [self.serialize_program_search(program)]})
@@ -874,7 +874,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         program = ProgramFactory(title=title, status=ProgramStatus.Active, partner=self.partner)
         query = "Data Sci"
         response = self.get_response({'q': query})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         response_data = response.json()
         expected_response_data = {
             'course_runs': [self.serialize_course_run_search(course_run)],
@@ -893,7 +893,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         ProgramFactory(title=title + "unpublished", status=ProgramStatus.Unpublished, partner=self.partner)
         query = "suppl"
         response = self.get_response({'q': query})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         response_data = response.json()
         expected_response_data = {
             'course_runs': [self.serialize_course_run_search(course_run)],
@@ -907,7 +907,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         program = ProgramFactory(title=title, hidden=False, status=ProgramStatus.Active, partner=self.partner)
         ProgramFactory(title=program.title + 'hidden', hidden=True, status=ProgramStatus.Active, partner=self.partner)
         response = self.get_response({'q': program.title})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         response_data = response.json()
         expected_response_data = {
             'course_runs': [],
@@ -918,8 +918,8 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
     def test_exception(self):
         """ Verify the view raises an error if the 'q' query string parameter is not provided. """
         response = self.get_response()
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data, ["The 'q' querystring parameter is required for searching."])
+        assert response.status_code == 400
+        assert response.data == ["The 'q' querystring parameter is required for searching."]
 
     def test_typeahead_authoring_organizations_partial_search(self):
         """ Test typeahead response with partial organization matching. """
@@ -934,7 +934,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
         partial_key = authoring_organizations[0].key[0:5]
 
         response = self.get_response({'q': partial_key})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         # This call is flaky in CI. It is reliable locally, but occasionally in our CI environment,
         # this call won't contain the data for course_runs and programs. Instead of relying on the factories
@@ -973,7 +973,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
             partner=self.partner
         )
         response = self.get_response({'q': 'mit'})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         expected = {
             'course_runs': [self.serialize_course_run_search(mit_run),
                             self.serialize_course_run_search(harvard_run)],
@@ -1004,19 +1004,19 @@ class TestPersonFacetSearchViewSet(mixins.SerializationMixin, mixins.LoginMixin,
         qs = urllib.parse.urlencode(query)
         url = f'{self.path}?{qs}'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         response_data = response.json()
-        self.assertEqual(response_data['objects']['count'], 2)
+        assert response_data['objects']['count'] == 2
 
         query = {'selected_facets': facet_name, 'q': person1.uuid}
         qs = urllib.parse.urlencode(query)
         url = f'{self.path}?{qs}'
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         response_data = response.json()
-        self.assertEqual(response_data['objects']['count'], 1)
-        self.assertEqual(response_data['objects']['results'][0]['uuid'], str(person1.uuid))
-        self.assertEqual(response_data['objects']['results'][0]['full_name'], person1.full_name)
+        assert response_data['objects']['count'] == 1
+        assert response_data['objects']['results'][0]['uuid'] == str(person1.uuid)
+        assert response_data['objects']['results'][0]['full_name'] == person1.full_name
 
 
 class AutoCompletePersonTests(mixins.APITestCase):

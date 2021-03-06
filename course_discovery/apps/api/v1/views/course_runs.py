@@ -180,7 +180,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
     @classmethod
     def push_to_studio(cls, request, course_run, create=False, old_course_run_key=None):
         if course_run.course.partner.studio_url:
-            api = StudioAPI(course_run.course.partner.studio_api_client)
+            api = StudioAPI(course_run.course.partner)
             api.push_to_studio(course_run, create, old_course_run_key, user=request.user)
         else:
             log.info('Not pushing course run info for %s to Studio as partner %s has no studio_url set.',
@@ -189,7 +189,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
     @classmethod
     def update_course_run_image_in_studio(cls, course_run):
         if course_run.course.partner.studio_url:
-            api = StudioAPI(course_run.course.partner.studio_api_client)
+            api = StudioAPI(course_run.course.partner)
             api.update_course_run_image_in_studio(course_run)
         else:
             log.info('Not updating course run image for %s to Studio as partner %s has no studio_url set.',
