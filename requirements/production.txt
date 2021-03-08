@@ -18,9 +18,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.3.0
     # via celery
-boto3==1.17.21
+boto3==1.17.22
     # via django-ses
-botocore==1.20.21
+botocore==1.20.22
     # via
     #   boto3
     #   s3transfer
@@ -244,11 +244,6 @@ html2text==2020.1.16
     # via -r requirements/base.in
 idna==2.10
     # via requests
-importlib-metadata==3.7.0
-    # via
-    #   kombu
-    #   markdown
-    #   stevedore
 itypes==1.2.0
     # via coreapi
 jinja2==2.11.3
@@ -283,7 +278,7 @@ openapi-codec==1.3.2
     # via django-rest-swagger
 pbr==5.5.1
     # via stevedore
-pillow==8.1.1
+pillow==8.1.2
     # via
     #   -r requirements/base.in
     #   django-stdimage
@@ -406,8 +401,6 @@ stevedore==3.3.0
     #   edx-opaque-keys
 taxonomy-connector==1.5.0
     # via -r requirements/base.in
-typing-extensions==3.7.4.3
-    # via importlib-metadata
 unicode-slugify==0.1.3
     # via -r requirements/base.in
 unicodecsv==0.14.1
@@ -427,8 +420,6 @@ vine==1.3.0
     #   celery
 xss-utils==0.2.0
     # via -r requirements/base.in
-zipp==3.4.1
-    # via importlib-metadata
 zope.event==4.5.0
     # via gevent
 zope.interface==5.2.0
