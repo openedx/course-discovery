@@ -69,7 +69,9 @@ def salesforce_request_wrapper(method):
                     return method(self, *args, **kwargs)
                 # Need to catch OSError for the 'Connection aborted.' error when Salesforce reaps a connection
                 except OSError:
-                    logger.warning('An OSError occurred while attempting to call {}'.format(method.__name__))
+                    logger.warning('An OSError occurred while attempting to call {} for {}'.format(
+                        method.__name__, str(args[0])
+                    ))
                     self.login()
                     return method(self, *args, **kwargs)
             raise SalesforceNotConfiguredException(
