@@ -77,7 +77,7 @@ cryptography==3.4.6
     #   social-auth-core
 ddt==1.4.1
     # via -r requirements/test.in
-defusedxml==0.7.0
+defusedxml==0.7.1
     # via
     #   djangorestframework-xml
     #   python3-openid
@@ -288,7 +288,7 @@ execnet==1.8.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==6.5.0
+faker==6.5.2
     # via factory-boy
 filelock==3.0.12
     # via
