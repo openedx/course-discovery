@@ -2424,7 +2424,7 @@ class TestCourseRecommendations(TestCase):
         self.course1_with_subject = factories.CourseFactory(subjects=[cooking])
         self.course2_with_subject = factories.CourseFactory(subjects=[cooking])
         self.course3_with_different_subject = factories.CourseFactory(subjects=[brewing])
-        self.course4_with_2_subjects = factoriest.CourseFactory(subjects=[brewing, cooking])
+        self.course4_with_2_subjects = factories.CourseFactory(subjects=[brewing, cooking])
         self.course5_with_subject = factories.CourseFactory(subjects=[not_cooking])
         self.course6_with_subject = factories.CourseFactory(subjects=[not_brewing])
 
