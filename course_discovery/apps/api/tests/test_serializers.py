@@ -2615,7 +2615,7 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
             'recommendations': CourseRecommendationSerializer([recommended_course_0, recommended_course_1], many=True,
                                                               context=context).data
         }
-        serializer = self.serializer_class(course_with_recs, context={'request': request, 'exclude_utm': 1})
+        serializer = self.serializer_class(course_with_recs, context={'request': request})
         self.assertDictEqual(serializer.data, expected_data)
 
     def test_exclude_utm(self):
