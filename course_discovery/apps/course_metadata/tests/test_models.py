@@ -2445,7 +2445,7 @@ class TestCourseRecommendations(TestCase):
 
     def test_matching_program_recommendations(self):
         course1_recs = self.course1_with_subject.recommendations()
-        assert len(course1_recs) == 4
+        assert len(course1_recs) == 3
         assert self.course3_with_different_subject in course1_recs
         assert self.course4_with_2_subjects in course1_recs
         assert self.course5_with_subject in course1_recs
