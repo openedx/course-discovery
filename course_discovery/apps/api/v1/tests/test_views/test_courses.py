@@ -1566,5 +1566,5 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     def test_recommendations(self):
         url = reverse('api:v1:course_recommendations-detail', kwargs={'key': self.course.key})
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
     # end experiment code
