@@ -2582,7 +2582,7 @@ class CourseRecommendationSerializerTests(MinimalCourseSerializerTests):
         course = CourseFactory()
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1})
 
-        self.assertEqual(serializer.data['marketing_url'], course.marketing_url)
+        assert serializer.data['marketing_url'] == course.marketing_url
 
 
 class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
@@ -2616,7 +2616,7 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
                                                               context=context).data
         }
         serializer = self.serializer_class(course_with_recs, context={'request': request})
-        self.assertDictEqual(serializer.data, expected_data)
+        assert serializer.data == expected_data
 
     def test_exclude_utm(self):
         request = make_request()
@@ -2628,5 +2628,5 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
                                              partner=self.partner)
         CourseRunFactory.create_batch(2, course=recommended_course_0)
         serializer = self.serializer_class(course_with_recs, context={'request': request, 'exclude_utm': 1})
-        self.assertEqual(serializer.data['recommendations'][0]['marketing_url'], recommended_course_0.marketing_url)
+        assert serializer.data['recommendations'][0]['marketing_url'] == recommended_course_0.marketing_url
 # end experiment code
