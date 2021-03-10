@@ -13,6 +13,7 @@ settings.
 For a more detailed explanation of the implementation and thinking behind this provider can be found at
 https://openedx.atlassian.net/wiki/spaces/SOL/pages/1814922129/Platform+Agnostic+Implementation+of+Taxonomy+Application
 """
+from edx_django_utils.db import chunked_queryset
 from taxonomy.providers import CourseMetadataProvider
 
 from course_discovery.apps.course_metadata.models import Course
@@ -36,3 +37,19 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
             'short_description': course.short_description,
             'full_description': course.full_description,
         } for course in courses]
+
+    @staticmethod
+    def get_all_courses():
+        """
+        Get iterator for all the courses (excluding drafts).
+        """
+        all_courses = Course.objects.all()
+        for chunked_courses in chunked_queryset(all_courses):
+            for course in chunked_courses:
+                yield {
+                    'uuid': course.uuid,
+                    'key': course.key,
+                    'title': course.title,
+                    'short_description': course.short_description,
+                    'full_description': course.full_description,
+                }
