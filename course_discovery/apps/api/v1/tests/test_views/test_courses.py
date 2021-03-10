@@ -1560,3 +1560,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
         response = self.client.patch(url, {'full_description': '<h1>Header</h1>'}, format='json')
         self.assertContains(response, 'Invalid HTML received: h1 tag is not allowed', status_code=400)
+
+    # Experiment WS-1681: course recommendations
+    @responses.activate
+    def test_recommendations(self):
+        url = reverse('api:v1:course_recommendations-detail', kwargs={'key': self.course.key})
+        response = self.client.get(url)
+        assert response.status_code == 200
+    # end experiment code

@@ -16,6 +16,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters as rest_framework_filters
 from rest_framework import status, viewsets
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.mixins import RetrieveModelMixin
 from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 from taxonomy.signals.signals import UPDATE_COURSE_SKILLS
@@ -490,3 +491,13 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             create_missing_entitlement(course)
 
         return super().retrieve(request, *args, **kwargs)
+
+
+# Experiment WS-1681: Course recommendations
+class CourseRecommendationViewSet(RetrieveModelMixin, viewsets.GenericViewSet):
+    filter_backends = (DjangoFilterBackend, )
+    lookup_field = 'key'
+    lookup_value_regex = COURSE_ID_REGEX
+    permission_classes = (IsAuthenticated, IsCourseEditorOrReadOnly,)
+    serializer_class = serializers.CourseWithRecommendationsSerializer
+    queryset = serializers.MinimalCourseSerializer.prefetch_queryset()

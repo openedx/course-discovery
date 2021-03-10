@@ -20,16 +20,16 @@ from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
     AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer, CollaboratorSerializer,
     ContainedCourseRunsSerializer, ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer,
-    CourseEditorSerializer, CourseEntitlementSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer,
-    CourseSerializer, CourseWithProgramsSerializer, CurriculumSerializer, DegreeCostSerializer,
-    DegreeDeadlineSerializer, EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer,
-    IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer,
-    MinimalOrganizationSerializer, MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer,
-    NestedProgramSerializer, OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer,
-    PrerequisiteSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer,
-    ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer,
-    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
-    get_lms_course_url_for_archived, get_utm_source_for_user
+    CourseEditorSerializer, CourseEntitlementSerializer, CourseRecommendationSerializer, CourseRunSerializer,
+    CourseRunWithProgramsSerializer, CourseSerializer, CourseWithProgramsSerializer,
+    CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer,
+    EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer,
+    ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
+    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
+    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
+    RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
@@ -140,6 +140,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
         }
 
     def test_data(self):
+        self.maxDiff = None
         request = make_request()
         organizations = OrganizationFactory(partner=self.partner)
         course = CourseFactory(authoring_organizations=[organizations], partner=self.partner)
@@ -2547,3 +2548,85 @@ class CollaboratorSerializerTests(TestCase):
         }
 
         self.assertDictEqual(serializer.data, expected)
+
+
+# Experiment WS-1681: course recommendations
+class CourseRecommendationSerializerTests(MinimalCourseSerializerTests):
+    serializer_class = CourseRecommendationSerializer
+
+    @classmethod
+    def get_expected_data(cls, course, request):
+        context = {'request': request}
+
+        return {
+            'key': course.key,
+            'uuid': str(course.uuid),
+            'title': course.title,
+            'owners': MinimalOrganizationSerializer(course.authoring_organizations, many=True, context=context).data,
+            'image': ImageField().to_representation(course.image_url),
+            'short_description': course.short_description,
+            'type': course.type.uuid,
+            'url_slug': None,
+            'course_run_keys': [course_run.key for course_run in course.course_runs.all()],
+            'marketing_url': '{url}?{params}'.format(
+                url=course.marketing_url,
+                params=urlencode({
+                    'utm_source': request.user.username,
+                    'utm_medium': request.user.referral_tracking_id,
+                })
+            ),
+        }
+
+    def test_exclude_utm(self):
+        request = make_request()
+        course = CourseFactory()
+        serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1})
+
+        assert serializer.data['marketing_url'] == course.marketing_url
+
+
+class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
+    serializer_class = CourseWithRecommendationsSerializer
+
+    @classmethod
+    def get_expected_data(cls, course, request):
+        return {
+            'uuid': str(course.uuid),
+            'recommendations': [],
+        }
+
+    def test_course_with_recommendations(self):
+        self.maxDiff = None
+        request = make_request()
+        context = {'request': request}
+        organization = OrganizationFactory(partner=self.partner)
+        subject = SubjectFactory(partner=self.partner)
+        course_with_recs = CourseFactory(authoring_organizations=[organization], subjects=[subject],
+                                         partner=self.partner)
+        recommended_course_0 = CourseFactory(partner=self.partner)
+        recommended_course_1 = CourseFactory(authoring_organizations=[organization], subjects=[subject],
+                                             partner=self.partner)
+        CourseRunFactory.create_batch(2, course=recommended_course_0)
+        CourseRunFactory.create_batch(2, course=recommended_course_1)
+        ProgramFactory(courses=[course_with_recs, recommended_course_0], partner=self.partner)
+
+        expected_data = {
+            'uuid': str(course_with_recs.uuid),
+            'recommendations': CourseRecommendationSerializer([recommended_course_0, recommended_course_1], many=True,
+                                                              context=context).data
+        }
+        serializer = self.serializer_class(course_with_recs, context={'request': request})
+        assert serializer.data == expected_data
+
+    def test_exclude_utm(self):
+        request = make_request()
+        organization = OrganizationFactory(partner=self.partner)
+        subject = SubjectFactory(partner=self.partner)
+        course_with_recs = CourseFactory(authoring_organizations=[organization], subjects=[subject],
+                                         partner=self.partner)
+        recommended_course_0 = CourseFactory(authoring_organizations=[organization], subjects=[subject],
+                                             partner=self.partner)
+        CourseRunFactory.create_batch(2, course=recommended_course_0)
+        serializer = self.serializer_class(course_with_recs, context={'request': request, 'exclude_utm': 1})
+        assert serializer.data['recommendations'][0]['marketing_url'] == recommended_course_0.marketing_url
+# end experiment code
