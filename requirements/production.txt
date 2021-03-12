@@ -18,9 +18,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.3.0
     # via celery
-boto3==1.17.25
+boto3==1.17.26
     # via django-ses
-botocore==1.20.25
+botocore==1.20.26
     # via
     #   boto3
     #   s3transfer
@@ -404,7 +404,7 @@ stevedore==3.3.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.6.1
+taxonomy-connector==1.6.2
     # via -r requirements/base.in
 typing-extensions==3.7.4.3
     # via importlib-metadata
