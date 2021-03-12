@@ -2420,13 +2420,14 @@ class TestCourseRecommendations(TestCase):
         not_brewing = factories.SubjectFactory(name="Not Brewing")
 
         self.org1 = factories.OrganizationFactory()
+        self.org2 = factories.OrganizationFactory()
 
-        self.course1_with_subject = factories.CourseFactory(subjects=[cooking])
-        self.course2_with_subject = factories.CourseFactory(subjects=[cooking])
-        self.course3_with_different_subject = factories.CourseFactory(subjects=[brewing])
-        self.course4_with_2_subjects = factories.CourseFactory(subjects=[brewing, cooking])
-        self.course5_with_subject = factories.CourseFactory(subjects=[not_cooking])
-        self.course6_with_subject = factories.CourseFactory(subjects=[not_brewing])
+        self.course1_with_subject = factories.CourseFactory(key='course1', subjects=[cooking])
+        self.course2_with_subject = factories.CourseFactory(key='course2', subjects=[cooking])
+        self.course3_with_different_subject = factories.CourseFactory(key='course3', subjects=[brewing])
+        self.course4_with_2_subjects = factories.CourseFactory(key='course4', subjects=[brewing, cooking])
+        self.course5_with_subject = factories.CourseFactory(key='course5', subjects=[not_cooking])
+        self.course6_with_subject = factories.CourseFactory(key='course6', subjects=[not_brewing])
 
         self.course1_with_subject.authoring_organizations.add(self.org1)
         self.course3_with_different_subject.authoring_organizations.add(self.org1)
@@ -2436,7 +2437,11 @@ class TestCourseRecommendations(TestCase):
             self.course1_with_subject,
             self.course3_with_different_subject,
             self.course5_with_subject])
-        self.program2 = factories.ProgramFactory(courses=[self.course2_with_subject])
+
+        self.program2 = factories.ProgramFactory(courses=[
+            self.course2_with_subject,
+            self.course3_with_different_subject,
+            self.course6_with_subject])
 
     def test_no_course_recommendations(self):
         unique_subject = factories.SubjectFactory(name="Unique Subject")
@@ -2449,3 +2454,19 @@ class TestCourseRecommendations(TestCase):
         assert self.course3_with_different_subject in course1_recs
         assert self.course4_with_2_subjects in course1_recs
         assert self.course5_with_subject in course1_recs
+
+    def test_matching_subject_org_recommendations(self):
+        course4_recs = self.course4_with_2_subjects.recommendations()
+        assert len(course4_recs) == 2
+        assert self.course1_with_subject in course4_recs
+        assert self.course3_with_different_subject in course4_recs
+
+    def test_recommendation_ordering(self):
+        self.course2_with_subject.authoring_organizations.add(self.org2)
+        self.course4_with_2_subjects.authoring_organizations.add(self.org2)
+
+        course2_recs = self.course2_with_subject.recommendations()
+        assert len(course2_recs) == 3
+        assert course2_recs[0].key == 'course3'
+        assert course2_recs[1].key == 'course6'
+        assert course2_recs[2].key == 'course4'

@@ -1134,28 +1134,23 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         Recommended set of courses for upsell after finishing a course. Returns de-duped list of Courses that:
         A) belong in the same program as given Course
         B) share the same subject AND same organization (or at least one)
-        in priority over of A then B
+        in priority of A over B
         """
-        recommended_courses = []
-        # flatten a list of programs that has a list of courses
-        recommended_courses.extend(list(itertools.chain.from_iterable(
-            [program.courses.all() for program in self.programs.all()])))
-        course_subjects = [Q(subjects=subject) for subject in self.subjects.all()]
-        organizations = [Q(authoring_organizations=org) for org in self.authoring_organizations.all()]
-        recommended_courses.extend(list(Course.objects
-                                        .filter(*course_subjects)
-                                        .filter(*organizations)
-                                        .all()))
-        # filters out calling course
-        recommended_courses = [course for course in recommended_courses if course.key != self.key]
-        deduped_courses = []
-        seen = set()
-        for course in recommended_courses:
-            if course not in seen:
-                deduped_courses.append(course)
-                seen.add(course)
+        program_courses = list(Course.objects.filter(
+            programs__in=self.programs.all())
+            .exclude(key=self.key)
+            .distinct()
+            .all())
 
-        return deduped_courses
+        subject_org_courses = list(
+            Course.objects.filter(
+                subjects__in=self.subjects.all(),
+                authoring_organizations__in=self.authoring_organizations.all()
+            ).exclude(key=self.key)
+            .distinct()
+            .all())
+
+        return [*program_courses, *subject_org_courses]
 
 
 class CourseEditor(TimeStampedModel):
