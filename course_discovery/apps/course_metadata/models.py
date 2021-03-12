@@ -1136,14 +1136,21 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         B) share the same subject AND same organization (or at least one)
         in priority of A over B
         """
-        recommended_courses = (
+        program_courses = list(Course.objects.filter(
+            programs__in=self.programs.all())
+            .exclude(key=self.key)
+            .distinct()
+            .all())
+
+        subject_org_courses = list(
             Course.objects.filter(
                 subjects__in=self.subjects.all(),
                 authoring_organizations__in=self.authoring_organizations.all()
-            ) | Course.objects.filter(
-                programs__in=self.programs.all()
-            )).exclude(key=self.key).distinct()
-        return recommended_courses
+            ).exclude(key=self.key)
+            .distinct()
+            .all())
+
+        return [*program_courses, *subject_org_courses]
 
 
 class CourseEditor(TimeStampedModel):
