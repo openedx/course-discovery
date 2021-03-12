@@ -19,8 +19,8 @@ from course_discovery.apps.course_metadata.choices import CourseRunPacing, Cours
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.data_loaders.course_type import calculate_course_type
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType,
-    Subject, Video, Person, PersonSocialNetwork
+    Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Person, PersonSocialNetwork, Program,
+    ProgramType, Seat, SeatType, Subject, Video
 )
 from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run, subtract_deadline_delta
 
@@ -973,7 +973,6 @@ class WordPressApiDataLoader(AbstractDataLoader):
                         url=instructor_social['url'],
                     )
 
-                course_run.staff.add(instructor)
             else:
                 for key, value in course_instructor.items():
                     setattr(instructor, key, value)
@@ -985,6 +984,9 @@ class WordPressApiDataLoader(AbstractDataLoader):
                     instructor_social.url = instructor_socials[index]['url']
 
                 PersonSocialNetwork.objects.bulk_update(socials, ['url'])
+
+            if not course_run.staff.filter(uuid=instructor.uuid).exists():
+                course_run.staff.add(instructor)
 
     def _process_response(self, response):
         """

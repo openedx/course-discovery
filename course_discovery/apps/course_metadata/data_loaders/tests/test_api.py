@@ -22,7 +22,8 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Person, Program, ProgramType, Seat, SeatType
+    Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Person, Program, ProgramType, Seat,
+    SeatType
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory
