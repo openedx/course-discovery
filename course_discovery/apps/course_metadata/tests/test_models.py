@@ -2438,6 +2438,11 @@ class TestCourseRecommendations(TestCase):
             self.course3_with_different_subject,
             self.course5_with_subject])
 
+        self.program2 = factories.ProgramFactory(courses=[
+            self.course2_with_subject,
+            self.course3_with_different_subject,
+            self.course6_with_subject])
+
     def test_no_course_recommendations(self):
         unique_subject = factories.SubjectFactory(name="Unique Subject")
         course_with_unique_subject = factories.CourseFactory(subjects=[unique_subject])
@@ -2457,10 +2462,6 @@ class TestCourseRecommendations(TestCase):
         assert self.course3_with_different_subject in course4_recs
 
     def test_recommendation_ordering(self):
-        self.program2 = factories.ProgramFactory(courses=[
-            self.course2_with_subject,
-            self.course3_with_different_subject,
-            self.course6_with_subject])
         self.course2_with_subject.authoring_organizations.add(self.org2)
         self.course4_with_2_subjects.authoring_organizations.add(self.org2)
 
