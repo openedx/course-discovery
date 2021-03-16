@@ -1129,6 +1129,12 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         return advertised_course_run
 
+    def has_marketable_run(self):
+        for course_run in self.course_runs.all():
+            if course_run.is_marketable:
+                return True
+        return False
+
     def recommendations(self):
         """
         Recommended set of courses for upsell after finishing a course. Returns de-duped list of Courses that:
@@ -1136,8 +1142,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         B) share the same subject AND same organization (or at least one)
         in priority of A over B
         """
-        program_courses = list(Course.objects.filter(
-            programs__in=self.programs.all())
+        program_courses = list(
+            Course.objects.filter(
+                programs__in=self.programs.all()
+            )
             .exclude(key=self.key)
             .distinct()
             .all())
