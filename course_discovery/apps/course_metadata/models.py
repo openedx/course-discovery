@@ -1129,6 +1129,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         return advertised_course_run
 
+    # Experiment WS-1681: Course recommendations
     def has_marketable_run(self):
         for course_run in self.course_runs.all():
             if course_run.is_marketable:
@@ -1158,7 +1159,15 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             .distinct()
             .all())
 
-        return [*program_courses, *subject_org_courses]
+        # coercing to set destroys order, looping to remove dupes on union
+        seen = set()
+        deduped = []
+        for course in [*program_courses, *subject_org_courses]:
+            if course not in seen and course.has_marketable_run():
+                deduped.append(course)
+                seen.add(course)
+        return deduped
+        # End Experiment WS-1681: Course recommendations
 
 
 class CourseEditor(TimeStampedModel):
