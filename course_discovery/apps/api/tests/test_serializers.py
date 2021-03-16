@@ -2608,10 +2608,10 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
                                              partner=self.partner)
         course_run_0 = CourseRunFactory.create_batch(2, course=recommended_course_0)[0]
         SeatFactory.create_batch(2, course_run=course_run_0)
-        
+
         course_run_1 = CourseRunFactory.create_batch(2, course=recommended_course_1)[0]
         SeatFactory.create_batch(2, course_run=course_run_1)
-    
+
         ProgramFactory(courses=[course_with_recs, recommended_course_0], partner=self.partner)
 
         expected_data = {
