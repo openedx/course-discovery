@@ -1131,10 +1131,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     # Experiment WS-1681: Course recommendations
     def has_marketable_run(self):
-        for course_run in self.course_runs.all():
-            if course_run.is_marketable:
-                return True
-        return False
+        return any(run.is_marketable for run in self.course_runs.all())
 
     def recommendations(self):
         """
