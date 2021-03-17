@@ -2606,8 +2606,12 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
         recommended_course_0 = CourseFactory(partner=self.partner)
         recommended_course_1 = CourseFactory(authoring_organizations=[organization], subjects=[subject],
                                              partner=self.partner)
-        CourseRunFactory.create_batch(2, course=recommended_course_0)
-        CourseRunFactory.create_batch(2, course=recommended_course_1)
+        course_run_0 = CourseRunFactory.create_batch(2, course=recommended_course_0)[0]
+        SeatFactory.create_batch(2, course_run=course_run_0)
+
+        course_run_1 = CourseRunFactory.create_batch(2, course=recommended_course_1)[0]
+        SeatFactory.create_batch(2, course_run=course_run_1)
+
         ProgramFactory(courses=[course_with_recs, recommended_course_0], partner=self.partner)
 
         expected_data = {
@@ -2626,7 +2630,8 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
                                          partner=self.partner)
         recommended_course_0 = CourseFactory(authoring_organizations=[organization], subjects=[subject],
                                              partner=self.partner)
-        CourseRunFactory.create_batch(2, course=recommended_course_0)
+        for course_run in CourseRunFactory.create_batch(2, course=recommended_course_0):
+            SeatFactory.create_batch(2, course_run=course_run)
         serializer = self.serializer_class(course_with_recs, context={'request': request, 'exclude_utm': 1})
         assert serializer.data['recommendations'][0]['marketing_url'] == recommended_course_0.marketing_url
 # end experiment code

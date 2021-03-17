@@ -40,7 +40,7 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, ImageFactory, SeatFactory, SeatTypeFactory
+    CourseFactory, CourseRunFactory, ImageFactory, ProgramFactory, SeatFactory, SeatTypeFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -2422,30 +2422,57 @@ class TestCourseRecommendations(TestCase):
         self.org1 = factories.OrganizationFactory()
         self.org2 = factories.OrganizationFactory()
 
-        self.course1_with_subject = factories.CourseFactory(key='course1', subjects=[cooking])
-        self.course2_with_subject = factories.CourseFactory(key='course2', subjects=[cooking])
-        self.course3_with_different_subject = factories.CourseFactory(key='course3', subjects=[brewing])
-        self.course4_with_2_subjects = factories.CourseFactory(key='course4', subjects=[brewing, cooking])
-        self.course5_with_subject = factories.CourseFactory(key='course5', subjects=[not_cooking])
-        self.course6_with_subject = factories.CourseFactory(key='course6', subjects=[not_brewing])
+        self.course1_with_subject = CourseFactory(key='course1', subjects=[cooking])
+        self.course2_with_subject = CourseFactory(key='course2', subjects=[cooking])
+        self.course3_with_different_subject = CourseFactory(key='course3', subjects=[brewing])
+        self.course4_with_2_subjects = CourseFactory(key='course4', subjects=[brewing, cooking])
+        self.course5_with_subject = CourseFactory(key='course5', subjects=[not_cooking])
+        self.course6_with_subject = CourseFactory(key='course6', subjects=[not_brewing])
 
         self.course1_with_subject.authoring_organizations.add(self.org1)
         self.course3_with_different_subject.authoring_organizations.add(self.org1)
         self.course4_with_2_subjects.authoring_organizations.add(self.org1)
 
-        self.program1 = factories.ProgramFactory(courses=[
+        self.program1 = ProgramFactory(courses=[
             self.course1_with_subject,
             self.course3_with_different_subject,
             self.course5_with_subject])
 
-        self.program2 = factories.ProgramFactory(courses=[
+        self.program2 = ProgramFactory(courses=[
             self.course2_with_subject,
             self.course3_with_different_subject,
             self.course6_with_subject])
 
+        now = datetime.datetime.now(pytz.UTC)
+        self.active_course_end = now + datetime.timedelta(days=60)
+        self.enrollment_end = now + datetime.timedelta(days=30)
+
+        # Seats
+        courses = [
+            self.course1_with_subject,
+            self.course2_with_subject,
+            self.course3_with_different_subject,
+            self.course4_with_2_subjects,
+            self.course5_with_subject,
+            self.course6_with_subject
+        ]
+        for course in courses:
+            new_course_run = CourseRunFactory(
+                course=course,
+                end=self.active_course_end,
+                enrollment_end=self.enrollment_end,
+                status=CourseRunStatus.Published,
+            )
+            SeatFactory.create_batch(2, course_run=new_course_run)
+
     def test_no_course_recommendations(self):
         unique_subject = factories.SubjectFactory(name="Unique Subject")
-        course_with_unique_subject = factories.CourseFactory(subjects=[unique_subject])
+        course_with_unique_subject = CourseFactory(subjects=[unique_subject])
+        unique_run = CourseRunFactory(
+            course=course_with_unique_subject,
+            end=self.active_course_end,
+            enrollment_end=self.enrollment_end)
+        SeatFactory.create_batch(2, course_run=unique_run)
         assert len(course_with_unique_subject.recommendations()) == 0
 
     def test_matching_program_recommendations(self):

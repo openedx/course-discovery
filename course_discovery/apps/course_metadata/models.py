@@ -1129,6 +1129,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         return advertised_course_run
 
+    # Experiment WS-1681: Course recommendations
+    def has_marketable_run(self):
+        return any(run.is_marketable for run in self.course_runs.all())
+
     def recommendations(self):
         """
         Recommended set of courses for upsell after finishing a course. Returns de-duped list of Courses that:
@@ -1136,8 +1140,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         B) share the same subject AND same organization (or at least one)
         in priority of A over B
         """
-        program_courses = list(Course.objects.filter(
-            programs__in=self.programs.all())
+        program_courses = list(
+            Course.objects.filter(
+                programs__in=self.programs.all()
+            )
             .exclude(key=self.key)
             .distinct()
             .all())
@@ -1150,7 +1156,15 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             .distinct()
             .all())
 
-        return [*program_courses, *subject_org_courses]
+        # coercing to set destroys order, looping to remove dupes on union
+        seen = set()
+        deduped = []
+        for course in [*program_courses, *subject_org_courses]:
+            if course not in seen and course.has_marketable_run():
+                deduped.append(course)
+                seen.add(course)
+        return deduped
+        # End Experiment WS-1681: Course recommendations
 
 
 class CourseEditor(TimeStampedModel):
