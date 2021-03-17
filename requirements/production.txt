@@ -18,9 +18,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.3.0
     # via celery
-boto3==1.17.27
+boto3==1.17.28
     # via django-ses
-botocore==1.20.27
+botocore==1.20.28
     # via
     #   boto3
     #   s3transfer
@@ -409,7 +409,7 @@ unidecode==1.2.0
     # via unicode-slugify
 uritemplate==3.0.1
     # via coreapi
-urllib3==1.26.3
+urllib3==1.26.4
     # via
     #   botocore
     #   elasticsearch

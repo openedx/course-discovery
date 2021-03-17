@@ -288,7 +288,7 @@ execnet==1.8.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==6.6.0
+faker==6.6.1
     # via factory-boy
 filelock==3.0.12
     # via
@@ -613,7 +613,7 @@ unidecode==1.2.0
     # via unicode-slugify
 uritemplate==3.0.1
     # via coreapi
-urllib3==1.26.3
+urllib3==1.26.4
     # via
     #   elasticsearch
     #   requests
