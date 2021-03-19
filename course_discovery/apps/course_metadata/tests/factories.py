@@ -359,6 +359,7 @@ class OrganizationFactory(SalesforceRecordFactory):
     key = FuzzyText()
     name = FuzzyText()
     description = FuzzyText()
+    description_es = FuzzyText()
     homepage_url = FuzzyURL()
     logo_image = FuzzyText()
     banner_image = FuzzyText()
