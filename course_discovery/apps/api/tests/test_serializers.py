@@ -1599,6 +1599,7 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
         expected.update({
             'certificate_logo_image_url': organization.certificate_logo_image.url,
             'description': organization.description,
+            'description_es': organization.description_es,
             'homepage_url': organization.homepage_url,
             'logo_image_url': organization.logo_image.url,
             'tags': [cls.TAG],
