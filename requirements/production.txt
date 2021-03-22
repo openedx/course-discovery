@@ -18,9 +18,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.3.0
     # via celery
-boto3==1.17.28
+boto3==1.17.33
     # via django-ses
-botocore==1.20.28
+botocore==1.20.33
     # via
     #   boto3
     #   s3transfer
@@ -185,7 +185,7 @@ drf-dynamic-fields==0.3.1
     # via -r requirements/base.in
 drf-extensions==0.7.0
     # via -r requirements/base.in
-drf-jwt==1.17.3
+drf-jwt==1.18.0
     # via edx-drf-extensions
 dry-rest-permissions==0.1.10
     # via -r requirements/base.in
@@ -258,7 +258,7 @@ kombu==4.6.11
     # via celery
 libsass==0.20.1
     # via django-libsass
-lxml==4.6.2
+lxml==4.6.3
     # via -r requirements/base.in
 markdown==3.3.4
     # via -r requirements/base.in
@@ -348,7 +348,7 @@ rest-condition==1.0.3
     # via edx-drf-extensions
 rjsmin==1.1.0
     # via django-compressor
-s3transfer==0.3.4
+s3transfer==0.3.6
     # via boto3
 semantic-version==2.8.5
     # via edx-drf-extensions
@@ -391,7 +391,7 @@ social-auth-core==4.0.2
     #   -c requirements/constraints.txt
     #   edx-auth-backends
     #   social-auth-app-django
-soupsieve==2.2
+soupsieve==2.2.1
     # via beautifulsoup4
 sqlparse==0.4.1
     # via django
@@ -422,7 +422,7 @@ xss-utils==0.2.0
     # via -r requirements/base.in
 zope.event==4.5.0
     # via gevent
-zope.interface==5.2.0
+zope.interface==5.3.0
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
