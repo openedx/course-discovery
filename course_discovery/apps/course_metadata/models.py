@@ -802,6 +802,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     slug = AutoSlugField(populate_from='key', editable=True, slugify_function=uslugify)
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     faq = NullHtmlField(verbose_name=_('FAQ'))
+    course_faq = SortedManyToManyField(FAQ, blank=True)
     learner_testimonials = NullHtmlField()
     enrollment_count = models.IntegerField(
         null=True, blank=True, default=0, help_text=_('Total number of learners who have enrolled in this course')

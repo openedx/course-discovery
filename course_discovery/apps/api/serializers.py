@@ -1068,6 +1068,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
                                                        queryset=Collaborator.objects.all(),
                                                        read_serializer=CollaboratorSerializer())
     skill_names = serializers.SerializerMethodField()
+    course_faq = FAQSerializer(many=True)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
