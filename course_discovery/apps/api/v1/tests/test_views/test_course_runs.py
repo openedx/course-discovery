@@ -69,7 +69,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(11):
+        with self.assertNumQueries(14, threshold=3):
             response = self.client.get(url)
 
         assert response.status_code == 200
@@ -81,7 +81,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(15, threshold=3):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data.get('programs') == []
@@ -108,7 +108,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         url = reverse('api:v1:course_run-detail', kwargs={'key': self.course_run.key})
 
-        with self.assertNumQueries(12):
+        with self.assertNumQueries(15, threshold=3):
             response = self.client.get(url)
             assert response.status_code == 200
             assert response.data.get('programs') == []
@@ -980,7 +980,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         """ Verify the endpoint returns a list of all course runs. """
         url = reverse('api:v1:course_run-list')
 
-        with self.assertNumQueries(13):
+        with self.assertNumQueries(17, threshold=3):
             response = self.client.get(url)
 
         assert response.status_code == 200
@@ -993,7 +993,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         """ Verify the endpoint returns a list of all course runs sorted by start date. """
         url = '{root}?ordering=start'.format(root=reverse('api:v1:course_run-list'))
 
-        with self.assertNumQueries(13):
+        with self.assertNumQueries(17, threshold=3):
             response = self.client.get(url)
 
         assert response.status_code == 200
@@ -1009,7 +1009,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         query = 'title:Some random title'
         url = '{root}?q={query}'.format(root=reverse('api:v1:course_run-list'), query=query)
 
-        with self.assertNumQueries(42, threshold=2):
+        with self.assertNumQueries(45, threshold=3):
             response = self.client.get(url)
 
         actual_sorted = sorted(response.data['results'], key=lambda course_run: course_run['key'])

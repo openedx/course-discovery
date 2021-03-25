@@ -844,6 +844,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         queryset=LanguageTag.objects.all().order_by('name'),
         help_text=_('Language in which the course is administered')
     )
+    content_language_search_facet_name = serializers.SerializerMethodField()
     transcript_languages = serializers.SlugRelatedField(
         required=False, many=True, slug_field='code', queryset=LanguageTag.objects.all().order_by('name')
     )
@@ -886,9 +887,9 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
-            'course_uuid', 'estimated_hours',
+            'course_uuid', 'estimated_hours', 'content_language_search_facet_name',
         )
-        read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
+        read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',)
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
@@ -896,6 +897,12 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 
     def get_estimated_hours(self, obj):
         return get_course_run_estimated_hours(obj)
+
+    def get_content_language_search_facet_name(self, obj):
+        language = obj.language
+        if language is None:
+            return None
+        return language.get_search_facet_display(translate=True)
 
     def update_video(self, instance, video_data):
         # A separate video object is a historical concept. These days, we really just use the link address. So

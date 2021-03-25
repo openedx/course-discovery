@@ -633,6 +633,7 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'eligible_for_financial_aid': course_run.eligible_for_financial_aid,
             'hidden': course_run.hidden,
             'content_language': course_run.language.code,
+            'content_language_search_facet_name': course_run.language.get_search_facet_display(translate=True),
             'transcript_languages': [],
             'min_effort': course_run.min_effort,
             'max_effort': course_run.max_effort,
