@@ -21,7 +21,7 @@ from rest_framework.fields import CreateOnlyDefault, UUIDField
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.relations import ManyRelatedField
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
-from taxonomy.models import CourseSkills
+from taxonomy.utils import get_whitelisted_course_skills
 
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
@@ -1134,7 +1134,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         return None
 
     def get_skill_names(self, obj):
-        course_skills = CourseSkills.objects.select_related('skill').filter(course_id=obj.key)
+        course_skills = get_whitelisted_course_skills(obj.key)
         return list(set(course_skill.skill.name for course_skill in course_skills))
 
     def create(self, validated_data):
