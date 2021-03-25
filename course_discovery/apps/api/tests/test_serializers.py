@@ -123,7 +123,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
     serializer_class = MinimalCourseSerializer
 
     @classmethod
-    def get_expected_data(cls, course, request):
+    def get_expected_data(cls, course, course_skill, request):  # pylint: disable=unused-argument
         context = {'request': request}
 
         return {
@@ -146,7 +146,9 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
         course = CourseFactory(authoring_organizations=[organizations], partner=self.partner)
         CourseRunFactory.create_batch(2, course=course)
         serializer = self.serializer_class(course, context={'request': request})
-        expected = self.get_expected_data(course, request)
+        course_skill = CourseSkillsFactory(course_id=course.key)
+        CourseSkillsFactory(course_id=course.key, is_blacklisted=True)
+        expected = self.get_expected_data(course, course_skill, request)
         self.assertDictEqual(serializer.data, expected)
 
 
@@ -154,8 +156,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
     serializer_class = CourseSerializer
 
     @classmethod
-    def get_expected_data(cls, course, request):
-        expected = super().get_expected_data(course, request)
+    def get_expected_data(cls, course, course_skill, request):
+        expected = super().get_expected_data(course, course_skill, request)
 
         expected.update({
             'short_description': course.short_description,
@@ -197,7 +199,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'course_run_statuses': course.course_run_statuses,
             'editors': CourseEditorSerializer(course.editors, many=True, read_only=True).data,
             'collaborators': [],
-            'skill_names': [],
+            'skill_names': [course_skill.skill.name],
         })
 
         return expected
@@ -275,8 +277,8 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
     TWO_WEEKS_FROM_TODAY = datetime.datetime.now(UTC) + datetime.timedelta(days=14)
 
     @classmethod
-    def get_expected_data(cls, course, request):
-        expected = super().get_expected_data(course, request)
+    def get_expected_data(cls, course, course_skill, request):
+        expected = super().get_expected_data(course, course_skill, request)
         expected.update({
             'programs': NestedProgramSerializer(
                 course.programs,
@@ -308,6 +310,8 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         super().setUp()
         self.request = make_request()
         self.course = CourseFactory(partner=self.partner)
+        self.course_skill = CourseSkillsFactory(course_id=self.course.key)
+        self.blacklisted_course_skill = CourseSkillsFactory(course_id=self.course.key, is_blacklisted=True)
         self.deleted_program = ProgramFactory(
             courses=[self.course],
             partner=self.partner,
@@ -315,7 +319,7 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         )
 
     def test_data(self):
-        expected = self.get_expected_data(self.course, self.request)
+        expected = self.get_expected_data(self.course, self.course_skill, self.request)
         serializer = self.serializer_class(self.course, context={'request': self.request})
         self.assertDictEqual(serializer.data, expected)
 
@@ -629,6 +633,7 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'eligible_for_financial_aid': course_run.eligible_for_financial_aid,
             'hidden': course_run.hidden,
             'content_language': course_run.language.code,
+            'content_language_search_facet_name': course_run.language.get_search_facet_display(translate=True),
             'transcript_languages': [],
             'min_effort': course_run.min_effort,
             'max_effort': course_run.max_effort,
@@ -1952,6 +1957,10 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course_skill = CourseSkillsFactory(
             course_id=course.key
         )
+        CourseSkillsFactory(
+            course_id=course.key,
+            is_blacklisted=True,
+        )
         serializer = self.serialize_course(course, request)
         assert serializer.data == self.get_expected_data(course, course_run, course_skill, seat)
 
@@ -2049,6 +2058,10 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         seat = SeatFactory(course_run=course_run)
         course_skill = CourseSkillsFactory(
             course_id=course.key
+        )
+        CourseSkillsFactory(
+            course_id=course.key,
+            is_blacklisted=True,
         )
         expected = {
             'key': course.key,
@@ -2161,15 +2174,17 @@ class CourseSearchModelSerializerTests(ElasticsearchTestMixin, TestCase, CourseS
     def test_data(self):
         request = make_request()
         course = CourseFactory()
+        course_skill = CourseSkillsFactory(course_id=course.key)
+        CourseSkillsFactory(course_id=course.key, is_blacklisted=True)
         course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
         course.save()
         serializer = self.serialize_course(course, request)
-        assert serializer.data == self.get_expected_data(course, request)
+        assert serializer.data == self.get_expected_data(course, course_skill, request)
 
     @classmethod
-    def get_expected_data(cls, course, request):
-        expected_data = CourseWithProgramsSerializerTests.get_expected_data(course, request)
+    def get_expected_data(cls, course, course_skill, request):
+        expected_data = CourseWithProgramsSerializerTests.get_expected_data(course, course_skill, request)
         expected_data.update({'content_type': 'course'})
         return expected_data
 
@@ -2556,7 +2571,7 @@ class CourseRecommendationSerializerTests(MinimalCourseSerializerTests):
     serializer_class = CourseRecommendationSerializer
 
     @classmethod
-    def get_expected_data(cls, course, request):
+    def get_expected_data(cls, course, course_skill, request):
         context = {'request': request}
 
         return {
@@ -2590,7 +2605,7 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
     serializer_class = CourseWithRecommendationsSerializer
 
     @classmethod
-    def get_expected_data(cls, course, request):
+    def get_expected_data(cls, course, course_skill, request):
         return {
             'uuid': str(course.uuid),
             'recommendations': [],
