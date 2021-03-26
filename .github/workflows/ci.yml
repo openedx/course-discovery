@@ -43,7 +43,3 @@ jobs:
         name: django rules
         with:
           config: p/django
-      - uses: returntocorp/semgrep-action@v1
-        name: other rules
-        with:
-          config: https://semgrep.live/dlukeomalley:use-assertEqual-for-equality

@@ -21,7 +21,7 @@ from rest_framework.fields import CreateOnlyDefault, UUIDField
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.relations import ManyRelatedField
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
-from taxonomy.models import CourseSkills
+from taxonomy.utils import get_whitelisted_course_skills
 
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
@@ -369,6 +369,7 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     class Meta(MinimalOrganizationSerializer.Meta):
         fields = MinimalOrganizationSerializer.Meta.fields + (
             'description',
+            'description_es',
             'homepage_url',
             'tags',
             'logo_image_url',
@@ -843,6 +844,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         queryset=LanguageTag.objects.all().order_by('name'),
         help_text=_('Language in which the course is administered')
     )
+    content_language_search_facet_name = serializers.SerializerMethodField()
     transcript_languages = serializers.SlugRelatedField(
         required=False, many=True, slug_field='code', queryset=LanguageTag.objects.all().order_by('name')
     )
@@ -885,9 +887,9 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
-            'course_uuid', 'estimated_hours',
+            'course_uuid', 'estimated_hours', 'content_language_search_facet_name',
         )
-        read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
+        read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',)
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
@@ -895,6 +897,12 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 
     def get_estimated_hours(self, obj):
         return get_course_run_estimated_hours(obj)
+
+    def get_content_language_search_facet_name(self, obj):
+        language = obj.language
+        if language is None:
+            return None
+        return language.get_search_facet_display(translate=True)
 
     def update_video(self, instance, video_data):
         # A separate video object is a historical concept. These days, we really just use the link address. So
@@ -1133,7 +1141,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         return None
 
     def get_skill_names(self, obj):
-        course_skills = CourseSkills.objects.select_related('skill').filter(course_id=obj.key)
+        course_skills = get_whitelisted_course_skills(obj.key)
         return list(set(course_skill.skill.name for course_skill in course_skills))
 
     def create(self, validated_data):

@@ -168,6 +168,11 @@ class Organization(CachedMixin, TimeStampedModel):
     )
     slug = AutoSlugField(populate_from='key', editable=False, slugify_function=uslugify)
     description = models.TextField(null=True, blank=True)
+    description_es = models.TextField(
+        verbose_name=_('Spanish Description'),
+        help_text=_('For seo, this field allows for alternate spanish description to be manually inputted'),
+        blank=True,
+    )
     homepage_url = models.URLField(max_length=255, null=True, blank=True)
     logo_image = models.ImageField(
         upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/logos'),
