@@ -11,6 +11,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
+from waffle import get_waffle_flag_model
 
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
@@ -99,11 +100,23 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number')
+    readonly_fields = ('enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number')
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
     change_actions = ('course_skills', )
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Make UUID field editable for draft if flag is enabled.
+        """
+        if obj and obj.draft:
+            flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
+            flag = get_waffle_flag_model().get(flag_name)
+            if flag.is_active(request):
+                return self.readonly_fields
+
+        return self.readonly_fields + ('uuid',)
 
     def get_change_actions(self, request, object_id, form_url):
         """
@@ -209,10 +222,22 @@ class CourseRunAdmin(admin.ModelAdmin):
     )
     ordering = ('key',)
     raw_id_fields = ('course', 'draft_version',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'hidden', 'key')
+    readonly_fields = ('enrollment_count', 'recent_enrollment_count', 'hidden', 'key')
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key')
     save_error = False
     form = CourseRunAdminForm
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Make UUID field editable for draft if flag is enabled.
+        """
+        if obj and obj.draft:
+            flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
+            flag = get_waffle_flag_model().get(flag_name)
+            if flag.is_active(request):
+                return self.readonly_fields
+
+        return self.readonly_fields + ('uuid',)
 
     def response_change(self, request, obj):
         if self.save_error:

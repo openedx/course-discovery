@@ -765,7 +765,7 @@ class Collaborator(TimeStampedModel):
 class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
-    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    uuid = models.UUIDField(default=uuid4, editable=True, verbose_name=_('UUID'))
     canonical_course_run = models.OneToOneField(
         'course_metadata.CourseRun', models.CASCADE, related_name='canonical_for_course',
         default=None, null=True, blank=True,
