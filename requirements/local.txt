@@ -229,7 +229,7 @@ drf-dynamic-fields==0.3.1
     # via -r requirements/base.in
 drf-extensions==0.7.0
     # via -r requirements/base.in
-drf-jwt==1.18.0
+drf-jwt==1.19.0
     # via edx-drf-extensions
 dry-rest-permissions==0.1.10
     # via -r requirements/base.in
@@ -286,7 +286,7 @@ execnet==1.8.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==6.6.3
+faker==7.0.1
     # via factory-boy
 filelock==3.0.12
     # via
@@ -487,7 +487,7 @@ requests==2.25.1
     #   slumber
     #   social-auth-core
     #   sphinx
-responses==0.13.1
+responses==0.13.2
     # via
     #   -r requirements/test.in
     #   pytest-responses
