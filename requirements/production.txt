@@ -18,9 +18,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.17.44
+boto3==1.17.45
     # via django-ses
-botocore==1.20.44
+botocore==1.20.45
     # via
     #   boto3
     #   s3transfer
@@ -84,7 +84,7 @@ django-elasticsearch-dsl==7.1.4
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
-django-extensions==3.1.1
+django-extensions==3.1.2
     # via -r requirements/base.in
 django-filter==2.4.0
     # via -r requirements/base.in
@@ -134,7 +134,7 @@ django-waffle==2.1.0
     #   edx-drf-extensions
 django-webpack-loader==0.7.0
     # via -r requirements/base.in
-django==2.2.19
+django==2.2.20
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -147,6 +147,7 @@ django==2.2.19
     #   django-cors-headers
     #   django-crum
     #   django-dynamic-filenames
+    #   django-extensions
     #   django-filter
     #   django-guardian
     #   django-model-utils
