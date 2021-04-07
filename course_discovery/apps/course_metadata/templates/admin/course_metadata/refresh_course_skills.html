@@ -1,0 +1,38 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n static admin_urls %}
+{% load render_bundle from webpack_loader %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">{% trans "Home" %}</a>
+  &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+  &rsaquo; {% if has_change_permission %}
+    <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+  {% else %}
+    {{ opts.verbose_name_plural|capfirst }}
+  {% endif %}
+  &rsaquo; {% if has_change_permission %}
+    <a href="{% url opts|admin_urlname:'change' course.pk %}">
+      {{ course|truncatewords:"18" }}
+    </a>
+  {% else %}
+    {{ course|capfirst }}
+  {% endif %}
+  &rsaquo;
+  {% trans "Refresh Course Skills" %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+        <div class="forms-panel">
+        <form action="" method="post" enctype="multipart/form-data" id="fresh-skills-form">
+            {% csrf_token %}
+            <div class="submit-row">
+              <input style="float: left" type="submit" value="{% trans 'Refresh Course Skills' as tmsg %}{{ tmsg | force_escape }}"
+                           class="default" name="_save"/>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
