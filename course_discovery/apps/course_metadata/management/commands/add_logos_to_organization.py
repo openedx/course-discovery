@@ -11,36 +11,54 @@ class Command(BaseCommand):
     Uploads given images to an organization. This command is meant to be run
     from a provisioning script and not by hand.
     """
+
     def add_arguments(self, parser):
-        parser.add_argument('--partner', default='edX')
-        parser.add_argument('--logo', default='/edx/app/discovery/discovery/provision-temp/assets/demo-asset-logo.png')
-        parser.add_argument('--certificate_logo', default='/edx/app/discovery/discovery/provision-temp/assets/demo-asset-certificate-logo.png')
-        parser.add_argument('--banner_image', default='/edx/app/discovery/discovery/provision-temp/assets/demo-asset-banner-image.png')
+        parser.add_argument("--partner", default="edX")
+        parser.add_argument("--logo")
+        parser.add_argument("--certificate_logo")
+        parser.add_argument("--banner_image")
 
     def handle(self, *args, **kwargs):
-        partner_name = kwargs.get('partner')
-        logo_path = kwargs.get("logo")
-        certificate_logo_path = kwargs.get('certificate_logo')
-        banner_image_path = kwargs.get('banner_image')
+        partner_name = kwargs.get("partner")
+
         try:
-            organization = Organization.objects.get(partner=self._get_partner_by_name(partner_name))
-            logo = File(open(logo_path, 'rb'))
-            certificate_logo = File(open(certificate_logo_path, 'rb'))
-            banner_image = File(open(banner_image_path, 'rb'))
-            organization.logo_image = logo
-            organization.certificate_logo_image = certificate_logo
-            organization.banner_image = banner_image
+            # We search by partner here because right now, the default provisioned org does not have a name, but has "edX" as the partner
+            organization = Organization.objects.filter(
+                partner=self._get_partner_by_name(partner_name),
+            )[:1].get()
+            assets = self._open_assets(
+                logo=kwargs.get("logo"),
+                certificate_logo=kwargs.get("certificate_logo"),
+                banner_image=kwargs.get("banner_image"),
+            )
+            organization.logo_image = assets["logo"]
+            organization.certificate_logo_image = assets["certificate_logo"]
+            organization.banner_image = assets["banner_image"]
             organization.save()
-            logo.close()
-            certificate_logo.close()
-            banner_image.close()
-        except (Organization.DoesNotExist, OSError) as e:
-            print(CommandError(e))
+            self._cleanup(**assets)
+
+        except Organization.DoesNotExist as no_organization_exists:
+            raise CommandError from no_organization_exists
 
     def _get_partner_by_name(self, partner_name):
         try:
-            partner = Partner.objects.filter(name=partner_name)[:1].get()
+            partner = Partner.objects.get(short_code=partner_name)
             return partner
-        except Partner.DoesNotExist:
-            raise CommandError(f"Partner {partner_name} does not exist or could not be found.")
+        except Partner.DoesNotExist as no_partner_exists:
+            raise CommandError from no_partner_exists
 
+    def _open_assets(self, **kwargs):
+        assets = {}
+        for key, value in kwargs.items():
+            try:
+                assets[key] = File(open(value, "rb"))
+            except OSError as cannot_open_file:
+                raise CommandError from cannot_open_file
+        return assets
+
+    def _cleanup(self, **kwargs):
+        for _, value in kwargs.items():
+            try:
+                value.close()
+            except OSError as error_while_closing:
+                raise CommandError from error_while_closing
