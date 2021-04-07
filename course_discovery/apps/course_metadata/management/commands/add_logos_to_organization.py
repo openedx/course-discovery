@@ -24,7 +24,7 @@ class Command(BaseCommand):
         try:
             # We search by partner here because right now, the default provisioned org does not have a name, but has "edX" as the partner
             organization = Organization.objects.filter(
-                partner=self._get_partner_by_name(partner_name),
+                partner__short_code=partner_name
             )[:1].get()
             assets = self._open_assets(
                 logo=kwargs.get("logo"),
@@ -39,13 +39,6 @@ class Command(BaseCommand):
 
         except Organization.DoesNotExist as no_organization_exists:
             raise CommandError from no_organization_exists
-
-    def _get_partner_by_name(self, partner_name):
-        try:
-            partner = Partner.objects.get(short_code=partner_name)
-            return partner
-        except Partner.DoesNotExist as no_partner_exists:
-            raise CommandError from no_partner_exists
 
     def _open_assets(self, **kwargs):
         assets = {}
