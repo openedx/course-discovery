@@ -13,7 +13,7 @@ class Command(BaseCommand):
     """
 
     def add_arguments(self, parser):
-        parser.add_argument("--partner", default="edX")
+        parser.add_argument("--partner", default="edx")
         parser.add_argument("--logo")
         parser.add_argument("--certificate_logo")
         parser.add_argument("--banner_image")
@@ -22,7 +22,7 @@ class Command(BaseCommand):
         partner_name = kwargs.get("partner")
 
         try:
-            # We search by partner here because right now, the default provisioned org does not have a name, but has "edX" as the partner
+            # We search by partner here because right now, the default provisioned org does not have a name, but has "edx" as the partner
             organization = Organization.objects.filter(
                 partner__short_code=partner_name
             )[:1].get()
