@@ -4,22 +4,12 @@ from unittest import mock
 import pytest
 from django.core.files import File
 from django.core.management import call_command
-from django.core.management.base import CommandError
-from django.db import models
 from django.test import TestCase
-import factory
 
-
-from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.management.commands.add_logos_to_organization import (
-    Command,
-)
+from course_discovery.apps.course_metadata.management.commands.add_logos_to_organization import Command
 from course_discovery.apps.course_metadata.models import Organization
-from course_discovery.apps.course_metadata.tests.factories import (
-    ImageFactory,
-    OrganizationFactory,
-    PartnerFactory,
-)
+from course_discovery.apps.course_metadata.tests.factories import OrganizationFactory, PartnerFactory
+
 
 class AddLogosToOrganizationTest(TestCase):
     def setUp(self):
@@ -27,7 +17,7 @@ class AddLogosToOrganizationTest(TestCase):
         self.partner = PartnerFactory(short_code="testx")
         self.organization = OrganizationFactory(partner=self.partner, name="testx")
         self.logo = mock.MagicMock(spec=File, name="logo")
-        self.logo.name="logo"
+        self.logo.name = "logo"
         self.certificate_logo = mock.MagicMock(spec=File, name="certificate_logo")
         self.certificate_logo.name = "certificate_logo"
         self.banner_image = mock.MagicMock(spec=File, name="banner_image")
@@ -61,9 +51,9 @@ class AddLogosToOrganizationTest(TestCase):
             call_command(
                 Command(),
                 partner="testx",
-                logo='/',
-                certificate_logo='/',
-                banner_image='/',
+                logo="/",
+                certificate_logo="/",
+                banner_image="/",
             )
             self.organization.refresh_from_db()
-            assert  "/media/organization/logos/" in self.organization.logo_image.path
+            assert "/media/organization/logos/" in self.organization.logo_image.path
