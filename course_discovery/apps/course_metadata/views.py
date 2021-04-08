@@ -5,11 +5,13 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import TemplateView, UpdateView, View
+from taxonomy.signals.signals import UPDATE_COURSE_SKILLS
 from taxonomy.utils import (
     blacklist_course_skill, get_blacklisted_course_skills, get_whitelisted_course_skills,
     remove_course_skill_from_blacklist
 )
 
+from course_discovery.apps.course_metadata.constants import REFRESH_COURSE_SKILLS_URL_NAME
 from course_discovery.apps.course_metadata.forms import CourseRunSelectionForm, ExcludeSkillsForm
 from course_discovery.apps.course_metadata.models import Course, Program
 
@@ -43,6 +45,85 @@ class CourseRunSelectionAdmin(UpdateView):
 
     def get_success_url(self):
         return reverse('admin:course_metadata_program_change', args=(self.object.id,))
+
+
+class RefreshCourseSkillsView(View):
+    """
+    Fire single to refresh Course Skills.
+    """
+    template = 'admin/course_metadata/refresh_course_skills.html'
+
+    class ContextParameters:
+        """
+        Namespace-style class for custom context parameters.
+        """
+        COURSE = 'course'
+
+    @staticmethod
+    def _get_admin_context(request, course):
+        """
+        Build admin context.
+        """
+        opts = course._meta
+        codename = get_permission_codename('change', opts)
+        has_change_permission = request.user.has_perm('%s.%s' % (opts.app_label, codename))
+        return {
+            'has_change_permission': has_change_permission,
+            'opts': opts
+        }
+
+    def _get_view_context(self, course_pk):
+        """
+        Return the default context parameters.
+        """
+        course = get_object_or_404(Course, id=course_pk)
+        return {
+            self.ContextParameters.COURSE: course,
+        }
+
+    def _build_context(self, request, course_pk):
+        """
+        Build admin and view context used by the template.
+        """
+        context = self._get_view_context(course_pk)
+        context.update(admin.site.each_context(request))
+        context.update(self._get_admin_context(request, context['course']))
+        return context
+
+    def get(self, request, course_pk):
+        """
+        Handle GET request - renders the template.
+
+        Arguments:
+            request (django.http.request.HttpRequest): Request instance
+            course_pk (str): Primary key of the course
+
+        Returns:
+            django.http.response.HttpResponse: HttpResponse
+        """
+        context = self._build_context(request, course_pk)
+        return render(request, self.template, context)
+
+    def post(self, request, course_pk):
+        """
+        Process the post request by creating an instance of course skills after cleaning and validating post data.
+        """
+        course = Course.objects.get(id=course_pk)
+        self._update_course_skills(course.uuid)
+        return HttpResponseRedirect(
+            reverse(f'admin:{REFRESH_COURSE_SKILLS_URL_NAME}', args=(course_pk,))
+        )
+
+    def _update_course_skills(self, course_uuid):
+        """
+        Fire sigle to refresh data.
+        """
+        try:
+            UPDATE_COURSE_SKILLS.send(self.__class__, course_uuid=course_uuid)
+            message = _('The refresh course skills task triggered successfully.')
+            messages.add_message(self.request, messages.SUCCESS, message)
+        except Exception as error:  # pylint: disable=broad-except
+            messages.add_message(self.request, messages.ERROR, error)
 
 
 class CourseSkillsView(View):

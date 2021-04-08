@@ -15,7 +15,7 @@ from waffle import get_waffle_flag_model
 
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
-from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME
+from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME, REFRESH_COURSE_SKILLS_URL_NAME
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
@@ -23,7 +23,7 @@ from course_discovery.apps.course_metadata.forms import (
     CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
-from course_discovery.apps.course_metadata.views import CourseSkillsView
+from course_discovery.apps.course_metadata.views import CourseSkillsView, RefreshCourseSkillsView
 
 PUBLICATION_FAILURE_MSG_TPL = _(
     'An error occurred while publishing the {model} to the marketing site. '
@@ -104,7 +104,7 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
-    change_actions = ('course_skills', )
+    change_actions = ('course_skills', 'refresh_course_skills')
 
     def get_readonly_fields(self, request, obj=None):
         """
@@ -140,6 +140,14 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
         course_skills_url = reverse(f"admin:{COURSE_SKILLS_URL_NAME}", args=(obj.pk,))
         return HttpResponseRedirect(course_skills_url)
 
+    def refresh_course_skills(self, request, obj):
+        """
+        Object tool handler method - redirects to "Refresh Course Skills" view
+        """
+        # url names coming from get_urls are prefixed with 'admin' namespace
+        refresh_course_skills_url = reverse(f"admin:{REFRESH_COURSE_SKILLS_URL_NAME}", args=(obj.pk,))
+        return HttpResponseRedirect(refresh_course_skills_url)
+
     def get_urls(self):
         """
         Returns the additional urls used by the custom object tools.
@@ -149,6 +157,11 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
                 r"^([^/]+)/course_skills$",
                 self.admin_site.admin_view(CourseSkillsView.as_view()),
                 name=COURSE_SKILLS_URL_NAME
+            ),
+            url(
+                r"^([^/]+)/refresh_course_skills$",
+                self.admin_site.admin_view(RefreshCourseSkillsView.as_view()),
+                name=REFRESH_COURSE_SKILLS_URL_NAME
             ),
         ]
         return additional_urls + super().get_urls()
