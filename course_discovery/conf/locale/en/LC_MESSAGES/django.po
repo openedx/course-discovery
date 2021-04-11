@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-28 20:35+0000\n"
+"POT-Creation-Date: 2021-04-11 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -354,38 +354,38 @@ msgstr ""
 msgid "Case Record Type Id"
 msgstr ""
 
-#: apps/course_metadata/admin.py:28
+#: apps/course_metadata/admin.py:29
 #, python-brace-format
 msgid ""
 "An error occurred while publishing the {model} to the marketing site. Please "
 "try again. If the error persists, please contact the Engineering Team."
 msgstr ""
 
-#: apps/course_metadata/admin.py:48
+#: apps/course_metadata/admin.py:49
 msgid "eligible for one-click purchase"
 msgstr ""
 
-#: apps/course_metadata/admin.py:53
+#: apps/course_metadata/admin.py:54
 msgid "Yes"
 msgstr ""
 
-#: apps/course_metadata/admin.py:54
+#: apps/course_metadata/admin.py:55
 msgid "No"
 msgstr ""
 
-#: apps/course_metadata/admin.py:263 apps/course_metadata/admin.py:467
+#: apps/course_metadata/admin.py:301 apps/course_metadata/admin.py:505
 msgid "Included course runs"
 msgstr ""
 
-#: apps/course_metadata/admin.py:475
+#: apps/course_metadata/admin.py:513
 msgid "Edit course run exclusions"
 msgstr ""
 
-#: apps/course_metadata/admin.py:477
+#: apps/course_metadata/admin.py:515
 msgid "(save and continue editing to create a link)"
 msgstr ""
 
-#: apps/course_metadata/admin.py:479
+#: apps/course_metadata/admin.py:517
 msgid "Edit link"
 msgstr ""
 
@@ -1398,11 +1398,17 @@ msgid "Save Course Run"
 msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:11
+#: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:7
 msgid "Home"
 msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:26
 msgid "Course Skills"
+msgstr ""
+
+#: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:22
+#: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:32
+msgid "Refresh Course Skills"
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:7
@@ -1606,15 +1612,19 @@ msgstr ""
 msgid "{0} attribute is not allowed on the {1} tag"
 msgstr ""
 
-#: apps/course_metadata/views.py:33
+#: apps/course_metadata/views.py:35
 msgid "Update excluded course runs"
 msgstr ""
 
-#: apps/course_metadata/views.py:40
+#: apps/course_metadata/views.py:42
 msgid "The program was changed successfully."
 msgstr ""
 
-#: apps/course_metadata/views.py:142
+#: apps/course_metadata/views.py:123
+msgid "The refresh course skills task triggered successfully."
+msgstr ""
+
+#: apps/course_metadata/views.py:223
 msgid "The course skills were updated successfully."
 msgstr ""
 
