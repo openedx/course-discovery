@@ -133,7 +133,7 @@ django-model-utils==4.1.1
     # via taxonomy-connector
 django-nine==0.2.4
     # via django-elasticsearch-dsl-drf
-django-object-actions==3.0.1
+django-object-actions==3.0.2
     # via -r requirements/base.in
 django-parler==2.2
     # via -r requirements/base.in
@@ -224,8 +224,10 @@ dockerpty==0.4.1
     # via docker-compose
 docopt==0.6.2
     # via docker-compose
-docutils==0.17
-    # via sphinx
+docutils==0.16
+    # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+    #   sphinx
 drf-dynamic-fields==0.3.1
     # via -r requirements/base.in
 drf-extensions==0.7.0
@@ -419,7 +421,7 @@ pytest-cov==2.11.1
     # via -r requirements/test.in
 pytest-django-ordering==1.2.0
     # via -r requirements/test.in
-pytest-django==4.1.0
+pytest-django==4.2.0
     # via
     #   -r requirements/test.in
     #   pytest-django-ordering
@@ -514,7 +516,6 @@ six==1.15.0
     #   django-simple-history
     #   django-taggit-serializer
     #   djangorestframework-csv
-    #   docker
     #   dockerpty
     #   edx-auth-backends
     #   edx-ccx-keys
@@ -579,7 +580,7 @@ stevedore==3.3.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.6.2
+taxonomy-connector==1.8.0
     # via -r requirements/base.in
 testfixtures==6.17.1
     # via -r requirements/test.in
