@@ -116,12 +116,10 @@ check_keywords: ## Scan the Django models in all installed apps in this project 
 
 docker_build:
 	docker build . -f Dockerfile --target app -t openedx/discovery
-	docker build . -f Dockerfile --target devstack -t openedx/discovery:latest-devstack
 	docker build . -f Dockerfile --target newrelic -t openedx/discovery:latest-newrelic
 
 docker_tag: docker_build
 	docker tag openedx/discovery openedx/discovery:${GITHUB_SHA}
-	docker tag openedx/discovery:latest-devstack openedx/discovery:${GITHUB_SHA}-devstack
 	docker tag openedx/discovery:latest-newrelic openedx/discovery:${GITHUB_SHA}-newrelic
 
 docker_auth:
@@ -130,7 +128,5 @@ docker_auth:
 docker_push: docker_tag docker_auth ## push to docker hub
 	docker push 'openedx/discovery:latest'
 	docker push "openedx/discovery:${GITHUB_SHA}"
-	docker push 'openedx/discovery:latest-devstack'
-	docker push "openedx/discovery:${GITHUB_SHA}-devstack"
 	docker push 'openedx/discovery:latest-newrelic'
 	docker push "openedx/discovery:${GITHUB_SHA}-newrelic"
