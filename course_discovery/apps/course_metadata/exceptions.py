@@ -44,7 +44,7 @@ class PersonToMarketingException(Exception):
     def __init__(self, message):
         super().__init__(message)
         suffix = 'The person data has not been saved. Please check your marketing site configuration'
-        self.message = '{exception_msg} {suffix}'.format(exception_msg=message, suffix=suffix)
+        self.message = f'{message} {suffix}'
 
 
 class UnpublishError(MarketingSitePublisherException):

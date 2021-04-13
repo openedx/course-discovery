@@ -1,5 +1,6 @@
+from unittest import mock
+
 import ddt
-import mock
 import pytest
 from django.test import TestCase
 from simple_salesforce import SalesforceExpiredSession
@@ -342,7 +343,7 @@ class TestSalesforce(TestCase):
                 'Course__c': course.salesforce_id,
                 'Status': 'Open',
                 'Origin': 'Publisher',
-                'Subject': '{} Comments'.format(course.title),
+                'Subject': f'{course.title} Comments',
                 'Description': 'This case is required to be Open for the Publisher comment service.',
                 'RecordTypeId': self.salesforce_config.case_record_type_id,
             })
@@ -375,7 +376,7 @@ class TestSalesforce(TestCase):
                     'Course__c': course.salesforce_id,
                     'Status': 'Open',
                     'Origin': 'Publisher',
-                    'Subject': '{} Comments'.format(course.title),
+                    'Subject': f'{course.title} Comments',
                     'Description': 'This case is required to be Open for the Publisher comment service.',
                     'RecordTypeId': self.salesforce_config.case_record_type_id,
                 })
@@ -508,7 +509,7 @@ class TestSalesforce(TestCase):
             util = SalesforceUtil(self.salesforce_config.partner)
             formatted_message = util.format_user_comment_body(user, body, course_run_key)
             expected_formatted_message = '[User]\n{}\n\n[Course Run]\n{}\n\n[Body]\n{}'.format(
-                '{} {} ({})'.format(user.first_name, user.last_name, user.username), course_run_key, body
+                f'{user.first_name} {user.last_name} ({user.username})', course_run_key, body
             )
             assert formatted_message == expected_formatted_message
             parsed_message = util._parse_user_comment_body(  # pylint: disable=protected-access
@@ -531,7 +532,7 @@ class TestSalesforce(TestCase):
 
             formatted_message = util.format_user_comment_body(user, body, course_run_key)
             expected_formatted_message = '[User]\n{}\n\n[Course Run]\n{}\n\n[Body]\n{}'.format(
-                '{}'.format(user.username), course_run_key, body
+                f'{user.username}', course_run_key, body
             )
             assert formatted_message == expected_formatted_message
 

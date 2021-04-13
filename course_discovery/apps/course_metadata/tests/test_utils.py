@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
 import datetime
 import re
 import urllib
+from unittest import mock
 
 import ddt
-import mock
 import pytest
 import pytz
 import requests

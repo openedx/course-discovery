@@ -205,7 +205,7 @@ class SalesforceUtil:
                     'Course__c': course.salesforce_id,
                     'Status': 'Open',
                     'Origin': 'Publisher',
-                    'Subject': '{} Comments'.format(course.title),
+                    'Subject': f'{course.title} Comments',
                     'Description': 'This case is required to be Open for the Publisher comment service.'
                 }
                 case_record_type_id = self.partner.salesforce.case_record_type_id
@@ -275,7 +275,7 @@ class SalesforceUtil:
                 username=user.username,
             )
         else:
-            user_message = '[User]\n{username}'.format(username=user.username)
+            user_message = f'[User]\n{user.username}'
         course_run_message = '[Course Run]\n{course_run_key}\n\n'.format(
             course_run_key=course_run_key
         ) if course_run_key else ''
