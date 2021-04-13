@@ -6,9 +6,9 @@
 #
 alabaster==0.7.12
     # via sphinx
-algoliasearch-django==1.7.3
+algoliasearch-django==2.0.0
     # via -r requirements/base.in
-algoliasearch==1.20.0
+algoliasearch==2.4.0
     # via algoliasearch-django
 amqp==2.6.1
     # via kombu
@@ -216,9 +216,9 @@ djangorestframework==3.12.4
     #   edx-drf-extensions
     #   rest-condition
     #   taxonomy-connector
-docker-compose==1.28.6
+docker-compose==1.29.0
     # via -r requirements/local.in
-docker[ssh]==4.4.4
+docker[ssh]==5.0.0
     # via docker-compose
 dockerpty==0.4.1
     # via docker-compose
