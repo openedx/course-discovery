@@ -171,6 +171,7 @@ class SkillFactory(factory.django.DjangoModelFactory):
 
 class CourseSkillsFactory(factory.django.DjangoModelFactory):
     course_id = FuzzyText()
+    course_key = FuzzyText()
     skill = factory.SubFactory(SkillFactory)
     confidence = FuzzyDecimal(0.0, 1.0)
     is_blacklisted = False

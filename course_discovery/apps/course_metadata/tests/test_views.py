@@ -68,8 +68,8 @@ class TestCourseSkillView(TestCase):
 
     def _create_course_skills(self, course):
         """Create dummy course skills."""
-        course_skill1 = CourseSkillsFactory(course_id=course.key)
-        course_skill2 = CourseSkillsFactory(course_id=course.key)
+        course_skill1 = CourseSkillsFactory(course_key=course.key)
+        course_skill2 = CourseSkillsFactory(course_key=course.key)
         return [course_skill1, course_skill2]
 
     def test_get_user_not_logged_in(self):

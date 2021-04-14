@@ -146,8 +146,8 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
         course = CourseFactory(authoring_organizations=[organizations], partner=self.partner)
         CourseRunFactory.create_batch(2, course=course)
         serializer = self.serializer_class(course, context={'request': request})
-        course_skill = CourseSkillsFactory(course_id=course.key)
-        CourseSkillsFactory(course_id=course.key, is_blacklisted=True)
+        course_skill = CourseSkillsFactory(course_key=course.key)
+        CourseSkillsFactory(course_key=course.key, is_blacklisted=True)
         expected = self.get_expected_data(course, course_skill, request)
         self.assertDictEqual(serializer.data, expected)
 
@@ -310,8 +310,8 @@ class CourseWithProgramsSerializerTests(CourseSerializerTests):
         super().setUp()
         self.request = make_request()
         self.course = CourseFactory(partner=self.partner)
-        self.course_skill = CourseSkillsFactory(course_id=self.course.key)
-        self.blacklisted_course_skill = CourseSkillsFactory(course_id=self.course.key, is_blacklisted=True)
+        self.course_skill = CourseSkillsFactory(course_key=self.course.key)
+        self.blacklisted_course_skill = CourseSkillsFactory(course_key=self.course.key, is_blacklisted=True)
         self.deleted_program = ProgramFactory(
             courses=[self.course],
             partner=self.partner,
@@ -1955,10 +1955,10 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course.save()
         seat = SeatFactory(course_run=course_run)
         course_skill = CourseSkillsFactory(
-            course_id=course.key
+            course_key=course.key
         )
         CourseSkillsFactory(
-            course_id=course.key,
+            course_key=course.key,
             is_blacklisted=True,
         )
         serializer = self.serialize_course(course, request)
@@ -1985,7 +1985,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course.save()
         seat = SeatFactory(course_run=course_run)
         course_skill = CourseSkillsFactory(
-            course_id=course.key
+            course_key=course.key
         )
         serializer = self.serialize_course(course, request)
         assert serializer.data["course_runs"] == self.get_expected_data(
@@ -2009,7 +2009,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course.save()
         seat = SeatFactory(course_run=course_run)
         course_skill = CourseSkillsFactory(
-            course_id=course.key
+            course_key=course.key
         )
         expected = {
             'key': course.key,
@@ -2057,10 +2057,10 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course.save()
         seat = SeatFactory(course_run=course_run)
         course_skill = CourseSkillsFactory(
-            course_id=course.key
+            course_key=course.key
         )
         CourseSkillsFactory(
-            course_id=course.key,
+            course_key=course.key,
             is_blacklisted=True,
         )
         expected = {
@@ -2174,8 +2174,8 @@ class CourseSearchModelSerializerTests(ElasticsearchTestMixin, TestCase, CourseS
     def test_data(self):
         request = make_request()
         course = CourseFactory()
-        course_skill = CourseSkillsFactory(course_id=course.key)
-        CourseSkillsFactory(course_id=course.key, is_blacklisted=True)
+        course_skill = CourseSkillsFactory(course_key=course.key)
+        CourseSkillsFactory(course_key=course.key, is_blacklisted=True)
         course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
         course.save()
@@ -2200,7 +2200,7 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
         program = ProgramFactory(courses=[course_run.course])
         self.reindex_courses(program)
         course_skill = CourseSkillsFactory(
-            course_id=course_run.course.key
+            course_key=course_run.course.key
         )
         serializer = self.serialize_course_run(course_run, request)
         assert serializer.data == self.get_expected_data(course_run, course_skill, request)
