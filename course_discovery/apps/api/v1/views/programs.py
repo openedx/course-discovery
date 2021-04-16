@@ -1,5 +1,9 @@
+from traceback import format_exc
+
+from django.core.exceptions import ObjectDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets
+from rest_framework import status, viewsets
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
@@ -7,12 +11,15 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
-from course_discovery.apps.course_metadata.models import Program
+from course_discovery.apps.api.utils import gen_error_response
+from course_discovery.apps.course_metadata.models import Program, Course
 
 
 # pylint: disable=no-member
-class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
-    """ Program resource. """
+class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
+    """Program resource
+
+    """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
     permission_classes = (IsAuthenticated,)
@@ -23,17 +30,45 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
 
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return serializers.MinimalProgramSerializer
+    def get_serializer_class(self, hit_courses_endpoint=False):
+        """Return serializer class by conditions
+
+            Args:
+                hit_courses_endpoint:   True,  endpoint is ended with`courses`
+                                        False, endpoint is not ended with `courses`
+
+            Returns:
+                Return the serializer class by `actions` and `hit_courses_endpoint`
+
+            Raises:
+                Null
+        """
+        # Endpoint:
+        #   - api/v1/programs/
+        #   - api/v1/programs/b6ca79cf0b5f408ea999e8c0589be5b0/
+        #   - api/v1/programs/b6ca79cf0b5f408ea999e8c0589be5b0/courses/
+        if not hit_courses_endpoint:
+            if 'list' == self.action:
+                return serializers.MinimalProgramSerializer
+            elif self.action in ('partial_update', 'update', 'create'):
+                return serializers.LearningTribeProgramSerializer
 
         return serializers.ProgramSerializer
 
-    def get_queryset(self):
+    def get_queryset(self, hit_courses_endpoint=False, *args, **kwargs):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
-        partner = self.request.site.partner
-        return self.get_serializer_class().prefetch_queryset(partner)
+        serializer_class = self.get_serializer_class(
+            hit_courses_endpoint=hit_courses_endpoint
+        )
+
+        if not hit_courses_endpoint:    # Endpoint: programs/
+            return serializer_class.prefetch_queryset(partner=self.request.site.partner)
+        else:                           # Endpoint: courses/
+            return serializer_class.prefetch_queryset(
+                partner=self.request.site.partner,
+                program_uuid=self.kwargs[self.lookup_field]
+            )
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
@@ -46,6 +81,9 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         """ List all programs.
+
+            Endpoint: api/v1/programs/
+
         ---
         parameters:
             - name: marketable
@@ -93,6 +131,41 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ReadOnlyModelViewSet):
             queryset = self.filter_queryset(Program.objects.filter(partner=self.request.site.partner))
             uuids = queryset.values_list('uuid', flat=True)
 
-            return Response(uuids)
+            return Response(uuids )
 
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
+
+    @detail_route(methods=['get', 'post', 'delete'], permission_classes=[IsAuthenticated])
+    def courses(self, request, uuid):
+        """Endpoint handler of `api/v1/programs/{program_uuid}/courses/`
+
+            GET:    list courses for a Program UUID
+            POST:   add a new course (course_uuid) into a program
+            DELETE: delete a course from a program
+        """
+        try:
+            course_uuid = self.request.data.get('course_uuid')
+            programs = self.get_queryset(hit_courses_endpoint=True)
+
+            if request.method == 'GET':
+                serializer = self.get_serializer_class(hit_courses_endpoint=True)(
+                    programs, many=True, context={'request': self.request}
+                )
+
+                return Response(serializer.data[0]['courses'], status=status.HTTP_200_OK)
+            elif request.method == 'POST':
+                course = Course.objects.get(uuid=course_uuid)
+                programs[0].courses.add(course)
+                # After adding a new course into Program:
+                #   make sure to update all the Program Team Member are all in this new Course's Team.
+                # TO DO: POST: (course_id, program_uuid) to lms rest api for updating
+                return Response({'course_uuid': course.uuid}, status=status.HTTP_201_CREATED)
+            else:  # DELETE
+                course = Course.objects.get(uuid=course_uuid)
+                programs[0].courses.remove(course)
+
+                return Response({'course_uuid': course.uuid}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return gen_error_response(
+                status.HTTP_500_INTERNAL_SERVER_ERROR, str(e), format_exc()
+            )

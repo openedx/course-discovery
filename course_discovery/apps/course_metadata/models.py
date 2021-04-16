@@ -1006,6 +1006,14 @@ class Program(TimeStampedModel):
     hidden = models.BooleanField(
         default=False, db_index=True,
         help_text=_('Hide program on marketing site landing and search pages. This program MAY have a detail page.'))
+    enrollment_start = models.DateTimeField(null=True, blank=True, help_text=_('Start date of program'))
+    enrollment_end = models.DateTimeField(null=True, blank=True, help_text=_('End date of program'))
+    description = models.TextField(
+        default=None, null=True, blank=True,
+        help_text=_(
+            "Description specific for this program. It would be displayed on the Program's details page."))
+    duration = models.IntegerField(null=False, blank=False, default=0, help_text=_('Time spend of program'))
+    language = models.ForeignKey(LanguageTag, null=True, blank=True)
 
     objects = ProgramQuerySet.as_manager()
 

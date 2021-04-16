@@ -7,6 +7,8 @@ import pytz
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
@@ -547,7 +549,41 @@ class MinimalCourseSerializer(TimestampModelSerializer):
     image = ImageField(read_only=True, source='image_url')
 
     @classmethod
-    def prefetch_queryset(cls, queryset=None, course_runs=None):
+    def _get_courses_queryset_by_program_uuid(cls, courses_queryset, program_uuid):
+        """Return records' of courses by `program_uuid`.
+
+            Args:
+                courses_queryset:       records of courses
+                program_uuid:           program uuid
+
+            Returns:
+                Return records of Program's courses by `program_uuid`, or return `courses_queryset`
+                    directly if it not null.
+
+            Raises:
+                ObjectDoesNotExist:     If program doesn't exist.
+        """
+        if courses_queryset:
+            return courses_queryset
+        elif not program_uuid:
+            return None
+
+        program = Program.objects.prefetch_related(
+            'courses'
+        ).filter(uuid=program_uuid).first()
+
+        if not program:
+            raise ObjectDoesNotExist(
+                'record does not exist : program uuid = {}'.format(program_uuid)
+            )
+        return program.courses
+
+    @classmethod
+    def prefetch_queryset(cls, queryset=None, course_runs=None, program_uuid=None):
+        if program_uuid and queryset:
+            raise ValidationError('Ambiguous arguments: queryset & program_uuid. Please pick one of them.')
+
+        queryset = cls._get_courses_queryset_by_program_uuid(queryset, program_uuid)
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.all()
@@ -577,7 +613,11 @@ class CourseSerializer(MinimalCourseSerializer):
     original_image = ImageField(read_only=True, source='original_image_url')
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None, program_uuid=None):
+        if program_uuid and queryset:
+            raise ValidationError('Ambiguous arguments: queryset & program_uuid. Please pick one of them.')
+
+        queryset = cls._get_courses_queryset_by_program_uuid(queryset, program_uuid)
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
@@ -725,6 +765,24 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
+class LearningTribeProgramSerializer(serializers.ModelSerializer):
+    banner_image = StdImageSerializerField()
+    courses = CourseSerializer(read_only=True, many=True)
+
+    @classmethod
+    def prefetch_queryset(cls, partner, *args, **kwargs):
+        return Program.objects.all()
+
+    class Meta:
+        model = Program
+        fields = (
+            'title', 'partner', 'marketing_slug', 'status', 'type',
+            'enrollment_start', 'enrollment_end',
+            'banner_image', 'description', 'duration',
+            'courses', 'language'
+        )
+
+
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField()
@@ -732,7 +790,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
 
     @classmethod
-    def prefetch_queryset(cls, partner):
+    def prefetch_queryset(cls, partner, *args, **kwargs):
         return Program.objects.filter(partner=partner).select_related('type', 'partner').prefetch_related(
             'excluded_course_runs',
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
@@ -858,7 +916,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     applicable_seat_types = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, partner):
+    def prefetch_queryset(cls, partner, *args, **kwargs):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
@@ -866,7 +924,12 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        return Program.objects.filter(partner=partner).select_related('type', 'video', 'partner').prefetch_related(
+        filters = {'partner': partner}      # A Program must be related with a Partner.
+        program_uuid = kwargs.get('program_uuid')
+        if program_uuid:                    # Filter a Program with primary Key
+            filters['uuid'] = program_uuid
+
+        return Program.objects.filter(**filters).select_related('type', 'video', 'partner').prefetch_related(
             'excluded_course_runs',
             'expected_learning_items',
             'faq',

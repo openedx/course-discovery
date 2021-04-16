@@ -3,6 +3,10 @@ import logging
 
 import six
 
+from django.conf import settings
+from rest_framework.response import Response
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -65,3 +69,13 @@ def get_cache_key(**kwargs):
     key = '__'.join(['{}:{}'.format(item, value) for item, value in six.iteritems(kwargs)])
 
     return hashlib.md5(key.encode('utf-8')).hexdigest()
+
+
+def gen_error_response(status, summary, description=None):
+    return Response(
+        status=status,
+        data={
+            'error': summary,
+            'error_description': description if description and settings.DEBUG else ''
+        }
+    )
