@@ -765,24 +765,6 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
-class LearningTribeProgramSerializer(serializers.ModelSerializer):
-    banner_image = StdImageSerializerField()
-    courses = CourseSerializer(read_only=True, many=True)
-
-    @classmethod
-    def prefetch_queryset(cls, partner, *args, **kwargs):
-        return Program.objects.all()
-
-    class Meta:
-        model = Program
-        fields = (
-            'title', 'partner', 'marketing_slug', 'status', 'type',
-            'enrollment_start', 'enrollment_end',
-            'banner_image', 'description', 'duration',
-            'courses', 'language'
-        )
-
-
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(many=True)
     banner_image = StdImageSerializerField()
@@ -791,7 +773,12 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls, partner, *args, **kwargs):
-        return Program.objects.filter(partner=partner).select_related('type', 'partner').prefetch_related(
+        filters = {'partner': partner}      # A Program must be related with a Partner.
+        program_uuid = kwargs.get('program_uuid')
+        if program_uuid:                    # Filter a Program with primary Key
+            filters['uuid'] = program_uuid
+
+        return Program.objects.filter(**filters).select_related('type', 'partner').prefetch_related(
             'excluded_course_runs',
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
@@ -924,12 +911,7 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        filters = {'partner': partner}      # A Program must be related with a Partner.
-        program_uuid = kwargs.get('program_uuid')
-        if program_uuid:                    # Filter a Program with primary Key
-            filters['uuid'] = program_uuid
-
-        return Program.objects.filter(**filters).select_related('type', 'video', 'partner').prefetch_related(
+        return Program.objects.filter(partner=partner).select_related('type', 'video', 'partner').prefetch_related(
             'excluded_course_runs',
             'expected_learning_items',
             'faq',

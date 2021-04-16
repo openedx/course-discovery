@@ -1,9 +1,8 @@
 from traceback import format_exc
 
-from django.core.exceptions import ObjectDoesNotExist
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
@@ -15,10 +14,13 @@ from course_discovery.apps.api.utils import gen_error_response
 from course_discovery.apps.course_metadata.models import Program, Course
 
 
-# pylint: disable=no-member
 class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     """Program resource
 
+        Supported Endpoint:
+          - api/v1/programs/
+          - api/v1/programs/b6ca79cf0b5f408ea999e8c0589be5b0/
+          - api/v1/programs/b6ca79cf0b5f408ea999e8c0589be5b0/courses/
     """
     lookup_field = 'uuid'
     lookup_value_regex = '[0-9a-f-]+'
@@ -30,37 +32,18 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
 
-    def get_serializer_class(self, hit_courses_endpoint=False):
-        """Return serializer class by conditions
+    def get_serializer_class(self):
+        """Return serializer class by conditions"""
+        if 'list' == self.action:
+            return serializers.MinimalProgramSerializer
 
-            Args:
-                hit_courses_endpoint:   True,  endpoint is ended with`courses`
-                                        False, endpoint is not ended with `courses`
-
-            Returns:
-                Return the serializer class by `actions` and `hit_courses_endpoint`
-
-            Raises:
-                Null
-        """
-        # Endpoint:
-        #   - api/v1/programs/
-        #   - api/v1/programs/b6ca79cf0b5f408ea999e8c0589be5b0/
-        #   - api/v1/programs/b6ca79cf0b5f408ea999e8c0589be5b0/courses/
-        if not hit_courses_endpoint:
-            if 'list' == self.action:
-                return serializers.MinimalProgramSerializer
-            elif self.action in ('partial_update', 'update', 'create'):
-                return serializers.LearningTribeProgramSerializer
-
+        # actions: partial_update, update, create
         return serializers.ProgramSerializer
 
     def get_queryset(self, hit_courses_endpoint=False, *args, **kwargs):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
-        serializer_class = self.get_serializer_class(
-            hit_courses_endpoint=hit_courses_endpoint
-        )
+        serializer_class = self.get_serializer_class()
 
         if not hit_courses_endpoint:    # Endpoint: programs/
             return serializer_class.prefetch_queryset(partner=self.request.site.partner)
@@ -148,7 +131,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
             programs = self.get_queryset(hit_courses_endpoint=True)
 
             if request.method == 'GET':
-                serializer = self.get_serializer_class(hit_courses_endpoint=True)(
+                serializer = self.get_serializer_class()(
                     programs, many=True, context={'request': self.request}
                 )
 
