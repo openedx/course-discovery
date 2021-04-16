@@ -131,7 +131,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
             queryset = self.filter_queryset(Program.objects.filter(partner=self.request.site.partner))
             uuids = queryset.values_list('uuid', flat=True)
 
-            return Response(uuids )
+            return Response(uuids)
 
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
 
