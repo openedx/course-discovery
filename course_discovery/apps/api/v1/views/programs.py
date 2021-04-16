@@ -34,7 +34,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         """Return serializer class by conditions"""
-        if 'list' == self.action:
+        if self.action in ('list', 'courses'):
             return serializers.MinimalProgramSerializer
 
         # actions: partial_update, update, create
@@ -45,13 +45,12 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
 
-        if not hit_courses_endpoint:    # Endpoint: programs/
-            return serializer_class.prefetch_queryset(partner=self.request.site.partner)
-        else:                           # Endpoint: courses/
-            return serializer_class.prefetch_queryset(
-                partner=self.request.site.partner,
-                program_uuid=self.kwargs[self.lookup_field]
-            )
+        filters = {'partner': self.request.site.partner}
+        program_uuid = self.kwargs.get(self.lookup_field)
+        if program_uuid:
+            filters['uuid'] = program_uuid
+
+        return serializer_class.prefetch_queryset(**filters)
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
