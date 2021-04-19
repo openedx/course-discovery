@@ -1,6 +1,9 @@
 from traceback import format_exc
 
 from django_filters.rest_framework import DjangoFilterBackend
+from django.core.exceptions import ValidationError
+from django.db import connection
+from django.db import transaction
 from rest_framework import status, viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
@@ -40,7 +43,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         # actions: partial_update, update, create
         return serializers.ProgramSerializer
 
-    def get_queryset(self, hit_courses_endpoint=False, *args, **kwargs):
+    def get_queryset(self):
         # This method prevents prefetches on the program queryset from "stacking,"
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
@@ -117,36 +120,68 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
 
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
 
-    @detail_route(methods=['get', 'post', 'delete'], permission_classes=[IsAuthenticated])
+    @detail_route(methods=['get', 'post', 'delete', 'patch'], permission_classes=[IsAuthenticated])
     def courses(self, request, uuid):
         """Endpoint handler of `api/v1/programs/{program_uuid}/courses/`
 
             GET:    list courses for a Program UUID
             POST:   add a new course (course_uuid) into a program
             DELETE: delete a course from a program
+            PATCH:  change the ORDER No. of a course in a sequence
         """
         try:
             course_uuid = self.request.data.get('course_uuid')
-            programs = self.get_queryset(hit_courses_endpoint=True)
+            program = self.get_queryset()[0]
 
-            if request.method == 'GET':
+            if request.method == 'GET':   # Sorting policy is decided by `Program.order_courses_by_start_date`
                 serializer = self.get_serializer_class()(
-                    programs, many=True, context={'request': self.request}
+                    program, many=False, context={'request': self.request}
                 )
-
-                return Response(serializer.data[0]['courses'], status=status.HTTP_200_OK)
+                return Response(serializer.data['courses'], status=status.HTTP_200_OK)
             elif request.method == 'POST':
                 course = Course.objects.get(uuid=course_uuid)
-                programs[0].courses.add(course)
+                if course in program.courses.all():
+                    raise ValidationError(
+                        'Course uuid ({}) already exist in the program.'.format(course_uuid)
+                    )
+                program.courses.add(course)
+
                 # After adding a new course into Program:
                 #   make sure to update all the Program Team Member are all in this new Course's Team.
                 # TO DO: POST: (course_id, program_uuid) to lms rest api for updating
-                return Response({'course_uuid': course.uuid}, status=status.HTTP_201_CREATED)
-            else:  # DELETE
-                course = Course.objects.get(uuid=course_uuid)
-                programs[0].courses.remove(course)
+                return Response({'course_uuid': course_uuid}, status=status.HTTP_201_CREATED)
+            elif request.method == 'DELETE':
+                course = program.courses.get(uuid=course_uuid)
+                program.courses.remove(course)
 
-                return Response({'course_uuid': course.uuid}, status=status.HTTP_200_OK)
+                return Response({'course_uuid': course_uuid}, status=status.HTTP_200_OK)
+            else:   # request.method == 'PATCH':
+                if program.order_courses_by_start_date:
+                    raise ValidationError('Please assign `order_courses_by_start_date=False` first')
+                target_order = int(request.data.get('order_no'))    # Zero based index !
+                course_id_ = program.courses.get(uuid=course_uuid).id
+                # Get courses ids & orders vector
+                with connection.cursor() as cur:
+                    cur.execute(
+                        r"SELECT course_id, sort_value FROM course_metadata_program_courses WHERE program_id={} ORDER BY sort_value ASC".format(program.id)
+                    )
+                    const_courses_orders = cur.fetchall()
+                courses_ids = [c[0] for c in const_courses_orders]
+                source_order = courses_ids.index(course_id_)
+                # Move element to a new position
+                if target_order >= len(courses_ids) or source_order == target_order:
+                    raise ValidationError('Target index is a invalid value.')
+                courses_ids.insert(target_order, int(courses_ids.pop(source_order)))   # Sorted.
+                # Dump into data table
+                with transaction.atomic(), connection.cursor() as cur:
+                    start_index = min(source_order, target_order)
+                    for index, course_id in enumerate(courses_ids[start_index:], start=start_index):
+                        cur.execute(
+                            r"UPDATE course_metadata_program_courses SET sort_value={} WHERE course_id={} and program_id={}".format(
+                                const_courses_orders[index][1], course_id, program.id
+                            )
+                        )
+                return Response({'course_uuid': course_uuid}, status=status.HTTP_200_OK)
         except Exception as e:
             return gen_error_response(
                 status.HTTP_500_INTERNAL_SERVER_ERROR, str(e), format_exc()

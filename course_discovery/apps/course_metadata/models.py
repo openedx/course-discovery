@@ -944,7 +944,7 @@ class Program(TimeStampedModel):
         help_text=_('Slug used to generate links to the marketing site'), unique=True, max_length=255, db_index=True)
     courses = SortedManyToManyField(Course, related_name='programs')
     order_courses_by_start_date = models.BooleanField(
-        default=True, verbose_name='Order Courses By Start Date',
+        default=False, verbose_name='Order Courses By Start Date',
         help_text=_('If this box is not checked, courses will be ordered as in the courses select box above.')
     )
     # NOTE (CCB): Editors of this field should validate the values to ensure only CourseRuns associated
