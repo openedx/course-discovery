@@ -1579,6 +1579,7 @@ class MinimalOrganizationSerializerTests(TestCase):
             'key': organization.key,
             'name': organization.name,
             'auto_generate_course_run_keys': organization.auto_generate_course_run_keys,
+            'enable_skills_in_publisher': organization.enable_skills_in_publisher,
             'certificate_logo_image_url': certificate_logo_image_url
         }
 
