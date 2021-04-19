@@ -6,9 +6,9 @@
 #
 alabaster==0.7.12
     # via sphinx
-algoliasearch-django==1.7.3
+algoliasearch-django==2.0.0
     # via -r requirements/base.in
-algoliasearch==1.20.0
+algoliasearch==2.4.0
     # via algoliasearch-django
 amqp==2.6.1
     # via kombu
@@ -94,7 +94,7 @@ django-autocomplete-light==3.4.1
     #   -r requirements/base.in
 django-choices==1.7.1
     # via -r requirements/base.in
-django-compressor==2.4
+django-compressor==2.4.1
     # via
     #   -r requirements/base.in
     #   django-libsass
@@ -106,7 +106,7 @@ django-cors-headers==2.5.3
     #   -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
-django-debug-toolbar==3.2
+django-debug-toolbar==3.2.1
     # via -r requirements/local.in
 django-dynamic-filenames==1.1.4
     # via -r requirements/base.in
@@ -114,7 +114,7 @@ django-elasticsearch-debug-toolbar==2.0.0
     # via -r requirements/local.in
 django-elasticsearch-dsl-drf==0.22
     # via -r requirements/base.in
-django-elasticsearch-dsl==7.1.4
+django-elasticsearch-dsl==7.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -216,9 +216,9 @@ djangorestframework==3.12.4
     #   edx-drf-extensions
     #   rest-condition
     #   taxonomy-connector
-docker-compose==1.28.6
+docker-compose==1.29.1
     # via -r requirements/local.in
-docker[ssh]==4.4.4
+docker[ssh]==5.0.0
     # via docker-compose
 dockerpty==0.4.1
     # via docker-compose
@@ -289,7 +289,7 @@ execnet==1.8.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==8.0.0
+faker==8.1.0
     # via factory-boy
 filelock==3.0.12
     # via
