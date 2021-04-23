@@ -1016,7 +1016,11 @@ class WordPressApiDataLoader(AbstractDataLoader):
                     subject, _ = Subject.objects.get_or_create(
                         slug=category['slug'],
                         partner=self.partner,
-                        defaults={'name': category['title'], 'description': category['description']}
+                        defaults={
+                            'name': category['title'],
+                            'description': category['description'],
+                            'marketing_url': category['permalink']
+                        }
                     )
                     course_run.course.subjects.add(subject)
 

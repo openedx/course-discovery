@@ -515,6 +515,7 @@ class Subject(TranslatableModel, TimeStampedModel):
                          help_text=_('Leave this field blank to have the value generated automatically.'))
 
     partner = models.ForeignKey(Partner, models.CASCADE)
+    marketing_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return self.name

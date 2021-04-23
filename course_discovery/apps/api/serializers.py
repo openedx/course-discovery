@@ -257,7 +257,7 @@ class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
 
     class Meta:
         model = Subject
-        fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug', 'uuid')
+        fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug', 'uuid', 'marketing_url')
 
     @property
     def choices(self):
@@ -863,6 +863,13 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         queryset=ProgramType.objects.all()
     )
     estimated_hours = serializers.SerializerMethodField()
+    subjects = SlugRelatedFieldWithReadSerializer(
+        slug_field='slug',
+        required=False,
+        many=True,
+        queryset=Subject.objects.all(),
+        read_serializer=SubjectSerializer(),
+    )
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -882,7 +889,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
-            'course_uuid', 'estimated_hours', 'invite_only',
+            'course_uuid', 'estimated_hours', 'invite_only', 'subjects',
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
 
