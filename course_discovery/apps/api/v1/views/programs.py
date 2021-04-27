@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from traceback import format_exc
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -14,7 +15,8 @@ from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
 from course_discovery.apps.api.utils import gen_error_response
-from course_discovery.apps.course_metadata.models import Program, Course
+from course_discovery.apps.course_metadata.models import Program, ProgramType, Course
+from course_discovery.apps.core.models import Partner
 
 
 class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
@@ -63,6 +65,46 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
             context[query_param] = get_query_param(self.request, query_param)
 
         return context
+
+    def create(self, request, *args, **kwargs):
+        input_data = OrderedDict(request.data)
+
+        if r'type' in input_data:
+            input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
+        if r'partner' in input_data:
+            input_data[r'partner'] = Partner.objects.get(name=input_data[r'partner'])
+
+        program_writer = self.get_serializer_class()
+        writer = program_writer(data=input_data)
+        if not writer.is_valid():
+            raise ValidationError(
+                'invalid arguments: {} \n fields error: {}'.format(
+                    kwargs, writer.errors
+                )
+            )
+        program_uuid = writer.save().uuid
+
+        return Response({'program_uuid': program_uuid}, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        input_data = OrderedDict(request.data)
+
+        if r'type' in input_data:
+            input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
+        if r'partner' in input_data:
+            input_data[r'partner'] = Partner.objects.get(name=input_data[r'partner'])
+
+        program = self.get_object()
+        writer = self.get_serializer(program, data=input_data, partial=True)
+        if not writer.is_valid():
+            raise ValidationError(
+                'invalid arguments: {} \n fields error: {}'.format(
+                    kwargs, writer.errors
+                )
+            )
+        writer.save()
+
+        return Response({'program_uuid': program.uuid}, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
         program_uuid = kwargs['uuid']

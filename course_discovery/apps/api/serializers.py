@@ -874,14 +874,6 @@ class ProgramSerializer(MinimalProgramSerializer):
     instructor_ordering = PersonSerializer(many=True, read_only=True)
     applicable_seat_types = serializers.SerializerMethodField(read_only=True)
 
-    def create(self, validated_data):
-        if r'type' in validated_data:
-            validated_data[r'type'] = ProgramType.objects.get(name=validated_data[r'type'])
-        if r'partner' in validated_data:
-            validated_data[r'partner'] = Partner.objects.get(name=validated_data[r'partner'])
-
-        return Program.objects.create(**validated_data)
-
     @classmethod
     def prefetch_queryset(cls, partner, *args, **kwargs):
         """
