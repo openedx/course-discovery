@@ -356,6 +356,7 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'user': '100/hour',
     },
+    'EXCEPTION_HANDLER': 'course_discovery.apps.api.utils.learning_tribes_exception_handler'
 }
 
 # http://chibisov.github.io/drf-extensions/docs/

@@ -727,14 +727,6 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
-class PartnerReadSerializer(serializers.ModelSerializer):
-    name = serializers.CharField()
-
-    class Meta:
-        model = Partner
-        fields = ('name', 'short_code', 'marketing_site_url_root')
-
-
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(read_only=True, many=True)
     banner_image = StdImageSerializerField()
