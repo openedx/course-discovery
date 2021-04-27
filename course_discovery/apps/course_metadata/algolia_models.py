@@ -217,7 +217,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def tags(self):
-        return [tag_name for tag_name in self.topics.names()]
+        return list(self.topics.names())
 
     @property
     def should_index(self):
@@ -323,7 +323,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def tags(self):
-        return [tag_name for tag_name in self.topics]
+        return [topic.name for topic in self.topics]
 
     @property
     def availability_level(self):
