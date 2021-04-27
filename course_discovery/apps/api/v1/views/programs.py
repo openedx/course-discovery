@@ -40,7 +40,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         if self.action in ('list', 'courses'):
             return serializers.MinimalProgramSerializer
 
-        # actions: partial_update, update, create
+        # actions: partial_update, update, create, retrieve, delete
         return serializers.ProgramSerializer
 
     def get_queryset(self):
@@ -63,6 +63,12 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
             context[query_param] = get_query_param(self.request, query_param)
 
         return context
+
+    def destroy(self, request, *args, **kwargs):
+        program_uuid = kwargs['uuid']
+        Program.objects.get(uuid=program_uuid).delete()
+
+        return Response({'program_uuid': program_uuid}, status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
         """ List all programs.
@@ -146,9 +152,8 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
                     )
                 program.courses.add(course)
 
-                # After adding a new course into Program:
-                #   make sure to update all the Program Team Member are all in this new Course's Team.
-                # TO DO: POST: (course_id, program_uuid) to lms rest api for updating
+                # After adding a new course into Program, make sure to update all the Program Team Member are all in this new Course's Team.
+                # PATCH: localhost:18000/api/team/v0/team_membership? course_id, program_uuid
                 return Response({'course_uuid': course_uuid}, status=status.HTTP_201_CREATED)
             elif request.method == 'DELETE':
                 course = program.courses.get(uuid=course_uuid)

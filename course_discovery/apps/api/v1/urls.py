@@ -16,6 +16,7 @@ from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.api.v1.views.subjects import SubjectViewSet
 from course_discovery.apps.api.v1.views.topics import TopicViewSet
 
+
 partners_router = routers.SimpleRouter()
 partners_router.register(r'affiliate_window/catalogs', AffiliateWindowViewSet, base_name='affiliate_window')
 
