@@ -52,7 +52,7 @@ def delegate_attributes(cls):
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index']
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'active_run_key',
-                     'active_run_start', 'active_run_type', 'owners', 'program_types', 'course_titles']
+                     'active_run_start', 'active_run_type', 'owners', 'program_types', 'course_titles', 'tags']
     object_id_field = ['custom_object_id', ]
     fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -216,6 +216,10 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return False
 
     @property
+    def tags(self):
+        return [tag_name for tag_name in self.topics.names()]
+
+    @property
     def should_index(self):
         """Only index courses in the edX catalog with a non-hidden advertiseable course run, at least one owner, and
         a marketing url slug"""
@@ -316,6 +320,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         if self.type:
             return [self.type.name]
         return None
+
+    @property
+    def tags(self):
+        return [tag_name for tag_name in self.topics]
 
     @property
     def availability_level(self):
