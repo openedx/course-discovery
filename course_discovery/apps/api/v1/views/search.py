@@ -145,6 +145,8 @@ class CourseSearchViewSet(BaseHaystackViewSet):
 
 
 class CourseRunSearchViewSet(BaseHaystackViewSet):
+    ordering_fields = ('start', 'id', 'title_override')
+    filter_backends = [OrderingFilter]
     index_models = (CourseRun,)
     detail_serializer_class = serializers.CourseRunSearchModelSerializer
     facet_serializer_class = serializers.CourseRunFacetSerializer
