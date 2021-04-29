@@ -172,17 +172,15 @@ class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     lookup_field = 'uuid'
 
     def get_serializer_class(self):
-        """Return serializer class by conditions"""
         return serializers.MinimalProgramSerializer
 
     def get_queryset(self):
-        serializer_class = self.get_serializer_class()
         filters = {
             'partner': self.request.site.partner,
             'program_uuid': self.kwargs['program_uuid']
         }
 
-        return serializer_class.prefetch_queryset(**filters)
+        return self.get_serializer_class().prefetch_queryset(**filters)
 
     def list(self, request, program_uuid):
         program = self.get_queryset().first()
@@ -190,7 +188,9 @@ class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(
             program, many=False, context={'request': self.request}
         )
-        return Response(serializer.data['courses'], status=status.HTTP_200_OK)
+        return Response(
+            serializer.data['courses'], status=status.HTTP_200_OK
+        )
 
     def create(self, request, *args, **kwargs):
         course_uuid = self.request.data.get('course_uuid')
@@ -204,21 +204,28 @@ class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
 
         # After adding a new course into Program, make sure to update all the Program Team Member are all in this new Course's Team.
         # PATCH: localhost:18000/api/team/v0/team_membership? course_id, program_uuid
-        return Response({'course_uuid': course_uuid}, status=status.HTTP_201_CREATED)
+        return Response(
+            {'course_uuid': course_uuid}, status=status.HTTP_201_CREATED
+        )
 
     def delete(self, request, *args, **kwargs):
         course_uuid = self.request.data.get('course_uuid')
         program = self.get_queryset().first()
         course = program.courses.get(uuid=course_uuid)
+
         program.courses.remove(course)
 
-        return Response({'course_uuid': course_uuid}, status=status.HTTP_200_OK)
+        return Response(
+            {'course_uuid': course_uuid}, status=status.HTTP_200_OK
+        )
 
     def patch(self, request, *args, **kwargs):
         course_uuid = self.request.data.get('course_uuid')
         program = self.get_queryset().first()
         if program.order_courses_by_start_date:
-            raise ValidationError('Please assign `order_courses_by_start_date=False` first')
+            raise ValidationError(
+                'Please assign `order_courses_by_start_date=False` first'
+            )
         target_order = int(request.data.get('order_no'))  # Zero based index !
         course_id_ = program.courses.get(uuid=course_uuid).id
         # Get courses ids & orders vector
@@ -233,7 +240,9 @@ class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         # Move element to a new position
         if target_order >= len(courses_ids) or source_order == target_order:
             raise ValidationError('Target index is a invalid value.')
-        courses_ids.insert(target_order, int(courses_ids.pop(source_order)))  # Sorted.
+        courses_ids.insert(
+            target_order, int(courses_ids.pop(source_order))
+        )  # Sorted.
         # Dump into data table
         with transaction.atomic(), connection.cursor() as cur:
             start_index = min(source_order, target_order)
@@ -243,4 +252,7 @@ class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
                         const_courses_orders[index][1], course_id, program.id
                     )
                 )
-        return Response({'course_uuid': course_uuid}, status=status.HTTP_200_OK)
+
+        return Response(
+            {'course_uuid': course_uuid}, status=status.HTTP_200_OK
+        )

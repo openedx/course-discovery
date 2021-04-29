@@ -754,9 +754,9 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'banner_image',
+            'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'banner_image', 'hidden',
             'authoring_organizations',
-            'courses', 'card_image_url', 'is_program_eligible_for_one_click_purchase', 'duration', 'language'
+            'courses', 'card_image_url', 'is_program_eligible_for_one_click_purchase', 'duration', 'language',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
@@ -845,7 +845,6 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
 
 class ProgramSerializer(MinimalProgramSerializer):
-    authoring_organizations = OrganizationSerializer(many=True, read_only=True)
     video = VideoSerializer(read_only=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
     faq = FAQSerializer(many=True, read_only=True)
