@@ -235,8 +235,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def format_course_data(self, body):
         defaults = {
             'title': body['name'],
-            'card_image_url': body['media'].get('image', {}).get('raw'),
         }
+
+        if not self.partner.has_marketing_site:
+            defaults['card_image_url'] = body['media'].get('image', {}).get('raw')
 
         return defaults
 
