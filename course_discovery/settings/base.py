@@ -81,6 +81,7 @@ PROJECT_APPS = [
     'course_discovery.apps.publisher',
     'course_discovery.apps.publisher_comments',
     'course_discovery.apps.journal',
+    'course_discovery.apps.edly_discovery_app',
 ]
 
 
@@ -637,3 +638,6 @@ MEDIA_STORAGE_BACKEND = {
 }
 WORDPRESS_APP_AUTH_USERNAME = 'coursediscoveryworker'
 WORDPRESS_APP_AUTH_PASSWORD = ''
+
+# Edly configuration
+EDLY_PANEL_WORKER_USER = 'edly_panel_worker'
