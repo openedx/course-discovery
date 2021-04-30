@@ -205,6 +205,13 @@ class Organization(CachedMixin, TimeStampedModel):
             " generated.  When this flag is disabled, the key can be manually set."
         )
     )
+    enable_skills_in_publisher = models.BooleanField(
+        default=False,
+        verbose_name=_('Enable skills in Publisher'),
+        help_text=_(
+            'When this flag is enabled, the skill tags will show up in the course edit page in Publisher.'
+        )
+    )
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
@@ -223,7 +230,7 @@ class Organization(CachedMixin, TimeStampedModel):
 
     def __str__(self):
         if self.name and self.name != self.key:
-            return '{key}: {name}'.format(key=self.key, name=self.name)
+            return f'{self.key}: {self.name}'
         else:
             return self.key
 
@@ -255,9 +262,9 @@ class Organization(CachedMixin, TimeStampedModel):
         logo = self.certificate_logo_image
         if logo:
             base_url = getattr(settings, 'ORG_BASE_LOGO_URL', None)
-            logo_url = '{}{}'.format(base_url, logo) if base_url else logo.url
+            logo_url = f'{base_url}{logo}' if base_url else logo.url
             data['logo_url'] = logo_url
-        organizations_url = '{}organizations/{}/'.format(partner.organizations_api_url, key)
+        organizations_url = f'{partner.organizations_api_url}organizations/{key}/'
         try:
             partner.oauth_api_client.put(organizations_url, json=data)
         except requests.exceptions.ConnectionError as e:
@@ -277,7 +284,7 @@ class Video(AbstractMediaModel):
     image = models.ForeignKey(Image, models.CASCADE, null=True, blank=True)
 
     def __str__(self):
-        return '{src}: {description}'.format(src=self.src, description=self.description)
+        return f'{self.src}: {self.description}'
 
 
 class LevelType(TranslatableModel, TimeStampedModel):
@@ -686,7 +693,7 @@ class Position(TimeStampedModel):
     organization_override = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
-        return '{title} at {organization}'.format(title=self.title, organization=self.organization_name)
+        return f'{self.title} at {self.organization_name}'
 
     @property
     def organization_name(self):
@@ -759,13 +766,13 @@ class Collaborator(TimeStampedModel):
         return None
 
     def __str__(self):
-        return '{name}'.format(name=self.name)
+        return f'{self.name}'
 
 
 class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
-    uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
+    uuid = models.UUIDField(default=uuid4, editable=True, verbose_name=_('UUID'))
     canonical_course_run = models.OneToOneField(
         'course_metadata.CourseRun', models.CASCADE, related_name='canonical_for_course',
         default=None, null=True, blank=True,
@@ -854,7 +861,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         ordering = ['id']
 
     def __str__(self):
-        return '{key}: {title}'.format(key=self.key, title=self.title)
+        return f'{self.key}: {self.title}'
 
     def clean(self):
         # We need to populate the value with 0 - model blank and null definitions are to validate the admin form.
@@ -880,7 +887,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     def marketing_url(self):
         url = None
         if self.partner.marketing_site_url_root:
-            path = 'course/{slug}'.format(slug=self.active_url_slug)
+            path = f'course/{self.active_url_slug}'
             url = urljoin(self.partner.marketing_site_url_root, path)
 
         return url
@@ -1571,7 +1578,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         type_is_marketable = self.type.is_marketable
 
         if self.slug and type_is_marketable:
-            path = 'course/{slug}'.format(slug=self.slug)
+            path = f'course/{self.slug}'
             return urljoin(self.course.partner.marketing_site_url_root, path)
 
         return None
@@ -1714,7 +1721,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         return queryset.query(dsl_query)
 
     def __str__(self):
-        return '{key}: {title}'.format(key=self.key, title=self.title)
+        return f'{self.key}: {self.title}'
 
     def validate_seat_upgrade(self, seat_types):
         """
@@ -2262,7 +2269,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     @property
     def marketing_url(self):
         if self.marketing_slug:
-            path = '{type}/{slug}'.format(type=self.type.slug.lower(), slug=self.marketing_slug)
+            path = f'{self.type.slug.lower()}/{self.marketing_slug}'
             return urljoin(self.partner.marketing_site_url_root, path)
 
         return None
@@ -2291,7 +2298,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def languages(self):
-        return set(course_run.language for course_run in self.course_runs if course_run.language is not None)
+        return {course_run.language for course_run in self.course_runs if course_run.language is not None}
 
     @property
     def transcript_languages(self):
@@ -2360,7 +2367,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     @property
     def seat_types(self):
-        return set(seat.type for seat in self.seats)
+        return {seat.type for seat in self.seats}
 
     def _select_for_total_price(self, selected_seat, candidate_seat):
         """
@@ -2652,7 +2659,7 @@ class Degree(Program):
         verbose_name_plural = "Degrees"
 
     def __str__(self):
-        return str('Degree: {}'.format(self.title))
+        return str(f'Degree: {self.title}')
 
 
 class IconTextPairing(TimeStampedModel):
@@ -2697,7 +2704,7 @@ class IconTextPairing(TimeStampedModel):
         verbose_name_plural = "IconTextPairings"
 
     def __str__(self):
-        return str('IconTextPairing: {}'.format(self.text))
+        return str(f'IconTextPairing: {self.text}')
 
 
 class DegreeDeadline(TimeStampedModel):
@@ -2730,7 +2737,7 @@ class DegreeDeadline(TimeStampedModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return "{} {}".format(self.name, self.date)
+        return f"{self.name} {self.date}"
 
 
 class DegreeCost(TimeStampedModel):
@@ -2754,7 +2761,7 @@ class DegreeCost(TimeStampedModel):
     history = HistoricalRecords()
 
     def __str__(self):
-        return str('{}, {}'.format(self.description, self.amount))
+        return str(f'{self.description}, {self.amount}')
 
 
 class Curriculum(TimeStampedModel):
@@ -2913,7 +2920,7 @@ class PersonSocialNetwork(TimeStampedModel):
         ordering = ['created']
 
     def __str__(self):
-        return '{title}: {url}'.format(title=self.display_title, url=self.url)
+        return f'{self.display_title}: {self.url}'
 
     @property
     def display_title(self):

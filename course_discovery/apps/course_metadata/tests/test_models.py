@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
-
 import datetime
 import itertools
 import uuid
 from decimal import Decimal
 from functools import partial
+from unittest import mock
 
 import ddt
-import mock
 import pytest
 import pytz
 import responses
@@ -56,7 +54,7 @@ from course_discovery.apps.publisher.tests.factories import OrganizationExtensio
 class TestCourse(TestCase):
     def test_str(self):
         course = factories.CourseFactory()
-        assert str(course), '{key}: {title}'.format(key=course.key, title=course.title)
+        assert str(course), f'{course.key}: {course.title}'
 
     def test_search(self):
         title = 'Some random title'
@@ -438,7 +436,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     def test_str(self):
         """ Verify casting an instance to a string returns a string containing the key and title. """
         course_run = self.course_run
-        assert str(course_run) == '{key}: {title}'.format(key=course_run.key, title=course_run.title)
+        assert str(course_run) == f'{course_run.key}: {course_run.title}'
 
     @ddt.data('full_description_override', 'outcome_override', 'short_description_override')
     def test_html_fields_are_validated(self, field_name):
@@ -455,7 +453,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     @ddt.data('title', 'short_description', 'full_description')
     def test_override_fields(self, field_name):
         """ Verify the `CourseRun`'s override field overrides the related `Course`'s field. """
-        override_field_name = "{}_override".format(field_name)
+        override_field_name = f"{field_name}_override"
         assert getattr(self.course_run, override_field_name) is None
         assert getattr(self.course_run, field_name) == getattr(self.course_run.course, field_name)
 
@@ -553,7 +551,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         """ Verify the slug is created on first save from the title and key. """
         course_run = CourseRunFactory(title='Test Title')
         slug_key = uslugify(course_run.key)
-        assert course_run.slug == 'test-title-{slug_key}'.format(slug_key=slug_key)
+        assert course_run.slug == f'test-title-{slug_key}'
 
     def test_empty_slug_defined_on_save(self):
         """ Verify the slug is defined on save if it wasn't set already. """
@@ -561,7 +559,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         self.course_run.title = 'Test Title'
         self.course_run.save()
         slug_key = uslugify(self.course_run.key)
-        assert self.course_run.slug == 'test-title-{slug_key}'.format(slug_key=slug_key)
+        assert self.course_run.slug == f'test-title-{slug_key}'
 
     def test_program_types(self):
         """ Verify the property retrieves program types correctly based on programs. """
@@ -903,7 +901,7 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         self.partner = self.course_run.course.partner
 
     def mock_ecommerce_publication(self):
-        url = '{root}publication/'.format(root=self.partner.ecommerce_api_url)
+        url = f'{self.partner.ecommerce_api_url}publication/'
         responses.add(responses.POST, url, json={}, status=200)
 
     def test_official_created(self):
@@ -1039,7 +1037,7 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         self.partner.save()
         self.mock_access_token()
         self.mock_ecommerce_publication()
-        url = '{root}courses/{key}/'.format(root=self.partner.lms_coursemode_api_url, key=self.course_run.key)
+        url = f'{self.partner.lms_coursemode_api_url}courses/{self.course_run.key}/'
 
         # Mark course as draft
         self.course_run.course.draft = True
@@ -1144,7 +1142,7 @@ class OrganizationTests(TestCase):
         Verify that the clean method raises validation error if key consists of special characters
         """
         for char in invalid_char_list:
-            self.organization.key = 'key{}'.format(char)
+            self.organization.key = f'key{char}'
             pytest.raises(ValidationError, self.organization.clean)
 
     @ddt.data(
@@ -1389,7 +1387,7 @@ class ProgramTests(TestCase):
         """
         call_command('search_index', '--rebuild', '-f')
         query = 'title:' + self.program.title
-        self.assertSetEqual(set([Program.search(query).first()]), set([self.program]))
+        self.assertSetEqual({Program.search(query).first()}, {self.program})
 
     def test_subject_search(self):
         """
@@ -1397,7 +1395,7 @@ class ProgramTests(TestCase):
         """
         call_command('search_index', '--rebuild', '-f')
         query = str(self.subjects[0].uuid)
-        self.assertSetEqual(set(Program.search(query)), set([self.program]))
+        self.assertSetEqual(set(Program.search(query)), {self.program})
 
     # pylint: disable=access-member-before-definition, attribute-defined-outside-init
     def create_program_with_entitlements_and_seats(self):
@@ -1797,7 +1795,7 @@ class ProgramTests(TestCase):
         course3.topics.set(topicB, topicC)
 
         program1 = factories.ProgramFactory(courses=[course1, course2, course3])
-        assert program1.topics == set((topicA, topicB, topicC))
+        assert program1.topics == {topicA, topicB, topicC}
 
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
@@ -1963,7 +1961,7 @@ class ProgramTests(TestCase):
     def test_banner_image(self):
         self.program.banner_image = make_image_file('test_banner.jpg')
         self.program.save()
-        image_url_prefix = '{}media/programs/banner_images/'.format(settings.MEDIA_URL)
+        image_url_prefix = f'{settings.MEDIA_URL}media/programs/banner_images/'
         assert image_url_prefix in self.program.banner_image.url
         for size_key in self.program.banner_image.field.variations:
             # Get different sizes specs from the model field
@@ -2050,7 +2048,7 @@ class PersonSocialNetworkTests(TestCase):
 
     def test_str(self):
         """Verify that a person-social-network is properly converted to a str."""
-        assert str(self.network) == '{title}: {url}'.format(title=self.network.display_title, url=self.network.url)
+        assert str(self.network) == f'{self.network.display_title}: {self.network.url}'
 
     def test_unique_constraint(self):
         """Verify that a person-social-network does not allow multiple accounts for same
@@ -2289,7 +2287,7 @@ class DegreeDeadlineTests(TestCase):
             name=self.deadline_name,
             date=self.deadline_date,
         )
-        assert str(degree_deadline) == '{} {}'.format(self.deadline_name, self.deadline_date)
+        assert str(degree_deadline) == f"{self.deadline_name} {self.deadline_date}"
         assert degree_deadline.time == ''
 
     @ddt.data('12:30PM EST', '')
@@ -2319,7 +2317,7 @@ class DegreeCostTests(TestCase):
             description=cost_name,
             amount=cost_amount,
         )
-        assert str(degree_cost) == str('{}, {}').format(cost_name, cost_amount)
+        assert str(degree_cost) == f'{cost_name}, {cost_amount}'
 
 
 class SubjectTests(SiteMixin, TestCase):

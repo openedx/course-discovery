@@ -27,7 +27,7 @@ class MarketingSitePeople:
         }
 
     def _create_node(self, api_client, node_data):
-        node_url = '{root}/node.json'.format(root=api_client.api_url)
+        node_url = f'{api_client.api_url}/node.json'
         response = api_client.api_session.post(node_url, data=json.dumps(node_data))
         if response.status_code == 201:
             response_json = response.json()
@@ -37,7 +37,7 @@ class MarketingSitePeople:
             raise PersonToMarketingException("Marketing site Person page creation failed!")
 
     def _get_node_id_from_uuid(self, api_client, uuid):
-        node_url = '{root}/node.json?uuid={uuid}'.format(root=api_client.api_url, uuid=uuid)
+        node_url = f'{api_client.api_url}/node.json?uuid={uuid}'
         response = api_client.api_session.get(node_url)
         if response.status_code == 200:
             response_json = response.json()
@@ -73,7 +73,7 @@ class MarketingSitePeople:
             logger.info('Person with UUID [%s] does not exist on the marketing site', person_uuid)
 
     def _update_node(self, api_client, node_id, node_data):
-        node_url = '{root}/node.json/{node_id}'.format(root=api_client.api_url, node_id=node_id)
+        node_url = f'{api_client.api_url}/node.json/{node_id}'
         response = api_client.api_session.put(node_url, data=json.dumps(node_data))
         if response.status_code == 200:
             response_json = response.json()
@@ -83,5 +83,5 @@ class MarketingSitePeople:
             raise PersonToMarketingException("Marketing site Person page update failed!")
 
     def _delete_node(self, api_client, node_id):
-        node_url = '{root}/node.json/{node_id}'.format(root=api_client.api_url, node_id=node_id)
+        node_url = f'{api_client.api_url}/node.json/{node_id}'
         api_client.api_session.delete(node_url)

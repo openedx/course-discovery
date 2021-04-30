@@ -170,7 +170,7 @@ class SkillFactory(factory.django.DjangoModelFactory):
 
 
 class CourseSkillsFactory(factory.django.DjangoModelFactory):
-    course_id = FuzzyText()
+    course_key = FuzzyText()
     skill = factory.SubFactory(SkillFactory)
     confidence = FuzzyDecimal(0.0, 1.0)
     is_blacklisted = False
@@ -471,13 +471,13 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Program
 
-    title = factory.Sequence(lambda n: 'test-program-{}'.format(n))  # pylint: disable=unnecessary-lambda
+    title = factory.Sequence(lambda n: f'test-program-{n}')
     uuid = factory.LazyFunction(uuid4)
     subtitle = FuzzyText()
     marketing_hook = FuzzyText()
     type = factory.SubFactory(ProgramTypeFactory)
     status = ProgramStatus.Active
-    marketing_slug = factory.Sequence(lambda n: 'test-slug-{}'.format(n))  # pylint: disable=unnecessary-lambda
+    marketing_slug = factory.Sequence(lambda n: f'test-slug-{n}')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
     partner = factory.SubFactory(PartnerFactory)
     video = factory.SubFactory(VideoFactory)
@@ -654,10 +654,10 @@ class PathwayFactory(factory.django.DjangoModelFactory):
     partner = factory.SubFactory(PartnerFactory)
     name = FuzzyText()
     org_name = FuzzyText()
-    email = factory.Sequence(lambda n: 'test-email-{}@test.com'.format(n))  # pylint: disable=unnecessary-lambda
+    email = factory.Sequence(lambda n: f'test-email-{n}@test.com')
     description = FuzzyText()
     destination_url = FuzzyURL()
-    pathway_type = FuzzyChoice((path_type.value for path_type in PathwayType))
+    pathway_type = FuzzyChoice(path_type.value for path_type in PathwayType)
 
     class Meta:
         model = Pathway

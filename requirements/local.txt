@@ -34,10 +34,8 @@ bcrypt==3.2.0
     # via paramiko
 beautifulsoup4==4.9.3
     # via -r requirements/base.in
-billiard==3.6.3.0
+billiard==3.6.4.0
     # via celery
-cached-property==1.5.2
-    # via docker-compose
 celery==4.4.7
     # via
     #   -c requirements/constraints.txt
@@ -69,7 +67,7 @@ coverage==5.5
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==3.4.6
+cryptography==3.4.7
     # via
     #   authlib
     #   paramiko
@@ -114,14 +112,14 @@ django-dynamic-filenames==1.1.4
     # via -r requirements/base.in
 django-elasticsearch-debug-toolbar==2.0.0
     # via -r requirements/local.in
-django-elasticsearch-dsl-drf==0.21
+django-elasticsearch-dsl-drf==0.22
     # via -r requirements/base.in
 django-elasticsearch-dsl==7.1.4
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
-django-extensions==3.1.1
+django-extensions==3.1.2
     # via -r requirements/base.in
 django-filter==2.4.0
     # via -r requirements/base.in
@@ -135,7 +133,7 @@ django-model-utils==4.1.1
     # via taxonomy-connector
 django-nine==0.2.4
     # via django-elasticsearch-dsl-drf
-django-object-actions==3.0.1
+django-object-actions==3.0.2
     # via -r requirements/base.in
 django-parler==2.2
     # via -r requirements/base.in
@@ -149,7 +147,7 @@ django-solo==1.1.5
     #   taxonomy-connector
 django-sortedm2m==3.0.2
     # via -r requirements/base.in
-django-stdimage==5.2.0
+django-stdimage==5.3.0
     # via -r requirements/base.in
 django-storages==1.11.1
     # via -r requirements/base.in
@@ -182,6 +180,7 @@ django-webpack-loader==0.7.0
     #   django-crum
     #   django-debug-toolbar
     #   django-dynamic-filenames
+    #   django-extensions
     #   django-filter
     #   django-guardian
     #   django-model-utils
@@ -206,7 +205,7 @@ djangorestframework-csv==2.1.0
     # via -r requirements/base.in
 djangorestframework-xml==2.0.0
     # via -r requirements/base.in
-djangorestframework==3.12.2
+djangorestframework==3.12.4
     # via
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
@@ -217,7 +216,7 @@ djangorestframework==3.12.2
     #   edx-drf-extensions
     #   rest-condition
     #   taxonomy-connector
-docker-compose==1.28.5
+docker-compose==1.28.6
     # via -r requirements/local.in
 docker[ssh]==4.4.4
     # via docker-compose
@@ -226,12 +225,14 @@ dockerpty==0.4.1
 docopt==0.6.2
     # via docker-compose
 docutils==0.16
-    # via sphinx
+    # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+    #   sphinx
 drf-dynamic-fields==0.3.1
     # via -r requirements/base.in
 drf-extensions==0.7.0
     # via -r requirements/base.in
-drf-jwt==1.17.3
+drf-jwt==1.19.0
     # via edx-drf-extensions
 dry-rest-permissions==0.1.10
     # via -r requirements/base.in
@@ -247,7 +248,7 @@ edx-django-release-util==1.0.0
     # via -r requirements/base.in
 edx-django-sites-extensions==3.0.0
     # via -r requirements/base.in
-edx-django-utils==3.15.0
+edx-django-utils==3.16.0
     # via
     #   -r requirements/base.in
     #   edx-drf-extensions
@@ -270,7 +271,7 @@ edx-rest-api-client==5.3.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-edx-sphinx-theme==2.0.0
+edx-sphinx-theme==2.1.0
     # via -r requirements/docs.in
 elasticsearch-dsl==7.3.0
     # via
@@ -278,7 +279,7 @@ elasticsearch-dsl==7.3.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-elasticsearch==7.11.0
+elasticsearch==7.12.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -288,7 +289,7 @@ execnet==1.8.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==6.6.1
+faker==8.0.0
     # via factory-boy
 filelock==3.0.12
     # via
@@ -306,7 +307,7 @@ imagesize==1.2.0
     # via sphinx
 iniconfig==1.1.1
     # via pytest
-isort==5.7.0
+isort==5.8.0
     # via
     #   -r requirements/test.in
     #   pylint
@@ -322,11 +323,11 @@ jsonschema==3.2.0
     # via docker-compose
 kombu==4.6.11
     # via celery
-lazy-object-proxy==1.5.2
+lazy-object-proxy==1.6.0
     # via astroid
 libsass==0.20.1
     # via django-libsass
-lxml==4.6.2
+lxml==4.6.3
     # via -r requirements/base.in
 markdown==3.3.4
     # via -r requirements/base.in
@@ -359,7 +360,7 @@ path==15.1.2
     # via path.py
 pbr==5.5.1
     # via stevedore
-pillow==8.1.2
+pillow==8.2.0
     # via
     #   -r requirements/base.in
     #   django-stdimage
@@ -367,10 +368,8 @@ pluggy==0.13.1
     # via
     #   pytest
     #   tox
-polib==1.1.0
+polib==1.1.1
     # via edx-i18n-tools
-progressbar2==3.53.1
-    # via django-stdimage
 psutil==5.8.0
     # via edx-django-utils
 py==1.10.0
@@ -422,7 +421,7 @@ pytest-cov==2.11.1
     # via -r requirements/test.in
 pytest-django-ordering==1.2.0
     # via -r requirements/test.in
-pytest-django==4.1.0
+pytest-django==4.2.0
     # via
     #   -r requirements/test.in
     #   pytest-django-ordering
@@ -432,7 +431,7 @@ pytest-responses==0.4.0
     # via -r requirements/test.in
 pytest-xdist==2.2.1
     # via -r requirements/test.in
-pytest==6.2.2
+pytest==6.2.3
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -448,12 +447,10 @@ python-dateutil==2.8.1
     #   elasticsearch-dsl
     #   faker
     #   freezegun
-python-dotenv==0.15.0
+python-dotenv==0.17.0
     # via docker-compose
 python-memcached==1.59
     # via -r requirements/test.in
-python-utils==2.5.6
-    # via progressbar2
 python3-openid==3.2.0
     # via social-auth-core
 pytz==2021.1
@@ -493,7 +490,7 @@ requests==2.25.1
     #   slumber
     #   social-auth-core
     #   sphinx
-responses==0.12.1
+responses==0.13.2
     # via
     #   -r requirements/test.in
     #   pytest-responses
@@ -505,7 +502,7 @@ selenium==3.141.0
     # via -r requirements/test.in
 semantic-version==2.8.5
     # via edx-drf-extensions
-simple-salesforce==1.10.1
+simple-salesforce==1.11.1
     # via -r requirements/base.in
 simplejson==3.17.2
     # via django-rest-swagger
@@ -519,7 +516,6 @@ six==1.15.0
     #   django-simple-history
     #   django-taggit-serializer
     #   djangorestframework-csv
-    #   docker
     #   dockerpty
     #   edx-auth-backends
     #   edx-ccx-keys
@@ -531,12 +527,10 @@ six==1.15.0
     #   elasticsearch-dsl
     #   jsonschema
     #   libsass
-    #   progressbar2
     #   pyjwkest
     #   pynacl
     #   python-dateutil
     #   python-memcached
-    #   python-utils
     #   responses
     #   social-auth-app-django
     #   social-auth-core
@@ -559,7 +553,7 @@ social-auth-core==4.0.2
     #   -c requirements/constraints.txt
     #   edx-auth-backends
     #   social-auth-app-django
-soupsieve==2.2
+soupsieve==2.2.1
     # via beautifulsoup4
 sphinx==2.4.4
     # via
@@ -586,7 +580,7 @@ stevedore==3.3.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.6.2
+taxonomy-connector==1.11.1
     # via -r requirements/base.in
 testfixtures==6.17.1
     # via -r requirements/test.in
@@ -624,7 +618,7 @@ vine==1.3.0
     # via
     #   amqp
     #   celery
-virtualenv==20.4.2
+virtualenv==20.4.3
     # via tox
 websocket-client==0.58.0
     # via

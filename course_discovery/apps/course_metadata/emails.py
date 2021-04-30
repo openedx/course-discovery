@@ -103,8 +103,8 @@ def send_email(template_name, subject, to_users, recipient_name,
 
     base_context = {}
     if course_run:
-        run_studio_url = urljoin(studio_url, 'course/{}'.format(course_run.key))
-        review_url = urljoin(publisher_url, 'courses/{}'.format(course.uuid))
+        run_studio_url = urljoin(studio_url, f'course/{course_run.key}')
+        review_url = urljoin(publisher_url, f'courses/{course.uuid}')
         base_context.update({
             'course_name': course_run.title,
             'course_key': course_run.key,

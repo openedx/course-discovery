@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-28 20:35+0000\n"
+"POT-Creation-Date: 2021-04-25 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -986,6 +986,18 @@ msgstr ""
 "Ìf pöpülätéd, thïs fïéld wïll övérwrïté nämé ïn plätförm. Ⱡ'σяєм ιρѕυм ∂σłσя"
 " ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
+#: apps/course_metadata/models.py
+msgid "Spanish Description"
+msgstr "Spänïsh Désçrïptïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"For seo, this field allows for alternate spanish description to be manually "
+"inputted"
+msgstr ""
+"För séö, thïs fïéld ällöws för ältérnäté spänïsh désçrïptïön tö ßé mänüällý "
+"ïnpüttéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py
 msgid ""
@@ -1014,6 +1026,18 @@ msgstr ""
 "¢σηѕєqυαт. ∂υιѕ αυтє ιяυяє ∂σłσя ιη яєρяєнєη∂єяιт ιη νσłυρтαтє νєłιт єѕѕє "
 "¢ιłłυм ∂σłσяє єυ ƒυgιαт ηυłłα ραяιαтυя. єχ¢єρтєυя ѕιηт σ¢¢αє¢αт ¢υρι∂αтαт "
 "ηση ρяσι∂єηт, ѕυηт ιη ¢υłρα qυι σƒƒι¢ια ∂єѕєяυηт мσłłιт αηιм ι∂ єѕт łαвσя#"
+
+#: apps/course_metadata/models.py
+msgid "Enable skills in Publisher"
+msgstr "Énäßlé skïlls ïn Püßlïshér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"When this flag is enabled, the skill tags will show up in the course edit "
+"page in Publisher."
+msgstr ""
+"Whén thïs fläg ïs énäßléd, thé skïll tägs wïll shöw üp ïn thé çöürsé édït "
+"pägé ïn Püßlïshér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -1765,12 +1789,18 @@ msgid "Save Course Run"
 msgstr "Sävé Çöürsé Rün Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html
+#: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html
 msgid "Home"
 msgstr "Hömé Ⱡ'σяєм ι#"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html
 msgid "Course Skills"
 msgstr "Çöürsé Skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html
+#: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html
+msgid "Refresh Course Skills"
+msgstr "Réfrésh Çöürsé Skïlls Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html
 #, python-format
@@ -2045,6 +2075,12 @@ msgid "The program was changed successfully."
 msgstr ""
 "Thé prögräm wäs çhängéd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/views.py
+msgid "The refresh course skills task triggered successfully."
+msgstr ""
+"Thé réfrésh çöürsé skïlls täsk trïggéréd süççéssfüllý. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/views.py
 msgid "The course skills were updated successfully."

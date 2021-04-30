@@ -51,7 +51,7 @@ def check_curriculum_for_cycles(sender, instance, **kwargs):  # pylint: disable=
         return
 
     if _find_in_programs(curriculum.program_curriculum.all(), target_program=curriculum.program):
-        raise ValidationError('Circular ref error.  Curriculum already contains program {}'.format(curriculum.program))
+        raise ValidationError(f'Circular ref error.  Curriculum already contains program {curriculum.program}')
 
 
 @receiver(pre_save, sender=CurriculumProgramMembership)

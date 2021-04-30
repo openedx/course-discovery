@@ -1,8 +1,8 @@
 import datetime
 from re import escape
+from unittest import mock
 
 import ddt
-import mock
 import pytest
 from django.apps import apps
 from django.core.exceptions import ValidationError
@@ -59,7 +59,7 @@ class TestCacheInvalidation:
 
             factory = factory_map.get(model)
             if not factory:
-                pytest.fail('The {} model is missing a factory.'.format(model))
+                pytest.fail(f'The {model} model is missing a factory.')
 
             # Verify that model creation and deletion invalidates the API cache.
             instance = factory()
@@ -132,7 +132,7 @@ class ProgramStructureValidationTests(TestCase):
         curriculum.program = program
 
         if is_circular_ref:
-            expected_error = 'Circular ref error.  Curriculum already contains program {}'.format(program)
+            expected_error = f'Circular ref error.  Curriculum already contains program {program}'
             with self.assertRaisesRegex(ValidationError, escape(expected_error)):
                 curriculum.save()
         else:
@@ -199,7 +199,7 @@ class ExternalCourseKeyTestMixin:
 
     @staticmethod
     def _create_course_and_runs(course_identifier=1):
-        course_name = 'course-{}'.format(course_identifier)
+        course_name = f'course-{course_identifier}'
         course = factories.CourseFactory(
             key='course-id/' + course_name + '/test',
             title=course_name,

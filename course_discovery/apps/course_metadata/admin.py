@@ -11,10 +11,11 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
+from waffle import get_waffle_flag_model
 
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
-from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME
+from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME, REFRESH_COURSE_SKILLS_URL_NAME
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
@@ -22,7 +23,7 @@ from course_discovery.apps.course_metadata.forms import (
     CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
-from course_discovery.apps.course_metadata.views import CourseSkillsView
+from course_discovery.apps.course_metadata.views import CourseSkillsView, RefreshCourseSkillsView
 
 PUBLICATION_FAILURE_MSG_TPL = _(
     'An error occurred while publishing the {model} to the marketing site. '
@@ -99,11 +100,23 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number')
+    readonly_fields = ('enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number')
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
-    change_actions = ('course_skills', )
+    change_actions = ('course_skills', 'refresh_course_skills')
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Make UUID field editable for draft if flag is enabled.
+        """
+        if obj and obj.draft:
+            flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
+            flag = get_waffle_flag_model().get(flag_name)
+            if flag.is_active(request):
+                return self.readonly_fields
+
+        return self.readonly_fields + ('uuid',)
 
     def get_change_actions(self, request, object_id, form_url):
         """
@@ -127,6 +140,14 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
         course_skills_url = reverse(f"admin:{COURSE_SKILLS_URL_NAME}", args=(obj.pk,))
         return HttpResponseRedirect(course_skills_url)
 
+    def refresh_course_skills(self, request, obj):
+        """
+        Object tool handler method - redirects to "Refresh Course Skills" view
+        """
+        # url names coming from get_urls are prefixed with 'admin' namespace
+        refresh_course_skills_url = reverse(f"admin:{REFRESH_COURSE_SKILLS_URL_NAME}", args=(obj.pk,))
+        return HttpResponseRedirect(refresh_course_skills_url)
+
     def get_urls(self):
         """
         Returns the additional urls used by the custom object tools.
@@ -136,6 +157,11 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
                 r"^([^/]+)/course_skills$",
                 self.admin_site.admin_view(CourseSkillsView.as_view()),
                 name=COURSE_SKILLS_URL_NAME
+            ),
+            url(
+                r"^([^/]+)/refresh_course_skills$",
+                self.admin_site.admin_view(RefreshCourseSkillsView.as_view()),
+                name=REFRESH_COURSE_SKILLS_URL_NAME
             ),
         ]
         return additional_urls + super().get_urls()
@@ -209,10 +235,22 @@ class CourseRunAdmin(admin.ModelAdmin):
     )
     ordering = ('key',)
     raw_id_fields = ('course', 'draft_version',)
-    readonly_fields = ('uuid', 'enrollment_count', 'recent_enrollment_count', 'hidden', 'key')
+    readonly_fields = ('enrollment_count', 'recent_enrollment_count', 'hidden', 'key')
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key')
     save_error = False
     form = CourseRunAdminForm
+
+    def get_readonly_fields(self, request, obj=None):
+        """
+        Make UUID field editable for draft if flag is enabled.
+        """
+        if obj and obj.draft:
+            flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
+            flag = get_waffle_flag_model().get(flag_name)
+            if flag.is_active(request):
+                return self.readonly_fields
+
+        return self.readonly_fields + ('uuid',)
 
     def response_change(self, request, obj):
         if self.save_error:
@@ -468,7 +506,7 @@ class CurriculumCourseMembershipInline(admin.StackedInline):
 
     def get_edit_link(self, obj=None):
         if obj and obj.pk:
-            edit_url = reverse('admin:{}_{}_change'.format(obj._meta.app_label, obj._meta.model_name), args=[obj.pk])
+            edit_url = reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.pk])
             return format_html(
                 """<a href="{url}">{text}</a>""",
                 url=edit_url,
