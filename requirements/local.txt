@@ -106,7 +106,7 @@ django-cors-headers==2.5.3
     #   -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
-django-debug-toolbar==3.2
+django-debug-toolbar==3.2.1
     # via -r requirements/local.in
 django-dynamic-filenames==1.1.4
     # via -r requirements/base.in
