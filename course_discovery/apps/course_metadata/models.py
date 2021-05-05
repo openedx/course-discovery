@@ -515,6 +515,9 @@ class Subject(TranslatableModel, TimeStampedModel):
                          help_text=_('Leave this field blank to have the value generated automatically.'))
 
     partner = models.ForeignKey(Partner, models.CASCADE)
+    marketing_id = models.PositiveIntegerField(
+        null=True, blank=True, help_text=_('This field contains subject post ID from marketing site.')
+    )
     marketing_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
@@ -675,7 +678,8 @@ class Person(TimeStampedModel):
     def get_profile_image_url(self):
         if self.profile_image and hasattr(self.profile_image, 'url'):
             return self.profile_image.url
-        return None
+        else:
+            return self.profile_image_url
 
 
 class Position(TimeStampedModel):
@@ -1275,6 +1279,13 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     invite_only = models.BooleanField(default=False)
     featured = models.BooleanField(default=False)
+    is_marketing_price_set = models.BooleanField(
+        default=False,
+        verbose_name=_('Price'),
+        help_text=_( 'Indicates whether the course on marketing site is marked paid')
+    )
+    marketing_price_value = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Price Value'))
+    is_marketing_price_hidden = models.BooleanField(default=False, verbose_name=_('Hide Price'))
 
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',

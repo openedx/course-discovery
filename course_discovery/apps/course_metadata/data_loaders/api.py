@@ -243,7 +243,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             defaults.update({
                 'short_description_override': body['short_description'],
                 'video': self.get_courserun_video(body),
-                'status': CourseRunStatus.Published,
+                'status': CourseRunStatus.Unpublished,
                 'mobile_available': body.get('mobile_available') or False,
             })
 
@@ -988,6 +988,38 @@ class WordPressApiDataLoader(AbstractDataLoader):
             if not course_run.staff.filter(uuid=instructor.uuid).exists():
                 course_run.staff.add(instructor)
 
+    def _add_course_subjects(self, categories, course_run):
+        """
+        Create and add course subjects to a course run.
+        """
+        course_run.course.subjects.clear()
+        for category in categories:
+            subject, created = Subject.objects.get_or_create(
+                marketing_id=category['id'],
+                partner=self.partner,
+                defaults={
+                    'description': category['description'],
+                    'marketing_url': category['permalink'],
+                    'name': category['title'],
+                    'slug': category['slug']
+                }
+            )
+
+            if not created:
+                subject.description = category['description']
+                subject.marketing_url = category['permalink']
+                subject.name = category['title']
+                subject.slug = category['slug']
+                subject.save()
+
+            course_run.course.subjects.add(subject)
+
+    def _process_course_status(self, status):
+        """
+        Helper function that process course status.
+        """
+        return CourseRunStatus.Published if status == 'publish' else CourseRunStatus.Unpublished
+
     def _process_response(self, response):
         """
         Process the response from the WordPress.
@@ -1005,26 +1037,17 @@ class WordPressApiDataLoader(AbstractDataLoader):
                 course_run.featured = body['featured']
                 course_run.card_image_url = body['featured_image_url']
                 course_run.slug = body['slug']
-                categories = body['categories']
+                course_run.is_marketing_price_set = body['price']
+                course_run.marketing_price_value = body['price_value']
+                course_run.is_marketing_price_hidden = body['hide_price']
+                course_run.status = self._process_course_status(body['status'])
 
                 course_run.tags.clear()
                 for tag in body['tags']:
                     course_run.tags.add(tag)
 
-                course_run.course.subjects.clear()
-                for category in categories:
-                    subject, _ = Subject.objects.get_or_create(
-                        slug=category['slug'],
-                        partner=self.partner,
-                        defaults={
-                            'name': category['title'],
-                            'description': category['description'],
-                            'marketing_url': category['permalink']
-                        }
-                    )
-                    course_run.course.subjects.add(subject)
-
                 course_run.save()
+                self._add_course_subjects(body['categories'], course_run)
                 self._add_course_instructors(body['course_instructors'], course_run)
             except CourseRun.DoesNotExist:
                 logger.exception('Could not find course run [%s]', course_run_key)

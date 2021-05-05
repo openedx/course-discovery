@@ -404,7 +404,7 @@ class MinimalPersonSerializer(BaseModelSerializer):
         fields = (
             'uuid', 'salutation', 'given_name', 'family_name', 'bio', 'slug', 'position', 'areas_of_expertise',
             'profile_image', 'partner', 'works', 'urls', 'urls_detailed', 'email', 'profile_image_url', 'major_works',
-            'published',
+            'published', 'marketing_url', 'designation',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -758,6 +758,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     run_type = serializers.SlugRelatedField(required=True, slug_field='uuid', source='type',
                                             queryset=CourseRunType.objects.all())
     term = serializers.CharField(required=False, write_only=True)
+    subjects = SubjectSerializer(many=True, allow_null=True, required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -890,6 +891,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
             'course_uuid', 'estimated_hours', 'invite_only', 'subjects',
+            'is_marketing_price_set', 'marketing_price_value', 'is_marketing_price_hidden', 'featured', 'card_image_url',
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
 

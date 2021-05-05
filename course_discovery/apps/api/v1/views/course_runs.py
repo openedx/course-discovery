@@ -90,6 +90,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
             queryset = CourseEditor.editable_course_runs(self.request.user, queryset)
         else:
             queryset = self.queryset
+            queryset = queryset.filter(status=CourseRunStatus.Published)
 
         if q:
             qs = SearchQuerySetWrapper(CourseRun.search(q).filter(partner=partner.short_code))

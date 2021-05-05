@@ -636,7 +636,13 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price,
             'ofac_comment': course_run.ofac_comment,
             'estimated_hours': get_course_run_estimated_hours(course_run),
-            'invite_only': course_run.invite_only
+            'invite_only': course_run.invite_only,
+            'featured': course_run.featured,
+            'is_marketing_price_set': course_run.is_marketing_price_set,
+            'marketing_price_value': course_run.marketing_price_value,
+            'is_marketing_price_hidden': course_run.is_marketing_price_hidden,
+            'card_image_url': course_run.card_image_url,
+            'subjects': [],
         })
         return expected
 
