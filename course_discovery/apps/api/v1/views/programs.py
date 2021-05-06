@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.db import connection
 from django.db import transaction
 from rest_framework import status, viewsets
-from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
@@ -14,7 +13,8 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
-from course_discovery.apps.course_metadata.models import Program, ProgramType, Course
+from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import Program, ProgramType
 from course_discovery.apps.core.models import Partner
 
 
@@ -73,7 +73,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         if r'partner' in input_data:
             input_data[r'partner'] = Partner.objects.get(name=input_data[r'partner'])
 
-        program_writer = self.get_serializer_class()
+        program_writer = self.get_serializer_class()  # ProgramSerializer
         writer = program_writer(data=input_data)
         if not writer.is_valid():
             raise ValidationError(
@@ -83,7 +83,9 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
             )
         program_uuid = writer.save().uuid
 
-        return Response({'program_uuid': program_uuid}, status=status.HTTP_201_CREATED)
+        return Response(
+            {'program_uuid': program_uuid}, status=status.HTTP_201_CREATED
+        )
 
     def update(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
@@ -103,7 +105,9 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
             )
         writer.save()
 
-        return Response({'program_uuid': program.uuid}, status=status.HTTP_200_OK)
+        return Response(
+            {'program_uuid': program.uuid}, status=status.HTTP_200_OK
+        )
 
     def destroy(self, request, *args, **kwargs):
         program_uuid = kwargs['uuid']
@@ -193,7 +197,12 @@ class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         )
 
     def create(self, request, *args, **kwargs):
-        course_uuid = self.request.data.get('course_uuid')
+        course_uuid = self.request.data['course_uuid'] \
+            if 'course_uuid' in self.request.data \
+            else CourseRun.objects.select_related('course').get(
+                    key__iexact=self.request.data['course_id']
+                ).course.uuid
+
         program = self.get_queryset().first()
         course = Course.objects.get(uuid=course_uuid)
         if course in program.courses.all():
