@@ -1474,12 +1474,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     @property
     def marketing_url(self):
-        # If the type isn't marketable, don't expose a marketing URL at all, to avoid confusion.
-        # This is very similar to self.could_be_marketable, but we don't use that because we
-        # still want draft runs to expose a marketing URL.
-        type_is_marketable = self.type.is_marketable
-
-        if self.slug and type_is_marketable:
+        if self.slug:
             path = 'course/{slug}'.format(slug=self.slug)
             return urljoin(self.course.partner.marketing_site_url_root, path)
 
