@@ -7,7 +7,7 @@
 # Beatriz Sousa <beatriz.sousa@bridgelk.com>, 2018
 # Cátia Lopes <catia.lopes@bridgelk.com>, 2019
 # Waldo Luis Ribeiro, 2016
-# Manuela Silva <manuelarodsilva@gmail.com>, 2018
+# Manuela Silva <mmsrs@sky.com>, 2018
 # Rui Ribeiro <info@nau.edu.pt>, 2018
 msgid ""
 msgstr ""
