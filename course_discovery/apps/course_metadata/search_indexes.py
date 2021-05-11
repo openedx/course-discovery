@@ -244,6 +244,10 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     license = indexes.MultiValueField(model_attr='license', faceted=True)
     has_enrollable_seats = indexes.BooleanField(model_attr='has_enrollable_seats', null=False)
     is_current_and_still_upgradeable = indexes.BooleanField(null=False)
+    featured = indexes.BooleanField(model_attr='featured', null=True)
+    is_marketing_price_set = indexes.BooleanField(model_attr='is_marketing_price_set', null=True)
+    marketing_price_value = indexes.CharField(model_attr='marketing_price_value', null=True)
+    is_marketing_price_hidden = indexes.BooleanField(model_attr='is_marketing_price_hidden', null=True)
 
     def read_queryset(self, using=None):
         # Pre-fetch all fields required by the CourseRunSearchSerializer. Unfortunately, there's
