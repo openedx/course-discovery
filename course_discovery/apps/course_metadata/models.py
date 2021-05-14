@@ -1006,8 +1006,6 @@ class Program(TimeStampedModel):
     hidden = models.BooleanField(
         default=False, db_index=True,
         help_text=_('Hide program on marketing site landing and search pages. This program MAY have a detail page.'))
-    enrollment_start = models.DateTimeField(null=True, blank=True, help_text=_('Start date of program'))
-    enrollment_end = models.DateTimeField(null=True, blank=True, help_text=_('End date of program'))
     description = models.TextField(
         default=None, null=True, blank=True,
         help_text=_(
@@ -1029,7 +1027,7 @@ class Program(TimeStampedModel):
         and all its courses must contain only one course run and the remaining
         not excluded course run must contain a purchasable seat.
         """
-        if not self.one_click_purchase_enabled:
+        if not self.one_click_purchase_enabled or not self.type:
             return False
 
         excluded_course_runs = set(self.excluded_course_runs.all())
@@ -1067,7 +1065,8 @@ class Program(TimeStampedModel):
     @property
     def marketing_url(self):
         if self.marketing_slug:
-            path = '{type}/{slug}'.format(type=self.type.slug.lower(), slug=self.marketing_slug)
+            type_node = 'empty_type' if self.type else self.type.slug.lower()
+            path = '{type}/{slug}'.format(type=type_node, slug=self.marketing_slug)
             return urljoin(self.partner.marketing_site_url_root, path)
 
         return None
@@ -1112,6 +1111,9 @@ class Program(TimeStampedModel):
 
     @property
     def seats(self):
+        if not self.type:
+            return ()
+
         applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
 
         for run in self.course_runs:
@@ -1121,6 +1123,9 @@ class Program(TimeStampedModel):
 
     @property
     def canonical_seats(self):
+        if not self.type:
+            return ()
+
         applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
 
         for run in self.canonical_course_runs:
@@ -1130,6 +1135,9 @@ class Program(TimeStampedModel):
 
     @property
     def entitlements(self):
+        if not self.type:
+            return ()
+
         applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
         return CourseEntitlement.objects.filter(mode__name__in=applicable_seat_types, course__in=self.courses.all())
 

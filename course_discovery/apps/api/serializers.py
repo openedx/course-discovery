@@ -731,7 +731,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(read_only=True, many=True)
     banner_image = StdImageSerializerField()
     courses = serializers.SerializerMethodField()
-    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all(), required=False)
     partner = serializers.SlugRelatedField(slug_field='name', queryset=Partner.objects.all())
 
     @classmethod
@@ -894,6 +894,9 @@ class ProgramSerializer(MinimalProgramSerializer):
         )
 
     def get_applicable_seat_types(self, obj):
+        if not obj.type:
+            return []
+
         return list(obj.type.applicable_seat_types.values_list('slug', flat=True))
 
     class Meta(MinimalProgramSerializer.Meta):
@@ -904,7 +907,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'instructor_ordering', 'applicable_seat_types',
-            'enrollment_start', 'enrollment_end', 'description', 'duration', 'language'
+            'description', 'duration', 'language'
         )
 
 
