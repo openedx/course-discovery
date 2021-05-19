@@ -67,7 +67,7 @@ class EdlySiteViewSet(TestCase):
         """
         self.client.logout()
         response = self.client.post(self.url)
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        self.assertEqual(response.status_code, 401)
 
     def test_without_permission(self):
         """
