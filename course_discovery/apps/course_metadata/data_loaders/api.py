@@ -1020,6 +1020,13 @@ class WordPressApiDataLoader(AbstractDataLoader):
         """
         return CourseRunStatus.Published if status == 'publish' else CourseRunStatus.Unpublished
 
+    def _process_course_run_type(self, course_run):
+        """
+        Helper function that process course run status.
+        """
+        audit_course_run_type = CourseRunType.objects.get(slug=CourseRunType.AUDIT)
+        return audit_course_run_type if course_run.type.slug == CourseRunType.EMPTY else course_run.type
+
     def _process_response(self, response):
         """
         Process the response from the WordPress.
@@ -1041,6 +1048,7 @@ class WordPressApiDataLoader(AbstractDataLoader):
                 course_run.marketing_price_value = body['price_value']
                 course_run.is_marketing_price_hidden = body['hide_price']
                 course_run.status = self._process_course_status(body['status'])
+                course_run.type = self._process_course_run_type(course_run)
 
                 course_run.tags.clear()
                 for tag in body['tags']:
