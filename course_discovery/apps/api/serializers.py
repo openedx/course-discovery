@@ -871,6 +871,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         queryset=Subject.objects.all(),
         read_serializer=SubjectSerializer(),
     )
+    image_url = serializers.CharField(source='card_image_url')
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -891,7 +892,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
             'course_uuid', 'estimated_hours', 'invite_only', 'subjects',
-            'is_marketing_price_set', 'marketing_price_value', 'is_marketing_price_hidden', 'featured', 'card_image_url',
+            'is_marketing_price_set', 'marketing_price_value', 'is_marketing_price_hidden', 'featured', 'image_url',
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count',)
 
