@@ -260,7 +260,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
         )
 
     def index_queryset(self, using=None):
-        return filter_visible_runs(super().index_queryset(using=using))
+        return super().index_queryset(using=using)
 
     def prepare_aggregation_key(self, obj):
         # Aggregate CourseRuns by Course key since that is how we plan to dedup CourseRuns on the marketing site.
