@@ -2204,6 +2204,7 @@ class CourseRunSearchSerializer(HaystackSerializer):
             'transcript_languages',
             'type',
             'weeks_to_complete',
+            'title_override',
             'featured',
             'is_marketing_price_set',
             'marketing_price_value',
