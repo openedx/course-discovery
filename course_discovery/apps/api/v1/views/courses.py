@@ -393,6 +393,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                         if any(field in COURSE_FIELDS_FOR_SKILLS for field in changed_fields):
                             logger.info('Signal fired to update course skills. Course: [%s]', course.uuid)
                             UPDATE_COURSE_SKILLS.send(self.__class__, course_uuid=course.uuid)
+                elif course.official_version:
+                    # If there is an official version available but no active or published
+                    # course run, update the slug for official version
+                    course.official_version.set_active_url_slug(url_slug)
 
         # Revert any Reviewed course runs back to Unpublished
         if changed:
