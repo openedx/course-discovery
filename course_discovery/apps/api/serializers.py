@@ -729,7 +729,7 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
 
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(read_only=True, many=True)
-    banner_image = StdImageSerializerField()
+    banner_image = StdImageSerializerField(required=False)
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all(), required=False)
     partner = serializers.SlugRelatedField(slug_field='name', queryset=Partner.objects.all())
