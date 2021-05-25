@@ -227,7 +227,7 @@ class OrganizationFilter(filters.FilterSet):
 class PersonFilter(filters.FilterSet):
     class Meta:
         model = Person
-        fields = ('slug',)
+        fields = ('slug', 'marketing_id')
 
 
 class SubjectFilter(filters.FilterSet):

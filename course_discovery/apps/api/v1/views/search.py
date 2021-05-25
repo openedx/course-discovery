@@ -197,9 +197,10 @@ class PersonSearchViewSet(BaseHaystackViewSet):
     """
     Generic person search
     """
+    ordering_fields = ('created', 'full_name',)
     permission_classes = (IsAuthenticated,)
     index_models = (Person,)
-    filter_backends = (CatalogDataFilterBackend,)
+    filter_backends = (CatalogDataFilterBackend, OrderingFilter)
     detail_serializer_class = serializers.PersonSearchModelSerializer
     facet_serializer_class = serializers.PersonFacetSerializer
     serializer_class = serializers.PersonSearchSerializer
