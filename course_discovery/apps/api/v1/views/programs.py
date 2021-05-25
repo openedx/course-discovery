@@ -211,14 +211,32 @@ class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
             )
         program.courses.add(course)
 
+        # Cal. program's start/end date
+        min_start = max_end = None
+        for course_run in program.course_runs:
+            if not min_start:
+                min_start = course_run.start
+            elif course_run.start < min_start:
+                min_start = course_run.start
+
+            if not max_end:
+                max_end = course_run.end
+            elif course_run.end > max_end:
+                max_end = course_run.end
+
         # After adding a new course into Program, make sure to update all the Program Team Member are all in this new Course's Team.
         # PATCH: localhost:18000/api/team/v0/team_membership? course_id, program_uuid
         return Response(
-            {'course_uuid': course_uuid}, status=status.HTTP_201_CREATED
+            {
+                'course_uuid': course_uuid,
+                'program_start': min_start,
+                'program_end': max_end
+            },
+            status=status.HTTP_201_CREATED
         )
 
-    def delete(self, request, *args, **kwargs):
-        course_uuid = self.request.data.get('course_uuid')
+    def destroy(self, request, *args, **kwargs):
+        course_uuid = kwargs['uuid']
         program = self.get_queryset().first()
         course = program.courses.get(uuid=course_uuid)
 
