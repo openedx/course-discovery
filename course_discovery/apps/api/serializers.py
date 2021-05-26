@@ -250,20 +250,23 @@ class FAQSerializer(BaseModelSerializer):
 
 class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
     """Serializer for the ``Subject`` model."""
+    number_of_courses = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls):
-        return Subject.objects.all().prefetch_related('translations')
+    def prefetch_queryset(cls, partner):
+        return Subject.objects.filter(partner=partner).prefetch_related('translations')
 
     class Meta:
         model = Subject
-        fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug', 'uuid', 'marketing_url')
+        fields = ('name', 'subtitle', 'description', 'banner_image_url', 'card_image_url', 'slug', 'uuid', 'marketing_url', 'number_of_courses')
 
     @property
     def choices(self):
         # choices shows the possible values via HTTP's OPTIONS verb
         return OrderedDict(sorted([(x.slug, x.name) for x in Subject.objects.all()], key=lambda x: x[1]))
 
+    def get_number_of_courses(self, obj):
+        return obj.course_set.count()
 
 class PrerequisiteSerializer(NamedModelSerializer):
     """Serializer for the ``Prerequisite`` model."""

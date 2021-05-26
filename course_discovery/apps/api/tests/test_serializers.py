@@ -1492,6 +1492,8 @@ class SubjectSerializerTests(TestCase):
             'subtitle': subject.subtitle,
             'slug': subject.slug,
             'uuid': str(subject.uuid),
+            'marketing_url': None,
+            'number_of_courses': 0
         }
 
         self.assertDictEqual(serializer.data, expected)

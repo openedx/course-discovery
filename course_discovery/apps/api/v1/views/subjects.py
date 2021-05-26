@@ -22,7 +22,8 @@ class SubjectViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = ProxiedPagination
 
     def get_queryset(self):
-        return serializers.SubjectSerializer.prefetch_queryset()
+        partner = self.request.site.partner
+        return serializers.SubjectSerializer.prefetch_queryset(partner=partner)
 
     def list(self, request, *args, **kwargs):
         """ Retrieve a list of all subjects. """
