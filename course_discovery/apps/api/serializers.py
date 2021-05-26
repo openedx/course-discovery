@@ -768,7 +768,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         for course_run in program.course_runs:
             if not min_start:
                 min_start = course_run.start
-            elif course_run.start < min_start:
+            elif course_run.start and course_run.start < min_start:
                 min_start = course_run.start
 
         return min_start
@@ -779,7 +779,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         for course_run in program.course_runs:
             if not max_end:
                 max_end = course_run.end
-            elif course_run.end > max_end:
+            elif course_run.end and course_run.end > max_end:
                 max_end = course_run.end
 
         return max_end

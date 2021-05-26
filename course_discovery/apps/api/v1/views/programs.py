@@ -174,6 +174,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
 
 class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
     lookup_field = 'uuid'
+    pagination_class = ProxiedPagination
 
     def get_serializer_class(self):
         return serializers.MinimalProgramSerializer
@@ -187,6 +188,9 @@ class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         return self.get_serializer_class().prefetch_queryset(**filters)
 
     def list(self, request, program_uuid):
+        """Return all courses of a program
+            Because we also dont paginate courses list for a Program instance
+        """
         program = self.get_queryset().first()
 
         serializer = self.get_serializer(
@@ -247,13 +251,13 @@ class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         )
 
     def patch(self, request, *args, **kwargs):
-        course_uuid = self.request.data.get('course_uuid')
+        course_uuid = self.request.data['course_uuid']
+        target_order = int(request.data['order_no'])    # Zero based index !
         program = self.get_queryset().first()
         if program.order_courses_by_start_date:
             raise ValidationError(
                 'Please assign `order_courses_by_start_date=False` first'
             )
-        target_order = int(request.data.get('order_no'))  # Zero based index !
         course_id_ = program.courses.get(uuid=course_uuid).id
         # Get courses ids & orders vector
         with connection.cursor() as cur:
