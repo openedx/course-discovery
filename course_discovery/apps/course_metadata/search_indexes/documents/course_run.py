@@ -1,7 +1,7 @@
 from django.conf import settings
 from django_elasticsearch_dsl import Index, fields
 from opaque_keys.edx.keys import CourseKey
-from taxonomy.utils import get_whitelisted_course_skills
+from taxonomy.utils import get_whitelisted_course_skills, get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import CourseRun
@@ -56,6 +56,10 @@ class CourseRunDocument(BaseCourseDocument):
     program_types = fields.KeywordField(multi=True)
     published = fields.BooleanField()
     skill_names = fields.KeywordField(multi=True)
+    skills = fields.NestedField(properties={
+        'name': fields.TextField(),
+        'description': fields.TextField(),
+    })
     status = fields.KeywordField()
     start = fields.DateField()
     slug = fields.TextField()
@@ -115,6 +119,9 @@ class CourseRunDocument(BaseCourseDocument):
     def prepare_skill_names(self, obj):
         course_skills = get_whitelisted_course_skills(obj.course.key)
         return list(set(course_skill.skill.name for course_skill in course_skills))
+
+    def prepare_skills(self, obj):
+        return get_whitelisted_serialized_skills(obj.course.key)
 
     def prepare_staff_uuids(self, obj):
         return [str(staff.uuid) for staff in obj.staff.all()]
