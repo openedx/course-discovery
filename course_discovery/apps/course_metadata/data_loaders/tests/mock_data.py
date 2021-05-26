@@ -3082,14 +3082,18 @@ WORDPRESS_API_BODIES = [
         'featured': True,
         'categories': [
             {
+                'id': '1',
                 'title': 'Technology',
                 'slug': 'technology',
-                'description': 'Technology category description'
+                'description': 'Technology category description',
+                'permalink': 'http://example.com/category/technology'
             },
             {
+                'id': '2',
                 'title': 'General',
                 'slug': 'general',
-                'description': 'General category description'
+                'description': 'General category description',
+                'permalink': 'http://example.com/category/general'
             }
         ],
         'tags': ['tag1', 'tag2', 'tag3'],
@@ -3112,6 +3116,10 @@ WORDPRESS_API_BODIES = [
                     }
                 ]
             }
-        ]
+        ],
+        'price': True,
+        'price_value' : '$100',
+        'hide_price': False,
+        'status': 'publish'
     }
 ]

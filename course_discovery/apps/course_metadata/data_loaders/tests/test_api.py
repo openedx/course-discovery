@@ -1119,18 +1119,23 @@ class WordPressApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         TieredCache.dangerous_clear_all_tiers()
         api_data = self.mock_api()
         expected_course = api_data[0]
-        CourseRunFactory(key=expected_course['course_id'])
+        CourseRunFactory(
+            key=expected_course['course_id'],
+            title_override=expected_course['title']
+        )
 
         self.loader.ingest()
 
         course = CourseRun.objects.filter(key__iexact=expected_course['course_id']).first()
-        assert course.title_override == expected_course['title'].title()
-        assert course.type.slug == CourseRunType.AUDIT
+        assert course.title_override == expected_course['title']
         assert course.slug == expected_course['slug']
         assert course.short_description_override == expected_course['excerpt']
         assert course.full_description_override == expected_course['description']
         assert course.featured == expected_course['featured']
         assert course.card_image_url == expected_course['featured_image_url']
+        assert course.is_marketing_price_set == expected_course['price']
+        assert course.marketing_price_value == expected_course['price_value']
+        assert course.is_marketing_price_hidden == expected_course['hide_price']
         self.assert_tags_equal(course.tags.all(), expected_course['tags'])
 
         for category in expected_course['categories']:
