@@ -407,7 +407,7 @@ class MinimalPersonSerializer(BaseModelSerializer):
         fields = (
             'uuid', 'salutation', 'given_name', 'family_name', 'bio', 'slug', 'position', 'areas_of_expertise',
             'profile_image', 'partner', 'works', 'urls', 'urls_detailed', 'email', 'profile_image_url', 'major_works',
-            'published', 'marketing_id', 'marketing_url', 'designation',
+            'published', 'marketing_id', 'marketing_url', 'designation', 'phone_number', 'website',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -460,7 +460,7 @@ class MinimalPersonSerializer(BaseModelSerializer):
 
     def get_email(self, _obj):
         # We are removing this field so this is to not break any APIs
-        return None
+        return _obj.email
 
 
 class PersonSerializer(MinimalPersonSerializer):
