@@ -228,7 +228,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     slug = indexes.CharField(model_attr='slug', null=True)
     seat_types = indexes.MultiValueField(model_attr='seat_types__slug', null=True, faceted=True)
     type = indexes.CharField(model_attr='type_legacy', null=True, faceted=True)
-    image_url = indexes.CharField(model_attr='card_image_url', null=True)
+    image_url = indexes.CharField(model_attr='image_url', null=True)
     partner = indexes.CharField(null=True, faceted=True)
     program_types = indexes.MultiValueField()
     published = indexes.BooleanField(null=False, faceted=True)
@@ -249,6 +249,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     is_marketing_price_set = indexes.BooleanField(model_attr='is_marketing_price_set', null=True)
     marketing_price_value = indexes.CharField(model_attr='marketing_price_value', null=True)
     is_marketing_price_hidden = indexes.BooleanField(model_attr='is_marketing_price_hidden', null=True)
+    card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
 
     def read_queryset(self, using=None):
         # Pre-fetch all fields required by the CourseRunSearchSerializer. Unfortunately, there's
