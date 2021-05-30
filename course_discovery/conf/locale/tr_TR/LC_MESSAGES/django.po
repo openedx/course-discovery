@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-25 20:35+0000\n"
-"PO-Revision-Date: 2021-04-29 13:17+0000\n"
+"PO-Revision-Date: 2021-05-25 09:43+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
@@ -745,7 +745,7 @@ msgstr "Bir --partner-code belirlemelisiniz"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:132
 msgid "You must specify at least one person"
-msgstr ""
+msgstr "En az bir kişi belirlemelisiniz"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:23
 #, python-brace-format
@@ -782,7 +782,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:32
 msgid "Invalid arguments"
-msgstr ""
+msgstr "Geçersiz argümanlar"
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:56
 #, python-brace-format
@@ -825,7 +825,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:172
 msgid "Spanish Description"
-msgstr ""
+msgstr "İspanyolca Tanım"
 
 #: apps/course_metadata/models.py:173
 msgid ""
