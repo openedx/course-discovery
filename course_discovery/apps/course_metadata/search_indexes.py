@@ -394,9 +394,9 @@ class PersonIndex(BaseIndex, indexes.Indexable):
     get_profile_image_url = indexes.CharField(model_attr='get_profile_image_url', null=True)
     position = indexes.MultiValueField()
     organizations = indexes.MultiValueField(faceted=True)
-    marketing_id = indexes.IntegerField(model_attr='marketing_id')
-    marketing_url = indexes.CharField(model_attr='marketing_url')
-    designation = indexes.CharField(model_attr='designation')
+    marketing_id = indexes.IntegerField(model_attr='marketing_id', null=True)
+    marketing_url = indexes.CharField(model_attr='marketing_url', null=True)
+    designation = indexes.CharField(model_attr='designation', null=True)
     created = indexes.DateTimeField(model_attr='created')
 
     def prepare_aggregation_key(self, obj):
