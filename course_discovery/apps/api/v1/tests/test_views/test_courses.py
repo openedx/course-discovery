@@ -989,6 +989,21 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertDictEqual(response.data, self.serialize_course(course))
 
     @responses.activate
+    def test_remove_video_from_course(self):
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        course_data = {
+            'video': {'src': ''},
+        }
+
+        assert self.course.video is not None
+
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        assert course.video is None
+
+    @responses.activate
     def test_update_with_level_type(self):
         beginner = LevelTypeFactory()
         beginner.set_current_language('en')

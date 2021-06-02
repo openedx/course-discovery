@@ -343,11 +343,14 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             course.entitlements.exclude(mode__in=entitlement_types).delete()
             course.entitlements.set(entitlements)
 
-        # Save video if a new video source is provided
-        if (video_data and video_data.get('src') and
-           (not course.video or video_data.get('src') != course.video.src)):
-            video, __ = Video.objects.get_or_create(src=video_data['src'])
-            course.video = video
+        # Save video if a new video source is provided, also allow removing the video from course
+        if video_data:
+            video_url = video_data.get('src')
+            if not video_url and course.video:
+                course.video = None
+            elif video_url and (not course.video or video_url != course.video.src):
+                video, __ = Video.objects.get_or_create(src=video_data['src'])
+                course.video = video
 
         # Save image and convert to the correct format
         if image_data and isinstance(image_data, str) and image_data.startswith('data:image'):
