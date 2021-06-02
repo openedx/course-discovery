@@ -977,7 +977,20 @@ class Program(TimeStampedModel):
         render_variations=custom_render_variations
     )
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
-    card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
+    # Store program card image into Local Disk. In the future, we  could migrate it into (LMS)MongoDB.
+    card_image_url = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/programs/card_images'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (1440, 480),
+            'medium': (726, 242),
+            'small': (435, 145),
+            'x-small': (348, 116),
+        },
+        render_variations=custom_render_variations,
+        help_text=_('Image used for discovery cards')
+    )
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)

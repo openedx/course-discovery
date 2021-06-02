@@ -729,7 +729,7 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
 
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(read_only=True, many=True)
-    banner_image = StdImageSerializerField(required=False)
+    card_image_url = StdImageSerializerField(required=False)
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all(), required=False)
     partner = serializers.SlugRelatedField(slug_field='name', queryset=Partner.objects.all())
@@ -756,11 +756,11 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'banner_image', 'hidden',
+            'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'card_image_url', 'hidden',
             'authoring_organizations',
             'courses', 'card_image_url', 'is_program_eligible_for_one_click_purchase', 'duration', 'language', 'start', 'end'
         )
-        read_only_fields = ('uuid', 'marketing_url', 'banner_image')
+        read_only_fields = ('uuid', 'marketing_url')
 
     def get_start(self, program):
         min_start = None
