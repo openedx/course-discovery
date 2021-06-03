@@ -89,6 +89,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
+        new_card_image_name = input_data.pop('new_card_image_name', None)
 
         if r'type' in input_data:
             input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
@@ -103,7 +104,19 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
                     kwargs, writer.errors
                 )
             )
-        writer.save()
+        # Rename saved image if new image file name were passed.
+        # writer.instance.card_image_url.name = 'aaaaaaa.png'
+        # from django.conf import settings
+        from os.path import join as path_join
+        # writer.instance.card_image_url.name = 'cars/chevy_ii.jpg'
+        # root_path = path_join(settings.MEDIA_ROOT, card_image_path_witout_ext)
+        # raise Exception(settings.MEDIA_ROOT + new_card_image_name)
+        # raise Exception(writer.instance.card_image_url.path)
+        # writer.save()
+        writer.save_with_image(
+            new_card_image_name,
+            r'card_image_url' in input_data
+        )
 
         return Response(
             {'program_uuid': program.uuid}, status=status.HTTP_200_OK

@@ -930,6 +930,14 @@ class ProgramType(TimeStampedModel):
 
 
 class Program(TimeStampedModel):
+    CARD_IMAGES_STORAGE_FOLDER = 'media/programs/card_images'
+    CARD_IMAGE_VARIATIONS = {
+        'large': (1440, 480),
+        'medium': (726, 242),
+        'small': (435, 145),
+        'x-small': (348, 116),
+    }
+
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
         help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
@@ -979,15 +987,10 @@ class Program(TimeStampedModel):
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
     # Store program card image into Local Disk. In the future, we  could migrate it into (LMS)MongoDB.
     card_image_url = StdImageField(
-        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/programs/card_images'),
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path=CARD_IMAGES_STORAGE_FOLDER),
         blank=True,
         null=True,
-        variations={
-            'large': (1440, 480),
-            'medium': (726, 242),
-            'small': (435, 145),
-            'x-small': (348, 116),
-        },
+        variations=CARD_IMAGE_VARIATIONS,
         render_variations=custom_render_variations,
         help_text=_('Image used for discovery cards')
     )
