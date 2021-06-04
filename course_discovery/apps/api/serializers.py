@@ -736,8 +736,6 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all(), required=False)
     partner = serializers.SlugRelatedField(slug_field='name', queryset=Partner.objects.all())
-    start = serializers.SerializerMethodField()
-    end = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, partner, *args, **kwargs):
@@ -761,31 +759,10 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         fields = (
             'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'hidden',
             'authoring_organizations',
-            'courses', 'card_image_url', 'is_program_eligible_for_one_click_purchase', 'duration', 'language', 'start', 'end'
+            'courses', 'card_image_url', 'is_program_eligible_for_one_click_purchase', 'duration', 'language',
+            'start', 'end', 'enrollment_start', 'enrollment_end'
         )
-        read_only_fields = ('uuid', 'marketing_url')
-
-    def get_start(self, program):
-        min_start = None
-
-        for course_run in program.course_runs:
-            if not min_start:
-                min_start = course_run.start
-            elif course_run.start and course_run.start < min_start:
-                min_start = course_run.start
-
-        return min_start
-
-    def get_end(self, program):
-        max_end = None
-
-        for course_run in program.course_runs:
-            if not max_end:
-                max_end = course_run.end
-            elif course_run.end and course_run.end > max_end:
-                max_end = course_run.end
-
-        return max_end
+        read_only_fields = ('uuid', 'marketing_url', 'enrollment_start', 'enrollment_end')
 
     def get_courses(self, program):
         course_runs = list(program.course_runs)

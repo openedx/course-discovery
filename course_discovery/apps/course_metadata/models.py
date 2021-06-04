@@ -1271,13 +1271,63 @@ class Program(TimeStampedModel):
     @property
     def start(self):
         """ Start datetime, calculated by determining the earliest start datetime of all related course runs. """
-        if self.course_runs:
-            start_dates = [course_run.start for course_run in self.course_runs if course_run.start]
+        if not self.course_runs:
+            return None
 
-            if start_dates:
-                return min(start_dates)
+        min_start = None
 
-        return None
+        for course_run in self.course_runs:
+            if not min_start:
+                min_start = course_run.start
+            elif course_run.start and course_run.start < min_start:
+                min_start = course_run.start
+
+        return min_start
+
+    @property
+    def end(self):
+        if not self.course_runs:
+            return None
+
+        max_end = None
+
+        for course_run in self.course_runs:
+            if not max_end:
+                max_end = course_run.end
+            elif course_run.end and course_run.end > max_end:
+                max_end = course_run.end
+
+        return max_end
+
+    @property
+    def enrollment_start(self):
+        if not self.course_runs:
+            return None
+
+        min_start = None
+
+        for course_run in self.course_runs:
+            if not min_start:
+                min_start = course_run.enrollment_start
+            elif course_run.enrollment_start and course_run.enrollment_start < min_start:
+                min_start = course_run.enrollment_start
+
+        return min_start
+
+    @property
+    def enrollment_end(self):
+        if not self.course_runs:
+            return None
+
+        max_end = None
+
+        for course_run in self.course_runs:
+            if not max_end:
+                max_end = course_run.enrollment_end
+            elif course_run.enrollment_end and course_run.enrollment_end > max_end:
+                max_end = course_run.enrollment_end
+
+        return max_end
 
     @property
     def staff(self):
