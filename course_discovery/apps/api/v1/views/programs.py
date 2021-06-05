@@ -33,13 +33,12 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # which happens when the queryset is stored in a class property.
         partner = self.request.site.partner
         q = self.request.query_params.get('q')
-        edx_org_short_name = self.request.query_params.get('org')
         queryset = None
 
         if q:
             queryset = Program.search(q)
 
-        return self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner, edx_org_short_name=edx_org_short_name)
+        return self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -152,12 +151,6 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
               multiple: false
             - name: q
               description: Elasticsearch querystring query. This filter takes precedence over other filters
-              required: false
-              type: string
-              paramType: query
-              multiple: false
-            - name: org
-              description: Filter results on edx organization's short name.
               required: false
               type: string
               paramType: query

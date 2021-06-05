@@ -41,7 +41,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.course = CourseFactory(partner=self.partner, title='Fake Test', key='edX+Fake101', type=self.audit_type)
         self.org = OrganizationFactory(key='edX', partner=self.partner)
         self.course.authoring_organizations.add(self.org)  # pylint: disable=no-member
-        self.edx_org_short_name = 'edx'
 
     def tearDown(self):
         super(CourseViewSetTests, self).tearDown()
@@ -229,24 +228,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             response.data['results'],
             self.serialize_course(Course.objects.all().order_by(Lower('key')), many=True)
         )
-
-    def test_edx_org_short_name_filter(self):
-        """
-        Verify courses filtering on edX organization.
-        """
-        course_api_url_with_org_filter = '{courses_api_url}?org={edx_org_short_name}'.format(
-            courses_api_url=reverse('api:v1:course-list'),
-            edx_org_short_name=self.edx_org_short_name
-        )
-        expected_serialized_courses = self.serialize_course(
-            Course.objects.filter(authoring_organizations__key=self.edx_org_short_name).order_by(Lower('key')),
-            many=True
-        )
-
-        response = self.client.get(course_api_url_with_org_filter)
-        assert response.status_code == 200
-        courses_from_response = response.data['results']
-        assert courses_from_response == expected_serialized_courses
 
     def test_list_query(self):
         """ Verify the endpoint returns a filtered list of courses """

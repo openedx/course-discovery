@@ -31,15 +31,9 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
     def setUp(self):
         super(CourseRunViewSetTests, self).setUp()
         self.user = UserFactory(is_staff=True)
-        self.edx_org_short_name = 'edx'
         self.client.force_authenticate(self.user)
         self.course_run = CourseRunFactory(course__partner=self.partner)
         self.course_run_2 = CourseRunFactory(course__key='Test+Course', course__partner=self.partner)
-        # Course_run of edx organization
-        self.course_run_3 = CourseRunFactory(
-            course__partner=self.partner,
-            course__authoring_organizations__key=self.edx_org_short_name
-        )
         self.draft_course = CourseFactory(partner=self.partner, draft=True)
         self.draft_course_run = CourseRunFactory(course=self.draft_course, draft=True)
         self.draft_course_run.course.authoring_organizations.add(OrganizationFactory(key='course-id'))
@@ -996,24 +990,6 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
             self.serialize_course_run(CourseRun.objects.all().order_by(Lower('key')), many=True)
         )
 
-    def test_list_edx_org_short_name_filter(self):
-        """
-        Verify course runs filtering on edX organization.
-        """
-        course_run_api_url_with_org_filter = '{course_run_api_url}?org={edx_org_short_name}'.format(
-            course_run_api_url=reverse('api:v1:course_run-list'),
-            edx_org_short_name=self.edx_org_short_name
-        )
-        expected_serialized_course_runs = self.serialize_course_run(
-            CourseRun.objects.filter(course__authoring_organizations__key=self.edx_org_short_name).order_by(Lower('key')),
-            many=True
-        )
-
-        response = self.client.get(course_run_api_url_with_org_filter)
-        assert response.status_code == 200
-        course_runs_from_response = response.data['results']
-        assert course_runs_from_response == expected_serialized_course_runs
-
     def test_list_sorted_by_course_start_date(self):
         """ Verify the endpoint returns a list of all course runs sorted by start date. """
         url = '{root}?ordering=start'.format(root=reverse('api:v1:course_run-list'))
@@ -1157,37 +1133,6 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
                 }
             }
         )
-
-    def test_contains_multiple_course_runs_edx_org_short_name_filter(self):
-        """
-        Verify contained course runs filtering on edX organization.
-        """
-        edx_org_course_run_key = 'course-v1:edX+DemoX+Demo_Course'
-        elastic_search_query_string_with_org_filter = urllib.parse.urlencode({
-            'query': 'id:course*',
-            'course_run_ids': '{course_run_1_key},{course_run_2_key},{course_run_3_key}'.format(
-                course_run_1_key=self.course_run_2.key,
-                course_run_2_key=self.course_run_3.key,
-                course_run_3_key=edx_org_course_run_key
-            ),
-            'org': self.edx_org_short_name
-        })
-        course_run_api_url_with_org_filter = '{course_run_api_url}?{elastic_search_query_string_with_org_filter}'.format(
-            course_run_api_url=reverse('api:v1:course_run-contains'),
-            elastic_search_query_string_with_org_filter=elastic_search_query_string_with_org_filter
-        )
-        expected_serialized_contained_course_runs = {
-            'course_runs': {
-                self.course_run_2.key: False,
-                self.course_run_3.key: False,
-                edx_org_course_run_key: False
-            }
-        }
-
-        response = self.client.get(course_run_api_url_with_org_filter)
-        assert response.status_code == 200
-        course_runs_from_response = response.data
-        assert course_runs_from_response == expected_serialized_contained_course_runs
 
     @ddt.data(
         {'params': {'course_run_ids': 'a/b/c'}},

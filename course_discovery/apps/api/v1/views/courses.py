@@ -98,7 +98,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         partner = self.request.site.partner
         q = self.request.query_params.get('q')
-        edx_org_short_name = self.request.query_params.get('org')
         # We don't want to create an additional elasticsearch index right now for draft courses, so we
         # try to implement a basic search behavior with this pubq parameter here against key and name.
         pub_q = self.request.query_params.get('pubq')
@@ -146,7 +145,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
 
             queryset = self.get_serializer_class().prefetch_queryset(
                 queryset=queryset,
-                edx_org_short_name=edx_org_short_name,
                 course_runs=course_runs,
                 partner=partner,
                 programs=programs,
@@ -443,12 +441,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
               mulitple: false
             - name: q
               description: Elasticsearch querystring query. This filter takes precedence over other filters.
-              required: false
-              type: string
-              paramType: query
-              multiple: false
-            - name: org
-              description: Filter results on edx organization's short name.
               required: false
               type: string
               paramType: query

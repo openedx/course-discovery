@@ -27,7 +27,7 @@ from taggit_serializer.serializers import TaggitSerializer, TagListSerializerFie
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
 )
-from course_discovery.apps.api.utils import StudioAPI, get_queryset_filtered_on_organization
+from course_discovery.apps.api.utils import StudioAPI
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata import search_indexes
@@ -779,7 +779,7 @@ class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
-                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term',)
+                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'subjects',)
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -944,10 +944,8 @@ class CourseRunWithProgramsSerializer(CourseRunSerializer):
     programs = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, queryset=None, edx_org_short_name=None):
-        edx_org_filter = 'course__authoring_organizations__key'
+    def prefetch_queryset(cls, queryset=None):
         queryset = super().prefetch_queryset(queryset=queryset)
-        queryset = get_queryset_filtered_on_organization(queryset, edx_org_filter, edx_org_short_name)
 
         return queryset.prefetch_related('course__programs__excluded_course_runs')
 
@@ -1128,15 +1126,12 @@ class CourseWithProgramsSerializer(CourseSerializer):
     editable = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, partner, edx_org_short_name=None, queryset=None, course_runs=None, programs=None):
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None, programs=None):  # pylint: disable=arguments-differ
         """
         Similar to the CourseSerializer's prefetch_queryset, but prefetches a
         filtered CourseRun queryset.
         """
-        edx_org_filter = 'authoring_organizations__key'
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
-
-        queryset = get_queryset_filtered_on_organization(queryset, edx_org_filter, edx_org_short_name)
         return queryset.select_related(
             'level_type',
             'video',
@@ -1150,7 +1145,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
             'prerequisites',
             'topics',
             'url_slug_history',
-            Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset()),
+            Prefetch('subjects', queryset=SubjectSerializer.prefetch_queryset(partner)),
             Prefetch('course_runs', queryset=CourseRunSerializer.prefetch_queryset(queryset=course_runs)),
             Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
             Prefetch('sponsoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
@@ -1436,11 +1431,9 @@ class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
     curricula = CurriculumSerializer(many=True)
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, edx_org_short_name=None):
+    def prefetch_queryset(cls, partner, queryset=None):
         # Explicitly check if the queryset is None before selecting related
-        edx_org_filter = 'authoring_organizations__key'
         queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
-        queryset = get_queryset_filtered_on_organization(queryset, edx_org_filter, edx_org_short_name)
 
         return queryset.select_related('type', 'partner').prefetch_related(
             'excluded_course_runs',
@@ -1577,7 +1570,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     curricula = CurriculumSerializer(many=True, required=False)
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, edx_org_short_name=None):
+    def prefetch_queryset(cls, partner, queryset=None):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
@@ -1585,9 +1578,7 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        edx_org_filter = 'authoring_organizations__key'
         queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
-        queryset = get_queryset_filtered_on_organization(queryset, edx_org_filter, edx_org_short_name)
 
         return queryset.select_related('type', 'video', 'partner').prefetch_related(
             'excluded_course_runs',
