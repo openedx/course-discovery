@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-25 20:35+0000\n"
-"PO-Revision-Date: 2021-04-29 13:17+0000\n"
+"PO-Revision-Date: 2021-06-03 12:54+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
@@ -246,7 +246,7 @@ msgid ""
 "The rate of requests to limit this user to. The format is specified by "
 "Django Rest Framework (see http://www.django-rest-framework.org/api-"
 "guide/throttling/)."
-msgstr ""
+msgstr "Bu kullanıcıyı sınırlamak için isteklerin oranı. Biçim, Django Rest Framework tarafından belirlenir (http://www.django-rest-framework.org/api-guide/throttling/ sayfasına bakınız)."
 
 #: apps/core/models.py:53
 msgid "Short Code"
@@ -328,7 +328,7 @@ msgstr "Analitik API URL"
 
 #: apps/core/models.py:84
 msgid "Analytics Access Token"
-msgstr ""
+msgstr "Analitik Erişim Token'ı"
 
 #: apps/core/models.py:92
 msgid "Partner"
@@ -352,7 +352,7 @@ msgstr "Salesforce Kurum Kimliği"
 
 #: apps/core/models.py:134
 msgid "Salesforce Security Token"
-msgstr "Salesforce Güvenlik Jetonu"
+msgstr "Salesforce Güvenlik Token'ı"
 
 #: apps/core/models.py:138
 msgid "Is a Salesforce Sandbox?"
@@ -391,7 +391,7 @@ msgstr ""
 
 #: apps/course_metadata/admin.py:515
 msgid "(save and continue editing to create a link)"
-msgstr ""
+msgstr "(bağlantı oluşturmak için kaydedin ve düzenlemeye devam edin) "
 
 #: apps/course_metadata/admin.py:517
 msgid "Edit link"
@@ -683,7 +683,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:21
 msgid "Delete duplicate persons in course_metadata."
-msgstr ""
+msgstr "course_metadata içindeki mükerrer kişileri sil."
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:26
 msgid "PERSON"
@@ -745,7 +745,7 @@ msgstr "Bir --partner-code belirlemelisiniz"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:132
 msgid "You must specify at least one person"
-msgstr ""
+msgstr "En az bir kişi belirlemelisiniz"
 
 #: apps/course_metadata/management/commands/publish_live_course_runs.py:23
 #, python-brace-format
@@ -768,11 +768,11 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:22
 msgid "Remove all redirects to all courses"
-msgstr ""
+msgstr "Tüm derslere olan yönlendirmeleri kaldır"
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:23
 msgid "Redirects to remove"
-msgstr ""
+msgstr "Silinecek olan yönlendirmeler"
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:25
 msgid ""
@@ -782,7 +782,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:32
 msgid "Invalid arguments"
-msgstr ""
+msgstr "Geçersiz argümanlar"
 
 #: apps/course_metadata/management/commands/remove_redirects_from_courses.py:56
 #, python-brace-format
@@ -825,7 +825,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:172
 msgid "Spanish Description"
-msgstr ""
+msgstr "İspanyolca Tanım"
 
 #: apps/course_metadata/models.py:173
 msgid ""
@@ -1047,7 +1047,7 @@ msgstr ""
 msgid ""
 "'What You Will Learn' description for this particular course run. Leave this"
 " value blank to default to the parent course's Outcome attribute."
-msgstr "Bu eğitim yayını için 'Ne Öğreneceksiniz' açıklaması. Bu değeri boş bırakmanız, ana eğitimin çıktılarını ekleyecektir."
+msgstr "Bu ders yayını için 'Ne Öğreneceksiniz' açıklaması. Bu değeri boş bırakmanız, üst eğitim çıktısının kullanılmasını sağlar."
 
 #: apps/course_metadata/models.py:1370
 msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
@@ -1200,7 +1200,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2604
 msgid "URL to micromasters landing page"
-msgstr ""
+msgstr "Micromasters açılış sayfasına URL"
 
 #: apps/course_metadata/models.py:2610
 msgid "Micromasters verbose title"
@@ -1478,7 +1478,7 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/go_live.html:24
 #, python-brace-format
 msgid "{link_start}{preview_url}{link_middle}View this About page.{link_end}"
-msgstr ""
+msgstr "{link_start}{preview_url}{link_middle}Bu Hakkında sayfasını görüntüle.{link_end}"
 
 #: apps/course_metadata/templates/course_metadata/email/go_live.html:31
 #: apps/course_metadata/templates/course_metadata/email/reviewed.html:36
