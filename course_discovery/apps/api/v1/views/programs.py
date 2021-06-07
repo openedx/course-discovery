@@ -67,6 +67,9 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
+        if 'card_image_url' in input_data:
+            # Don't support for creating of Program's card image.
+            input_data.pop('card_image_url')
 
         if r'type' in input_data:
             input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
