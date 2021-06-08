@@ -736,6 +736,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all(), required=False)
     partner = serializers.SlugRelatedField(slug_field='name', queryset=Partner.objects.all())
+    language_code = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, partner, *args, **kwargs):
@@ -760,9 +761,20 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
             'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'hidden',
             'authoring_organizations',
             'courses', 'card_image_url', 'is_program_eligible_for_one_click_purchase', 'duration', 'language',
-            'start', 'end', 'enrollment_start', 'enrollment_end'
+            'start', 'end', 'enrollment_start', 'enrollment_end', 'language_code'
         )
         read_only_fields = ('uuid', 'marketing_url', 'enrollment_start', 'enrollment_end')
+
+    def get_language_code(self, program):
+        """Return short name of language
+
+            Sample:
+                `en-us` ---> `en`
+        """
+        if program.language:
+            return program.language.code.split('-')[0]
+        else:
+            return None
 
     def get_courses(self, program):
         course_runs = list(program.course_runs)
