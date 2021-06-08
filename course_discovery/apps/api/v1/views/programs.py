@@ -13,6 +13,7 @@ from rest_framework_extensions.cache.mixins import CacheResponseMixin
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.utils import get_query_param
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun
 from course_discovery.apps.course_metadata.models import Program, ProgramType
 from course_discovery.apps.core.models import Partner
@@ -75,6 +76,11 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
             input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
         if r'partner' in input_data:
             input_data[r'partner'] = Partner.objects.get(name=input_data[r'partner'])
+
+        if 'status' not in input_data:
+            input_data['status'] = ProgramStatus.Unpublished
+        if 'marketing_slug' not in input_data:
+            input_data['marketing_slug'] = input_data.get('title').replace(' ', '+')
 
         program_writer = self.get_serializer_class()  # ProgramSerializer
         writer = program_writer(data=input_data)
