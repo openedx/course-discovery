@@ -343,11 +343,14 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
             course.entitlements.exclude(mode__in=entitlement_types).delete()
             course.entitlements.set(entitlements)
 
-        # Save video if a new video source is provided
-        if (video_data and video_data.get('src') and
-           (not course.video or video_data.get('src') != course.video.src)):
-            video, __ = Video.objects.get_or_create(src=video_data['src'])
-            course.video = video
+        # Save video if a new video source is provided, also allow removing the video from course
+        if video_data:
+            video_url = video_data.get('src')
+            if not video_url and course.video:
+                course.video = None
+            elif video_url and (not course.video or video_url != course.video.src):
+                video, __ = Video.objects.get_or_create(src=video_data['src'])
+                course.video = video
 
         # Save image and convert to the correct format
         if image_data and isinstance(image_data, str) and image_data.startswith('data:image'):
@@ -393,6 +396,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                         if any(field in COURSE_FIELDS_FOR_SKILLS for field in changed_fields):
                             logger.info('Signal fired to update course skills. Course: [%s]', course.uuid)
                             UPDATE_COURSE_SKILLS.send(self.__class__, course_uuid=course.uuid)
+                elif course.official_version:
+                    # If there is an official version available but no active or published
+                    # course run, update the slug for official version
+                    course.official_version.set_active_url_slug(url_slug)
 
         # Revert any Reviewed course runs back to Unpublished
         if changed:

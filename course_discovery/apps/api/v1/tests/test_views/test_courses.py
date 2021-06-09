@@ -261,7 +261,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # Known to be flaky prior to the addition of tearDown()
         # and logout() code which is the same number of additional queries
-        with self.assertNumQueries(45):
+        with self.assertNumQueries(48):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -281,7 +281,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(45):
+        with self.assertNumQueries(48):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -987,6 +987,21 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert course.title == 'Course title'
         assert course.active_url_slug == 'manual'
         self.assertDictEqual(response.data, self.serialize_course(course))
+
+    @responses.activate
+    def test_remove_video_from_course(self):
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        course_data = {
+            'video': {'src': ''},
+        }
+
+        assert self.course.video is not None
+
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        assert course.video is None
 
     @responses.activate
     def test_update_with_level_type(self):

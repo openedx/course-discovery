@@ -1,6 +1,6 @@
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
-from taxonomy.utils import get_whitelisted_course_skills
+from taxonomy.utils import get_whitelisted_course_skills, get_whitelisted_serialized_skills
 
 from course_discovery.apps.api.serializers import ContentTypeSerializer, CourseRunWithProgramsSerializer
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
@@ -22,6 +22,7 @@ class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSeriali
     enrollment_start = serializers.SerializerMethodField()
     enrollment_end = serializers.SerializerMethodField()
     skill_names = serializers.SerializerMethodField()
+    skills = serializers.SerializerMethodField()
 
     def get_start(self, obj):
         return self.handle_datetime_field(obj.start)
@@ -38,6 +39,9 @@ class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSeriali
     def get_skill_names(self, result):
         course_skills = get_whitelisted_course_skills(result.course_key)
         return list(set(course_skill.skill.name for course_skill in course_skills))
+
+    def get_skills(self, result):
+        return get_whitelisted_serialized_skills(result.course_key)
 
     class Meta:
         """
@@ -75,6 +79,7 @@ class CourseRunSearchDocumentSerializer(DateTimeSerializerMixin, DocumentSeriali
             'published',
             'seat_types',
             'skill_names',
+            'skills',
             'short_description',
             'staff_uuids',
             'start',
