@@ -1035,7 +1035,6 @@ class WordPressApiDataLoader(AbstractDataLoader):
             try:
                 body = self.clean_strings(body)
                 course_run = CourseRun.objects.get(key__iexact=course_run_key)
-                course_run.title_override = course_run.title_override.title()
                 course_run.short_description_override = body['excerpt']
                 course_run.full_description_override = body['description']
                 course_run.featured = body['featured']

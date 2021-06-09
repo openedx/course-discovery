@@ -244,7 +244,7 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     license = indexes.MultiValueField(model_attr='license', faceted=True)
     has_enrollable_seats = indexes.BooleanField(model_attr='has_enrollable_seats', null=False)
     is_current_and_still_upgradeable = indexes.BooleanField(null=False)
-    title_override = indexes.CharField(model_attr='title_override', indexed=False, stored=True, null=True)
+    title_override = indexes.CharField(indexed=False, stored=True, null=True)
     featured = indexes.BooleanField(model_attr='featured', null=True)
     is_marketing_price_set = indexes.BooleanField(model_attr='is_marketing_price_set', null=True)
     marketing_price_value = indexes.CharField(model_attr='marketing_price_value', null=True)
@@ -314,6 +314,9 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
 
     def prepare_subject_uuids(self, obj):
         return [str(subject.uuid) for subject in obj.subjects.all()]
+
+    def prepare_title_override(self, obj):
+        return obj.title_override.title()
 
 
 class ProgramIndex(BaseIndex, indexes.Indexable, OrganizationsMixin):

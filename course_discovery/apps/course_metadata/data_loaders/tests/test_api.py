@@ -1127,7 +1127,6 @@ class WordPressApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         self.loader.ingest()
 
         course = CourseRun.objects.filter(key__iexact=expected_course['course_id']).first()
-        assert course.title_override == expected_course['title']
         assert course.slug == expected_course['slug']
         assert course.short_description_override == expected_course['excerpt']
         assert course.full_description_override == expected_course['description']
