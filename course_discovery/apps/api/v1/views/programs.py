@@ -8,7 +8,6 @@ from django.db import transaction
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
@@ -19,7 +18,7 @@ from course_discovery.apps.course_metadata.models import Program, ProgramType
 from course_discovery.apps.core.models import Partner
 
 
-class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
+class ProgramViewSet(viewsets.ModelViewSet):
     """Program resource
 
         Supported Endpoint:
@@ -216,7 +215,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
 
 
-class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
+class ProgramCoursesViewSet(viewsets.ModelViewSet):
     lookup_field = 'uuid'
     pagination_class = ProxiedPagination
 
