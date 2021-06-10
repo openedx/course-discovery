@@ -210,9 +210,15 @@ class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         serializer = self.get_serializer(
             program, many=False, context={'request': self.request}
         )
-        return Response(
-            serializer.data['courses'], status=status.HTTP_200_OK
-        )
+
+        if 'courses' not in serializer.data:
+            return Response(
+                [], status=status.HTTP_200_OK
+            )
+        else:
+            return Response(
+                serializer.data['courses'], status=status.HTTP_200_OK
+            )
 
     def create(self, request, *args, **kwargs):
         course_uuid = self.request.data['course_uuid'] \
