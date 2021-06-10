@@ -266,7 +266,7 @@ class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
         return OrderedDict(sorted([(x.slug, x.name) for x in Subject.objects.all()], key=lambda x: x[1]))
 
     def get_number_of_courses(self, obj):
-        return obj.course_set.count()
+        return CourseRun.objects.filter(course__subjects=obj, status=CourseRunStatus.Published).count()
 
 class PrerequisiteSerializer(NamedModelSerializer):
     """Serializer for the ``Prerequisite`` model."""
