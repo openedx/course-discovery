@@ -8,7 +8,6 @@ from django.db import transaction
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
@@ -19,7 +18,7 @@ from course_discovery.apps.course_metadata.models import Program, ProgramType
 from course_discovery.apps.core.models import Partner
 
 
-class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
+class ProgramViewSet(viewsets.ModelViewSet):
     """Program resource
 
         Supported Endpoint:
@@ -66,6 +65,32 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
 
         return context
 
+    @staticmethod
+    def _fix_language_field(input_data):
+        """Displace language field with table `ietf_language_tags_languagetag`
+        """
+        lang_mapping = {
+            'en': 'en-us',
+            'ga': 'gd-ie',
+            'de': 'de-de',
+            'el': 'el',
+            'zh': 'zh-cn',
+            'zh_HANS': 'zh-cn',
+            'zh_HANT': 'zh-cn',
+            'es': 'es-pr',
+            'it': 'it-it',
+            'pt': 'pt-br',
+            'ru': 'ru-mo',
+            'fr': 'fr-fr'
+        }
+
+        if 'language' in input_data:
+            language = lang_mapping.get(
+                input_data['language']
+            )
+            if language:
+                input_data['language'] = language
+
     def create(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
         if 'card_image_url' in input_data:
@@ -81,6 +106,8 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
             input_data['status'] = ProgramStatus.Unpublished
         if 'marketing_slug' not in input_data:
             input_data['marketing_slug'] = input_data.get('title').replace(' ', '+')
+
+        self._fix_language_field(input_data)
 
         program_writer = self.get_serializer_class()  # ProgramSerializer
         writer = program_writer(data=input_data)
@@ -104,6 +131,8 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
             input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
         if r'partner' in input_data:
             input_data[r'partner'] = Partner.objects.get(name=input_data[r'partner'])
+
+        self._fix_language_field(input_data)
 
         program = self.get_object()
         writer = self.get_serializer(program, data=input_data, partial=True)
@@ -186,7 +215,7 @@ class ProgramViewSet(CacheResponseMixin, viewsets.ModelViewSet):
         return super(ProgramViewSet, self).list(request, *args, **kwargs)
 
 
-class ProgramCoursesViewSet(CacheResponseMixin, viewsets.ModelViewSet):
+class ProgramCoursesViewSet(viewsets.ModelViewSet):
     lookup_field = 'uuid'
     pagination_class = ProxiedPagination
 
