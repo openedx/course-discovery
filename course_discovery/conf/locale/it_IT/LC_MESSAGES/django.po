@@ -7,6 +7,7 @@
 # Cinzia Russo <cinzia.russo@hotmail.co.uk>, 2016
 # Domenico Casanica <domenico.casanica@sistinf.it>, 2021
 # Giuseppe Vullo <giuseppe.vullo@laspeziaportservice.it>, 2018
+# Ilaria Botti <ilabotti@gmail.com>, 2021
 # Mauri Macera, 2021
 # Pietro Lombardo <pietrolombardo1979@gmail.com>, 2016
 # Renzo Lucioni <rlucioni@edx.org>, 2016
@@ -15,8 +16,8 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-25 20:35+0000\n"
-"PO-Revision-Date: 2021-04-27 12:59+0000\n"
-"Last-Translator: Domenico Casanica <domenico.casanica@sistinf.it>\n"
+"PO-Revision-Date: 2021-05-19 12:53+0000\n"
+"Last-Translator: Ilaria Botti <ilabotti@gmail.com>\n"
 "Language-Team: Italian (Italy) (http://www.transifex.com/open-edx/edx-platform/language/it_IT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -45,11 +46,11 @@ msgstr "Nomi utente di utenti con esplicito accesso alla visione di questo catal
 
 #: apps/api/serializers.py:829
 msgid "Start date cannot be after the End date"
-msgstr ""
+msgstr "La data di inizio non può essere successiva alla data di fine "
 
 #: apps/api/serializers.py:834
 msgid "Term cannot be changed"
-msgstr ""
+msgstr "La durata non può essere modificata"
 
 #: apps/api/serializers.py:846
 msgid "Language in which the course is administered"
@@ -57,56 +58,56 @@ msgstr "Lingua nella quale il corso viene somministrato"
 
 #: apps/api/serializers.py:933
 msgid "Course cannot be changed for an existing course run"
-msgstr ""
+msgstr "Il percorso non può essere modificato per un corso esistente "
 
 #: apps/api/serializers.py:938
 msgid "Minimum effort cannot be greater than Maximum effort"
-msgstr ""
+msgstr "L'impegno minimo non può essere maggiore dell'impegno massimo "
 
 #: apps/api/serializers.py:940
 msgid "Minimum effort and Maximum effort cannot be the same"
-msgstr ""
+msgstr "L'impegno minimo e quello massimo non possono essere uguali"
 
 #: apps/api/serializers.py:982
 msgid "Dictionary mapping course run IDs to boolean values"
-msgstr ""
+msgstr "Dizionario che associa gli ID dell'edizione dei corsi a valori booleani"
 
 #: apps/api/serializers.py:1304
 msgid "Dictionary mapping course IDs to boolean values"
-msgstr ""
+msgstr "Dizionario che associa gli ID dei corsi a valori booleani"
 
 #: apps/api/serializers.py:1648
 msgid "Languages that course runs in this program are offered in."
-msgstr ""
+msgstr "Lingue in cui vengono fornite le edizioni dei corsi in questo programma."
 
 #: apps/api/serializers.py:1652
 msgid ""
 "Languages that course runs in this program have available transcripts in."
-msgstr ""
+msgstr "Lingue in cui sono disponibili le trascrizioni delle edizioni dei corsi in questo programma."
 
 #: apps/api/utils.py:246
 #, python-brace-format
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
 "All other fields were successfully saved in Studio."
-msgstr ""
+msgstr "Si è verificato un errore durante l'impostazione dell'immagine dell'edizione del corso per [{key}] in studio. Tutti gli altri campi sono stati salvati correttamente in Studio. "
 
 #: apps/api/v1/exceptions.py:13
 msgid "Specifying both editable=1 and a q parameter is not supported."
-msgstr ""
+msgstr "Non è possibile specificare sia editable=1 che il parametro q."
 
 #: apps/api/v1/views/comments.py:34
 msgid "You must include a course_uuid in your query parameters."
-msgstr ""
+msgstr "Nei parametri della query è necessario includere un course_uuid."
 
 #: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:194
 #, python-brace-format
 msgid "Missing value for: [{name}]. "
-msgstr ""
+msgstr "Valore mancante per: [{name}]."
 
 #: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:201
 msgid "Incorrect data sent. "
-msgstr ""
+msgstr "Inviati dati non corretti."
 
 #: apps/api/v1/views/course_runs.py:44
 msgid "Failed to set course run data: {}"
