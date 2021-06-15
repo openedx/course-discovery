@@ -987,6 +987,7 @@ class Program(TimeStampedModel):
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
     # Store program card image into Local Disk. In the future, we  could migrate it into (LMS)MongoDB.
     card_image_url = StdImageField(
+        max_length=200,
         upload_to=UploadToFieldNamePath(populate_from='uuid', path=CARD_IMAGES_STORAGE_FOLDER),
         blank=True,
         null=True,
@@ -1028,6 +1029,10 @@ class Program(TimeStampedModel):
             "Description specific for this program. It would be displayed on the Program's details page."))
     duration = models.IntegerField(null=False, blank=False, default=0, help_text=_('Time spend of program'))
     language = models.ForeignKey(LanguageTag, null=True, blank=True)
+    creator_id = models.IntegerField(
+        null=True, blank=False,
+        help_text=_('Program Creator(user) id')
+    )
 
     objects = ProgramQuerySet.as_manager()
 
