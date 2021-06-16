@@ -6,10 +6,14 @@
 #
 alabaster==0.7.12
     # via sphinx
-algoliasearch-django==2.0.0
-    # via -r requirements/base.in
-algoliasearch==2.5.0
-    # via algoliasearch-django
+algoliasearch==1.20.0
+    # via
+    #   -c requirements/constraints.txt
+    #   algoliasearch-django
+algoliasearch_django==1.7.3
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.in
 amqp==2.6.1
     # via kombu
 appdirs==1.4.4
@@ -51,8 +55,9 @@ chardet==4.0.0
     # via requests
 click-log==0.3.2
     # via edx-lint
-click==8.0.1
+click==7.1.2
     # via
+    #   -c requirements/constraints.txt
     #   click-log
     #   edx-lint
 coreapi==2.3.3
@@ -82,8 +87,10 @@ distlib==0.3.2
     # via virtualenv
 distro==1.5.0
     # via docker-compose
-django-admin-sortable2==1.0
-    # via -r requirements/base.in
+django-admin-sortable2==0.7.8
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.in
 django-appconf==1.0.4
     # via django-compressor
 django-autocomplete-light==3.8.2
@@ -106,9 +113,11 @@ django-dynamic-filenames==1.1.4
     # via -r requirements/base.in
 django-elasticsearch-debug-toolbar==2.0.0
     # via -r requirements/local.in
-django-elasticsearch-dsl-drf==0.22.1
-    # via -r requirements/base.in
-django-elasticsearch-dsl==7.2.0
+django-elasticsearch-dsl-drf==0.22
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.in
+django-elasticsearch-dsl==7.1.4
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -159,8 +168,10 @@ django-waffle==2.2.0
     #   -r requirements/base.in
     #   edx-django-utils
     #   edx-drf-extensions
-django-webpack-loader==1.0.0
-    # via -r requirements/base.in
+django-webpack-loader==0.7.0
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.in
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -285,7 +296,7 @@ execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==8.8.0
+faker==8.8.1
     # via factory-boy
 filelock==3.0.12
     # via
@@ -426,7 +437,7 @@ pytest-forked==1.3.0
     # via pytest-xdist
 pytest-responses==0.5.0
     # via -r requirements/test.in
-pytest-xdist==2.2.1
+pytest-xdist==2.3.0
     # via -r requirements/test.in
 pytest==6.2.4
     # via

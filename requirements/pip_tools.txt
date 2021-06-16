@@ -4,8 +4,10 @@
 #
 #    pip-compile --output-file=requirements/pip_tools.txt requirements/pip_tools.in
 #
-click==8.0.1
-    # via pip-tools
+click==7.1.2
+    # via
+    #   -c requirements/constraints.txt
+    #   pip-tools
 pep517==0.10.0
     # via pip-tools
 pip-tools==6.1.0
