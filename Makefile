@@ -47,10 +47,10 @@ production-requirements: ## Install Python and JS requirements for production
 
 upgrade:
 	pip install -q -r requirements/pip_tools.txt
-	pip-compile --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in
-	pip-compile --upgrade -o requirements/docs.txt requirements/docs.in
-	pip-compile --upgrade -o requirements/local.txt requirements/local.in
-	pip-compile --upgrade -o requirements/production.txt requirements/production.in
+	pip-compile --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in  --use-deprecated=legacy-resolver
+	pip-compile --upgrade -o requirements/docs.txt requirements/docs.in --use-deprecated=legacy-resolver
+	pip-compile --upgrade -o requirements/local.txt requirements/local.in --use-deprecated=legacy-resolver
+	pip-compile --upgrade -o requirements/production.txt requirements/production.in --use-deprecated=legacy-resolver
 	# Let tox control the Django version for tests
 	grep -e "^django==" requirements/local.txt > requirements/django.txt
 	sed -i.tmp '/^[dD]jango==/d' requirements/local.txt
