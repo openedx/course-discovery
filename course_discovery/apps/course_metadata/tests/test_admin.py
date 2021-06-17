@@ -495,11 +495,10 @@ class PathwayAdminTest(TestCase):
             '__all__': ['These programs are for a different partner than the pathway itself: partner2 program']
         })
 
-
     def test_django_versions(self):
         """
         This test fails but gives us exact django version from env.
         """
         import django
         django.get_version()
-        self.assertEuql(django.get_version(), (1, 2, 16, 'final', 0))
+        self.assertEqual(django.get_version(), (1, 2, 16, 'final', 0))
