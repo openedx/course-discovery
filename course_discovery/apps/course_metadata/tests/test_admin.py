@@ -501,4 +501,4 @@ class PathwayAdminTest(TestCase):
         """
         import django   # pylint: disable=import-outside-toplevel
         django.get_version()
-        self.assertEqual(django.get_version(), (2, 2, 20, 'final', 0))
+        self.assertEqual(django.get_version(), (2, 2, 24, 'final', 0))
