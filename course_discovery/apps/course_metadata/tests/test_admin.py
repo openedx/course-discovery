@@ -499,6 +499,6 @@ class PathwayAdminTest(TestCase):
         """
         This test fails but gives us exact django version from env.
         """
-        import django
+        import django   # pylint: disable=import-outside-toplevel
         django.get_version()
         self.assertEqual(django.get_version(), (2, 2, 20, 'final', 0))
