@@ -47,7 +47,7 @@ mock_data=true # true 代表启用
 - POST
 ### Input:
     {
-        *role_name:'', // instructor
+        *role_name:'', // target role name, staff|instructor
         *email:'', // useranme@domain.com
     }
 ### Output:
@@ -60,7 +60,7 @@ mock_data=true # true 代表启用
 - DELETE
 ### Intput:
     {
-        *role_name:'', // instructor
+        *role_name:'', // target role name, staff
         *email:'', // useranme@domain.com
     }
 ### Output:
@@ -73,8 +73,7 @@ mock_data=true # true 代表启用
 - DELETE
 ### Intput:
     {
-        *role_name:'', // staff|instructor
-        *email:'', // useranme@domain.com
+        *email:'', // member's email, useranme@domain.com
     }
 ### Output:
     {
