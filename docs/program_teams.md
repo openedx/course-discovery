@@ -47,7 +47,7 @@ mock_data=true # true 代表启用
 - POST
 ### Input:
     {
-        *role_name:'', // staff|instructor
+        *role_name:'', // instructor
         *email:'', // useranme@domain.com
     }
 ### Output:
@@ -55,8 +55,21 @@ mock_data=true # true 代表启用
         error_message:'successful added'
     }
 
+## Delete Role
+- /api/team/v0/programadmins/[program_uuid]/roles/
+- DELETE
+### Intput:
+    {
+        *role_name:'', // instructor
+        *email:'', // useranme@domain.com
+    }
+### Output:
+    {
+        error_message:'successful added|user not exists'
+    }
+    
 ## Delete Member
-- /api/proxy/discovery/api/v1/programsteams/[program_team-uuid]/users/[user_id]/roles/
+- /api/team/v0/programadmins/[program_uuid]/
 - DELETE
 ### Intput:
     {
