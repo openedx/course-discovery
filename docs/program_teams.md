@@ -60,6 +60,7 @@ mock_data=true # true 代表启用
 - DELETE
 ### Intput:
     {
+        *role_name:'', // staff|instructor
         *email:'', // useranme@domain.com
     }
 ### Output:
