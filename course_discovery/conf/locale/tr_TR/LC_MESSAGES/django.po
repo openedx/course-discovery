@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-25 20:35+0000\n"
-"PO-Revision-Date: 2021-06-03 12:54+0000\n"
+"PO-Revision-Date: 2021-06-14 09:37+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
@@ -931,7 +931,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:641
 msgid "A list of major works by this person. Must be valid HTML."
-msgstr ""
+msgstr "Bu kişinin önemli eserlerinin listesi. Geçerli HTML olmalıdır. "
 
 #: apps/course_metadata/models.py:649
 msgid "People"
@@ -940,7 +940,7 @@ msgstr "Kişiler"
 #: apps/course_metadata/models.py:757
 msgid ""
 "Add the collaborator image, please make sure its dimensions are 200x100px"
-msgstr ""
+msgstr "Ortak çalışan görseli ekleyin, lütfen boyutlarının 200x100 piksel olduğundan emin olun "
 
 #: apps/course_metadata/models.py:783
 msgid ""
