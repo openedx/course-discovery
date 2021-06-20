@@ -20,7 +20,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-25 20:35+0000\n"
-"PO-Revision-Date: 2021-05-03 15:22+0000\n"
+"PO-Revision-Date: 2021-06-16 16:13+0000\n"
 "Last-Translator: Filipa Macieira <filipa.macieira@fccn.pt>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/open-edx/edx-platform/language/pt_PT/)\n"
 "MIME-Version: 1.0\n"
@@ -361,7 +361,7 @@ msgstr ""
 
 #: apps/core/models.py:138
 msgid "Is a Salesforce Sandbox?"
-msgstr "É uma Sandbox da Salesforce?"
+msgstr ""
 
 #: apps/core/models.py:144
 msgid "Case Record Type Id"
@@ -495,7 +495,7 @@ msgstr "Organização"
 msgid ""
 "Existing course type {type} for {key} ({id}) doesn't match its own "
 "entitlements."
-msgstr "Tipo de curso existente {tipo} para {chave} ({id}) não corresponde aos seus próprios direitos."
+msgstr "Tipo de curso existente {type} para {key} ({id}) não corresponde aos seus próprios direitos."
 
 #: apps/course_metadata/data_loaders/course_type.py:61
 #, python-brace-format
@@ -722,7 +722,7 @@ msgstr "A Eliminar"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:85
 msgid "Would delete"
-msgstr "Eliminaria"
+msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:86
 msgid "Name"
@@ -1420,7 +1420,7 @@ msgstr "Voltar ao Programa"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_run.html:29
 msgid "Save Course Run"
-msgstr "Salvar a Realização do Curso"
+msgstr ""
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:11
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:7
@@ -1612,7 +1612,7 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/reviewed.txt:21
 #, python-format
 msgid "View the course run in Publisher: %(course_page_url)s"
-msgstr "Ver realização do curso no Editor: %(course_page_url)s"
+msgstr ""
 
 #: apps/course_metadata/utils.py:375
 msgid "Special characters not allowed in Course Number."
@@ -1657,7 +1657,7 @@ msgstr ""
 msgid ""
 "Request could not be completed due to an incorrect ElasticSearch query "
 "parameters"
-msgstr "A solicitação não pôde ser concluída devido a um parâmetro de consulta ElasticSearch incorrecto"
+msgstr ""
 
 #: apps/ietf_language_tags/models.py:34
 msgid "Name for translation"
