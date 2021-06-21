@@ -1141,7 +1141,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         return advertised_course_run
 
-    # Experiment WS-1681: Course recommendations
     def has_marketable_run(self):
         return any(run.is_marketable for run in self.course_runs.all())
 
@@ -1176,7 +1175,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
                 deduped.append(course)
                 seen.add(course)
         return deduped
-        # End Experiment WS-1681: Course recommendations
 
 
 class CourseEditor(TimeStampedModel):

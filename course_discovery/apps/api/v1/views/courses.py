@@ -500,7 +500,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
 
-# Experiment WS-1681: Course recommendations
 class CourseRecommendationViewSet(RetrieveModelMixin, viewsets.GenericViewSet):
     filter_backends = (DjangoFilterBackend, )
     lookup_field = 'key'

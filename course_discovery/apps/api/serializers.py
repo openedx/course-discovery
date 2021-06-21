@@ -1221,7 +1221,6 @@ class CourseWithProgramsSerializer(CourseSerializer):
         )
 
 
-# Experiment WS-1681: Course recommendations
 class CourseWithRecommendationsSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
     recommendations = serializers.SerializerMethodField()
@@ -1262,7 +1261,6 @@ class CourseRecommendationSerializer(MinimalCourseSerializer):
         model = Course
         fields = ('key', 'uuid', 'title', 'owners', 'image',
                   'short_description', 'type', 'url_slug', 'course_run_keys', 'marketing_url')
-# end experiment code
 
 
 class CatalogCourseSerializer(CourseSerializer):
