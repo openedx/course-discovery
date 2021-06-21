@@ -2572,7 +2572,6 @@ class CollaboratorSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
-# Experiment WS-1681: course recommendations
 class CourseRecommendationSerializerTests(MinimalCourseSerializerTests):
     serializer_class = CourseRecommendationSerializer
 
@@ -2656,4 +2655,3 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
             SeatFactory.create_batch(2, course_run=course_run)
         serializer = self.serializer_class(course_with_recs, context={'request': request, 'exclude_utm': 1})
         assert serializer.data['recommendations'][0]['marketing_url'] == recommended_course_0.marketing_url
-# end experiment code

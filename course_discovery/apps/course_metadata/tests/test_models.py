@@ -2408,7 +2408,6 @@ class CourseUrlSlugHistoryTest(TestCase):
                            url_slug=slug_object.url_slug)]
 
 
-# Experiment WS-1681: Course recommendations
 class TestCourseRecommendations(TestCase):
     def setUp(self):
         super().setUp()
