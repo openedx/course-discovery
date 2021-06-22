@@ -21,6 +21,19 @@ mock_data=true # true 代表启用
         error_message:'successful added'ß
     }
 
+
+## Pagination
+### Input:
+    {
+        page_no:1, 
+        page_size:10, 
+    }
+### Output:
+    {
+        count:5 // total record
+    }
+
+
 <a name="get_program">1</a>
 ## Get Program Team(with members) by Learning Path ID
 - /api/team/v0/programadmins/[program_uuid]/
