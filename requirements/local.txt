@@ -6,27 +6,25 @@
 #
 alabaster==0.7.12
     # via sphinx
-algoliasearch-django==1.7.3
+algoliasearch-django==2.0.0
     # via -r requirements/base.in
-algoliasearch==1.20.0
+algoliasearch==2.5.0
     # via algoliasearch-django
 amqp==2.6.1
     # via kombu
-apipkg==1.5
-    # via execnet
 appdirs==1.4.4
     # via virtualenv
 astroid==2.5
     # via
     #   pylint
     #   pylint-celery
-attrs==20.3.0
+attrs==21.2.0
     # via
     #   jsonschema
     #   pytest
-authlib==0.15.3
+authlib==0.15.4
     # via simple-salesforce
-babel==2.9.0
+babel==2.9.1
     # via sphinx
 backoff==1.10.0
     # via -r requirements/base.in
@@ -40,7 +38,7 @@ celery==4.4.7
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-certifi==2020.12.5
+certifi==2021.5.30
     # via
     #   elasticsearch
     #   requests
@@ -53,7 +51,7 @@ chardet==4.0.0
     # via requests
 click-log==0.3.2
     # via edx-lint
-click==7.1.2
+click==8.0.1
     # via
     #   click-log
     #   edx-lint
@@ -80,11 +78,11 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-distlib==0.3.1
+distlib==0.3.2
     # via virtualenv
 distro==1.5.0
     # via docker-compose
-django-admin-sortable2==0.7.8
+django-admin-sortable2==1.0
     # via -r requirements/base.in
 django-appconf==1.0.4
     # via django-compressor
@@ -94,7 +92,7 @@ django-autocomplete-light==3.4.1
     #   -r requirements/base.in
 django-choices==1.7.1
     # via -r requirements/base.in
-django-compressor==2.4
+django-compressor==2.4.1
     # via
     #   -r requirements/base.in
     #   django-libsass
@@ -106,26 +104,26 @@ django-cors-headers==2.5.3
     #   -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
-django-debug-toolbar==3.2
+django-debug-toolbar==3.2.1
     # via -r requirements/local.in
 django-dynamic-filenames==1.1.4
     # via -r requirements/base.in
 django-elasticsearch-debug-toolbar==2.0.0
     # via -r requirements/local.in
-django-elasticsearch-dsl-drf==0.22
+django-elasticsearch-dsl-drf==0.22.1
     # via -r requirements/base.in
-django-elasticsearch-dsl==7.1.4
+django-elasticsearch-dsl==7.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
-django-extensions==3.1.2
+django-extensions==3.1.3
     # via -r requirements/base.in
 django-filter==2.4.0
     # via -r requirements/base.in
 django-fsm==2.7.1
     # via -r requirements/base.in
-django-guardian==2.3.0
+django-guardian==2.4.0
     # via -r requirements/base.in
 django-libsass==0.8
     # via -r requirements/base.in
@@ -139,7 +137,7 @@ django-parler==2.2
     # via -r requirements/base.in
 django-rest-swagger==2.2.0
     # via -r requirements/base.in
-django-simple-history==2.12.0
+django-simple-history==3.0.0
     # via -r requirements/base.in
 django-solo==1.1.5
     # via
@@ -155,17 +153,17 @@ django-taggit-autosuggest==0.3.8
     # via -r requirements/base.in
 django-taggit-serializer==0.1.7
     # via -r requirements/base.in
-django-taggit==1.3.0
+django-taggit==1.4.0
     # via
     #   -r requirements/base.in
     #   django-taggit-autosuggest
     #   django-taggit-serializer
-django-waffle==2.1.0
+django-waffle==2.2.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
     #   edx-drf-extensions
-django-webpack-loader==0.7.0
+django-webpack-loader==1.1.0
     # via -r requirements/base.in
     # via
     #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
@@ -201,7 +199,7 @@ django-webpack-loader==0.7.0
     #   rest-condition
     #   taxonomy-connector
     #   xss-utils
-djangorestframework-csv==2.1.0
+djangorestframework-csv==2.1.1
     # via -r requirements/base.in
 djangorestframework-xml==2.0.0
     # via -r requirements/base.in
@@ -216,9 +214,9 @@ djangorestframework==3.12.4
     #   edx-drf-extensions
     #   rest-condition
     #   taxonomy-connector
-docker-compose==1.28.6
+docker-compose==1.29.2
     # via -r requirements/local.in
-docker[ssh]==4.4.4
+docker[ssh]==5.0.0
     # via docker-compose
 dockerpty==0.4.1
     # via docker-compose
@@ -233,7 +231,9 @@ drf-dynamic-fields==0.3.1
 drf-extensions==0.7.0
     # via -r requirements/base.in
 drf-jwt==1.19.0
-    # via edx-drf-extensions
+    # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+    #   edx-drf-extensions
 dry-rest-permissions==0.1.10
     # via -r requirements/base.in
 edx-analytics-data-api-client==0.17.0
@@ -242,13 +242,13 @@ edx-auth-backends==3.3.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-edx-ccx-keys==1.2.0
+edx-ccx-keys==1.2.1
     # via -r requirements/base.in
 edx-django-release-util==1.0.0
     # via -r requirements/base.in
 edx-django-sites-extensions==3.0.0
     # via -r requirements/base.in
-edx-django-utils==3.16.0
+edx-django-utils==4.1.0
     # via
     #   -r requirements/base.in
     #   edx-drf-extensions
@@ -262,7 +262,7 @@ edx-lint==1.6
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.in
-edx-opaque-keys==2.2.0
+edx-opaque-keys==2.2.1
     # via
     #   -r requirements/base.in
     #   edx-ccx-keys
@@ -279,17 +279,17 @@ elasticsearch-dsl==7.3.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-elasticsearch==7.12.0
+elasticsearch==7.13.2
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
     #   elasticsearch-dsl
-execnet==1.8.0
+execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==8.0.0
+faker==8.8.1
     # via factory-boy
 filelock==3.0.12
     # via
@@ -307,13 +307,13 @@ imagesize==1.2.0
     # via sphinx
 iniconfig==1.1.1
     # via pytest
-isort==5.8.0
+isort==5.9.1
     # via
     #   -r requirements/test.in
     #   pylint
 itypes==1.2.0
     # via coreapi
-jinja2==2.11.3
+jinja2==3.0.1
     # via
     #   coreschema
     #   sphinx
@@ -325,13 +325,13 @@ kombu==4.6.11
     # via celery
 lazy-object-proxy==1.6.0
     # via astroid
-libsass==0.20.1
+libsass==0.21.0
     # via django-libsass
 lxml==4.6.3
     # via -r requirements/base.in
 markdown==3.3.4
     # via -r requirements/base.in
-markupsafe==1.1.1
+markupsafe==2.0.1
     # via jinja2
 mccabe==0.6.1
     # via pylint
@@ -339,9 +339,9 @@ mock==4.0.3
     # via -r requirements/test.in
 mysqlclient==2.0.3
     # via -r requirements/test.in
-newrelic==6.2.0.156
+newrelic==6.4.1.158
     # via edx-django-utils
-oauthlib==3.1.0
+oauthlib==3.1.1
     # via
     #   requests-oauthlib
     #   social-auth-core
@@ -356,9 +356,9 @@ paramiko==2.7.2
     # via docker
 path.py==12.5.0
     # via edx-i18n-tools
-path==15.1.2
+path==16.0.0
     # via path.py
-pbr==5.5.1
+pbr==5.6.0
     # via stevedore
 pillow==8.2.0
     # via
@@ -385,12 +385,13 @@ pycparser==2.20
     # via cffi
 pycryptodomex==3.10.1
     # via pyjwkest
-pygments==2.8.1
+pygments==2.9.0
     # via sphinx
 pyjwkest==1.4.2
     # via edx-drf-extensions
 pyjwt[crypto]==1.7.1
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   drf-jwt
     #   edx-auth-backends
     #   edx-rest-api-client
@@ -409,7 +410,7 @@ pylint==2.6.0
     #   pylint-celery
     #   pylint-django
     #   pylint-plugin-utils
-pymongo==3.11.3
+pymongo==3.11.4
     # via edx-opaque-keys
 pynacl==1.4.0
     # via paramiko
@@ -417,21 +418,21 @@ pyparsing==2.4.7
     # via packaging
 pyrsistent==0.17.3
     # via jsonschema
-pytest-cov==2.11.1
+pytest-cov==2.12.1
     # via -r requirements/test.in
 pytest-django-ordering==1.2.0
     # via -r requirements/test.in
-pytest-django==4.2.0
+pytest-django==4.4.0
     # via
     #   -r requirements/test.in
     #   pytest-django-ordering
 pytest-forked==1.3.0
     # via pytest-xdist
-pytest-responses==0.4.0
+pytest-responses==0.5.0
     # via -r requirements/test.in
-pytest-xdist==2.2.1
+pytest-xdist==2.3.0
     # via -r requirements/test.in
-pytest==6.2.3
+pytest==6.2.4
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -447,7 +448,7 @@ python-dateutil==2.8.1
     #   elasticsearch-dsl
     #   faker
     #   freezegun
-python-dotenv==0.17.0
+python-dotenv==0.18.0
     # via docker-compose
 python-memcached==1.59
     # via -r requirements/test.in
@@ -490,7 +491,7 @@ requests==2.25.1
     #   slumber
     #   social-auth-core
     #   sphinx
-responses==0.13.2
+responses==0.13.3
     # via
     #   -r requirements/test.in
     #   pytest-responses
@@ -502,18 +503,17 @@ selenium==3.141.0
     # via -r requirements/test.in
 semantic-version==2.8.5
     # via edx-drf-extensions
-simple-salesforce==1.11.1
+simple-salesforce==1.11.2
     # via -r requirements/base.in
 simplejson==3.17.2
     # via django-rest-swagger
-six==1.15.0
+six==1.16.0
     # via
     #   bcrypt
     #   django-choices
     #   django-compressor
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-    #   django-simple-history
     #   django-taggit-serializer
     #   djangorestframework-csv
     #   dockerpty
@@ -549,7 +549,6 @@ social-auth-app-django==4.0.0
     #   edx-auth-backends
 social-auth-core==4.0.2
     # via
-    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
     #   edx-auth-backends
     #   social-auth-app-django
@@ -564,13 +563,13 @@ sphinxcontrib-applehelp==1.0.2
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
     # via sphinx
-sphinxcontrib-htmlhelp==1.0.3
+sphinxcontrib-htmlhelp==2.0.0
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
 sphinxcontrib-qthelp==1.0.3
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.4
+sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
 sqlparse==0.4.1
     # via
@@ -592,8 +591,9 @@ toml==0.10.2
     # via
     #   pylint
     #   pytest
+    #   pytest-cov
     #   tox
-tox==3.23.0
+tox==3.23.1
     # via -r requirements/test.in
 transifex-client==0.12.5
     # via
@@ -607,7 +607,7 @@ unidecode==1.2.0
     # via unicode-slugify
 uritemplate==3.0.1
     # via coreapi
-urllib3==1.26.4
+urllib3==1.26.5
     # via
     #   elasticsearch
     #   requests
@@ -618,9 +618,9 @@ vine==1.3.0
     # via
     #   amqp
     #   celery
-virtualenv==20.4.3
+virtualenv==20.4.7
     # via tox
-websocket-client==0.58.0
+websocket-client==0.59.0
     # via
     #   docker
     #   docker-compose
