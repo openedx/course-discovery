@@ -37,7 +37,7 @@
     }
 
 
-##  enroll in|unenroll a Program 
+##  enroll in or unenroll a Program 
 - /api/program_enrollments/v1/users/edx/programs/
 - POST
 - involve Common

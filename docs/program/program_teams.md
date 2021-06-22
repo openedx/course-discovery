@@ -5,36 +5,14 @@ mock_data=true # true 代表启用
 ## Menu
 [get program](#get_program)
 
-<a href="#get_program">get program2</a> 
-
 [add role](#add_role)
 
-## Common
-### Input:
-    {
-        *field_name:'', // * means required; example of value:"useranme@domain.com"
-    }
-### Output:
-    {
-        //status: 1, // 1 success; 0 error
-        //status: 1, // no need, it can take from http code
-        error_message:'successful added'ß
-    }
+[delete_role](#delete_role)
+
+[delete_member](#delete_member)
 
 
-## Pagination
-### Input:
-    {
-        page_no:1, 
-        page_size:10, 
-    }
-### Output:
-    {
-        count:5 // total record
-    }
-
-
-<a name="get_program">1</a>
+<a name="get_program"></a>
 ## Get Program Team(with members) by Learning Path ID
 - /api/team/v0/programadmins/[program_uuid]/
 - GET
@@ -53,7 +31,8 @@ mock_data=true # true 代表启用
         ]
     }
 
-<a name="add_role">2</a>
+
+<a name="add_role"></a>
 ## Add Team Member / Add Role
 ### Url:
 - /api/team/v0/programadmins/[program_uuid]/roles/
@@ -68,6 +47,8 @@ mock_data=true # true 代表启用
         error_message:'successful added'
     }
 
+
+<a name="delete_role"></a>
 ## Delete Role
 - /api/team/v0/programadmins/[program_uuid]/roles/
 - DELETE
@@ -80,7 +61,9 @@ mock_data=true # true 代表启用
     {
         error_message:'successful added|user not exists'
     }
-    
+
+
+<a name="delete_member"></a>
 ## Delete Member
 - /api/team/v0/programadmins/[program_uuid]/
 - DELETE
