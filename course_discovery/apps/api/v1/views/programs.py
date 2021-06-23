@@ -127,6 +127,10 @@ class ProgramViewSet(viewsets.ModelViewSet):
         input_data = OrderedDict(request.data)
         new_card_image_name = input_data.pop('new_card_image_name', '')
 
+        # Make sure `new_card_image_name` has a value if `image file` provided.
+        if not new_card_image_name and 'card_image_url' in input_data:
+            new_card_image_name = input_data['card_image_url'].name
+
         if r'type' in input_data:
             input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
         if r'partner' in input_data:
