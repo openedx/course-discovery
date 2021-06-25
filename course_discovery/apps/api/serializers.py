@@ -340,9 +340,8 @@ class MinimalOrganizationSerializer(BaseModelSerializer):
 
     class Meta:
         model = Organization
-        fields = ('uuid', 'key', 'name', 'auto_generate_course_run_keys', 'certificate_logo_image_url',
-                  'enable_skills_in_publisher',)
-        read_only_fields = ('auto_generate_course_run_keys', 'enable_skills_in_publisher',)
+        fields = ('uuid', 'key', 'name', 'auto_generate_course_run_keys', 'certificate_logo_image_url',)
+        read_only_fields = ('auto_generate_course_run_keys',)
 
 
 class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
