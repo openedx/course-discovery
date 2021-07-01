@@ -93,9 +93,11 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
-        if 'card_image_url' in input_data:
-            # Don't support for creating of Program's card image.
-            input_data.pop('card_image_url')
+        new_card_image_name = input_data.pop('new_card_image_name', '')
+
+        # Make sure `new_card_image_name` has a value if `image file` provided.
+        if not new_card_image_name and 'card_image_url' in input_data:
+            new_card_image_name = input_data['card_image_url'].name
 
         if r'type' in input_data:
             input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
@@ -117,7 +119,12 @@ class ProgramViewSet(viewsets.ModelViewSet):
                     kwargs, writer.errors
                 )
             )
-        program_uuid = writer.save().uuid
+        # program_uuid = writer.save().uuid
+        # Rename saved image if new image file name were passed.
+        program_uuid = writer.save_with_image(
+            new_card_image_name,
+            r'card_image_url' in input_data
+        )
 
         return Response(
             {'program_uuid': program_uuid}, status=status.HTTP_201_CREATED

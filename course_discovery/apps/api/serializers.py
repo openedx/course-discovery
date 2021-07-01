@@ -965,6 +965,9 @@ class ProgramSerializer(MinimalProgramSerializer):
 
     def _remove_files(self, files_path_pairs):
             try:
+                if not files_path_pairs:
+                    return
+
                 for paths_pair in files_path_pairs:
                     source_path = paths_pair[0]
                     target_path = paths_pair[1]
@@ -990,7 +993,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             str(self.instance.card_image_url),
             new_card_image_name,
             card_image_file_posted
-        )
+        ) if self.instance else None
         # 3. Delete old images if new image file was posted.
         if card_image_file_posted:
             self._remove_files(files_path_pairs)
@@ -1008,6 +1011,8 @@ class ProgramSerializer(MinimalProgramSerializer):
             new_card_image_name + ext_name
         )
         table_record.save()
+
+        return table_record.uuid
 
     class Meta(MinimalProgramSerializer.Meta):
         model = Program
