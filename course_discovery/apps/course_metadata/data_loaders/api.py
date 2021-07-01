@@ -957,6 +957,7 @@ class WordPressApiDataLoader(AbstractDataLoader):
         """
         Create and add instructors to a course run.
         """
+        course_run.staff.clear()
         for course_instructor in course_instructors:
             course_instructor['partner'] = course_run.course.partner
             instructor_socials = course_instructor.pop('instructor_socials')
