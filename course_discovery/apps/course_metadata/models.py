@@ -1033,6 +1033,9 @@ class Program(TimeStampedModel):
         null=True, blank=False,
         help_text=_('Program Creator(user) id')
     )
+    # released_date = models.DateTimeField(
+    #     null=True, blank=True, help_text=_('Program Released(published) date')
+    # )
 
     objects = ProgramQuerySet.as_manager()
 
@@ -1086,7 +1089,7 @@ class Program(TimeStampedModel):
     @property
     def marketing_url(self):
         if self.marketing_slug:
-            type_node = 'empty_type' if self.type else self.type.slug.lower()
+            type_node = 'empty_type' if not self.type else self.type.slug.lower()
             path = '{type}/{slug}'.format(type=type_node, slug=self.marketing_slug)
             return urljoin(self.partner.marketing_site_url_root, path)
 
