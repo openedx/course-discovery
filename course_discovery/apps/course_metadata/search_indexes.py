@@ -390,7 +390,7 @@ class PersonIndex(BaseIndex, indexes.Indexable):
     model = Person
     uuid = indexes.CharField(model_attr='uuid')
     salutation = indexes.CharField(model_attr='salutation', null=True)
-    full_name = indexes.CharField(model_attr='full_name')
+    full_name = indexes.CharField(model_attr='full_name', stored=False, indexed=False)
     partner = indexes.CharField(null=True)
     bio = indexes.CharField(model_attr='bio', null=True)
     bio_language = indexes.CharField(model_attr='bio_language', null=True)
