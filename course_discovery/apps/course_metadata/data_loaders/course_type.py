@@ -38,6 +38,7 @@ def _match_course_type(course, course_type, commit=False, mismatches=None):
 
     # First, early exit if entitlements don't match.
     if not _do_entitlements_match(course, course_type):
+        logger.info('Testing/VAN-488: Course entitlement is not matched')
         return False
     if course.type.empty:
         matches[course] = course_type
@@ -75,6 +76,9 @@ def _match_course_type(course, course_type, commit=False, mismatches=None):
                 logger.info(_("Existing run type {run_type} for {key} ({id}) doesn't match its own seats.").format(
                     run_type=run.type.name, key=run.key, id=run.id,
                 ))
+            logger.info("Testing/VAN-488: Existing run type {run_type} for {key} ({id}) doesn't match its own seats.".format(
+                run_type=run.type.name, key=run.key, id=run.id,
+            ))
             return False
 
         if run.type.empty:
@@ -131,7 +135,9 @@ def calculate_course_type(course, course_types=None, commit=False, mismatches=No
         course_types = CourseType.objects.order_by('created')
 
     # Go through all types, and use the first one that matches. No sensible thing to do if multiple matched...
+    logger.warning('Testing/VAN-488:CourseTypes: [%s]', course_types)
     for course_type in course_types:
+        logger.warning('Testing/VAN-488: Course: [%s]; CourseType: [%s]', course, course_type)
         if _match_course_type(course, course_type, commit=commit, mismatches=mismatches):
             return True
 
