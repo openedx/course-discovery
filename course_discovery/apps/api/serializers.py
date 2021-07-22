@@ -750,7 +750,10 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
             # `ProgramType` on `Program`.
             'type__applicable_seat_types',
             'authoring_organizations',
-            Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
+            Prefetch(
+                'courses',
+                queryset=MinimalProgramCourseSerializer.prefetch_queryset()
+            ),
         )
 
     class Meta:
@@ -764,18 +767,31 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         read_only_fields = ('uuid', 'marketing_url', 'enrollment_start', 'enrollment_end')
 
     def get_courses(self, program):
-        course_runs = list(program.course_runs)
-
-        if self.context.get('marketable_enrollable_course_runs_with_archived'):
-            marketable_enrollable_course_runs = set()
-            for course in program.courses.all():
-                marketable_enrollable_course_runs.update(course.course_runs.marketable().enrollable())
-            course_runs = list(set(course_runs).intersection(marketable_enrollable_course_runs))
-
-        if program.order_courses_by_start_date:
-            courses = self.sort_courses(program, course_runs)
+        draft_program_courses_uuids = self.context.get('draft_program_courses_uuids')
+        if draft_program_courses_uuids:
+            # For: Draft Program detail query
+            courses = Course.objects.filter(
+                uuid__in=draft_program_courses_uuids    # UUIDs list of `Draft` Program in MongoDB.
+            )
+            course_runs = (
+                run
+                for course in courses.all()
+                for run in course.course_runs.all()
+            )
         else:
-            courses = program.courses.all()
+            # For: Prod. Program detail query
+            course_runs = list(program.course_runs)
+
+            if self.context.get('marketable_enrollable_course_runs_with_archived'):
+                marketable_enrollable_course_runs = set()
+                for course in program.courses.all():
+                    marketable_enrollable_course_runs.update(course.course_runs.marketable().enrollable())
+                course_runs = list(set(course_runs).intersection(marketable_enrollable_course_runs))
+
+            if program.order_courses_by_start_date:
+                courses = self.sort_courses(program, course_runs)
+            else:
+                courses = program.courses.all()
 
         course_serializer = MinimalProgramCourseSerializer(
             courses,

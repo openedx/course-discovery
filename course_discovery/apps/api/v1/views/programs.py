@@ -54,7 +54,9 @@ class ProgramViewSet(viewsets.ModelViewSet):
         if program_uuid:
             filters['uuid'] = program_uuid
 
-        return serializer_class.prefetch_queryset(**filters)
+        return serializer_class.prefetch_queryset(
+            **filters
+        )
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
@@ -62,6 +64,14 @@ class ProgramViewSet(viewsets.ModelViewSet):
                         'marketable_enrollable_course_runs_with_archived']
         for query_param in query_params:
             context[query_param] = get_query_param(self.request, query_param)
+
+        # Arguments: for Draft program courses list.
+        if 'courses' in self.request.data:
+            # The courses list for this program.
+            # We need fetch & return these courses instead of the related courses of program
+            # Because these courses may belong to Draft Program Courses list.
+            # Format: ['d591f0a5-92d4-47ba-8f21-bf938e559885', 'cf5fe179-8395-4a30-85ed-a4ebfa00b715']
+            context['draft_program_courses_uuids'] = self.request.data['courses']
 
         return context
 
