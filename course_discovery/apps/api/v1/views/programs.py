@@ -114,9 +114,9 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
-        new_card_image_name = input_data.pop('new_card_image_name', '')
 
         # Make sure `new_card_image_name` has a value if `image file` provided.
+        new_card_image_name = input_data.pop('new_card_image_name', '')
         if not new_card_image_name and 'card_image_url' in input_data:
             new_card_image_name = input_data['card_image_url'].name
 
@@ -126,6 +126,22 @@ class ProgramViewSet(viewsets.ModelViewSet):
             input_data[r'partner'] = Partner.objects.get(name=input_data[r'partner'])
 
         program = self.get_object()
+        if input_data.get('status') == program.status:
+            raise ValidationError('Cannot publish program Twice.')
+
+        # Save Draft program courses list into Mysql.
+        draft_program_courses = input_data.pop('draft_program_courses')
+        if draft_program_courses:
+            with transaction.atomic():
+                courses = Course.objects.filter(
+                    uuid__in=[
+                        course['uuid'] for course in draft_program_courses
+                    ]  # UUIDs list of `Draft` Program in MongoDB.
+                )
+                for course in courses:
+                    if course not in program.courses.all():
+                        program.courses.add(course)
+
         writer = self.get_serializer(program, data=input_data, partial=True)
         if not writer.is_valid():
             raise ValidationError(
@@ -221,6 +237,19 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
 
         return self.get_serializer_class().prefetch_queryset(**filters)
 
+    def get_serializer_context(self, *args, **kwargs):
+        context = super().get_serializer_context(*args, **kwargs)
+
+        # Arguments: for Draft program courses list.
+        if 'courses' in self.request.data:
+            # The courses list for this program.
+            # We need fetch & return these courses instead of the related courses of program
+            # Because these courses may belong to Draft Program Courses list.
+            # Format: ['d591f0a5-92d4-47ba-8f21-bf938e559885', 'cf5fe179-8395-4a30-85ed-a4ebfa00b715']
+            context['draft_program_courses_uuids'] = self.request.data['courses']
+
+        return context
+
     def list(self, request, program_uuid):
         """Return all courses of a program
             Because we also dont paginate courses list for a Program instance
@@ -241,6 +270,10 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
             )
 
     def create(self, request, *args, **kwargs):
+        """Checking course for program courses list. But we don't add any courses into a program courses list.
+            The inserting logic is in publish method.
+        """
+        exec_flag = self.request.data.get('exec')
         course_uuid = self.request.data['course_uuid'] \
             if 'course_uuid' in self.request.data \
             else CourseRun.objects.select_related('course').get(
@@ -253,7 +286,8 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
             raise ValidationError(
                 'Course uuid ({}) already exist in the program.'.format(course_uuid)
             )
-        program.courses.add(course)
+        if '1' == exec_flag:
+            program.courses.add(course)
 
         # Cal. program's start/end date
         min_start = max_end = None
@@ -273,6 +307,7 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
         return Response(
             {
                 'course_uuid': course_uuid,
+                'title': course.title,
                 'program_start': min_start,
                 'program_end': max_end
             },

@@ -773,11 +773,11 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
             courses = Course.objects.filter(
                 uuid__in=draft_program_courses_uuids    # UUIDs list of `Draft` Program in MongoDB.
             )
-            course_runs = (
+            course_runs = [
                 run
                 for course in courses.all()
                 for run in course.course_runs.all()
-            )
+            ]
         else:
             # For: Prod. Program detail query
             course_runs = list(program.course_runs)
