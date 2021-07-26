@@ -10,6 +10,8 @@ import pytz
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Case
+from django.db.models import When
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
@@ -769,10 +771,14 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     def get_courses(self, program):
         draft_program_courses_uuids = self.context.get('draft_program_courses_uuids')
         if draft_program_courses_uuids:
-            # For: Draft Program detail query
+            # For: Draft Program detail query with ORDER of UUIDs vector
+            preserved = Case(
+                *[When(uuid=pk, then=pos)
+                  for pos, pk in enumerate(draft_program_courses_uuids)]
+            )
             courses = Course.objects.filter(
                 uuid__in=draft_program_courses_uuids    # UUIDs list of `Draft` Program in MongoDB.
-            )
+            ).order_by(preserved)
             course_runs = [
                 run
                 for course in courses.all()

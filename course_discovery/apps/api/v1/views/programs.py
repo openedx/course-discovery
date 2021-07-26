@@ -315,6 +315,8 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
         )
 
     def destroy(self, request, *args, **kwargs):
+        """Remove a course from Program courses list
+        """
         course_uuid = kwargs['uuid']
         program = self.get_queryset().first()
         course = program.courses.get(uuid=course_uuid)
@@ -326,6 +328,8 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
         )
 
     def patch(self, request, *args, **kwargs):
+        """Reorder sequence of course in Program courses list
+        """
         course_uuid = self.request.data['course_uuid']
         target_order = int(request.data['order_no'])    # Zero based index !
         program = self.get_queryset().first()
