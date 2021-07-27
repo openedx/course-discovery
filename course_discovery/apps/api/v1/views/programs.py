@@ -77,11 +77,6 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
-        new_card_image_name = input_data.pop('new_card_image_name', '')
-
-        # Make sure `new_card_image_name` has a value if `image file` provided.
-        if not new_card_image_name and 'card_image_url' in input_data:
-            new_card_image_name = input_data['card_image_url'].name
 
         if r'type' in input_data:
             input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
@@ -101,29 +96,26 @@ class ProgramViewSet(viewsets.ModelViewSet):
                     kwargs, writer.errors
                 )
             )
-        # program_uuid = writer.save().uuid
-        # Rename saved image if new image file name were passed.
-        program_uuid = writer.save_with_image(
-            new_card_image_name,
-            r'card_image_url' in input_data
-        )
+
+        # Save
+        program_uuid = writer.save().uuid
 
         return Response(
-            {'program_uuid': program_uuid}, status=status.HTTP_201_CREATED
+            {'program_uuid': program_uuid},
+            status=status.HTTP_201_CREATED
         )
 
     def update(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
 
-        # Make sure `new_card_image_name` has a value if `image file` provided.
-        new_card_image_name = input_data.pop('new_card_image_name', '')
-        if not new_card_image_name and 'card_image_url' in input_data:
-            new_card_image_name = input_data['card_image_url'].name
-
         if r'type' in input_data:
-            input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
+            input_data[r'type'] = ProgramType.objects.get(
+                name=input_data[r'type']
+            )
         if r'partner' in input_data:
-            input_data[r'partner'] = Partner.objects.get(name=input_data[r'partner'])
+            input_data[r'partner'] = Partner.objects.get(
+                name=input_data[r'partner']
+            )
 
         program = self.get_object()
         if input_data.get('status') == program.status:
@@ -150,10 +142,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
                 )
             )
         # Rename saved image if new image file name were passed.
-        writer.save_with_image(
-            new_card_image_name,
-            r'card_image_url' in input_data
-        )
+        writer.save()
 
         return Response(
             {'program_uuid': program.uuid}, status=status.HTTP_200_OK

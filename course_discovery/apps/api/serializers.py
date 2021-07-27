@@ -733,7 +733,6 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
 
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(read_only=True, many=True)
-    card_image_url = StdImageSerializerField(required=False)
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all(), required=False)
     partner = serializers.SlugRelatedField(slug_field='name', queryset=Partner.objects.all())
@@ -923,105 +922,6 @@ class ProgramSerializer(MinimalProgramSerializer):
             return []
 
         return list(obj.type.applicable_seat_types.values_list('slug', flat=True))
-
-    def _get_filepath_and_ext(self, filepath):
-        """Separete filepath & ext name, but keep the Dot in path.
-
-            Sample:
-                return `/a/b/abc/filename.` + `jpg`
-        """
-        if not filepath:
-            return '', ''
-
-        last_dot_index = filepath.rfind('.')
-        if last_dot_index > 0:
-            ext = filepath[last_dot_index+1:]
-            filepath = filepath[:last_dot_index+1]
-
-            return filepath, ext
-        else:
-            return filepath, ''
-
-    def _get_local_paths_by_filename(self, card_image_url, new_name_without_ext, delete_only=False):
-        """Return local images files paths by `card_image_url`"""
-        card_image_path_witout_ext, ext_name = self._get_filepath_and_ext(
-            card_image_url
-        )
-        if not card_image_path_witout_ext:
-            return []
-
-        root_path = path_join(settings.MEDIA_ROOT, card_image_path_witout_ext)
-
-        def _gen_paths_pair(root_path, image_type, ext_name):
-            source_path = r'{}{}.{}'.format(root_path, image_type, ext_name)
-            target_root_path = root_path[:root_path.rfind('/')+1] + new_name_without_ext
-            target_path = r'{}{}.{}'.format(target_root_path, image_type, ext_name) if not delete_only else ''
-
-            return [source_path, target_path]
-
-        file_paths = [      # List of sized images paths
-            _gen_paths_pair(root_path, image_type, ext_name)
-            for image_type, _ in Program.CARD_IMAGE_VARIATIONS.items()
-        ]
-        file_paths.append(  # Append paths pair of raw images path
-            [
-                r'{}{}'.format(root_path, ext_name),
-                root_path[:root_path.rfind('/') + 1] + new_name_without_ext + ext_name if not delete_only else ''
-            ]
-        )
-
-        return file_paths
-
-    def _remove_files(self, files_path_pairs):
-            try:
-                if not files_path_pairs:
-                    return
-
-                for paths_pair in files_path_pairs:
-                    source_path = paths_pair[0]
-                    target_path = paths_pair[1]
-                    if not target_path:
-                        remove_file(source_path)
-                    else:
-                        rename_file(source_path, target_path)
-            except Exception as e:
-                pass
-                # raise Exception(e)
-
-    def save_with_image(self, new_card_image_name, card_image_file_posted):
-        """Save program detail data
-            &
-            Save image file
-            &
-            Rename image file if param `new_card_image_name` were given.
-        """
-        # 1. Format query string (New file Path with Dot, but no ext name)
-        new_card_image_name, ext_name = self._get_filepath_and_ext(new_card_image_name)
-        # 2. List local files paths IF `card_image_url` already exist in MySql
-        files_path_pairs = self._get_local_paths_by_filename(
-            str(self.instance.card_image_url),
-            new_card_image_name,
-            card_image_file_posted
-        ) if self.instance else None
-        # 3. Delete old images if new image file was posted.
-        if card_image_file_posted:
-            self._remove_files(files_path_pairs)
-        # 4. Save into Database
-        table_record = super(ProgramSerializer, self).save()
-        if card_image_file_posted:
-            files_path_pairs = self._get_local_paths_by_filename(
-                str(table_record.card_image_url), new_card_image_name
-            )
-        # 5. Rename image files in local with new files names.
-        self._remove_files(files_path_pairs)
-        # 6. Replace image file path with new File path name
-        table_record.card_image_url.name = path_join(
-            Program.CARD_IMAGES_STORAGE_FOLDER,
-            new_card_image_name + ext_name
-        )
-        table_record.save()
-
-        return table_record.uuid
 
     class Meta(MinimalProgramSerializer.Meta):
         model = Program

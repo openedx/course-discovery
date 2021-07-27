@@ -1010,16 +1010,7 @@ class Program(TimeStampedModel):
         render_variations=custom_render_variations
     )
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
-    # Store program card image into Local Disk. In the future, we  could migrate it into (LMS)MongoDB.
-    card_image_url = StdImageField(
-        max_length=200,
-        upload_to=UploadToFieldNamePath(populate_from='uuid', path=CARD_IMAGES_STORAGE_FOLDER),
-        blank=True,
-        null=True,
-        variations=CARD_IMAGE_VARIATIONS,
-        render_variations=custom_render_variations,
-        help_text=_('Image used for discovery cards')
-    )
+    card_image_url = models.CharField(null=True, blank=True, max_length=256)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)
