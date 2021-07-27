@@ -130,7 +130,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
             raise ValidationError('Cannot publish program Twice.')
 
         # Save Draft program courses list into Mysql.
-        draft_program_courses = input_data.pop('draft_program_courses')
+        draft_program_courses = input_data.pop('draft_program_courses', None)
         if draft_program_courses:
             with transaction.atomic():
                 courses = Course.objects.filter(
