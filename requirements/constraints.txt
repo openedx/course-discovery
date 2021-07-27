@@ -31,6 +31,12 @@ social-auth-core<4.0.3
 # python-slugify is conflicting with unicode-slugify
 edx-lint<=1.6
 
-
 # latest version causing issues in IDAs.
 edx-auth-backends==3.3.0
+
+# latest version causing issues in IDAs.
+algoliasearch-django<2.0.0
+algoliasearch<2.0.0
+
+# latest version causing issues in IDAs.
+django-webpack-loader<1.0.0
