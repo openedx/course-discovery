@@ -45,6 +45,13 @@ class Command(DjangoESDSLCommand):
         )
         parser.set_defaults(parallel=getattr(settings, 'ELASTICSEARCH_DSL_PARALLEL', False))
         parser.add_argument(
+            '--refresh',
+            action='store_true',
+            dest='refresh',
+            default=None,
+            help='Refresh indices after populate/rebuild'
+        )
+        parser.add_argument(
             '--no-count',
             action='store_false',
             default=True,
