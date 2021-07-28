@@ -146,7 +146,7 @@ django-dynamic-filenames==1.1.4
     # via -r requirements/base.in
 django-elasticsearch-debug-toolbar==2.0.0
     # via -r requirements/local.in
-django-elasticsearch-dsl==7.2.0
+django-elasticsearch-dsl==7.1.4
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in

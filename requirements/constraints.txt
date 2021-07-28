@@ -37,6 +37,7 @@ edx-auth-backends==3.3.0
 
 # latest version failing tests.
 algoliasearch-django==1.7.3
+django-elasticsearch-dsl==7.1.4
 
 # greater version causing failures.
 django-webpack-loader==0.7.0
