@@ -22,9 +22,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.18.8
+boto3==1.18.9
     # via django-ses
-botocore==1.21.8
+botocore==1.21.9
     # via
     #   boto3
     #   s3transfer
@@ -106,7 +106,7 @@ django-compressor==2.4.1
     #   django-libsass
 django-contrib-comments==2.1.0
     # via -r requirements/base.in
-django-cors-headers==2.5.3
+django-cors-headers==3.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
