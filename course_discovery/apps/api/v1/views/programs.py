@@ -262,7 +262,6 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
         """Checking course for program courses list. But we don't add any courses into a program courses list.
             The inserting logic is in publish method.
         """
-        exec_flag = self.request.data.get('exec')
         course_uuid = self.request.data['course_uuid'] \
             if 'course_uuid' in self.request.data \
             else CourseRun.objects.select_related('course').get(
@@ -275,8 +274,7 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
             raise ValidationError(
                 'Course uuid ({}) already exist in the program.'.format(course_uuid)
             )
-        if '1' == exec_flag:
-            program.courses.add(course)
+        program.courses.add(course)
 
         # Cal. program's start/end date
         min_start = max_end = None
