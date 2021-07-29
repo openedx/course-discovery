@@ -262,6 +262,7 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
         """Checking course for program courses list. But we don't add any courses into a program courses list.
             The inserting logic is in publish method.
         """
+        exec_flag = self.request.data.get('exec')
         course_uuid = self.request.data['course_uuid'] \
             if 'course_uuid' in self.request.data \
             else CourseRun.objects.select_related('course').get(
@@ -274,30 +275,21 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
             raise ValidationError(
                 'Course uuid ({}) already exist in the program.'.format(course_uuid)
             )
-        program.courses.add(course)
+        if '1' == exec_flag:
+            program.courses.add(course)
 
-        # Cal. program's start/end date
-        min_start = max_end = None
-        for course_run in program.course_runs:
-            if not min_start:
-                min_start = course_run.start
-            elif course_run.start < min_start:
-                min_start = course_run.start
+        serializer = self.get_serializer(
+            program, many=False, context={'request': self.request}
+        )
 
-            if not max_end:
-                max_end = course_run.end
-            elif course_run.end > max_end:
-                max_end = course_run.end
+        resp_course = serializer.data['courses']
+        if 'courses' not in serializer.data:
+            resp_course = {}
+        else:
+            resp_course = resp_course[0]
 
-        # After adding a new course into Program, make sure to update all the Program Team Member are all in this new Course's Team.
-        # PATCH: localhost:18000/api/team/v0/team_membership? course_id, program_uuid
         return Response(
-            {
-                'course_uuid': course_uuid,
-                'title': course.title,
-                'program_start': min_start,
-                'program_end': max_end
-            },
+            resp_course,
             status=status.HTTP_201_CREATED
         )
 
