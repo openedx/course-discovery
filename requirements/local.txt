@@ -309,9 +309,11 @@ idna==3.2
     # via requests
 imagesize==1.2.0
     # via sphinx
+importlib-metadata==4.6.1
+    # via -r requirements/base.in
 iniconfig==1.1.1
     # via pytest
-isort==5.9.2
+isort==5.9.3
     # via
     #   -r requirements/test.in
     #   pylint
@@ -632,6 +634,8 @@ wrapt==1.12.1
     # via astroid
 xss-utils==0.3.0
     # via -r requirements/base.in
+zipp==3.5.0
+    # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

@@ -6,6 +6,7 @@ import certifi
 import memcache
 import MySQLdb
 import yaml
+from importlib_metadata import version
 
 from course_discovery.settings.base import *
 
@@ -36,6 +37,11 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
             vars()[key].update(value)
 
     vars().update(config_from_yaml)
+
+    if version('django_cors_headers') == '3.2.0':
+        vars()['CORS_ORIGIN_WHITELIST'] = vars()['CORS_ORIGIN_WHITELIST_NEW']
+    else:
+        vars()['CORS_ORIGIN_WHITELIST'] = vars()['CORS_ORIGIN_WHITELIST_OLD']
 
     # Unpack media storage settings.
     # It's important we unpack here because of https://github.com/edx/configuration/pull/3307
