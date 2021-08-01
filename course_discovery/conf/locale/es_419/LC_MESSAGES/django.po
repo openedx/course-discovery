@@ -15,7 +15,7 @@
 # Diego Rojas <diego.rojas@edunext.co>, 2017
 # Poxtic <erandelle@outlook.com>, 2017
 # d708d71c59e877c881227089ff727163, 2017
-# Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2018,2020
+# Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2018,2020-2021
 # Laura Silva <lingison@edx.org>, 2016
 # Luis Alberto Lucio <luisalberto.lucio@gmail.com>, 2020
 # luisa rivero zambrano <luisarz11@hotmail.com>, 2016
@@ -32,8 +32,8 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-07-04 20:35+0000\n"
-"PO-Revision-Date: 2021-07-04 21:05+0000\n"
-"Last-Translator: edx_transifex_bot <i18n-working-group+edx-transifex-bot@edx.org>\n"
+"PO-Revision-Date: 2021-07-28 14:51+0000\n"
+"Last-Translator: Juan Camilo Montoya Franco <juan.montoya@edunext.co>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -492,7 +492,7 @@ msgstr "Profesional"
 
 #: apps/course_metadata/choices.py:50
 msgid "Executive Education"
-msgstr ""
+msgstr "Formación Ejecutiva"
 
 #: apps/course_metadata/choices.py:54
 msgid "Platform"
@@ -842,13 +842,13 @@ msgstr "Si se completa, este campo sobrescribirá el nombre en la plataforma."
 
 #: apps/course_metadata/models.py:172
 msgid "Spanish Description"
-msgstr ""
+msgstr "Descripción en Español"
 
 #: apps/course_metadata/models.py:173
 msgid ""
 "For seo, this field allows for alternate spanish description to be manually "
 "inputted"
-msgstr ""
+msgstr "Para SEO, este campo permite introducir manualmente una descripción alternativa en español. "
 
 #: apps/course_metadata/models.py:198 apps/course_metadata/models.py:836
 #: apps/course_metadata/models.py:1354
@@ -947,7 +947,7 @@ msgstr "Personas"
 #: apps/course_metadata/models.py:750
 msgid ""
 "Add the collaborator image, please make sure its dimensions are 200x100px"
-msgstr ""
+msgstr "Agregar la imagen del colaborador, por favor asegúrese que las dimensiones sean 200x100px"
 
 #: apps/course_metadata/models.py:776
 msgid ""
@@ -983,11 +983,11 @@ msgstr "Información adicional"
 
 #: apps/course_metadata/models.py:958
 msgid "Future"
-msgstr ""
+msgstr "Futuro"
 
 #: apps/course_metadata/models.py:960
 msgid "Past"
-msgstr ""
+msgstr "Pasado."
 
 #: apps/course_metadata/models.py:1273
 msgid "Blocked"
@@ -1112,7 +1112,7 @@ msgstr "Este campo está fuera de servicio (ECOM-6021). Estimación del número 
 
 #: apps/course_metadata/models.py:2151
 msgid "DEPRECATED: Use the card image field"
-msgstr ""
+msgstr "OBSOLETO: Use el campo card image"
 
 #: apps/course_metadata/models.py:2158
 msgid ""
@@ -1427,11 +1427,11 @@ msgstr "Guardar convocatoria de curso"
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:11
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:7
 msgid "Home"
-msgstr ""
+msgstr "Inicio"
 
 #: apps/course_metadata/templates/admin/course_metadata/course_skills.html:26
 msgid "Course Skills"
-msgstr ""
+msgstr "Habilidades del curso"
 
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:22
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:32
@@ -1649,17 +1649,17 @@ msgstr "El programa fue cambiado exitosamente."
 
 #: apps/course_metadata/views.py:123
 msgid "The refresh course skills task triggered successfully."
-msgstr ""
+msgstr "La tarea de actualizar las habilidades del curso se activó exitosamente. "
 
 #: apps/course_metadata/views.py:223
 msgid "The course skills were updated successfully."
-msgstr ""
+msgstr "Las habilidades del curso se actualizaron exitosamente. "
 
 #: apps/edx_elasticsearch_dsl_extensions/exceptions.py:17
 msgid ""
 "Request could not be completed due to an incorrect ElasticSearch query "
 "parameters"
-msgstr ""
+msgstr "La solicitud no pudo ser completada debido a un parámetro de query ElasticSearch incorrecto"
 
 #: apps/ietf_language_tags/models.py:34
 msgid "Name for translation"
