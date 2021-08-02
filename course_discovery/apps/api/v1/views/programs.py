@@ -279,10 +279,8 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
         if '1' == exec_flag:
             program.courses.add(course)
 
-        # raw_post_data = self.request.data
-        # setattr(self.request, 'data', QueryDict('', mutable=True))
-        self.request.data._mutable = True
-        # self.request.data.update(raw_post_data)
+        if isinstance(self.request.data, QueryDict):
+            self.request.data._mutable = True
         self.request.data['courses'] = [course_uuid]
         serializer = self.get_serializer(
             program,
