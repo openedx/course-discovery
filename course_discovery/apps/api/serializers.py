@@ -769,6 +769,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
     def get_courses(self, program):
         draft_program_courses_uuids = self.context.get('draft_program_courses_uuids')
+
         if draft_program_courses_uuids:
             # For: Draft Program detail query with ORDER of UUIDs vector
             preserved = Case(

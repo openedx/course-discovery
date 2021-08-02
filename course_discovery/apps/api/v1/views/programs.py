@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.core.exceptions import ValidationError
 from django.db import connection
 from django.db import transaction
+from django.http.request import QueryDict
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -278,8 +279,14 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
         if '1' == exec_flag:
             program.courses.add(course)
 
+        # raw_post_data = self.request.data
+        # setattr(self.request, 'data', QueryDict('', mutable=True))
+        self.request.data._mutable = True
+        # self.request.data.update(raw_post_data)
+        self.request.data['courses'] = [course_uuid]
         serializer = self.get_serializer(
-            program, many=False, context={'request': self.request}
+            program,
+            many=False
         )
 
         resp_course = serializer.data['courses']
@@ -287,6 +294,7 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
             resp_course = {}
         else:
             resp_course = resp_course[0]
+        resp_course['course_uuid'] = course_uuid
 
         return Response(
             resp_course,
