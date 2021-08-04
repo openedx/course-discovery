@@ -3086,14 +3086,26 @@ WORDPRESS_API_BODIES = [
                 'title': 'Technology',
                 'slug': 'technology',
                 'description': 'Technology category description',
-                'permalink': 'http://example.com/category/technology'
+                'permalink': 'http://example.com/category/technology',
+                'title_translations': {
+                    'en': 'Technology',
+                    'ar': 'تكنولوجيا',
+                    'fr': 'La technologie',
+                    'es': 'Tecnología',
+                },
             },
             {
                 'id': '2',
                 'title': 'General',
                 'slug': 'general',
                 'description': 'General category description',
-                'permalink': 'http://example.com/category/general'
+                'permalink': 'http://example.com/category/general',
+                'title_translations': {
+                    'en': 'General',
+                    'ar': 'عام',
+                    'fr': 'Général',
+                    'es': 'General',
+                },
             }
         ],
         'tags': ['tag1', 'tag2', 'tag3'],

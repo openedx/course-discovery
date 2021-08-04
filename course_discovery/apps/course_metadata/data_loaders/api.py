@@ -20,7 +20,7 @@ from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoade
 from course_discovery.apps.course_metadata.data_loaders.course_type import calculate_course_type
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Person, PersonSocialNetwork, Program,
-    ProgramType, Seat, SeatType, Subject, Video
+    ProgramType, Seat, SeatType, Subject, SubjectTranslation, Video
 )
 from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run, subtract_deadline_delta
 
@@ -1015,6 +1015,15 @@ class WordPressApiDataLoader(AbstractDataLoader):
                 subject.name = category['title']
                 subject.slug = category['slug']
                 subject.save()
+
+            if subject and category.get('title_translations', None):
+                for language_code, translated_title in category['title_translations'].items():
+                    subject_translation, __ = SubjectTranslation.objects.get_or_create(
+                        master_id=subject.pk,
+                        language_code=language_code
+                    )
+                    subject_translation.name = translated_title if translated_title else category['title']
+                    subject_translation.save()
 
             course_run.course.subjects.add(subject)
 
