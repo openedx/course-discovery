@@ -119,8 +119,6 @@ class ProgramViewSet(viewsets.ModelViewSet):
             )
 
         program = self.get_object()
-        if input_data.get('status') == program.status:
-            raise ValidationError('Cannot publish program Twice.')
 
         # Save Draft program courses list into Mysql.
         draft_program_courses = input_data.pop('draft_program_courses', None)
