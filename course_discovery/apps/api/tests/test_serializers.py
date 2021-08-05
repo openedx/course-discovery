@@ -201,6 +201,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'collaborators': [],
             'skill_names': [course_skill.skill.name],
             'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'jobs': [],
         })
 
         return expected
@@ -2031,6 +2032,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
             'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'jobs': [],
             'course_ends': course.course_ends,
             'end_date': serialize_datetime(course.end_date),
             'organizations': [
@@ -2106,6 +2108,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
             'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'jobs': [],
             'course_ends': course.course_ends,
             'end_date': serialize_datetime(course.end_date),
             'organizations': [
@@ -2161,6 +2164,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
             'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'jobs': [],
             'course_ends': course.course_ends,
             'end_date': serialize_datetime(course.end_date),
             'organizations': [
@@ -2248,6 +2252,7 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
             'seat_types': [seat.slug for seat in course_run.seat_types],
             'skill_names': [course_skill.skill.name],
             'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'jobs': [],
             'image_url': course_run.image_url,
             'type': course_run.type_legacy,
             'level_type': course_run.level_type.name,

@@ -221,6 +221,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
         'published': {'field': 'published', 'lookups': [LOOKUP_FILTER_TERM]},
         'skill_names': {'field': 'skill_names', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'skills': {'field': 'skills', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
+        'jobs': {'field': 'jobs', 'lookups': [LOOKUP_FILTER_TERM, LOOKUP_FILTER_TERMS]},
         'status': {'field': 'status', 'lookups': [LOOKUP_FILTER_TERM]},
         'start': {'field': 'start', 'lookups': [LOOKUP_QUERY_GT, LOOKUP_QUERY_GTE, LOOKUP_QUERY_LT, LOOKUP_QUERY_LTE]},
         'short_description': {
