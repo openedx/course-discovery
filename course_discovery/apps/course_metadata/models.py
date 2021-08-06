@@ -1049,9 +1049,10 @@ class Program(TimeStampedModel):
         null=True, blank=False,
         help_text=_('Program Creator(user) id')
     )
-    # released_date = models.DateTimeField(
-    #     null=True, blank=True, help_text=_('Program Released(published) date')
-    # )
+    released_date = models.DateTimeField(
+        null=True, blank=True,
+        help_text=_('Program Released(published) date')
+    )
 
     objects = ProgramQuerySet.as_manager()
 

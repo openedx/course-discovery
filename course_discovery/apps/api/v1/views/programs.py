@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from datetime import datetime
 from traceback import format_exc
 
 from django_filters.rest_framework import DjangoFilterBackend
@@ -117,6 +118,8 @@ class ProgramViewSet(viewsets.ModelViewSet):
             input_data[r'partner'] = Partner.objects.get(
                 name=input_data[r'partner']
             )
+        if r'released_date' in input_data:
+            input_data[r'released_date'] = datetime.now()
 
         program = self.get_object()
 
