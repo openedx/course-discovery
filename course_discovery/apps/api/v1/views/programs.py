@@ -4,6 +4,8 @@ from traceback import format_exc
 
 from django_filters.rest_framework import DjangoFilterBackend
 from django.core.exceptions import ValidationError
+from django.db.models import Case
+from django.db.models import When
 from django.db import connection
 from django.db import transaction
 from django.http.request import QueryDict
@@ -125,16 +127,21 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
         # Save Draft program courses list into Mysql.
         draft_program_courses = input_data.pop('draft_program_courses', None)
-        if draft_program_courses:
+        if draft_program_courses is not None:
             with transaction.atomic():
+                preserved = Case(
+                    *[When(uuid=pk, then=pos)
+                      for pos, pk in enumerate(draft_program_courses)]
+                )
                 courses = Course.objects.filter(
                     uuid__in=[
-                        course['uuid'] for course in draft_program_courses
+                        course for course in draft_program_courses
                     ]  # UUIDs list of `Draft` Program in MongoDB.
-                )
+                ).order_by(preserved)
+                for c in program.courses.all():
+                    program.courses.remove(c)
                 for course in courses:
-                    if course not in program.courses.all():
-                        program.courses.add(course)
+                    program.courses.add(course)
 
         writer = self.get_serializer(program, data=input_data, partial=True)
         if not writer.is_valid():
