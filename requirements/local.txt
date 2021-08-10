@@ -244,6 +244,7 @@ edx-analytics-data-api-client==0.17.0
     # via -r requirements/base.in
 edx-auth-backends==3.3.0
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
 edx-ccx-keys==1.2.1
@@ -259,7 +260,9 @@ edx-django-utils==4.2.0
     #   edx-rest-api-client
     #   taxonomy-connector
 edx-drf-extensions==6.6.0
-    # via -r requirements/base.in
+    # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+    #   -r requirements/base.in
 edx-i18n-tools==0.7.0
     # via -r requirements/local.in
 edx-lint==1.6
@@ -277,7 +280,7 @@ edx-rest-api-client==5.4.0
     #   taxonomy-connector
 edx-sphinx-theme==3.0.0
     # via -r requirements/docs.in
-elasticsearch==7.13.4
+elasticsearch==7.14.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -293,7 +296,7 @@ execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==8.10.3
+faker==8.11.0
     # via factory-boy
 filelock==3.0.12
     # via
@@ -343,7 +346,7 @@ mock==4.0.3
     # via -r requirements/test.in
 mysqlclient==2.0.3
     # via -r requirements/test.in
-newrelic==6.6.0.162
+newrelic==6.8.0.163
     # via edx-django-utils
 oauthlib==3.1.1
     # via
@@ -495,7 +498,7 @@ requests==2.26.0
     #   sphinx
 requests-oauthlib==1.3.0
     # via social-auth-core
-responses==0.13.3
+responses==0.13.4
     # via
     #   -r requirements/test.in
     #   pytest-responses
@@ -549,10 +552,12 @@ snowballstemmer==2.1.0
     # via sphinx
 social-auth-app-django==4.0.0
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.in
     #   edx-auth-backends
 social-auth-core==4.0.2
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
     #   edx-auth-backends
     #   social-auth-app-django
@@ -583,7 +588,7 @@ stevedore==3.3.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.12.0
+taxonomy-connector==1.12.2
     # via -r requirements/base.in
 testfixtures==6.18.0
     # via -r requirements/test.in
@@ -622,7 +627,7 @@ vine==1.3.0
     # via
     #   amqp
     #   celery
-virtualenv==20.7.0
+virtualenv==20.7.1
     # via tox
 websocket-client==0.59.0
     # via

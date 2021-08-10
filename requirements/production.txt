@@ -22,9 +22,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.18.12
+boto3==1.18.17
     # via django-ses
-botocore==1.21.12
+botocore==1.21.17
     # via
     #   boto3
     #   s3transfer
@@ -141,7 +141,7 @@ django-parler==2.2
     # via -r requirements/base.in
 django-rest-swagger==2.2.0
     # via -r requirements/base.in
-django-ses==2.2.0
+django-ses==2.2.1
     # via -r requirements/production.in
 django-simple-history==3.0.0
     # via -r requirements/base.in
@@ -202,6 +202,7 @@ edx-analytics-data-api-client==0.17.0
     # via -r requirements/base.in
 edx-auth-backends==3.3.0
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
 edx-ccx-keys==1.2.1
@@ -217,7 +218,9 @@ edx-django-utils==4.2.0
     #   edx-rest-api-client
     #   taxonomy-connector
 edx-drf-extensions==6.6.0
-    # via -r requirements/base.in
+    # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+    #   -r requirements/base.in
 edx-opaque-keys==2.2.2
     # via
     #   -r requirements/base.in
@@ -227,7 +230,7 @@ edx-rest-api-client==5.4.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-elasticsearch==7.13.4
+elasticsearch==7.14.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -243,9 +246,9 @@ future==0.18.2
     # via
     #   django-ses
     #   pyjwkest
-gevent==21.1.2
+gevent==21.8.0
     # via -r requirements/production.in
-greenlet==1.1.0
+greenlet==1.1.1
     # via gevent
 gunicorn==20.1.0
     # via -r requirements/production.in
@@ -275,7 +278,7 @@ markupsafe==2.0.1
     # via jinja2
 mysqlclient==2.0.3
     # via -r requirements/production.in
-newrelic==6.6.0.162
+newrelic==6.8.0.163
     # via
     #   -r requirements/production.in
     #   edx-django-utils
@@ -386,10 +389,12 @@ slumber==0.7.1
     # via edx-rest-api-client
 social-auth-app-django==4.0.0
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -r requirements/base.in
     #   edx-auth-backends
 social-auth-core==4.0.2
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
     #   edx-auth-backends
     #   social-auth-app-django
@@ -401,7 +406,7 @@ stevedore==3.3.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.12.0
+taxonomy-connector==1.12.2
     # via -r requirements/base.in
 unicode-slugify==0.1.3
     # via -r requirements/base.in
