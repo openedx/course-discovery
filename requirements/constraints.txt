@@ -40,3 +40,6 @@ algoliasearch<2.0.0
 
 # latest version causing issues in IDAs.
 django-webpack-loader<1.0.0
+
+# greater version need testing. It will require another PR.
+edx-drf-extensions<7.0.0
