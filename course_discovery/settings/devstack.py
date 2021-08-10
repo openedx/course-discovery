@@ -19,7 +19,7 @@ CORS_ORIGIN_WHITELIST = (
     'localhost:2000',   # frontend-app-learning
 )
 
-ELASTICSEARCH_DSL['default']['hosts'] = 'edx.devstack.elasticsearch7:9200'
+ELASTICSEARCH_DSL['default']['hosts'] = 'edx.devstack.elasticsearch710:9200'
 
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = False
 
