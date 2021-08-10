@@ -771,13 +771,20 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         draft_program_courses_uuids = self.context.get('draft_program_courses_uuids')
 
         if draft_program_courses_uuids is not None:
+            query_by_title = self.context.get('query_by_title')
             # For: Draft Program detail query with ORDER of UUIDs vector
             preserved = Case(
                 *[When(uuid=pk, then=pos)
                   for pos, pk in enumerate(draft_program_courses_uuids)]
             )
+            filters = {
+                'uuid__in': draft_program_courses_uuids,  # UUIDs list of `Draft` Program in MongoDB.
+            }
+            if query_by_title:
+                filters['title__icontains'] = query_by_title
+
             courses = Course.objects.filter(
-                uuid__in=draft_program_courses_uuids    # UUIDs list of `Draft` Program in MongoDB.
+                **filters
             ).order_by(preserved)
             course_runs = [
                 run

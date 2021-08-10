@@ -246,6 +246,9 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
             # Format: ['d591f0a5-92d4-47ba-8f21-bf938e559885', 'cf5fe179-8395-4a30-85ed-a4ebfa00b715']
             context['draft_program_courses_uuids'] = self.request.data['courses']
 
+        if 'title' in self.request.data:
+            context['query_by_title'] = self.request.data['title']
+
         return context
 
     def list(self, request, program_uuid):
