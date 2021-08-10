@@ -40,7 +40,8 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
 
     # values are already updated above with default values but in
     # case of new version they will get override.
-    if version('django_cors_headers') == '3.2.0' and vars().get('CORS_ORIGIN_WHITELIST_WITH_SCHEME'):
+    cors_major_version = int(version('django_cors_headers').split('.')[0])
+    if cors_major_version >= 3 and vars().get('CORS_ORIGIN_WHITELIST_WITH_SCHEME'):
         vars()['CORS_ORIGIN_WHITELIST'] = vars()['CORS_ORIGIN_WHITELIST_WITH_SCHEME']
 
     # Unpack media storage settings.
