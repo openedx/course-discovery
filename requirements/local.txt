@@ -281,7 +281,7 @@ edx-rest-api-client==5.4.0
     #   taxonomy-connector
 edx-sphinx-theme==3.0.0
     # via -r requirements/docs.in
-elasticsearch==7.14.0
+elasticsearch==7.13.4
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
