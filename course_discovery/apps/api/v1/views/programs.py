@@ -274,56 +274,56 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
         """Checking course for program courses list. But we don't add any courses into a program courses list.
             The inserting logic is in publish method.
         """
+        if not self.request.data['course_ids']:
+            raise ValidationError('Argument: `course_ids` is empty.')
+
         exec_flag = self.request.data.get('exec')
-        course_uuid = self.request.data['course_uuid'] \
-            if 'course_uuid' in self.request.data \
-            else CourseRun.objects.select_related('course').get(
-                    key__iexact=self.request.data['course_id']
-                ).course.uuid
+        course_uuids = [
+            course_run.course.uuid
+            for course_run in CourseRun.objects.select_related('course').filter(
+                key__in=self.request.data['course_ids']
+            )
+        ]
 
         program = self.get_queryset().first()
 
         if '1' == exec_flag:
-            course = Course.objects.get(uuid=course_uuid)
-            if course in program.courses.all():
-                raise ValidationError(
-                    'Course uuid ({}) already exist in the program.'.format(course_uuid)
-                )
-            program.courses.add(course)
+            with transaction.atomic():
+                for course in Course.objects.filter(uuid__in=course_uuids):
+                    if course in program.courses.all():
+                        continue
+                    program.courses.add(course)
 
         if isinstance(self.request.data, QueryDict):
             self.request.data._mutable = True
-        self.request.data['courses'] = [course_uuid]
+        self.request.data['courses'] = course_uuids
+
         serializer = self.get_serializer(
             program,
             many=False
         )
 
-        resp_course = serializer.data['courses']
-        if 'courses' not in serializer.data:
-            resp_course = {}
-        else:
-            resp_course = resp_course[0]
+        resp_courses = serializer.data['courses']
 
-        # Cal. program's start/end date
-        min_start = max_end = None
-        for course_run in program.course_runs:
-            if not min_start and course_run.start:
-                min_start = course_run.start
-            elif course_run.start and course_run.start < min_start:
-                min_start = course_run.start
+        for resp_course in resp_courses:
+            # Cal. program's start/end date
+            min_start = max_end = None
+            for course_run in program.course_runs:
+                if not min_start and course_run.start:
+                    min_start = course_run.start
+                elif course_run.start and course_run.start < min_start:
+                    min_start = course_run.start
 
-            if not max_end and course_run.end:
-                max_end = course_run.end
-            elif course_run.end and course_run.end > max_end:
-                max_end = course_run.end
-        # We need it for rendering the range on page
-        resp_course['course_uuid'] = course_uuid
-        resp_course['program_start'] = min_start
-        resp_course['program_end'] = max_end
+                if not max_end and course_run.end:
+                    max_end = course_run.end
+                elif course_run.end and course_run.end > max_end:
+                    max_end = course_run.end
+            # We need it for rendering the date range on page
+            resp_course['program_start'] = min_start
+            resp_course['program_end'] = max_end
 
         return Response(
-            resp_course,
+            resp_courses,
             status=status.HTTP_201_CREATED
         )
 
