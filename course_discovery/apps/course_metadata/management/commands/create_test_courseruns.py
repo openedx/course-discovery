@@ -1,11 +1,12 @@
 import logging
 import os
 from django.core.management import BaseCommand
+
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.models import Program, Organization
+from course_discovery.apps.course_metadata.models import Organization, CourseRunType
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    FAQFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory
+    FAQFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory, SubjectFactory
 )
 
 logger = logging.getLogger(__name__)
@@ -51,9 +52,16 @@ class Command(BaseCommand):
             org = OrganizationFactory(partner=partner)
             org.save()
 
-        course = CourseFactory(partner=partner)
-        course_run_1 = CourseRunFactory(course=course)
-        course_run_2 = CourseRunFactory(course=course)
+        subject = SubjectFactory(partner=partner)
+        verified_and_audit_type = CourseRunType.objects.get(slug='verified-audit')
+
+        course = CourseFactory(
+            partner=partner)
+        course.subjects.add(subject)
+        course.save()
+        
+        course_run_1 = CourseRunFactory(course=course, type=verified_and_audit_type)
+        course_run_2 = CourseRunFactory(course=course, type=verified_and_audit_type)
 
         logger.info('Using Partner: {}'.format(partner))
         logger.info('Using Org: {}'.format(org))
