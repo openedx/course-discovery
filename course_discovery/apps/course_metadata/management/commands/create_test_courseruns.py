@@ -5,8 +5,7 @@ from django.core.management import BaseCommand
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import Organization, CourseRunType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CorporateEndorsementFactory, CourseFactory, CourseRunFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    FAQFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory, SubjectFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, SubjectFactory, SeatFactory
 )
 
 logger = logging.getLogger(__name__)
@@ -40,6 +39,12 @@ class Command(BaseCommand):
                 'Changing base partner URL for courses to {}'.format(base_course_url))
             partner.save()
 
+        if (not partner.marketing_site_url_root):
+            partner.marketing_site_url_root = base_course_url
+            logger.info(
+                'Changing blank base partner marketing URL for courses to {}'.format(base_course_url))
+            partner.save()
+
         self.create_test_courseruns(partner)
 
     def create_test_courseruns(self, partner):
@@ -52,16 +57,41 @@ class Command(BaseCommand):
             org = OrganizationFactory(partner=partner)
             org.save()
 
-        subject = SubjectFactory(partner=partner)
-        verified_and_audit_type = CourseRunType.objects.get(slug='verified-audit')
+        verified_and_audit_type = CourseRunType.objects.get(
+            slug='verified-audit')
 
         course = CourseFactory(
-            partner=partner)
+            partner=partner,
+        )
+
+        # Additional details and data that must be set to ensure course can be advertised in Enterprise catalogs:
+        # A course should only be indexed for algolia search if it has a non-indexed advertiseable course run, at least
+        # one owner, and a marketing url slug.
+        verified_and_audit_type.is_marketable = True
+        verified_and_audit_type.is_enrollable = True
+        verified_and_audit_type.save()
+
+        course_run_1 = CourseRunFactory(
+            status='published',
+            course=course,
+            type=verified_and_audit_type)
+        course_run_2 = CourseRunFactory(
+            course=course,
+            status='published',
+            type=verified_and_audit_type)
+
+        subject = SubjectFactory(partner=partner)
+        seat = SeatFactory(course_run=course_run_1)
+        seat2 = SeatFactory(course_run=course_run_2)
+        course_run_1.seats.add(seat)
+        course_run_2.seats.add(seat2)
+
         course.subjects.add(subject)
+        course.authoring_organizations.add(org)
         course.save()
-        
-        course_run_1 = CourseRunFactory(course=course, type=verified_and_audit_type)
-        course_run_2 = CourseRunFactory(course=course, type=verified_and_audit_type)
+
+        logger.info('Advertised course run will be: {}'.format(
+            course.advertised_course_run))
 
         logger.info('Using Partner: {}'.format(partner))
         logger.info('Using Org: {}'.format(org))
