@@ -106,7 +106,7 @@ django-compressor==2.4.1
     #   django-libsass
 django-contrib-comments==2.1.0
     # via -r requirements/base.in
-django-cors-headers==2.5.3
+django-cors-headers==3.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -233,7 +233,6 @@ edx-rest-api-client==5.4.0
     #   taxonomy-connector
 elasticsearch==7.13.4
     # via
-    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
