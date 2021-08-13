@@ -125,7 +125,7 @@ django-admin-sortable2==1.0
     # via -r requirements/base.in
 django-appconf==1.0.4
     # via django-compressor
-django-autocomplete-light==3.4.1
+django-autocomplete-light==3.5.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -516,6 +516,7 @@ simplejson==3.17.5
 six==1.16.0
     # via
     #   bcrypt
+    #   django-autocomplete-light
     #   django-choices
     #   django-compressor
     #   django-elasticsearch-dsl
