@@ -25,7 +25,7 @@ CORS_ORIGIN_WHITELIST = (
 # case of new version `django_cors_headers` they will get override.
 cors_major_version = int(version('django_cors_headers').split('.')[0])
 if cors_major_version >= 3:
-    CORS_ORIGIN_WHITELIST == (
+    CORS_ORIGIN_WHITELIST = (
         'http://localhost:8734',  # frontend-app-learner-portal-enterprise
         'http://localhost:18400',  # frontend-app-publisher
         'http://localhost:18450',  # frontend-app-support-tools
