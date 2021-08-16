@@ -22,9 +22,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.18.19
+boto3==1.18.21
     # via django-ses
-botocore==1.21.19
+botocore==1.21.21
     # via
     #   boto3
     #   s3transfer
@@ -233,6 +233,7 @@ edx-rest-api-client==5.4.0
     #   taxonomy-connector
 elasticsearch==7.13.4
     # via
+    #   -c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
@@ -257,7 +258,7 @@ html2text==2020.1.16
     # via -r requirements/base.in
 idna==3.2
     # via requests
-importlib-metadata==4.6.3
+importlib-metadata==4.6.4
     # via -r requirements/base.in
 itypes==1.2.0
     # via coreapi
