@@ -10,6 +10,7 @@ algoliasearch==1.20.0
     # via
     #   -c requirements/constraints.txt
     #   algoliasearch-django
+    #   taxonomy-connector
 algoliasearch-django==1.7.3
     # via
     #   -c requirements/constraints.txt
@@ -592,7 +593,7 @@ stevedore==3.3.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.13.0
+taxonomy-connector==1.14.0
     # via -r requirements/base.in
 testfixtures==6.18.0
     # via -r requirements/test.in
