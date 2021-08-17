@@ -8,6 +8,7 @@ algoliasearch==1.20.0
     # via
     #   -c requirements/constraints.txt
     #   algoliasearch-django
+    #   taxonomy-connector
 algoliasearch-django==1.7.3
     # via
     #   -c requirements/constraints.txt
@@ -22,9 +23,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.18.21
+boto3==1.18.22
     # via django-ses
-botocore==1.21.21
+botocore==1.21.22
     # via
     #   boto3
     #   s3transfer
@@ -410,7 +411,7 @@ stevedore==3.3.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.13.0
+taxonomy-connector==1.14.0
     # via -r requirements/base.in
 unicode-slugify==0.1.3
     # via -r requirements/base.in
