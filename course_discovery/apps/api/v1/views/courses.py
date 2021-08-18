@@ -389,6 +389,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                 if course_run.status == CourseRunStatus.Published:
                     # This will also update the course
                     course_run.update_or_create_official_version()
+                    CourseRunViewSet.update_course_run_image_in_studio(course_run)
 
                     if settings.FIRE_UPDATE_COURSE_SKILLS_SIGNAL:
                         # If a skills relavant course field is updated than fire signal
