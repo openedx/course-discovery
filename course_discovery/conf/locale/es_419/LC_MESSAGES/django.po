@@ -32,7 +32,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-07-04 20:35+0000\n"
-"PO-Revision-Date: 2021-07-28 14:51+0000\n"
+"PO-Revision-Date: 2021-08-17 17:21+0000\n"
 "Last-Translator: Juan Camilo Montoya Franco <juan.montoya@edunext.co>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
@@ -1436,7 +1436,7 @@ msgstr "Habilidades del curso"
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:22
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:32
 msgid "Refresh Course Skills"
-msgstr ""
+msgstr "Actualizar habilidades del curso"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:7
 #, python-format
