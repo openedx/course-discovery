@@ -410,8 +410,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
             )
             course_runs_keys = [i.key for i in course_runs]
             contains = {course_run_id: course_run_id in course_runs_keys for course_run_id in course_run_ids}
-            log.info('[VAN-632] - query: %s, course_run_ids: %s', query, course_run_ids)
-            log.info('[VAN-632] - identified course ids: %s, response: %s', course_runs_keys, contains)
+            log.info('[VAN-632] - query: %s, course_run_ids: %s, response: %s', query, course_run_ids, contains)
             instance = {'course_runs': contains}
             serializer = serializers.ContainedCourseRunsSerializer(instance)
             return Response(serializer.data)
