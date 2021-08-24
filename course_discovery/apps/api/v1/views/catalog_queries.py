@@ -40,7 +40,7 @@ class CatalogQueryContainsViewSet(ValidElasticSearchQueryRequiredMixin, GenericA
                 identified_course_ids.update(
                     i.key
                     for i in CourseRun.search(query)
-                    .filter(ESDSLQ('term', partner=partner.short_code) | ESDSLQ('terms', **{'key.raw': course_run_ids}))
+                    .filter(ESDSLQ('term', partner=partner.short_code) & ESDSLQ('terms', **{'key.raw': course_run_ids}))
                     .source(['key'])
                 )
             if course_uuids:
