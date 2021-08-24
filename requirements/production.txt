@@ -23,9 +23,9 @@ beautifulsoup4==4.9.3
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.18.26
+boto3==1.18.27
     # via django-ses
-botocore==1.21.26
+botocore==1.21.27
     # via
     #   boto3
     #   s3transfer
@@ -212,7 +212,7 @@ edx-django-release-util==1.1.0
     # via -r requirements/base.in
 edx-django-sites-extensions==3.1.0
     # via -r requirements/base.in
-edx-django-utils==4.2.0
+edx-django-utils==4.3.0
     # via
     #   -r requirements/base.in
     #   edx-drf-extensions
