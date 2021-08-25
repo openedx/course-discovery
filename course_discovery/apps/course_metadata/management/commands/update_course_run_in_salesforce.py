@@ -25,6 +25,7 @@ class Command(BaseCommand):
                         util.update_course_run(course_run)
                         logger.info('Successfully synced the salesforce {key}'.format(key=course_run.key))
                     except Exception:  # pylint: disable=broad-except
+                        logger.exception('Failed to sync data for course [%s]', course_run.key)
                         failed_course_runs.append(course_run.key)
 
         if failed_course_runs:
