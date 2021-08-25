@@ -51,7 +51,6 @@ class CatalogQueryContainsViewSet(ValidElasticSearchQueryRequiredMixin, GenericA
                 )
 
             contains = {str(identifier): identifier in identified_course_ids for identifier in specified_course_ids}
-            log.info('[VAN-632] - query: %s, course_run_ids: %s, response: %s', query, course_run_ids, contains)
             return Response(contains)
         return Response(
             'CatalogQueryContains endpoint requires query and identifiers list(s)', status=status.HTTP_400_BAD_REQUEST
