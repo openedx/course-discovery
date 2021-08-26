@@ -1,6 +1,7 @@
 import logging
 
 from django.core.management import BaseCommand, CommandError
+from simple_salesforce.exceptions import SalesforceResourceNotFound
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import CourseRun
@@ -24,6 +25,8 @@ class Command(BaseCommand):
                     try:
                         util.update_course_run(course_run)
                         logger.info('Successfully synced the salesforce {key}'.format(key=course_run.key))
+                    except SalesforceResourceNotFound:
+                        logger.warning('Entity deleted from SalesForce [%s]', course_run.key)
                     except Exception:  # pylint: disable=broad-except
                         logger.exception('Failed to sync data for course [%s]', course_run.key)
                         failed_course_runs.append(course_run.key)
