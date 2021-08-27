@@ -50,7 +50,7 @@ def elasticsearch_dsl_add_xdist_suffix_to_index_name(request):
         # Put a prefix like _gw0, _gw1 etc on xdist processes
         # pylint: disable=protected-access
         for index, document in registry._indices.items():
-            name = '{0}_{1}'.format(index._name, xdist_suffix)
+            name = f'{index._name}_{xdist_suffix}'
             index._name = name
             logger.info('Set index name for elastic connection [%s]', name)
 
@@ -58,7 +58,7 @@ def elasticsearch_dsl_add_xdist_suffix_to_index_name(request):
         index_names_orig = settings.ELASTICSEARCH_INDEX_NAMES
         index_names = index_names_orig.copy()
         for document, name in index_names.items():
-            name = '{0}_{1}'.format(name, xdist_suffix)
+            name = f'{name}_{xdist_suffix}'
             index_names_orig[document] = name
 
 

@@ -32,7 +32,7 @@ class ElasticsearchUtils:
 
     @classmethod
     def create_alias_and_index(cls, es_connection, index, conn_name='default'):
-        assert isinstance(index, Index), '`index` must be an instance of `Index` class. Got: {0}'.format(type(index))
+        assert isinstance(index, Index), '`index` must be an instance of `Index` class. Got: {}'.format(type(index))
         # pylint: disable=protected-access
         logger.info('Making sure alias [%s] exists...', index._name)
         alias = cls.get_alias_by_index_name(index._name)
@@ -63,7 +63,7 @@ class ElasticsearchUtils:
         """
         body = {
             'actions': [
-                {"remove": {"alias": alias, "index": '{0}_*'.format(alias)}},
+                {"remove": {"alias": alias, "index": f'{alias}_*'}},
                 {"add": {"alias": alias, "index": index}}
             ]
         }
@@ -82,7 +82,7 @@ class ElasticsearchUtils:
         Returns:
             IndexMeta (tuple): Name and generated alias of the new index.
         """
-        assert isinstance(index, Index), '`index` must be an instance of `Index` class. Got: {0}'.format(type(index))
+        assert isinstance(index, Index), '`index` must be an instance of `Index` class. Got: {}'.format(type(index))
 
         timestamp = datetime.datetime.utcnow().strftime('%Y%m%d_%H%M%S')
         # pylint: disable=protected-access
