@@ -9,6 +9,7 @@ from django.db.models import When
 from django.db import connection
 from django.db import transaction
 from django.http.request import QueryDict
+from django.utils.translation import ugettext as _
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -95,19 +96,25 @@ class ProgramViewSet(viewsets.ModelViewSet):
         program_writer = self.get_serializer_class()  # ProgramSerializer
         writer = program_writer(data=input_data)
         if not writer.is_valid():
-            raise ValidationError(
-                'invalid arguments: {} \n fields error: {}'.format(
-                    kwargs, writer.errors
+            if 'title' in writer.errors:
+                return Response(
+                    {'api_error_message': _("Path name already exist.")},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
+            else:
+                raise ValidationError(
+                    'invalid arguments: {} \n fields error: {}'.format(
+                        kwargs, writer.errors
+                    )
+                )
+        else:
+            # Save
+            program_uuid = writer.save().uuid
+
+            return Response(
+                {'program_uuid': program_uuid},
+                status=status.HTTP_201_CREATED
             )
-
-        # Save
-        program_uuid = writer.save().uuid
-
-        return Response(
-            {'program_uuid': program_uuid},
-            status=status.HTTP_201_CREATED
-        )
 
     def update(self, request, *args, **kwargs):
         input_data = OrderedDict(request.data)
@@ -145,17 +152,24 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
         writer = self.get_serializer(program, data=input_data, partial=True)
         if not writer.is_valid():
-            raise ValidationError(
-                'invalid arguments: {} \n fields error: {}'.format(
-                    kwargs, writer.errors
+            if 'title' in writer.errors:
+                return Response(
+                    {'api_error_message': _("Learning path title already exist.")},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-            )
-        # Rename saved image if new image file name were passed.
-        writer.save()
+            else:
+                raise ValidationError(
+                    'invalid arguments: {} \n fields error: {}'.format(
+                        kwargs, writer.errors
+                    )
+                )
+        else:
+            # Rename saved image if new image file name were passed.
+            writer.save()
 
-        return Response(
-            {'program_uuid': program.uuid}, status=status.HTTP_200_OK
-        )
+            return Response(
+                {'program_uuid': program.uuid}, status=status.HTTP_200_OK
+            )
 
     def destroy(self, request, *args, **kwargs):
         program_uuid = kwargs['uuid']
