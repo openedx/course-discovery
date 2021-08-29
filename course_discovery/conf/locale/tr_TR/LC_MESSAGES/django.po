@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-07-04 20:35+0000\n"
-"PO-Revision-Date: 2021-08-09 11:59+0000\n"
+"PO-Revision-Date: 2021-08-24 06:44+0000\n"
 "Last-Translator: Ali Işıngör <ali@artistanbul.io>\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
@@ -1198,7 +1198,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2607
 msgid "Micromasters descriptive paragraph"
-msgstr ""
+msgstr "Micromasters açıklayıcı paragraf"
 
 #: apps/course_metadata/models.py:2620
 msgid "Customized background image for the MicroMasters section."
