@@ -41,3 +41,7 @@ social-auth-app-django<5.0.0
 # elasticsearch>=7.14.0 includes breaking changes in it which caused issues in discovery upgrade process.
 # elastic search changelog: https://www.elastic.co/guide/en/enterprise-search/master/release-notes-7.14.0.html
 elasticsearch<7.14.0
+
+# pluggy released 1.0.0, but pytest limits to <1.0.0 and tox does not, so they disagree on the version to use.
+# This pin can be removed once pytest ships 6.2.5 which will remove the upper limit on the pluggy version.
+pluggy<1.0.0
