@@ -1,8 +1,10 @@
 # Stay on an LTS release
 django<2.3
 
-# Common constraints for edx repos
--c https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt
+# We are creating a local copy of the common constraints file and override/remove the global constraint which we don't need.
+# This approach is used temporarily and will be improved in https://openedx.atlassian.net/browse/BOM-2721
+# This file contains all common constraints for edx-repos
+-c common_constraints.txt
 
 # Elasticsearch upgrades need to be done in lockstep across Open edX
 elasticsearch>=7.8,<7.14
@@ -19,20 +21,14 @@ django-cors-headers==3.2.0
 # see https://www.sphinx-doc.org/en/master/intro.html#prerequisites
 sphinx==2.4.4
 
-# FIXME: dal 3.5 requires you to include jquery yourself on the admin page -- needs a proper fix
-django-autocomplete-light<3.5
+# FIXME: dal 3.5.1 requires you to include jquery yourself on the admin page -- needs a proper fix
+django-autocomplete-light==3.5.0
 
 celery<5.0
-
-# latest version requires PyJWT>=2.0.0 but drf-jwt requires PyJWT[crypto]<2.0.0,>=1.5.2
-social-auth-core<4.0.3
 
 # latest version of edx-lint is pulling code-annotations and code-annotations is pulling python-slugify and
 # python-slugify is conflicting with unicode-slugify
 edx-lint<=1.6
-
-# latest version causing issues in IDAs.
-edx-auth-backends==3.3.0
 
 # latest version causing issues in IDAs.
 algoliasearch-django<2.0.0
@@ -40,6 +36,3 @@ algoliasearch<2.0.0
 
 # latest version causing issues in IDAs.
 django-webpack-loader<1.0.0
-
-# greater version need testing. It will require another PR.
-edx-drf-extensions<7.0.0

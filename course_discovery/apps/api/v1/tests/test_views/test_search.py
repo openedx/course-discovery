@@ -948,6 +948,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
 
     def test_typeahead_org_course_runs_come_up_first(self):
         """ Test typeahead response to ensure org is taken into account. """
+        self.maxDiff = None
         MITx = OrganizationFactory(key='MITx')
         HarvardX = OrganizationFactory(key='HarvardX')
         mit_run = CourseRunFactory(
