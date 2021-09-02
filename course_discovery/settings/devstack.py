@@ -1,6 +1,5 @@
 # noinspection PyUnresolvedReferences
 from course_discovery.settings._debug_toolbar import *  # isort:skip
-from importlib_metadata import version
 
 from course_discovery.settings.production import *
 
@@ -15,22 +14,11 @@ LOGGING['handlers']['local'] = {
 INTERNAL_IPS = ('127.0.0.1',)
 
 CORS_ORIGIN_WHITELIST = (
-    'localhost:8734',   # frontend-app-learner-portal-enterprise
-    'localhost:18400',  # frontend-app-publisher
-    'localhost:18450',  # frontend-app-support-tools
-    'localhost:2000',   # frontend-app-learning
+    'http://localhost:8734',  # frontend-app-learner-portal-enterprise
+    'http://localhost:18400',  # frontend-app-publisher
+    'http://localhost:18450',  # frontend-app-support-tools
+    'http://localhost:2000',  # frontend-app-learning
 )
-
-# values are already updated above with default values but in
-# case of new version `django_cors_headers` they will get override.
-cors_major_version = int(version('django_cors_headers').split('.')[0])
-if cors_major_version >= 3:
-    CORS_ORIGIN_WHITELIST = (
-        'http://localhost:8734',  # frontend-app-learner-portal-enterprise
-        'http://localhost:18400',  # frontend-app-publisher
-        'http://localhost:18450',  # frontend-app-support-tools
-        'http://localhost:2000',  # frontend-app-learning
-    )
 
 ELASTICSEARCH_DSL['default']['hosts'] = 'edx.devstack.elasticsearch710:9200'
 
