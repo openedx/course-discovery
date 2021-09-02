@@ -1120,7 +1120,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
-            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
+            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names', 'structured_faq'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
