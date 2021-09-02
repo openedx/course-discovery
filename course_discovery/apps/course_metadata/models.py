@@ -1256,7 +1256,7 @@ class CourseEditor(TimeStampedModel):
 
         user_orgs = Organization.user_organizations(user)
         has_valid_editors = Q(
-            course__editors__user__groups__organization_extension__organization__in=F('course__authoring_organizations')
+            course__authoring_organizations=F('course__editors__user__groups__organization_extension__organization')
         )
         has_user_editor = Q(course__editors__user=user)
         user_can_edit = has_user_editor | ~has_valid_editors
