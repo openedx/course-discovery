@@ -7,13 +7,13 @@
 # Beatriz Sousa <beatriz.sousa@bridgelk.com>, 2018
 # Cátia Lopes <catia.lopes@bridgelk.com>, 2019
 # Waldo Luis Ribeiro, 2016
-# Manuela Silva <manuelarodsilva@gmail.com>, 2018
+# Manuela Silva <mmsrs@sky.com>, 2018
 # Rui Ribeiro <info@nau.edu.pt>, 2018
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-25 20:35+0000\n"
+"POT-Creation-Date: 2021-07-04 20:35+0000\n"
 "PO-Revision-Date: 2020-05-26 10:51+0000\n"
 "Last-Translator: Rui Cardoso <rui.cardoso@primesenior.com>\n"
 "Language-Team: Portuguese (Portugal) (http://www.transifex.com/open-edx/edx-platform/language/pt_PT/)\n"

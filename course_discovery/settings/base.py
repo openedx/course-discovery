@@ -71,6 +71,7 @@ THIRD_PARTY_APPS = [
 ALGOLIA = {
     'APPLICATION_ID': '',
     'API_KEY': '',
+    'TAXONOMY_INDEX_NAME': '',
 }
 
 PROJECT_APPS = [

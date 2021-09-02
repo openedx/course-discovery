@@ -17,6 +17,9 @@ jobs:
           - python-version: 'py38'
             django-version: 'django30'
             status: 'ignored'
+          - python-version: 'py38'
+            django-version: 'django31'
+            status: 'ignored'
 
     steps:
       - uses: actions/checkout@v2

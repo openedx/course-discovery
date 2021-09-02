@@ -200,6 +200,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'editors': CourseEditorSerializer(course.editors, many=True, read_only=True).data,
             'collaborators': [],
             'skill_names': [course_skill.skill.name],
+            'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
         })
 
         return expected
@@ -1579,7 +1580,6 @@ class MinimalOrganizationSerializerTests(TestCase):
             'key': organization.key,
             'name': organization.name,
             'auto_generate_course_run_keys': organization.auto_generate_course_run_keys,
-            'enable_skills_in_publisher': organization.enable_skills_in_publisher,
             'certificate_logo_image_url': certificate_logo_image_url
         }
 
@@ -2030,6 +2030,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
+            'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
             'course_ends': course.course_ends,
             'end_date': serialize_datetime(course.end_date),
             'organizations': [
@@ -2104,6 +2105,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
+            'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
             'course_ends': course.course_ends,
             'end_date': serialize_datetime(course.end_date),
             'organizations': [
@@ -2158,6 +2160,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
+            'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
             'course_ends': course.course_ends,
             'end_date': serialize_datetime(course.end_date),
             'organizations': [
@@ -2244,6 +2247,7 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
             'number': CourseKey.from_string(course_run.key).course,
             'seat_types': [seat.slug for seat in course_run.seat_types],
             'skill_names': [course_skill.skill.name],
+            'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
             'image_url': course_run.image_url,
             'type': course_run.type_legacy,
             'level_type': course_run.level_type.name,
@@ -2567,7 +2571,6 @@ class CollaboratorSerializerTests(TestCase):
         self.assertDictEqual(serializer.data, expected)
 
 
-# Experiment WS-1681: course recommendations
 class CourseRecommendationSerializerTests(MinimalCourseSerializerTests):
     serializer_class = CourseRecommendationSerializer
 
@@ -2651,4 +2654,3 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
             SeatFactory.create_batch(2, course_run=course_run)
         serializer = self.serializer_class(course_with_recs, context={'request': request, 'exclude_utm': 1})
         assert serializer.data['recommendations'][0]['marketing_url'] == recommended_course_0.marketing_url
-# end experiment code

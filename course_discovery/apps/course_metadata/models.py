@@ -205,13 +205,6 @@ class Organization(CachedMixin, TimeStampedModel):
             " generated.  When this flag is disabled, the key can be manually set."
         )
     )
-    enable_skills_in_publisher = models.BooleanField(
-        default=False,
-        verbose_name=_('Enable skills in Publisher'),
-        help_text=_(
-            'When this flag is enabled, the skill tags will show up in the course edit page in Publisher.'
-        )
-    )
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
@@ -1142,7 +1135,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         return advertised_course_run
 
-    # Experiment WS-1681: Course recommendations
     def has_marketable_run(self):
         return any(run.is_marketable for run in self.course_runs.all())
 
@@ -1177,7 +1169,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
                 deduped.append(course)
                 seen.add(course)
         return deduped
-        # End Experiment WS-1681: Course recommendations
 
 
 class CourseEditor(TimeStampedModel):

@@ -819,7 +819,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert official_run.max_effort != updated_max_effort
 
         # Re-publish; should update official with old and new changes.
-        updated_end = datetime.datetime(2021, 1, 1, tzinfo=pytz.UTC)
+        updated_end = self.draft_course_run.start + datetime.timedelta(days=125)
         response = self.client.patch(url, {'end': updated_end, 'draft': False}, format='json')
         assert response.status_code == 200, f"Status {response.status_code}: {response.content}"
 

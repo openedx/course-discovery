@@ -21,7 +21,7 @@ from rest_framework.fields import CreateOnlyDefault, UUIDField
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.relations import ManyRelatedField
 from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
-from taxonomy.utils import get_whitelisted_course_skills
+from taxonomy.utils import get_whitelisted_course_skills, get_whitelisted_serialized_skills
 
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
@@ -340,9 +340,8 @@ class MinimalOrganizationSerializer(BaseModelSerializer):
 
     class Meta:
         model = Organization
-        fields = ('uuid', 'key', 'name', 'auto_generate_course_run_keys', 'certificate_logo_image_url',
-                  'enable_skills_in_publisher',)
-        read_only_fields = ('auto_generate_course_run_keys', 'enable_skills_in_publisher',)
+        fields = ('uuid', 'key', 'name', 'auto_generate_course_run_keys', 'certificate_logo_image_url',)
+        read_only_fields = ('auto_generate_course_run_keys',)
 
 
 class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
@@ -1077,6 +1076,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
                                                        queryset=Collaborator.objects.all(),
                                                        read_serializer=CollaboratorSerializer())
     skill_names = serializers.SerializerMethodField()
+    skills = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
@@ -1120,7 +1120,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
             'extra_description', 'additional_information', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
-            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names', 'structured_faq'
+            'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
+            'skills', 'structured_faq',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1144,6 +1145,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     def get_skill_names(self, obj):
         course_skills = get_whitelisted_course_skills(obj.key)
         return list(set(course_skill.skill.name for course_skill in course_skills))
+
+    def get_skills(self, obj):
+        return get_whitelisted_serialized_skills(obj.key)
 
     def create(self, validated_data):
         return Course.objects.create(**validated_data)
@@ -1216,7 +1220,6 @@ class CourseWithProgramsSerializer(CourseSerializer):
         )
 
 
-# Experiment WS-1681: Course recommendations
 class CourseWithRecommendationsSerializer(DynamicFieldsMixin, TimestampModelSerializer):
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
     recommendations = serializers.SerializerMethodField()
@@ -1257,7 +1260,6 @@ class CourseRecommendationSerializer(MinimalCourseSerializer):
         model = Course
         fields = ('key', 'uuid', 'title', 'owners', 'image',
                   'short_description', 'type', 'url_slug', 'course_run_keys', 'marketing_url')
-# end experiment code
 
 
 class CatalogCourseSerializer(CourseSerializer):

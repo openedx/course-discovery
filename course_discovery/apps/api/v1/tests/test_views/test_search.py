@@ -168,9 +168,9 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
     @factory.django.mute_signals(signals.post_save)
     @ddt.data(
         (list_path, CourseRunSearchDocumentSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 3),
+         ['results', 0, 'program_types', 0], ProgramStatus.Deleted, 5),
         (list_path, CourseRunSearchDocumentSerializer,
-         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 3),
+         ['results', 0, 'program_types', 0], ProgramStatus.Unpublished, 5),
         (detailed_path,
          CourseRunSearchModelSerializer,
          ['results', 0, 'programs', 0, 'type'], ProgramStatus.Deleted, 21),
@@ -209,10 +209,10 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 
     @ddt.data(
         ([{'title': 'Software Testing', 'excluded': True}], 3),
-        ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}], 3),
-        ([{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}], 3),
+        ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True}], 7),
+        ([{'title': 'Software Testing', 'excluded': False}, {'title': 'Software Testing 2', 'excluded': False}], 7),
         ([{'title': 'Software Testing', 'excluded': True}, {'title': 'Software Testing 2', 'excluded': True},
-          {'title': 'Software Testing 3', 'excluded': False}], 5),
+          {'title': 'Software Testing 3', 'excluded': False}], 9),
     )
     @ddt.unpack
     def test_excluded_course_run(self, course_runs, expected_queries):
@@ -460,7 +460,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             self.serialize_program_search(other_program),
         ]
 
-    @ddt.data((True, 11), (False, 11))
+    @ddt.data((True, 16), (False, 16))
     @ddt.unpack
     def test_query_count_exclude_expired_course_run(self, exclude_expired, expected_queries):
         """ Verify that there is no query explosion when excluding expired course runs. """
@@ -518,7 +518,7 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         upcoming = CourseRunFactory(course__partner=self.partner, start=now + datetime.timedelta(weeks=4))
         course_run_keys = [course_run.key for course_run in [archived, current, starting_soon, upcoming]]
 
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(12):
             response = self.get_response({"ordering": ordering})
         assert response.status_code == 200
         assert response.data['objects']['count'] == 4
@@ -948,6 +948,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
 
     def test_typeahead_org_course_runs_come_up_first(self):
         """ Test typeahead response to ensure org is taken into account. """
+        self.maxDiff = None
         MITx = OrganizationFactory(key='MITx')
         HarvardX = OrganizationFactory(key='HarvardX')
         mit_run = CourseRunFactory(

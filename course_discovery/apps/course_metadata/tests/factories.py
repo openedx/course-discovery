@@ -164,6 +164,7 @@ class SkillFactory(factory.django.DjangoModelFactory):
     info_url = FuzzyURL()
     type_id = FuzzyText()
     type_name = FuzzyText()
+    description = FuzzyText(length=300)
 
     class Meta:
         model = Skill
