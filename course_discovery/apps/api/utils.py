@@ -1,7 +1,7 @@
 import functools
 import logging
 import math
-from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit
+from urllib.parse import parse_qsl, urlencode, urljoin
 
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import ugettext as _
