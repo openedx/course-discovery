@@ -762,6 +762,19 @@ class Collaborator(TimeStampedModel):
         return f'{self.name}'
 
 
+class FAQ(TimeStampedModel):
+    question = models.TextField(blank=False, null=False)
+    answer = models.TextField(blank=False, null=False)
+
+    class Meta:
+        verbose_name = _('FAQ')
+        verbose_name_plural = _('FAQs')
+        ordering = ['created']
+
+    def __str__(self):
+        return self.question
+
+
 class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
@@ -2074,19 +2087,6 @@ class CorporateEndorsement(TimeStampedModel):
 
     def __str__(self):
         return self.corporation_name
-
-
-class FAQ(TimeStampedModel):
-    question = models.TextField(blank=False, null=False)
-    answer = models.TextField(blank=False, null=False)
-
-    class Meta:
-        verbose_name = _('FAQ')
-        verbose_name_plural = _('FAQs')
-        ordering = ['created']
-
-    def __str__(self):
-        return self.question
 
 
 class Program(PkSearchableMixin, TimeStampedModel):
