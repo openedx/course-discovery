@@ -1236,7 +1236,7 @@ class CourseEditor(TimeStampedModel):
         # We must be a valid editor for this course
         if check_editors:
             has_valid_editors = Q(
-                editors__user__groups__organization_extension__organization__in=F('authoring_organizations')
+                authoring_organizations=F('editors__user__groups__organization_extension__organization')
             )
             has_user_editor = Q(editors__user=user)
             queryset = queryset.filter(has_user_editor | ~has_valid_editors)
