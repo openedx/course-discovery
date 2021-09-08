@@ -17,7 +17,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AdditionalPromoArea, Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumCourseRunExclusion, Image,
-    LevelType, Organization, Program, ProgramType, SeatType, Video
+    LevelType, LevelTypeTranslation, Organization, Program, ProgramType, SeatType, Video
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumCourseRunExclusionFactory,
@@ -354,6 +354,7 @@ class ProgramFixtureViewTests(APITestCase):
             AdditionalPromoArea: (5, 15),
             Image: (20, 60),
             LevelType: (5, 15),
+            LevelTypeTranslation: (1, 100),
             Video: (20, 60),
             LanguageTag: (10, 30),
         }
