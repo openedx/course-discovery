@@ -160,10 +160,7 @@ django-taggit==1.5.1
     # via
     #   -r requirements/base.in
     #   django-taggit-autosuggest
-    #   django-taggit-serializer
 django-taggit-autosuggest==0.3.8
-    # via -r requirements/base.in
-django-taggit-serializer==0.1.7
     # via -r requirements/base.in
 django-waffle==2.2.1
     # via
@@ -371,7 +368,6 @@ six==1.16.0
     #   django-compressor
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-    #   django-taggit-serializer
     #   djangorestframework-csv
     #   edx-auth-backends
     #   edx-ccx-keys

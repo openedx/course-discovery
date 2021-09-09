@@ -54,7 +54,6 @@ THIRD_PARTY_APPS = [
     'django_sites_extensions',
     'taggit',
     'taggit_autosuggest',
-    'taggit_serializer',
     'solo',
     'webpack_loader',
     'parler',
