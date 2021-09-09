@@ -292,11 +292,18 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
             raise ValidationError('Argument: `course_ids` is empty.')
 
         exec_flag = self.request.data.get('exec')
+        post_courses_ids = self.request.data['course_ids']
+
+        # Make sure the queryset own the same order with args: `course_ids`
+        preserved = Case(
+            *[When(key=pk, then=pos)
+              for pos, pk in enumerate(post_courses_ids)]
+        )
         course_uuids = [
             course_run.course.uuid
             for course_run in CourseRun.objects.select_related('course').filter(
-                key__in=self.request.data['course_ids']
-            )
+                key__in=post_courses_ids
+            ).order_by(preserved)
         ]
 
         program = self.get_queryset().first()
