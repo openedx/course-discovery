@@ -1152,9 +1152,6 @@ class Program(TimeStampedModel):
 
     @property
     def seats(self):
-        if not self.type:
-            return ()
-
         applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
 
         for run in self.course_runs:
@@ -1164,9 +1161,6 @@ class Program(TimeStampedModel):
 
     @property
     def canonical_seats(self):
-        if not self.type:
-            return ()
-
         applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
 
         for run in self.canonical_course_runs:
@@ -1176,9 +1170,6 @@ class Program(TimeStampedModel):
 
     @property
     def entitlements(self):
-        if not self.type:
-            return ()
-
         applicable_seat_types = set(seat_type.slug for seat_type in self.type.applicable_seat_types.all())
         return CourseEntitlement.objects.filter(mode__name__in=applicable_seat_types, course__in=self.courses.all())
 
