@@ -23,7 +23,6 @@ django-stdimage
 django-storages
 django-taggit
 django-taggit-autosuggest
-django-taggit-serializer
 django-waffle
 django-webpack-loader
 djangorestframework
