@@ -2,7 +2,10 @@ import datetime
 import itertools
 import logging
 from collections import defaultdict
-from urllib.parse import urljoin
+try:
+    from urllib.parse import urljoin
+except:
+    from urlparse import urljoin
 from uuid import uuid4
 
 import pytz
