@@ -321,7 +321,7 @@ ALL_LANGUAGES = [
     [u"uz", u"Uzbek"],
     [u"ve", u"Venda"],
     [u"vi", u"Vietnamese"],
-    [u"vo", u"Volapük"],
+    [u"vo", u"Volapuk"],
     [u"cy", u"Welsh"],
     [u"wa", u"Walloon"],
     [u"wo", u"Wolof"],
