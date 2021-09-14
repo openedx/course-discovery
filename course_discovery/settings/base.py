@@ -263,7 +263,7 @@ ALL_LANGUAGES = [
     [u"ng", u"Ndonga"],
     [u"ne", u"Nepali"],
     [u"nn", u"Norwegian Nynorsk"],
-    [u"nb", u"Bokmål, Norwegian"],
+    [u"nb", u"Bokmal, Norwegian"],
     [u"no", u"Norwegian"],
     [u"ny", u"Chichewa"],
     [u"oc", u"Occitan"],
