@@ -103,10 +103,17 @@ class CompressedCacheResponse(CacheResponse):
                 # Put the response in the cache only if there are no cache errors, response errors,
                 # and the format is json. We avoid caching for the BrowsableAPIRenderer so that users don't see
                 # different usernames that are cached from the BrowsableAPIRenderer html
+
+                # django 3.0 has not .items() method, django 3.2 has not ._headers
+                if hasattr(response, '_headers'):
+                    headers = response._headers.copy()
+                else:
+                    headers = {k: (k, v) for k, v in response.items()}
+
                 response_triple = (
                     zlib.compress(response.rendered_content),
                     response.status_code,
-                    response._headers.copy(),  # pylint: disable=protected-access
+                    headers,  # pylint: disable=protected-access
                 )
                 self.cache.set(key, response_triple, self.timeout)
         else:
