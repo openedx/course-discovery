@@ -44,7 +44,7 @@ class CompressedCacheResponseTest(TestCase):
         response_triple = (
             uncompressed_cached_response.rendered_content,
             uncompressed_cached_response.status_code,
-            uncompressed_cached_response._headers.copy(),  # pylint: disable=protected-access
+            self.get_header(uncompressed_cached_response)
         )
         cache.set(self.cache_response_key, response_triple)
 
@@ -74,7 +74,7 @@ class CompressedCacheResponseTest(TestCase):
         response_triple = (
             zlib.compress(compressed_cached_response.rendered_content),
             compressed_cached_response.status_code,
-            compressed_cached_response._headers.copy(),  # pylint: disable=protected-access
+            self.get_header(compressed_cached_response)
         )
         cache.set(self.cache_response_key, response_triple)
 
@@ -126,3 +126,14 @@ class CompressedCacheResponseTest(TestCase):
             assert cache.get(self.cache_response_key) is not None
         else:
             assert cache.get(self.cache_response_key) is None
+
+    def get_header(self, cache_response):
+        """
+        django 3.0 has not .items() method, django 3.2 has not ._headers
+        """
+        if hasattr(cache_response, '_headers'):
+            headers = cache_response._headers.copy()
+        else:
+            headers = {k: (k, v) for k, v in cache_response.items()}
+
+        return headers
