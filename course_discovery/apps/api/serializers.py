@@ -20,7 +20,7 @@ from rest_framework import serializers
 from rest_framework.fields import CreateOnlyDefault, UUIDField
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.relations import ManyRelatedField
-from taggit_serializer.serializers import TaggitSerializer, TagListSerializerField
+from taggit.serializers import TaggitSerializer, TagListSerializerField
 from taxonomy.utils import get_whitelisted_course_skills, get_whitelisted_serialized_skills
 
 from course_discovery.apps.api.fields import (
