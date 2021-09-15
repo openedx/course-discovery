@@ -236,6 +236,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
 class ProgramCoursesViewSet(viewsets.ModelViewSet):
     lookup_field = 'uuid'
+    permission_classes = (IsAuthenticated,)
     pagination_class = ProxiedPagination
 
     def get_serializer_class(self):
