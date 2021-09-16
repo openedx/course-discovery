@@ -42,7 +42,7 @@ class CatalogQueryViewSetTests(APITestCase):
         assert response.data == {self.course_run.key: False, str(self.course.uuid): True}
 
     def test_contains_course_and_run(self):
-        """ Verify that both the course and the run are contained in the broadest query. """
+        """ Verify that both the course and the run are contained in the broadest quer. """
         self.course.course_runs.add(self.course_run)
         self.course.save()
         qs = urllib.parse.urlencode({
