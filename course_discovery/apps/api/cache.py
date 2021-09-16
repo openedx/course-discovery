@@ -106,14 +106,14 @@ class CompressedCacheResponse(CacheResponse):
 
                 # django 3.0 has not .items() method, django 3.2 has not ._headers
                 if hasattr(response, '_headers'):
-                    headers = response._headers.copy()
+                    headers = response._headers.copy()  # pylint: disable=protected-access
                 else:
                     headers = {k: (k, v) for k, v in response.items()}
 
                 response_triple = (
                     zlib.compress(response.rendered_content),
                     response.status_code,
-                    headers,  # pylint: disable=protected-access
+                    headers
                 )
                 self.cache.set(key, response_triple, self.timeout)
         else:
