@@ -132,7 +132,7 @@ class CompressedCacheResponseTest(TestCase):
         django 3.0 has not .items() method, django 3.2 has not ._headers
         """
         if hasattr(cache_response, '_headers'):
-            headers = cache_response._headers.copy()
+            headers = cache_response._headers.copy()  # pylint: disable=protected-access
         else:
             headers = {k: (k, v) for k, v in cache_response.items()}
 
