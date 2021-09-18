@@ -99,7 +99,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
 
         expected_data = self.make_studio_data(run2)
         responses.add(responses.POST, f'{self.studio_url}api/v1/course_runs/{run1.key}/rerun/',
-                      match=[responses.json_params_matcher(expected_data)])
+                      match=[responses.matchers.json_params_matcher(expected_data)])
 
         self.api.create_course_rerun_in_studio(run2, run1.key)
 
@@ -108,7 +108,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
 
         expected_data = self.make_studio_data(run)
         responses.add(responses.POST, f'{self.studio_url}api/v1/course_runs/',
-                      match=[responses.json_params_matcher(expected_data)])
+                      match=[responses.matchers.json_params_matcher(expected_data)])
 
         self.api.create_course_run_in_studio(run)
 
@@ -117,7 +117,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
 
         expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False)
         responses.add(responses.PATCH, f'{self.studio_url}api/v1/course_runs/{run.key}/',
-                      match=[responses.json_params_matcher(expected_data)])
+                      match=[responses.matchers.json_params_matcher(expected_data)])
 
         self.api.update_course_run_details_in_studio(run)
 
