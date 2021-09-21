@@ -1,11 +1,10 @@
 var BundleTracker = require('webpack-bundle-tracker'),
-    ExtractTextPlugin = require('extract-text-webpack-plugin'),
+    MiniCssExtractPlugin = require('mini-css-extract-plugin'),
     path = require('path'),
     webpack = require('webpack'),
     loaders = [
-        {
-            loader: 'css-loader',
-        },
+        MiniCssExtractPlugin.loader,
+        'css-loader',
         {
             loader: 'sass-loader',
             options: {
@@ -38,17 +37,14 @@ module.exports = {
             jQuery: 'jquery',
             'window.jQuery': 'jquery'
         }),
-        new ExtractTextPlugin('[name]-[hash].css')
+        new MiniCssExtractPlugin({filename: '[name]-[hash].css'})
     ],
 
     module: {
         rules: [
             {
                 test: /\.s?css$/,
-                use: ExtractTextPlugin.extract({
-                    fallback: 'style-loader',
-                    use: loaders
-                })
+                use: loaders
             },
             {
                 test: /\.woff2?$/,
