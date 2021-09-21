@@ -12,6 +12,11 @@ jobs:
       matrix:
         python-version: ['py38']
         django-version: ['django22', 'django30', 'django31']
+        status: [ '' ]
+        include:
+          - python-version: 'py38'
+            django-version: 'django32'
+            status: 'ignored'
 
     steps:
       - uses: actions/checkout@v2
