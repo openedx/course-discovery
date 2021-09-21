@@ -15,14 +15,14 @@ help: ## Display this help message
 	@perl -nle'print $& if m{^[\.a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m  %-25s\033[0m %s\n", $$1, $$2}'
 
 static: ## Gather all static assets for production
-	$(NODE_BIN)/webpack --config webpack.config.js --display-error-details --progress --optimize-minimize
+	$(NODE_BIN)/webpack --config webpack.config.js --progress
 	python manage.py collectstatic -v 0 --noinput
 
 static.dev:
-	$(NODE_BIN)/webpack --config webpack.config.js --display-error-details --progress
+	$(NODE_BIN)/webpack --config webpack.config.js --progress
 
 static.watch:
-	$(NODE_BIN)/webpack --config webpack.config.js --display-error-details --progress --watch
+	$(NODE_BIN)/webpack --config webpack.config.js --progress --watch
 
 clean_static: ## Remove all generated static files
 	rm -rf course_discovery/assets/ course_discovery/static/bundles/
