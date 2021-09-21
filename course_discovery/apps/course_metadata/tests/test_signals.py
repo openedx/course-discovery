@@ -404,11 +404,11 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
 class ExternalCourseKeyMultipleCollisionTests(ExternalCourseKeyTestDataMixin, TestCase):
 
     @classmethod
-    def setUpTestData(cls):
+    def setUpClass(cls):
         """
         Sets up test data for testting multiple collisions of external_keys
         """
-        super().setUpTestData()
+        super().setUpClass()
         cls.course_run_1a = CourseRun.objects.get(key='course-run-id/course-1a/test')
         cls.course_run_2b = CourseRun.objects.get(key='course-run-id/course-2b/test')
         cls.course_run_3c = CourseRun.objects.get(key='course-run-id/course-3c/test')
