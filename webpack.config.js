@@ -18,7 +18,7 @@ var BundleTracker = require('webpack-bundle-tracker'),
 
 module.exports = {
     context: context,
-
+    mode: 'production',
     entry: {
         'query-preview': './js/query-preview.js',
         'course-skills-admin': './js/course-skills-admin.js',
