@@ -47,10 +47,16 @@ Tests
 
 Use Docker Compose to run tests just like Travis does. The ``.travis.yml`` file is a good reference if you want to run the entire test suite. You'll notice that a Docker Compose file hosted in this repo is used to run tests instead of the Compose files in the devstack repo. This Compose file defines special test settings and has yet to be consolidated with the Compose files in the devstack repo.
 
-To run specific tests, bring up the services used for testing with ``make travis_up``.  To run the tests in ``course_discovery/apps/api/v1/tests/test_views/test_programs.py``:
+To run specific tests, bring up the services used for testing with ``make ci_up``.  To run the tests in ``course_discovery/apps/api/v1/tests/test_views/test_programs.py``:
 
 .. code-block:: bash
 
-    $ docker-compose -f .travis/docker-compose-travis.yml exec course-discovery bash -c '. /edx/app/discovery/venvs/discovery/bin/activate && cd /edx/app/discovery/discovery && pytest course_discovery/apps/api/v1/tests/test_views/test_programs.py'
+    $ make ci_test
 
-When you're done, take down the services you brought up with ``make travis_down``.
+This will install some dependencies in addition to running all tests. After the dependencies have been run (you can interrupt during test running if you like) you can run 
+
+.. code-block:: bash
+
+    $ docker-compose -f .ci/docker-compose-ci.yml exec discovery bash -c 'cd /edx/app/discovery/discovery && .tox/py38-django22/bin/pytest course_discovery/apps/api/v1/tests/test_views/test_programs.py'
+
+When you're done, take down the services you brought up with ``make ci_down``.
