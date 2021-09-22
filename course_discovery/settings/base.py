@@ -225,6 +225,9 @@ WEBPACK_LOADER = {
     }
 }
 
+DEFAULT_HASHING_ALGORITHM = 'sha1'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 # TEMPLATE CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.8/ref/settings/#templates
 TEMPLATES = [

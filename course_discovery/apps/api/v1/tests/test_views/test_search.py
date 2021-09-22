@@ -655,7 +655,7 @@ class LimitedAggregateSearchViewSetTests(
         )
         query = {'authoring_organization_uuids': desired_org_uuid}
         qs = urllib.parse.urlencode(query)
-        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        url = f'{self.path}?{qs}'
         response = self.client.get(url)
         assert response.status_code == 200
         expected = [self.serialize_course_run_search(mit_run), self.serialize_program_search(mit_program)]
