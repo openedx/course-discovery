@@ -9,7 +9,7 @@
     "ansi-regex": "6.0.1",
     "bootstrap-sass": "3.4.1",
     "bower": "1.8.12",
-    "css-loader": "3.6.0",
+    "css-loader": "6.3.0",
     "datatables.net": "1.10.25",
     "datatables.net-bs": "1.10.25",
     "mini-css-extract-plugin": "2.3.0",
