@@ -14,8 +14,9 @@ elasticsearch-dsl>=7.2,<8.0
 # FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
 transifex-client<0.13
 
-# This version has django32 support.
-django-cors-headers==3.7.0
+# This version has `rename settings` but old names are preserved as aliases for backward compatibility.
+# stilling not supporting django32. Greater version has the support.
+django-cors-headers==3.5.0
 
 # sphinx has dropped support for python 3.5, latest version requires at least python3.6
 # see https://www.sphinx-doc.org/en/master/intro.html#prerequisites
