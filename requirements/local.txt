@@ -6,15 +6,13 @@
 #
 alabaster==0.7.12
     # via sphinx
-algoliasearch==1.20.0
+algoliasearch==2.0.0
     # via
     #   -c requirements/constraints.txt
     #   algoliasearch-django
     #   taxonomy-connector
-algoliasearch-django==1.7.3
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/base.in
+algoliasearch-django==2.0.0
+    # via -r requirements/base.in
 amqp==2.6.1
     # via kombu
 astroid==2.5
@@ -595,6 +593,8 @@ transifex-client==0.12.5
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.in
+typing==3.7.4.3
+    # via algoliasearch
 unicode-slugify==0.1.3
     # via -r requirements/base.in
 unicodecsv==0.14.1
