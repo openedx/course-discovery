@@ -22,9 +22,6 @@ django-cors-headers==3.5.0
 # see https://www.sphinx-doc.org/en/master/intro.html#prerequisites
 sphinx==2.4.4
 
-# FIXME: dal 3.5.1 requires you to include jquery yourself on the admin page -- needs a proper fix
-django-autocomplete-light==3.5.0
-
 celery<5.0
 
 # latest version of edx-lint is pulling code-annotations and code-annotations is pulling python-slugify and
