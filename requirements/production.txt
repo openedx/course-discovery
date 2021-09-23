@@ -15,6 +15,8 @@ algoliasearch-django==1.7.3
     #   -r requirements/base.in
 amqp==2.6.1
     # via kombu
+asgiref==3.4.1
+    # via django
 authlib==0.15.4
     # via simple-salesforce
 backoff==1.11.1
@@ -23,9 +25,9 @@ beautifulsoup4==4.10.0
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.18.55
+boto3==1.18.56
     # via django-ses
-botocore==1.21.55
+botocore==1.21.56
     # via
     #   boto3
     #   s3transfer
@@ -48,7 +50,7 @@ coreapi==2.3.3
     #   openapi-codec
 coreschema==0.0.4
     # via coreapi
-cryptography==3.4.8
+cryptography==35.0.0
     # via
     #   authlib
     #   pyjwt
@@ -58,9 +60,8 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==2.2.24
+django==3.2.8
     # via
-    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   algoliasearch-django
@@ -110,7 +111,7 @@ django-crum==0.7.9
     # via edx-django-utils
 django-dynamic-filenames==1.2.0
     # via -r requirements/base.in
-django-elasticsearch-dsl==7.2.0
+django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0cc33bbcfcf4f931b1dae537a320eaa2bf672307
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -149,7 +150,7 @@ django-sortedm2m==3.1.1
     # via -r requirements/base.in
 django-stdimage==5.3.0
     # via -r requirements/base.in
-django-storages==1.11.1
+django-storages==1.12
     # via -r requirements/base.in
 django-taggit==1.5.1
     # via
@@ -294,7 +295,7 @@ pycryptodomex==3.10.4
     # via pyjwkest
 pyjwkest==1.4.2
     # via edx-drf-extensions
-pyjwt[crypto]==2.1.0
+pyjwt[crypto]==2.2.0
     # via
     #   drf-jwt
     #   edx-auth-backends
