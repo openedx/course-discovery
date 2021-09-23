@@ -12,6 +12,8 @@ certifi==2021.5.30
     # via requests
 charset-normalizer==2.0.6
     # via requests
+django-sortedm2m @ git+https://github.com/jazzband/django-sortedm2m.git@d38cb8350cbf98873e9672806bcd62a6b3e51fb7
+    # via -r requirements/github.in
 docutils==0.17.1
     # via sphinx
 edx-sphinx-theme==3.0.0
