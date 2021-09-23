@@ -137,10 +137,8 @@ django-compressor==2.4.1
     #   django-libsass
 django-contrib-comments==2.1.0
     # via -r requirements/base.in
-django-cors-headers==3.5.0
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/base.in
+django-cors-headers==3.8.0
+    # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
 django-debug-toolbar==3.2.2
