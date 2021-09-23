@@ -133,7 +133,10 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         Returns:
             str
         """
-        return '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
+        # Commented the previous code as follow:
+        # return '{org}+{course}'.format(org=course_run_key.org, course=course_run_key.course)
+        # We return string of course_run_key directly.
+        return str(course_run_key)
 
     @classmethod
     def delete_orphans(cls):
