@@ -123,12 +123,10 @@ distro==1.6.0
     #   xss-utils
 django-admin-sortable2==1.0
     # via -r requirements/base.in
-django-appconf==1.0.4
+django-appconf==1.0.5
     # via django-compressor
-django-autocomplete-light==3.5.0
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/base.in
+django-autocomplete-light==3.8.2
+    # via -r requirements/base.in
 django-choices==1.7.2
     # via -r requirements/base.in
 django-compressor==2.4.1
@@ -156,7 +154,7 @@ django-elasticsearch-dsl-drf==0.22.2
     # via -r requirements/base.in
 django-extensions==3.1.3
     # via -r requirements/base.in
-django-filter==2.4.0
+django-filter==21.1
     # via -r requirements/base.in
 django-fsm==2.7.1
     # via -r requirements/base.in
@@ -288,7 +286,7 @@ execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==8.13.2
+faker==8.14.0
     # via factory-boy
 filelock==3.0.12
     # via
@@ -533,7 +531,6 @@ six==1.16.0
     #   python-dateutil
     #   python-memcached
     #   responses
-    #   social-auth-app-django
     #   tox
     #   transifex-client
     #   unicode-slugify
@@ -543,9 +540,8 @@ slumber==0.7.1
     # via edx-rest-api-client
 snowballstemmer==2.1.0
     # via sphinx
-social-auth-app-django==4.0.0
+social-auth-app-django==5.0.0
     # via
-    #   -c requirements/common_constraints.txt
     #   -r requirements/base.in
     #   edx-auth-backends
 social-auth-core==4.1.0
@@ -618,7 +614,7 @@ vine==1.3.0
     # via
     #   amqp
     #   celery
-virtualenv==20.8.0
+virtualenv==20.8.1
     # via tox
 websocket-client==0.59.0
     # via
