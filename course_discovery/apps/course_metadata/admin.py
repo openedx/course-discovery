@@ -336,8 +336,11 @@ class ProgramAdmin(admin.ModelAdmin):
             messages.add_message(request, messages.ERROR, msg)
 
     class Media:
-        js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-              'js/sortable_select.js')
+        js = (
+            'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
+            'bower_components/jquery/dist/jquery.min.js',
+            'js/sortable_select.js'
+        )
 
 
 @admin.register(Pathway)
@@ -615,8 +618,11 @@ class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
     list_display = ('index_name',)
 
     class Media:
-        js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-              'js/sortable_select.js')
+        js = (
+            'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
+            'bower_components/jquery/dist/jquery.min.js',
+            'js/sortable_select.js'
+        )
 
 
 # Register remaining models using basic ModelAdmin classes

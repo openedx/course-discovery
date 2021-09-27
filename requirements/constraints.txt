@@ -14,15 +14,9 @@ elasticsearch-dsl>=7.2,<8.0
 # FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
 transifex-client<0.13
 
-# FIXME: 3+ require schemes in CORS_ORIGIN_WHITELIST URLs - remember to update configuration when you remove this
-django-cors-headers==3.2.0
-
 # sphinx has dropped support for python 3.5, latest version requires at least python3.6
 # see https://www.sphinx-doc.org/en/master/intro.html#prerequisites
 sphinx==2.4.4
-
-# FIXME: dal 3.5.1 requires you to include jquery yourself on the admin page -- needs a proper fix
-django-autocomplete-light==3.5.0
 
 celery<5.0
 
