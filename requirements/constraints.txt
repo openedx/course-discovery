@@ -25,7 +25,6 @@ celery<5.0
 edx-lint<=1.6
 
 # latest version causing issues in IDAs.
-algoliasearch-django<2.0.0
 algoliasearch<2.0.0
 
 # latest version causing issues in IDAs.
