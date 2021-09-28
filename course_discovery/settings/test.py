@@ -81,5 +81,7 @@ CELERY_BROKER_URL = 'memory://localhost/'
 
 # test configuration for algoliasearch django.
 
-APPLICATION_ID=  'foo'
-API_KEY = 'bar'
+ALGOLIA = {
+    'APPLICATION_ID': os.getenv('ALGOLIA_APPLICATION_ID'),
+    'API_KEY': os.getenv('ALGOLIA_API_KEY')
+}
