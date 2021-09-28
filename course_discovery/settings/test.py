@@ -78,3 +78,10 @@ CELERY_RESULT_BACKEND = f'file://{tempfile.TemporaryDirectory()}'
 CELERY_BROKER_URL = 'memory://localhost/'
 
 ################################### END CELERY ###################################
+
+# test configuration for algoliasearch django.
+ALGOLIA = {
+    'APPLICATION_ID': 'foo',
+    'API_KEY': 'bar',
+    'TAXONOMY_INDEX_NAME': 'test',
+}
