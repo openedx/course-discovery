@@ -4,15 +4,12 @@
 #
 #    pip-compile --output-file=requirements/production.txt requirements/production.in
 #
-algoliasearch==1.20.0
+algoliasearch==2.5.0
     # via
-    #   -c requirements/constraints.txt
     #   algoliasearch-django
     #   taxonomy-connector
-algoliasearch-django==1.7.3
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/base.in
+algoliasearch-django==2.0.0
+    # via -r requirements/base.in
 amqp==2.6.1
     # via kombu
 authlib==0.15.4
