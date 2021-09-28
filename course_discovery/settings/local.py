@@ -61,9 +61,3 @@ JWT_AUTH.update({
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
     from .private import *  # pylint: disable=import-error
 
-# test configuration for algoliasearch django.
-ALGOLIA = {
-    'APPLICATION_ID': 'foo',
-    'API_KEY': 'bar',
-    'TAXONOMY_INDEX_NAME': '',
-}
