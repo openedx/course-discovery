@@ -622,6 +622,7 @@ class SeatSerializer(BaseModelSerializer):
     )
     currency = serializers.SlugRelatedField(read_only=True, slug_field='code')
     upgrade_deadline = serializers.DateTimeField()
+    upgrade_deadline_override = serializers.DateTimeField()
     credit_provider = serializers.CharField()
     credit_hours = serializers.IntegerField()
     sku = serializers.CharField()
@@ -633,7 +634,11 @@ class SeatSerializer(BaseModelSerializer):
 
     class Meta:
         model = Seat
-        fields = ('type', 'price', 'currency', 'upgrade_deadline', 'credit_provider', 'credit_hours', 'sku', 'bulk_sku')
+        fields = (
+            'type', 'price', 'currency', 'upgrade_deadline',
+            'upgrade_deadline_override', 'credit_provider',
+            'credit_hours', 'sku', 'bulk_sku'
+        )
 
 
 class CourseEntitlementSerializer(BaseModelSerializer):
