@@ -1661,6 +1661,7 @@ class SeatSerializerTests(TestCase):
             'price': str(self.seat.price),
             'currency': self.seat.currency.code,
             'upgrade_deadline': json_date_format(self.seat.upgrade_deadline),
+            'upgrade_deadline_override': None,
             'credit_provider': self.seat.credit_provider,
             'credit_hours': self.seat.credit_hours,
             'sku': self.seat.sku,
