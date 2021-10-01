@@ -46,7 +46,12 @@ class EdlySiteViewSet(APIView):
         Discovery site setup with default partner configurations.
         """
         discovery_base = self.request.data.get('discovery_site', '')
-        discovery_site, __ = Site.objects.get_or_create(domain=discovery_base, name=discovery_base)
+        old_discovery_base = self.request.data.get('old_domain_values', {}).get('discovery_site', None)
+        discovery_site, __ = Site.objects.update_or_create(
+            domain=old_discovery_base,
+            name=old_discovery_base,
+            defaults={'domain': discovery_base, 'name': discovery_base},
+        )
         return self.get_updated_site_partner(discovery_site)
 
     def get_updated_site_partner(self, discovery_site):
