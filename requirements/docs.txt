@@ -14,10 +14,8 @@ certifi==2021.5.30
     #   requests
 charset-normalizer==2.0.6
     # via requests
-django-elasticsearch-dsl==7.2.0
-    # via
-    #   -c requirements/constraints.txt
-    #   -r requirements/github.in
+django-sortedm2m @ git+https://github.com/jazzband/django-sortedm2m.git@d38cb8350cbf98873e9672806bcd62a6b3e51fb7
+    # via -r requirements/github.in
 docutils==0.17.1
     # via sphinx
 edx-sphinx-theme==3.0.0

@@ -2,3 +2,4 @@
 
 # pypi latest release is not available so using master branch hash.
 git+https://github.com/django-es/django-elasticsearch-dsl.git@79218c85828f5f575c06571d8f344c1d52e1744a#egg=django-elasticsearch-dsl
+git+https://github.com/jazzband/django-sortedm2m.git@d38cb8350cbf98873e9672806bcd62a6b3e51fb7#egg=django-sortedm2m
