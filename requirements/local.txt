@@ -177,7 +177,6 @@ django-solo==1.2.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-    # via -r requirements/base.in
 django-sortedm2m @ git+https://github.com/jazzband/django-sortedm2m.git@d38cb8350cbf98873e9672806bcd62a6b3e51fb7
     # via -r requirements/github.in
 django-stdimage==5.3.0
