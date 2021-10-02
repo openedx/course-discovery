@@ -1,5 +1,6 @@
+from unittest.mock import patch
+
 from django.urls import reverse
-from mock import patch
 from rest_framework.test import APITestCase
 
 from course_discovery.apps.api.tests.mixins import SiteMixin

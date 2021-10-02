@@ -270,7 +270,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         return response
 
     @writable_request_wrapper
-    def _update_course_run(self, course_run, draft, changed, serializer, request, prices):
+    def _update_course_run(self, course_run, draft, changed, serializer, request, prices, upgrade_deadline_override):
         save_kwargs = {}
         # If changes are made after review and before publish, revert status to unpublished.
         # Unless we're just switching the status
@@ -289,7 +289,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         course_run = serializer.save(**save_kwargs)
 
         if course_run in course_run.course.active_course_runs:
-            course_run.update_or_create_seats(course_run.type, prices)
+            course_run.update_or_create_seats(course_run.type, prices, upgrade_deadline_override,)
 
         self.push_to_studio(request, course_run, create=False)
 
@@ -327,6 +327,8 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         # Sending draft=False triggers the review process for unpublished courses
         draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
         prices = request.data.pop('prices', {})
+        upgrade_deadline_override = request.data.pop('upgrade_deadline_override', None) \
+            if self.request.user.is_staff else None
 
         serializer = self.get_serializer(course_run, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -358,7 +360,8 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
             serializer.validated_data.items(),
             CourseRun.STATUS_CHANGE_EXEMPT_FIELDS
         )
-        response = self._update_course_run(course_run, draft, bool(changed_fields), serializer, request, prices)
+        response = self._update_course_run(course_run, draft, bool(changed_fields),
+                                           serializer, request, prices, upgrade_deadline_override,)
 
         self.update_course_run_image_in_studio(course_run)
 
