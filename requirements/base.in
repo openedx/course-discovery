@@ -3,7 +3,7 @@ backoff
 beautifulsoup4
 django
 django-admin-sortable2
-django-autocomplete-light
+django-autocomplete-light==3.9.0rc1
 django-choices
 django-compressor
 django-contrib-comments
