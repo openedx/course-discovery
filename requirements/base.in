@@ -18,7 +18,6 @@ django-parler
 django-rest-swagger
 django-simple-history
 django-solo
-django-sortedm2m
 django-stdimage
 django-storages
 django-taggit
