@@ -1,4 +1,1 @@
 # Forks and other dependencies not yet on PyPI
-
-# pypi latest release is not available so using master branch hash.
-git+https://github.com/jazzband/django-sortedm2m.git@d38cb8350cbf98873e9672806bcd62a6b3e51fb7#egg=django-sortedm2m
