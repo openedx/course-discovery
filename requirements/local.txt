@@ -76,7 +76,7 @@ cryptography==3.4.8
     #   paramiko
     #   pyjwt
     #   social-auth-core
-ddt==1.4.3
+ddt==1.4.4
     # via -r requirements/test.in
 defusedxml==0.7.1
     # via
@@ -117,7 +117,6 @@ distro==1.6.0
     #   edx-drf-extensions
     #   edx-i18n-tools
     #   jsonfield
-    #   rest-condition
     #   taxonomy-connector
     #   xss-utils
 django-admin-sortable2==1.0.2
@@ -207,7 +206,6 @@ djangorestframework==3.12.4
     #   drf-extensions
     #   drf-jwt
     #   edx-drf-extensions
-    #   rest-condition
     #   taxonomy-connector
 djangorestframework-csv==2.1.1
     # via -r requirements/base.in
@@ -249,7 +247,7 @@ edx-django-utils==4.4.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   taxonomy-connector
-edx-drf-extensions==7.0.1
+edx-drf-extensions==8.0.0
     # via -r requirements/base.in
 edx-i18n-tools==0.7.0
     # via -r requirements/local.in
@@ -285,7 +283,7 @@ execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==8.14.1
+faker==8.16.0
     # via factory-boy
 filelock==3.3.0
     # via
@@ -311,7 +309,7 @@ isort==5.9.3
     #   pylint
 itypes==1.2.0
     # via coreapi
-jinja2==3.0.1
+jinja2==3.0.2
     # via
     #   coreschema
     #   sphinx
@@ -488,8 +486,6 @@ responses==0.14.0
     # via
     #   -r requirements/test.in
     #   pytest-responses
-rest-condition==1.0.3
-    # via edx-drf-extensions
 rjsmin==1.1.0
     # via django-compressor
 selenium==3.141.0
