@@ -13,6 +13,7 @@ from elasticsearch_dsl.query import Q as ESDSLQ
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
 from rest_framework.test import APIRequestFactory
+from rest_framework.views import APIView
 from taggit.models import Tag
 from waffle.testutils import override_switch
 
@@ -71,7 +72,15 @@ def make_request(query_param=None):
     else:
         request = APIRequestFactory().get('/')
     request.user = user
-    return request
+
+    # Convert a Django HTTPResponse object into a rest_framework.request
+    # using a generic API view. This is necessary because the drf-flex-fields
+    # library relies on the `.query_params` property of the request. DRF requests
+    # always have the `query_params` parameter unless the request is created using
+    # `APIRequestFactory`, which yelds Django's standard `HttpRequest`.
+    # Documentation: https://www.django-rest-framework.org/api-guide/testing/#forcing-authentication
+    # DRF issue: https://github.com/encode/django-rest-framework/issues/6488
+    return APIView().initialize_request(request)
 
 
 def serialize_language(language):

@@ -14,8 +14,8 @@ from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
-from drf_dynamic_fields import DynamicFieldsMixin
 from opaque_keys.edx.locator import CourseLocator
+from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
 from rest_framework.fields import CreateOnlyDefault, UUIDField
 from rest_framework.metadata import SimpleMetadata
@@ -221,7 +221,7 @@ class FAQSerializer(BaseModelSerializer):
         fields = ('question', 'answer',)
 
 
-class SubjectSerializer(DynamicFieldsMixin, BaseModelSerializer):
+class SubjectSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
     """Serializer for the ``Subject`` model."""
 
     @classmethod
@@ -728,7 +728,7 @@ class ProgramTypeAttrsSerializer(BaseModelSerializer):
         fields = ('uuid', 'slug', 'coaching_supported')
 
 
-class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
+class NestedProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
     """
     Serializer used when nesting a Program inside another entity (e.g. a Course). The resulting data includes only
     the basic details of the Program and none of the details about its related entities, aside from the number
@@ -753,7 +753,7 @@ class NestedProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
         return obj.courses.count()
 
 
-class MinimalCourseRunSerializer(DynamicFieldsMixin, TimestampModelSerializer):
+class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerializer):
     image = ImageField(read_only=True, source='image_url')
     marketing_url = serializers.SerializerMethodField()
     seats = SeatSerializer(required=False, many=True)
@@ -987,7 +987,7 @@ class ContainedCourseRunsSerializer(serializers.Serializer):
     )
 
 
-class MinimalCourseSerializer(DynamicFieldsMixin, TimestampModelSerializer):
+class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerializer):
     course_runs = MinimalCourseRunSerializer(many=True)
     entitlements = CourseEntitlementSerializer(required=False, many=True)
     owners = MinimalOrganizationSerializer(many=True, source='authoring_organizations')
@@ -1225,7 +1225,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
         )
 
 
-class CourseWithRecommendationsSerializer(DynamicFieldsMixin, TimestampModelSerializer):
+class CourseWithRecommendationsSerializer(FlexFieldsSerializerMixin, TimestampModelSerializer):
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
     recommendations = serializers.SerializerMethodField()
 
@@ -1505,11 +1505,11 @@ class DegreeSerializer(BaseModelSerializer):
             return degree.micromasters_url
 
 
-class MinimalProgramSerializer(DynamicFieldsMixin, BaseModelSerializer):
+class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
     """
     Basic program serializer
 
-    When using the DynamicFieldsMixin to get the courses field on a program,
+    When using the FlexFieldsSerializerMixin to get the courses field on a program,
     you will also need to include the fields you want on the course object
     since the course serializer also uses drf_dynamic_fields.
     Eg: ?fields=courses,course_runs
