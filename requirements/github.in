@@ -1,4 +1,4 @@
 # Forks and other dependencies not yet on PyPI
 
 # pypi latest release is not available so using master branch hash.
-git+https://github.com/django-es/django-elasticsearch-dsl.git@79218c85828f5f575c06571d8f344c1d52e1744a#egg=django-elasticsearch-dsl
+git+https://github.com/django-es/django-elasticsearch-dsl.git@0cc33bbcfcf4f931b1dae537a320eaa2bf672307#egg=django-elasticsearch-dsl
