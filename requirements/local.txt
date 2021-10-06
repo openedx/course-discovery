@@ -66,7 +66,7 @@ coreapi==2.3.3
     #   openapi-codec
 coreschema==0.0.4
     # via coreapi
-coverage==5.5
+coverage[toml]==6.0
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -76,7 +76,7 @@ cryptography==3.4.8
     #   paramiko
     #   pyjwt
     #   social-auth-core
-ddt==1.4.3
+ddt==1.4.4
     # via -r requirements/test.in
 defusedxml==0.7.1
     # via
@@ -117,10 +117,9 @@ distro==1.6.0
     #   edx-drf-extensions
     #   edx-i18n-tools
     #   jsonfield
-    #   rest-condition
     #   taxonomy-connector
     #   xss-utils
-django-admin-sortable2==1.0.1
+django-admin-sortable2==1.0.2
     # via -r requirements/base.in
 django-appconf==1.0.5
     # via django-compressor
@@ -134,7 +133,7 @@ django-compressor==2.4.1
     #   django-libsass
 django-contrib-comments==2.1.0
     # via -r requirements/base.in
-django-cors-headers==3.9.0
+django-cors-headers==3.10.0
     # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
@@ -177,9 +176,6 @@ django-solo==1.2.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
-    # via -r requirements/base.in
-django-sortedm2m @ git+https://github.com/jazzband/django-sortedm2m.git@d38cb8350cbf98873e9672806bcd62a6b3e51fb7
-    # via -r requirements/github.in
 django-stdimage==5.3.0
     # via -r requirements/base.in
 django-storages==1.11.1
@@ -208,7 +204,6 @@ djangorestframework==3.12.4
     #   drf-extensions
     #   drf-jwt
     #   edx-drf-extensions
-    #   rest-condition
     #   taxonomy-connector
 djangorestframework-csv==2.1.1
     # via -r requirements/base.in
@@ -250,9 +245,9 @@ edx-django-utils==4.4.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   taxonomy-connector
-edx-drf-extensions==7.0.1
+edx-drf-extensions==8.0.0
     # via -r requirements/base.in
-edx-i18n-tools==0.7.0
+edx-i18n-tools==0.8.1
     # via -r requirements/local.in
 edx-lint==1.6
     # via
@@ -286,9 +281,9 @@ execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==8.14.0
+faker==9.0.0
     # via factory-boy
-filelock==3.2.0
+filelock==3.3.0
     # via
     #   tox
     #   virtualenv
@@ -312,7 +307,7 @@ isort==5.9.3
     #   pylint
 itypes==1.2.0
     # via coreapi
-jinja2==3.0.1
+jinja2==3.0.2
     # via
     #   coreschema
     #   sphinx
@@ -425,7 +420,7 @@ pytest==6.2.5
     #   pytest-forked
     #   pytest-responses
     #   pytest-xdist
-pytest-cov==2.12.1
+pytest-cov==3.0.0
     # via -r requirements/test.in
 pytest-django==4.4.0
     # via -r requirements/test.in
@@ -448,7 +443,7 @@ python-memcached==1.59
     # via -r requirements/test.in
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2021.1
+pytz==2021.3
     # via
     #   -r requirements/base.in
     #   babel
@@ -489,8 +484,6 @@ responses==0.14.0
     # via
     #   -r requirements/test.in
     #   pytest-responses
-rest-condition==1.0.3
-    # via edx-drf-extensions
 rjsmin==1.1.0
     # via django-compressor
 selenium==3.141.0
@@ -515,7 +508,6 @@ six==1.16.0
     #   edx-ccx-keys
     #   edx-django-release-util
     #   edx-drf-extensions
-    #   edx-i18n-tools
     #   edx-lint
     #   edx-sphinx-theme
     #   elasticsearch-dsl
@@ -582,8 +574,9 @@ toml==0.10.2
     # via
     #   pylint
     #   pytest
-    #   pytest-cov
     #   tox
+tomli==1.2.1
+    # via coverage
 tox==3.24.4
     # via -r requirements/test.in
 transifex-client==0.12.5

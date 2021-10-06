@@ -14,8 +14,10 @@ certifi==2021.5.30
     #   requests
 charset-normalizer==2.0.6
     # via requests
-django-sortedm2m @ git+https://github.com/jazzband/django-sortedm2m.git@d38cb8350cbf98873e9672806bcd62a6b3e51fb7
-    # via -r requirements/github.in
+django-elasticsearch-dsl==7.2.0
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/github.in
 docutils==0.17.1
     # via sphinx
 edx-sphinx-theme==3.0.0
@@ -33,7 +35,7 @@ idna==3.2
     # via requests
 imagesize==1.2.0
     # via sphinx
-jinja2==3.0.1
+jinja2==3.0.2
     # via sphinx
 markupsafe==2.0.1
     # via jinja2
@@ -45,7 +47,7 @@ pyparsing==2.4.7
     # via packaging
 python-dateutil==2.8.2
     # via elasticsearch-dsl
-pytz==2021.1
+pytz==2021.3
     # via babel
 requests==2.26.0
     # via sphinx
