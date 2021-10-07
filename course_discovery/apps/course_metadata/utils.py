@@ -10,7 +10,7 @@ import markdown
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.db import transaction
+from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from dynamic_filenames import FilePattern
@@ -254,7 +254,7 @@ def ensure_draft_world(obj):
 
     if isinstance(obj, CourseRun):
         ensure_draft_world(obj.course)
-        return CourseRun.everything.get(key=obj.key, draft=True)
+        return CourseRun.everything.get(key=obj.key, draft=models.Value(1))
 
     elif isinstance(obj, Course):
         # We need to null this out because it will fail with a OneToOne uniqueness error when saving the draft

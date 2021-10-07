@@ -6,7 +6,7 @@ class DraftManager(models.Manager):
     """ Model manager that hides draft rows unless you ask for them. """
 
     def get_queryset(self):
-        return super().get_queryset().filter(draft=False)
+        return super().get_queryset().filter(draft=models.Value(0))
 
     def _with_drafts(self):
         return super().get_queryset()
@@ -16,7 +16,7 @@ class DraftManager(models.Manager):
         Acts like filter(), but prefers draft versions.
         If a draft is not available, we give back the non-draft version.
         """
-        return self._with_drafts().filter(Q(draft=True) | Q(draft_version=None)).filter(**kwargs)
+        return self._with_drafts().filter(Q(draft=models.Value(1)) | Q(draft_version=None)).filter(**kwargs)
 
     def get_draft(self, **kwargs):
         """

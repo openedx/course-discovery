@@ -1,6 +1,6 @@
 import logging
 
-from django.db import transaction
+from django.db import models, transaction
 from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.utils.translation import ugettext as _
@@ -264,7 +264,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         response = self.create_run_helper(request.data)
         if response.status_code == 201:
             run_key = response.data.get('key')
-            course_run = CourseRun.everything.get(key=run_key, draft=True)
+            course_run = CourseRun.everything.get(key=run_key, draft=models.Value(1))
             self.update_course_run_image_in_studio(course_run)
 
         return response
