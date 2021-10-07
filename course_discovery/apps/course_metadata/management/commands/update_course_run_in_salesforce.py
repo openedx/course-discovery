@@ -1,6 +1,7 @@
 import logging
 
 from django.core.management import BaseCommand, CommandError
+from django.db import models
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import CourseRun
@@ -18,7 +19,7 @@ class Command(BaseCommand):
         for partner in partners:
             util = get_salesforce_util(partner)
             if util:
-                course_runs = CourseRun.objects.filter(draft=False, course__partner=partner).\
+                course_runs = CourseRun.objects.filter(draft=models.Value(0), course__partner=partner).\
                     exclude(salesforce_id__isnull=True)
                 for course_run in course_runs:
                     try:

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core import validators
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.db import transaction
+from django.db import models, transaction
 from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http.response import Http404
@@ -266,7 +266,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         Will create an entitlement if we're switching from Audit.
         Returns a tuple of (CourseEntitlement, bool) where the second value is whether the entitlement changed.
         """
-        entitlement = CourseEntitlement.everything.filter(course=course, draft=True).first()
+        entitlement = CourseEntitlement.everything.filter(course=course, draft=models.Value(1)).first()
         existing_slug = entitlement.mode.slug if entitlement else Seat.AUDIT
 
         # We want to allow upgrading an entitlement from Audit -> Verified, but allow no other
