@@ -144,7 +144,7 @@ django-dynamic-filenames==1.2.0
     # via -r requirements/base.in
 django-elasticsearch-debug-toolbar==2.0.0
     # via -r requirements/local.in
-django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
+django-elasticsearch-dsl==7.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/github.in
