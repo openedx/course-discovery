@@ -14,8 +14,10 @@ certifi==2021.5.30
     #   requests
 charset-normalizer==2.0.6
     # via requests
-django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
-    # via -r requirements/github.in
+django-elasticsearch-dsl==7.2.0
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/github.in
 docutils==0.17.1
     # via sphinx
 edx-sphinx-theme==3.0.0

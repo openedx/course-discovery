@@ -113,6 +113,7 @@ django-dynamic-filenames==1.2.0
     # via -r requirements/base.in
 django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
     # via
+    #   -c requirements/constraints.txt
     #   -r requirements/github.in
     #   django-elasticsearch-dsl-drf
 django-elasticsearch-dsl-drf==0.22.2
