@@ -5,6 +5,10 @@
 -r test.in
 -r docs.in
 
+# for some reason github actions make upgrade job brings the older version. Locally makeupgrade seems fine.
+# fixit later after django32
+django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
+
 django-debug-toolbar
 django-elasticsearch-debug-toolbar
 docker-compose
