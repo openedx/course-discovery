@@ -2,3 +2,5 @@
 
 # pypi latest release is not available so using master branch hash.
 
+
+git+https://github.com/django-es/django-elasticsearch-dsl.git@0cc33bbcfcf4f931b1dae537a320eaa2bf672307#egg=django-elasticsearch-dsl
