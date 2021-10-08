@@ -28,6 +28,7 @@ django-webpack-loader
 djangorestframework
 djangorestframework-csv
 djangorestframework-xml
+django-elasticsearch-dsl
 django-elasticsearch-dsl-drf
 django-object-actions
 drf-dynamic-fields
