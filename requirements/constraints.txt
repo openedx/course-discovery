@@ -8,8 +8,10 @@ django<2.3
 
 # Elasticsearch upgrades need to be done in lockstep across Open edX
 elasticsearch>=7.8,<7.14
-django-elasticsearch-dsl>=7.1,<8.0
 elasticsearch-dsl>=7.2,<8.0
+# Disabling this constraint as of now as we are going to use github hash for this
+# Enable this once new version is released after we move to Django 3.2
+# django-elasticsearch-dsl>=7.1,<8.0
 
 # FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
 transifex-client<0.13
@@ -30,3 +32,7 @@ algoliasearch<2.0.0
 
 # latest version causing issues in IDAs.
 django-webpack-loader<1.0.0
+
+# Just to avoid any issues pinning them. Remove after django32 deployment.
+cryptography==3.4.8
+pyjwt[crypto]==2.1.0
