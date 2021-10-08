@@ -25,9 +25,9 @@ beautifulsoup4==4.10.0
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.18.56
+boto3==1.18.57
     # via django-ses
-botocore==1.21.56
+botocore==1.21.57
     # via
     #   boto3
     #   s3transfer
@@ -50,8 +50,9 @@ coreapi==2.3.3
     #   openapi-codec
 coreschema==0.0.4
     # via coreapi
-cryptography==35.0.0
+cryptography==3.4.8
     # via
+    #   -c requirements/constraints.txt
     #   authlib
     #   pyjwt
     #   social-auth-core
@@ -111,7 +112,7 @@ django-crum==0.7.9
     # via edx-django-utils
 django-dynamic-filenames==1.2.0
     # via -r requirements/base.in
-django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0cc33bbcfcf4f931b1dae537a320eaa2bf672307
+django-elasticsearch-dsl==7.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
@@ -295,8 +296,9 @@ pycryptodomex==3.10.4
     # via pyjwkest
 pyjwkest==1.4.2
     # via edx-drf-extensions
-pyjwt[crypto]==2.2.0
+pyjwt[crypto]==2.1.0
     # via
+    #   -c requirements/constraints.txt
     #   drf-jwt
     #   edx-auth-backends
     #   edx-drf-extensions
