@@ -17,6 +17,8 @@ algoliasearch-django==1.7.3
     #   -r requirements/base.in
 amqp==2.6.1
     # via kombu
+asgiref==3.4.1
+    # via django
 astroid==2.5
     # via
     #   pylint
@@ -89,7 +91,6 @@ distlib==0.3.3
 distro==1.6.0
     # via docker-compose
     # via
-    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
     #   algoliasearch-django
