@@ -25,12 +25,12 @@ class TestApiDocs(APITestCase):
         response = self.client.get(self.path)
         assert response.status_code == 200
 
-    def test_api_docs_redirect(self):
+    def test_api_docs_unauthorized(self):
         """
         Verify that unauthenticated clients are redirected.
         """
         response = self.client.get(self.path)
-        assert response.status_code == 302
+        assert response.status_code == 401
 
 
 @ddt.ddt

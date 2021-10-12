@@ -45,7 +45,7 @@ celery==4.4.7
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-certifi==2021.5.30
+certifi==2021.10.8
     # via
     #   elasticsearch
     #   requests
@@ -54,21 +54,21 @@ cffi==1.14.6
     #   bcrypt
     #   cryptography
     #   pynacl
-charset-normalizer==2.0.6
+charset-normalizer==2.0.7
     # via requests
-click==8.0.1
+click==8.0.3
     # via
     #   click-log
     #   edx-lint
 click-log==0.3.2
     # via edx-lint
 coreapi==2.3.3
-    # via
-    #   django-rest-swagger
-    #   openapi-codec
+    # via drf-yasg
 coreschema==0.0.4
-    # via coreapi
-coverage[toml]==6.0.1
+    # via
+    #   coreapi
+    #   drf-yasg
+coverage[toml]==6.0.2
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -112,6 +112,8 @@ distro==1.6.0
     #   django-taggit
     #   djangorestframework
     #   drf-jwt
+    #   drf-yasg
+    #   edx-api-doc-tools
     #   edx-auth-backends
     #   edx-django-release-util
     #   edx-django-sites-extensions
@@ -169,8 +171,6 @@ django-object-actions==3.0.2
     # via -r requirements/base.in
 django-parler==2.2
     # via -r requirements/base.in
-django-rest-swagger==2.2.0
-    # via -r requirements/base.in
 django-simple-history==3.0.0
     # via -r requirements/base.in
 django-solo==1.2.0
@@ -181,7 +181,7 @@ django-sortedm2m==3.1.1
     # via -r requirements/base.in
 django-stdimage==5.3.0
     # via -r requirements/base.in
-django-storages==1.12
+django-storages==1.12.1
     # via -r requirements/base.in
 django-taggit==1.5.1
     # via
@@ -202,10 +202,11 @@ djangorestframework==3.12.4
     # via
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
-    #   django-rest-swagger
     #   djangorestframework-csv
     #   drf-extensions
     #   drf-jwt
+    #   drf-yasg
+    #   edx-api-doc-tools
     #   edx-drf-extensions
     #   taxonomy-connector
 djangorestframework-csv==2.1.1
@@ -230,9 +231,15 @@ drf-jwt==1.19.0
     # via
     #   -c requirements/common_constraints.txt
     #   edx-drf-extensions
+drf-yasg==1.20.0
+    # via
+    #   -r requirements/base.in
+    #   edx-api-doc-tools
 dry-rest-permissions==0.1.10
     # via -r requirements/base.in
 edx-analytics-data-api-client==0.17.0
+    # via -r requirements/base.in
+edx-api-doc-tools==1.5.0
     # via -r requirements/base.in
 edx-auth-backends==4.0.0
     # via -r requirements/base.in
@@ -284,7 +291,7 @@ execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.0
     # via -r requirements/test.in
-faker==9.2.0
+faker==9.3.1
     # via factory-boy
 filelock==3.3.0
     # via
@@ -302,6 +309,8 @@ imagesize==1.2.0
     # via sphinx
 importlib-metadata==4.8.1
     # via -r requirements/base.in
+inflection==0.5.1
+    # via drf-yasg
 iniconfig==1.1.1
     # via pytest
 isort==5.9.3
@@ -342,14 +351,13 @@ oauthlib==3.1.1
     # via
     #   requests-oauthlib
     #   social-auth-core
-openapi-codec==1.3.2
-    # via django-rest-swagger
 packaging==21.0
     # via
+    #   drf-yasg
     #   pytest
     #   sphinx
     #   tox
-paramiko==2.7.2
+paramiko==2.8.0
     # via docker
 path==16.2.0
     # via edx-i18n-tools
@@ -374,13 +382,13 @@ py==1.10.0
     #   pytest
     #   pytest-forked
     #   tox
-pycodestyle==2.7.0
+pycodestyle==2.8.0
     # via -r requirements/test.in
 pycountry==20.7.3
     # via -r requirements/base.in
 pycparser==2.20
     # via cffi
-pycryptodomex==3.10.4
+pycryptodomex==3.11.0
     # via pyjwkest
 pygments==2.10.0
     # via sphinx
@@ -441,7 +449,7 @@ python-dateutil==2.8.2
     #   elasticsearch-dsl
     #   faker
     #   freezegun
-python-dotenv==0.19.0
+python-dotenv==0.19.1
     # via docker-compose
 python-memcached==1.59
     # via -r requirements/test.in
@@ -490,14 +498,16 @@ responses==0.14.0
     #   pytest-responses
 rjsmin==1.1.0
     # via django-compressor
+ruamel.yaml==0.17.16
+    # via drf-yasg
+ruamel.yaml.clib==0.2.6
+    # via ruamel.yaml
 selenium==3.141.0
     # via -r requirements/test.in
 semantic-version==2.8.5
     # via edx-drf-extensions
 simple-salesforce==1.11.4
     # via -r requirements/base.in
-simplejson==3.17.5
-    # via django-rest-swagger
 six==1.16.0
     # via
     #   bcrypt
@@ -593,8 +603,10 @@ unicodecsv==0.14.1
     # via djangorestframework-csv
 unidecode==1.3.2
     # via unicode-slugify
-uritemplate==3.0.1
-    # via coreapi
+uritemplate==4.0.0
+    # via
+    #   coreapi
+    #   drf-yasg
 urllib3==1.26.7
     # via
     #   elasticsearch
