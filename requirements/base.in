@@ -15,7 +15,7 @@ django-fsm
 django-guardian
 django-libsass
 django-parler
-django-rest-swagger
+drf-yasg
 django-simple-history
 django-solo
 django-sortedm2m
@@ -33,6 +33,7 @@ django-object-actions
 drf-dynamic-fields
 drf-extensions
 dry-rest-permissions
+edx-api-doc-tools
 edx-analytics-data-api-client
 edx-auth-backends
 edx-ccx-keys
