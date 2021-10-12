@@ -39,7 +39,7 @@ schema_view = get_schema_view(
       default_version='v1',
       description="Course Discovery API docs",
    ),
-   public=True,
+   public=False,
    permission_classes=[permissions.AllowAny],
 )
 
