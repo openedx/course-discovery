@@ -8,11 +8,11 @@ alabaster==0.7.12
     # via sphinx
 babel==2.9.1
     # via sphinx
-certifi==2021.5.30
+certifi==2021.10.8
     # via
     #   elasticsearch
     #   requests
-charset-normalizer==2.0.6
+charset-normalizer==2.0.7
     # via requests
 django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
     # via -r requirements/github.in

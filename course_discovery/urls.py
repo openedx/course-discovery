@@ -22,8 +22,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 from django.views.i18n import JavaScriptCatalog
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework import permissions
 
-from course_discovery.apps.api.views import SwaggerSchemaView
 from course_discovery.apps.core import views as core_views
 from course_discovery.apps.course_metadata.views import QueryPreviewView
 
@@ -31,13 +33,23 @@ admin.site.site_header = _('Discovery Service Administration')
 admin.site.site_title = admin.site.site_header
 admin.autodiscover()
 
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Course Discovery API",
+      default_version='v1',
+      description="Course Discovery API docs",
+   ),
+   public=True,
+   permission_classes=[permissions.AllowAny],
+)
+
 urlpatterns = oauth2_urlpatterns + [
     url(r'^admin/course_metadata/', include('course_discovery.apps.course_metadata.urls', namespace='admin_metadata')),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
     # Use the same auth views for all logins, including those originating from the browseable API.
     url(r'^api-auth/', include((oauth2_urlpatterns, 'rest_framework'))),
-    url(r'^api-docs/', SwaggerSchemaView.as_view(), name='api_docs'),
+    url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
     url(r'^health/$', core_views.health, name='health'),
     url('^$', QueryPreviewView.as_view()),

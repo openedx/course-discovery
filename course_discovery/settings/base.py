@@ -39,12 +39,12 @@ INSTALLED_APPS = [
 THIRD_PARTY_APPS = [
     'release_util',
     'rest_framework',
-    'rest_framework_swagger',
     'social_django',
     'waffle',
     'sortedm2m',
     'simple_history',
     'guardian',
+    'drf_yasg',
     'dry_rest_permissions',
     'compressor',
     'django_filters',
