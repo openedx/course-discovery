@@ -27,7 +27,7 @@ class TestApiDocs(APITestCase):
 
     def test_api_docs_unauthorized(self):
         """
-        Verify that unauthenticated clients are redirected.
+        Verify that unauthenticated clients see 401 error code.
         """
         response = self.client.get(self.path)
         assert response.status_code == 401
