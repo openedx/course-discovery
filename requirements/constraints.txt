@@ -1,5 +1,5 @@
 # Stay on an LTS release
-django<4.0
+django<2.3
 
 # We are creating a local copy of the common constraints file and override/remove the global constraint which we don't need.
 # This approach is used temporarily and will be improved in https://openedx.atlassian.net/browse/BOM-2721
