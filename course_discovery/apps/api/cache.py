@@ -1,3 +1,4 @@
+import django
 import logging
 import time
 import zlib
@@ -129,7 +130,10 @@ class CompressedCacheResponse(CacheResponse):
                 decompressed_content = compressed_content
 
             response = HttpResponse(content=decompressed_content, status=status)
-            response.headers = headers  # pylint: disable=protected-access
+            if django.VERSION >= (3, 2):
+                response.headers = headers  # pylint: disable=protected-access
+            else:
+                response._headers = headers  # pylint: disable=protected-access
 
         if not hasattr(response, '_closable_objects'):
             response._closable_objects = []  # pylint: disable=protected-access
