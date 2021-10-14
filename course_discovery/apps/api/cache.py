@@ -1,8 +1,8 @@
-import django
 import logging
 import time
 import zlib
 
+import django
 from django.conf import settings
 from django.core.cache import cache
 from django.http.response import HttpResponse
