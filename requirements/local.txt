@@ -23,12 +23,20 @@ astroid==2.5
     # via
     #   pylint
     #   pylint-celery
+async-generator==1.10
+    # via
+    #   trio
+    #   trio-websocket
 attrs==21.2.0
     # via
     #   jsonschema
+    #   outcome
     #   pytest
-authlib==0.15.4
-    # via simple-salesforce
+    #   trio
+authlib==1.0.0b1
+    # via
+    #   -c requirements/constraints.txt
+    #   simple-salesforce
 babel==2.9.1
     # via sphinx
 backoff==1.11.1
@@ -49,7 +57,8 @@ certifi==2021.10.8
     # via
     #   elasticsearch
     #   requests
-cffi==1.14.6
+    #   urllib3
+cffi==1.15.0
     # via
     #   bcrypt
     #   cryptography
@@ -78,7 +87,9 @@ cryptography==3.4.8
     #   authlib
     #   paramiko
     #   pyjwt
+    #   pyopenssl
     #   social-auth-core
+    #   urllib3
 ddt==1.4.4
     # via -r requirements/test.in
 defusedxml==0.7.1
@@ -163,7 +174,7 @@ django-guardian==2.4.0
     # via -r requirements/base.in
 django-libsass==0.9
     # via -r requirements/base.in
-django-model-utils==4.1.1
+django-model-utils==4.2.0
     # via taxonomy-connector
 django-nine==0.2.5
     # via django-elasticsearch-dsl-drf
@@ -227,10 +238,8 @@ drf-dynamic-fields==0.3.1
     # via -r requirements/base.in
 drf-extensions==0.7.1
     # via -r requirements/base.in
-drf-jwt==1.19.0
-    # via
-    #   -c requirements/common_constraints.txt
-    #   edx-drf-extensions
+drf-jwt==1.19.1
+    # via edx-drf-extensions
 drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
@@ -293,7 +302,7 @@ factory-boy==3.2.0
     # via -r requirements/test.in
 faker==9.3.1
     # via factory-boy
-filelock==3.3.0
+filelock==3.3.1
     # via
     #   tox
     #   virtualenv
@@ -301,10 +310,15 @@ freezegun==1.1.0
     # via -r requirements/test.in
 future==0.18.2
     # via pyjwkest
+h11==0.12.0
+    # via wsproto
 html2text==2020.1.16
     # via -r requirements/base.in
-idna==3.2
-    # via requests
+idna==3.3
+    # via
+    #   requests
+    #   trio
+    #   urllib3
 imagesize==1.2.0
     # via sphinx
 importlib-metadata==4.8.1
@@ -345,12 +359,14 @@ mock==4.0.3
     # via -r requirements/test.in
 mysqlclient==2.0.3
     # via -r requirements/test.in
-newrelic==7.0.0.166
+newrelic==7.2.1.168
     # via edx-django-utils
 oauthlib==3.1.1
     # via
     #   requests-oauthlib
     #   social-auth-core
+outcome==1.1.0
+    # via trio
 packaging==21.0
     # via
     #   drf-yasg
@@ -363,7 +379,7 @@ path==16.2.0
     # via edx-i18n-tools
 pbr==5.6.0
     # via stevedore
-pillow==8.3.2
+pillow==8.4.0
     # via
     #   -r requirements/base.in
     #   django-stdimage
@@ -420,6 +436,8 @@ pymongo==3.12.0
     # via edx-opaque-keys
 pynacl==1.4.0
     # via paramiko
+pyopenssl==21.0.0
+    # via urllib3
 pyparsing==2.4.7
     # via packaging
 pyrsistent==0.18.0
@@ -502,7 +520,7 @@ ruamel.yaml==0.17.16
     # via drf-yasg
 ruamel.yaml.clib==0.2.6
     # via ruamel.yaml
-selenium==3.141.0
+selenium==4.0.0
     # via -r requirements/test.in
 semantic-version==2.8.5
     # via edx-drf-extensions
@@ -529,6 +547,7 @@ six==1.16.0
     #   libsass
     #   pyjwkest
     #   pynacl
+    #   pyopenssl
     #   python-dateutil
     #   python-memcached
     #   responses
@@ -539,6 +558,8 @@ six==1.16.0
     #   websocket-client
 slumber==0.7.1
     # via edx-rest-api-client
+sniffio==1.2.0
+    # via trio
 snowballstemmer==2.1.0
     # via sphinx
 social-auth-app-django==5.0.0
@@ -549,6 +570,8 @@ social-auth-core==4.1.0
     # via
     #   edx-auth-backends
     #   social-auth-app-django
+sortedcontainers==2.4.0
+    # via trio
 soupsieve==2.2.1
     # via beautifulsoup4
 sphinx==2.4.4
@@ -597,17 +620,23 @@ transifex-client==0.12.5
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.in
+trio==0.19.0
+    # via
+    #   selenium
+    #   trio-websocket
+trio-websocket==0.9.2
+    # via selenium
 unicode-slugify==0.1.3
     # via -r requirements/base.in
 unicodecsv==0.14.1
     # via djangorestframework-csv
 unidecode==1.3.2
     # via unicode-slugify
-uritemplate==4.0.0
+uritemplate==4.1.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.7
+urllib3[secure]==1.26.7
     # via
     #   elasticsearch
     #   requests
@@ -626,6 +655,8 @@ websocket-client==0.59.0
     #   docker-compose
 wrapt==1.12.1
     # via astroid
+wsproto==1.0.0
+    # via trio-websocket
 xss-utils==0.3.0
     # via -r requirements/base.in
 zipp==3.6.0
