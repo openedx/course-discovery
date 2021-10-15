@@ -17,8 +17,10 @@ amqp==2.6.1
     # via kombu
 asgiref==3.4.1
     # via django
-authlib==0.15.4
-    # via simple-salesforce
+authlib==1.0.0b1
+    # via
+    #   -c requirements/constraints.txt
+    #   simple-salesforce
 backoff==1.11.1
     # via -r requirements/base.in
 beautifulsoup4==4.10.0
