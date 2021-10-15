@@ -108,7 +108,7 @@ class CompressedCacheResponse(CacheResponse):
                 if hasattr(response, '_headers'):
                     headers = response._headers.copy()  # pylint: disable=protected-access
                 else:
-                    headers = response.headers.copy()
+                    headers = {k: (k, v) for k, v in response.items()}
 
                 response_triple = (
                     zlib.compress(response.rendered_content),
@@ -129,7 +129,9 @@ class CompressedCacheResponse(CacheResponse):
                 decompressed_content = compressed_content
 
             response = HttpResponse(content=decompressed_content, status=status)
-            response.headers = headers  # pylint: disable=protected-access
+
+            for k, v in headers.values():
+                response[k] = v
 
         if not hasattr(response, '_closable_objects'):
             response._closable_objects = []  # pylint: disable=protected-access
