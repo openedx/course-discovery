@@ -13,7 +13,7 @@
 
 
 # using LTS django version
-Django<2.3
+
 
 # latest version is causing e2e failures in edx-platform.
 # See  comment.

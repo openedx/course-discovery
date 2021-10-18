@@ -39,7 +39,7 @@ INSTALLED_APPS = [
 THIRD_PARTY_APPS = [
     'release_util',
     'rest_framework',
-    'rest_framework_swagger',
+    'drf_yasg',
     'social_django',
     'waffle',
     'sortedm2m',

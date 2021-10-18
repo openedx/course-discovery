@@ -129,7 +129,9 @@ class CompressedCacheResponse(CacheResponse):
                 decompressed_content = compressed_content
 
             response = HttpResponse(content=decompressed_content, status=status)
-            response._headers = headers  # pylint: disable=protected-access
+
+            for k, v in headers.values():
+                response[k] = v
 
         if not hasattr(response, '_closable_objects'):
             response._closable_objects = []  # pylint: disable=protected-access
