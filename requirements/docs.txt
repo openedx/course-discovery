@@ -29,7 +29,7 @@ elasticsearch-dsl==7.4.0
     # via
     #   -c requirements/constraints.txt
     #   django-elasticsearch-dsl
-idna==3.2
+idna==3.3
     # via requests
 imagesize==1.2.0
     # via sphinx
