@@ -331,6 +331,7 @@ class PositionSerializer(BaseModelSerializer):
 
 class MinimalOrganizationSerializer(BaseModelSerializer):
     certificate_logo_image_url = serializers.SerializerMethodField()
+    logo_image_url = serializers.SerializerMethodField()
 
     def get_certificate_logo_image_url(self, obj):
         image = getattr(obj, 'certificate_logo_image', None)
@@ -338,23 +339,24 @@ class MinimalOrganizationSerializer(BaseModelSerializer):
             return image.url
         return None
 
+    def get_logo_image_url(self, obj):
+        image = getattr(obj, 'logo_image', None)
+        if image:
+            return image.url
+        return None
+
     class Meta:
         model = Organization
-        fields = ('uuid', 'key', 'name', 'auto_generate_course_run_keys', 'certificate_logo_image_url',)
+        fields = (
+            'uuid', 'key', 'name', 'auto_generate_course_run_keys', 'certificate_logo_image_url', 'logo_image_url'
+        )
         read_only_fields = ('auto_generate_course_run_keys',)
 
 
 class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     """Serializer for the ``Organization`` model."""
     tags = TagListSerializerField()
-    logo_image_url = serializers.SerializerMethodField()
     banner_image_url = serializers.SerializerMethodField()
-
-    def get_logo_image_url(self, obj):
-        image = getattr(obj, 'logo_image', None)
-        if image:
-            return image.url
-        return None
 
     def get_banner_image_url(self, obj):
         image = getattr(obj, 'banner_image', None)
@@ -372,7 +374,6 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
             'description_es',
             'homepage_url',
             'tags',
-            'logo_image_url',
             'marketing_url',
             'slug',
             'banner_image_url',

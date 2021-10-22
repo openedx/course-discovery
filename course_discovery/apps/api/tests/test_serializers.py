@@ -1575,12 +1575,22 @@ class MinimalOrganizationSerializerTests(TestCase):
             'url',
             None
         )
+        logo_image_url = getattr(
+            getattr(
+                organization,
+                'logo_image',
+                None
+            ),
+            'url',
+            None
+        )
         return {
             'uuid': str(organization.uuid),
             'key': organization.key,
             'name': organization.name,
             'auto_generate_course_run_keys': organization.auto_generate_course_run_keys,
-            'certificate_logo_image_url': certificate_logo_image_url
+            'certificate_logo_image_url': certificate_logo_image_url,
+            'logo_image_url': logo_image_url,
         }
 
     def test_data(self):
