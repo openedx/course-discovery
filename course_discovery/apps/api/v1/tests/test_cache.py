@@ -158,7 +158,8 @@ class CompressedCacheResponseTest(TestCase):
 
         cached_response.render()
 
-        headers = cached_response.headers.copy()
+        headers = {k: (k, v) for k, v in cached_response.items()}
+
         response_dict = (
             cached_response.rendered_content,
             cached_response.status_code,
