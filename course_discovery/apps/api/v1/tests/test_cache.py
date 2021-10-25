@@ -152,7 +152,7 @@ class CompressedCacheResponseTest(TestCase):
                 return Response('test response')
 
         view_instance = TestView()
-        view_instance.headers = {'Test': 'foo'}
+        view_instance.headers = {'Test': 'foo'}  # pylint: disable=attribute-defined-outside-init
         cached_response = Response('')
         view_instance.finalize_response(request=self.request, response=cached_response)
 
