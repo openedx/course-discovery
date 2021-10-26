@@ -29,7 +29,7 @@ elasticsearch-dsl==7.4.0
     # via
     #   -c requirements/constraints.txt
     #   django-elasticsearch-dsl
-idna==3.2
+idna==3.3
     # via requests
 imagesize==1.2.0
     # via sphinx
@@ -41,7 +41,7 @@ packaging==21.0
     # via sphinx
 pygments==2.10.0
     # via sphinx
-pyparsing==2.4.7
+pyparsing==3.0.1
     # via packaging
 python-dateutil==2.8.2
     # via elasticsearch-dsl
