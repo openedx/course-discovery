@@ -282,6 +282,8 @@ class CourseRunFactory(SalesforceRecordFactory):
     license = 'all-rights-reserved'
     has_ofac_restrictions = True
     type = factory.SubFactory(CourseRunTypeFactory)
+    average_rating = FuzzyInteger(1, 5)
+    total_raters = FuzzyInteger(1, 5)
 
     @factory.post_generation
     def staff(self, create, extracted, **kwargs):

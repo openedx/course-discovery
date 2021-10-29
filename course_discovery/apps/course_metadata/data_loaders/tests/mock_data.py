@@ -2799,7 +2799,6 @@ NEW_RUN_MARKETING_SITE_API_COURSE_BODY = {
     'vuuid': 'e0f8c80a-b377-4546-b247-1c94ab3a218a'
 }
 
-
 DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY = {
     'field_course_uuid': 'f0f8c80a-b377-4546-b547-1c94ab3a218a',
     'field_course_code': 'CB22x',
@@ -3130,8 +3129,21 @@ WORDPRESS_API_BODIES = [
             }
         ],
         'price': True,
-        'price_value' : '$100',
+        'price_value': '$100',
         'hide_price': False,
         'status': 'publish'
     }
+]
+
+COURSE_AVERAGE_RATING_API_BODIES = [
+    {
+        'course': 'course-v1:KyotoUx+000x+2T2016',
+        'average_rating': '4.00',
+        'total_raters': 2,
+    },
+    {
+        'course': 'course-v1:MITx+0.111x+2T2015',
+        'average_rating': '5.00',
+        'total_raters': 3,
+    },
 ]

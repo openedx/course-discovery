@@ -1286,6 +1286,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     )
     marketing_price_value = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Price Value'))
     is_marketing_price_hidden = models.BooleanField(default=False, verbose_name=_('Hide Price'))
+    average_rating = models.DecimalField(default=0.0, max_digits=30, decimal_places=2)
+    total_raters = models.IntegerField(default=0)
 
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',

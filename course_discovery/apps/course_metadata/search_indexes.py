@@ -250,6 +250,8 @@ class CourseRunIndex(BaseCourseIndex, indexes.Indexable):
     marketing_price_value = indexes.CharField(model_attr='marketing_price_value', null=True)
     is_marketing_price_hidden = indexes.BooleanField(model_attr='is_marketing_price_hidden', null=True)
     card_image_url = indexes.CharField(model_attr='card_image_url', null=True)
+    average_rating = indexes.DecimalField(model_attr='average_rating', null=True)
+    total_raters = indexes.IntegerField(model_attr='total_raters', null=True)
 
     def read_queryset(self, using=None):
         # Pre-fetch all fields required by the CourseRunSearchSerializer. Unfortunately, there's

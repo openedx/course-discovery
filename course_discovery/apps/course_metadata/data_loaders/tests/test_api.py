@@ -17,7 +17,12 @@ from testfixtures import LogCapture
 from course_discovery.apps.core.tests.utils import mock_api_callback, mock_jpeg_callback
 from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    AbstractDataLoader, CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader, WordPressApiDataLoader
+    AbstractDataLoader,
+    CoursesApiDataLoader,
+    CourseRatingApiDataLoader,
+    EcommerceApiDataLoader,
+    ProgramsApiDataLoader,
+    WordPressApiDataLoader,
 )
 from course_discovery.apps.course_metadata.data_loaders.tests import JPEG, JSON, mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DataLoaderTestMixin
@@ -1172,6 +1177,66 @@ class WordPressApiDataLoaderTests(DataLoaderTestMixin, TestCase):
                     'ERROR',
                     'Could not find course run [{course_run}]'.format(
                         course_run=api_data[0]['course_id']
+                    )
+                )
+            )
+
+
+@ddt.ddt
+class CourseRatingApiDataLoaderTests(DataLoaderTestMixin, TestCase):
+    loader_class = CourseRatingApiDataLoader
+
+    @property
+    def api_url(self):
+        return self.partner.lms_url + '/api/v1/course_average_rating/'
+
+    def mock_api(self, bodies=None):
+        if not bodies:
+            bodies = mock_data.COURSE_AVERAGE_RATING_API_BODIES
+        url = self.api_url
+        responses.add_callback(
+            responses.GET,
+            url,
+            callback=mock_api_callback(url, bodies),
+            content_type=JSON
+        )
+        return bodies
+
+    def test_ingest(self):
+        """
+        Test the Course Rating data loader.
+        """
+        TieredCache.dangerous_clear_all_tiers()
+        api_data = self.mock_api()
+        expected_course = api_data[0]
+        CourseRunFactory(
+            title_override='audit',
+            key=expected_course['course'],
+            average_rating=expected_course['average_rating'],
+            total_raters=expected_course['total_raters']
+        )
+
+        self.loader.ingest()
+
+        course = CourseRun.objects.filter(key__iexact=expected_course['course']).first()
+        assert course.average_rating == Decimal(expected_course['average_rating'])
+        assert course.total_raters == expected_course['total_raters']
+
+    def test_ingest_with_fail(self):
+        """
+        Test that data loader raise logs errors if course run not found.
+        """
+        TieredCache.dangerous_clear_all_tiers()
+        api_data = self.mock_api()
+
+        with LogCapture('course_discovery.apps.course_metadata.data_loaders.api') as logger:
+            self.loader.ingest()
+            logger.check_present(
+                (
+                    'course_discovery.apps.course_metadata.data_loaders.api',
+                    'ERROR',
+                    'Could not find course run [{course_run}]'.format(
+                        course_run=api_data[0]['course']
                     )
                 )
             )

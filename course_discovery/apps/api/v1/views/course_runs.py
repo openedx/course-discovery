@@ -50,7 +50,7 @@ class CourseRunViewSet(viewsets.ModelViewSet):
     filterset_class = filters.CourseRunFilter
     lookup_field = 'key'
     lookup_value_regex = COURSE_RUN_ID_REGEX
-    ordering_fields = ('start', 'id', 'title_override')
+    ordering_fields = ('start', 'id', 'title_override', 'average_rating', 'total_raters')
     permission_classes = (IsAuthenticated, IsCourseRunEditorOrDjangoOrReadOnly)
     queryset = CourseRun.objects.all().order_by(Lower('key'))
     serializer_class = serializers.CourseRunWithProgramsSerializer

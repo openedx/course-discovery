@@ -13,7 +13,11 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
 from course_discovery.apps.course_metadata.data_loaders.api import (
-    CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader, WordPressApiDataLoader
+    CoursesApiDataLoader,
+    CourseRatingApiDataLoader,
+    EcommerceApiDataLoader,
+    ProgramsApiDataLoader,
+    WordPressApiDataLoader,
 )
 from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig, Image, Video
 
@@ -122,6 +126,9 @@ class Command(BaseCommand):
                 ),
                 (
                     (WordPressApiDataLoader, partner.marketing_site_api_url, max_workers),
+                ),
+                (
+                    (CourseRatingApiDataLoader, partner.lms_url, max_workers),
                 ),
                 (
                     (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),

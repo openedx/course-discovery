@@ -1070,3 +1070,78 @@ class WordPressApiDataLoader(AbstractDataLoader):
                     api_url=self.partner.marketing_site_api_url
                 )
                 logger.exception(msg)
+
+
+class CourseRatingApiDataLoader(AbstractDataLoader):
+    """
+    Loads courses rating from the Courses Rating API in LMS.
+    """
+
+    def ingest(self):
+        """
+        Load courses rating data from the LMS.
+        """
+        logger.info('Refreshing Courses Rating Data from LMS %s...', self.partner.lms_url + '/api/v1/course_average_rating/')
+        initial_page = 1
+        response = self._make_request(initial_page)
+        count = response['count']
+        pages = response['num_pages']
+        self._process_response(response)
+
+        page_range = range(initial_page + 1, pages + 1)
+        logger.info('Looping to request all %d courses rating pages...', pages)
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=self.max_workers) as executor:
+            if self.is_threadsafe:
+                for page in page_range:
+                    time.sleep(30)
+                    executor.submit(self._load_data, page)
+            else:
+                for future in [executor.submit(self._make_request, page) for page in page_range]:
+                    response = future.result()
+                    self._process_response(response)
+
+        logger.info('Retrieved %d course from %s.', count, self.partner.lms_url)
+
+    def _make_request(self, page):
+        """
+        Send request to LMS course rating api.
+        """
+        logger.info('Requesting course rating page %d...', page)
+        params = {'page': page, 'page_size': self.PAGE_SIZE}
+        response = self.api_client.get(self.partner.lms_url + '/api/v1/course_average_rating/', params=params)
+        response.raise_for_status()
+        return response.json()
+
+    def _load_data(self, page):
+        """
+        Make a request for the given page and process the response.
+        """
+        response = self._make_request(page)
+        self._process_response(response)
+
+    def _process_response(self, response):
+        """
+        Process the response from the LMS course rating api.
+        """
+        results = response['results']
+        logger.info('Retrieved %d LMS course rating api..', len(results))
+
+        for body in results:
+            course_run_key = body['course']
+            try:
+                body = self.clean_strings(body)
+                course_run = CourseRun.objects.get(key__iexact=course_run_key)
+                course_run.average_rating = body['average_rating']
+                course_run.total_raters = body['total_raters']
+                course_run.save()
+
+            except CourseRun.DoesNotExist:
+                logger.exception('Could not find course run [%s]', course_run_key)
+
+            except Exception:  # pylint: disable=broad-except
+                msg = 'An error occurred while updating {course_run} from {api_url}'.format(
+                    course_run=course_run_key,
+                    api_url=self.partner.lms_url + '/api/v1/course_average_rating/'
+                )
+                logger.exception(msg)
