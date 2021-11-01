@@ -48,8 +48,15 @@ class BaseProductIndex(AlgoliaIndex):
 
     # Rules aren't automatically set in regular reindex_all, so set them explicitly
     def reindex_all(self, batch_size=1000):
+        # Since reindexing removes all the rules, we will need to recreate the 2U rules after reindexing
+        rules_to_create = self.get_rules()
+        existing_2U_XML_rules = []
+        for rule in self._AlgoliaIndex__index.iter_rules():  # pylint: disable=no-member
+            if 'objectID' in rule and '2U-XML' in rule['objectID']:
+                existing_2U_XML_rules.append(rule)
+        final_rules = rules_to_create + existing_2U_XML_rules
         super().reindex_all(batch_size)
-        self._AlgoliaIndex__index.replace_all_rules(self.get_rules())  # pylint: disable=no-member
+        self._AlgoliaIndex__index.replace_all_rules(final_rules)  # pylint: disable=no-member
 
 
 class EnglishProductIndex(BaseProductIndex):
