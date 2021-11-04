@@ -18,6 +18,7 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.edx_catalog_extensions.api.serializers import DistinctCountsAggregateFacetSearchSerializer
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.distinct_counts.query import DistinctCountsSearchQuerySet
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
 
@@ -143,7 +144,7 @@ def load_program_fixture(programs):
         CourseRun: set(course_run_pks),
         CurriculumCourseRunExclusion: set(exclusion_pks),
     }
-    excluded_models = {Site, Partner, User}
+    excluded_models = {Site, Partner, User, LanguageTag}
     return load_related(pks_to_load, excluded_models)
 
 
