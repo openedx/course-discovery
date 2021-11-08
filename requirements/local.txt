@@ -23,10 +23,16 @@ astroid==2.5
     # via
     #   pylint
     #   pylint-celery
+async-generator==1.10
+    # via
+    #   trio
+    #   trio-websocket
 attrs==21.2.0
     # via
     #   jsonschema
+    #   outcome
     #   pytest
+    #   trio
 authlib==1.0.0b1
     # via
     #   -c requirements/constraints.txt
@@ -51,7 +57,8 @@ certifi==2021.10.8
     # via
     #   elasticsearch
     #   requests
-cffi==1.14.6
+    #   urllib3
+cffi==1.15.0
     # via
     #   bcrypt
     #   cryptography
@@ -70,7 +77,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-coverage[toml]==6.0.2
+coverage[toml]==6.1.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -80,7 +87,9 @@ cryptography==3.4.8
     #   authlib
     #   paramiko
     #   pyjwt
+    #   pyopenssl
     #   social-auth-core
+    #   urllib3
 ddt==1.4.4
     # via -r requirements/test.in
 defusedxml==0.7.1
@@ -109,6 +118,7 @@ distro==1.6.0
     #   django-guardian
     #   django-model-utils
     #   django-nine
+    #   django-parler
     #   django-stdimage
     #   django-storages
     #   django-taggit
@@ -155,23 +165,23 @@ django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch
     #   django-elasticsearch-dsl-drf
 django-elasticsearch-dsl-drf==0.22.2
     # via -r requirements/base.in
-django-extensions==3.1.3
+django-extensions==3.1.5
     # via -r requirements/base.in
 django-filter==21.1
     # via -r requirements/base.in
-django-fsm==2.7.1
+django-fsm==2.8.0
     # via -r requirements/base.in
 django-guardian==2.4.0
     # via -r requirements/base.in
 django-libsass==0.9
     # via -r requirements/base.in
-django-model-utils==4.1.1
+django-model-utils==4.2.0
     # via taxonomy-connector
 django-nine==0.2.5
     # via django-elasticsearch-dsl-drf
 django-object-actions==3.0.2
     # via -r requirements/base.in
-django-parler==2.2
+django-parler==2.2.1
     # via -r requirements/base.in
 django-simple-history==3.0.0
     # via -r requirements/base.in
@@ -183,7 +193,7 @@ django-sortedm2m==3.1.1
     # via -r requirements/base.in
 django-stdimage==5.3.0
     # via -r requirements/base.in
-django-storages==1.12.1
+django-storages==1.12.3
     # via -r requirements/base.in
 django-taggit==1.5.1
     # via
@@ -223,16 +233,14 @@ dockerpty==0.4.1
     # via docker-compose
 docopt==0.6.2
     # via docker-compose
-docutils==0.17.1
+docutils==0.18
     # via sphinx
 drf-dynamic-fields==0.3.1
     # via -r requirements/base.in
 drf-extensions==0.7.1
     # via -r requirements/base.in
-drf-jwt==1.19.0
-    # via
-    #   -c requirements/common_constraints.txt
-    #   edx-drf-extensions
+drf-jwt==1.19.1
+    # via edx-drf-extensions
 drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
@@ -243,7 +251,7 @@ edx-analytics-data-api-client==0.17.0
     # via -r requirements/base.in
 edx-api-doc-tools==1.5.0
     # via -r requirements/base.in
-edx-auth-backends==4.0.0
+edx-auth-backends==4.0.1
     # via -r requirements/base.in
 edx-ccx-keys==1.2.1
     # via -r requirements/base.in
@@ -257,7 +265,7 @@ edx-django-utils==4.4.0
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   taxonomy-connector
-edx-drf-extensions==8.0.0
+edx-drf-extensions==8.0.1
     # via -r requirements/base.in
 edx-i18n-tools==0.8.1
     # via -r requirements/local.in
@@ -291,11 +299,11 @@ elasticsearch-dsl==7.4.0
     #   django-elasticsearch-dsl-drf
 execnet==1.9.0
     # via pytest-xdist
-factory-boy==3.2.0
+factory-boy==3.2.1
     # via -r requirements/test.in
-faker==9.3.1
+faker==9.8.0
     # via factory-boy
-filelock==3.3.0
+filelock==3.3.2
     # via
     #   tox
     #   virtualenv
@@ -303,10 +311,15 @@ freezegun==1.1.0
     # via -r requirements/test.in
 future==0.18.2
     # via pyjwkest
+h11==0.12.0
+    # via wsproto
 html2text==2020.1.16
     # via -r requirements/base.in
-idna==3.2
-    # via requests
+idna==3.3
+    # via
+    #   requests
+    #   trio
+    #   urllib3
 imagesize==1.2.0
     # via sphinx
 importlib-metadata==4.8.1
@@ -315,7 +328,7 @@ inflection==0.5.1
     # via drf-yasg
 iniconfig==1.1.1
     # via pytest
-isort==5.9.3
+isort==5.10.0
     # via
     #   -r requirements/test.in
     #   pylint
@@ -335,7 +348,7 @@ lazy-object-proxy==1.6.0
     # via astroid
 libsass==0.21.0
     # via django-libsass
-lxml==4.6.3
+lxml==4.6.4
     # via -r requirements/base.in
 markdown==3.3.4
     # via -r requirements/base.in
@@ -347,13 +360,15 @@ mock==4.0.3
     # via -r requirements/test.in
 mysqlclient==2.0.3
     # via -r requirements/test.in
-newrelic==7.0.0.166
+newrelic==7.2.3.170
     # via edx-django-utils
 oauthlib==3.1.1
     # via
     #   requests-oauthlib
     #   social-auth-core
-packaging==21.0
+outcome==1.1.0
+    # via trio
+packaging==21.2
     # via
     #   drf-yasg
     #   pytest
@@ -363,9 +378,9 @@ paramiko==2.8.0
     # via docker
 path==16.2.0
     # via edx-i18n-tools
-pbr==5.6.0
+pbr==5.7.0
     # via stevedore
-pillow==8.3.2
+pillow==8.4.0
     # via
     #   -r requirements/base.in
     #   django-stdimage
@@ -379,7 +394,7 @@ polib==1.1.1
     # via edx-i18n-tools
 psutil==5.8.0
     # via edx-django-utils
-py==1.10.0
+py==1.11.0
     # via
     #   pytest
     #   pytest-forked
@@ -388,7 +403,7 @@ pycodestyle==2.8.0
     # via -r requirements/test.in
 pycountry==20.7.3
     # via -r requirements/base.in
-pycparser==2.20
+pycparser==2.21
     # via cffi
 pycryptodomex==3.11.0
     # via pyjwkest
@@ -418,10 +433,12 @@ pylint-plugin-utils==0.6
     # via
     #   pylint-celery
     #   pylint-django
-pymongo==3.12.0
+pymongo==3.12.1
     # via edx-opaque-keys
 pynacl==1.4.0
     # via paramiko
+pyopenssl==21.0.0
+    # via urllib3
 pyparsing==2.4.7
     # via packaging
 pyrsistent==0.18.0
@@ -494,17 +511,17 @@ requests==2.26.0
     #   sphinx
 requests-oauthlib==1.3.0
     # via social-auth-core
-responses==0.14.0
+responses==0.15.0
     # via
     #   -r requirements/test.in
     #   pytest-responses
 rjsmin==1.1.0
     # via django-compressor
-ruamel.yaml==0.17.16
+ruamel.yaml==0.17.17
     # via drf-yasg
 ruamel.yaml.clib==0.2.6
     # via ruamel.yaml
-selenium==3.141.0
+selenium==4.0.0
     # via -r requirements/test.in
 semantic-version==2.8.5
     # via edx-drf-extensions
@@ -531,6 +548,7 @@ six==1.16.0
     #   libsass
     #   pyjwkest
     #   pynacl
+    #   pyopenssl
     #   python-dateutil
     #   python-memcached
     #   responses
@@ -541,6 +559,8 @@ six==1.16.0
     #   websocket-client
 slumber==0.7.1
     # via edx-rest-api-client
+sniffio==1.2.0
+    # via trio
 snowballstemmer==2.1.0
     # via sphinx
 social-auth-app-django==5.0.0
@@ -551,7 +571,9 @@ social-auth-core==4.1.0
     # via
     #   edx-auth-backends
     #   social-auth-app-django
-soupsieve==2.2.1
+sortedcontainers==2.4.0
+    # via trio
+soupsieve==2.3
     # via beautifulsoup4
 sphinx==2.4.4
     # via
@@ -574,7 +596,7 @@ sqlparse==0.4.2
     # via
     #   django
     #   django-debug-toolbar
-stevedore==3.4.0
+stevedore==3.5.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
@@ -591,7 +613,7 @@ toml==0.10.2
     #   pylint
     #   pytest
     #   tox
-tomli==1.2.1
+tomli==1.2.2
     # via coverage
 tox==3.24.4
     # via -r requirements/test.in
@@ -599,17 +621,23 @@ transifex-client==0.12.5
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/local.in
-unicode-slugify==0.1.3
+trio==0.19.0
+    # via
+    #   selenium
+    #   trio-websocket
+trio-websocket==0.9.2
+    # via selenium
+unicode-slugify==0.1.5
     # via -r requirements/base.in
 unicodecsv==0.14.1
     # via djangorestframework-csv
 unidecode==1.3.2
     # via unicode-slugify
-uritemplate==4.0.0
+uritemplate==4.1.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.7
+urllib3[secure]==1.26.7
     # via
     #   elasticsearch
     #   requests
@@ -620,7 +648,7 @@ vine==1.3.0
     # via
     #   amqp
     #   celery
-virtualenv==20.8.1
+virtualenv==20.10.0
     # via tox
 websocket-client==0.59.0
     # via
@@ -628,6 +656,8 @@ websocket-client==0.59.0
     #   docker-compose
 wrapt==1.12.1
     # via astroid
+wsproto==1.0.0
+    # via trio-websocket
 xss-utils==0.3.0
     # via -r requirements/base.in
 zipp==3.6.0

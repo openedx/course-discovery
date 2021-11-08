@@ -16,7 +16,7 @@ charset-normalizer==2.0.7
     # via requests
 django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
     # via -r requirements/github.in
-docutils==0.17.1
+docutils==0.18
     # via sphinx
 edx-sphinx-theme==3.0.0
     # via -r requirements/docs.in
@@ -29,7 +29,7 @@ elasticsearch-dsl==7.4.0
     # via
     #   -c requirements/constraints.txt
     #   django-elasticsearch-dsl
-idna==3.2
+idna==3.3
     # via requests
 imagesize==1.2.0
     # via sphinx
@@ -37,7 +37,7 @@ jinja2==3.0.2
     # via sphinx
 markupsafe==2.0.1
     # via jinja2
-packaging==21.0
+packaging==21.2
     # via sphinx
 pygments==2.10.0
     # via sphinx
