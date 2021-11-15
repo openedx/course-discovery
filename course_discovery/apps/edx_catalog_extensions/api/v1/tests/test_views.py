@@ -26,7 +26,6 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.edx_catalog_extensions.api.v1.views import (
     DistinctCountsAggregateSearchViewSet, ProgramFixtureView
 )
-from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 
 class DistinctCountsAggregateSearchViewSetTests(SerializationMixin, LoginMixin,
@@ -356,7 +355,6 @@ class ProgramFixtureViewTests(APITestCase):
             LevelType: (5, 15),
             LevelTypeTranslation: (1, 100),
             Video: (20, 60),
-            LanguageTag: (10, 30),
         }
 
         actual_appearances_by_model_label = defaultdict(set)
