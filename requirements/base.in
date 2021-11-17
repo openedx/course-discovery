@@ -30,7 +30,7 @@ djangorestframework-csv
 djangorestframework-xml
 django-elasticsearch-dsl-drf
 django-object-actions
-drf-dynamic-fields
+drf-flex-fields
 drf-extensions
 dry-rest-permissions
 edx-api-doc-tools
