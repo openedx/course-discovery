@@ -82,6 +82,7 @@ PROJECT_APPS = [
     'course_discovery.apps.edx_elasticsearch_dsl_extensions',
     'course_discovery.apps.publisher',
     'course_discovery.apps.publisher_comments',
+    'course_discovery.apps.learner_pathway',
 ]
 
 ES_APPS = [
