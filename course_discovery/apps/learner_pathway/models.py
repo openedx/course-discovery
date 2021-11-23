@@ -7,6 +7,7 @@ from uuid import uuid4
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+
 class AbstractModelMeta(ABCMeta, type(models.Model)):
     pass
 
@@ -55,18 +56,16 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
 class LearnerPathwayStep(models.Model):
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
 
-
     def get_nodes(self):
         return LearnerPathwayNode.get_nodes(self)
 
     def get_node(self, uuid):
-        return LearnerPathwayNode.get_node(self,uuid)
+        return LearnerPathwayNode.get_node(uuid)
 
-    def remove_node(self,uuid):
+    def remove_node(self, uuid):
         node = self.get_node(uuid)
         if node:
             node.delete()
-
 
     def get_estimated_time_of_completion(self):
         return sum([node.get_estimated_time_of_completion() for node in self.get_nodes()])
@@ -76,5 +75,3 @@ class LearnerPathwayStep(models.Model):
         for node in self.get_nodes():
             skills.update(node.get_skills())
         return list(skills)
-
-
