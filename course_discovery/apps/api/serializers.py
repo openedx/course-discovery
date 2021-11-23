@@ -1549,7 +1549,7 @@ class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
             'uuid', 'title', 'subtitle', 'type', 'type_attrs', 'status', 'marketing_slug', 'marketing_url',
             'banner_image', 'hidden', 'courses', 'authoring_organizations', 'card_image_url',
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
-            'total_hours_of_effort',
+            'total_hours_of_effort', 'recent_enrollment_count',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
@@ -1709,7 +1709,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
-            'enrollment_count', 'recent_enrollment_count', 'topics', 'credit_value',
+            'enrollment_count', 'topics', 'credit_value',
         )
 
 

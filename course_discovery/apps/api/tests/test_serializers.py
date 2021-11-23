@@ -1040,6 +1040,7 @@ class MinimalProgramSerializerTests(TestCase):
             'curricula': [],
             'marketing_hook': program.marketing_hook,
             'total_hours_of_effort': program.total_hours_of_effort,
+            'recent_enrollment_count': 0,
         }
 
     def test_data(self):
