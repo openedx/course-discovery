@@ -1,11 +1,12 @@
 """ Tests for core models. """
 import ddt
+from pytest import mark
 from django.test import TestCase
 
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
 
-
+@mark.django_db
 class UserTests(TestCase):
     """ User model tests. """
 
