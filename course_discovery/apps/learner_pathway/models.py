@@ -6,6 +6,10 @@ from uuid import uuid4
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from taxonomy.utils import get_whitelisted_serialized_skills
+
+from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 
 
 class AbstractModelMeta(ABCMeta, type(models.Model)):
@@ -80,3 +84,27 @@ class LearnerPathwayStep(models.Model):
                     skills_aggregated.append(skill)
                     already_added_skills.add(skill['name'])
         return skills_aggregated
+
+
+class LearnerPathwayCourse(LearnerPathwayNode):
+
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='learner_pathway_courses')
+
+    def get_estimated_time_of_completion(self) -> str:
+        """
+        Returns the average estimated work hours to complete the course run.
+        """
+        active_course_runs = self.course.active_course_runs
+        if self.course.advertised_course_run:
+            advertised_course_run_uuid = self.course.advertised_course_run.uuid
+            for course_run in active_course_runs:
+                if course_run.uuid == advertised_course_run_uuid:
+                    return get_course_run_estimated_hours(course_run)
+
+        return None
+
+    def get_skills(self) -> [str]:
+        """
+        Return list of dicts where each dict contain skill name and skill description.
+        """
+        return get_whitelisted_serialized_skills(self.course.key)
