@@ -1,5 +1,11 @@
+import json
 import warnings
 from os import environ
+from os.path import (
+    dirname,
+    abspath,
+    join as path_join
+)
 
 import certifi
 import MySQLdb
@@ -47,6 +53,17 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
 
 if 'EXTRA_APPS' in locals():
     INSTALLED_APPS += EXTRA_APPS
+
+
+############################## SECURE AUTH ITEMS ###############
+# Secret things: passwords, access keys, etc.
+PROJECT_ROOT = dirname(dirname(dirname(abspath(__file__))))
+
+with open(path_join(PROJECT_ROOT, r'discovery.auth.json')) as auth_file:
+    AUTH_TOKENS = json.load(auth_file)
+
+DATABASES = AUTH_TOKENS.get('DATABASES', {})
+
 
 DB_OVERRIDES = dict(
     PASSWORD=environ.get('DB_MIGRATION_PASS', DATABASES['default']['PASSWORD']),
