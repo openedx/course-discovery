@@ -16,6 +16,7 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
     """
     Abstract model for learner pathway related models.
     """
+    step = models.ForeignKey('LearnerPathwayStep', on_delete=models.CASCADE)
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
 
     class Meta:
@@ -32,3 +33,50 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
         """
         Subclasses must implement this method to calculate and return the list of aggregated skills.
         """
+    @classmethod
+    def get_nodes(cls, step):
+        nodes = []
+        for node_class in cls.get_subclasses():
+            nodes += node_class.objects.filter(step=step).all()
+        return nodes
+
+    @classmethod
+    def get_subclasses(cls):
+        return cls.__subclasses__()
+
+    @classmethod
+    def get_node(cls, uuid):
+        for node_class in cls.get_subclasses():
+            node = node_class.objects.filter(uuid=uuid).first()
+            if node:
+                return node
+        return None
+
+
+class LearnerPathwayStep(models.Model):
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
+
+    def get_nodes(self):
+        return LearnerPathwayNode.get_nodes(self)
+
+    def get_node(self, uuid):
+        return LearnerPathwayNode.get_node(uuid)
+
+    def remove_node(self, uuid):
+        node = self.get_node(uuid)
+        if node:
+            node.delete()
+
+    def get_estimated_time_of_completion(self):
+        return sum([node.get_estimated_time_of_completion() for node in self.get_nodes()])
+
+    def get_skills(self):
+        already_added_skills = set()
+        skills_aggregated = []
+        for node in self.get_nodes():
+            skills = node.get_skills()
+            for skill in skills:
+                if skill['name'] not in already_added_skills:
+                    skills_aggregated.append(skill)
+                    already_added_skills.add(skill['name'])
+        return skills_aggregated
