@@ -2,12 +2,16 @@ import datetime
 import itertools
 import logging
 from collections import defaultdict
-from urllib.parse import urljoin
+try:
+    from urllib.parse import urljoin
+except:
+    from urlparse import urljoin
 from uuid import uuid4
 
 import pytz
 import waffle
 from django.core.exceptions import ValidationError
+from django.conf import settings
 from django.db import models, transaction
 from django.db.models.query_utils import Q
 from django.utils.functional import cached_property
@@ -449,6 +453,30 @@ class Course(TimeStampedModel):
             ))
 
         return cls.objects.filter(pk__in=ids)
+
+
+class LanguageField(models.CharField):
+    """Represents a language from the ISO 639-2 language set."""
+
+    def __init__(self, *args, **kwargs):
+        """Creates a LanguageField.
+
+        Accepts all the same kwargs as a CharField, except for max_length and
+        choices. help_text defaults to a description of the ISO 639-2 set.
+        """
+        kwargs.pop('max_length', None)
+        kwargs.pop('choices', None)
+        help_text = kwargs.pop(
+            'help_text',
+            _("The ISO 639-2 language code for this language."),
+        )
+        super(LanguageField, self).__init__(
+            max_length=16,
+            choices=settings.ALL_LANGUAGES,
+            help_text=help_text,
+            *args,
+            **kwargs
+        )
 
 
 class CourseRun(TimeStampedModel):
@@ -930,6 +958,14 @@ class ProgramType(TimeStampedModel):
 
 
 class Program(TimeStampedModel):
+    CARD_IMAGES_STORAGE_FOLDER = 'media/programs/card_images'
+    CARD_IMAGE_VARIATIONS = {
+        'large': (1440, 480),
+        'medium': (726, 242),
+        'small': (435, 145),
+        'x-small': (348, 116),
+    }
+
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
         help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
@@ -944,7 +980,7 @@ class Program(TimeStampedModel):
         help_text=_('Slug used to generate links to the marketing site'), unique=True, max_length=255, db_index=True)
     courses = SortedManyToManyField(Course, related_name='programs')
     order_courses_by_start_date = models.BooleanField(
-        default=True, verbose_name='Order Courses By Start Date',
+        default=False, verbose_name='Order Courses By Start Date',
         help_text=_('If this box is not checked, courses will be ordered as in the courses select box above.')
     )
     # NOTE (CCB): Editors of this field should validate the values to ensure only CourseRuns associated
@@ -977,7 +1013,7 @@ class Program(TimeStampedModel):
         render_variations=custom_render_variations
     )
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
-    card_image_url = models.URLField(null=True, blank=True, help_text=_('Image used for discovery cards'))
+    card_image_url = models.CharField(null=True, blank=True, max_length=256)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)
@@ -1006,6 +1042,20 @@ class Program(TimeStampedModel):
     hidden = models.BooleanField(
         default=False, db_index=True,
         help_text=_('Hide program on marketing site landing and search pages. This program MAY have a detail page.'))
+    description = models.TextField(
+        default=None, null=True, blank=True,
+        help_text=_(
+            "Description specific for this program. It would be displayed on the Program's details page."))
+    duration = models.IntegerField(null=False, blank=False, default=0, help_text=_('Time spend of program'))
+    language = LanguageField(default='en', null=True, blank=True, db_index=True)
+    creator_id = models.IntegerField(
+        null=True, blank=False,
+        help_text=_('Program Creator(user) id')
+    )
+    released_date = models.DateTimeField(
+        null=True, blank=True,
+        help_text=_('Program Released(published) date')
+    )
 
     objects = ProgramQuerySet.as_manager()
 
@@ -1021,7 +1071,7 @@ class Program(TimeStampedModel):
         and all its courses must contain only one course run and the remaining
         not excluded course run must contain a purchasable seat.
         """
-        if not self.one_click_purchase_enabled:
+        if not self.one_click_purchase_enabled or not self.type:
             return False
 
         excluded_course_runs = set(self.excluded_course_runs.all())
@@ -1059,7 +1109,8 @@ class Program(TimeStampedModel):
     @property
     def marketing_url(self):
         if self.marketing_slug:
-            path = '{type}/{slug}'.format(type=self.type.slug.lower(), slug=self.marketing_slug)
+            type_node = 'empty_type' if not self.type else self.type.slug.lower()
+            path = '{type}/{slug}'.format(type=type_node, slug=self.marketing_slug)
             return urljoin(self.partner.marketing_site_url_root, path)
 
         return None
@@ -1239,13 +1290,63 @@ class Program(TimeStampedModel):
     @property
     def start(self):
         """ Start datetime, calculated by determining the earliest start datetime of all related course runs. """
-        if self.course_runs:
-            start_dates = [course_run.start for course_run in self.course_runs if course_run.start]
+        if not self.course_runs:
+            return None
 
-            if start_dates:
-                return min(start_dates)
+        min_start = None
 
-        return None
+        for course_run in self.course_runs:
+            if not min_start:
+                min_start = course_run.start
+            elif course_run.start and course_run.start < min_start:
+                min_start = course_run.start
+
+        return min_start
+
+    @property
+    def end(self):
+        if not self.course_runs:
+            return None
+
+        max_end = None
+
+        for course_run in self.course_runs:
+            if not max_end:
+                max_end = course_run.end
+            elif course_run.end and course_run.end > max_end:
+                max_end = course_run.end
+
+        return max_end
+
+    @property
+    def enrollment_start(self):
+        if not self.course_runs:
+            return None
+
+        min_start = None
+
+        for course_run in self.course_runs:
+            if not min_start:
+                min_start = course_run.enrollment_start
+            elif course_run.enrollment_start and course_run.enrollment_start < min_start:
+                min_start = course_run.enrollment_start
+
+        return min_start
+
+    @property
+    def enrollment_end(self):
+        if not self.course_runs:
+            return None
+
+        max_end = None
+
+        for course_run in self.course_runs:
+            if not max_end:
+                max_end = course_run.enrollment_end
+            elif course_run.enrollment_end and course_run.enrollment_end > max_end:
+                max_end = course_run.enrollment_end
+
+        return max_end
 
     @property
     def staff(self):

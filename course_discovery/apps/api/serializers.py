@@ -1,12 +1,17 @@
 # pylint: disable=abstract-method,no-member
 import datetime
 import json
+from os import remove as remove_file
+from os import rename as rename_file
+from os.path import join as path_join
 from urllib.parse import urlencode
 
 import pytz
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Case
+from django.db.models import When
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
@@ -18,6 +23,7 @@ from taggit_serializer.serializers import TaggitSerializer, TagListSerializerFie
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.catalogs.models import Catalog
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
+from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata import search_indexes
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
@@ -726,44 +732,79 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
 
 
 class MinimalProgramSerializer(serializers.ModelSerializer):
-    authoring_organizations = MinimalOrganizationSerializer(many=True)
-    banner_image = StdImageSerializerField()
+    authoring_organizations = MinimalOrganizationSerializer(read_only=True, many=True)
     courses = serializers.SerializerMethodField()
-    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all())
+    type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all(), required=False)
+    partner = serializers.SlugRelatedField(slug_field='name', queryset=Partner.objects.all())
 
     @classmethod
-    def prefetch_queryset(cls, partner):
-        return Program.objects.filter(partner=partner).select_related('type', 'partner').prefetch_related(
+    def prefetch_queryset(cls, partner, *args, **kwargs):
+        filters = {'partner': partner}      # A Program must be related with a Partner.
+        program_uuid = kwargs.get('program_uuid')
+        if program_uuid:                    # Filter a Program with primary Key
+            filters['uuid'] = program_uuid
+
+        return Program.objects.filter(**filters).select_related('type', 'partner').prefetch_related(
             'excluded_course_runs',
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
             # `ProgramType` on `Program`.
             'type__applicable_seat_types',
             'authoring_organizations',
-            Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
+            Prefetch(
+                'courses',
+                queryset=MinimalProgramCourseSerializer.prefetch_queryset()
+            ),
         )
 
     class Meta:
         model = Program
         fields = (
-            'uuid', 'title', 'subtitle', 'type', 'status', 'marketing_slug', 'marketing_url', 'banner_image', 'hidden',
-            'courses', 'authoring_organizations', 'card_image_url', 'is_program_eligible_for_one_click_purchase',
+            'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'hidden',
+            'authoring_organizations',
+            'courses', 'card_image_url', 'is_program_eligible_for_one_click_purchase', 'duration', 'language',
+            'start', 'end', 'enrollment_start', 'enrollment_end'
         )
-        read_only_fields = ('uuid', 'marketing_url', 'banner_image')
+        read_only_fields = ('uuid', 'marketing_url', 'enrollment_start', 'enrollment_end')
 
     def get_courses(self, program):
-        course_runs = list(program.course_runs)
+        draft_program_courses_uuids = self.context.get('draft_program_courses_uuids')
 
-        if self.context.get('marketable_enrollable_course_runs_with_archived'):
-            marketable_enrollable_course_runs = set()
-            for course in program.courses.all():
-                marketable_enrollable_course_runs.update(course.course_runs.marketable().enrollable())
-            course_runs = list(set(course_runs).intersection(marketable_enrollable_course_runs))
+        if draft_program_courses_uuids is not None:
+            query_by_title = self.context.get('query_by_title')
+            # For: Draft Program detail query with ORDER of UUIDs vector
+            preserved = Case(
+                *[When(uuid=pk, then=pos)
+                  for pos, pk in enumerate(draft_program_courses_uuids)]
+            )
+            filters = {
+                'uuid__in': draft_program_courses_uuids,  # UUIDs list of `Draft` Program in MongoDB.
+            }
+            if query_by_title:
+                filters['title__icontains'] = query_by_title
 
-        if program.order_courses_by_start_date:
-            courses = self.sort_courses(program, course_runs)
+            courses = Course.objects.filter(
+                **filters
+            ).order_by(preserved)
+            course_runs = [
+                run
+                for course in courses.all()
+                for run in course.course_runs.all()
+            ]
         else:
-            courses = program.courses.all()
+            # For: Prod. Program detail query
+            course_runs = list(program.course_runs)
+
+            if self.context.get('marketable_enrollable_course_runs_with_archived'):
+                marketable_enrollable_course_runs = set()
+                for course in program.courses.all():
+                    marketable_enrollable_course_runs.update(course.course_runs.marketable().enrollable())
+                course_runs = list(set(course_runs).intersection(marketable_enrollable_course_runs))
+
+            if program.order_courses_by_start_date:
+                courses = self.sort_courses(program, course_runs)
+            else:
+                courses = program.courses.all()
 
         course_serializer = MinimalProgramCourseSerializer(
             courses,
@@ -836,14 +877,13 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
 
 class ProgramSerializer(MinimalProgramSerializer):
-    authoring_organizations = OrganizationSerializer(many=True)
-    video = VideoSerializer()
+    video = VideoSerializer(read_only=True)
     expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    faq = FAQSerializer(many=True)
-    credit_backing_organizations = OrganizationSerializer(many=True)
-    corporate_endorsements = CorporateEndorsementSerializer(many=True)
+    faq = FAQSerializer(many=True, read_only=True)
+    credit_backing_organizations = OrganizationSerializer(many=True, read_only=True)
+    corporate_endorsements = CorporateEndorsementSerializer(many=True, read_only=True)
     job_outlook_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
-    individual_endorsements = EndorsementSerializer(many=True)
+    individual_endorsements = EndorsementSerializer(many=True, read_only=True)
     languages = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field='code',
         help_text=_('Languages that course runs in this program are offered in.'),
@@ -852,13 +892,13 @@ class ProgramSerializer(MinimalProgramSerializer):
         many=True, read_only=True, slug_field='code',
         help_text=_('Languages that course runs in this program have available transcripts in.'),
     )
-    subjects = SubjectSerializer(many=True)
-    staff = PersonSerializer(many=True)
-    instructor_ordering = PersonSerializer(many=True)
-    applicable_seat_types = serializers.SerializerMethodField()
+    subjects = SubjectSerializer(many=True, read_only=True)
+    staff = PersonSerializer(many=True, read_only=True)
+    instructor_ordering = PersonSerializer(many=True, read_only=True)
+    applicable_seat_types = serializers.SerializerMethodField(read_only=True)
 
     @classmethod
-    def prefetch_queryset(cls, partner):
+    def prefetch_queryset(cls, partner, *args, **kwargs):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
@@ -886,6 +926,9 @@ class ProgramSerializer(MinimalProgramSerializer):
         )
 
     def get_applicable_seat_types(self, obj):
+        if not obj.type:
+            return []
+
         return list(obj.type.applicable_seat_types.values_list('slug', flat=True))
 
     class Meta(MinimalProgramSerializer.Meta):
@@ -895,7 +938,8 @@ class ProgramSerializer(MinimalProgramSerializer):
             'min_hours_effort_per_week', 'max_hours_effort_per_week', 'video', 'expected_learning_items',
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
-            'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering'
+            'staff', 'credit_redemption_overview', 'instructor_ordering', 'applicable_seat_types',
+            'description', 'duration', 'language', 'modified', 'creator_id', 'released_date'
         )
 
 

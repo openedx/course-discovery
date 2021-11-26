@@ -77,6 +77,10 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
                 partner=partner
             )
 
+        s_title = self.request.query_params.get('title')
+        if s_title:
+            queryset = queryset.filter(title__icontains=s_title)
+
         return queryset.order_by(Lower('key'))
 
     def get_serializer_context(self, *args, **kwargs):

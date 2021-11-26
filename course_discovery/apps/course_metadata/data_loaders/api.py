@@ -237,6 +237,9 @@ class CoursesApiDataLoader(AbstractDataLoader):
             'title': body['name'],
         }
 
+        if not self.partner.has_marketing_site:
+            defaults['card_image_url'] = body['media'].get('image', {}).get('raw')
+
         return defaults
 
     def get_pacing_type(self, body):
