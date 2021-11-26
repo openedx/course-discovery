@@ -77,6 +77,6 @@ class LearnerPathwayStep(models.Model):
             skills = node.get_skills()
             for skill in skills:
                 if skill['name'] not in already_added_skills:
-                    skills_aggregated.push(skill)
+                    skills_aggregated.append(skill)
                     already_added_skills.add(skill['name'])
         return skills_aggregated
