@@ -71,7 +71,12 @@ class LearnerPathwayStep(models.Model):
         return sum([node.get_estimated_time_of_completion() for node in self.get_nodes()])
 
     def get_skills(self):
-        skills = set()
+        already_added_skills = set()
+        skills_aggregated = []
         for node in self.get_nodes():
-            skills.update(node.get_skills())
-        return list(skills)
+            skills = node.get_skills()
+            for skill in skills:
+                if skill['name'] not in already_added_skills:
+                    skills_aggregated.push(skill)
+                    already_added_skills.add(skill['name'])
+        return skills_aggregated
