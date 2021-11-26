@@ -37,6 +37,7 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
         """
         Subclasses must implement this method to calculate and return the list of aggregated skills.
         """
+
     @classmethod
     def get_nodes(cls, step):
         nodes = []
@@ -57,8 +58,43 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
         return None
 
 
+class LearnerPathway(models.Model, metaclass=AbstractModelMeta):
+    """
+    Top level model for learner pathway.
+    """
+    uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
+    name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Pathway name'))
+
+    @property
+    def time_of_completion(self) -> float:
+        """
+        Return the aggregated time to completion.
+        """
+        completion_time = 0.0
+        for step in self.steps.all():
+            completion_time += step.get_estimated_time_of_completion()
+        return completion_time
+
+    @property
+    def skills(self) -> [str]:
+        """
+        Return the list of aggregated skills.
+        """
+        skills = []
+        for step in self.steps.all():
+            step_skills = step.get_skills()
+            for step_skill in step_skills:
+                if step_skill not in skills:
+                    skills.append(step_skill)
+        return skills
+
+    def __str__(self):
+        return str(self.name) + str(self.uuid)
+
+
 class LearnerPathwayStep(models.Model):
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
+    pathway = models.ForeignKey(LearnerPathway, related_name='steps', on_delete=models.CASCADE)
 
     def get_nodes(self):
         return LearnerPathwayNode.get_nodes(self)
