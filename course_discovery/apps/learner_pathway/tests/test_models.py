@@ -1,9 +1,7 @@
-import datetime
 from unittest import mock
 
 import ddt
 import pytest
-import pytz
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
@@ -13,6 +11,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.learner_pathway.models import LearnerPathwayCourse, LearnerPathwayProgram
 from course_discovery.apps.learner_pathway.tests import factories
+from course_discovery.apps.learner_pathway.tests.utils import generate_course
 
 
 @pytest.mark.django_db
@@ -59,22 +58,7 @@ class LearnerPathwayCourseTests(TestCase):
 
     def setUp(self):
         super().setUp()
-        self.course = CourseFactory()
-
-        TWO_WEEKS_FROM_TODAY = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=14)
-        YESTERDAY = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
-        self.advertised_course_run = CourseRunFactory(
-            start=YESTERDAY,
-            end=TWO_WEEKS_FROM_TODAY,
-            status=CourseRunStatus.Published,
-            min_effort=5,
-            max_effort=8,
-            weeks_to_complete=8,
-            course=self.course,
-            enrollment_start=None,
-            enrollment_end=None,
-        )
-        SeatFactory(course_run=self.advertised_course_run)
+        self.course, self.advertised_course_run = generate_course()
         self.step = factories.LearnerPathwayStepFactory()
 
     def test_get_estimated_time_of_completion(self):
@@ -156,3 +140,45 @@ class LearnerPathwayProgramTests(TestCase):
         ):
             program_skills = self.learner_pathway_program.get_skills()
             assert program_skills == expected_skills + expected_skills
+class LearnerPathwayStepTests(TestCase):
+    """ Tests for the LearnerPathwayStep Model """
+
+    def setUp(self):
+        super().setUp()
+        self.course, _ = generate_course()
+        self.step = factories.LearnerPathwayStepFactory()
+        self.learner_pathway_course = LearnerPathwayCourse.objects.create(course=self.course, step=self.step)
+
+    def test_get_estimated_time_of_completion(self):
+        """ Verify that `LearnerPathwayStep.get_estimated_time_of_completion` method is working as expected """
+
+        estimated_time_of_completion = self.learner_pathway_course.get_estimated_time_of_completion()
+        print(estimated_time_of_completion)
+        assert estimated_time_of_completion == self.step.get_estimated_time_of_completion()
+
+    def test_get_nodes(self):
+        """ Verify that `LearnerPathwayStep.get_nodes` method is returning all associated nodes """
+        assert self.step.get_nodes() == [self.learner_pathway_course]
+
+    def test_get_node(self):
+        """ Verify that `LearnerPathwayStep.get_node` method is returning expected object """
+
+        assert self.step.get_node(self.learner_pathway_course.uuid) == self.learner_pathway_course
+
+    def test_get_skills(self):
+        """ Verify that `LearnerPathwayStep.get_skills` method is aggregating skills as expected """
+
+        expected_skills = [{'name': 'skill name 1', 'description': 'skill description 1'}]
+        with mock.patch(
+            'course_discovery.apps.learner_pathway.models.get_whitelisted_serialized_skills',
+            return_value=expected_skills
+        ):
+            skills = self.step.get_skills()
+            assert skills == expected_skills
+
+    def test_remove_node(self):
+        """ verify that `LearnerPathwayStep.remove_node` is correctly deleting object from database """
+
+        uuid = self.learner_pathway_course.uuid
+        self.step.remove_node(self.learner_pathway_course.uuid)
+        assert not LearnerPathwayCourse.objects.filter(uuid=uuid).exists()
