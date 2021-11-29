@@ -8,8 +8,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from taxonomy.utils import get_whitelisted_serialized_skills
 
-from course_discovery.apps.course_metadata.models import Course
-from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
+from course_discovery.apps.course_metadata.models import Course, Program
+from course_discovery.apps.learner_pathway.utils import get_advertised_course_run_estimated_hours
 
 
 class AbstractModelMeta(ABCMeta, type(models.Model)):
@@ -130,17 +130,35 @@ class LearnerPathwayCourse(LearnerPathwayNode):
         """
         Returns the average estimated work hours to complete the course run.
         """
-        active_course_runs = self.course.active_course_runs
-        if self.course.advertised_course_run:
-            advertised_course_run_uuid = self.course.advertised_course_run.uuid
-            for course_run in active_course_runs:
-                if course_run.uuid == advertised_course_run_uuid:
-                    return get_course_run_estimated_hours(course_run)
-
-        return None
+        return get_advertised_course_run_estimated_hours(self.course)
 
     def get_skills(self) -> [str]:
         """
         Return list of dicts where each dict contain skill name and skill description.
         """
         return get_whitelisted_serialized_skills(self.course.key)
+
+
+class LearnerPathwayProgram(LearnerPathwayNode):
+
+    program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='learner_pathway_programs')
+
+    def get_estimated_time_of_completion(self) -> str:
+        """
+        Returns the sum of estimated work hours to complete the course run for all program courses.
+        """
+        program_estimated_time_of_completion = 0
+        for program_course in self.program.courses.all():
+            program_estimated_time_of_completion += get_advertised_course_run_estimated_hours(program_course) or 0
+
+        return program_estimated_time_of_completion
+
+    def get_skills(self) -> [str]:
+        """
+        Return list of dicts where each dict contain skill name and skill description.
+        """
+        program_skills = []
+        for program_course in self.program.courses.all():
+            program_skills += get_whitelisted_serialized_skills(program_course.key)
+
+        return program_skills
