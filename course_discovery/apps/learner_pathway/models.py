@@ -58,7 +58,7 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
         return None
 
 
-class LearnerPathway(models.Model, metaclass=AbstractModelMeta):
+class LearnerPathway(models.Model):
     """
     Top level model for learner pathway.
     """
@@ -89,7 +89,16 @@ class LearnerPathway(models.Model, metaclass=AbstractModelMeta):
         return skills
 
     def __str__(self):
-        return str(self.name) + str(self.uuid)
+        """
+        Create a human-readable string representation of the object.
+        """
+        return f'{self.name} - {self.uuid}'
+
+    def __repr__(self):
+        """
+        Return string representation.
+        """
+        return f'<LearnerPathway name="{self.name}" uuid="{self.uuid}">'
 
 
 class LearnerPathwayStep(models.Model):
@@ -121,6 +130,18 @@ class LearnerPathwayStep(models.Model):
                     already_added_skills.add(skill['name'])
         return skills_aggregated
 
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return f'UUID: {self.uuid}, Pathway: {self.pathway.name}'
+
+    def __repr__(self):
+        """
+        Return string representation.
+        """
+        return f'<LearnerPathwayStep pathway="{self.pathway.uuid}" uuid="{self.uuid}">'
+
 
 class LearnerPathwayCourse(LearnerPathwayNode):
 
@@ -137,6 +158,18 @@ class LearnerPathwayCourse(LearnerPathwayNode):
         Return list of dicts where each dict contain skill name and skill description.
         """
         return get_whitelisted_serialized_skills(self.course.key)
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return f'UUID: {self.uuid}, Course: {self.course.title}'
+
+    def __repr__(self):
+        """
+        Return string representation.
+        """
+        return f'<LearnerPathwayCourse course="{self.course.key}" uuid="{self.uuid}">'
 
 
 class LearnerPathwayProgram(LearnerPathwayNode):
@@ -162,3 +195,15 @@ class LearnerPathwayProgram(LearnerPathwayNode):
             program_skills += get_whitelisted_serialized_skills(program_course.key)
 
         return program_skills
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return f'UUID: {self.uuid}, Program: {self.program.title}'
+
+    def __repr__(self):
+        """
+        Return string representation.
+        """
+        return f'<LearnerPathwayProgram program="{self.program.uuid}" uuid="{self.uuid}">'
