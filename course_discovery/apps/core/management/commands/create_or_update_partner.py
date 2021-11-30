@@ -43,6 +43,18 @@ class Command(BaseCommand):
                             type=str,
                             default='',
                             help='API endpoint for accessing Partner course data.')
+        parser.add_argument('--studio-url',
+                            action='store',
+                            dest='studio_url',
+                            type=str,
+                            default='',
+                            help='API endpoint for accessing Partner Studio.')
+        parser.add_argument('--lms-url',
+                            action='store',
+                            dest='lms_url',
+                            type=str,
+                            default='',
+                            help='API endpoint for accessing Partner LMS.')
         parser.add_argument('--ecommerce-api-url',
                             action='store',
                             dest='ecommerce_api_url',
@@ -126,6 +138,8 @@ class Command(BaseCommand):
                 'site': site,
                 'name': partner_name,
                 'courses_api_url': options.get('courses_api_url'),
+                'studio_url': options.get('studio_url'),
+                'lms_url': options.get('lms_url'),
                 'ecommerce_api_url': options.get('ecommerce_api_url'),
                 'organizations_api_url': options.get('organizations_api_url'),
                 'programs_api_url': options.get('programs_api_url'),
