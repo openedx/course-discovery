@@ -4,10 +4,7 @@ import ddt
 import pytest
 from django.test import TestCase
 
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, ProgramFactory, SeatFactory
-)
+from course_discovery.apps.course_metadata.tests.factories import ProgramFactory
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.learner_pathway.models import LearnerPathwayCourse, LearnerPathwayProgram
 from course_discovery.apps.learner_pathway.tests import factories
