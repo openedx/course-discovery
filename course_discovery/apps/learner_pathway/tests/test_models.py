@@ -85,38 +85,9 @@ class LearnerPathwayProgramTests(TestCase):
 
     def setUp(self):
         super().setUp()
-        self.courses = CourseFactory.create_batch(2)
-
-        TWO_WEEKS_FROM_TODAY = datetime.datetime.now(pytz.UTC) + datetime.timedelta(days=14)
-        YESTERDAY = datetime.datetime.now(pytz.UTC) - datetime.timedelta(days=1)
-        self.course_run1 = CourseRunFactory(
-            start=YESTERDAY,
-            end=TWO_WEEKS_FROM_TODAY,
-            status=CourseRunStatus.Published,
-            min_effort=5,
-            max_effort=8,
-            weeks_to_complete=8,
-            course=self.courses[0],
-            enrollment_start=None,
-            enrollment_end=None,
-        )
-        SeatFactory(course_run=self.course_run1)
-
-        self.course_run2 = CourseRunFactory(
-            start=YESTERDAY,
-            end=TWO_WEEKS_FROM_TODAY,
-            status=CourseRunStatus.Published,
-            min_effort=15,
-            max_effort=18,
-            weeks_to_complete=15,
-            course=self.courses[1],
-            enrollment_start=None,
-            enrollment_end=None,
-        )
-        SeatFactory(course_run=self.course_run2)
-
-        self.program = ProgramFactory(courses=self.courses)
-
+        self.course1, self.course_run1 = generate_course()
+        self.course2, self.course_run2 = generate_course()
+        self.program = ProgramFactory(courses=[self.course1, self.course2])
         self.step = factories.LearnerPathwayStepFactory()
         self.learner_pathway_program = LearnerPathwayProgram.objects.create(program=self.program, step=self.step)
 
@@ -140,6 +111,8 @@ class LearnerPathwayProgramTests(TestCase):
         ):
             program_skills = self.learner_pathway_program.get_skills()
             assert program_skills == expected_skills + expected_skills
+
+
 class LearnerPathwayStepTests(TestCase):
     """ Tests for the LearnerPathwayStep Model """
 
@@ -149,26 +122,33 @@ class LearnerPathwayStepTests(TestCase):
         self.step = factories.LearnerPathwayStepFactory()
         self.learner_pathway_course = LearnerPathwayCourse.objects.create(course=self.course, step=self.step)
 
+        self.program_course1, self.program_course_run1 = generate_course()
+        self.program_course2, self.program_course_run2 = generate_course()
+        self.program = ProgramFactory(courses=[self.program_course1, self.program_course2])
+        self.learner_pathway_program = LearnerPathwayProgram.objects.create(program=self.program, step=self.step)
+
     def test_get_estimated_time_of_completion(self):
         """ Verify that `LearnerPathwayStep.get_estimated_time_of_completion` method is working as expected """
 
-        estimated_time_of_completion = self.learner_pathway_course.get_estimated_time_of_completion()
-        print(estimated_time_of_completion)
+        estimated_time_of_completion = self.learner_pathway_course.get_estimated_time_of_completion() + \
+            self.learner_pathway_program.get_estimated_time_of_completion()
         assert estimated_time_of_completion == self.step.get_estimated_time_of_completion()
 
     def test_get_nodes(self):
         """ Verify that `LearnerPathwayStep.get_nodes` method is returning all associated nodes """
-        assert self.step.get_nodes() == [self.learner_pathway_course]
+        assert self.step.get_nodes() == [self.learner_pathway_course, self.learner_pathway_program]
 
     def test_get_node(self):
         """ Verify that `LearnerPathwayStep.get_node` method is returning expected object """
 
         assert self.step.get_node(self.learner_pathway_course.uuid) == self.learner_pathway_course
+        assert self.step.get_node(self.learner_pathway_program.uuid) == self.learner_pathway_program
 
     def test_get_skills(self):
         """ Verify that `LearnerPathwayStep.get_skills` method is aggregating skills as expected """
 
         expected_skills = [{'name': 'skill name 1', 'description': 'skill description 1'}]
+
         with mock.patch(
             'course_discovery.apps.learner_pathway.models.get_whitelisted_serialized_skills',
             return_value=expected_skills
@@ -179,6 +159,10 @@ class LearnerPathwayStepTests(TestCase):
     def test_remove_node(self):
         """ verify that `LearnerPathwayStep.remove_node` is correctly deleting object from database """
 
-        uuid = self.learner_pathway_course.uuid
+        course_uuid = self.learner_pathway_course.uuid
         self.step.remove_node(self.learner_pathway_course.uuid)
-        assert not LearnerPathwayCourse.objects.filter(uuid=uuid).exists()
+        assert not LearnerPathwayCourse.objects.filter(uuid=course_uuid).exists()
+
+        program_uuid = self.learner_pathway_program.uuid
+        self.step.remove_node(self.learner_pathway_program.uuid)
+        assert not LearnerPathwayProgram.objects.filter(uuid=program_uuid).exists()
