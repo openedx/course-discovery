@@ -78,3 +78,7 @@ CELERY_RESULT_BACKEND = f'file://{tempfile.TemporaryDirectory()}'
 CELERY_BROKER_URL = 'memory://localhost/'
 
 ################################### END CELERY ###################################
+
+# Learner Pathway
+# Disable learner pathway on all environment except devstack and testing.
+ENABLE_LEARNER_PATHWAY = True
