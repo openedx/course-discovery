@@ -627,3 +627,7 @@ CELERY_TASK_ALWAYS_EAGER = False
 ################################### END CELERY ###################################
 
 FIRE_UPDATE_COURSE_SKILLS_SIGNAL = False
+
+# Learner Pathway
+# Disable learner pathway on all environment except devstack and testing.
+ENABLE_LEARNER_PATHWAY = False
