@@ -696,7 +696,8 @@ DEFAULT_PARTNER_ID = None
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 # edx-django-sites-extensions will fallback to this site if we cannot identify the site from the hostname.
-SITE_ID = 1
+# ######## We need to specify `django_site` and `core_partner` in Mysql Of Service Course Discovery. #####
+SITE_ID = None
 
 COMMENTS_APP = 'course_discovery.apps.publisher_comments'
 
