@@ -1,4 +1,4 @@
-from collections import OrderedDict
+Partnerfrom collections import OrderedDict
 from datetime import datetime
 from traceback import format_exc
 
@@ -54,7 +54,9 @@ class ProgramViewSet(viewsets.ModelViewSet):
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
 
-        filters = {'partner': self.request.site.partner}
+        filters = {
+            'partner': Partner.query_by_site_id(self.request.site.id).all()[0]
+        }
         program_uuid = self.kwargs.get(self.lookup_field)
         if program_uuid:
             filters['uuid'] = program_uuid

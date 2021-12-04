@@ -739,7 +739,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
 
     @classmethod
     def prefetch_queryset(cls, partner, *args, **kwargs):
-        filters = {'partner': partner}      # A Program must be related with a Partner.
+        filters = {'partner__in': partner}      # A Program must be related with a Partner.
         program_uuid = kwargs.get('program_uuid')
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid
@@ -906,7 +906,13 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        return Program.objects.filter(partner=partner).select_related('type', 'video', 'partner').prefetch_related(
+        # filters = {'partner__in': partners}      # A Program must be related with a Partner.
+        # filters = {'partner': partners[0]}
+        # program_uuid = kwargs.get('uuid')
+        # if program_uuid:                    # Filter a Program with primary Key
+        #     filters['uuid'] = program_uuid
+
+        a = Program.objects.filter(partner=partner).select_related('type', 'video', 'partner').prefetch_related(
             'excluded_course_runs',
             'expected_learning_items',
             'faq',
@@ -924,6 +930,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             Prefetch('corporate_endorsements', queryset=CorporateEndorsementSerializer.prefetch_queryset()),
             Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
         )
+        raise Exception(a)
 
     def get_applicable_seat_types(self, obj):
         if not obj.type:

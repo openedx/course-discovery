@@ -698,6 +698,7 @@ DEFAULT_PARTNER_ID = None
 # edx-django-sites-extensions will fallback to this site if we cannot identify the site from the hostname.
 # ######## We need to specify `django_site` and `core_partner` in Mysql Of Service Course Discovery. #####
 SITE_ID = None
+USE_X_FORWARDED_HOST = True     # Reading Request Real Domain : django.http.request.py : _get_raw_host()
 
 COMMENTS_APP = 'course_discovery.apps.publisher_comments'
 

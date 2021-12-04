@@ -64,7 +64,7 @@ class Currency(models.Model):
 class Partner(TimeStampedModel):
     name = models.CharField(max_length=128, null=False, blank=False)
     short_code = models.CharField(
-        max_length=8, null=False, blank=False, verbose_name=_('Short Code'),
+        max_length=30, null=False, blank=False, verbose_name=_('Short Code'),
         help_text=_('Convenient code/slug used to identify this Partner (e.g. for management commands.)'))
     courses_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('Courses API URL'))
     ecommerce_api_url = models.URLField(max_length=255, null=True, blank=True, verbose_name=_('E-Commerce API URL'))
@@ -93,6 +93,10 @@ class Partner(TimeStampedModel):
         verbose_name = _('Partner')
         verbose_name_plural = _('Partners')
         unique_together = ('short_code', 'site')
+
+    @classmethod
+    def query_by_site_id(cls, site_id):
+        return Partner.objects.filter(site_id=site_id)
 
     @property
     def has_marketing_site(self):
