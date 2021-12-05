@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-04 20:35+0000\n"
+"POT-Creation-Date: 2021-12-05 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -733,7 +733,8 @@ msgstr "Shört çödé för ä pärtnér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕ
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/learner_pathway/models.py
+#: apps/learner_pathway/models.py apps/learner_pathway/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
@@ -2091,6 +2092,10 @@ msgstr "Nämé för tränslätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт �
 #: apps/ietf_language_tags/models.py
 msgid "LanguageTag model translations"
 msgstr "LängüägéTäg mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/learner_pathway/models.py
+msgid "Pathway name"
+msgstr "Päthwäý nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/publisher/models.py
 msgid "Organization Role"
