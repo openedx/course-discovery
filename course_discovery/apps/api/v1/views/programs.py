@@ -1,6 +1,5 @@
-Partnerfrom collections import OrderedDict
+from collections import OrderedDict
 from datetime import datetime
-from traceback import format_exc
 
 from django_filters.rest_framework import DjangoFilterBackend
 from django.core.exceptions import ValidationError
@@ -55,7 +54,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
         serializer_class = self.get_serializer_class()
 
         filters = {
-            'partner': Partner.query_by_site_id(self.request.site.id).all()[0]
+            'partners': Partner.query_by_site_id(self.request.site.id).all()
         }
         program_uuid = self.kwargs.get(self.lookup_field)
         if program_uuid:
@@ -246,7 +245,9 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         filters = {
-            'partner': self.request.site.partner,
+            'partners': Partner.query_by_site_id(
+                self.request.site.id
+            ).all(),
             'program_uuid': self.kwargs['program_uuid']
         }
 
