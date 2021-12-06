@@ -6,6 +6,7 @@ from uuid import uuid4
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from opaque_keys.edx.django.models import UsageKeyField
 from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.models import Course, Program
@@ -207,3 +208,35 @@ class LearnerPathwayProgram(LearnerPathwayNode):
         Return string representation.
         """
         return f'<LearnerPathwayProgram program="{self.program.uuid}" uuid="{self.uuid}">'
+
+
+class LearnerPathwayBlock(LearnerPathwayNode):
+    """
+    Mode for storing course block information from a learner pathway.
+    """
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='learner_pathway_blocks')
+    block_id = UsageKeyField(max_length=255)
+
+    def get_estimated_time_of_completion(self) -> str:
+        """
+        Returns the average estimated work hours to complete the course run.
+        """
+        return 'Not known'
+
+    def get_skills(self) -> [str]:
+        """
+        Return list of dicts where each dict contain skill name and skill description.
+        """
+        return get_whitelisted_serialized_skills(self.course.key)
+
+    def __str__(self):
+        """
+        Create a human-readable string representation of the object.
+        """
+        return f'UUID: {self.uuid}, Course: {self.course.title}, Block: {self.block_id}'
+
+    def __repr__(self):
+        """
+        Return string representation.
+        """
+        return f'<LearnerPathwayCourse course="{self.course.key}" uuid="{self.uuid}" block= "{self.block_id}">'
