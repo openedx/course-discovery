@@ -12,11 +12,11 @@ certifi==2021.10.8
     # via
     #   elasticsearch
     #   requests
-charset-normalizer==2.0.7
+charset-normalizer==2.0.9
     # via requests
 django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
     # via -r requirements/github.in
-docutils==0.17.1
+docutils==0.18.1
     # via sphinx
 edx-sphinx-theme==3.0.0
     # via -r requirements/docs.in
@@ -29,19 +29,19 @@ elasticsearch-dsl==7.4.0
     # via
     #   -c requirements/constraints.txt
     #   django-elasticsearch-dsl
-idna==3.2
+idna==3.3
     # via requests
-imagesize==1.2.0
+imagesize==1.3.0
     # via sphinx
-jinja2==3.0.2
+jinja2==3.0.3
     # via sphinx
 markupsafe==2.0.1
     # via jinja2
-packaging==21.0
+packaging==21.3
     # via sphinx
 pygments==2.10.0
     # via sphinx
-pyparsing==2.4.7
+pyparsing==3.0.6
     # via packaging
 python-dateutil==2.8.2
     # via elasticsearch-dsl
@@ -55,7 +55,7 @@ six==1.16.0
     #   edx-sphinx-theme
     #   elasticsearch-dsl
     #   python-dateutil
-snowballstemmer==2.1.0
+snowballstemmer==2.2.0
     # via sphinx
 sphinx==2.4.4
     # via
