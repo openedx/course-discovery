@@ -62,3 +62,17 @@ class LearnerPathwayProgramViewSet(viewsets.ModelViewSet):
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
+
+
+class LearnerPathwayBlocViewSet(viewsets.ModelViewSet):
+    """
+    View-set for LearnerPathwayBlock model.
+    """
+
+    lookup_field = 'uuid'
+    serializer_class = serializers.LearnerPathwayBlockSerializer
+    queryset = models.LearnerPathwayBlock.objects.all()
+
+    # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
+    # versions of this API should only support the system default, PageNumberPagination.
+    pagination_class = ProxiedPagination

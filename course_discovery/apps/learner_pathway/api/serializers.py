@@ -44,3 +44,13 @@ class LearnerPathwayProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.LearnerPathwayProgram
         fields = ('uuid', 'step', 'program', )
+
+
+class LearnerPathwayBlockSerializer(serializers.ModelSerializer):
+    """
+    Serializer for LearnerPathwayBlock model.
+    """
+
+    class Meta:
+        model = models.LearnerPathwayBlock
+        fields = ('uuid', 'step', 'course', 'block_id')

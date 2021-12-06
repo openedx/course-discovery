@@ -8,5 +8,6 @@ router.register(r'learner-pathway', views.LearnerPathwayViewSet)
 router.register(r'learner-pathway-step', views.LearnerPathwayStepViewSet)
 router.register(r'learner-pathway-course', views.LearnerPathwayCourseViewSet)
 router.register(r'learner-pathway-program', views.LearnerPathwayProgramViewSet)
+router.register(r'learner-pathway-block', views.LearnerPathwayBlocViewSet)
 
 urlpatterns = router.urls
