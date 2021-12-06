@@ -756,7 +756,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     @classmethod
     def prefetch_queryset(cls, partners, *args, **kwargs):
         filters = {'partner__in': partners}      # A Program must be related with a Partner.
-        program_uuid = kwargs.get('program_uuid')
+        program_uuid = kwargs.get('uuid')
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid
 

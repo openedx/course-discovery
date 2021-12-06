@@ -54,7 +54,9 @@ class ProgramViewSet(viewsets.ModelViewSet):
         serializer_class = self.get_serializer_class()
 
         filters = {
-            'partners': Partner.query_by_site_id(self.request.site.id).all()
+            'partners': Partner.query_by_site_id(
+                self.request.site.id
+            ).all()
         }
         program_uuid = self.kwargs.get(self.lookup_field)
         if program_uuid:
@@ -85,9 +87,14 @@ class ProgramViewSet(viewsets.ModelViewSet):
         input_data = OrderedDict(request.data)
 
         if r'type' in input_data:
-            input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
+            input_data[r'type'] = ProgramType.objects.get(
+                name=input_data[r'type']
+            )
         if r'partner' in input_data:
-            input_data[r'partner'] = Partner.objects.get(name=input_data[r'partner'])
+            input_data[r'partner'] = Partner.objects.get(
+                name=input_data[r'partner'],
+                site_id=self.request.site.id
+            )
 
         if 'status' not in input_data:
             input_data['status'] = ProgramStatus.Unpublished
@@ -126,7 +133,8 @@ class ProgramViewSet(viewsets.ModelViewSet):
             )
         if r'partner' in input_data:
             input_data[r'partner'] = Partner.objects.get(
-                name=input_data[r'partner']
+                name=input_data[r'partner'],
+                site_id=self.request.site.id
             )
         if r'released_date' in input_data:
             input_data[r'released_date'] = datetime.now()
