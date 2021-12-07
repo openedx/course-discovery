@@ -63,7 +63,7 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-django==3.2.8
+django==3.2.10
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
