@@ -393,8 +393,19 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
     tags = TagListSerializerField()
 
     @classmethod
-    def prefetch_queryset(cls, partner):
-        return Organization.objects.filter(partner=partner).select_related('partner').prefetch_related('tags')
+    def prefetch_queryset(cls, partners):
+        filters = {}
+        if partners:
+            if isinstance(partners, (list, tuple)):
+                filters['partner__in'] = partners
+            else:
+                filters['partner'] = partners
+
+        return Organization.objects.filter(
+            **filters
+        ).select_related(
+            'partner'
+        ).prefetch_related('tags')
 
     class Meta(MinimalOrganizationSerializer.Meta):
         fields = MinimalOrganizationSerializer.Meta.fields + (
@@ -583,10 +594,15 @@ class CourseSerializer(MinimalCourseSerializer):
     original_image = ImageField(read_only=True, source='original_image_url')
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):
+    def prefetch_queryset(cls, partner=None, queryset=None, course_runs=None, partners=None):
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
-        queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
+        filters = {}
+        if partner:
+            filters = {'partner': partner}
+        elif partners:
+            filters = {'partner__in': partners}
+        queryset = queryset if queryset is not None else Course.objects.filter(**filters)
 
         return queryset.select_related('level_type', 'video', 'partner').prefetch_related(
             'expected_learning_items',
@@ -738,9 +754,9 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
     partner = serializers.SlugRelatedField(slug_field='name', queryset=Partner.objects.all())
 
     @classmethod
-    def prefetch_queryset(cls, partner, *args, **kwargs):
-        filters = {'partner': partner}      # A Program must be related with a Partner.
-        program_uuid = kwargs.get('program_uuid')
+    def prefetch_queryset(cls, partners, *args, **kwargs):
+        filters = {'partner__in': partners}      # A Program must be related with a Partner.
+        program_uuid = kwargs.get('uuid')
         if program_uuid:                    # Filter a Program with primary Key
             filters['uuid'] = program_uuid
 
@@ -898,7 +914,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     applicable_seat_types = serializers.SerializerMethodField(read_only=True)
 
     @classmethod
-    def prefetch_queryset(cls, partner, *args, **kwargs):
+    def prefetch_queryset(cls, partners, *args, **kwargs):
         """
         Prefetch the related objects that will be serialized with a `Program`.
 
@@ -906,7 +922,12 @@ class ProgramSerializer(MinimalProgramSerializer):
         chain of related fields from programs to course runs (i.e., we want control over
         the querysets that we're prefetching).
         """
-        return Program.objects.filter(partner=partner).select_related('type', 'video', 'partner').prefetch_related(
+        filters = {'partner__in': partners}      # A Program must be related with a Partner.
+        program_uuid = kwargs.get('uuid')
+        if program_uuid:                    # Filter a Program with primary Key
+            filters['uuid'] = program_uuid
+
+        return Program.objects.filter(**filters).select_related('type', 'video', 'partner').prefetch_related(
             'excluded_course_runs',
             'expected_learning_items',
             'faq',
@@ -918,9 +939,9 @@ class ProgramSerializer(MinimalProgramSerializer):
             'type__applicable_seat_types',
             # We need the full Course prefetch here to get CourseRun information that methods on the Program
             # model iterate across (e.g. language). These fields aren't prefetched by the minimal Course serializer.
-            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(partner=partner)),
-            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
-            Prefetch('credit_backing_organizations', queryset=OrganizationSerializer.prefetch_queryset(partner)),
+            Prefetch('courses', queryset=CourseSerializer.prefetch_queryset(partners=partners)),
+            Prefetch('authoring_organizations', queryset=OrganizationSerializer.prefetch_queryset(partners)),
+            Prefetch('credit_backing_organizations', queryset=OrganizationSerializer.prefetch_queryset(partners)),
             Prefetch('corporate_endorsements', queryset=CorporateEndorsementSerializer.prefetch_queryset()),
             Prefetch('individual_endorsements', queryset=EndorsementSerializer.prefetch_queryset()),
         )

@@ -1,6 +1,5 @@
 from collections import OrderedDict
 from datetime import datetime
-from traceback import format_exc
 
 from django_filters.rest_framework import DjangoFilterBackend
 from django.core.exceptions import ValidationError
@@ -54,7 +53,11 @@ class ProgramViewSet(viewsets.ModelViewSet):
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
 
-        filters = {'partner': self.request.site.partner}
+        filters = {
+            'partners': Partner.query_by_site_id(
+                self.request.site.id
+            ).all()
+        }
         program_uuid = self.kwargs.get(self.lookup_field)
         if program_uuid:
             filters['uuid'] = program_uuid
@@ -84,9 +87,14 @@ class ProgramViewSet(viewsets.ModelViewSet):
         input_data = OrderedDict(request.data)
 
         if r'type' in input_data:
-            input_data[r'type'] = ProgramType.objects.get(name=input_data[r'type'])
+            input_data[r'type'] = ProgramType.objects.get(
+                name=input_data[r'type']
+            )
         if r'partner' in input_data:
-            input_data[r'partner'] = Partner.objects.get(name=input_data[r'partner'])
+            input_data[r'partner'] = Partner.objects.get(
+                name=input_data[r'partner'],
+                site_id=self.request.site.id
+            )
 
         if 'status' not in input_data:
             input_data['status'] = ProgramStatus.Unpublished
@@ -125,7 +133,8 @@ class ProgramViewSet(viewsets.ModelViewSet):
             )
         if r'partner' in input_data:
             input_data[r'partner'] = Partner.objects.get(
-                name=input_data[r'partner']
+                name=input_data[r'partner'],
+                site_id=self.request.site.id
             )
         if r'released_date' in input_data:
             input_data[r'released_date'] = datetime.now()
@@ -226,7 +235,11 @@ class ProgramViewSet(viewsets.ModelViewSet):
         if get_query_param(self.request, 'uuids_only'):
             # DRF serializers don't have good support for simple, flat
             # representations like the one we want here.
-            queryset = self.filter_queryset(Program.objects.filter(partner=self.request.site.partner))
+            queryset = self.filter_queryset(
+                Program.objects.filter(
+                    partner__in=Partner.query_by_site_id(self.request.site.id)
+                )
+            )
             uuids = queryset.values_list('uuid', flat=True)
 
             return Response(uuids)
@@ -244,7 +257,9 @@ class ProgramCoursesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         filters = {
-            'partner': self.request.site.partner,
+            'partners': Partner.query_by_site_id(
+                self.request.site.id
+            ).all(),
             'program_uuid': self.kwargs['program_uuid']
         }
 
