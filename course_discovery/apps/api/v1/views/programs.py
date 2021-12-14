@@ -53,12 +53,17 @@ class ProgramViewSet(viewsets.ModelViewSet):
         # which happens when the queryset is stored in a class property.
         serializer_class = self.get_serializer_class()
 
-        filters = {
-            'partners': Partner.query_by_site_id(
-                self.request.site.id
-            ).all()
-        }
         program_uuid = self.kwargs.get(self.lookup_field)
+
+        scope_of_parters = Partner.query_by_site_id(self.request.site.id).all() \
+            if not program_uuid \
+            else \
+            [Program.objects.get(uuid=program_uuid).partner]
+
+        filters = {
+            'partners': scope_of_parters
+        }
+
         if program_uuid:
             filters['uuid'] = program_uuid
 
