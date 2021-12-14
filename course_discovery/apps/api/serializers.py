@@ -747,11 +747,17 @@ class MinimalProgramCourseSerializer(MinimalCourseSerializer):
         ).data
 
 
+class _PartnerSlugRelatedField(serializers.SlugRelatedField):
+    """Query partners with specified site_id"""
+    def get_queryset(self):
+        return self.queryset.filter(site_id=self.context["current_site_id"])
+
+
 class MinimalProgramSerializer(serializers.ModelSerializer):
     authoring_organizations = MinimalOrganizationSerializer(read_only=True, many=True)
     courses = serializers.SerializerMethodField()
     type = serializers.SlugRelatedField(slug_field='name', queryset=ProgramType.objects.all(), required=False)
-    partner = serializers.SlugRelatedField(slug_field='name', queryset=Partner.objects.all())
+    partner = _PartnerSlugRelatedField(slug_field='name', queryset=Partner.objects.all())
 
     @classmethod
     def prefetch_queryset(cls, partners, *args, **kwargs):

@@ -68,8 +68,13 @@ class ProgramViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self, *args, **kwargs):
         context = super().get_serializer_context(*args, **kwargs)
-        query_params = ['exclude_utm', 'use_full_course_serializer', 'published_course_runs_only',
-                        'marketable_enrollable_course_runs_with_archived']
+
+        query_params = [
+            'exclude_utm', 'use_full_course_serializer', 'published_course_runs_only',
+            'marketable_enrollable_course_runs_with_archived'
+        ]
+        context['current_site_id'] = self.request.site.id
+
         for query_param in query_params:
             context[query_param] = get_query_param(self.request, query_param)
 
@@ -102,7 +107,10 @@ class ProgramViewSet(viewsets.ModelViewSet):
             input_data['marketing_slug'] = input_data.get('title').replace(' ', '+')
 
         program_writer = self.get_serializer_class()  # ProgramSerializer
-        writer = program_writer(data=input_data)
+        writer = program_writer(
+            data=input_data,
+            context={'current_site_id': self.request.site.id}
+        )
         if not writer.is_valid():
             if 'title' in writer.errors:
                 return Response(
