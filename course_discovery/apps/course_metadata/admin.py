@@ -347,8 +347,12 @@ class ProgramAdmin(admin.ModelAdmin):
 class PathwayAdmin(admin.ModelAdmin):
     form = PathwayAdminForm
     readonly_fields = ('uuid',)
-    list_display = ('name', 'uuid', 'org_name', 'partner', 'email', 'destination_url', 'pathway_type',)
-    search_fields = ('uuid', 'name', 'email', 'destination_url', 'pathway_type',)
+    list_display = ('name', 'uuid', 'org_name', 'partner', 'email', 'destination_url', 'pathway_type', 'get_programs',)
+    search_fields = ('uuid', 'name', 'email', 'destination_url', 'pathway_type', 'programs__title')
+
+    @admin.display(description='Programs')
+    def get_programs(self, obj):
+        return [*obj.programs.all()]
 
 
 @admin.register(ProgramType)
