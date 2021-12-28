@@ -23,6 +23,7 @@ from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
+from course_discovery.apps.course_metadata.exceptions import EcommerceSiteAPIClientException
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.utils import is_publisher_user
@@ -312,7 +313,10 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-        serializer.save()
+        try:
+            serializer.save()
+        except EcommerceSiteAPIClientException as error:
+            return Response(str(error), status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data)
 
     # pylint: disable=arguments-differ
