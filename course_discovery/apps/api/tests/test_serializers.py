@@ -994,7 +994,7 @@ class MinimalProgramSerializerTests(TestCase):
         courses = CourseFactory.create_batch(3)
         for course in courses:
             CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.datetime.now(UTC))
-            course.topics.set(topic)
+            course.topics.set([topic])
 
         return ProgramFactory(
             courses=courses,

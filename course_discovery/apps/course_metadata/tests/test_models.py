@@ -1788,11 +1788,11 @@ class ProgramTests(TestCase):
         topicC = Tag.objects.create(name="topicC")
 
         course1 = factories.CourseFactory()
-        course1.topics.set(topicA)
+        course1.topics.set([topicA])
         course2 = factories.CourseFactory()
-        course2.topics.set(topicA, topicB)
+        course2.topics.set([topicA, topicB])
         course3 = factories.CourseFactory()
-        course3.topics.set(topicB, topicC)
+        course3.topics.set([topicB, topicC])
 
         program1 = factories.ProgramFactory(courses=[course1, course2, course3])
         assert program1.topics == {topicA, topicB, topicC}
