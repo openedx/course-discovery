@@ -9,7 +9,7 @@ from course_discovery.apps.course_metadata.tests.factories import CourseFactory
 
 @pytest.mark.django_db
 class TestDownloadCourseImages:
-    LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.download_course_images.logger'
+    LOGGER_PATH = 'course_discovery.apps.course_metadata.utils.logger'
 
     def mock_image_response(self, status=200, body=None, content_type='image/jpeg'):
         # PNG. Single black pixel
@@ -94,7 +94,9 @@ class TestDownloadCourseImages:
         self.assert_course_has_no_image(course)
 
     def test_download_without_courses(self):
-        with mock.patch(self.LOGGER_PATH) as mock_logger:
+        with mock.patch(
+                'course_discovery.apps.course_metadata.management.commands.download_course_images.logger'
+        ) as mock_logger:
             call_command('download_course_images')
             mock_logger.info.assert_called_with('All courses are up to date.')
 

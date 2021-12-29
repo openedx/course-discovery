@@ -10,6 +10,7 @@ import markdown
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
@@ -19,6 +20,7 @@ from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.constants import IMAGE_TYPES
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
@@ -682,3 +684,33 @@ def clean_html(content):
     cleaned = markdown.markdown(cleaned)
 
     return cleaned
+
+
+def download_and_save_course_image(course, image_url):
+    """
+    Helper method to download an image from a provided image url and save it
+    as course card image.
+    """
+    try:
+        response = requests.get(image_url)
+
+        if response.status_code == requests.codes.ok:  # pylint: disable=no-member
+            content_type = response.headers['Content-Type'].lower()
+            extension = IMAGE_TYPES.get(content_type)
+
+            if extension:
+                filename = '{uuid}.{extension}'.format(uuid=str(course.uuid), extension=extension)
+                course.image.save(filename, ContentFile(response.content))
+                logger.info('Image for course [%s] successfully updated.', course.key)
+                return True
+            else:
+                # pylint: disable=line-too-long
+                msg = 'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.'
+                logger.error(msg, course.key, image_url, content_type)
+
+        else:
+            msg = 'Failed to download image for course [%s] from [%s]! Response was [%d]:\n%s'
+            logger.error(msg, course.key, image_url, response.status_code, response.content)
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('An unknown exception occurred while downloading image for course [%s]', course.key)
+    return False

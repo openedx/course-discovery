@@ -631,3 +631,5 @@ FIRE_UPDATE_COURSE_SKILLS_SIGNAL = False
 # Learner Pathway
 # Disable learner pathway on all environment except devstack and testing.
 ENABLE_LEARNER_PATHWAY = False
+
+DISCOVERY_BASE_URL = "http://localhost:18381"
