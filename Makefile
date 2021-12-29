@@ -146,3 +146,6 @@ docker_push: docker_tag docker_auth ## push to docker hub
 	docker push "openedx/discovery:${GITHUB_SHA}"
 	docker push 'openedx/discovery:latest-newrelic'
 	docker push "openedx/discovery:${GITHUB_SHA}-newrelic"
+
+migration_linter:
+	python manage.py lintmigrations
