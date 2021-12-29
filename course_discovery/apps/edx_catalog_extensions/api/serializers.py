@@ -27,9 +27,7 @@ class DistinctCountsAggregateFacetSearchSerializer(AggregateFacetSearchSerialize
             child=FacetListField(child=DistinctCountsFacetFieldSerializer(field_data), required=False)
         )
 
-        field_mapping['queries'] = DictField(
-            query_data, child=DistinctCountsQueryFacetFieldSerializer(), required=False
-        )
+        field_mapping['queries'] = DictField(child=DistinctCountsQueryFacetFieldSerializer(), required=False)
 
         if self.serialize_objects:
             field_mapping.move_to_end('objects')
