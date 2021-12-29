@@ -19,3 +19,4 @@ responses
 selenium
 testfixtures
 tox
+django-migration-linter
