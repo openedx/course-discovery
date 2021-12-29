@@ -89,3 +89,6 @@ if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
 # Learner Pathway
 # Disable learner pathway on all environment except devstack and testing.
 ENABLE_LEARNER_PATHWAY = True
+
+DISCOVERY_BASE_URL = "http://edx.devstack.discovery:18381"
+

@@ -1975,6 +1975,16 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         is_published = self.status == CourseRunStatus.Published
         return is_published and self.seats.exists() and bool(self.marketing_url)
 
+    def complete_review_phase(self, has_ofac_restrictions, ofac_comment):
+        """
+        Complete the review phase of the course run by marking status as reviewed and adding
+        ofac fields' values.
+        """
+        self.has_ofac_restrictions = has_ofac_restrictions
+        self.ofac_comment = ofac_comment
+        self.status = CourseRunStatus.Reviewed
+        self.save()
+
 
 class Seat(DraftModelMixin, TimeStampedModel):
     """ Seat model. """

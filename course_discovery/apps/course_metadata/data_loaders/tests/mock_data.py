@@ -3070,3 +3070,65 @@ DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY = {
     'uuid': '6b8b779f-f567-4e98-aa41-a265d6fa073a',
     'vuuid': 'e0f8c80a-b377-4546-b247-1c94ab3a218a'
 }
+
+VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
+    'organization': 'edx',
+    'title': 'CSV Course',
+    'number': 'csv_123',
+    'course_enrollment_track': 'Verified and Audit',
+    'image': 'https://example.com/image.jpg',
+    'short_description': 'Very short description',
+    'long_description': 'Organization,Title,Number,Course Enrollment track,Image,Short Description,Long Description,'
+                        'Organization,Title,Number,Course Enrollment track,Image,Short Description,Long Description,',
+    'what_will_you_learn': 'Outcomes',
+    'course_level': 'beginner',
+    'primary_subject': 'Computer Science',
+    'secondary_subject': 'Social Sciences',
+    'tertiary_subject': '',
+    'verified_price': 150,
+    'collaborators': 'collab_1,collab_2,collab_3',
+    'syllabus': 'Introduction to Algorithms',
+    'prerequisites': 'Summer of Winter',
+    'learner_testimonials': 'Very challenging',
+    'frequently_asked_questions': 'Is day 19 really that tough?',
+    'additional_information': '',
+    'about_video_link': 'http://www.example.com',
+    'course_embargo_(ofac)_restriction_text_added_to_the_faq_section': False,
+    'publish_date': '01/01/2020',
+    'start_date': '01/01/2020',
+    'start_time': '00:00',
+    'end_date': '01/01/2021',
+    'end_time': '00:00',
+    'course_pacing': 'self-paced',
+    'course_run_enrollment_track': 'Verified and Audit',
+    'staff': 'staff_1,staff_2',
+    'minimum_effort': 4,
+    'maximum_effort': 10,
+    'length': 10,
+    'content_language': 'English - United States',
+    'transcript_language': 'English - Great Britain',
+    'expected_program_type': 'professional-certificate',
+    'expected_program_name': 'New Program for all',
+    'upgrade_deadline_override_date': '02/01/2020',
+    'upgrade_deadline_override_time': '00:00'
+}
+
+INVALID_ORGANIZATION_DATA = {
+    **VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+    'organization': 'invalid-organization'
+}
+
+INVALID_COURSE_TYPE_DATA = {
+    **VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+    'course_enrollment_track': 'invalid track'
+}
+
+INVALID_COURSE_RUN_TYPE_DATA = {
+    **VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+    'course_run_enrollment_track': 'invalid track'
+}
+
+INVALID_LANGUAGE = {
+    **VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+    'content_language': 'gibberish-language',
+}

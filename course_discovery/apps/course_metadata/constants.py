@@ -8,6 +8,11 @@ COURSE_UUID_REGEX = r'[0-9a-f-]+'
 
 MASTERS_PROGRAM_TYPE_SLUG = 'masters'
 
+IMAGE_TYPES = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+}
+
 
 class PathwayType(Enum):
     """ Allowed values for Pathway.pathway_type """
