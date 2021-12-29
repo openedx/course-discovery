@@ -31,6 +31,13 @@ jobs:
       - run: make ci_up
       - run: make ci_quality
 
+  migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make ci_up
+      - run: make ci_migration_linter
+
   semgrep:
     runs-on: ubuntu-latest
     steps:
