@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0005_populate_currencies'),
+        # ('core', '0005_populate_currencies'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('ietf_language_tags', '0002_language_tag_data_migration'),
     ]

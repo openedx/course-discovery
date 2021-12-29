@@ -49,13 +49,13 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('core', '0008_partner'),
+        # ('core', '0008_partner'),
         ('ietf_language_tags', '0002_language_tag_data_migration'),
         ('taggit', '0002_auto_20150616_2121'),
         ('waffle', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0005_populate_currencies'),
-        ('core', '0010_auto_20160731_0023'),
+        # ('core', '0005_populate_currencies'),
+        # ('core', '0010_auto_20160731_0023'),
     ]
 
     operations = [
