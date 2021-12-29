@@ -9,7 +9,7 @@
   ],
   "rebaseStalePrs": true,
   "schedule": [
-    "every weekend"
+    "every weekday"
   ],
   "packageRules": [
     {
