@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0008_partner'),
+        # ('core', '0008_partner'),
         ('course_metadata', '0008_program_image'),
     ]
 

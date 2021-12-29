@@ -13,7 +13,7 @@ def delete_people(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0010_auto_20160731_0023'),
+        # ('core', '0010_auto_20160731_0023'),
         ('course_metadata', '0017_auto_20160815_2135'),
     ]
 

@@ -30,7 +30,7 @@ def update_subjects(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('core', '0010_auto_20160731_0023'),
+        # ('core', '0010_auto_20160731_0023'),
         ('course_metadata', '0012_create_seat_types'),
     ]
 

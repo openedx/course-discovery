@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('core', '0007_auto_20160510_2017'),
+        # ('core', '0007_auto_20160510_2017'),
         ('ietf_language_tags', '0002_language_tag_data_migration'),
         ('course_metadata', '0001_squashed_0033_courserun_mobile_available'),
     ]
