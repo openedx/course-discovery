@@ -22,3 +22,7 @@ ci_stop: ## Stop running containers created by `ci_up` without removing them
 ci_down: ## Stop and remove containers and other resources created by `ci_up`
 	docker-compose -f .ci/docker-compose-ci.yml down
 .PHONY: ci_down
+
+ci_migration_linter: ## Run quality on Docker containers, as on CI
+	.ci/run-in-docker.sh -f .ci/migration-linter.sh
+.PHONY: ci_migration_linter
