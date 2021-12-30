@@ -149,4 +149,3 @@ docker_push: docker_tag docker_auth ## push to docker hub
 
 migration_linter:
 	python manage.py lintmigrations
-
