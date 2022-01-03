@@ -298,11 +298,11 @@ packaging==21.3
     #   redis
 pbr==5.8.0
     # via stevedore
-pillow==8.4.0
+pillow==9.0.0
     # via
     #   -r requirements/base.in
     #   django-stdimage
-psutil==5.8.0
+psutil==5.9.0
     # via edx-django-utils
 pycountry==20.7.3
     # via -r requirements/base.in
@@ -436,7 +436,7 @@ wrapt==1.13.3
     # via deprecated
 xss-utils==0.3.0
     # via -r requirements/base.in
-zipp==3.6.0
+zipp==3.7.0
     # via importlib-metadata
 zope.event==4.5.0
     # via gevent
