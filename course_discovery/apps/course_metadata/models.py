@@ -1848,7 +1848,6 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             suppress_publication (bool): if True, we won't push the run data to the marketing site
             send_emails (bool): whether to send email notifications for status changes from this save
         """
-        is_new_course_run = not self.id
         push_to_marketing = (not suppress_publication and
                              self.course.partner.has_marketing_site and
                              waffle.switch_is_active('publish_course_runs_to_marketing_site') and
@@ -1864,7 +1863,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             if push_to_marketing:
                 self.push_to_marketing_site(previous_obj)
 
-        if is_new_course_run:
+        if self.status == CourseRunStatus.Reviewed and not self.draft:
             retired_programs = self.programs.filter(status=ProgramStatus.Retired)
             for program in retired_programs:
                 program.excluded_course_runs.add(self)
