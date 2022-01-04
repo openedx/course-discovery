@@ -582,7 +582,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         assert self.course_run.program_types == [active_program.type.name]
 
     def test_new_course_run_excluded_in_retired_programs(self):
-        """ Verify the newly created course run must be excluded in associated retired programs"""
+        """ Verify the newly reviewed course run must be excluded in associated retired programs"""
         course = factories.CourseFactory()
         course_run = factories.CourseRunFactory(course=course)
         program = factories.ProgramFactory(
@@ -590,7 +590,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         )
         course_run.weeks_to_complete = 2
         course_run.save()
-        new_course_run = factories.CourseRunFactory(course=course)
+        new_course_run = factories.CourseRunFactory(course=course, status=CourseRunStatus.Reviewed, draft=False)
         new_course_run.save()
         assert program.excluded_course_runs.count() == 1
         assert len(list(program.course_runs)) == 1
