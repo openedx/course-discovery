@@ -27,9 +27,9 @@ beautifulsoup4==4.10.0
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.20.26
+boto3==1.20.31
     # via django-ses
-botocore==1.23.26
+botocore==1.23.31
     # via
     #   boto3
     #   s3transfer
@@ -44,7 +44,7 @@ certifi==2021.10.8
     #   requests
 cffi==1.15.0
     # via cryptography
-charset-normalizer==2.0.9
+charset-normalizer==2.0.10
     # via requests
 coreapi==2.3.3
     # via drf-yasg
@@ -65,7 +65,7 @@ defusedxml==0.7.1
     #   social-auth-core
 deprecated==1.2.13
     # via redis
-django==3.2.10
+django==3.2.11
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -191,9 +191,9 @@ djangorestframework-xml==2.0.0
     # via -r requirements/base.in
 drf-extensions==0.7.1
     # via -r requirements/base.in
-drf-flex-fields==0.9.6
+drf-flex-fields==0.9.7
     # via -r requirements/base.in
-drf-jwt==1.19.1
+drf-jwt==1.19.2
     # via edx-drf-extensions
 drf-yasg==1.20.0
     # via
@@ -298,11 +298,11 @@ packaging==21.3
     #   redis
 pbr==5.8.0
     # via stevedore
-pillow==8.4.0
+pillow==9.0.0
     # via
     #   -r requirements/base.in
     #   django-stdimage
-psutil==5.8.0
+psutil==5.9.0
     # via edx-django-utils
 pycountry==20.7.3
     # via -r requirements/base.in
@@ -350,7 +350,7 @@ rcssmin==1.1.0
     # via django-compressor
 redis==4.1.0
     # via -r requirements/base.in
-requests==2.26.0
+requests==2.27.1
     # via
     #   -r requirements/base.in
     #   algoliasearch
@@ -367,7 +367,7 @@ requests-oauthlib==1.3.0
     # via social-auth-core
 rjsmin==1.2.0
     # via django-compressor
-ruamel.yaml==0.17.19
+ruamel.yaml==0.17.20
     # via drf-yasg
 ruamel.yaml.clib==0.2.6
     # via ruamel.yaml
@@ -423,7 +423,7 @@ uritemplate==4.1.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.7
+urllib3==1.26.8
     # via
     #   botocore
     #   elasticsearch
@@ -436,7 +436,7 @@ wrapt==1.13.3
     # via deprecated
 xss-utils==0.3.0
     # via -r requirements/base.in
-zipp==3.6.0
+zipp==3.7.0
     # via importlib-metadata
 zope.event==4.5.0
     # via gevent
