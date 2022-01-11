@@ -1013,7 +1013,7 @@ class Program(TimeStampedModel):
         render_variations=custom_render_variations
     )
     banner_image_url = models.URLField(null=True, blank=True, help_text='DEPRECATED: Use the banner image field.')
-    card_image_url = models.CharField(null=True, blank=True, max_length=256)
+    card_image_url = models.CharField(null=True, blank=True, max_length=1024)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
     faq = SortedManyToManyField(FAQ, blank=True)
