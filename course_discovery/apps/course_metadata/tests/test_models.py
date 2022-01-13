@@ -929,7 +929,6 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         assert official_run.course.draft is False
         assert official_run.course.draft_version == draft_run.course
         assert official_run.course != draft_run.course
-        assert official_run.course.slug == draft_run.course.slug
 
         official_entitlement = official_run.course.entitlements.first()
         draft_entitlement = draft_run.course.entitlements.first()
