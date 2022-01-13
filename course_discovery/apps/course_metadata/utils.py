@@ -260,7 +260,6 @@ def ensure_draft_world(obj):
         # We need to null this out because it will fail with a OneToOne uniqueness error when saving the draft
         obj.canonical_course_run = None
         draft_course, original_course = set_draft_state(obj, Course, related_attrs={'url_slug_history': []})
-        draft_course.slug = original_course.slug
 
         # Move editors from the original course to the draft course since we only care about CourseEditors
         # in the context of draft courses. This code is only necessary during the transition from using

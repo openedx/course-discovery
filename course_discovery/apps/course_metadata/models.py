@@ -804,7 +804,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         },
         help_text=_('Add the course image')
     )
-    slug = AutoSlugField(populate_from='key', editable=True, slugify_function=uslugify)
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     faq = NullHtmlField(verbose_name=_('FAQ'))
     learner_testimonials = NullHtmlField()
@@ -1047,7 +1046,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         if creating:
             official_version.canonical_course_run = course_run
-            official_version.slug = self.slug
             official_version.save()
             self.canonical_course_run = course_run.draft_version
             self.save()
