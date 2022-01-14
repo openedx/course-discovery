@@ -2,6 +2,7 @@
 Model definitions for the learner pathway app.
 """
 from abc import ABCMeta, abstractmethod
+from collections import defaultdict
 from uuid import uuid4
 
 from django.db import models
@@ -10,6 +11,7 @@ from opaque_keys.edx.django.models import UsageKeyField
 from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.models import Course, Program
+from course_discovery.apps.learner_pathway import constants
 from course_discovery.apps.learner_pathway.utils import get_advertised_course_run_estimated_hours
 
 
@@ -47,6 +49,15 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
         return nodes
 
     @classmethod
+    def get_node_type_count(cls, step):
+        node_type_count = defaultdict(int)
+        for node_class in cls.get_subclasses():
+            node_type = node_class.get_type()
+            node_type_count[node_type] = node_class.objects.filter(step=step).count()
+
+        return dict(node_type_count)
+
+    @classmethod
     def get_subclasses(cls):
         return cls.__subclasses__()
 
@@ -71,7 +82,7 @@ class LearnerPathway(models.Model):
         """
         Return the aggregated time to completion.
         """
-        completion_time = 0.0
+        completion_time = 0
         for step in self.steps.all():
             completion_time += step.get_estimated_time_of_completion()
         return completion_time
@@ -117,6 +128,9 @@ class LearnerPathwayStep(models.Model):
         if node:
             node.delete()
 
+    def get_node_type_count(self):
+        return LearnerPathwayNode.get_node_type_count(self)
+
     def get_estimated_time_of_completion(self):
         return sum([node.get_estimated_time_of_completion() for node in self.get_nodes()])
 
@@ -152,13 +166,17 @@ class LearnerPathwayCourse(LearnerPathwayNode):
         """
         Returns the average estimated work hours to complete the course run.
         """
-        return get_advertised_course_run_estimated_hours(self.course)
+        return get_advertised_course_run_estimated_hours(self.course) or 0
 
     def get_skills(self) -> [str]:
         """
         Return list of dicts where each dict contain skill name and skill description.
         """
         return get_whitelisted_serialized_skills(self.course.key)
+
+    @staticmethod
+    def get_type():
+        return constants.NODE_TYPE_COURSE
 
     def __str__(self):
         """
@@ -197,6 +215,10 @@ class LearnerPathwayProgram(LearnerPathwayNode):
 
         return program_skills
 
+    @staticmethod
+    def get_type():
+        return constants.NODE_TYPE_PROGRAM
+
     def __str__(self):
         """
         Create a human-readable string representation of the object.
@@ -228,6 +250,10 @@ class LearnerPathwayBlock(LearnerPathwayNode):
         Return list of dicts where each dict contain skill name and skill description.
         """
         return get_whitelisted_serialized_skills(self.course.key)
+
+    @staticmethod
+    def get_type():
+        return constants.NODE_TYPE_BLOCK
 
     def __str__(self):
         """
