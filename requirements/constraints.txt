@@ -20,7 +20,7 @@ transifex-client<0.13
 # see https://www.sphinx-doc.org/en/master/intro.html#prerequisites
 sphinx==2.4.4
 
-celery>=5.2.3,<6.0.0
+celery<5.0
 
 # latest version of edx-lint is pulling code-annotations and code-annotations is pulling python-slugify and
 # python-slugify is conflicting with unicode-slugify
