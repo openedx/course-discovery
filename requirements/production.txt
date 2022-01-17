@@ -27,9 +27,9 @@ beautifulsoup4==4.10.0
     # via -r requirements/base.in
 billiard==3.6.4.0
     # via celery
-boto3==1.20.31
+boto3==1.20.37
     # via django-ses
-botocore==1.23.31
+botocore==1.23.37
     # via
     #   boto3
     #   s3transfer
@@ -115,7 +115,7 @@ django-compressor==3.1
     #   django-libsass
 django-contrib-comments==2.1.0
     # via -r requirements/base.in
-django-cors-headers==3.10.1
+django-cors-headers==3.11.0
     # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
@@ -165,7 +165,7 @@ django-taggit==2.0.0
     #   django-taggit-autosuggest
 django-taggit-autosuggest==0.3.8
     # via -r requirements/base.in
-django-waffle==2.2.1
+django-waffle==2.3.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
@@ -209,7 +209,7 @@ edx-auth-backends==4.0.1
     # via -r requirements/base.in
 edx-ccx-keys==1.2.1
     # via -r requirements/base.in
-edx-django-release-util==1.1.0
+edx-django-release-util==1.1.1
     # via -r requirements/base.in
 edx-django-sites-extensions==3.1.0
     # via -r requirements/base.in
