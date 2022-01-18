@@ -697,7 +697,10 @@ class ProgramsApiDataLoader(AbstractDataLoader):
 
         # The course_code key field is technically useless, so we must build the course list from the
         # associated course runs.
-        courses = Course.objects.filter(course_runs__key__in=course_run_keys).distinct()
+        courses = Course.objects.filter(
+            course_runs__key__in=course_run_keys,
+            partner=self.partner,
+        ).distinct()
         program.courses.clear()
         program.courses.add(*courses)
 
