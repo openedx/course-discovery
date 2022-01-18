@@ -150,7 +150,10 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def get_course_run(self, body):
         course_run_key = body['id']
         try:
-            return CourseRun.objects.get(key__iexact=course_run_key)
+            return CourseRun.objects.get(
+                key__iexact=course_run_key,
+                course__partner_id=self.partner.id
+            )
         except CourseRun.DoesNotExist:
             return None
 
