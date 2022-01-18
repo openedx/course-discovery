@@ -396,7 +396,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def update_seats(self, body):
         course_run_key = body['id']
         try:
-            course_run = CourseRun.objects.get(key__iexact=course_run_key)
+            course_run = CourseRun.objects.get(
+                key__iexact=course_run_key,
+                course__partner_id=self.partner.id
+            )
         except CourseRun.DoesNotExist:
             logger.warning('Could not find course run [%s]', course_run_key)
             return None
@@ -590,7 +593,10 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         sku = stock_record['partner_sku']
 
         try:
-            course_run = CourseRun.objects.get(key=course_key)
+            course_run = CourseRun.objects.get(
+                key=course_key,
+                course__partner_id=self.partner.id
+            )
         except CourseRun.DoesNotExist:
             msg = 'Could not find course run {key} while loading enrollment code {title} with sku {sku}'.format(
                 key=course_key, title=title, sku=sku
