@@ -197,6 +197,11 @@ class LearnerPathwayCourse(LearnerPathwayNode):
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='learner_pathway_courses')
 
+    class Meta:
+        unique_together = (
+            ('step', 'course'),
+        )
+
     def get_estimated_time_of_completion(self) -> str:
         """
         Returns the average estimated work hours to complete the course run.
@@ -229,6 +234,11 @@ class LearnerPathwayCourse(LearnerPathwayNode):
 class LearnerPathwayProgram(LearnerPathwayNode):
 
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='learner_pathway_programs')
+
+    class Meta:
+        unique_together = (
+            ('step', 'program'),
+        )
 
     def get_estimated_time_of_completion(self) -> str:
         """
