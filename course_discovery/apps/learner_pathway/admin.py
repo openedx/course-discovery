@@ -16,7 +16,6 @@ class LearnerPathwayProgramInline(admin.TabularInline):
     model = LearnerPathwayProgram
     extra = 0
     autocomplete_fields = ('program', )
-    classes = ('collapse',)
     readonly_fields = ('estimated_completion_time',)
 
     def estimated_completion_time(self, pathway_program):
@@ -27,7 +26,6 @@ class LearnerPathwayCourseInline(admin.TabularInline):
     model = LearnerPathwayCourse
     extra = 0
     autocomplete_fields = ('course', )
-    classes = ('collapse',)
     readonly_fields = ('estimated_completion_time',)
 
     def estimated_completion_time(self, pathway_course):
