@@ -5,13 +5,18 @@ from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 from uuid import uuid4
 
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from opaque_keys.edx.django.models import UsageKeyField
+from stdimage.models import StdImageField
 from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.models import Course, Program
+from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.learner_pathway import constants
+from course_discovery.apps.learner_pathway.choices import PathwayStatus
 from course_discovery.apps.learner_pathway.utils import get_advertised_course_run_estimated_hours
 
 
@@ -76,6 +81,23 @@ class LearnerPathway(models.Model):
     """
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Pathway name'))
+    status = models.CharField(
+        help_text=_('The active/inactive status of this Pathway.'),
+        max_length=16, default=PathwayStatus.Inactive,
+        choices=PathwayStatus.choices, validators=[PathwayStatus.validator]
+    )
+    banner_image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/learner_pathway/banner_images'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (1440, 480),
+            'medium': (726, 242),
+            'small': (435, 145),
+            'x-small': (348, 116),
+        }
+    )
+    overview = models.TextField(blank=True)
 
     @property
     def time_of_completion(self) -> float:
@@ -116,6 +138,19 @@ class LearnerPathway(models.Model):
 class LearnerPathwayStep(models.Model):
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     pathway = models.ForeignKey(LearnerPathway, related_name='steps', on_delete=models.CASCADE)
+    min_requirement = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[
+            MinValueValidator(1)
+        ],
+        help_text=_('Minimum number of nodes to complete this step of the pathway')
+    )
+
+    def clean(self):
+        # Ensure that the minimum requirement is not more than the number of nodes
+        node_count = len(self.get_nodes())
+        if self.min_requirement > node_count:
+            raise ValidationError(_('Please use a minimum requirement less than the total number of requirements.'))
 
     def get_nodes(self):
         return LearnerPathwayNode.get_nodes(self)
