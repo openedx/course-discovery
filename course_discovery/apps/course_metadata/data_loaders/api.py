@@ -154,10 +154,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def get_course_run(self, body):
         course_run_key = body['id']
         try:
-            return CourseRun.objects.get(
-                key__iexact=course_run_key,
-                course__partner_id=self.partner.id
-            )
+            return CourseRun.objects.get(key__iexact=course_run_key)
         except CourseRun.DoesNotExist:
             return None
 
@@ -400,10 +397,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def update_seats(self, body):
         course_run_key = body['id']
         try:
-            course_run = CourseRun.objects.get(
-                key__iexact=course_run_key,
-                course__partner_id=self.partner.id
-            )
+            course_run = CourseRun.objects.get(key__iexact=course_run_key)
         except CourseRun.DoesNotExist:
             logger.warning('Could not find course run [%s]', course_run_key)
             return None
@@ -597,10 +591,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         sku = stock_record['partner_sku']
 
         try:
-            course_run = CourseRun.objects.get(
-                key=course_key,
-                course__partner_id=self.partner.id
-            )
+            course_run = CourseRun.objects.get(key=course_key)
         except CourseRun.DoesNotExist:
             msg = 'Could not find course run {key} while loading enrollment code {title} with sku {sku}'.format(
                 key=course_key, title=title, sku=sku
@@ -707,10 +698,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
 
         # The course_code key field is technically useless, so we must build the course list from the
         # associated course runs.
-        courses = Course.objects.filter(
-            course_runs__key__in=course_run_keys,
-            partner=self.partner,
-        ).distinct()
+        courses = Course.objects.filter(course_runs__key__in=course_run_keys).distinct()
         program.courses.clear()
         program.courses.add(*courses)
 

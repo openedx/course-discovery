@@ -483,7 +483,7 @@ class CourseRun(TimeStampedModel):
     """ CourseRun model. """
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'))
     course = models.ForeignKey(Course, related_name='course_runs')
-    key = models.CharField(max_length=255, unique=False, db_index=True)
+    key = models.CharField(max_length=255, unique=True)
     status = models.CharField(default=CourseRunStatus.Unpublished, max_length=255, null=False, blank=False,
                               db_index=True, choices=CourseRunStatus.choices, validators=[CourseRunStatus.validator])
     title_override = models.CharField(

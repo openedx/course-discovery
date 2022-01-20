@@ -425,10 +425,7 @@ class CourseMarketingSiteDataLoader(AbstractMarketingSiteDataLoader):
     def get_course_run(self, data):
         course_run_key = data['field_course_id']
         try:
-            return CourseRun.objects.get(
-                key__iexact=course_run_key,
-                course__partner_id=self.partner.id
-            )
+            return CourseRun.objects.get(key__iexact=course_run_key)
         except CourseRun.DoesNotExist:
             return None
 
