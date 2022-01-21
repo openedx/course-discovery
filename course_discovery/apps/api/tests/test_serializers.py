@@ -602,6 +602,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'external_key': course_run.external_key,
             'is_enrollable': course_run.is_enrollable,
             'is_marketable': course_run.is_marketable,
+            'availability': course_run.availability,
         }
 
 
