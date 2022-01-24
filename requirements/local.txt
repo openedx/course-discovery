@@ -17,7 +17,7 @@ algoliasearch-django==1.7.3
     #   -r requirements/base.in
 amqp==5.0.9
     # via kombu
-asgiref==3.4.1
+asgiref==3.5.0
     # via django
 astroid==2.5
     # via
@@ -105,8 +105,6 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-deprecated==1.2.13
-    # via redis
 distlib==0.3.4
     # via virtualenv
 distro==1.6.0
@@ -290,7 +288,7 @@ edx-opaque-keys==2.2.2
     #   -r requirements/base.in
     #   edx-ccx-keys
     #   edx-drf-extensions
-edx-rest-api-client==5.4.1
+edx-rest-api-client==5.5.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
@@ -323,7 +321,7 @@ freezegun==1.1.0
     # via -r requirements/test.in
 future==0.18.2
     # via pyjwkest
-h11==0.12.0
+h11==0.13.0
     # via wsproto
 html2text==2020.1.16
     # via -r requirements/base.in
@@ -334,7 +332,7 @@ idna==3.3
     #   urllib3
 imagesize==1.3.0
     # via sphinx
-importlib-metadata==4.10.0
+importlib-metadata==4.10.1
     # via
     #   -r requirements/base.in
     #   markdown
@@ -374,7 +372,7 @@ mock==4.0.3
     # via -r requirements/test.in
 mysqlclient==2.1.0
     # via -r requirements/test.in
-newrelic==7.2.4.171
+newrelic==7.4.0.172
     # via edx-django-utils
 oauthlib==3.1.1
     # via
@@ -386,7 +384,6 @@ packaging==21.3
     # via
     #   drf-yasg
     #   pytest
-    #   redis
     #   sphinx
     #   tox
 paramiko==2.9.2
@@ -422,7 +419,7 @@ pycountry==22.1.10
     # via -r requirements/base.in
 pycparser==2.21
     # via cffi
-pycryptodomex==3.12.0
+pycryptodomex==3.13.0
     # via pyjwkest
 pygments==2.11.2
     # via sphinx
@@ -456,9 +453,9 @@ pynacl==1.5.0
     # via paramiko
 pyopenssl==21.0.0
     # via urllib3
-pyparsing==3.0.6
+pyparsing==3.0.7
     # via packaging
-pyrsistent==0.18.0
+pyrsistent==0.18.1
     # via jsonschema
 pytest==6.2.5
     # via
@@ -508,8 +505,10 @@ pyyaml==5.4.1
     #   edx-i18n-tools
 rcssmin==1.1.0
     # via django-compressor
-redis==4.1.0
-    # via -r requirements/base.in
+redis==3.5.3
+    # via
+    #   -c requirements/common_constraints.txt
+    #   -r requirements/base.in
 requests==2.27.1
     # via
     #   -r requirements/base.in
@@ -584,7 +583,7 @@ social-auth-app-django==5.0.0
     # via
     #   -r requirements/base.in
     #   edx-auth-backends
-social-auth-core==4.1.0
+social-auth-core==4.2.0
     # via
     #   edx-auth-backends
     #   social-auth-app-django
@@ -675,12 +674,10 @@ websocket-client==0.59.0
     #   docker
     #   docker-compose
 wrapt==1.12.1
-    # via
-    #   astroid
-    #   deprecated
+    # via astroid
 wsproto==1.0.0
     # via trio-websocket
-xss-utils==0.3.0
+xss-utils==0.4.0
     # via -r requirements/base.in
 zipp==3.7.0
     # via importlib-metadata
