@@ -785,7 +785,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
-                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term',)
+                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability')
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -890,7 +890,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         fields = MinimalCourseRunSerializer.Meta.fields + (
             'course', 'full_description', 'announcement', 'video', 'seats', 'content_language', 'license', 'outcome',
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
-            'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
+            'level_type', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
             'course_uuid', 'estimated_hours', 'content_language_search_facet_name',

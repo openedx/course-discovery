@@ -99,6 +99,10 @@ class LearnerPathway(models.Model):
     )
     overview = models.TextField(blank=True)
 
+    class Meta:
+        verbose_name = _('Learner Pathway')
+        verbose_name_plural = _('Learner Pathways')
+
     @property
     def time_of_completion(self) -> float:
         """
@@ -145,6 +149,10 @@ class LearnerPathwayStep(models.Model):
         ],
         help_text=_('Minimum number of nodes to complete this step of the pathway')
     )
+
+    class Meta:
+        verbose_name = _('Learner Pathway Step')
+        verbose_name_plural = _('Learner Pathway Steps')
 
     def clean(self):
         # Ensure that the minimum requirement is not more than the number of nodes
@@ -197,6 +205,13 @@ class LearnerPathwayCourse(LearnerPathwayNode):
 
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='learner_pathway_courses')
 
+    class Meta:
+        verbose_name = _('Learner Pathway Course')
+        verbose_name_plural = _('Learner Pathway Courses')
+        unique_together = (
+            ('step', 'course'),
+        )
+
     def get_estimated_time_of_completion(self) -> str:
         """
         Returns the average estimated work hours to complete the course run.
@@ -229,6 +244,13 @@ class LearnerPathwayCourse(LearnerPathwayNode):
 class LearnerPathwayProgram(LearnerPathwayNode):
 
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='learner_pathway_programs')
+
+    class Meta:
+        verbose_name = _('Learner Pathway Program')
+        verbose_name_plural = _('Learner Pathway Programs')
+        unique_together = (
+            ('step', 'program'),
+        )
 
     def get_estimated_time_of_completion(self) -> str:
         """

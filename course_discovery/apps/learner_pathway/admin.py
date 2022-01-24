@@ -16,7 +16,6 @@ class LearnerPathwayProgramInline(admin.TabularInline):
     model = LearnerPathwayProgram
     extra = 0
     autocomplete_fields = ('program', )
-    classes = ('collapse',)
     readonly_fields = ('estimated_completion_time',)
 
     def estimated_completion_time(self, pathway_program):
@@ -27,7 +26,6 @@ class LearnerPathwayCourseInline(admin.TabularInline):
     model = LearnerPathwayCourse
     extra = 0
     autocomplete_fields = ('course', )
-    classes = ('collapse',)
     readonly_fields = ('estimated_completion_time',)
 
     def estimated_completion_time(self, pathway_course):
@@ -62,9 +60,10 @@ class LearnerPathwayStepInline(admin.TabularInline):
     model = LearnerPathwayStep
     extra = 0
     min_num = 1
-    readonly_fields = ('title', 'estimated_completion_time')
+    readonly_fields = ('UUID', 'estimated_completion_time',)
+    exclude = ('min_requirement',)
 
-    def title(self, pathway_step):
+    def UUID(self, pathway_step):
         step_change_url = reverse('admin:learner_pathway_learnerpathwaystep_change', args=(pathway_step.id,))
         return format_html('<a href="{}">{}</a>', step_change_url, pathway_step.uuid)
 
