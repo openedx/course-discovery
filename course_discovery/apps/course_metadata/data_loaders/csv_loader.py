@@ -1,6 +1,6 @@
 """
-Data loader responsible for creating course and course runs entries in Database
-provided a csv containing the required information.
+Data loader responsible for creating course and course runs entries in discovery Database,
+creating and updating related objects in Studio, and ecommerce, provided a csv containing the required information.
 """
 import csv
 import logging
