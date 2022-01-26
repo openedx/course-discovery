@@ -92,7 +92,7 @@ class CSVLoaderMixin:
         'staff': ['staff_2', 'staff_1'],
         'content_language': 'English - United States',
         'transcript_language': ['English - Great Britain'],
-        'go_live_date': '2020-01-01T00:00:00+00:00',
+        'go_live_date': '2020-01-25T00:00:00+00:00',
         'expected_program_type': 'professional-certificate',
         'expected_program_name': 'New Program for all',
     }

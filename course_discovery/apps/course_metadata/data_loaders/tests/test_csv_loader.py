@@ -235,7 +235,12 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.mock_image_response()
 
         course = CourseFactory(key=self.COURSE_KEY, partner=self.partner, type=self.course_type, draft=True)
-        CourseRunFactory(course=course, key=self.COURSE_RUN_KEY, type=self.course_run_type, draft=True)
+        CourseRunFactory(
+            course=course,
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            draft=True,
+        )
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])

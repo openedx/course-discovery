@@ -3094,10 +3094,10 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'additional_information': '',
     'about_video_link': 'http://www.example.com',
     'course_embargo_(ofac)_restriction_text_added_to_the_faq_section': False,
-    'publish_date': '01/01/2020',
-    'start_date': '01/01/2020',
+    'publish_date': '01/25/2020',
+    'start_date': '01/25/2020',
     'start_time': '00:00',
-    'end_date': '01/01/2021',
+    'end_date': '02/25/2020',
     'end_time': '00:00',
     'course_pacing': 'self-paced',
     'course_run_enrollment_track': 'Verified and Audit',
@@ -3109,7 +3109,7 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'transcript_language': 'English - Great Britain',
     'expected_program_type': 'professional-certificate',
     'expected_program_name': 'New Program for all',
-    'upgrade_deadline_override_date': '02/01/2020',
+    'upgrade_deadline_override_date': '01/25/2020',
     'upgrade_deadline_override_time': '00:00'
 }
 
