@@ -32,11 +32,11 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AdditionalPromoArea, Collaborator, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun,
-    CourseRunType, CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost,
-    DegreeDeadline, Endorsement, IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person,
-    PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType,
-    Subject, Topic, Track, Video
+    FAQ, AdditionalMetadata, AdditionalPromoArea, Collaborator, CorporateEndorsement, Course, CourseEditor,
+    CourseEntitlement, CourseRun, CourseRunType, CourseType, Curriculum, CurriculumCourseMembership,
+    CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, LevelType,
+    Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program,
+    ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -601,6 +601,13 @@ class TrackSerializer(BaseModelSerializer):
         fields = ('seat_type', 'mode')
 
 
+class AdditionalMetadataSerializer(BaseModelSerializer):
+    """Serializer for the ``AdditionalMetadata`` model."""
+    class Meta:
+        model = AdditionalMetadata
+        fields = ('external_identifier', 'external_url')
+
+
 class CourseRunTypeSerializer(BaseModelSerializer):
     """Serializer for the ``CourseRunType`` model."""
     modes = serializers.SerializerMethodField()
@@ -1072,6 +1079,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     canonical_course_run_key = serializers.SerializerMethodField()
     original_image = ImageField(read_only=True, source='original_image_url')
     extra_description = AdditionalPromoAreaSerializer(required=False)
+    additional_metadata = AdditionalMetadataSerializer(required=False)
     topics = TagListSerializerField(required=False)
     url_slug = serializers.SlugField(read_only=True, source='active_url_slug')
     url_slug_history = serializers.SlugRelatedField(slug_field='url_slug', read_only=True, many=True)
@@ -1096,6 +1104,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'video__image',
             'partner',
             'extra_description',
+            'additional_metadata',
             '_official_version',
             'canonical_course_run',
             'type',
@@ -1124,7 +1133,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'full_description', 'level_type', 'subjects', 'prerequisites',
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
-            'extra_description', 'additional_information', 'faq', 'learner_testimonials',
+            'extra_description', 'additional_information', 'additional_metadata', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills',
@@ -1157,6 +1166,24 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
     def create(self, validated_data):
         return Course.objects.create(**validated_data)
+
+    def update_additional_metadata(self, instance, additional_metadata):
+        external_url = additional_metadata and additional_metadata.get('external_url')
+        external_identifier = additional_metadata.get('external_identifier')
+
+        if external_url:
+            additional_metadata, _ = AdditionalMetadata.objects.get_or_create(external_url=external_url)
+            if external_identifier:
+                additional_metadata.external_identifier = external_identifier
+            instance.additional_metadata = additional_metadata
+
+        # save() will be called by main update()
+
+    def update(self, instance, validated_data):
+        # Handle writing nested additional_metadata separately
+        if 'additional_metadata' in validated_data:
+            self.update_additional_metadata(instance, validated_data.pop('additional_metadata'))
+        return super().update(instance, validated_data)
 
 
 class CourseWithProgramsSerializer(CourseSerializer):

@@ -67,6 +67,14 @@ class TopicFactory(factory.django.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
 
 
+class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = AdditionalMetadata
+
+    external_identifier = FuzzyText()
+    external_url = FuzzyURL()
+
+
 class LevelTypeFactory(AbstractNamedModelFactory):
     name_t = FuzzyText()
 
@@ -216,6 +224,7 @@ class CourseFactory(SalesforceRecordFactory):
     image = factory.django.ImageField()
     canonical_course_run = None
     extra_description = factory.SubFactory(AdditionalPromoAreaFactory)
+    additional_metadata = factory.SubFactory(AdditionalMetadataFactory)
     additional_information = FuzzyText()
     faq = FuzzyText()
     learner_testimonials = FuzzyText()
