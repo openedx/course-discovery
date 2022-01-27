@@ -3110,7 +3110,8 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'expected_program_type': 'professional-certificate',
     'expected_program_name': 'New Program for all',
     'upgrade_deadline_override_date': '01/25/2020',
-    'upgrade_deadline_override_time': '00:00'
+    'upgrade_deadline_override_time': '00:00',
+    'redirect_url': 'http://www.example.com',
 }
 
 INVALID_ORGANIZATION_DATA = {
