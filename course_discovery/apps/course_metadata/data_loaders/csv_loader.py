@@ -78,7 +78,7 @@ class CSVDataLoader(AbstractDataLoader):
             else:
                 logger.info("Course key {} could not be found in database, creating the course.".format(course_key))
                 try:
-                    _ = self._create_course(row, course_type.uuid, course_run_type.uuid)
+                    _ = self._create_course(row, course_type, course_run_type.uuid)
                 except Exception:  # pylint: disable=broad-except
                     logger.exception("Error occurred when attempting to create a new course against key {}".format(
                         course_key
@@ -103,7 +103,7 @@ class CSVDataLoader(AbstractDataLoader):
             # No need to update the course run if the run is already in the review
             if not course_run.in_review:
                 try:
-                    self._update_course_run(row, course_run)
+                    self._update_course_run(row, course_run, course_type)
                     course_run.refresh_from_db()
                 except Exception:  # pylint: disable=broad-except
                     logger.exception("An unknown error occurred while updating course run information")
@@ -117,12 +117,12 @@ class CSVDataLoader(AbstractDataLoader):
             logger.info("Course and course run updated successfully for course key {}".format(course_key))
         logger.info("CSV loader ingest pipeline has completed.")
 
-    def _create_course_api_request_data(self, data, course_type_uuid, course_run_type_uuid):
+    def _create_course_api_request_data(self, data, course_type, course_run_type_uuid):
         """
         Given a data dictionary, return a reduced data representation in dict
         which will be used as input for course creation via course api.
         """
-        pricing = self.get_pricing_representation(data['verified_price'])
+        pricing = self.get_pricing_representation(data['verified_price'], course_type)
 
         # TODO: make appropriate timezone adjustment when it is confirmed if time values are in EST or UTC
         course_run_creation_fields = {
@@ -136,7 +136,7 @@ class CSVDataLoader(AbstractDataLoader):
             'org': data['organization'],
             'title': data['title'],
             'number': data['number'],
-            'type': str(course_type_uuid),
+            'type': str(course_type.uuid),
             'prices': pricing,
             'course_run': course_run_creation_fields
         }
@@ -160,7 +160,7 @@ class CSVDataLoader(AbstractDataLoader):
             'type': str(course.type.uuid),
             'subjects': subjects,
             'collaborators': collaborator_uuids,
-            'prices': self.get_pricing_representation(data['verified_price']),
+            'prices': self.get_pricing_representation(data['verified_price'], course.type),
 
             'title': data['title'],
             'syllabus_raw': data['syllabus'],
@@ -176,7 +176,7 @@ class CSVDataLoader(AbstractDataLoader):
         }
         return update_course_data
 
-    def _update_course_run_request_data(self, data, course_run):
+    def _update_course_run_request_data(self, data, course_run, course_type):
         """
         Create and return the request data for making a patch call to update the course run.
         """
@@ -188,7 +188,7 @@ class CSVDataLoader(AbstractDataLoader):
         update_course_run_data = {
             'run_type': str(course_run.type.uuid),
             'key': course_run.key,
-            'prices': self.get_pricing_representation(data['verified_price']),
+            'prices': self.get_pricing_representation(data['verified_price'], course_type),
             'staff': staff_uuids,
             'draft': False,
 
@@ -260,14 +260,14 @@ class CSVDataLoader(AbstractDataLoader):
         response.raise_for_status()
         return response
 
-    def _create_course(self, data, course_type_uuid, course_run_type_uuid):
+    def _create_course(self, data, course_type, course_run_type_uuid):
         """
         Make a course entry through course api.
         """
         course_api_url = reverse('api:v1:course-list')
         url = f"{settings.DISCOVERY_BASE_URL}{course_api_url}"
 
-        request_data = self._create_course_api_request_data(data, course_type_uuid, course_run_type_uuid)
+        request_data = self._create_course_api_request_data(data, course_type, course_run_type_uuid)
         response = self._call_course_api('POST', url, request_data)
         if response.status_code not in (200, 201):
             logger.info("Course creation response: {}".format(response.content))
@@ -286,13 +286,13 @@ class CSVDataLoader(AbstractDataLoader):
             logger.info("Course update response: {}".format(response.content))
         return response.json()
 
-    def _update_course_run(self, data, course_run):
+    def _update_course_run(self, data, course_run, course_type):
         """
         Update the course run data.
         """
         course_run_api_url = reverse('api:v1:course_run-detail', kwargs={'key': course_run.key})
         url = f"{settings.DISCOVERY_BASE_URL}{course_run_api_url}?exclude_utm=1"
-        request_data = self._update_course_run_request_data(data, course_run)
+        request_data = self._update_course_run_request_data(data, course_run, course_type)
         response = self._call_course_api('PATCH', url, request_data)
         if response.status_code not in (200, 201):
             logger.info("Course run update response: {}".format(response.content))
@@ -330,14 +330,15 @@ class CSVDataLoader(AbstractDataLoader):
         """
         return '{org}+{number}'.format(org=organization_key, number=number)
 
-    def get_pricing_representation(self, verified_price):
+    def get_pricing_representation(self, price, course_type):
         """
-        Return dict representation of prices.
+        Return dict representation of prices for a given course type.
         """
-        return {
-            'verified': verified_price,  # TODO: temporary value to verified
-            # Actual value from course type -> entitlement_tracks -> slugs
-        }
+        prices = {}
+        entitlement_types = course_type.entitlement_types.all()
+        for entitlement_type in entitlement_types:
+            prices.update({entitlement_type.slug: price})
+        return prices
 
     def get_subject_slugs(self, *subjects):
         """
