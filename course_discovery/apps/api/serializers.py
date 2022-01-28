@@ -1176,8 +1176,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             if external_identifier:
                 additional_metadata.external_identifier = external_identifier
             instance.additional_metadata = additional_metadata
-
-        # save() will be called by main update()
+            instance.save()
 
     def update(self, instance, validated_data):
         # Handle writing nested additional_metadata separately
