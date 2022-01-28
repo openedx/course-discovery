@@ -94,6 +94,11 @@ class PersonAreaOfExpertiseInline(admin.TabularInline):
     extra = 0
 
 
+class AdditionalMetadataInline(admin.TabularInline):
+    model = AdditionalMetadata
+    extra = 0
+
+
 @admin.register(Course)
 class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = CourseAdminForm
@@ -402,6 +407,17 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
     def courses(self, obj):
         return ', '.join([
             course.key for course in obj.extra_description.all()
+        ])
+
+
+@admin.register(AdditionalMetadata)
+class AdditionalMetadataAdmin(admin.ModelAdmin):
+    list_display = ('id', 'external_identifier', 'external_url', 'courses')
+    search_fields = ('external_identifier', 'external_url')
+
+    def courses(self, obj):
+        return ', '.join([
+            course.key for course in obj.related_courses.all()
         ])
 
 

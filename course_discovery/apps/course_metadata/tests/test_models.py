@@ -189,6 +189,14 @@ class TestCourse(TestCase):
         factories.CourseRunFactory(course=course, end=end)
         self.assertEqual(course.course_ends, expected)
 
+    def test_additional_metadata(self):
+        """ Verify the property returns valid additional metadata fields. """
+
+        additional_metadata = factories.AdditionalMetadataFactory()
+        course = factories.CourseFactory(additional_metadata=additional_metadata)
+        self.assertEqual(course.additional_metadata.external_identifier, additional_metadata.external_identifier)
+        self.assertEqual(course.additional_metadata.external_url, additional_metadata.external_url)
+
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
     @classmethod

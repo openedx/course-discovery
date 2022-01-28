@@ -589,6 +589,18 @@ class TopicTranslation(TranslatedFieldsModel):
         verbose_name = _('Topic model translations')
 
 
+class AdditionalMetadata(TimeStampedModel):
+    """
+    This model holds 2U related additional fields
+    """
+
+    external_url = models.URLField(blank=False, null=False)
+    external_identifier = models.CharField(max_length=255, blank=True, null=False)
+
+    def __str__(self):
+        return f"{self.external_url} - {self.external_identifier}"
+
+
 class Prerequisite(AbstractNamedModel):
     """ Prerequisite model. """
 
@@ -782,6 +794,11 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     full_description = NullHtmlField()
     extra_description = models.ForeignKey(
         AdditionalPromoArea, models.CASCADE, default=None, null=True, blank=True, related_name='extra_description',
+    )
+    additional_metadata = models.ForeignKey(
+        AdditionalMetadata, models.CASCADE,
+        related_name='related_courses',
+        default=None, null=True, blank=True
     )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
