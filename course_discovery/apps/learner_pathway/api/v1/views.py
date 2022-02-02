@@ -6,6 +6,7 @@ from rest_framework import viewsets
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.learner_pathway import models
 from course_discovery.apps.learner_pathway.api import serializers
+from course_discovery.apps.learner_pathway.choices import PathwayStatus
 
 
 class LearnerPathwayViewSet(viewsets.ModelViewSet):
@@ -15,7 +16,7 @@ class LearnerPathwayViewSet(viewsets.ModelViewSet):
 
     lookup_field = 'uuid'
     serializer_class = serializers.LearnerPathwaySerializer
-    queryset = models.LearnerPathway.objects.all()
+    queryset = models.LearnerPathway.objects.filter(status=PathwayStatus.Active)
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.

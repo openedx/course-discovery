@@ -57,8 +57,7 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
     def get_node_type_count(cls, step):
         node_type_count = defaultdict(int)
         for node_class in cls.get_subclasses():
-            node_type = node_class.get_type()
-            node_type_count[node_type] = node_class.objects.filter(step=step).count()
+            node_type_count[node_class.NODE_TYPE] = node_class.objects.filter(step=step).count()
 
         return dict(node_type_count)
 
@@ -203,6 +202,8 @@ class LearnerPathwayStep(models.Model):
 
 class LearnerPathwayCourse(LearnerPathwayNode):
 
+    NODE_TYPE = constants.NODE_TYPE_COURSE
+
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='learner_pathway_courses')
 
     class Meta:
@@ -224,10 +225,6 @@ class LearnerPathwayCourse(LearnerPathwayNode):
         """
         return get_whitelisted_serialized_skills(self.course.key)
 
-    @staticmethod
-    def get_type():
-        return constants.NODE_TYPE_COURSE
-
     def __str__(self):
         """
         Create a human-readable string representation of the object.
@@ -242,6 +239,8 @@ class LearnerPathwayCourse(LearnerPathwayNode):
 
 
 class LearnerPathwayProgram(LearnerPathwayNode):
+
+    NODE_TYPE = constants.NODE_TYPE_PROGRAM
 
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='learner_pathway_programs')
 
@@ -272,10 +271,6 @@ class LearnerPathwayProgram(LearnerPathwayNode):
 
         return program_skills
 
-    @staticmethod
-    def get_type():
-        return constants.NODE_TYPE_PROGRAM
-
     def __str__(self):
         """
         Create a human-readable string representation of the object.
@@ -293,6 +288,8 @@ class LearnerPathwayBlock(LearnerPathwayNode):
     """
     Mode for storing course block information from a learner pathway.
     """
+    NODE_TYPE = constants.NODE_TYPE_BLOCK
+
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='learner_pathway_blocks')
     block_id = UsageKeyField(max_length=255)
 
@@ -307,10 +304,6 @@ class LearnerPathwayBlock(LearnerPathwayNode):
         Return list of dicts where each dict contain skill name and skill description.
         """
         return get_whitelisted_serialized_skills(self.course.key)
-
-    @staticmethod
-    def get_type():
-        return constants.NODE_TYPE_BLOCK
 
     def __str__(self):
         """
