@@ -1026,6 +1026,8 @@ class MinimalProgramSerializerTests(TestCase):
             'marketing_slug': program.marketing_slug,
             'marketing_url': program.marketing_url,
             'banner_image': image_field.to_representation(program.banner_image),
+            'expected_learning_items': [item.value for item in program.expected_learning_items.all()],
+            'price_ranges': program.price_ranges,
             'hidden': program.hidden,
             'courses': MinimalProgramCourseSerializer(
                 program.courses,

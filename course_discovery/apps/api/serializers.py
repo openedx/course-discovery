@@ -1550,6 +1550,7 @@ class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
     degree = DegreeSerializer()
     curricula = CurriculumSerializer(many=True)
     card_image_url = serializers.SerializerMethodField()
+    expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -1576,7 +1577,7 @@ class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
             'banner_image', 'hidden', 'courses', 'authoring_organizations', 'card_image_url',
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
             'total_hours_of_effort', 'recent_enrollment_count',
-            'price_ranges', 'expected_learning_items',
+            'expected_learning_items', 'price_ranges',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
