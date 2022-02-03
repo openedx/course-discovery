@@ -30,11 +30,12 @@ class CSVDataLoader(AbstractDataLoader):
         ProgramType.PROFESSIONAL_CERTIFICATE
     ]
 
-    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None):
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, is_draft=False):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         try:
             self.reader = csv.DictReader(open(csv_path, 'r'))
+            self.is_draft = is_draft
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))
             raise  # re-raising exception to avoid moving the code flow
@@ -109,10 +110,11 @@ class CSVDataLoader(AbstractDataLoader):
                     logger.exception("An unknown error occurred while updating course run information")
                     continue
 
-            try:
-                self._complete_run_review(row, course_run)
-            except Exception:  # pylint: disable=broad-except
-                logger.exception("An unknown error occurred while completing course run review")
+            if not self.is_draft:
+                try:
+                    self._complete_run_review(row, course_run)
+                except Exception:  # pylint: disable=broad-except
+                    logger.exception("An unknown error occurred while completing course run review")
 
             logger.info("Course and course run updated successfully for course key {}".format(course_key))
         logger.info("CSV loader ingest pipeline has completed.")
@@ -153,7 +155,7 @@ class CSVDataLoader(AbstractDataLoader):
         )
 
         update_course_data = {
-            'draft': False,
+            'draft': self.is_draft,
             'key': course.key,
             'uuid': str(course.uuid),
             'url_slug': course.url_slug,
@@ -191,7 +193,7 @@ class CSVDataLoader(AbstractDataLoader):
             'key': course_run.key,
             'prices': self.get_pricing_representation(data['verified_price'], course_type),
             'staff': staff_uuids,
-            'draft': False,
+            'draft': self.is_draft,
 
             'weeks_to_complete': data['length'],
             'min_effort': data['minimum_effort'],
@@ -202,7 +204,7 @@ class CSVDataLoader(AbstractDataLoader):
             'go_live_date': self.get_formatted_datetime_string(data['publish_date']),
             'expected_program_type': program_type if program_type in self.PROGRAM_TYPES else None,
             'upgrade_deadline_override': self.get_formatted_datetime_string(
-                f"{data['upgrade_deadline_override_date']} {data['upgrade_deadline_override_time']}"
+                f"{data['upgrade_deadline_override_date']} {data['upgrade_deadline_override_time']}".strip()
             ),
         }
         return update_course_run_data
