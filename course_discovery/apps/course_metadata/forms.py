@@ -51,6 +51,9 @@ class ProgramAdminForm(forms.ModelForm):
         self.fields['courses'].required = False
 
     def clean(self):
+
+        super().clean()
+
         status = self.cleaned_data.get('status')
         banner_image = self.cleaned_data.get('banner_image')
 
