@@ -2963,7 +2963,7 @@ class CourseUrlSlug(TimeStampedModel):
     # need to have these on the model separately for unique_together to work, but it should always match course.partner
     partner = models.ForeignKey(Partner, models.CASCADE)
     url_slug = AutoSlugField(populate_from='course__title', editable=True, slugify_function=uslugify,
-                             overwrite_on_add=False, max_length=255, db_collation='utf8_bin')
+                             overwrite_on_add=False, max_length=255)
     is_active = models.BooleanField(default=False)
 
     # useful if a course editor decides to edit a draft and provide a url_slug that has already been associated
