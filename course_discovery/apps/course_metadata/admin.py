@@ -659,3 +659,9 @@ class CollaboratorAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'name', 'image')
     readonly_fields = ('uuid', )
     search_fields = ('uuid', 'name')
+
+
+@admin.register(CourseUrlSlug)
+class CourseUrlSlugAdmin(admin.ModelAdmin):
+    list_display = ('course', 'url_slug', 'is_active')
+    search_fields = ('url_slug', 'course__title', 'course__key',)
