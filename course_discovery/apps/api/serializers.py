@@ -1668,6 +1668,52 @@ class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
         return obj.card_image_url
 
 
+class MinimalExtendedProgramSerializer(MinimalProgramSerializer):
+    """
+    Extended minimal program serializer.
+
+    Identical to the `MinimalProgramSerializer` except with two additional fields
+
+    When using the FlexFieldsSerializerMixin to get the courses field on a program,
+    you will also need to include the fields you want on the course object
+    since the course serializer also uses drf_dynamic_fields.
+    Eg: ?fields=courses,course_runs
+    """
+
+    authoring_organizations = MinimalOrganizationSerializer(many=True)
+    banner_image = StdImageSerializerField()
+    courses = serializers.SerializerMethodField()
+    type = serializers.SlugRelatedField(slug_field='name_t', queryset=ProgramType.objects.all())
+    type_attrs = ProgramTypeAttrsSerializer(source='type')
+    degree = DegreeSerializer()
+    curricula = CurriculumSerializer(many=True)
+    card_image_url = serializers.SerializerMethodField()
+    expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
+
+    @classmethod
+    def prefetch_queryset(cls, partner, queryset=None):
+        # Explicitly check if the queryset is None before selecting related
+        queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
+
+        return queryset.select_related('type', 'partner').prefetch_related(
+            'excluded_course_runs',
+            'expected_learning_items',
+            # `type` is serialized by a third-party serializer. Providing this field name allows us to
+            # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
+            # `ProgramType` on `Program`.
+            'type__applicable_seat_types',
+            'type__translations',
+            'authoring_organizations',
+            'degree',
+            'curricula',
+            Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
+        )
+
+    class Meta(MinimalProgramSerializer.Meta):
+        model = Program
+        fields = MinimalProgramSerializer.Meta.fields + ('expected_learning_items', 'price_ranges')
+
+
 class ProgramSerializer(MinimalProgramSerializer):
     authoring_organizations = OrganizationSerializer(many=True)
     video = VideoSerializer()
