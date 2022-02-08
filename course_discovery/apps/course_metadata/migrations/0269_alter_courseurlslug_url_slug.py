@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='courseurlslug',
             name='url_slug',
-            field=django_extensions.db.fields.AutoSlugField(blank=True, db_collation='utf8_bin', editable=False, max_length=255, populate_from='course__title'),
+            field=django_extensions.db.fields.AutoSlugField(blank=True, editable=False, max_length=255, populate_from='course__title'),
         ),
     ]
