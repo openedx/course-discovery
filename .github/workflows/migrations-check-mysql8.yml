@@ -79,4 +79,4 @@ jobs:
         echo "CREATE DATABASE IF NOT EXISTS discovery;" | sudo mysql -u root
         echo "Running the migrations."
         python manage.py migrate --settings=course_discovery.settings.test
-        echo "use mysql; select * from user;" | sudo mysql -u root
+        echo "use mysql; SHOW VARIABLES LIKE 'version';" | sudo mysql -u root
