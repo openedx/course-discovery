@@ -82,3 +82,5 @@ CELERY_BROKER_URL = 'memory://localhost/'
 # Learner Pathway
 # Disable learner pathway on all environment except devstack and testing.
 ENABLE_LEARNER_PATHWAY = True
+
+PRODUCT_API_URL = 'http://www.example.com'
