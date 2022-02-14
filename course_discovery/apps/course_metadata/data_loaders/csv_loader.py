@@ -175,7 +175,10 @@ class CSVDataLoader(AbstractDataLoader):
             'short_description': data['short_description'],
             'learner_testimonials': data['learner_testimonials'],
             'additional_information': data['additional_information'],
-            'additional_metadata': {'external_url': data['redirect_url']},
+            'additional_metadata': {
+                'external_url': data['redirect_url'],
+                'external_identifier': data['external_identifier'],
+            },
         }
         return update_course_data
 

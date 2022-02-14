@@ -59,7 +59,7 @@ class CSVLoaderMixin:
         'start_date', 'start_time', 'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing', 'staff',
         'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language',
         'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
-        'upgrade_deadline_override_time', 'redirect_url'
+        'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
     ]
     BASE_EXPECTED_COURSE_DATA = {
         'draft': False,
@@ -79,6 +79,7 @@ class CSVLoaderMixin:
                             'Description,Organization,Title,Number,Course Enrollment track,Image,Short Description'
                             ',Long Description,</p>',
         'external_url': 'http://www.example.com',
+        'external_identifier': '123456789',
     }
 
     BASE_EXPECTED_COURSE_RUN_DATA = {
@@ -202,6 +203,7 @@ class CSVLoaderMixin:
         assert course.type == self.course_type
         assert course_entitlement.price == expected_data['verified_price']
         assert course.additional_metadata.external_url == expected_data['external_url']
+        assert course.additional_metadata.external_identifier == expected_data['external_identifier']
         assert sorted([subject.slug for subject in course.subjects.all()]) == sorted(expected_data['subjects'])
         assert sorted(
             [collaborator.name for collaborator in course.collaborators.all()]
