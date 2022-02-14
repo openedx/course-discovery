@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import FileExtensionValidator
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -1074,6 +1074,14 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         # logging to help debug error around course url slugs incrementing
         logger.info('The current slug is {}; The slug to be set is {}; Current course is a draft: {}'
                     .format(self.url_slug, slug, self.draft))
+
+        if slug:
+            # case 0: if slug is already in use with another, rasie an IntegrityError
+            excluded_course = self.official_version if self.draft else self.draft_version
+            slug_already_in_use = CourseUrlSlug.objects.filter(url_slug__iexact=slug.lower()).exclude(
+                course__in=[self, excluded_course]).exists()
+            if slug_already_in_use:
+                raise IntegrityError(f'This slug {slug} is already in use with another course')
 
         if self.draft:
             active_draft_url_slug_object = self.url_slug_history.filter(is_active=True).first()
