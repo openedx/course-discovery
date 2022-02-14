@@ -1175,7 +1175,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             additional_metadata, _ = AdditionalMetadata.objects.get_or_create(external_url=external_url)
             if external_identifier:
                 additional_metadata.external_identifier = external_identifier
-            additional_metadata.save()
+                additional_metadata.save()
             instance.additional_metadata = additional_metadata
             instance.save()
 
