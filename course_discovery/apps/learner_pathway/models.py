@@ -13,7 +13,6 @@ from opaque_keys.edx.django.models import UsageKeyField
 from stdimage.models import StdImageField
 from taxonomy.utils import get_whitelisted_serialized_skills
 
-from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import Course, Program
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.learner_pathway import constants
@@ -81,7 +80,6 @@ class LearnerPathway(models.Model):
     """
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Pathway name'))
-    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     status = models.CharField(
         help_text=_('The active/inactive status of this Pathway.'),
         max_length=16, default=PathwayStatus.Inactive,

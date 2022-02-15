@@ -8,7 +8,6 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import (
 
 from .course import CourseSearchDocumentSerializer, CourseSearchModelSerializer
 from .course_run import CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer
-from .learner_pathway import LearnerPathwaySearchDocumentSerializer, LearnerPathwaySearchModelSerializer
 from .person import PersonSearchDocumentSerializer
 from .program import ProgramSearchDocumentSerializer, ProgramSearchModelSerializer
 
@@ -27,7 +26,6 @@ class AggregateSearchModelSerializer(MultiDocumentSerializerMixin, DocumentSeria
         serializers = {
             documents.CourseRunDocument: CourseRunSearchModelSerializer,
             documents.CourseDocument: CourseSearchModelSerializer,
-            documents.LearnerPathwayDocument: LearnerPathwaySearchModelSerializer,
             documents.ProgramDocument: ProgramSearchModelSerializer,
         }
 
@@ -90,6 +88,5 @@ class AggregateSearchSerializer(MultiDocumentSerializerMixin, DocumentSerializer
             documents.CourseRunDocument: CourseRunSearchDocumentSerializer,
             documents.CourseDocument: CourseSearchDocumentSerializer,
             documents.ProgramDocument: ProgramSearchDocumentSerializer,
-            documents.LearnerPathwayDocument: LearnerPathwaySearchDocumentSerializer,
             documents.PersonDocument: PersonSearchDocumentSerializer,
         }

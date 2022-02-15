@@ -15,5 +15,3 @@ BASE_PROGRAM_FIELDS = (
 )
 
 COMMON_IGNORED_FIELDS = ('text',)
-
-LEARNER_PATHWAY_FEATURE_PARAM = 'include_learner_pathways'

@@ -5,7 +5,6 @@ from .aggregation import (
 from .common import DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 from .course import CourseFacetSerializer, CourseSearchDocumentSerializer, CourseSearchModelSerializer
 from .course_run import CourseRunFacetSerializer, CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer
-from .learner_pathway import LearnerPathwaySearchDocumentSerializer, LearnerPathwaySearchModelSerializer
 from .person import PersonFacetSerializer, PersonSearchDocumentSerializer, PersonSearchModelSerializer
 from .program import ProgramFacetSerializer, ProgramSearchDocumentSerializer, ProgramSearchModelSerializer
 
@@ -22,8 +21,6 @@ __all__ = (
     'CourseRunSearchModelSerializer',
     'DocumentDSLSerializerMixin',
     'ModelObjectDocumentSerializerMixin',
-    'LearnerPathwaySearchDocumentSerializer',
-    'LearnerPathwaySearchModelSerializer',
     'PersonSearchDocumentSerializer',
     'PersonFacetSerializer',
     'PersonSearchModelSerializer',

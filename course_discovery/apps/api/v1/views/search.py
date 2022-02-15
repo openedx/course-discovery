@@ -21,7 +21,6 @@ from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Person
 from course_discovery.apps.course_metadata.search_indexes import documents as search_documents
 from course_discovery.apps.course_metadata.search_indexes import serializers as search_indexes_serializers
-from course_discovery.apps.course_metadata.search_indexes.constants import LEARNER_PATHWAY_FEATURE_PARAM
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.backends import (
     AggregateDataFilterBackend, CatalogDataFilterBackend, MultiMatchSearchFilterBackend
 )
@@ -29,7 +28,6 @@ from course_discovery.apps.edx_elasticsearch_dsl_extensions.constants import LOO
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.viewsets import (
     BaseElasticsearchDocumentViewSet, MultiDocumentsWrapper
 )
-from course_discovery.apps.learner_pathway.models import LearnerPathway
 
 
 class FacetQueryFieldsMixin:
@@ -245,7 +243,6 @@ class AggregateSearchViewSet(BaseAggregateSearchViewSet):
     serializer_class = search_indexes_serializers.AggregateSearchSerializer
     document = MultiDocumentsWrapper(
         search_documents.CourseRunDocument,
-        search_documents.LearnerPathwayDocument,
         search_documents.PersonDocument,
         search_documents.ProgramDocument,
         search_documents.CourseDocument,
@@ -256,20 +253,6 @@ class AggregateSearchViewSet(BaseAggregateSearchViewSet):
         OrderingFilterBackend,
         DefaultOrderingFilterBackend,
     ]
-
-    def get_queryset(self):
-        """Get queryset."""
-        queryset = super().get_queryset()
-
-        # `learnerpathway` data will be visible only when we will pass LEARNER_PATHWAY_FEATURE_PARAM feature param.
-        # Example: GET http://discovery.edx.org/api/v1/search/all/?include_learner_pathways=True
-        # OR GET http://discovery.edx.org/api/v1/search/all/?content_type=learnerpathway&include_learner_pathways=true
-
-        query_params = self.request.query_params
-        if not query_params.get(LEARNER_PATHWAY_FEATURE_PARAM, 'false').lower() == 'true':
-            queryset = queryset.exclude('term', content_type=LearnerPathway.__name__.lower())
-
-        return queryset
 
     @update_query_params_with_body_data
     def create(self, request):

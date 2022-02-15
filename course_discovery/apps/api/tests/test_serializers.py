@@ -12,6 +12,8 @@ from django.utils.text import slugify
 from elasticsearch_dsl.query import Q as ESDSLQ
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
+from rest_framework.test import APIRequestFactory
+from rest_framework.views import APIView
 from taggit.models import Tag
 from waffle.testutils import override_switch
 
@@ -31,7 +33,6 @@ from course_discovery.apps.api.serializers import (
     TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
-from course_discovery.apps.api.tests.test_utils import make_request
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
@@ -40,13 +41,12 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSA
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.search_indexes.documents import (
-    CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
+    CourseDocument, CourseRunDocument, PersonDocument, ProgramDocument
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers import (
     CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer, CourseSearchDocumentSerializer,
-    CourseSearchModelSerializer, LearnerPathwaySearchDocumentSerializer, LearnerPathwaySearchModelSerializer,
-    PersonSearchDocumentSerializer, PersonSearchModelSerializer, ProgramSearchDocumentSerializer,
-    ProgramSearchModelSerializer
+    CourseSearchModelSerializer, PersonSearchDocumentSerializer, PersonSearchModelSerializer,
+    ProgramSearchDocumentSerializer, ProgramSearchModelSerializer
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, AdditionalPromoAreaFactory, CollaboratorFactory, CorporateEndorsementFactory,
@@ -59,15 +59,28 @@ from course_discovery.apps.course_metadata.tests.factories import (
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
-from course_discovery.apps.learner_pathway.api.serializers import LearnerPathwayStepSerializer
-from course_discovery.apps.learner_pathway.tests.factories import (
-    LearnerPathwayCourseFactory, LearnerPathwayFactory, LearnerPathwayProgramFactory, LearnerPathwayStepFactory
-)
-from course_discovery.apps.learner_pathway.tests.test_serializer import TestLearnerPathwaySerializer
 
 
 def json_date_format(datetime_obj):
     return datetime_obj and datetime.datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
+
+
+def make_request(query_param=None):
+    user = UserFactory()
+    if query_param:
+        request = APIRequestFactory().get('/', query_param)
+    else:
+        request = APIRequestFactory().get('/')
+    request.user = user
+
+    # Convert a Django HTTPResponse object into a rest_framework.request
+    # using a generic API view. This is necessary because the drf-flex-fields
+    # library relies on the `.query_params` property of the request. DRF requests
+    # always have the `query_params` parameter unless the request is created using
+    # `APIRequestFactory`, which yelds Django's standard `HttpRequest`.
+    # Documentation: https://www.django-rest-framework.org/api-guide/testing/#forcing-authentication
+    # DRF issue: https://github.com/encode/django-rest-framework/issues/6488
+    return APIView().initialize_request(request)
 
 
 def serialize_language(language):
@@ -2453,63 +2466,6 @@ class ProgramSearchModelSerializerTest(TestProgramSearchDocumentSerializer):
         expected = ProgramSerializerTests.get_expected_data(program, request)
         expected.update({'content_type': 'program'})
         expected.update({'marketing_hook': program.marketing_hook})
-        return expected
-
-
-@pytest.mark.django_db
-@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
-class TestLearnerPathwaySearchDocumentSerializer(TestCase):
-    serializer_class = LearnerPathwaySearchDocumentSerializer
-
-    def setUp(self):
-        super().setUp()
-        self.request = make_request()
-
-    @classmethod
-    def get_expected_data(cls, learner_pathway, request):
-        image_field = StdImageSerializerField()
-        image_field._context = {'request': request}  # pylint: disable=protected-access
-        return {
-            'uuid': str(learner_pathway.uuid),
-            'name': learner_pathway.name,
-            'aggregation_key': f'learner_pathway:{learner_pathway.uuid}',
-            'content_type': 'learnerpathway',
-            'status': learner_pathway.status,
-            'banner_image': image_field.to_representation(learner_pathway.banner_image),
-            'overview': learner_pathway.overview,
-            'published': learner_pathway.status == ProgramStatus.Active,
-            'skill_names': [skill['name'] for skill in learner_pathway.skills],
-            'skills': learner_pathway.skills,
-            'partner': learner_pathway.partner.short_code,
-            'steps': LearnerPathwayStepSerializer(
-                learner_pathway.steps.all(),
-                many=True
-            ).data,
-        }
-
-    def serialize_learner_pathway(self, learner_pathway, request):
-        """ Serializes the given `Program` as a search result. """
-        result = LearnerPathwayDocument.search().filter('term', uuid=learner_pathway.uuid).execute()[0]
-        serializer = self.serializer_class(result, context={'request': request})
-        return serializer
-
-    def test_data(self):
-        learner_pathway = LearnerPathwayFactory()
-        step = LearnerPathwayStepFactory(pathway=learner_pathway)
-        LearnerPathwayCourseFactory(step=step)
-        LearnerPathwayProgramFactory(step=step)
-        serializer = self.serialize_learner_pathway(learner_pathway, self.request)
-        expected = self.get_expected_data(learner_pathway, self.request)
-        assert serializer.data == expected
-
-
-class LearnerPathwaySearchModelSerializerTest(TestLearnerPathwaySearchDocumentSerializer):
-    serializer_class = LearnerPathwaySearchModelSerializer
-
-    @classmethod
-    def get_expected_data(cls, learner_pathway, request):
-        expected = TestLearnerPathwaySerializer.get_expected_data(learner_pathway, request)
-        expected.update({'content_type': 'learnerpathway'})
         return expected
 
 
