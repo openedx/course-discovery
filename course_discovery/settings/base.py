@@ -468,7 +468,6 @@ ELASTICSEARCH_DSL = {
 ELASTICSEARCH_INDEX_NAMES = {
     'course_discovery.apps.course_metadata.search_indexes.documents.course': 'course',
     'course_discovery.apps.course_metadata.search_indexes.documents.course_run': 'course_run',
-    'course_discovery.apps.course_metadata.search_indexes.documents.learner_pathway': 'learner_pathway',
     'course_discovery.apps.course_metadata.search_indexes.documents.person': 'person',
     'course_discovery.apps.course_metadata.search_indexes.documents.program': 'program',
 }

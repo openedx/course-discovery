@@ -24,8 +24,6 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory
 )
-from course_discovery.apps.learner_pathway.models import LearnerPathway
-from course_discovery.apps.learner_pathway.tests.factories import LearnerPathwayStepFactory
 from course_discovery.apps.publisher.tests import factories as publisher_factories
 
 
@@ -276,13 +274,6 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
 
         url = f'{path}?{qs}'
         return self.client.get(url)
-
-    def get_search_all_post_response(self, content_filter, request_params):
-        return self.client.post(
-            self.list_path,
-            json=content_filter,
-            params=request_params,
-        )
 
     def process_response(self, response):
         response = self.get_response(response).json()
@@ -568,29 +559,6 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             [obj.get('aggregation_key') for obj in response_data['objects']['results']]
         )
         assert expected == actual
-
-    @ddt.data(True, False)
-    def test_learner_pathway_feature_flag(self, include_learner_pathways):
-        """ Verify the include_learner_pathways feature flag works as expected."""
-        LearnerPathwayStepFactory(pathway__partner=self.partner)
-        pathways = LearnerPathway.objects.all()
-        assert pathways.count() == 1
-        query = {
-            'include_learner_pathways': include_learner_pathways,
-        }
-
-        response = self.get_response(
-            query,
-            self.list_path
-        )
-        assert response.status_code == 200
-        response_data = response.json()
-
-        if include_learner_pathways:
-            assert response_data['count'] == 1
-            assert response_data['results'][0] == self.serialize_learner_pathway_search(pathways[0])
-        else:
-            assert response_data['count'] == 0
 
 
 class LimitedAggregateSearchViewSetTests(
