@@ -2016,7 +2016,8 @@ class Seat(DraftModelMixin, TimeStampedModel):
     CREDIT = 'credit'
     MASTERS = 'masters'
     EXECUTIVE_EDUCATION = 'executive-education'
-    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION]
+    EXECUTIVE_PROGRAM = 'executive-program'
+    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION, EXECUTIVE_PROGRAM]
     REQUIRES_AUDIT_SEAT = [VERIFIED]
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.
