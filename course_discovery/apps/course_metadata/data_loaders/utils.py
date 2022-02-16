@@ -5,14 +5,28 @@ from lxml.html import clean
 
 from course_discovery.apps.course_metadata.validators import HtmlValidator
 
-for tag, attribs in HtmlValidator.ALLOWED_TAG_ATTRS.items():
-    HtmlValidator.ALLOWED_ATTRS = HtmlValidator.ALLOWED_ATTRS.union(attribs)
 
-cleaner = clean.Cleaner(
-    safe_attrs_only=True,
-    safe_attrs=frozenset(HtmlValidator.ALLOWED_ATTRS),
-    allow_tags=HtmlValidator.ALLOWED_TAGS
-)
+class HtmlCleaner():
+    """
+    Custom html cleaner inline with validator rules.
+    """
+
+    def __init__(self):
+        ALLOWED_TAGS = HtmlValidator.ALLOWED_TAGS
+        ALLOWED_ATTRS = HtmlValidator.ALLOWED_ATTRS
+        ALLOWED_TAG_ATTRS = HtmlValidator.ALLOWED_TAG_ATTRS
+
+        for attribs in ALLOWED_TAG_ATTRS.values():
+            ALLOWED_ATTRS = ALLOWED_ATTRS.union(attribs)
+
+        self.cleaner = clean.Cleaner(
+            safe_attrs_only=True,
+            safe_attrs=frozenset(ALLOWED_ATTRS),
+            allow_tags=ALLOWED_TAGS
+        )
+
+
+cleaner = HtmlCleaner().cleaner
 
 
 def p_tag(text):
