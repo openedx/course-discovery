@@ -37,7 +37,7 @@ class CSVDataLoader(AbstractDataLoader):
             self.reader = csv.DictReader(open(csv_path, 'r'))
             self.reader_len = len(list(self.reader))
             self.start_index = start_index
-            self.batch_size = batch_size if batch_size != -1 else len(self.reader)
+            self.batch_size = batch_size if batch_size != -1 else self.reader_len
             self.is_draft = is_draft
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))
