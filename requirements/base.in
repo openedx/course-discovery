@@ -32,7 +32,7 @@ django-elasticsearch-dsl-drf
 django-object-actions
 drf-flex-fields
 drf-extensions
-dry-rest-permissions
+django-dry-rest-permissions
 edx-api-doc-tools
 edx-analytics-data-api-client
 edx-auth-backends

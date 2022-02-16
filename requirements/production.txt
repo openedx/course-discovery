@@ -211,7 +211,7 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
     #   edx-api-doc-tools
-dry-rest-permissions==0.1.10
+django-dry-rest-permissions==1.2.0
     # via -r requirements/base.in
 edx-analytics-data-api-client==0.17.0
     # via -r requirements/base.in
