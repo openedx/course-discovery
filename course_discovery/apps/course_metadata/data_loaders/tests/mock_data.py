@@ -3134,3 +3134,54 @@ INVALID_LANGUAGE = {
     **VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
     'content_language': 'gibberish-language',
 }
+
+
+COURSE_TESTIMONIALS = [
+    {
+        "name": "Test User 1",
+        "title": "Freelance editor and proofreader",
+        "text": "Example Testimonial 1"
+    },
+    {
+        "name": "Test User 2",
+        "title": "Professor, University X",
+        "text": "Example Testimonial 2"
+    },
+]
+
+
+COURSE_FAQS = [
+    {
+        "id": "question-id",
+        "headline": "Why take this course?",
+        "blurb": "<p> Example Content with a <a href=\"https://edx.org\" target=\"_blank\">link</a>.</p>"
+    },
+    {
+        "id": "question-id-2",
+        "headline": "Is earth flat?",
+        "blurb": "Earth is a planet from out solar system"
+    },
+]
+
+
+COURSE_CURRICULAM = {
+    "heading": "Test Course curriculum",
+    "blurb": "See how will this be represented in html.",
+    "modules": [
+        {
+            "module_number": 0,
+            "heading": "Orientation module",
+            "description": "Welcome to your Online Campus"
+        },
+        {
+            "module_number": 1,
+            "heading": "Module 1",
+            "description": "Introduction to editing"
+        },
+        {
+            "module_number": 2,
+            "heading": "Module 2",
+            "description": "Spelling, consistency and style"
+        },
+    ]
+}
