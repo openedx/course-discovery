@@ -49,7 +49,7 @@ class CSVDataLoader(AbstractDataLoader):
             if index < self.start_index:
                 # Skip n number of rows while traversal
                 continue
-            if index >= self.batch_size + self.start_index or index == len(self.reader_len):
+            if index >= self.batch_size + self.start_index or index == self.reader_len:
                 # Break when traversal exceeds batch size
                 # There is a possibility that the index is starting from ith location.
                 # So the batch size + start index will be cut 

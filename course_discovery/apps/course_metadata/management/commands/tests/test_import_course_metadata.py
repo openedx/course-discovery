@@ -113,3 +113,42 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     assert course.image.read() == image_content
                     self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
                     self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
+
+    @responses.activate
+    def test_success_batch_flow(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that for a single row of valid data, the command completes CSV loader ingestion flow successfully.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        _, image_content = self.mock_image_response()
+        batch_size = 5  
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(
+                csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT for i in range(10)])
+            
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
+                    call_command(
+                        'import_course_metadata', '--csv_path', csv.name, '--partner_code', self.partner.short_code, '--start_index', 2, '--batch_size', batch_size
+                    )
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Starting CSV loader import flow for partner {}'.format(
+                                self.partner.short_code)
+                        )
+                    )
+                    log_capture.check_present(
+                        (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.')
+                    )
+
+                    assert Course.objects.count() == batch_size
+                    assert CourseRun.objects.count() == batch_size
