@@ -218,7 +218,7 @@ django-waffle==2.3.0
     #   -r requirements/base.in
     #   edx-django-utils
     #   edx-drf-extensions
-django-webpack-loader==0.7.0
+django-webpack-loader==1.4.1
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
