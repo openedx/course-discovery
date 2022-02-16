@@ -37,10 +37,22 @@ class Command(BaseCommand):
             type=bool,
             default=False
         )
+        parser.add_argument(
+            '--start_index',
+            help='The integer value, startiing from 0, which is used to give initial index of the batch. Default is 0.',
+            type=int,
+            required=False
+        )
+        parser.add_argument(
+            '--batch_size',
+            help='The integer value, startiing from 1, which is used to give size of the batch. Default is length of csv.',
+            type=int,
+            required=False
+        )
 
     def handle(self, *args, **options):
         """
-        Example usage: ./manage.py import_course_metadata --partner_code=edx --csv_path=test.csv
+        Example usage: ./manage.py import_course_metadata --partner_code=edx --csv_path=test.csv --start_index=0 --batch_size=10
         """
 
         # The signal disconnect has been taken from refresh_course_metadata management command.
@@ -56,6 +68,8 @@ class Command(BaseCommand):
         csv_path = options.get('csv_path')
         # its default value is False, it will be treated as True if passed by any value via command-line
         is_draft = options.get('is_draft')
+        start_index = options.get('start_index')
+        batch_size = options.get('batch_size')
         try:
             partner = Partner.objects.get(short_code=partner_short_code)
         except Partner.DoesNotExist:
@@ -64,7 +78,8 @@ class Command(BaseCommand):
             )
 
         try:
-            loader = CSVDataLoader(partner, csv_path=csv_path, is_draft=is_draft)
+            loader = CSVDataLoader(
+                partner, csv_path=csv_path, is_draft=is_draft, start_index=start_index, batch_size=batch_size)
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))
             loader.ingest()
         except Exception as exc:

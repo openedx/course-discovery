@@ -30,11 +30,13 @@ class CSVDataLoader(AbstractDataLoader):
         ProgramType.PROFESSIONAL_CERTIFICATE
     ]
 
-    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, is_draft=False):
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, is_draft=False, start_index=0, batch_size=-1):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         try:
             self.reader = csv.DictReader(open(csv_path, 'r'))
+            self.start_index = start_index
+            self.batch_size = batch_size if batch_size != -1 else len(self.reader)
             self.is_draft = is_draft
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))
@@ -42,8 +44,16 @@ class CSVDataLoader(AbstractDataLoader):
 
     def ingest(self):  # pylint: disable=too-many-statements
         logger.info("Initiating CSV data loader flow.")
-        for row in self.reader:
-
+        for index, row in enumerate(self.reader):
+            if index < self.start_index:
+                # Skip n number of rows while traversal
+                continue
+            if index >= self.batch_size + self.start_index or index == len(self.reader):
+                # Break when traversal exceeds batch size
+                # There is a possibility that the index is starting from ith location.
+                # So the batch size + start index will be cut 
+                # off point
+                break
             row = self.transform_dict_keys(row)
             course_title = row['title']
             org_key = row['organization']
