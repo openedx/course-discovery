@@ -35,6 +35,7 @@ class CSVDataLoader(AbstractDataLoader):
 
         try:
             self.reader = csv.DictReader(open(csv_path, 'r'))
+            self.reader_len = len(list(self.reader))
             self.start_index = start_index
             self.batch_size = batch_size if batch_size != -1 else len(self.reader)
             self.is_draft = is_draft
@@ -48,7 +49,7 @@ class CSVDataLoader(AbstractDataLoader):
             if index < self.start_index:
                 # Skip n number of rows while traversal
                 continue
-            if index >= self.batch_size + self.start_index or index == len(self.reader):
+            if index >= self.batch_size + self.start_index or index == len(self.reader_len):
                 # Break when traversal exceeds batch size
                 # There is a possibility that the index is starting from ith location.
                 # So the batch size + start index will be cut 
