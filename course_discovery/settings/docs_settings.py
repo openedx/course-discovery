@@ -21,6 +21,7 @@ ELASTICSEARCH_DSL = {'default': {'hosts': ''}}
 ELASTICSEARCH_INDEX_NAMES = {
     'course_discovery.apps.course_metadata.search_indexes.documents.course': '',
     'course_discovery.apps.course_metadata.search_indexes.documents.course_run': '',
+    'course_discovery.apps.course_metadata.search_indexes.documents.learner_pathway': '',
     'course_discovery.apps.course_metadata.search_indexes.documents.person': '',
     'course_discovery.apps.course_metadata.search_indexes.documents.program': '',
 }

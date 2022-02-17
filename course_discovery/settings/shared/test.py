@@ -7,6 +7,7 @@ ELASTICSEARCH_DSL_SIGNAL_PROCESSOR = 'course_discovery.apps.course_metadata.sear
 ELASTICSEARCH_INDEX_NAMES = {
     'course_discovery.apps.course_metadata.search_indexes.documents.course': 'test_course',
     'course_discovery.apps.course_metadata.search_indexes.documents.course_run': 'test_course_run',
+    'course_discovery.apps.course_metadata.search_indexes.documents.learner_pathway': 'learner_pathway',
     'course_discovery.apps.course_metadata.search_indexes.documents.person': 'test_person',
     'course_discovery.apps.course_metadata.search_indexes.documents.program': 'test_program',
 }
