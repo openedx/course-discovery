@@ -48,6 +48,8 @@ class CertificateType(DjangoChoices):
     Verified = ChoiceItem('verified', _('Verified'))
     Professional = ChoiceItem('professional', _('Professional'))
     Executive_Education = ChoiceItem('executive-education', _('Executive Education'))
+    Unpaid_Executive_Program = ChoiceItem('unpaid-executive-program', _('Unpaid Executive Program'))
+    Paid_Executive_Program = ChoiceItem('paid-executive-program', _('Paid Executive Program'))
 
 
 class PayeeType(DjangoChoices):
