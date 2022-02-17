@@ -5,13 +5,15 @@
 # .ci/run-in-docker.sh 'echo hello; echo goodbye'
 # .ci/run-in-docker.sh -f script.sh
 
+echo "$DB_HOST"
+
 if [ "$1" = "-f" ]; then
   echo '. /edx/app/discovery/discovery_env
         export DJANGO_SETTINGS_MODULE=course_discovery.settings.test' |
   cat - "$2" |
-  exec docker exec --workdir /edx/app/discovery/discovery --env TOXENV --interactive discovery sh -s
+  exec docker exec --workdir /edx/app/discovery/discovery --env TOXENV --env DB_HOST="$DB_HOST" --interactive discovery sh -s
 else
-  exec docker exec --workdir /edx/app/discovery/discovery --env TOXENV --tty discovery sh -c "
+  exec docker exec --workdir /edx/app/discovery/discovery --env TOXENV --env DB_HOST="$DB_HOST" --tty discovery sh -c "
   . /edx/app/discovery/discovery_env
   export DJANGO_SETTINGS_MODULE=course_discovery.settings.test
   $*
