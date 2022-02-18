@@ -2481,6 +2481,7 @@ class TestLearnerPathwaySearchDocumentSerializer(TestCase):
             'skill_names': [skill['name'] for skill in learner_pathway.skills],
             'skills': learner_pathway.skills,
             'partner': learner_pathway.partner.short_code,
+            'visible_via_association': True,
             'steps': LearnerPathwayStepSerializer(
                 learner_pathway.steps.all(),
                 many=True
