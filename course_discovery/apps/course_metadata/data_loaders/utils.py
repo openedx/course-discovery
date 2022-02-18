@@ -1,6 +1,9 @@
 """
 Utils for loaders to format or transform field values.
 """
+import base64
+import re
+
 from lxml.html import clean
 
 from course_discovery.apps.course_metadata.validators import HtmlValidator
@@ -79,3 +82,26 @@ def format_testimonials(data):
         formatted_html += p_tag(f"<i>\"{text}\"</i>") + p_tag(f"-{name} ({title})")
 
     return cleaner.clean_html(formatted_html) if formatted_html else formatted_html
+
+
+def format_effort_info(data):
+    """
+    Format the effort info in the form of maximum and minimum effort
+    """
+    if len(data) > 0:
+        temp = re.findall(r'\d+', data)
+        effort_vals = tuple(map(int, temp))
+        if len(effort_vals) == 1:
+            effort_vals = (effort_vals[0], effort_vals[0] + 1)
+        return effort_vals
+    return None
+
+
+def format_base64_strings(data):
+    """
+    Decode and returns the encoded base64 strings if encoded
+    """
+    try:
+        return base64.b64decode(data).decode('utf-8')
+    except Exception:  # pylint: disable=broad-except
+        return data
