@@ -383,6 +383,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         course = serializer.save()
         if url_slug:
             course.set_active_url_slug(url_slug)
+            if course.official_version and (not draft or self._is_course_run_reviewed(course)):
+                course.official_version.set_active_url_slug(url_slug)
 
         if not draft:
             for course_run in course.active_course_runs:
@@ -414,6 +416,12 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         return_dict = {'url_slug': course.active_url_slug}
         return_dict.update(serializer.data)
         return Response(return_dict)
+
+    def _is_course_run_reviewed(self, course):
+        """ Checks if any course run for a course is being reviewed """
+        if course.course_runs.filter(status=CourseRunStatus.Reviewed).exists():
+            return True
+        return False
 
     def update(self, request, *_args, **_kwargs):
         """ Update details for a course. """
