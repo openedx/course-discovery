@@ -65,11 +65,19 @@ class Command(BaseCommand):
             required=True,
             help='Path of the output CSV'
         )
+        parser.add_argument(
+            '--dev_input_json',
+            dest='dev_input_json',
+            type=str,
+            required=False,
+            help='Path to JSON file containing the product details, only meant for development usage/purposes'
+        )
 
     def handle(self, *args, **options):
         input_csv = options.get('input_csv')
         output_csv = options.get('output_csv')
         auth_token = options.get('auth_token')
+        dev_input_json = options.get('dev_input_json')
 
         try:
             input_reader = csv.DictReader(open(input_csv, 'r'))
@@ -78,7 +86,11 @@ class Command(BaseCommand):
                 "Error opening csv file at path {}".format(input_csv)
             )
 
-        products = self.get_product_details(auth_token)
+        if dev_input_json:
+            products = self.mock_product_details(dev_input_json)
+        else:
+            products = self.get_product_details(auth_token)
+
         if not products:
             raise CommandError("Unexpected error occurred while fetching products")
 
@@ -145,11 +157,11 @@ class Command(BaseCommand):
 
         return []
 
-    def mock_product_details(self):
+    def mock_product_details(self, input_json_path):
         """
         Dev Helper method to read response from file to ease development process.
         """
-        with open('course_discovery/apps/course_metadata/management/commands/data.json', 'r') as f:
+        with open(input_json_path, 'r') as f:
             data = json.load(f)
             products = data['products']
             return products
