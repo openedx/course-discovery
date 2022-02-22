@@ -1275,6 +1275,58 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         new_course = Course.everything.last()
         assert new_course.active_url_slug == 'unpublished'
 
+    def test_update_url_slug(self):
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed  # Triggers creation of official versions
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        assert official_course.active_url_slug == 'course-title'
+
+        # url slug will only update for draft course when the course run is in unpublished state
+        draft_course_run.status = CourseRunStatus.Unpublished
+        draft_course_run.save()
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+        response = self.client.patch(url, {'url_slug': 'unpublished-url-slug', 'draft': True}, format='json')
+        assert response.status_code == 200
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        assert draft_course.active_url_slug == 'unpublished-url-slug'
+        assert official_course.active_url_slug == 'course-title'
+
+        # url slug will update for both draft and official course when the course run is in reviewed state
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+
+        response = self.client.patch(url, {'url_slug': 'reviewed-url-slug', 'draft': True}, format='json')
+        assert response.status_code == 200
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        assert draft_course.active_url_slug == 'reviewed-url-slug'
+        assert official_course.active_url_slug == 'reviewed-url-slug'
+
+        # url slug will update for both draft and official course when the course run is in published state
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+        draft_course_run.status = CourseRunStatus.Published
+        draft_course_run.save()
+
+        response = self.client.patch(url, {'url_slug': 'published-url-slug', 'draft': False}, format='json')
+        assert response.status_code == 200
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        assert draft_course.active_url_slug == 'published-url-slug'
+        assert official_course.active_url_slug == 'published-url-slug'
+
     @responses.activate
     def test_patch_published_switch_audit_to_verified(self):
         """
