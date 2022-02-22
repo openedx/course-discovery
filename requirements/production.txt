@@ -426,7 +426,7 @@ stevedore==3.5.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.14.5
+taxonomy-connector==1.15.2
     # via -r requirements/base.in
 unicode-slugify==0.1.5
     # via -r requirements/base.in

@@ -82,6 +82,9 @@ class LearnerPathway(models.Model):
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Pathway name'))
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
+    visible_via_association = models.BooleanField(
+        default=True, help_text=_('Course/Program associated pathways also appear in search results')
+    )
     status = models.CharField(
         help_text=_('The active/inactive status of this Pathway.'),
         max_length=16, default=PathwayStatus.Inactive,
