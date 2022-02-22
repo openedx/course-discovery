@@ -60,9 +60,9 @@ services:
       CONN_MAX_AGE: 60
       DB_ENGINE: "django.db.backends.mysql"
       DB_NAME: "discovery"
+      DB_PASSWORD: "password"
       DB_PORT: "3306"
       DB_USER: "root"
-      DB_PASSWORD: "password"
       DJANGO_SETTINGS_MODULE: "course_discovery.settings.test"
       ENABLE_DJANGO_TOOLBAR: 1
       TEST_ELASTICSEARCH_URL: "http://es:9200"
