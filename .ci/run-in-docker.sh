@@ -5,8 +5,6 @@
 # .ci/run-in-docker.sh 'echo hello; echo goodbye'
 # .ci/run-in-docker.sh -f script.sh
 
-echo "$DB_HOST"
-
 if [ "$1" = "-f" ]; then
   echo '. /edx/app/discovery/discovery_env
         export DJANGO_SETTINGS_MODULE=course_discovery.settings.test' |
