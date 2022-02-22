@@ -29,7 +29,7 @@ class LearnerPathwaySearchDocumentSerializer(ModelObjectDocumentSerializerMixin,
         fields = (
             BASE_SEARCH_INDEX_FIELDS + (
                 'uuid', 'name', 'status', 'banner_image', 'overview', 'published', 'skills', 'skill_names', 'partner',
-                'steps',
+                'steps', 'visible_via_association',
             )
         )
 
