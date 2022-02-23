@@ -5,7 +5,6 @@ from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 from uuid import uuid4
 
-from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -82,6 +81,9 @@ class LearnerPathway(models.Model):
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Pathway name'))
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
+    visible_via_association = models.BooleanField(
+        default=True, help_text=_('Course/Program associated pathways also appear in search results')
+    )
     status = models.CharField(
         help_text=_('The active/inactive status of this Pathway.'),
         max_length=16, default=PathwayStatus.Inactive,
@@ -154,12 +156,6 @@ class LearnerPathwayStep(models.Model):
     class Meta:
         verbose_name = _('Learner Pathway Step')
         verbose_name_plural = _('Learner Pathway Steps')
-
-    def clean(self):
-        # Ensure that the minimum requirement is not more than the number of nodes
-        node_count = len(self.get_nodes())
-        if self.min_requirement > node_count:
-            raise ValidationError(_('Please use a minimum requirement less than the total number of requirements.'))
 
     def get_nodes(self):
         return LearnerPathwayNode.get_nodes(self)

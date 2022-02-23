@@ -320,3 +320,57 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
                     assert course.image.read() == image_content
                     self._assert_course_data(course, expected_course_response)
+
+    @responses.activate
+    def test_course_status_is_unpublished_if_draft_enabled(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the course run will be unpublished if csv loader ingests data with draft enabled
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        self.mock_image_response()
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+
+            with mock.patch.object(
+                    CSVDataLoader,
+                    '_call_course_api',
+                    self.mock_call_course_api
+            ):
+
+                loader = CSVDataLoader(self.partner, csv_path=csv.name, is_draft=True)
+                loader.ingest()
+
+                course = Course.everything.filter(key=self.COURSE_KEY, partner=self.partner).first()
+                course_run = CourseRun.everything.filter(course=course).first()
+
+                assert course_run.status == 'unpublished'
+
+    @responses.activate
+    def test_course_status_is_published_if_draft_disabled(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the course run will be published if csv loader ingests data with draft disabled
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        _, image_content = self.mock_image_response()  # pylint: disable=unused-variable
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+
+            with mock.patch.object(
+                    CSVDataLoader,
+                    '_call_course_api',
+                    self.mock_call_course_api
+            ):
+
+                loader = CSVDataLoader(self.partner, csv_path=csv.name, is_draft=False)
+                loader.ingest()
+
+                course = Course.everything.filter(key=self.COURSE_KEY, partner=self.partner).first()
+                course_run = CourseRun.everything.filter(course=course).first()
+
+                assert course_run.status == 'published'

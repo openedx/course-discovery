@@ -1,9 +1,17 @@
 version: "2"
 
 services:
-  db:
+  mysql57:
     image: mysql:5.7
-    container_name: db
+    container_name: mysql57
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "discovery"
+
+  mysql80:
+    image: mysql:8.0
+    container_name: mysql80
     command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
     environment:
       MYSQL_ROOT_PASSWORD: "password"
@@ -42,7 +50,8 @@ services:
       - ../course_discovery/assets:/edx/var/discovery/staticfiles
     command: tail -f /dev/null
     depends_on:
-      - "db"
+      - "mysql57"
+      - "mysql80"
       - "es"
       - "memcached"
     environment:
@@ -50,7 +59,6 @@ services:
       CACHE_LOCATION: "memcached:11211"
       CONN_MAX_AGE: 60
       DB_ENGINE: "django.db.backends.mysql"
-      DB_HOST: "db"
       DB_NAME: "discovery"
       DB_PASSWORD: "password"
       DB_PORT: "3306"

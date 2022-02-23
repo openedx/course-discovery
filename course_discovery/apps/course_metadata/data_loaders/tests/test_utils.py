@@ -5,7 +5,9 @@ Unit tests for utils.
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
-from course_discovery.apps.course_metadata.data_loaders.utils import format_curriculum, format_faqs, format_testimonials
+from course_discovery.apps.course_metadata.data_loaders.utils import (
+    format_base64_strings, format_curriculum, format_effort_info, format_faqs, format_testimonials
+)
 
 
 class FormattingTests(TestCase):
@@ -51,3 +53,25 @@ class FormattingTests(TestCase):
             "</p><p><b>Module 2: </b>Spelling, consistency and style</p></div>"
         )
         assert format_faqs({}) == ""
+
+    def test_format_effort_info(self):
+        """
+        Test the utility function format_effort_info
+        """
+
+        output = format_effort_info(mock_data.EFFORT_FORMATS[0])
+        assert output == (7, 10)
+
+        output = format_effort_info(mock_data.EFFORT_FORMATS[1])
+        assert output == (7, 8)
+
+        # returns None if empty string is passed
+        self.assertIsNone(format_effort_info(""))
+
+    def test_format_base64_strings(self):
+        """
+        Test the utility function format_base64_strings
+        """
+
+        output = format_base64_strings(mock_data.BASE64_STRING)
+        assert output == "https://www.google.com/"

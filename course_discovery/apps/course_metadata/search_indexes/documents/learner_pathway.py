@@ -31,6 +31,7 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
         analyzer=html_strip,
         fields={'raw': fields.KeywordField(), 'lower': fields.TextField(analyzer=case_insensitive_keyword)}
     )
+    visible_via_association = fields.BooleanField()
     status = fields.TextField()
     overview = fields.TextField()
     published = fields.BooleanField()

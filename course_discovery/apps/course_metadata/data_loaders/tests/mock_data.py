@@ -3135,7 +3135,6 @@ INVALID_LANGUAGE = {
     'content_language': 'gibberish-language',
 }
 
-
 COURSE_TESTIMONIALS = [
     {
         "name": "Test User 1",
@@ -3185,3 +3184,9 @@ COURSE_CURRICULAM = {
         },
     ]
 }
+
+EFFORT_FORMATS = [
+    '7–10 hours per week', '7 hours per week'
+]
+
+BASE64_STRING = 'aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8='
