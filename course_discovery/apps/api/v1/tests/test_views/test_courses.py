@@ -1314,8 +1314,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert official_course.active_url_slug == 'reviewed-url-slug'
 
         # url slug will update for both draft and official course when the course run is in published state
-        draft_course_run.status = CourseRunStatus.Reviewed
-        draft_course_run.save()
         draft_course_run.status = CourseRunStatus.Published
         draft_course_run.save()
 
