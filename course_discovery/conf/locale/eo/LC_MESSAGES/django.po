@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-25 10:45+0000\n"
+"POT-Creation-Date: 2022-02-27 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -2102,6 +2102,12 @@ msgid "Pathway name"
 msgstr "Päthwäý nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
 #: apps/learner_pathway/models.py
+msgid "Course/Program associated pathways also appear in search results"
+msgstr ""
+"Çöürsé/Prögräm ässöçïätéd päthwäýs älsö äppéär ïn séärçh résülts Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/learner_pathway/models.py
 msgid "The active/inactive status of this Pathway."
 msgstr ""
 "Thé äçtïvé/ïnäçtïvé stätüs öf thïs Päthwäý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
@@ -2128,13 +2134,6 @@ msgstr "Léärnér Päthwäý Stép Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт �
 #: apps/learner_pathway/models.py
 msgid "Learner Pathway Steps"
 msgstr "Léärnér Päthwäý Stéps Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
-
-#: apps/learner_pathway/models.py
-msgid ""
-"Please use a minimum requirement less than the total number of requirements."
-msgstr ""
-"Pléäsé üsé ä mïnïmüm réqüïrémént léss thän thé tötäl nümßér öf réqüïréménts."
-" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
 
 #: apps/learner_pathway/models.py
 msgid "Learner Pathway Course"
