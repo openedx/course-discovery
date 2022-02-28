@@ -21,6 +21,7 @@ from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
+from opaque_keys.edx.keys import CourseKey
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
@@ -1982,6 +1983,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         a marketing site (so things that would *never* be marketable are not).
         """
         if not self.type.is_marketable:
+            return False
+        if CourseKey.from_string(self.key).deprecated:  # Old Mongo courses are not marketed
             return False
         return not self.draft
 
