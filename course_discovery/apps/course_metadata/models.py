@@ -596,6 +596,7 @@ class AdditionalMetadata(TimeStampedModel):
 
     external_url = models.URLField(blank=False, null=False)
     external_identifier = models.CharField(max_length=255, blank=True, null=False)
+    lead_capture_form_url = models.URLField(blank=True, null=False)
 
     def __str__(self):
         return f"{self.external_url} - {self.external_identifier}"

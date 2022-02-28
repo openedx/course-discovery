@@ -605,7 +605,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
     """Serializer for the ``AdditionalMetadata`` model."""
     class Meta:
         model = AdditionalMetadata
-        fields = ('external_identifier', 'external_url')
+        fields = ('external_identifier', 'external_url', 'lead_capture_form_url')
 
 
 class CourseRunTypeSerializer(BaseModelSerializer):
@@ -1170,11 +1170,15 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     def update_additional_metadata(self, instance, additional_metadata):
         external_url = additional_metadata and additional_metadata.get('external_url')
         external_identifier = additional_metadata.get('external_identifier')
+        lead_capture_form_url = additional_metadata.get('lead_capture_form_url')
 
         if external_url:
             additional_metadata, _ = AdditionalMetadata.objects.get_or_create(external_url=external_url)
             if external_identifier:
                 additional_metadata.external_identifier = external_identifier
+                additional_metadata.save()
+            if lead_capture_form_url:
+                additional_metadata.lead_capture_form_url = lead_capture_form_url
                 additional_metadata.save()
             instance.additional_metadata = additional_metadata
             instance.save()

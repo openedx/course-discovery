@@ -73,6 +73,7 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
 
     external_identifier = FuzzyText()
     external_url = FuzzyURL()
+    lead_capture_form_url = FuzzyURL()
 
 
 class LevelTypeFactory(AbstractNamedModelFactory):

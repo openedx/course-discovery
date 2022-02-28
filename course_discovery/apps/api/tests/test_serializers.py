@@ -1864,6 +1864,7 @@ class AdditionalMetadataSerializerTests(TestCase):
         expected = {
             'external_identifier': additional_metadata.external_identifier,
             'external_url': additional_metadata.external_url,
+            'lead_capture_form_url': additional_metadata.lead_capture_form_url,
         }
         assert serializer.data == expected
 
