@@ -28,20 +28,27 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
             {
                 "id": "12345678",
                 "name": "CSV Course",
+                "altName": "Alternative CSV Course",
                 "abbreviation": "TC",
+                "altAbbreviation": "UCT",
                 "language": "Español",
                 "subjectMatter": "Marketing",
+                "altSubjectMatter": "Design and Marketing",
                 "universityAbbreviation": "edX",
-                "cardUrl": "https://example.com/image.jpg",
-                "edxRedirectUrl": "https://example.com/",
+                "altUniversityAbbreviation": "altEdx",
+                "cardUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS9pbWFnZS5qcGc=",
+                "edxRedirectUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS8=",
                 "durationWeeks": 10,
                 "effort": "7–10 hours per week",
                 'introduction': 'Very short description\n',
                 'isThisCourseForYou': 'This is supposed to be a long description',
+                'whatWillSetYouApart': "New ways to learn",
                 "videoURL": "",
                 "variant": {
                     "id": "test_id",
                     "endDate": "2022-05-06",
+                    "finalPrice": "1998",
+                    "startDate": "2022-03-06",
                 },
                 "curriculum": {
                     "heading": "Course curriculum",
@@ -88,9 +95,9 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         )
 
     @responses.activate
-    def test_successful_file_data_population(self):
+    def test_successful_file_data_population_with_input_csv(self):
         """
-        Verify the successful population has data from both input CSV and API response.
+        Verify the successful population has data from both input CSV and API response if input csv is provided.
         """
         self.mock_product_api_call()
 
@@ -118,10 +125,12 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Long Description'] == 'Very short description\n' \
                                                        'This is supposed to be a long description'
                 assert data_row['End Time'] == '23:59:59'
-                assert data_row['Course Enrollment Track'] == 'Executive Education'
-                assert data_row['Course Run Enrollment Track'] == 'Executive Education'
+                assert data_row['Course Enrollment Track'] == 'Executive Education(2U)'
+                assert data_row['Course Run Enrollment Track'] == 'Unpaid Executive Education'
                 assert data_row['Length'] == '10'
                 assert data_row['Number'] == 'TC'
+                assert data_row['Redirect Url'] == 'https://example.com/'
+                assert data_row['Image'] == 'https://example.com/image.jpg'
                 assert data_row['Course Level'] == 'Introductory'
                 assert data_row['Course Pacing'] == 'Instructor-Paced'
                 assert data_row['Content Language'] == 'Spanish - Spain (Modern)'
@@ -139,6 +148,76 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                         LOGGER_PATH,
                         'INFO',
                         'Data population and transformation completed for CSV row title CSV Course'
+                    ),
+                )
+
+    @responses.activate
+    def test_successful_file_data_population_without_input_csv(self):
+        """
+        Verify the successful population has data from API response only if optional input csv is not provided.
+        """
+        self.mock_product_api_call()
+
+        with LogCapture(LOGGER_PATH) as log_capture:
+            output_csv = NamedTemporaryFile()
+            call_command(
+                'populate_executive_education_data_csv',
+                '--output_csv', output_csv.name,
+                '--auth_token', self.AUTH_TOKEN
+            )
+            output_csv.seek(0)
+            reader = csv.DictReader(open(output_csv.name, 'r'))
+            data_row = next(reader)
+
+            self._assert_api_response(data_row)
+
+            log_capture.check_present(
+                (
+                    LOGGER_PATH,
+                    'INFO',
+                    'Data population and transformation completed for CSV row title CSV Course'
+                ),
+            )
+
+    @responses.activate
+    def test_successful_file_data_population_input_csv_no_product_info(self):
+        """
+        Verify the successful population has data from API response only if optional input csv does not have
+        the details of a particular product.
+        """
+        self.mock_product_api_call()
+        mismatched_product = {
+            **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            'title': 'Not present in CSV'
+        }
+        with NamedTemporaryFile() as input_csv:
+            input_csv = self._write_csv(input_csv, [mismatched_product])
+
+            with LogCapture(LOGGER_PATH) as log_capture:
+                output_csv = NamedTemporaryFile()
+                call_command(
+                    'populate_executive_education_data_csv',
+                    '--input_csv', input_csv.name,
+                    '--output_csv', output_csv.name,
+                    '--auth_token', self.AUTH_TOKEN
+                )
+
+                output_csv.seek(0)
+                reader = csv.DictReader(open(output_csv.name, 'r'))
+                data_row = next(reader)
+
+                self._assert_api_response(data_row)
+
+                log_capture.check_present(
+                    (
+                        LOGGER_PATH,
+                        'INFO',
+                        'Data population and transformation completed for CSV row title CSV Course'
+                    ),
+                    (
+                        LOGGER_PATH,
+                        'WARNING',
+                        '[MISSING PRODUCT IN CSV] Unable to find product details for product CSV Course in CSV'
                     ),
                 )
 
@@ -177,3 +256,41 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 '--output_csv', csv_file.name,
                 '--auth_token', self.AUTH_TOKEN
             )
+
+    def _assert_api_response(self, data_row):
+        """
+        Assert the default API response in output CSV dict.
+        """
+        assert data_row['Organization'] == 'edX'
+        assert data_row['Alternate Organization Code'] == 'altEdx'
+        assert data_row['Number'] == 'TC'
+        assert data_row['Alternate Number'] == 'UCT'
+        assert data_row['Title'] == 'CSV Course'
+        assert data_row['Alternate Title'] == 'Alternative CSV Course'
+        assert data_row['Primary Subject'] == 'Marketing'
+        assert data_row['Alternate Primary Subject'] == 'Design and Marketing'
+        assert data_row['External Identifier'] == '12345678'
+        assert data_row['Start Time'] == '00:00:00'
+        assert data_row['Start Date'] == '2022-03-06'
+        assert data_row['End Time'] == '23:59:59'
+        assert data_row['End Date'] == '2022-05-06'
+        assert data_row['Verified Price'] == '1998'
+        assert data_row['Short Description'] == 'CSV Course'
+        assert data_row['Long Description'] == 'Very short description\n' \
+                                               'This is supposed to be a long description'
+        assert data_row['Course Enrollment Track'] == 'Executive Education(2U)'
+        assert data_row['Course Run Enrollment Track'] == 'Unpaid Executive Education'
+        assert data_row['Length'] == '10'
+        assert data_row['Redirect Url'] == 'https://example.com/'
+        assert data_row['Image'] == 'https://example.com/image.jpg'
+        assert data_row['Course Level'] == 'Introductory'
+        assert data_row['Course Pacing'] == 'Instructor-Paced'
+        assert data_row['Content Language'] == 'Spanish - Spain (Modern)'
+        assert data_row['Transcript Language'] == 'Spanish - Spain (Modern)'
+
+        assert data_row['Frequently Asked Questions'] == '<div><p><b>FAQ 1</b></p>This should answer it</div>'
+        assert data_row['Syllabus'] == '<div><p>Test Curriculum</p><p><b>Module 0: </b>Welcome to your course' \
+                                       '</p><p><b>Module 1: </b>Welcome to Module 1</p></div>'
+        assert data_row['Learner Testimonials'] == '<div><p><i>" This is a good course"</i></p><p>-Lorem ' \
+                                                   'Ipsum (Gibberish)</p></div>'
+        assert str(date.today().year) in data_row['Publish Date']

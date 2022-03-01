@@ -44,6 +44,9 @@ class Command(BaseCommand):
         'Español': 'Spanish - Spain (Modern)',
     }
 
+    MISSING_CSV_PRODUCT_MESSAGE = "[MISSING PRODUCT IN CSV] Unable to find product details for product {} in CSV"
+    SUCCESS_MESSAGE = "Data population and transformation completed for CSV row title {}"
+
     def add_arguments(self, parser):
         parser.add_argument(
             '--auth_token',
@@ -81,12 +84,12 @@ class Command(BaseCommand):
         dev_input_json = options.get('dev_input_json')
 
         # Error/Warning messages to be displayed at the end of population
-        self.messages_list = []
+        self.messages_list = []   # pylint: disable=attribute-defined-outside-init
 
         if input_csv:
             try:
                 input_reader = csv.DictReader(open(input_csv, 'r'))
-                input_reader = [row for row in input_reader]
+                input_reader = list(input_reader)
             except FileNotFoundError:
                 raise CommandError(  # pylint: disable=raise-missing-from
                     "Error opening csv file at path {}".format(input_csv)
@@ -110,10 +113,7 @@ class Command(BaseCommand):
                 if input_reader:
                     row = [row_item for row_item in input_reader if product['name'] == row_item['Title']]
                     if not row or len(row) != 1:
-                        self.messages_list.append(
-                            "[MISSING PRODUCT IN CSV] Unable to find product details for product {} in CSV".format(
-                                product['name'])
-                        )
+                        self.messages_list.append(self.MISSING_CSV_PRODUCT_MESSAGE.format(product['name']))
                         row = {}
                     else:
                         row = self.transform_dict_keys(row[0])
@@ -122,9 +122,7 @@ class Command(BaseCommand):
 
                 output_dict = self.get_transformed_data(row, product)
                 output_writer = self.write_csv_row(output_writer, output_dict)
-                logger.info("Data population and transformation completed for CSV row title {}".format(
-                    product['name']
-                ))
+                logger.info(self.SUCCESS_MESSAGE.format(product['name']))
 
             logger.info("Data Transformation has completed. Warnings raised during the transformation:")
             for message in self.messages_list:
@@ -231,8 +229,8 @@ class Command(BaseCommand):
         language = self.LANGUAGE_MAP.get(product_dict['language'], 'English - United States')
 
         default_values = {  # the values that will be part of every output row in any case
-            'course_enrollment_track': 'Executive Program',
-            'course_run_enrollment_track': 'Unpaid Executive Program',
+            'course_enrollment_track': 'Executive Education(2U)',
+            'course_run_enrollment_track': 'Unpaid Executive Education',
             'start_time': '00:00:00',
             'end_time': '23:59:59',
             'publish_date': date.today().isoformat(),
