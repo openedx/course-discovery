@@ -8,6 +8,7 @@
 # alheli leon <alhelileon20@gmail.com>, 2021
 # Ana Maloberti <ana.maloberti@gmail.com>, 2016
 # Betsy Lira <betsy.lira.sc@gmail.com>, 2016
+# Carolina De Mares <carolina.demares@edunext.co>, 2022
 # Carolina Estrada <cc.estraadaa@gmail.com>, 2016
 # Christopher Lee <clee@edx.org>, 2017
 # Danae Aguilar  Guzman <danaeaguilar@gmail.com>, 2020
@@ -31,9 +32,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-04 20:35+0000\n"
-"PO-Revision-Date: 2021-07-28 14:51+0000\n"
-"Last-Translator: Juan Camilo Montoya Franco <juan.montoya@edunext.co>\n"
+"POT-Creation-Date: 2022-01-25 10:45+0000\n"
+"PO-Revision-Date: 2022-01-25 11:16+0000\n"
+"Last-Translator: edx_transifex_bot <i18n-working-group+edx-transifex-bot@edx.org>\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -52,56 +53,56 @@ msgid ""
 "parameter."
 msgstr "Únicamente se permite filtrar por nombre de usuario al personal. Remueva el parámetro de nombre de usuario. "
 
-#: apps/api/serializers.py:666
+#: apps/api/serializers.py:672
 msgid "Number of courses contained in this catalog"
 msgstr "Número de cursos en este catálogo"
 
-#: apps/api/serializers.py:669
+#: apps/api/serializers.py:675
 msgid "Usernames of users with explicit access to view this catalog"
 msgstr "Los nombres de usuario de los usuarios con acceso explícito para ver este catálogo"
 
-#: apps/api/serializers.py:828
+#: apps/api/serializers.py:834
 msgid "Start date cannot be after the End date"
 msgstr "Fecha de inicio no puede ser después de la fecha de finalización"
 
-#: apps/api/serializers.py:833
+#: apps/api/serializers.py:839
 msgid "Term cannot be changed"
 msgstr "El término no puede ser modificado."
 
-#: apps/api/serializers.py:845
+#: apps/api/serializers.py:851
 msgid "Language in which the course is administered"
 msgstr "El idioma en el cual el curso es administrado"
 
-#: apps/api/serializers.py:932
+#: apps/api/serializers.py:938
 msgid "Course cannot be changed for an existing course run"
 msgstr "El curso no se puede cambiar para una ejecución de curso existente"
 
-#: apps/api/serializers.py:937
+#: apps/api/serializers.py:943
 msgid "Minimum effort cannot be greater than Maximum effort"
 msgstr "Esfuerza mínima no puede ser menor que Esfuerza máxima"
 
-#: apps/api/serializers.py:939
+#: apps/api/serializers.py:945
 msgid "Minimum effort and Maximum effort cannot be the same"
 msgstr "El esfuerzo mínimo y el esfuerzo máximo no pueden ser lo mismo"
 
-#: apps/api/serializers.py:981
+#: apps/api/serializers.py:987
 msgid "Dictionary mapping course run IDs to boolean values"
 msgstr "Diccionario con las equivalencias entre IDs de las versiones de curso y valores booleanos"
 
-#: apps/api/serializers.py:1306
+#: apps/api/serializers.py:1312
 msgid "Dictionary mapping course IDs to boolean values"
 msgstr "Diccionario con las equivalencias entre IDs de curso y valores booleanos"
 
-#: apps/api/serializers.py:1650
+#: apps/api/serializers.py:1656
 msgid "Languages that course runs in this program are offered in."
 msgstr "Idiomas en los que se ofrecen los cursos de este programa."
 
-#: apps/api/serializers.py:1654
+#: apps/api/serializers.py:1660
 msgid ""
 "Languages that course runs in this program have available transcripts in."
 msgstr "Idiomas en los que se tienen disponibles transcripciones de los videos para los cursos de este programa."
 
-#: apps/api/utils.py:246
+#: apps/api/utils.py:245
 #, python-brace-format
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
@@ -125,19 +126,19 @@ msgstr "Valor faltante para: [{name}]. "
 msgid "Incorrect data sent. "
 msgstr "Datos incorrectos enviados."
 
-#: apps/api/v1/views/course_runs.py:44
+#: apps/api/v1/views/course_runs.py:45
 msgid "Failed to set course run data: {}"
 msgstr "Falló establecer datos de la ejecución del curso: {}"
 
-#: apps/api/v1/views/course_runs.py:311
+#: apps/api/v1/views/course_runs.py:312
 msgid "Can only update status, ofac restrictions, and ofac comment"
 msgstr "Solo puede actualizar el estado, las restricciones de ofac y los comentarios de ofac"
 
-#: apps/api/v1/views/course_runs.py:345
+#: apps/api/v1/views/course_runs.py:351
 msgid "Course run is in review. Editing disabled."
 msgstr "La ejecución del curso está en revisión. Edición deshabilitada."
 
-#: apps/api/v1/views/course_runs.py:352
+#: apps/api/v1/views/course_runs.py:358
 msgid "Invalid parameter"
 msgstr "Parámetro inválido"
 
@@ -398,19 +399,19 @@ msgstr "Si"
 msgid "No"
 msgstr "No"
 
-#: apps/course_metadata/admin.py:301 apps/course_metadata/admin.py:505
+#: apps/course_metadata/admin.py:301 apps/course_metadata/admin.py:512
 msgid "Included course runs"
 msgstr "Versiones incluidos del curso"
 
-#: apps/course_metadata/admin.py:513
+#: apps/course_metadata/admin.py:520
 msgid "Edit course run exclusions"
 msgstr "Editar exclusiones de ejecución de curso"
 
-#: apps/course_metadata/admin.py:515
+#: apps/course_metadata/admin.py:522
 msgid "(save and continue editing to create a link)"
 msgstr "(Guarde y continúe editando para Crear un enlace)"
 
-#: apps/course_metadata/admin.py:517
+#: apps/course_metadata/admin.py:524
 msgid "Edit link"
 msgstr "Editar vínculo"
 
@@ -420,12 +421,12 @@ msgid "Available now"
 msgstr "Disponible en este momento"
 
 #: apps/course_metadata/algolia_models.py:76
-#: apps/course_metadata/models.py:1690
+#: apps/course_metadata/models.py:1688
 msgid "Upcoming"
 msgstr "Próximamente"
 
 #: apps/course_metadata/algolia_models.py:78
-#: apps/course_metadata/models.py:1684
+#: apps/course_metadata/models.py:1682
 msgid "Archived"
 msgstr "Archivado"
 
@@ -462,7 +463,7 @@ msgstr "A ritmo del instructor"
 msgid "Self-paced"
 msgstr "A ritmo propio"
 
-#: apps/course_metadata/choices.py:32
+#: apps/course_metadata/choices.py:32 apps/learner_pathway/choices.py:6
 msgid "Active"
 msgstr "Activo"
 
@@ -638,9 +639,10 @@ msgstr "Código corto para un socio."
 #: apps/course_metadata/models.py:461 apps/course_metadata/models.py:492
 #: apps/course_metadata/models.py:516 apps/course_metadata/models.py:555
 #: apps/course_metadata/models.py:615 apps/course_metadata/models.py:753
-#: apps/course_metadata/models.py:768 apps/course_metadata/models.py:1277
+#: apps/course_metadata/models.py:768 apps/course_metadata/models.py:1275
 #: apps/course_metadata/models.py:2092 apps/course_metadata/models.py:2763
-#: apps/course_metadata/models.py:2855
+#: apps/course_metadata/models.py:2855 apps/learner_pathway/models.py:32
+#: apps/learner_pathway/models.py:82 apps/learner_pathway/models.py:143
 msgid "UUID"
 msgstr "UUID"
 
@@ -658,8 +660,8 @@ msgstr "Organización para completar los datos."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:35
 msgid ""
-"CourseType/CourseRunType mismatches to allow. Specify like course-type-slug"
-":run-type-slug."
+"CourseType/CourseRunType mismatches to allow. Specify like course-type-"
+"slug:run-type-slug."
 msgstr "CourseType / CourseRunType no coinciden para ser permitidos. Especifique como course-type-slug: run-type-slug."
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:41
@@ -850,8 +852,8 @@ msgid ""
 "inputted"
 msgstr "Para SEO, este campo permite introducir manualmente una descripción alternativa en español. "
 
-#: apps/course_metadata/models.py:198 apps/course_metadata/models.py:836
-#: apps/course_metadata/models.py:1354
+#: apps/course_metadata/models.py:198 apps/course_metadata/models.py:835
+#: apps/course_metadata/models.py:1352
 msgid ""
 "Pick a tag from the suggestions. To make a new tag, add a comma after the "
 "tag name."
@@ -959,116 +961,116 @@ msgstr "Al usar la opción de relanzar este curso, utilizarán esta llave en lug
 msgid "Add the course image"
 msgstr "Añada la imagen del curso."
 
-#: apps/course_metadata/models.py:809 apps/course_metadata/models.py:2083
+#: apps/course_metadata/models.py:808 apps/course_metadata/models.py:2083
 msgid "FAQ"
 msgstr "Preguntas Frecuentes"
 
-#: apps/course_metadata/models.py:812
+#: apps/course_metadata/models.py:811
 msgid "Total number of learners who have enrolled in this course"
 msgstr "Número total de estudiantes que se han inscrito en este curso."
 
-#: apps/course_metadata/models.py:816
+#: apps/course_metadata/models.py:815
 msgid ""
 "Total number of learners who have enrolled in this course in the last 6 "
 "months"
 msgstr "Número total de estudiantes que se han inscrito en este curso en los últimos 6 meses"
 
-#: apps/course_metadata/models.py:830
+#: apps/course_metadata/models.py:829
 msgid "Course number format e.g CS002x, BIO1.1x, BIO1.2x"
 msgstr "Formato del número de curso. Ej: CS002x, BIO1.1x, BIO1.2x"
 
-#: apps/course_metadata/models.py:844
+#: apps/course_metadata/models.py:843
 msgid "Additional Information"
 msgstr "Información adicional"
 
-#: apps/course_metadata/models.py:958
+#: apps/course_metadata/models.py:957
 msgid "Future"
 msgstr "Futuro"
 
-#: apps/course_metadata/models.py:960
+#: apps/course_metadata/models.py:959
 msgid "Past"
 msgstr "Pasado."
 
-#: apps/course_metadata/models.py:1273
+#: apps/course_metadata/models.py:1271
 msgid "Blocked"
 msgstr "Bloqueado"
 
-#: apps/course_metadata/models.py:1274
+#: apps/course_metadata/models.py:1272
 msgid "Unrestricted"
 msgstr "Irrestricta"
 
-#: apps/course_metadata/models.py:1287
+#: apps/course_metadata/models.py:1285
 msgid ""
 "Title specific for this run of a course. Leave this value blank to default "
 "to the parent course's title."
 msgstr "Título específico para esta versión del curso. Si se deja en blanco, se usará el título del curso padre."
 
-#: apps/course_metadata/models.py:1296
+#: apps/course_metadata/models.py:1294
 msgid ""
 "Short description specific for this run of a course. Leave this value blank "
 "to default to the parent course's short_description attribute."
 msgstr "Descripción corta para esta versión del curso. Si se deja en blanco, se usará la descripción corta del curso padre."
 
-#: apps/course_metadata/models.py:1300
+#: apps/course_metadata/models.py:1298
 msgid ""
 "Full description specific for this run of a course. Leave this value blank "
 "to default to the parent course's full_description attribute."
 msgstr "Descripción larta para esta versión del curso. Si se deja en blanco, se usará la descripción larga del curso padre."
 
-#: apps/course_metadata/models.py:1305
+#: apps/course_metadata/models.py:1303
 msgid ""
 "Estimated minimum number of hours per week needed to complete a course run."
 msgstr "Estimación del número de horas requeridas por semana para completar el curso."
 
-#: apps/course_metadata/models.py:1308
+#: apps/course_metadata/models.py:1306
 msgid ""
 "Estimated maximum number of hours per week needed to complete a course run."
 msgstr "Número máximo estimado de horas por semana necesarias para completar un curso."
 
-#: apps/course_metadata/models.py:1311
+#: apps/course_metadata/models.py:1309
 msgid "Estimated number of weeks needed to complete this course run."
 msgstr "Estimación del número de horas requeridas por semana para completar el curso."
 
-#: apps/course_metadata/models.py:1318
+#: apps/course_metadata/models.py:1316
 msgid "Total number of learners who have enrolled in this course run"
 msgstr "Número total de estudiantes que se han inscrito en este curso."
 
-#: apps/course_metadata/models.py:1322
+#: apps/course_metadata/models.py:1320
 msgid ""
 "Total number of learners who have enrolled in this course run in the last 6 "
 "months"
 msgstr "Número total de estudiantes que se han inscrito en este periodo de curso en los últimos 6 meses"
 
-#: apps/course_metadata/models.py:1335
+#: apps/course_metadata/models.py:1333
 msgid ""
 "Whether this run should be hidden from API responses.  Do not edit here - "
 "this value will be overwritten by the \"Course Visibility In Catalog\" field"
 " in Studio via Refresh Course Metadata."
 msgstr "Si esta ejecución debe ocultarse de las respuestas de la API. No edite aquí: este valor se sobrescribirá con el campo \"Visibilidad del curso en el catálogo\" en Studio a través de Actualizar metadatos del curso."
 
-#: apps/course_metadata/models.py:1341
+#: apps/course_metadata/models.py:1339
 msgid "Indicates whether the course relation has been manually overridden."
 msgstr "Indica si la relación del curso ha sido reemplazada manualmente."
 
-#: apps/course_metadata/models.py:1348
+#: apps/course_metadata/models.py:1346
 msgid ""
 "'What You Will Learn' description for this particular course run. Leave this"
 " value blank to default to the parent course's Outcome attribute."
 msgstr "Descripción de \"Lo que aprenderá\" para la ejecución de este curso en particular. Deje este valor en blanco por defecto para el atributo resultante del curso principal."
 
-#: apps/course_metadata/models.py:1361
+#: apps/course_metadata/models.py:1359
 msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
 msgstr "Adicione texto de restricción OFAC a la sección preguntas frecuentes en el sitio de Marketing."
 
-#: apps/course_metadata/models.py:1686
+#: apps/course_metadata/models.py:1684
 msgid "Current"
 msgstr "Actual"
 
-#: apps/course_metadata/models.py:1688
+#: apps/course_metadata/models.py:1686
 msgid "Starting Soon"
 msgstr "Proximamente"
 
-#: apps/course_metadata/models.py:1728
+#: apps/course_metadata/models.py:1726
 msgid ""
 "Switching seat types after being reviewed is not supported. Please reach out"
 " to your project coordinator for additional help if necessary."
@@ -1436,7 +1438,7 @@ msgstr "Habilidades del curso"
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:22
 #: apps/course_metadata/templates/admin/course_metadata/refresh_course_skills.html:32
 msgid "Refresh Course Skills"
-msgstr ""
+msgstr "Actualizar habilidades del curso"
 
 #: apps/course_metadata/templates/course_metadata/email/comment.html:7
 #, python-format
@@ -1616,7 +1618,7 @@ msgstr "La ejecución %(course_run_number)s del curso%(course_name)sha sido revi
 msgid "View the course run in Publisher: %(course_page_url)s"
 msgstr "Ver el curso ejecutado en el editor: %(course_page_url)s"
 
-#: apps/course_metadata/utils.py:375
+#: apps/course_metadata/utils.py:374
 msgid "Special characters not allowed in Course Number."
 msgstr "Caracteres especiales no permitidos en el número del curso."
 
@@ -1669,10 +1671,63 @@ msgstr "Nombre para la traducción"
 msgid "LanguageTag model translations"
 msgstr "Traducciones del modelo LanguageTag"
 
+#: apps/learner_pathway/choices.py:7
+msgid "Inactive"
+msgstr ""
+
+#: apps/learner_pathway/models.py:83
+msgid "Pathway name"
+msgstr "Nombre de la ruta"
+
+#: apps/learner_pathway/models.py:85
+msgid "The active/inactive status of this Pathway."
+msgstr ""
+
+#: apps/learner_pathway/models.py:103
+msgid "Learner Pathway"
+msgstr ""
+
+#: apps/learner_pathway/models.py:104
+msgid "Learner Pathways"
+msgstr ""
+
+#: apps/learner_pathway/models.py:150
+msgid "Minimum number of nodes to complete this step of the pathway"
+msgstr ""
+
+#: apps/learner_pathway/models.py:154
+msgid "Learner Pathway Step"
+msgstr ""
+
+#: apps/learner_pathway/models.py:155
+msgid "Learner Pathway Steps"
+msgstr ""
+
+#: apps/learner_pathway/models.py:161
+msgid ""
+"Please use a minimum requirement less than the total number of requirements."
+msgstr ""
+
+#: apps/learner_pathway/models.py:209
+msgid "Learner Pathway Course"
+msgstr ""
+
+#: apps/learner_pathway/models.py:210
+msgid "Learner Pathway Courses"
+msgstr ""
+
+#: apps/learner_pathway/models.py:249
+msgid "Learner Pathway Program"
+msgstr ""
+
+#: apps/learner_pathway/models.py:250
+msgid "Learner Pathway Programs"
+msgstr ""
+
 #: apps/publisher/models.py:34
 msgid "Organization Role"
 msgstr "Rol de la organización"
 
-#: urls.py:30
+#: urls.py:32
 msgid "Discovery Service Administration"
 msgstr "Administración del servicio Discovery"

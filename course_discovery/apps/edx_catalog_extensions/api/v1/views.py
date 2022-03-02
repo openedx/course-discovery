@@ -5,6 +5,7 @@ from uuid import UUID
 from django.contrib.sites.models import Site
 from django.core.serializers import json
 from django.http.response import HttpResponse
+from parler.models import TranslatableModel
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
@@ -17,6 +18,7 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.edx_catalog_extensions.api.serializers import DistinctCountsAggregateFacetSearchSerializer
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.distinct_counts.query import DistinctCountsSearchQuerySet
+from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +60,7 @@ class ProgramFixtureView(APIView):
     """
     permission_classes = (IsAdminUser,)
     QUERY_PARAM = 'programs'
-    HELP_STRING = 'Must provide comma-separated list of valid UUIDs in "program" query parameter.'
+    HELP_STRING = 'Must provide comma-separated list of valid UUIDs in "programs" query parameter.'
     MAX_REQUESTED_PROGRAMS = 10
 
     def get(self, request):
@@ -142,7 +144,7 @@ def load_program_fixture(programs):
         CourseRun: set(course_run_pks),
         CurriculumCourseRunExclusion: set(exclusion_pks),
     }
-    excluded_models = {Site, Partner, User}
+    excluded_models = {Site, Partner, User, LanguageTag}
     return load_related(pks_to_load, excluded_models)
 
 
@@ -215,7 +217,10 @@ def load_related(pks_to_load, excluded_models):
         # For all relational fields on the model, update
         # `results_by_model` with holes for referenced instances that we
         # have not yet loaded.
-        for field in model._meta.fields + model._meta.many_to_many:
+        fields = model._meta.fields + model._meta.many_to_many
+        if issubclass(model, TranslatableModel):
+            fields += (model.translations.rel,)
+        for field in fields:
             rel_model = field.related_model
             if not rel_model:
                 continue

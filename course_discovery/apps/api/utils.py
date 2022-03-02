@@ -1,10 +1,9 @@
 import functools
 import logging
 import math
-from urllib.parse import urlencode, urljoin
+from urllib.parse import parse_qsl, urlencode, urljoin
 
 from django.db.models.fields.related import ManyToManyField
-from django.utils.http import limited_parse_qsl
 from django.utils.translation import ugettext as _
 from opaque_keys.edx.keys import CourseKey
 from requests.exceptions import HTTPError
@@ -76,7 +75,7 @@ def update_query_params_with_body_data(func_to_decorate):
         encoded_data = urlencode(_data, True)
         _mutable = request.query_params._mutable  # pylint: disable=protected-access
         request.query_params._mutable = True  # pylint: disable=protected-access
-        for key, value in limited_parse_qsl(encoded_data):
+        for key, value in parse_qsl(encoded_data):
             request.query_params.appendlist(key, value)
         request.query_params._mutable = _mutable  # pylint: disable=protected-access
 

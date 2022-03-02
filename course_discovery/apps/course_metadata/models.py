@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import FileExtensionValidator
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -589,6 +589,18 @@ class TopicTranslation(TranslatedFieldsModel):
         verbose_name = _('Topic model translations')
 
 
+class AdditionalMetadata(TimeStampedModel):
+    """
+    This model holds 2U related additional fields
+    """
+
+    external_url = models.URLField(blank=False, null=False)
+    external_identifier = models.CharField(max_length=255, blank=True, null=False)
+
+    def __str__(self):
+        return f"{self.external_url} - {self.external_identifier}"
+
+
 class Prerequisite(AbstractNamedModel):
     """ Prerequisite model. """
 
@@ -783,6 +795,11 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     extra_description = models.ForeignKey(
         AdditionalPromoArea, models.CASCADE, default=None, null=True, blank=True, related_name='extra_description',
     )
+    additional_metadata = models.ForeignKey(
+        AdditionalMetadata, models.CASCADE,
+        related_name='related_courses',
+        default=None, null=True, blank=True
+    )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     collaborators = SortedManyToManyField(Collaborator, null=True, blank=True, related_name='courses_collaborated')
@@ -804,7 +821,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         },
         help_text=_('Add the course image')
     )
-    slug = AutoSlugField(populate_from='key', editable=True, slugify_function=uslugify)
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     faq = NullHtmlField(verbose_name=_('FAQ'))
     learner_testimonials = NullHtmlField()
@@ -1047,7 +1063,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         if creating:
             official_version.canonical_course_run = course_run
-            official_version.slug = self.slug
             official_version.save()
             self.canonical_course_run = course_run.draft_version
             self.save()
@@ -1059,6 +1074,14 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         # logging to help debug error around course url slugs incrementing
         logger.info('The current slug is {}; The slug to be set is {}; Current course is a draft: {}'
                     .format(self.url_slug, slug, self.draft))
+
+        if slug:
+            # case 0: if slug is already in use with another, rasie an IntegrityError
+            excluded_course = self.official_version if self.draft else self.draft_version
+            slug_already_in_use = CourseUrlSlug.objects.filter(url_slug__iexact=slug.lower()).exclude(
+                course__in=[self, excluded_course]).exists()
+            if slug_already_in_use:
+                raise IntegrityError(f'This slug {slug} is already in use with another course')
 
         if self.draft:
             active_draft_url_slug_object = self.url_slug_history.filter(is_active=True).first()
@@ -1236,7 +1259,7 @@ class CourseEditor(TimeStampedModel):
         # We must be a valid editor for this course
         if check_editors:
             has_valid_editors = Q(
-                editors__user__groups__organization_extension__organization__in=F('authoring_organizations')
+                authoring_organizations=F('editors__user__groups__organization_extension__organization')
             )
             has_user_editor = Q(editors__user=user)
             queryset = queryset.filter(has_user_editor | ~has_valid_editors)
@@ -1256,7 +1279,7 @@ class CourseEditor(TimeStampedModel):
 
         user_orgs = Organization.user_organizations(user)
         has_valid_editors = Q(
-            course__editors__user__groups__organization_extension__organization__in=F('course__authoring_organizations')
+            course__authoring_organizations=F('course__editors__user__groups__organization_extension__organization')
         )
         has_user_editor = Q(course__editors__user=user)
         user_can_edit = has_user_editor | ~has_valid_editors
@@ -1739,12 +1762,15 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
                 deadline = subtract_deadline_delta(self.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS)
         return deadline
 
-    def update_or_create_seat_helper(self, seat_type, prices):
+    def update_or_create_seat_helper(self, seat_type, prices, upgrade_deadline_override):
         defaults = {
             'upgrade_deadline': self.get_seat_upgrade_deadline(seat_type),
         }
         if seat_type.slug in prices:
             defaults['price'] = prices[seat_type.slug]
+
+        if upgrade_deadline_override and seat_type.slug == Seat.VERIFIED:
+            defaults['upgrade_deadline_override'] = upgrade_deadline_override
 
         seat, __ = Seat.everything.update_or_create(
             course_run=self,
@@ -1754,7 +1780,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         )
         return seat
 
-    def update_or_create_seats(self, run_type=None, prices=None):
+    def update_or_create_seats(self, run_type=None, prices=None, upgrade_deadline_override=None):
         """
         Updates or creates draft seats for a course run.
 
@@ -1769,7 +1795,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
         seats = []
         for seat_type in seat_types:
-            seats.append(self.update_or_create_seat_helper(seat_type, prices))
+            seats.append(self.update_or_create_seat_helper(seat_type, prices, upgrade_deadline_override))
 
         # Deleting seats here since they would be orphaned otherwise.
         # One example of how this situation can happen is if a course team is switching between
@@ -1845,7 +1871,6 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             suppress_publication (bool): if True, we won't push the run data to the marketing site
             send_emails (bool): whether to send email notifications for status changes from this save
         """
-        is_new_course_run = not self.id
         push_to_marketing = (not suppress_publication and
                              self.course.partner.has_marketing_site and
                              waffle.switch_is_active('publish_course_runs_to_marketing_site') and
@@ -1861,7 +1886,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             if push_to_marketing:
                 self.push_to_marketing_site(previous_obj)
 
-        if is_new_course_run:
+        if self.status == CourseRunStatus.Reviewed and not self.draft:
             retired_programs = self.programs.filter(status=ProgramStatus.Retired)
             for program in retired_programs:
                 program.excluded_course_runs.add(self)
@@ -1974,6 +1999,16 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
         is_published = self.status == CourseRunStatus.Published
         return is_published and self.seats.exists() and bool(self.marketing_url)
+
+    def complete_review_phase(self, has_ofac_restrictions, ofac_comment):
+        """
+        Complete the review phase of the course run by marking status as reviewed and adding
+        ofac fields' values.
+        """
+        self.has_ofac_restrictions = has_ofac_restrictions
+        self.ofac_comment = ofac_comment
+        self.status = CourseRunStatus.Reviewed
+        self.save()
 
 
 class Seat(DraftModelMixin, TimeStampedModel):

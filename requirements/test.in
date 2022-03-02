@@ -13,7 +13,6 @@ python-memcached
 pytest
 pytest-cov
 pytest-django
-pytest-django-ordering
 pytest-responses
 pytest-xdist
 responses

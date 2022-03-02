@@ -12,16 +12,15 @@ from django.utils.text import slugify
 from elasticsearch_dsl.query import Q as ESDSLQ
 from opaque_keys.edx.keys import CourseKey
 from pytz import UTC
-from rest_framework.test import APIRequestFactory
 from taggit.models import Tag
 from waffle.testutils import override_switch
 
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
-    AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer, CollaboratorSerializer,
-    ContainedCourseRunsSerializer, ContainedCoursesSerializer, ContentTypeSerializer, CorporateEndorsementSerializer,
-    CourseEditorSerializer, CourseEntitlementSerializer, CourseRecommendationSerializer, CourseRunSerializer,
-    CourseRunWithProgramsSerializer, CourseSerializer, CourseWithProgramsSerializer,
+    AdditionalMetadataSerializer, AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer,
+    CollaboratorSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer, ContentTypeSerializer,
+    CorporateEndorsementSerializer, CourseEditorSerializer, CourseEntitlementSerializer, CourseRecommendationSerializer,
+    CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSerializer, CourseWithProgramsSerializer,
     CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer,
     EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer,
     ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
@@ -32,6 +31,7 @@ from course_discovery.apps.api.serializers import (
     TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
+from course_discovery.apps.api.tests.test_utils import make_request
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
@@ -40,38 +40,34 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSA
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.search_indexes.documents import (
-    CourseDocument, CourseRunDocument, PersonDocument, ProgramDocument
+    CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers import (
     CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer, CourseSearchDocumentSerializer,
-    CourseSearchModelSerializer, PersonSearchDocumentSerializer, PersonSearchModelSerializer,
-    ProgramSearchDocumentSerializer, ProgramSearchModelSerializer
+    CourseSearchModelSerializer, LearnerPathwaySearchDocumentSerializer, LearnerPathwaySearchModelSerializer,
+    PersonSearchDocumentSerializer, PersonSearchModelSerializer, ProgramSearchDocumentSerializer,
+    ProgramSearchModelSerializer
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalPromoAreaFactory, CollaboratorFactory, CorporateEndorsementFactory, CourseEditorFactory,
-    CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseSkillsFactory, CurriculumCourseMembershipFactory,
-    CurriculumFactory, CurriculumProgramMembershipFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory,
-    EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory,
-    OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory,
-    PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory,
-    SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    AdditionalMetadataFactory, AdditionalPromoAreaFactory, CollaboratorFactory, CorporateEndorsementFactory,
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseSkillsFactory,
+    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory, DegreeCostFactory,
+    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory,
+    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory,
+    PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
+    RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
+from course_discovery.apps.learner_pathway.api.serializers import LearnerPathwayStepSerializer
+from course_discovery.apps.learner_pathway.tests.factories import (
+    LearnerPathwayCourseFactory, LearnerPathwayFactory, LearnerPathwayProgramFactory, LearnerPathwayStepFactory
+)
+from course_discovery.apps.learner_pathway.tests.test_serializer import TestLearnerPathwaySerializer
 
 
 def json_date_format(datetime_obj):
     return datetime_obj and datetime.datetime.strftime(datetime_obj, "%Y-%m-%dT%H:%M:%S.%fZ")
-
-
-def make_request(query_param=None):
-    user = UserFactory()
-    if query_param:
-        request = APIRequestFactory().get('/', query_param)
-    else:
-        request = APIRequestFactory().get('/')
-    request.user = user
-    return request
 
 
 def serialize_language(language):
@@ -164,6 +160,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'full_description': course.full_description,
             'level_type': course.level_type.name_t,
             'extra_description': AdditionalPromoAreaSerializer(course.extra_description).data,
+            'additional_metadata': AdditionalMetadataSerializer(course.additional_metadata).data,
             'subjects': [],
             'prerequisites': [],
             'expected_learning_items': [],
@@ -593,6 +590,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'external_key': course_run.external_key,
             'is_enrollable': course_run.is_enrollable,
             'is_marketable': course_run.is_marketable,
+            'availability': course_run.availability,
         }
 
 
@@ -985,7 +983,7 @@ class MinimalProgramSerializerTests(TestCase):
         courses = CourseFactory.create_batch(3)
         for course in courses:
             CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.datetime.now(UTC))
-            course.topics.set(topic)
+            course.topics.set([topic])
 
         return ProgramFactory(
             courses=courses,
@@ -1031,6 +1029,7 @@ class MinimalProgramSerializerTests(TestCase):
             'curricula': [],
             'marketing_hook': program.marketing_hook,
             'total_hours_of_effort': program.total_hours_of_effort,
+            'recent_enrollment_count': 0,
         }
 
     def test_data(self):
@@ -1575,12 +1574,22 @@ class MinimalOrganizationSerializerTests(TestCase):
             'url',
             None
         )
+        logo_image_url = getattr(
+            getattr(
+                organization,
+                'logo_image',
+                None
+            ),
+            'url',
+            None
+        )
         return {
             'uuid': str(organization.uuid),
             'key': organization.key,
             'name': organization.name,
             'auto_generate_course_run_keys': organization.auto_generate_course_run_keys,
-            'certificate_logo_image_url': certificate_logo_image_url
+            'certificate_logo_image_url': certificate_logo_image_url,
+            'logo_image_url': logo_image_url,
         }
 
     def test_data(self):
@@ -1661,6 +1670,7 @@ class SeatSerializerTests(TestCase):
             'price': str(self.seat.price),
             'currency': self.seat.currency.code,
             'upgrade_deadline': json_date_format(self.seat.upgrade_deadline),
+            'upgrade_deadline_override': None,
             'credit_provider': self.seat.credit_provider,
             'credit_hours': self.seat.credit_hours,
             'sku': self.seat.sku,
@@ -1841,6 +1851,19 @@ class AdditionalPromoAreaSerializerTests(TestCase):
         expected = {
             'title': extra_description.title,
             'description': extra_description.description,
+        }
+        assert serializer.data == expected
+
+
+class AdditionalMetadataSerializerTests(TestCase):
+    serializer_class = AdditionalMetadataSerializer
+
+    def test_data(self):
+        additional_metadata = AdditionalMetadataFactory()
+        serializer = AdditionalMetadataSerializer(additional_metadata)
+        expected = {
+            'external_identifier': additional_metadata.external_identifier,
+            'external_url': additional_metadata.external_url,
         }
         assert serializer.data == expected
 
@@ -2430,6 +2453,64 @@ class ProgramSearchModelSerializerTest(TestProgramSearchDocumentSerializer):
         expected = ProgramSerializerTests.get_expected_data(program, request)
         expected.update({'content_type': 'program'})
         expected.update({'marketing_hook': program.marketing_hook})
+        return expected
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures('elasticsearch_dsl_default_connection')
+class TestLearnerPathwaySearchDocumentSerializer(TestCase):
+    serializer_class = LearnerPathwaySearchDocumentSerializer
+
+    def setUp(self):
+        super().setUp()
+        self.request = make_request()
+
+    @classmethod
+    def get_expected_data(cls, learner_pathway, request):
+        image_field = StdImageSerializerField()
+        image_field._context = {'request': request}  # pylint: disable=protected-access
+        return {
+            'uuid': str(learner_pathway.uuid),
+            'name': learner_pathway.name,
+            'aggregation_key': f'learnerpathway:{learner_pathway.uuid}',
+            'content_type': 'learnerpathway',
+            'status': learner_pathway.status,
+            'banner_image': image_field.to_representation(learner_pathway.banner_image),
+            'overview': learner_pathway.overview,
+            'published': learner_pathway.status == ProgramStatus.Active,
+            'skill_names': [skill['name'] for skill in learner_pathway.skills],
+            'skills': learner_pathway.skills,
+            'partner': learner_pathway.partner.short_code,
+            'visible_via_association': True,
+            'steps': LearnerPathwayStepSerializer(
+                learner_pathway.steps.all(),
+                many=True
+            ).data,
+        }
+
+    def serialize_learner_pathway(self, learner_pathway, request):
+        """ Serializes the given `Program` as a search result. """
+        result = LearnerPathwayDocument.search().filter('term', uuid=learner_pathway.uuid).execute()[0]
+        serializer = self.serializer_class(result, context={'request': request})
+        return serializer
+
+    def test_data(self):
+        learner_pathway = LearnerPathwayFactory()
+        step = LearnerPathwayStepFactory(pathway=learner_pathway)
+        LearnerPathwayCourseFactory(step=step)
+        LearnerPathwayProgramFactory(step=step)
+        serializer = self.serialize_learner_pathway(learner_pathway, self.request)
+        expected = self.get_expected_data(learner_pathway, self.request)
+        assert serializer.data == expected
+
+
+class LearnerPathwaySearchModelSerializerTest(TestLearnerPathwaySearchDocumentSerializer):
+    serializer_class = LearnerPathwaySearchModelSerializer
+
+    @classmethod
+    def get_expected_data(cls, learner_pathway, request):
+        expected = TestLearnerPathwaySerializer.get_expected_data(learner_pathway, request)
+        expected.update({'content_type': 'learnerpathway'})
         return expected
 
 

@@ -189,6 +189,14 @@ class TestCourse(TestCase):
         factories.CourseRunFactory(course=course, end=end)
         self.assertEqual(course.course_ends, expected)
 
+    def test_additional_metadata(self):
+        """ Verify the property returns valid additional metadata fields. """
+
+        additional_metadata = factories.AdditionalMetadataFactory()
+        course = factories.CourseFactory(additional_metadata=additional_metadata)
+        self.assertEqual(course.additional_metadata.external_identifier, additional_metadata.external_identifier)
+        self.assertEqual(course.additional_metadata.external_url, additional_metadata.external_url)
+
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
     @classmethod
@@ -582,7 +590,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         assert self.course_run.program_types == [active_program.type.name]
 
     def test_new_course_run_excluded_in_retired_programs(self):
-        """ Verify the newly created course run must be excluded in associated retired programs"""
+        """ Verify the newly reviewed course run must be excluded in associated retired programs"""
         course = factories.CourseFactory()
         course_run = factories.CourseRunFactory(course=course)
         program = factories.ProgramFactory(
@@ -590,7 +598,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         )
         course_run.weeks_to_complete = 2
         course_run.save()
-        new_course_run = factories.CourseRunFactory(course=course)
+        new_course_run = factories.CourseRunFactory(course=course, status=CourseRunStatus.Reviewed, draft=False)
         new_course_run.save()
         assert program.excluded_course_runs.count() == 1
         assert len(list(program.course_runs)) == 1
@@ -929,7 +937,6 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         assert official_run.course.draft is False
         assert official_run.course.draft_version == draft_run.course
         assert official_run.course != draft_run.course
-        assert official_run.course.slug == draft_run.course.slug
 
         official_entitlement = official_run.course.entitlements.first()
         draft_entitlement = draft_run.course.entitlements.first()
@@ -1788,11 +1795,11 @@ class ProgramTests(TestCase):
         topicC = Tag.objects.create(name="topicC")
 
         course1 = factories.CourseFactory()
-        course1.topics.set(topicA)
+        course1.topics.set([topicA])
         course2 = factories.CourseFactory()
-        course2.topics.set(topicA, topicB)
+        course2.topics.set([topicA, topicB])
         course3 = factories.CourseFactory()
-        course3.topics.set(topicB, topicC)
+        course3.topics.set([topicB, topicC])
 
         program1 = factories.ProgramFactory(courses=[course1, course2, course3])
         assert program1.topics == {topicA, topicB, topicC}

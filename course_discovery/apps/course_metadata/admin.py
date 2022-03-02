@@ -94,6 +94,11 @@ class PersonAreaOfExpertiseInline(admin.TabularInline):
     extra = 0
 
 
+class AdditionalMetadataInline(admin.TabularInline):
+    model = AdditionalMetadata
+    extra = 0
+
+
 @admin.register(Course)
 class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = CourseAdminForm
@@ -336,16 +341,23 @@ class ProgramAdmin(admin.ModelAdmin):
             messages.add_message(request, messages.ERROR, msg)
 
     class Media:
-        js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-              'js/sortable_select.js')
+        js = (
+            'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
+            'bower_components/jquery/dist/jquery.min.js',
+            'js/sortable_select.js'
+        )
 
 
 @admin.register(Pathway)
 class PathwayAdmin(admin.ModelAdmin):
     form = PathwayAdminForm
     readonly_fields = ('uuid',)
-    list_display = ('name', 'uuid', 'org_name', 'partner', 'email', 'destination_url', 'pathway_type',)
-    search_fields = ('uuid', 'name', 'email', 'destination_url', 'pathway_type',)
+    list_display = ('name', 'uuid', 'org_name', 'partner', 'email', 'destination_url', 'pathway_type', 'get_programs',)
+    search_fields = ('uuid', 'name', 'email', 'destination_url', 'pathway_type', 'programs__title')
+
+    @admin.display(description='Programs')
+    def get_programs(self, obj):
+        return [*obj.programs.all()]
 
 
 @admin.register(ProgramType)
@@ -395,6 +407,17 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
     def courses(self, obj):
         return ', '.join([
             course.key for course in obj.extra_description.all()
+        ])
+
+
+@admin.register(AdditionalMetadata)
+class AdditionalMetadataAdmin(admin.ModelAdmin):
+    list_display = ('id', 'external_identifier', 'external_url', 'courses')
+    search_fields = ('external_identifier', 'external_url')
+
+    def courses(self, obj):
+        return ', '.join([
+            course.key for course in obj.related_courses.all()
         ])
 
 
@@ -615,8 +638,11 @@ class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
     list_display = ('index_name',)
 
     class Media:
-        js = ('bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
-              'js/sortable_select.js')
+        js = (
+            'bower_components/jquery-ui/ui/minified/jquery-ui.min.js',
+            'bower_components/jquery/dist/jquery.min.js',
+            'js/sortable_select.js'
+        )
 
 
 # Register remaining models using basic ModelAdmin classes
@@ -633,3 +659,9 @@ class CollaboratorAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'name', 'image')
     readonly_fields = ('uuid', )
     search_fields = ('uuid', 'name')
+
+
+@admin.register(CourseUrlSlug)
+class CourseUrlSlugAdmin(admin.ModelAdmin):
+    list_display = ('course', 'url_slug', 'is_active')
+    search_fields = ('url_slug', 'course__title', 'course__key',)

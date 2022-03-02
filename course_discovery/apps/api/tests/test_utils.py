@@ -9,13 +9,33 @@ from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
+from rest_framework.views import APIView
 
 from course_discovery.apps.api.utils import StudioAPI, cast2int, get_query_param
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
+from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseRunFactory
 
 LOGGER_PATH = 'course_discovery.apps.api.utils.logger.exception'
+
+
+def make_request(query_param=None):
+    user = UserFactory()
+    if query_param:
+        request = APIRequestFactory().get('/', query_param)
+    else:
+        request = APIRequestFactory().get('/')
+    request.user = user
+
+    # Convert a Django HTTPResponse object into a rest_framework.request
+    # using a generic API view. This is necessary because the drf-flex-fields
+    # library relies on the `.query_params` property of the request. DRF requests
+    # always have the `query_params` parameter unless the request is created using
+    # `APIRequestFactory`, which yelds Django's standard `HttpRequest`.
+    # Documentation: https://www.django-rest-framework.org/api-guide/testing/#forcing-authentication
+    # DRF issue: https://github.com/encode/django-rest-framework/issues/6488
+    return APIView().initialize_request(request)
 
 
 @ddt.ddt
@@ -99,7 +119,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
 
         expected_data = self.make_studio_data(run2)
         responses.add(responses.POST, f'{self.studio_url}api/v1/course_runs/{run1.key}/rerun/',
-                      match=[responses.json_params_matcher(expected_data)])
+                      match=[responses.matchers.json_params_matcher(expected_data)])
 
         self.api.create_course_rerun_in_studio(run2, run1.key)
 
@@ -108,7 +128,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
 
         expected_data = self.make_studio_data(run)
         responses.add(responses.POST, f'{self.studio_url}api/v1/course_runs/',
-                      match=[responses.json_params_matcher(expected_data)])
+                      match=[responses.matchers.json_params_matcher(expected_data)])
 
         self.api.create_course_run_in_studio(run)
 
@@ -117,7 +137,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
 
         expected_data = self.make_studio_data(run, add_pacing=False, add_schedule=False)
         responses.add(responses.PATCH, f'{self.studio_url}api/v1/course_runs/{run.key}/',
-                      match=[responses.json_params_matcher(expected_data)])
+                      match=[responses.matchers.json_params_matcher(expected_data)])
 
         self.api.update_course_run_details_in_studio(run)
 

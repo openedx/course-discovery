@@ -6,15 +6,17 @@ import responses
 from django.conf import settings
 from rest_framework.test import APIRequestFactory
 from rest_framework.test import APITestCase as RestAPITestCase
+from rest_framework.views import APIView
 
 from course_discovery.apps.api import serializers
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.search_indexes.documents import (
-    CourseDocument, CourseRunDocument, ProgramDocument
+    CourseDocument, CourseRunDocument, LearnerPathwayDocument, ProgramDocument
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers import (
-    CourseRunSearchDocumentSerializer, CourseSearchDocumentSerializer, ProgramSearchDocumentSerializer
+    CourseRunSearchDocumentSerializer, CourseSearchDocumentSerializer, LearnerPathwaySearchDocumentSerializer,
+    ProgramSearchDocumentSerializer
 )
 from course_discovery.apps.course_metadata.tests import factories
 
@@ -22,14 +24,22 @@ from course_discovery.apps.course_metadata.tests import factories
 class SerializationMixin:
     def _get_request(self, format=None):
         if getattr(self, 'request', None):
-            return self.request
+            request = self.request
+        else:
+            query_data = {}
+            if format:
+                query_data['format'] = format
+            request = APIRequestFactory().get('/', query_data)
+            request.user = self.user
 
-        query_data = {}
-        if format:
-            query_data['format'] = format
-        request = APIRequestFactory().get('/', query_data)
-        request.user = self.user
-        return request
+        # Convert a Django HTTPResponse object into a rest_framework.request
+        # using a generic API view. This is necessary because the drf-flex-fields
+        # library relies on the `.query_params` property of the request. DRF requests
+        # always have the `query_params` parameter unless the request is created using
+        # `APIRequestFactory`, which yelds Django's standard `HttpRequest`.
+        # Documentation: https://www.django-rest-framework.org/api-guide/testing/#forcing-authentication
+        # DRF issue: https://github.com/encode/django-rest-framework/issues/6488
+        return APIView().initialize_request(request)
 
     def _serialize_object(self, serializer, obj, many=False, format=None, extra_context=None):
         context = {'request': self._get_request(format)}
@@ -75,6 +85,10 @@ class SerializationMixin:
     def serialize_program_search(self, program, serializer=None):
         obj = self._get_search_result(ProgramDocument, uuid=program.uuid)
         return self._serialize_object(serializer or ProgramSearchDocumentSerializer, obj)
+
+    def serialize_learner_pathway_search(self, learner_pathway, serializer=None):
+        obj = self._get_search_result(LearnerPathwayDocument, uuid=learner_pathway.uuid)
+        return self._serialize_object(serializer or LearnerPathwaySearchDocumentSerializer, obj)
 
     def serialize_program_type(self, program_type, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.ProgramTypeSerializer, program_type, many, format, extra_context)

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-04 20:35+0000\n"
+"POT-Creation-Date: 2022-02-27 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -531,7 +531,7 @@ msgstr "Ìnstrüçtör-päçéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#
 msgid "Self-paced"
 msgstr "Sélf-päçéd Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py apps/learner_pathway/choices.py
 msgid "Active"
 msgstr "Àçtïvé Ⱡ'σяєм ιρѕυ#"
 
@@ -733,7 +733,8 @@ msgstr "Shört çödé för ä pärtnér. Ⱡ'σяєм ιρѕυм ∂σłσя ѕ
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
 #: apps/course_metadata/models.py apps/course_metadata/models.py
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/learner_pathway/models.py
+#: apps/learner_pathway/models.py apps/learner_pathway/models.py
 msgid "UUID"
 msgstr "ÛÛÌD Ⱡ'σяєм ι#"
 
@@ -2091,6 +2092,64 @@ msgstr "Nämé för tränslätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт �
 #: apps/ietf_language_tags/models.py
 msgid "LanguageTag model translations"
 msgstr "LängüägéTäg mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
+
+#: apps/learner_pathway/choices.py
+msgid "Inactive"
+msgstr "Ìnäçtïvé Ⱡ'σяєм ιρѕυм ∂#"
+
+#: apps/learner_pathway/models.py
+msgid "Pathway name"
+msgstr "Päthwäý nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/learner_pathway/models.py
+msgid "Course/Program associated pathways also appear in search results"
+msgstr ""
+"Çöürsé/Prögräm ässöçïätéd päthwäýs älsö äppéär ïn séärçh résülts Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/learner_pathway/models.py
+msgid "The active/inactive status of this Pathway."
+msgstr ""
+"Thé äçtïvé/ïnäçtïvé stätüs öf thïs Päthwäý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway"
+msgstr "Léärnér Päthwäý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathways"
+msgstr "Léärnér Päthwäýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/learner_pathway/models.py
+msgid "Minimum number of nodes to complete this step of the pathway"
+msgstr ""
+"Mïnïmüm nümßér öf nödés tö çömplété thïs stép öf thé päthwäý Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Step"
+msgstr "Léärnér Päthwäý Stép Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Steps"
+msgstr "Léärnér Päthwäý Stéps Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Course"
+msgstr "Léärnér Päthwäý Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Courses"
+msgstr "Léärnér Päthwäý Çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Program"
+msgstr "Léärnér Päthwäý Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Programs"
+msgstr "Léärnér Päthwäý Prögräms Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/publisher/models.py
 msgid "Organization Role"

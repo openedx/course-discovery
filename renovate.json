@@ -1,5 +1,20 @@
 {
   "extends": [
-    "config:base"
+    "config:base",
+    ":automergeLinters",
+    ":automergeTesters",
+    ":automergeMinor",
+    ":noUnscheduledUpdates",
+    ":semanticCommits"
+  ],
+  "rebaseStalePrs": true,
+  "schedule": [
+    "every weekday"
+  ],
+  "packageRules": [
+    {
+      "matchPackageNames": ["node", "npm"],
+      "enabled": false
+    }
   ]
 }

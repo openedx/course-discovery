@@ -10,7 +10,8 @@ import markdown
 import requests
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.db import transaction
+from django.core.files.base import ContentFile
+from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext as _
 from dynamic_filenames import FilePattern
@@ -19,6 +20,7 @@ from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.constants import IMAGE_TYPES
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
@@ -254,13 +256,12 @@ def ensure_draft_world(obj):
 
     if isinstance(obj, CourseRun):
         ensure_draft_world(obj.course)
-        return CourseRun.everything.get(key=obj.key, draft=True)
+        return CourseRun.everything.get(key=obj.key, draft=models.Value(1))
 
     elif isinstance(obj, Course):
         # We need to null this out because it will fail with a OneToOne uniqueness error when saving the draft
         obj.canonical_course_run = None
         draft_course, original_course = set_draft_state(obj, Course, related_attrs={'url_slug_history': []})
-        draft_course.slug = original_course.slug
 
         # Move editors from the original course to the draft course since we only care about CourseEditors
         # in the context of draft courses. This code is only necessary during the transition from using
@@ -683,3 +684,33 @@ def clean_html(content):
     cleaned = markdown.markdown(cleaned)
 
     return cleaned
+
+
+def download_and_save_course_image(course, image_url):
+    """
+    Helper method to download an image from a provided image url and save it
+    as course card image.
+    """
+    try:
+        response = requests.get(image_url)
+
+        if response.status_code == requests.codes.ok:  # pylint: disable=no-member
+            content_type = response.headers['Content-Type'].lower()
+            extension = IMAGE_TYPES.get(content_type)
+
+            if extension:
+                filename = '{uuid}.{extension}'.format(uuid=str(course.uuid), extension=extension)
+                course.image.save(filename, ContentFile(response.content))
+                logger.info('Image for course [%s] successfully updated.', course.key)
+                return True
+            else:
+                # pylint: disable=line-too-long
+                msg = 'Image retrieved for course [%s] from [%s] has an unknown content type [%s] and will not be saved.'
+                logger.error(msg, course.key, image_url, content_type)
+
+        else:
+            msg = 'Failed to download image for course [%s] from [%s]! Response was [%d]:\n%s'
+            logger.error(msg, course.key, image_url, response.status_code, response.content)
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('An unknown exception occurred while downloading image for course [%s]', course.key)
+    return False

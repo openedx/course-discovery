@@ -39,7 +39,7 @@ INSTALLED_APPS = [
 THIRD_PARTY_APPS = [
     'release_util',
     'rest_framework',
-    'rest_framework_swagger',
+    'drf_yasg',
     'social_django',
     'waffle',
     'sortedm2m',
@@ -54,7 +54,6 @@ THIRD_PARTY_APPS = [
     'django_sites_extensions',
     'taggit',
     'taggit_autosuggest',
-    'taggit_serializer',
     'solo',
     'webpack_loader',
     'parler',
@@ -71,6 +70,7 @@ THIRD_PARTY_APPS = [
 ALGOLIA = {
     'APPLICATION_ID': '',
     'API_KEY': '',
+    'TAXONOMY_INDEX_NAME': '',
 }
 
 PROJECT_APPS = [
@@ -82,6 +82,7 @@ PROJECT_APPS = [
     'course_discovery.apps.edx_elasticsearch_dsl_extensions',
     'course_discovery.apps.publisher',
     'course_discovery.apps.publisher_comments',
+    'course_discovery.apps.learner_pathway',
 ]
 
 ES_APPS = [
@@ -96,6 +97,7 @@ INSTALLED_APPS += ES_APPS
 
 MIDDLEWARE = (
     'corsheaders.middleware.CorsMiddleware',
+    'edx_django_utils.monitoring.DeploymentMonitoringMiddleware',
     'edx_django_utils.cache.middleware.RequestCacheMiddleware',
     'edx_rest_framework_extensions.auth.jwt.middleware.JwtAuthCookieMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -224,6 +226,9 @@ WEBPACK_LOADER = {
         'STATS_FILE': root('..', 'webpack-stats.json'),
     }
 }
+
+DEFAULT_HASHING_ALGORITHM = 'sha1'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # TEMPLATE CONFIGURATION
 # See: https://docs.djangoproject.com/en/1.8/ref/settings/#templates
@@ -463,6 +468,7 @@ ELASTICSEARCH_DSL = {
 ELASTICSEARCH_INDEX_NAMES = {
     'course_discovery.apps.course_metadata.search_indexes.documents.course': 'course',
     'course_discovery.apps.course_metadata.search_indexes.documents.course_run': 'course_run',
+    'course_discovery.apps.course_metadata.search_indexes.documents.learner_pathway': 'learner_pathway',
     'course_discovery.apps.course_metadata.search_indexes.documents.person': 'person',
     'course_discovery.apps.course_metadata.search_indexes.documents.program': 'program',
 }
@@ -622,3 +628,11 @@ CELERY_TASK_ALWAYS_EAGER = False
 ################################### END CELERY ###################################
 
 FIRE_UPDATE_COURSE_SKILLS_SIGNAL = False
+
+# Learner Pathway
+# Disable learner pathway on all environment except devstack and testing.
+ENABLE_LEARNER_PATHWAY = False
+
+DISCOVERY_BASE_URL = "http://localhost:18381"
+
+PRODUCT_API_URL = ''

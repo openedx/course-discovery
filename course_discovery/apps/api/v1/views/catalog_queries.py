@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 
 from elasticsearch_dsl.query import Q as ESDSLQ
@@ -8,6 +9,8 @@ from rest_framework.response import Response
 
 from course_discovery.apps.api.mixins import ValidElasticSearchQueryRequiredMixin
 from course_discovery.apps.course_metadata.models import Course, CourseRun
+
+log = logging.getLogger(__name__)
 
 
 class CatalogQueryContainsViewSet(ValidElasticSearchQueryRequiredMixin, GenericAPIView):
@@ -37,7 +40,7 @@ class CatalogQueryContainsViewSet(ValidElasticSearchQueryRequiredMixin, GenericA
                 identified_course_ids.update(
                     i.key
                     for i in CourseRun.search(query)
-                    .filter(ESDSLQ('term', partner=partner.short_code) | ESDSLQ('terms', **{'key.raw': course_run_ids}))
+                    .filter(ESDSLQ('term', partner=partner.short_code) & ESDSLQ('terms', **{'key.raw': course_run_ids}))
                     .source(['key'])
                 )
             if course_uuids:

@@ -15,14 +15,14 @@ help: ## Display this help message
 	@perl -nle'print $& if m{^[\.a-zA-Z_-]+:.*?## .*$$}' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m  %-25s\033[0m %s\n", $$1, $$2}'
 
 static: ## Gather all static assets for production
-	$(NODE_BIN)/webpack --config webpack.config.js --display-error-details --progress --optimize-minimize
+	$(NODE_BIN)/webpack --config webpack.config.js --progress
 	python manage.py collectstatic -v 0 --noinput
 
 static.dev:
-	$(NODE_BIN)/webpack --config webpack.config.js --display-error-details --progress
+	$(NODE_BIN)/webpack --config webpack.config.js --progress
 
 static.watch:
-	$(NODE_BIN)/webpack --config webpack.config.js --display-error-details --progress --watch
+	$(NODE_BIN)/webpack --config webpack.config.js --progress --watch
 
 clean_static: ## Remove all generated static files
 	rm -rf course_discovery/assets/ course_discovery/static/bundles/
@@ -45,7 +45,23 @@ production-requirements: ## Install Python and JS requirements for production
 	npm install --production
 	$(NODE_BIN)/bower install --allow-root --production
 
-upgrade:
+COMMON_CONSTRAINTS_TXT=requirements/common_constraints.txt
+.PHONY: $(COMMON_CONSTRAINTS_TXT)
+$(COMMON_CONSTRAINTS_TXT):
+	wget -O "$(@)" https://raw.githubusercontent.com/edx/edx-lint/master/edx_lint/files/common_constraints.txt || touch "$(@)"
+
+
+upgrade: $(COMMON_CONSTRAINTS_TXT)
+	sed 's/pyjwt\[crypto\]<2.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	mv requirements/common_constraints.tmp requirements/common_constraints.txt
+	sed 's/social-auth-core<4.0.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	mv requirements/common_constraints.tmp requirements/common_constraints.txt
+	sed 's/edx-auth-backends<4.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	mv requirements/common_constraints.tmp requirements/common_constraints.txt
+	sed 's/edx-drf-extensions<7.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	mv requirements/common_constraints.tmp requirements/common_constraints.txt
+	sed 's/Django<2.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	pip install -q -r requirements/pip_tools.txt
 	pip-compile --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in
 	pip-compile --upgrade -o requirements/docs.txt requirements/docs.in

@@ -170,7 +170,7 @@ class OrganizationUserRoleViewTests(APITestCase):
         self.assertExpectedRoles(response, [self.pm_slug])
 
         # Two roles
-        response = self.query(param='role=%s,%s' % (self.pm_slug, self.pub_slug))
+        response = self.query(param=f'role={self.pm_slug},{self.pub_slug}')
         self.assertExpectedRoles(response, [self.pm_slug, self.pub_slug, self.pub_slug])
 
     def test_only_org_roles(self):

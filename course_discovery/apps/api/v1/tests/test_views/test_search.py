@@ -24,6 +24,8 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory
 )
+from course_discovery.apps.learner_pathway.models import LearnerPathway
+from course_discovery.apps.learner_pathway.tests.factories import LearnerPathwayStepFactory
 from course_discovery.apps.publisher.tests import factories as publisher_factories
 
 
@@ -560,6 +562,29 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         )
         assert expected == actual
 
+    @ddt.data(True, False)
+    def test_learner_pathway_feature_flag(self, include_learner_pathways):
+        """ Verify the include_learner_pathways feature flag works as expected."""
+        LearnerPathwayStepFactory(pathway__partner=self.partner)
+        pathways = LearnerPathway.objects.all()
+        assert pathways.count() == 1
+        query = {
+            'include_learner_pathways': include_learner_pathways,
+        }
+
+        response = self.get_response(
+            query,
+            self.list_path
+        )
+        assert response.status_code == 200
+        response_data = response.json()
+
+        if include_learner_pathways:
+            assert response_data['count'] == 1
+            assert response_data['results'][0] == self.serialize_learner_pathway_search(pathways[0])
+        else:
+            assert response_data['count'] == 0
+
 
 class LimitedAggregateSearchViewSetTests(
     ElasticsearchTestMixin, mixins.LoginMixin, mixins.SerializationMixin, mixins.APITestCase
@@ -655,7 +680,7 @@ class LimitedAggregateSearchViewSetTests(
         )
         query = {'authoring_organization_uuids': desired_org_uuid}
         qs = urllib.parse.urlencode(query)
-        url = '{path}?{qs}'.format(path=self.path, qs=qs)
+        url = f'{self.path}?{qs}'
         response = self.client.get(url)
         assert response.status_code == 200
         expected = [self.serialize_course_run_search(mit_run), self.serialize_program_search(mit_program)]
@@ -948,6 +973,7 @@ class TypeaheadSearchViewTests(mixins.TypeaheadSerializationMixin, mixins.LoginM
 
     def test_typeahead_org_course_runs_come_up_first(self):
         """ Test typeahead response to ensure org is taken into account. """
+        self.maxDiff = None
         MITx = OrganizationFactory(key='MITx')
         HarvardX = OrganizationFactory(key='HarvardX')
         mit_run = CourseRunFactory(

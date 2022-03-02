@@ -1,6 +1,6 @@
 import logging
 
-from django.db import transaction
+from django.db import models, transaction
 from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.utils.translation import ugettext as _
@@ -23,6 +23,7 @@ from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.constants import COURSE_RUN_ID_REGEX
+from course_discovery.apps.course_metadata.exceptions import EcommerceSiteAPIClientException
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.utils import is_publisher_user
@@ -264,13 +265,13 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         response = self.create_run_helper(request.data)
         if response.status_code == 201:
             run_key = response.data.get('key')
-            course_run = CourseRun.everything.get(key=run_key, draft=True)
+            course_run = CourseRun.everything.get(key=run_key, draft=models.Value(1))
             self.update_course_run_image_in_studio(course_run)
 
         return response
 
     @writable_request_wrapper
-    def _update_course_run(self, course_run, draft, changed, serializer, request, prices):
+    def _update_course_run(self, course_run, draft, changed, serializer, request, prices, upgrade_deadline_override):
         save_kwargs = {}
         # If changes are made after review and before publish, revert status to unpublished.
         # Unless we're just switching the status
@@ -289,7 +290,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         course_run = serializer.save(**save_kwargs)
 
         if course_run in course_run.course.active_course_runs:
-            course_run.update_or_create_seats(course_run.type, prices)
+            course_run.update_or_create_seats(course_run.type, prices, upgrade_deadline_override,)
 
         self.push_to_studio(request, course_run, create=False)
 
@@ -312,7 +313,10 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
-        serializer.save()
+        try:
+            serializer.save()
+        except EcommerceSiteAPIClientException as error:
+            return Response(str(error), status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data)
 
     # pylint: disable=arguments-differ
@@ -327,6 +331,8 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
         # Sending draft=False triggers the review process for unpublished courses
         draft = request.data.pop('draft', True)  # Don't let draft parameter trickle down
         prices = request.data.pop('prices', {})
+        upgrade_deadline_override = request.data.pop('upgrade_deadline_override', None) \
+            if self.request.user.is_staff else None
 
         serializer = self.get_serializer(course_run, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -358,7 +364,8 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
             serializer.validated_data.items(),
             CourseRun.STATUS_CHANGE_EXEMPT_FIELDS
         )
-        response = self._update_course_run(course_run, draft, bool(changed_fields), serializer, request, prices)
+        response = self._update_course_run(course_run, draft, bool(changed_fields),
+                                           serializer, request, prices, upgrade_deadline_override,)
 
         self.update_course_run_image_in_studio(course_run)
 

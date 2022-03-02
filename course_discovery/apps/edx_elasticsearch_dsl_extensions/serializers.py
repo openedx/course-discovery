@@ -231,7 +231,7 @@ class BaseDjangoESDSLFacetSerializer(DjangoESDSLDRFFacetSerializer):
         query_facet_counts = self.instance.pop('queries', {})
         field_mapping = super().get_fields()
         query_data = self.format_query_facet_data(query_facet_counts)
-        field_mapping['queries'] = DictField(query_data, child=QueryFacetFieldSerializer(), required=False)
+        field_mapping['queries'] = DictField(child=QueryFacetFieldSerializer(), required=False)
 
         if self.serialize_objects:
             field_mapping.move_to_end('objects')

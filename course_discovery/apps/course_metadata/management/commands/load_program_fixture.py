@@ -13,7 +13,7 @@ from edx_rest_api_client import client as rest_client
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import (
-    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Program, ProgramType, SeatType
+    CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership
 )
 from course_discovery.apps.course_metadata.signals import (
     check_curriculum_for_cycles, check_curriculum_program_membership_for_cycles,
@@ -79,6 +79,11 @@ class Command(BaseCommand):
     """
     Command to populate catalog database with programs from another environment
     using the /program-fixtures endpoint
+
+    Idempotent up to changes in the ids of records in the source
+    environment; if a record previously copied by this command has
+    been deleted in the source environment and then recreated under a
+    new primary key then this command will likely fail.
 
     Usage:
         ./manage.py load_program_fixture 707acbed-0dae-4e69-a629-1fa20b87ccf1:external_key
@@ -164,72 +169,17 @@ class Command(BaseCommand):
     def load_fixture(self, fixture_text, partner):
 
         deserialized_items = serializers.deserialize('json', fixture_text)
-        seat_type_map = {}
-        program_type_map = {}
         objects_to_be_loaded = []
         for item in deserialized_items:
-            # maps the pk of incoming SeatType/ProgramType references to a new
-            # or existing model to avoid duplicate values.
-            if isinstance(item.object, SeatType):
-                stored_seat_type, _ = SeatType.objects.get_or_create(name=item.object.name)
-                seat_type_map[item.object.id] = (stored_seat_type, item)
-            elif isinstance(item.object, ProgramType):
-                # translated fields work differently in 'get' vs 'create', so need to explicitly call relation
-                # in get and then set field in defaults
-                stored_program_type, _ = ProgramType.objects.get_or_create(translations__name_t=item.object.name,
-                                                                           defaults={'name_t': item.object.name})
-                program_type_map[item.object.id] = (stored_program_type, item)
-            else:
-                # partner models are not included in the fixture
-                # replace partner with valid reference in this environment
-                try:
-                    item.object._meta.get_field('partner')
-                    item.object.partner = partner
-                except FieldDoesNotExist:
-                    pass
+            # partner models are not included in the fixture
+            # replace partner with valid reference in this environment
+            try:
+                item.object._meta.get_field('partner')
+                item.object.partner = partner
+            except FieldDoesNotExist:
+                pass
 
-                objects_to_be_loaded.append(item)
-
-        # set applicable_seat_types on each incoming program type to valid values
-        # for this environment.  Remove any seat types not in the fixture data
-        for stored_program_type, fixture_program_type in program_type_map.values():
-            stored_program_type.applicable_seat_types.clear()
-            for applicable_seat_type_id in fixture_program_type.m2m_data['applicable_seat_types']:
-                try:
-                    stored_program_type.applicable_seat_types.add(seat_type_map[applicable_seat_type_id][0])
-                except KeyError:
-                    msg = ('Failed to assign applicable_seat_type(pk={seat_type}) to ProgramType(pk={program_type}):'
-                           'No matching SeatType in fixture')
-                    logger.warning(msg.format(
-                        seat_type=applicable_seat_type_id,
-                        program_type=fixture_program_type.object.id,
-                    ))
-                    raise
+            objects_to_be_loaded.append(item)
 
         for obj in objects_to_be_loaded:
-            # apply newly created/updated program_types to all programs
-            # we're loading in
-            if isinstance(obj.object, Program):
-                try:
-                    obj.object.type = program_type_map[obj.object.type_id][0]
-                except KeyError:
-                    msg = ('Failed to assign type(pk={program_type}) to Program(pk={program}):'
-                           ' No matching ProgramType in fixture')
-                    logger.warning(msg.format(
-                        program_type=obj.object.type_id,
-                        program=obj.object.id,
-                    ))
-                    raise
-            elif isinstance(obj.object, CourseRun) and obj.object.expected_program_type_id:
-                try:
-                    obj.object.expected_program_type = program_type_map[obj.object.expected_program_type_id][0]
-                except KeyError:
-                    msg = ('Failed to assign program type (pk={program_type}) to CourseRun (pk={course_id}):'
-                           ' No matching ProgramType in fixture')
-                    logger.warning(msg.format(
-                        program_type=obj.object.expected_program_type,
-                        course_id=obj.object.key,
-                    ))
-                    raise
-
             self.save_fixture_object(obj)
