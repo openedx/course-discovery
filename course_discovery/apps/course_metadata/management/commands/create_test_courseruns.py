@@ -1,11 +1,12 @@
 import logging
 import os
+
 from django.core.management import BaseCommand
 
 from course_discovery.apps.core.models import Partner
-from course_discovery.apps.course_metadata.models import Organization, CourseRunType
+from course_discovery.apps.course_metadata.models import CourseRunType, Organization
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, SubjectFactory, SeatFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SubjectFactory
 )
 
 logger = logging.getLogger(__name__)
