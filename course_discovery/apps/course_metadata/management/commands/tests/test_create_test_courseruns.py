@@ -14,6 +14,5 @@ class CreateTestProgramCommandTests(TestCase):
     def test_create_command(self):
         course_run_count_before = CourseRun.objects.count()
         call_command('create_test_courseruns', *self.command_args)
-        org = Organization.objects.get(partner=self.partner)
         course_run_count_after = CourseRun.objects.count()
         assert course_run_count_after > course_run_count_before

@@ -34,13 +34,13 @@ class Command(BaseCommand):
         partner = Partner.objects.get(short_code=partner_code)
 
         # Update partner URL to be usable with dev environment:
-        if (partner.courses_api_url != base_course_url):
+        if partner.courses_api_url != base_course_url:
             partner.courses_api_url = base_course_url
             logger.info(
                 'Changing base partner URL for courses to {}'.format(base_course_url))
             partner.save()
 
-        if (not partner.marketing_site_url_root):
+        if not partner.marketing_site_url_root:
             partner.marketing_site_url_root = base_course_url
             logger.info(
                 'Changing blank base partner marketing URL for courses to {}'.format(base_course_url))
