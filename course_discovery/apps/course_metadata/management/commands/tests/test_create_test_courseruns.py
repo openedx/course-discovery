@@ -17,4 +17,3 @@ class CreateTestProgramCommandTests(TestCase):
         org = Organization.objects.get(partner=self.partner)
         course_run_count_after = CourseRun.objects.count()
         assert course_run_count_after > course_run_count_before
-
