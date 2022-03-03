@@ -260,7 +260,7 @@ class Command(BaseCommand):
             'syllabus': utils.format_curriculum(product_dict['curriculum']),
             'learner_testimonials': utils.format_testimonials(product_dict['testimonials']),
             'frequently_asked_questions': utils.format_faqs(product_dict['faqs']),
-            'about_video_link': utils.format_base64_strings( product_dict['videoURL']),
+            'about_video_link': utils.format_base64_strings(product_dict['videoURL']),
             'end_date': product_dict['variant']['endDate'],
             'length': product_dict['durationWeeks'],
             'redirect_url': utils.format_base64_strings(product_dict['edxRedirectUrl']),
