@@ -44,6 +44,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 'isThisCourseForYou': 'This is supposed to be a long description',
                 'whatWillSetYouApart': "New ways to learn",
                 "videoURL": "",
+                "lcfURL": "www.example.com/lead-capture?id=123",
                 "variant": {
                     "id": "test_id",
                     "endDate": "2022-05-06",
@@ -280,6 +281,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                                                'This is supposed to be a long description'
         assert data_row['Course Enrollment Track'] == 'Executive Education(2U)'
         assert data_row['Course Run Enrollment Track'] == 'Unpaid Executive Education'
+        assert data_row['Lead Capture Form Url'] == "www.example.com/lead-capture?id=123"
         assert data_row['Length'] == '10'
         assert data_row['Redirect Url'] == 'https://example.com/'
         assert data_row['Image'] == 'https://example.com/image.jpg'

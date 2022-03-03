@@ -35,7 +35,7 @@ class Command(BaseCommand):
         'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing', 'staff', 'minimum_effort',
         'maximum_effort', 'length', 'content_language', 'transcript_language', 'expected_program_type',
         'expected_program_name', 'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url',
-        'external_identifier'
+        'external_identifier', 'lead_capture_form_url'
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -245,10 +245,8 @@ class Command(BaseCommand):
             'upgrade_deadline_override_time': '',
             'course_embargo_(ofac)_restriction_text_added_to_the_faq_section': '',
         }
-
-        card_url = product_dict['cardUrl'] if product_dict['cardUrl'] is not None else ''
-        video_url = product_dict['videoURL'] if product_dict['videoURL'] is not None else ''
-        redirect_url = product_dict['edxRedirectUrl'] if product_dict['edxRedirectUrl'] is not None else ''
+        # Replace the None values with empty strings
+        product_dict = {key: value if value is not None else '' for key, value in product_dict.items()}
 
         return {
             **default_values,
@@ -256,18 +254,19 @@ class Command(BaseCommand):
             'alternate_organization_code': product_dict['altUniversityAbbreviation'],
             'number': product_dict['abbreviation'],
             'alternate_number': product_dict['altAbbreviation'],
-            'image': utils.format_base64_strings(card_url),
+            'image': utils.format_base64_strings(product_dict['cardUrl']),
             'primary_subject': product_dict['subjectMatter'],
             'alternate_primary_subject': product_dict['altSubjectMatter'],
             'syllabus': utils.format_curriculum(product_dict['curriculum']),
             'learner_testimonials': utils.format_testimonials(product_dict['testimonials']),
             'frequently_asked_questions': utils.format_faqs(product_dict['faqs']),
-            'about_video_link': utils.format_base64_strings(video_url),
+            'about_video_link': utils.format_base64_strings( product_dict['videoURL']),
             'end_date': product_dict['variant']['endDate'],
             'length': product_dict['durationWeeks'],
-            'redirect_url': utils.format_base64_strings(redirect_url),
+            'redirect_url': utils.format_base64_strings(product_dict['edxRedirectUrl']),
             'external_identifier': product_dict['id'],
             'long_description': f"{product_dict['introduction']}{product_dict['isThisCourseForYou']}",
+            'lead_capture_form_url': product_dict['lcfURL'],
 
             'title': partially_filled_csv_dict.get('title') or product_dict['name'],
             'alternate_title': product_dict['altName'],
