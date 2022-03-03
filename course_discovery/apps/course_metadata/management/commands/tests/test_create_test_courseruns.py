@@ -20,5 +20,6 @@ class CreateTestCourseRunsCommandTests(TestCase):
         # Check that new course runs were created
         assert course_run_count_after > course_run_count_before
         # Check that the course api and marketing URLs were updated
+        self.partner.refresh_from_db()
         assert parnter_course_url_before != self.partner.courses_api_url
         assert partner_marketing_url_before != self.partner.marketing_site_url_root
