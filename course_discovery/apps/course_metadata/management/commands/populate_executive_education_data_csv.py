@@ -1,5 +1,5 @@
 """
-Management command to transform and populate a partially filled data CSV using data from Product API.
+Management command to provide an output data CSV using data from Product API and an optional input partially filled csv.
 ```
 ./manage.py populate_executive_education_data_csv --auth_token=<api_token> --input_csv=<path> --output_csv=<path>
 
@@ -22,19 +22,20 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Populate and transform data CSV'
+    help = 'Transform Product API data into a CSV Data Loader compatible CSV'
 
     # The list to define order of the header keys in csv.
     OUTPUT_CSV_HEADERS = [
-        'organization', 'title', 'number', 'course_enrollment_track', 'image', 'short_description',
-        'long_description', 'what_will_you_learn', 'course_level', 'primary_subject', 'verified_price', 'collaborators',
+        'organization', 'alternate_organization_code', 'title', 'alternate_title', 'number', 'alternate_number',
+        'course_enrollment_track', 'image', 'short_description', 'long_description', 'what_will_you_learn',
+        'course_level', 'primary_subject', 'alternate_primary_subject', 'verified_price', 'collaborators',
         'syllabus', 'prerequisites', 'learner_testimonials', 'frequently_asked_questions', 'additional_information',
         'about_video_link', 'secondary_subject', 'tertiary_subject',
-        'course_embargo_(ofac)_restriction_text_added_to_the_faq_section', 'publish_date',
-        'start_date', 'start_time', 'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing', 'staff',
-        'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language',
-        'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
-        'upgrade_deadline_override_time', 'redirect_url', 'external_identifier'
+        'course_embargo_(ofac)_restriction_text_added_to_the_faq_section', 'publish_date', 'start_date', 'start_time',
+        'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing', 'staff', 'minimum_effort',
+        'maximum_effort', 'length', 'content_language', 'transcript_language', 'expected_program_type',
+        'expected_program_name', 'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url',
+        'external_identifier', 'lead_capture_form_url'
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -42,6 +43,9 @@ class Command(BaseCommand):
         'English': 'English - United States',
         'Español': 'Spanish - Spain (Modern)',
     }
+
+    MISSING_CSV_PRODUCT_MESSAGE = "[MISSING PRODUCT IN CSV] Unable to find product details for product {} in CSV"
+    SUCCESS_MESSAGE = "Data population and transformation completed for CSV row title {}"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -52,18 +56,18 @@ class Command(BaseCommand):
             help='Bearer token for making API calls to Product API'
         )
         parser.add_argument(
-            '--input_csv',
-            dest='input_csv',
-            type=str,
-            required=True,
-            help='Path to partially filled input CSV'
-        )
-        parser.add_argument(
             '--output_csv',
             dest='output_csv',
             type=str,
             required=True,
             help='Path of the output CSV'
+        )
+        parser.add_argument(
+            '--input_csv',
+            dest='input_csv',
+            type=str,
+            required=False,
+            help='Path to partially filled input CSV'
         )
         parser.add_argument(
             '--dev_input_json',
@@ -79,12 +83,19 @@ class Command(BaseCommand):
         auth_token = options.get('auth_token')
         dev_input_json = options.get('dev_input_json')
 
-        try:
-            input_reader = csv.DictReader(open(input_csv, 'r'))
-        except FileNotFoundError:
-            raise CommandError(  # pylint: disable=raise-missing-from
-                "Error opening csv file at path {}".format(input_csv)
-            )
+        # Error/Warning messages to be displayed at the end of population
+        self.messages_list = []   # pylint: disable=attribute-defined-outside-init
+
+        if input_csv:
+            try:
+                input_reader = csv.DictReader(open(input_csv, 'r'))
+                input_reader = list(input_reader)
+            except FileNotFoundError:
+                raise CommandError(  # pylint: disable=raise-missing-from
+                    "Error opening csv file at path {}".format(input_csv)
+                )
+        else:
+            input_reader = []
 
         if dev_input_json:
             products = self.mock_product_details(dev_input_json)
@@ -98,19 +109,24 @@ class Command(BaseCommand):
 
             output_writer = self.write_csv_header(output_writer)
 
-            for row in input_reader:
-                row = self.transform_dict_keys(row)
-                product = [product_item for product_item in products if product_item['name'] == row['title']]
-                if not product or len(product) != 1:
-                    logger.error("[MISSING PRODUCT IN API] Unable to find product details for CSV row title {}".format(
-                        row['title']
-                    ))
-                    continue
-                output_dict = self.get_transformed_data(row, product[0])
+            for product in products:
+                if input_reader:
+                    row = [row_item for row_item in input_reader if product['name'] == row_item['Title']]
+                    if not row or len(row) != 1:
+                        self.messages_list.append(self.MISSING_CSV_PRODUCT_MESSAGE.format(product['name']))
+                        row = {}
+                    else:
+                        row = self.transform_dict_keys(row[0])
+                else:
+                    row = {}
+
+                output_dict = self.get_transformed_data(row, product)
                 output_writer = self.write_csv_row(output_writer, output_dict)
-                logger.info("Data population and transformation completed for CSV row title {}".format(
-                    row['title']
-                ))
+                logger.info(self.SUCCESS_MESSAGE.format(product['name']))
+
+            logger.info("Data Transformation has completed. Warnings raised during the transformation:")
+            for message in self.messages_list:
+                logger.warning(message)
 
     def transform_dict_keys(self, data):
         """
@@ -199,14 +215,22 @@ class Command(BaseCommand):
         Returns the final representation of the data row using partially filled dict
         and the product dict.
         """
-        # TODO: To use util method once the changes are merged
-        minimum_effort, maximum_effort = 7, 10
+        try:
+            minimum_effort, maximum_effort = utils.format_effort_info(product_dict['effort'])
+        except Exception:  # pylint: disable=broad-except
+            # Exception is raised for the cases where the effort field has value in Spanish
+            # Defaulting to 1,2 for such cases
+            self.messages_list.append("Invalid effort value '{}' detected for course title {}".format(
+                product_dict['effort'],
+                product_dict['name']
+            ))
+            minimum_effort, maximum_effort = 1, 2
 
         language = self.LANGUAGE_MAP.get(product_dict['language'], 'English - United States')
 
         default_values = {  # the values that will be part of every output row in any case
-            'course_enrollment_track': 'Executive Education',
-            'course_run_enrollment_track': 'Executive Education',
+            'course_enrollment_track': 'Executive Education(2U)',
+            'course_run_enrollment_track': 'Unpaid Executive Education',
             'start_time': '00:00:00',
             'end_time': '23:59:59',
             'publish_date': date.today().isoformat(),
@@ -221,37 +245,41 @@ class Command(BaseCommand):
             'upgrade_deadline_override_time': '',
             'course_embargo_(ofac)_restriction_text_added_to_the_faq_section': '',
         }
-        # TODO: To decode card and video URLs with util once the changes are merged
-        card_url = product_dict['cardUrl'] if product_dict['cardUrl'] is not None else ''
-        video_url = product_dict['videoURL'] if product_dict['videoURL'] is not None else ''
-        redirect_url = product_dict['edxRedirectUrl'] if product_dict['edxRedirectUrl'] is not None else ''
+        # Replace the None values with empty strings
+        product_dict = {key: value if value is not None else '' for key, value in product_dict.items()}
 
         return {
             **default_values,
             'organization': product_dict['universityAbbreviation'],
+            'alternate_organization_code': product_dict['altUniversityAbbreviation'],
             'number': product_dict['abbreviation'],
-            'image': card_url,
+            'alternate_number': product_dict['altAbbreviation'],
+            'image': utils.format_base64_strings(product_dict['cardUrl']),
             'primary_subject': product_dict['subjectMatter'],
+            'alternate_primary_subject': product_dict['altSubjectMatter'],
             'syllabus': utils.format_curriculum(product_dict['curriculum']),
             'learner_testimonials': utils.format_testimonials(product_dict['testimonials']),
             'frequently_asked_questions': utils.format_faqs(product_dict['faqs']),
-            'about_video_link': video_url,
+            'about_video_link': utils.format_base64_strings(product_dict['videoURL']),
             'end_date': product_dict['variant']['endDate'],
             'length': product_dict['durationWeeks'],
-            'redirect_url': redirect_url,  # TODO: to be implemented
+            'redirect_url': utils.format_base64_strings(product_dict['edxRedirectUrl']),
             'external_identifier': product_dict['id'],
             'long_description': f"{product_dict['introduction']}{product_dict['isThisCourseForYou']}",
+            'lead_capture_form_url': product_dict['lcfURL'],
 
-            'title': partially_filled_csv_dict['title'],
-            'short_description': partially_filled_csv_dict['title'],
-            'what_will_you_learn': partially_filled_csv_dict['what_will_you_learn'],
-            'verified_price': partially_filled_csv_dict['verified_price'],
-            'collaborators': partially_filled_csv_dict['collaborators'],
-            'prerequisites': partially_filled_csv_dict['prerequisites'],
-            'additional_information': partially_filled_csv_dict['additional_information'],
-            'secondary_subject': partially_filled_csv_dict['secondary_subject'],
-            'tertiary_subject': partially_filled_csv_dict['tertiary_subject'],
-            'start_date': partially_filled_csv_dict['start_date'],
+            'title': partially_filled_csv_dict.get('title') or product_dict['name'],
+            'alternate_title': product_dict['altName'],
+            'short_description': partially_filled_csv_dict.get('title') or product_dict['name'],
+            'what_will_you_learn': partially_filled_csv_dict.get('what_will_you_learn') or
+                                product_dict['whatWillSetYouApart'],
+            'verified_price': partially_filled_csv_dict.get('verified_price') or product_dict['variant']['finalPrice'],
+            'collaborators': partially_filled_csv_dict.get('collaborators', ''),
+            'prerequisites': partially_filled_csv_dict.get('prerequisites', ''),
+            'additional_information': partially_filled_csv_dict.get('additional_information', ''),
+            'secondary_subject': partially_filled_csv_dict.get('secondary_subject', ''),
+            'tertiary_subject': partially_filled_csv_dict.get('tertiary_subject', ''),
+            'start_date': partially_filled_csv_dict.get('start_date') or product_dict['variant']['startDate'],
             'minimum_effort': minimum_effort,
             'maximum_effort': maximum_effort,
         }
