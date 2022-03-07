@@ -1,7 +1,8 @@
 """
 Admin definitions for learner_pathway app.
 """
-
+# pylint: disable=no-member
+import nested_admin
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
@@ -12,7 +13,7 @@ from course_discovery.apps.learner_pathway.models import (
 )
 
 
-class LearnerPathwayProgramInline(admin.TabularInline):
+class LearnerPathwayProgramInline(nested_admin.NestedTabularInline):
     model = LearnerPathwayProgram
     extra = 0
     autocomplete_fields = ('program', )
@@ -22,7 +23,7 @@ class LearnerPathwayProgramInline(admin.TabularInline):
         return pathway_program.get_estimated_time_of_completion() or '-'
 
 
-class LearnerPathwayCourseInline(admin.TabularInline):
+class LearnerPathwayCourseInline(nested_admin.NestedTabularInline):
     model = LearnerPathwayCourse
     extra = 0
     autocomplete_fields = ('course', )
@@ -33,7 +34,7 @@ class LearnerPathwayCourseInline(admin.TabularInline):
 
 
 @admin.register(LearnerPathwayStep)
-class StepAdmin(admin.ModelAdmin):
+class StepAdmin(nested_admin.NestedModelAdmin):
     list_display = ('uuid', 'estimated_completion_time', 'courses', 'programs')
 
     class Media:
@@ -56,12 +57,16 @@ class StepAdmin(admin.ModelAdmin):
         return pathway_step.get_node_type_count()[constants.NODE_TYPE_PROGRAM]
 
 
-class LearnerPathwayStepInline(admin.TabularInline):
+class LearnerPathwayStepInline(nested_admin.NestedTabularInline):
     model = LearnerPathwayStep
     extra = 0
     min_num = 1
     readonly_fields = ('UUID', 'estimated_completion_time',)
-    exclude = ('min_requirement',)
+
+    inlines = [
+        LearnerPathwayCourseInline,
+        LearnerPathwayProgramInline,
+    ]
 
     def UUID(self, pathway_step):
         step_change_url = reverse('admin:learner_pathway_learnerpathwaystep_change', args=(pathway_step.id,))
@@ -70,12 +75,12 @@ class LearnerPathwayStepInline(admin.TabularInline):
     def estimated_completion_time(self, pathway_step):
         return pathway_step.get_estimated_time_of_completion() or '-'
 
-    def has_add_permission(self, request, obj=None):
-        return False
+    def has_add_permission(self, request, obj=None):  # pylint: disable=unused-argument
+        return True
 
 
 @admin.register(LearnerPathway)
-class LearnerPathwayAdmin(admin.ModelAdmin):
+class LearnerPathwayAdmin(nested_admin.NestedModelAdmin):
     list_display = ('uuid', 'name', 'steps', 'estimated_completion_time')
 
     inlines = [
@@ -90,7 +95,7 @@ class LearnerPathwayAdmin(admin.ModelAdmin):
 
 
 @admin.register(LearnerPathwayCourse)
-class LearnerPathwayCourseAdmin(admin.ModelAdmin):
+class LearnerPathwayCourseAdmin(nested_admin.NestedModelAdmin):
     list_display = ('learner_pathway_course_uuid', 'course_key', 'course_title')
     autocomplete_fields = ('course',)
     search_fields = ('uuid', 'course__key', 'course__title')
@@ -111,7 +116,7 @@ class LearnerPathwayCourseAdmin(admin.ModelAdmin):
 
 
 @admin.register(LearnerPathwayProgram)
-class LearnerPathwayProgramAdmin(admin.ModelAdmin):
+class LearnerPathwayProgramAdmin(nested_admin.NestedModelAdmin):
     list_display = ('learner_pathway_program_uuid', 'program_title', 'program_uuid',)
     autocomplete_fields = ('program',)
     search_fields = ('uuid', 'program__uuid', 'program__title')

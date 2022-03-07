@@ -65,6 +65,7 @@ THIRD_PARTY_APPS = [
     'algoliasearch_django',
     'taxonomy',
     'django_object_actions',
+    'nested_admin',
 ]
 
 ALGOLIA = {

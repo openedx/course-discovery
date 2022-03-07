@@ -200,6 +200,8 @@ django-libsass==0.9
     # via -r requirements/base.in
 django-model-utils==4.2.0
     # via taxonomy-connector
+django-nested-admin==3.4.0
+    # via -r requirements/base.in
 django-nine==0.2.5
     # via django-elasticsearch-dsl-drf
 django-object-actions==3.1.0
@@ -514,6 +516,8 @@ python-dotenv==0.19.2
     # via docker-compose
 python-memcached==1.59
     # via -r requirements/test.in
+python-monkey-business==1.0.0
+    # via django-nested-admin
 python3-openid==3.2.0
     # via social-auth-core
 pytz==2021.3
@@ -589,6 +593,7 @@ six==1.16.0
     #   django-choices
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
+    #   django-nested-admin
     #   djangorestframework-csv
     #   dockerpty
     #   edx-auth-backends
@@ -604,6 +609,7 @@ six==1.16.0
     #   pyjwkest
     #   python-dateutil
     #   python-memcached
+    #   python-monkey-business
     #   requests-file
     #   tox
     #   transifex-client
@@ -702,7 +708,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.13.2
+virtualenv==20.13.3
     # via tox
 wcwidth==0.2.5
     # via prompt-toolkit
