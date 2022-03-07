@@ -30,10 +30,6 @@ edx-lint<=1.6
 algoliasearch-django<2.0.0
 algoliasearch<2.0.0
 
-# Just to avoid any issues pinning them. Remove after django32 deployment.
-cryptography==3.4.8
-pyjwt[crypto]==2.1.0
-
 # This version adds support for Django 3.2, so pinning the beta version for Django 3.2
 # Remove this pin once newer stable version is released
-authlib==1.0.0b1
+authlib==1.0.0rc1
