@@ -210,7 +210,7 @@ class CourseTypeFactory(factory.django.DjangoModelFactory):
 
 class CourseFactory(SalesforceRecordFactory):
     uuid = factory.LazyFunction(uuid4)
-    key = FuzzyText(prefix='course-id/')
+    key = FuzzyText(prefix='course-id+')
     key_for_reruns = FuzzyText(prefix='OrgX+')
     title = FuzzyText(prefix="Test çօմɾʂҽ ")
     short_description = FuzzyText(prefix="Test çօմɾʂҽ short description")
@@ -292,7 +292,7 @@ class CourseEditorFactory(factory.django.DjangoModelFactory):
 class CourseRunFactory(SalesforceRecordFactory):
     status = CourseRunStatus.Published
     uuid = factory.LazyFunction(uuid4)
-    key = FuzzyText(prefix='course-run-id/', suffix='/fake')
+    key = FuzzyText(prefix='course-v1:org+', suffix='+fake')
     external_key = None
     course = factory.SubFactory(CourseFactory)
     title_override = None

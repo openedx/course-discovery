@@ -114,7 +114,7 @@ class EmailTests(TestCase):
                     emails.logger.name,
                     'INFO',
                     StringComparison('Not sending notification email for template course_metadata/email/.* because ' +
-                                     reason),
+                                     re.escape(reason)),
                 )
             )
 
@@ -149,22 +149,23 @@ class EmailTests(TestCase):
         restricted_url = self.partner.lms_admin_url.rstrip('/') + '/embargo/restrictedcourse/'
         self.assertEmailSent(
             emails.send_email_for_internal_review,
-            f'^Review requested: {self.course_run.key} - {self.course_run.title}$',
+            f'^Review requested: {re.escape(self.course_run.key)} - {self.course_run.title}$',
             [self.pc],
             both_regexes=[
                 'Dear %s,' % self.pc.full_name,
-                'MyOrg has submitted %s for review.' % self.course_run.key,
+                'MyOrg has submitted %s for review.' % re.escape(self.course_run.key),
             ],
             html_regexes=[
                 '<a href="%s">View this course run in Publisher</a> to review the changes and mark it as reviewed.' %
                 self.publisher_url,
-                'This is a good time to <a href="%s">review this course run in Studio</a>.' % self.studio_url,
+                'This is a good time to <a href="%s">review this course run in Studio</a>.' %
+                re.escape(self.studio_url),
                 'Visit the <a href="%s">restricted course admin page</a> to set embargo rules for this course, '
                 'as needed.' % restricted_url,
             ],
             text_regexes=[
                 '\n\nPublisher page: %s\n' % self.publisher_url,
-                '\n\nStudio page: %s\n' % self.studio_url,
+                '\n\nStudio page: %s\n' % re.escape(self.studio_url),
                 '\n\nRestricted Course admin: %s\n' % restricted_url,
             ],
         )
@@ -225,7 +226,7 @@ class EmailTests(TestCase):
             **kwargs,
         )
         self.assertEmailContains(
-            subject=f'^Published: {self.course_run.key} - {self.course_run.title}$',
+            subject=f'^Published: {re.escape(self.course_run.key)} - {self.course_run.title}$',
             to_users=[self.pc],
             index=1,
             **kwargs,

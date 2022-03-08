@@ -1,6 +1,7 @@
 import datetime
 import urllib
 from unittest import mock
+from urllib.parse import urlencode
 
 import ddt
 import pytest
@@ -1031,7 +1032,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         CourseRun.objects.all().delete()
         expected = CourseRunFactory.create_batch(3, course__partner=self.partner)
         keys = ','.join([course.key for course in expected])
-        url = '{root}?keys={keys}'.format(root=reverse('api:v1:course_run-list'), keys=keys)
+        url = '{root}?{params}'.format(root=reverse('api:v1:course_run-list'), params=urlencode({'keys': keys}))
         self.assert_list_results(url, expected)
 
     def test_filter_by_marketable(self):

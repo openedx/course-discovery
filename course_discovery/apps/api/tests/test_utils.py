@@ -169,7 +169,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
         mock_logger.assert_called_with(
             'No course team admin specified for course [%s]. This may result in a Studio course run '
             'being created without a course team.',
-            run.key.split('/')[1]
+            run.key.split('+')[1]
         )
 
     def test_calculate_course_run_key_run_value_with_multiple_runs_per_trimester(self):
