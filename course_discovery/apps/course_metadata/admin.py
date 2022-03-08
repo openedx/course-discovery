@@ -412,7 +412,7 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
 
 @admin.register(AdditionalMetadata)
 class AdditionalMetadataAdmin(admin.ModelAdmin):
-    list_display = ('id', 'external_identifier', 'external_url', 'courses')
+    list_display = ('id', 'external_identifier', 'external_url', 'lead_capture_form_url', 'courses')
     search_fields = ('external_identifier', 'external_url')
 
     def courses(self, obj):
