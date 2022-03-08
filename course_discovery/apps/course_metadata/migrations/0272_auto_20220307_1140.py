@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('course_metadata', '0270_alter_courseurlslug_url_slug'),
+        ('course_metadata', '0271_additionalmetadata_lead_capture_form_url'),
     ]
 
     operations = [
