@@ -26,16 +26,17 @@ class Command(BaseCommand):
 
     # The list to define order of the header keys in csv.
     OUTPUT_CSV_HEADERS = [
-        'organization', 'alternate_organization_code', 'title', 'alternate_title', 'number', 'alternate_number',
-        'course_enrollment_track', 'image', 'short_description', 'long_description', 'what_will_you_learn',
-        'course_level', 'primary_subject', 'alternate_primary_subject', 'verified_price', 'collaborators',
-        'syllabus', 'prerequisites', 'learner_testimonials', 'frequently_asked_questions', 'additional_information',
-        'about_video_link', 'secondary_subject', 'tertiary_subject',
-        'course_embargo_(ofac)_restriction_text_added_to_the_faq_section', 'publish_date', 'start_date', 'start_time',
-        'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing', 'staff', 'minimum_effort',
-        'maximum_effort', 'length', 'content_language', 'transcript_language', 'expected_program_type',
-        'expected_program_name', 'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url',
-        'external_identifier', 'lead_capture_form_url'
+        'organization', '2u_organization_code', 'edx_organization_code', 'title', '2u_title', 'edx_title', 'number',
+        'alternate_number', 'course_enrollment_track', 'image', 'short_description', 'long_description',
+        'what_will_you_learn', 'course_level', 'primary_subject', '2u_primary_subject', 'subject_subcategory',
+        'verified_price', 'collaborators', 'syllabus', 'prerequisites', 'learner_testimonials',
+        'frequently_asked_questions', 'additional_information', 'about_video_link', 'secondary_subject',
+        'tertiary_subject', 'course_embargo_(ofac)_restriction_text_added_to_the_faq_section', 'publish_date',
+        'start_date', 'start_time', 'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing',
+        'staff', 'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language',
+        'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
+        'upgrade_deadline_override_time', 'redirect_url', 'external_identifier', 'lead_capture_form_url',
+        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text'
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -84,7 +85,7 @@ class Command(BaseCommand):
         dev_input_json = options.get('dev_input_json')
 
         # Error/Warning messages to be displayed at the end of population
-        self.messages_list = []   # pylint: disable=attribute-defined-outside-init
+        self.messages_list = []  # pylint: disable=attribute-defined-outside-init
 
         if input_csv:
             try:
@@ -143,6 +144,22 @@ class Command(BaseCommand):
             updated_key = key.strip().lower().replace(' ', '_')
             transformed_dict[updated_key] = value
         return transformed_dict
+
+    def clean_data_dict(self, data):
+        """
+        Return a cleaned version of data dictionary where the null/None values are replaced
+        with empty strings.
+        """
+        product_dict = {}
+        for key, value in data.items():
+            # Recursively clean the nested dictionaries
+            if isinstance(value, dict):
+                product_dict[key] = self.clean_data_dict(value)
+            elif value is not None:
+                product_dict[key] = value
+            else:
+                product_dict[key] = ''
+        return product_dict
 
     def get_product_details(self, auth_token):
         """
@@ -245,18 +262,20 @@ class Command(BaseCommand):
             'upgrade_deadline_override_time': '',
             'course_embargo_(ofac)_restriction_text_added_to_the_faq_section': '',
         }
-        # Replace the None values with empty strings
-        product_dict = {key: value if value is not None else '' for key, value in product_dict.items()}
+        product_dict = self.clean_data_dict(product_dict)
+        stats = product_dict['stats']
 
         return {
             **default_values,
-            'organization': product_dict['universityAbbreviation'],
-            'alternate_organization_code': product_dict['altUniversityAbbreviation'],
+            'organization': product_dict['altUniversityAbbreviation'] or product_dict['universityAbbreviation'],
+            'edx_organization_code': product_dict['altUniversityAbbreviation'],
+            '2u_organization_code': product_dict['universityAbbreviation'],
             'number': product_dict['abbreviation'],
             'alternate_number': product_dict['altAbbreviation'],
             'image': utils.format_base64_strings(product_dict['cardUrl']),
-            'primary_subject': product_dict['subjectMatter'],
-            'alternate_primary_subject': product_dict['altSubjectMatter'],
+            'primary_subject': product_dict['altSubjectMatter'],
+            '2u_primary_subject': product_dict['subjectMatter'],
+            'subject_subcategory': product_dict['altSubjectMatter1'],
             'syllabus': utils.format_curriculum(product_dict['curriculum']),
             'learner_testimonials': utils.format_testimonials(product_dict['testimonials']),
             'frequently_asked_questions': utils.format_faqs(product_dict['faqs']),
@@ -267,12 +286,20 @@ class Command(BaseCommand):
             'external_identifier': product_dict['id'],
             'long_description': f"{product_dict['introduction']}{product_dict['isThisCourseForYou']}",
             'lead_capture_form_url': product_dict['lcfURL'],
+            'certificate_header': product_dict['certificate'].get('headline', ''),
+            'certificate_text': product_dict['certificate'].get('blurb', ''),
+            'stat1': stats['stat1'],
+            'stat1_text': stats['stat1Blurb'],
+            'stat2': stats['stat2'],
+            'stat2_text': stats['stat2Blurb'],
 
-            'title': partially_filled_csv_dict.get('title') or product_dict['name'],
-            'alternate_title': product_dict['altName'],
+            'title': partially_filled_csv_dict.get('title') or product_dict['altName'] or product_dict['name'],
+            '2u_title': product_dict['name'],
+            'edx_title': product_dict['altName'],
             'short_description': partially_filled_csv_dict.get('title') or product_dict['name'],
-            'what_will_you_learn': partially_filled_csv_dict.get('what_will_you_learn') or
-                                product_dict['whatWillSetYouApart'],
+            'what_will_you_learn': product_dict['whatWillSetYouApart'] or partially_filled_csv_dict.get(
+                'what_will_you_learn'
+            ),
             'verified_price': partially_filled_csv_dict.get('verified_price') or product_dict['variant']['finalPrice'],
             'collaborators': partially_filled_csv_dict.get('collaborators', ''),
             'prerequisites': partially_filled_csv_dict.get('prerequisites', ''),
