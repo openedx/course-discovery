@@ -196,6 +196,7 @@ class TestCourse(TestCase):
         course = factories.CourseFactory(additional_metadata=additional_metadata)
         self.assertEqual(course.additional_metadata.external_identifier, additional_metadata.external_identifier)
         self.assertEqual(course.additional_metadata.external_url, additional_metadata.external_url)
+        self.assertEqual(course.additional_metadata.lead_capture_form_url, additional_metadata.lead_capture_form_url)
 
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):

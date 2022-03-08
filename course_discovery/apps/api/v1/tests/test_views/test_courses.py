@@ -1019,6 +1019,35 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert course.level_type == beginner
 
     @responses.activate
+    def test_update_with_additional_metadata(self):
+        additional_metadata = {
+            'external_url': 'https://example.com/',
+            'external_identifier': '12345',
+            'lead_capture_form_url': 'https://example.com/lead-capture',
+        }
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        course_data = {
+            'additional_metadata': additional_metadata
+        }
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+
+        # test if object update on same course is successful
+        course_data = {
+            'additional_metadata': {
+                'external_identifier': '67890',  # change external_identifier
+            }
+        }
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+
+        additional_metadata['external_identifier'] = '67890'  # to make sure that the value is updated
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+
+    @responses.activate
     def test_update_success_with_course_type_verified(self):
         verified_mode = SeatTypeFactory.verified()
         CourseEntitlementFactory(course=self.course, mode=verified_mode)
