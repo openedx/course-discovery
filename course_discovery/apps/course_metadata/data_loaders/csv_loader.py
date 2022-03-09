@@ -178,6 +178,7 @@ class CSVDataLoader(AbstractDataLoader):
             'additional_metadata': {
                 'external_url': data['redirect_url'],
                 'external_identifier': data['external_identifier'],
+                'lead_capture_form_url': data['lead_capture_form_url']
             },
         }
         return update_course_data

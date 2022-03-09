@@ -3113,6 +3113,7 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'upgrade_deadline_override_time': '00:00',
     'redirect_url': 'http://www.example.com',
     'external_identifier': '123456789',
+    'lead_capture_form_url': 'http://www.interest-form.com?id=1234',
 }
 
 INVALID_ORGANIZATION_DATA = {
