@@ -85,6 +85,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'ERROR',
                         'Organization invalid-organization does not exist in database. Skipping CSV '
                         'loader for course CSV Course'
+                    ),
+                    (
+                        LOGGER_PATH,
+                        'ERROR',
+                        '[MISSING ORGANIZATION] org: invalid-organization, course: CSV Course'
                     )
                 )
                 assert Course.objects.count() == 0
@@ -178,6 +183,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             LOGGER_PATH,
                             'ERROR',
                             'Unexpected error happened while downloading image for course edx+csv_123'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'ERROR',
+                            '[IMAGE DOWNLOAD FAILURE] course CSV Course'
                         )
                     )
 
@@ -310,6 +320,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             LOGGER_PATH,
                             'ERROR',
                             'An unknown error occurred while updating course run information'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'ERROR',
+                            '[COURSE RUN UPDATE ERROR] course CSV Course'
                         )
                     )
 
