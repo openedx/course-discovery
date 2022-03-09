@@ -18,17 +18,18 @@ from waffle.testutils import override_switch
 from course_discovery.apps.api.fields import ImageField, StdImageSerializerField
 from course_discovery.apps.api.serializers import (
     AdditionalMetadataSerializer, AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer,
-    CollaboratorSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer, ContentTypeSerializer,
-    CorporateEndorsementSerializer, CourseEditorSerializer, CourseEntitlementSerializer, CourseRecommendationSerializer,
-    CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSerializer, CourseWithProgramsSerializer,
-    CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeCostSerializer, DegreeDeadlineSerializer,
-    EndorsementSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer,
-    ImageSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
-    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
-    ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
-    RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
-    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
+    CertificateInfoSerializer, CollaboratorSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
+    ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer, CourseEntitlementSerializer,
+    CourseRecommendationSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSerializer,
+    CourseWithProgramsSerializer, CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeCostSerializer,
+    DegreeDeadlineSerializer, EndorsementSerializer, FactSerializer, FAQSerializer,
+    FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer,
+    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer, MinimalProgramCourseSerializer,
+    MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PathwaySerializer, PersonSerializer,
+    PositionSerializer, PrerequisiteSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
+    ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer,
+    TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
+    get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.tests.test_utils import make_request
@@ -49,13 +50,14 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
     ProgramSearchModelSerializer
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, AdditionalPromoAreaFactory, CollaboratorFactory, CorporateEndorsementFactory,
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseSkillsFactory,
-    CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory, DegreeCostFactory,
-    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, IconTextPairingFactory,
-    ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory,
-    PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory,
-    RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    AdditionalMetadataFactory, AdditionalPromoAreaFactory, CertificateInfoFactory, CollaboratorFactory,
+    CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory,
+    CourseSkillsFactory, CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory,
+    DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
+    FactFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
+    PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
+    ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory,
+    VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -1855,16 +1857,46 @@ class AdditionalPromoAreaSerializerTests(TestCase):
         assert serializer.data == expected
 
 
+class FactSerializerTests(TestCase):
+    serializer_class = FactSerializer
+
+    def test_data(self):
+        fact = FactFactory()
+        serializer = FactSerializer(fact)
+        expected = {
+            'heading': fact.heading,
+            'blurb': fact.blurb,
+        }
+        assert serializer.data == expected
+
+
+class CertificateInfoSerializerTests(TestCase):
+    serializer_class = CertificateInfoSerializer
+
+    def test_data(self):
+        certificate_info = CertificateInfoFactory()
+        serializer = CertificateInfoSerializer(certificate_info)
+        expected = {
+            'heading': certificate_info.heading,
+            'blurb': certificate_info.blurb,
+        }
+        assert serializer.data == expected
+
+
 class AdditionalMetadataSerializerTests(TestCase):
     serializer_class = AdditionalMetadataSerializer
 
     def test_data(self):
-        additional_metadata = AdditionalMetadataFactory()
+        additional_metadata = AdditionalMetadataFactory(
+            facts=[FactFactory(), FactFactory()],
+        )
         serializer = AdditionalMetadataSerializer(additional_metadata)
         expected = {
             'external_identifier': additional_metadata.external_identifier,
             'external_url': additional_metadata.external_url,
             'lead_capture_form_url': additional_metadata.lead_capture_form_url,
+            'certificate_info': CertificateInfoSerializer(additional_metadata.certificate_info).data,
+            'facts': FactSerializer(additional_metadata.facts, many=True).data
         }
         assert serializer.data == expected
 

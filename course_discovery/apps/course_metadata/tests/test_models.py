@@ -28,8 +28,8 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel, AbstractValueModel,
-    CorporateEndorsement, Course, CourseEditor, CourseRun, Curriculum, CurriculumCourseMembership,
+    FAQ, AbstractHeadingBlurbModel, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel,
+    AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, Curriculum, CurriculumCourseMembership,
     CurriculumCourseRunExclusion, CurriculumProgramMembership, DegreeCost, DegreeDeadline, Endorsement, Organization,
     Program, Ranking, Seat, SeatType, Subject, Topic
 )
@@ -192,11 +192,15 @@ class TestCourse(TestCase):
     def test_additional_metadata(self):
         """ Verify the property returns valid additional metadata fields. """
 
-        additional_metadata = factories.AdditionalMetadataFactory()
+        additional_metadata = factories.AdditionalMetadataFactory(
+            facts=[factories.FactFactory(), factories.FactFactory()]
+        )
         course = factories.CourseFactory(additional_metadata=additional_metadata)
         self.assertEqual(course.additional_metadata.external_identifier, additional_metadata.external_identifier)
         self.assertEqual(course.additional_metadata.external_url, additional_metadata.external_url)
         self.assertEqual(course.additional_metadata.lead_capture_form_url, additional_metadata.lead_capture_form_url)
+        self.assertEqual(course.additional_metadata.certificate_info, additional_metadata.certificate_info)
+        self.assertEqual(course.additional_metadata.facts, additional_metadata.facts)
 
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
@@ -1343,6 +1347,23 @@ class AbstractTitleDescriptionModelTests(TestCase):
 
         instance = TestAbstractTitleDescriptionModel(title=title, description=description)
         assert str(instance) == title
+
+
+class AbstractHeadingBlurbModelTests(TestCase):
+    """ Tests for AbstractTitleDescriptionModel. """
+
+    def test_str(self):
+        class TestAbstractHeadingBlurbModel(AbstractHeadingBlurbModel):
+            pass
+
+        heading = 'test heading'
+        blurb = '<p>test blurb<p>'
+
+        instance = TestAbstractHeadingBlurbModel(heading=None, blurb=blurb)
+        assert str(instance) == blurb
+
+        instance = TestAbstractHeadingBlurbModel(heading=heading, blurb=blurb)
+        assert str(instance) == heading
 
 
 @ddt.ddt

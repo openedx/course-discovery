@@ -156,6 +156,20 @@ class AbstractTitleDescriptionModel(TimeStampedModel):
         abstract = True
 
 
+class AbstractHeadingBlurbModel(TimeStampedModel):
+    """ Abstract base class for models with a heading and html blurb pair. """
+    heading = models.CharField(max_length=255, blank=True, null=False)
+    blurb = NullHtmlField()
+
+    def __str__(self):
+        if self.heading:
+            return self.heading
+        return self.blurb
+
+    class Meta:
+        abstract = True
+
+
 class Organization(CachedMixin, TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
@@ -590,6 +604,14 @@ class TopicTranslation(TranslatedFieldsModel):
         verbose_name = _('Topic model translations')
 
 
+class Fact(AbstractHeadingBlurbModel):
+    """ Fact Model """
+
+
+class CertificateInfo(AbstractHeadingBlurbModel):
+    """ Certificate Information Model """
+
+
 class AdditionalMetadata(TimeStampedModel):
     """
     This model holds 2U related additional fields
@@ -598,6 +620,13 @@ class AdditionalMetadata(TimeStampedModel):
     external_url = models.URLField(blank=False, null=False)
     external_identifier = models.CharField(max_length=255, blank=True, null=False)
     lead_capture_form_url = models.URLField(blank=True, null=False)
+    facts = models.ManyToManyField(
+        Fact, blank=True, related_name='related_course_additional_metadata',
+    )
+    certificate_info = models.ForeignKey(
+        CertificateInfo, models.CASCADE, default=None, null=True, blank=True,
+        related_name='related_course_additional_metadata',
+    )
 
     def __str__(self):
         return f"{self.external_url} - {self.external_identifier}"
