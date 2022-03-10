@@ -1,5 +1,5 @@
 import json
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 import pytest
 from django.test import TestCase
@@ -17,7 +17,7 @@ from course_discovery.apps.publisher.tests.factories import OrganizationExtensio
 class TestAutocomplete:
     def assert_valid_query_result(self, client, path, query, expected_result):
         """ Asserts a query made against the given endpoint returns the expected result. """
-        response = client.get(path + f'?q={query}')
+        response = client.get(path + f'?{urlencode({"q": query})}')
         data = json.loads(response.content.decode('utf-8'))
         assert len(data['results']) == 1
         assert data['results'][0]['text'] == str(expected_result)

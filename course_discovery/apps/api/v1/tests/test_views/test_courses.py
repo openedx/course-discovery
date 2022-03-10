@@ -1,5 +1,6 @@
 import datetime
 from unittest import mock
+from urllib.parse import urlencode
 
 import ddt
 import pytest
@@ -269,7 +270,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of courses filtered by the specified keys. """
         courses = CourseFactory.create_batch(3, partner=self.partner)
         keys = ','.join([course.key for course in courses])
-        url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
+        url = '{root}?{params}'.format(root=reverse('api:v1:course-list'), params=urlencode({'keys': keys}))
 
         with self.assertNumQueries(49):
             response = self.client.get(url)

@@ -21,6 +21,7 @@ from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
+from opaque_keys.edx.keys import CourseKey
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
@@ -1983,6 +1984,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         """
         if not self.type.is_marketable:
             return False
+        if CourseKey.from_string(self.key).deprecated:  # Old Mongo courses are not marketed
+            return False
         return not self.draft
 
     @property
@@ -2025,7 +2028,11 @@ class Seat(DraftModelMixin, TimeStampedModel):
     CREDIT = 'credit'
     MASTERS = 'masters'
     EXECUTIVE_EDUCATION = 'executive-education'
-    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION]
+    PAID_EXECUTIVE_EDUCATION = 'paid-executive-education'
+    UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education'
+    ENTITLEMENT_MODES = [
+        VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION, PAID_EXECUTIVE_EDUCATION
+    ]
     REQUIRES_AUDIT_SEAT = [VERIFIED]
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.

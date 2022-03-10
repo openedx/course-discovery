@@ -13,7 +13,7 @@ class CatalogQueryViewSetTests(APITestCase):
         self.user = UserFactory(is_staff=True, is_superuser=True)
         self.client.force_authenticate(self.user)
         self.course = CourseFactory(partner=self.partner, key='simple_key')
-        self.course_run = CourseRunFactory(course=self.course)
+        self.course_run = CourseRunFactory(course=self.course, key='simple/key/run')
         self.url_base = reverse('api:v1:catalog-query_contains')
         self.error_message = 'CatalogQueryContains endpoint requires query and identifiers list(s)'
 

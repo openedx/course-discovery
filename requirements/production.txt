@@ -156,6 +156,8 @@ django-libsass==0.9
     # via -r requirements/base.in
 django-model-utils==4.2.0
     # via taxonomy-connector
+django-nested-admin==3.4.0
+    # via -r requirements/base.in
 django-nine==0.2.5
     # via django-elasticsearch-dsl-drf
 django-object-actions==3.1.0
@@ -356,6 +358,8 @@ python-dateutil==2.8.2
     #   elasticsearch-dsl
 python-memcached==1.59
     # via -r requirements/production.in
+python-monkey-business==1.0.0
+    # via django-nested-admin
 python3-openid==3.2.0
     # via social-auth-core
 pytz==2021.3
@@ -415,6 +419,7 @@ six==1.16.0
     #   django-autocomplete-light
     #   django-choices
     #   django-elasticsearch-dsl-drf
+    #   django-nested-admin
     #   djangorestframework-csv
     #   edx-auth-backends
     #   edx-ccx-keys
@@ -426,6 +431,7 @@ six==1.16.0
     #   pyjwkest
     #   python-dateutil
     #   python-memcached
+    #   python-monkey-business
     #   requests-file
     #   unicode-slugify
 slumber==0.7.1

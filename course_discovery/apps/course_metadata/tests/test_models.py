@@ -896,6 +896,17 @@ class CourseRunTests(OAuth2Mixin, TestCase):
                 course_run.save()
                 assert mock_publish_obj.called == expected
 
+    @ddt.data(
+        ('old/mongo/key', False),
+        ('course-v1:modern+style+key', True),
+    )
+    @ddt.unpack
+    def test_old_mongo_not_marketable(self, key, expected):
+        course_run = factories.CourseRunFactory.create(key=key)
+        factories.SeatFactory.create(course_run=course_run)
+        assert course_run.is_marketable == expected
+        assert course_run.could_be_marketable == expected
+
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
     """
