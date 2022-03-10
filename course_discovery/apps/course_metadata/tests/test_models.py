@@ -1350,11 +1350,11 @@ class AbstractTitleDescriptionModelTests(TestCase):
 
 
 class AbstractHeadingBlurbModelTests(TestCase):
-    """ Tests for AbstractTitleDescriptionModel. """
+    """ Tests for AbstractHeadingBlurbModelTests. """
 
     def test_str(self):
         class TestAbstractHeadingBlurbModel(AbstractHeadingBlurbModel):
-            pass
+            """ Model to test instances of abstract model """
 
         heading = 'test heading'
         blurb = '<p>test blurb<p>'

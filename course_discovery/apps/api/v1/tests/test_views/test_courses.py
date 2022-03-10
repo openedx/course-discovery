@@ -1021,6 +1021,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_update_with_additional_metadata(self):
+        course = CourseFactory(additional_metadata=None)
+
         additional_metadata = {
             'external_url': 'https://example.com/',
             'external_identifier': '12345',
@@ -1036,13 +1038,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                 }
             ]
         }
-        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         course_data = {
             'additional_metadata': additional_metadata
         }
         response = self.client.patch(url, course_data, format='json')
         assert response.status_code == 200
-        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        course = Course.everything.get(uuid=course.uuid, draft=True)
         self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
 
         # test if object update on same course is successful
@@ -1070,7 +1072,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         }
         response = self.client.patch(url, course_data, format='json')
         assert response.status_code == 200
-        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        course = Course.everything.get(uuid=course.uuid, draft=True)
 
         additional_metadata['external_identifier'] = '67890'  # to make sure that the value is updated
         additional_metadata['facts'] = new_facts

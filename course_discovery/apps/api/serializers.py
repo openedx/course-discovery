@@ -1206,6 +1206,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             CertificateInfo.objects.filter(id=instance.certificate_info.id).update(**certificate_info_data)
         else:
             instance.certificate_info = CertificateInfo.objects.create(**certificate_info_data)
+            instance.save()
 
     def update_additional_metadata(self, instance, additional_metadata):
 
