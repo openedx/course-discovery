@@ -22,7 +22,7 @@ class TestLearnerPathwaySerializer(TestCase):
         return {
             'id': learner_pathway.id,
             'uuid': str(learner_pathway.uuid),
-            'name': learner_pathway.name,
+            'title': learner_pathway.title,
             'status': learner_pathway.status,
             'banner_image': request.build_absolute_uri(learner_pathway.banner_image.url),
             'overview': learner_pathway.overview,

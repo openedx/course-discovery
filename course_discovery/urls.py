@@ -57,12 +57,8 @@ urlpatterns = oauth2_urlpatterns + [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
+    url(r'^api/', include('course_discovery.apps.learner_pathway.api.urls', namespace='learner_pathway_api')),
 ]
-
-if settings.ENABLE_LEARNER_PATHWAY:
-    urlpatterns += [
-        url(r'^api/', include('course_discovery.apps.learner_pathway.api.urls', namespace='learner_pathway_api')),
-    ]
 
 # edx-drf-extensions csrf app
 urlpatterns += [
