@@ -12,7 +12,8 @@ from django.urls import reverse
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Collaborator, Course, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization, Person, ProgramType
+    Collaborator, Course, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization, Person, ProgramType,
+    Subject
 )
 from course_discovery.apps.course_metadata.utils import download_and_save_course_image
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -33,6 +34,7 @@ class CSVDataLoader(AbstractDataLoader):
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, is_draft=False):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
+        self.messages_list = []  # to show failure/skipped ingestion message at the end
         try:
             self.reader = csv.DictReader(open(csv_path, 'r'))
             self.is_draft = is_draft
@@ -54,6 +56,7 @@ class CSVDataLoader(AbstractDataLoader):
                     org_key,
                     course_title
                 ))
+                self.messages_list.append('[MISSING ORGANIZATION] org: {}, course: {}'.format(org_key, course_title))
                 continue
 
             try:
@@ -84,6 +87,7 @@ class CSVDataLoader(AbstractDataLoader):
                     logger.exception("Error occurred when attempting to create a new course against key {}".format(
                         course_key
                     ))
+                    self.messages_list.append('[COURSE CREATION ERROR] course {}'.format(course_title))
                     continue
                 course = Course.everything.get(key=course_key, partner=self.partner)
                 course_run = CourseRun.everything.filter(course=course).first()
@@ -93,12 +97,14 @@ class CSVDataLoader(AbstractDataLoader):
                 logger.error("Unexpected error happened while downloading image for course {}".format(
                     course_key
                 ))
+                self.messages_list.append('[IMAGE DOWNLOAD FAILURE] course {}'.format(course_title))
                 continue
 
             try:
                 self._update_course(row, course)
             except Exception:  # pylint: disable=broad-except
                 logger.exception("An unknown error occurred while updating course information")
+                self.messages_list.append('[COURSE UPDATE ERROR] course {}'.format(course_title))
                 continue
 
             # No need to update the course run if the run is already in the review
@@ -108,6 +114,7 @@ class CSVDataLoader(AbstractDataLoader):
                     course_run.refresh_from_db()
                 except Exception:  # pylint: disable=broad-except
                     logger.exception("An unknown error occurred while updating course run information")
+                    self.messages_list.append('[COURSE RUN UPDATE ERROR] course {}'.format(course_title))
                     continue
 
             if not self.is_draft:
@@ -118,6 +125,12 @@ class CSVDataLoader(AbstractDataLoader):
 
             logger.info("Course and course run updated successfully for course key {}".format(course_key))
         logger.info("CSV loader ingest pipeline has completed.")
+
+        # Log the summarized errors at the end for easy filtering of the courses whose ingestion failed
+        if self.messages_list:
+            logger.info("Summarized errors:")
+            for msg in self.messages_list:
+                logger.error(msg)
 
     def _create_course_api_request_data(self, data, course_type, course_run_type_uuid):
         """
@@ -178,7 +191,14 @@ class CSVDataLoader(AbstractDataLoader):
             'additional_metadata': {
                 'external_url': data['redirect_url'],
                 'external_identifier': data['external_identifier'],
-                'lead_capture_form_url': data['lead_capture_form_url']
+                'lead_capture_form_url': data['lead_capture_form_url'],
+                'certificate_info': self.process_heading_blurb(
+                    data['certificate_header'], data['certificate_text']
+                ),
+                'facts': self.process_stats(
+                    data['stat1'], data['stat1_text'],
+                    data['stat2'], data['stat2_text']
+                )
             },
         }
         return update_course_data
@@ -352,8 +372,16 @@ class CSVDataLoader(AbstractDataLoader):
         Given a list of subject names, convert the subject names into their
         slug representation.
         """
-        subjects = [subject.lower().replace(' ', '-') for subject in subjects if subject]
-        return list(set(subjects))
+        subject_slugs = []
+        subjects = [subject for subject in subjects if subject]
+        for subject in subjects:
+            try:
+                sub_obj = Subject.objects.get(translations__name=subject, translations__language_code='en')
+                subject_slugs.append(sub_obj.slug)
+            except Subject.DoesNotExist:
+                logger.exception("Unable to locate subject {} in the database. Skipping subject association")
+
+        return subject_slugs
 
     def process_collaborators(self, collaborators, course_key):
         """
@@ -404,3 +432,29 @@ class CSVDataLoader(AbstractDataLoader):
                     course_run_key
                 ))
         return staff_uuids
+
+    def process_heading_blurb(self, heading, blurb):
+        """
+        Process and return a representation of dict object, if applicable, for header and blurb fields.
+        """
+        if not (heading or blurb):
+            return None
+        else:
+            return {
+                'heading': heading,
+                'blurb': blurb
+            }
+
+    def process_stats(self, stat1, stat1_text, stat2, stat2_text):
+        """
+        Return a list of stat/fact dicts if valid input values are provided.
+        """
+        stats = []
+        stat1_dict = self.process_heading_blurb(stat1, stat1_text)
+        stat2_dict = self.process_heading_blurb(stat2, stat2_text)
+
+        if stat1_dict:
+            stats.append(stat1_dict)
+        if stat2_dict:
+            stats.append(stat2_dict)
+        return stats

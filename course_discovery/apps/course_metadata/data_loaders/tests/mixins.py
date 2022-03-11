@@ -60,6 +60,7 @@ class CSVLoaderMixin:
         'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language',
         'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
         'upgrade_deadline_override_time', 'redirect_url', 'external_identifier', 'lead_capture_form_url',
+        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text'
     ]
     BASE_EXPECTED_COURSE_DATA = {
         'draft': False,
@@ -80,7 +81,12 @@ class CSVLoaderMixin:
                             ',Long Description,</p>',
         'external_url': 'http://www.example.com',
         'external_identifier': '123456789',
-        'lead_capture_form_url': 'http://www.interest-form.com?id=1234'
+        'lead_capture_form_url': 'http://www.interest-form.com?id=1234',
+        'certificate_info': {
+            'heading': 'About the certificate',
+            'blurb': 'For special people'
+        },
+        'facts_data': ['90 million', '<p>Bacterias cottage cost</p>', 'Diamond mine', '<p>Worth it</p>']
     }
 
     BASE_EXPECTED_COURSE_RUN_DATA = {
@@ -206,10 +212,16 @@ class CSVLoaderMixin:
         assert course.additional_metadata.external_url == expected_data['external_url']
         assert course.additional_metadata.external_identifier == expected_data['external_identifier']
         assert course.additional_metadata.lead_capture_form_url == expected_data['lead_capture_form_url']
+        assert course.additional_metadata.certificate_info.heading == expected_data['certificate_info']['heading']
+        assert expected_data['certificate_info']['blurb'] in course.additional_metadata.certificate_info.blurb
         assert sorted([subject.slug for subject in course.subjects.all()]) == sorted(expected_data['subjects'])
         assert sorted(
             [collaborator.name for collaborator in course.collaborators.all()]
         ) == sorted(expected_data['collaborators'])
+
+        for fact in course.additional_metadata.facts.all():
+            assert fact.heading in expected_data['facts_data']
+            assert fact.blurb in expected_data['facts_data']
 
     def _assert_course_run_data(self, course_run, expected_data):
         """
