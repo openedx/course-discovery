@@ -410,14 +410,52 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
         ])
 
 
+@admin.register(Fact)
+class FactAdmin(admin.ModelAdmin):
+    list_display = ('heading', 'blurb', 'courses')
+    search_fields = ('heading', 'blurb',)
+
+    def courses(self, obj):
+
+        def _get_course_keys(additional_metadata_object):
+            return ', '.join([course.key for course in additional_metadata_object.related_courses.all()])
+
+        return ', '.join([
+            _get_course_keys(metadata) for metadata in obj.related_course_additional_metadata.all()
+        ])
+
+
+@admin.register(CertificateInfo)
+class CertificateInfoAdmin(admin.ModelAdmin):
+    list_display = ('heading', 'blurb', 'courses')
+    search_fields = ('heading', 'blurb',)
+
+    def courses(self, obj):
+
+        def _get_course_keys(additional_metadata_object):
+            return ', '.join([course.key for course in additional_metadata_object.related_courses.all()])
+
+        return ', '.join([
+            _get_course_keys(metadata) for metadata in obj.related_course_additional_metadata.all()
+        ])
+
+
 @admin.register(AdditionalMetadata)
 class AdditionalMetadataAdmin(admin.ModelAdmin):
-    list_display = ('id', 'external_identifier', 'external_url', 'lead_capture_form_url', 'courses')
+    list_display = (
+        'id', 'external_identifier', 'external_url', 'lead_capture_form_url',
+        'courses', 'facts_list', 'certificate_info'
+    )
     search_fields = ('external_identifier', 'external_url')
 
     def courses(self, obj):
         return ', '.join([
             course.key for course in obj.related_courses.all()
+        ])
+
+    def facts_list(self, obj):
+        return ', '.join([
+            fact.heading for fact in obj.facts.all()
         ])
 
 

@@ -28,6 +28,11 @@ class AbstractTitleDescriptionFactory(factory.django.DjangoModelFactory):
     description = FuzzyText()
 
 
+class AbstractHeadingBlurbModelFactory(factory.django.DjangoModelFactory):
+    heading = FuzzyText(length=255)
+    blurb = FuzzyText()
+
+
 class ImageFactory(AbstractMediaModelFactory):
     height = 100
     width = 100
@@ -67,6 +72,16 @@ class TopicFactory(factory.django.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
 
 
+class FactFactory(AbstractHeadingBlurbModelFactory):
+    class Meta:
+        model = Fact
+
+
+class CertificateInfoFactory(AbstractHeadingBlurbModelFactory):
+    class Meta:
+        model = CertificateInfo
+
+
 class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = AdditionalMetadata
@@ -74,6 +89,12 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     external_identifier = FuzzyText()
     external_url = FuzzyURL()
     lead_capture_form_url = FuzzyURL()
+    certificate_info = factory.SubFactory(CertificateInfoFactory)
+
+    @factory.post_generation
+    def facts(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.facts, extracted)
 
 
 class LevelTypeFactory(AbstractNamedModelFactory):

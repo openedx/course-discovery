@@ -66,7 +66,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(40):
+        with self.assertNumQueries(44):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
@@ -75,7 +75,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(40):
+        with self.assertNumQueries(44):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
@@ -84,7 +84,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns no deleted associated programs """
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        with self.assertNumQueries(40):
+        with self.assertNumQueries(44):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data.get('programs') == []
@@ -97,7 +97,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_deleted_programs=1'
-        with self.assertNumQueries(43):
+        with self.assertNumQueries(47):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
@@ -245,7 +245,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(28):
+        with self.assertNumQueries(32):
             response = self.client.get(url)
         assert response.status_code == 200
         self.assertListEqual(
@@ -262,7 +262,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # Known to be flaky prior to the addition of tearDown()
         # and logout() code which is the same number of additional queries
-        with self.assertNumQueries(51):
+        with self.assertNumQueries(57):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -272,7 +272,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?{params}'.format(root=reverse('api:v1:course-list'), params=urlencode({'keys': keys}))
 
-        with self.assertNumQueries(49):
+        with self.assertNumQueries(57):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -282,7 +282,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(51):
+        with self.assertNumQueries(57):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -1021,31 +1021,62 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
     @responses.activate
     def test_update_with_additional_metadata(self):
+        course = CourseFactory(additional_metadata=None)
+
         additional_metadata = {
             'external_url': 'https://example.com/',
             'external_identifier': '12345',
             'lead_capture_form_url': 'https://example.com/lead-capture',
+            'certificate_info': {
+                'heading': 'Certificate heading',
+                'blurb': '<p>Certificate blurb</p>',
+            },
+            'facts': [
+                {
+                    'heading': 'Fact heading',
+                    'blurb': '<p>Fact blurb</p>',
+                }
+            ]
         }
-        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         course_data = {
             'additional_metadata': additional_metadata
         }
         response = self.client.patch(url, course_data, format='json')
         assert response.status_code == 200
-        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        course = Course.everything.get(uuid=course.uuid, draft=True)
         self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
 
         # test if object update on same course is successful
+        new_facts = [
+            {
+                'heading': 'New Fact heading 1',
+                'blurb': '<p>New Fact blurb 2</p>',
+            },
+            {
+                'heading': 'New Fact heading 333',
+                'blurb': '<p>New Fact blurb 2</p>',
+            }
+
+        ]
+        new_cert = {
+            'heading': 'New Certificate heading',
+            'blurb': '<p>New Certificate blurb</p>',
+        }
         course_data = {
             'additional_metadata': {
                 'external_identifier': '67890',  # change external_identifier
+                'facts': new_facts,
+                'certificate_info': new_cert,
             }
         }
         response = self.client.patch(url, course_data, format='json')
         assert response.status_code == 200
-        course = Course.everything.get(uuid=self.course.uuid, draft=True)
+        course = Course.everything.get(uuid=course.uuid, draft=True)
 
         additional_metadata['external_identifier'] = '67890'  # to make sure that the value is updated
+        additional_metadata['facts'] = new_facts
+        additional_metadata['certificate_info'] = new_cert
         self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
 
     @responses.activate

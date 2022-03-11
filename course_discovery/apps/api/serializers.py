@@ -32,11 +32,11 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AdditionalMetadata, AdditionalPromoArea, Collaborator, CorporateEndorsement, Course, CourseEditor,
-    CourseEntitlement, CourseRun, CourseRunType, CourseType, Curriculum, CurriculumCourseMembership,
-    CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline, Endorsement, IconTextPairing, Image, LevelType,
-    Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program,
-    ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track, Video
+    FAQ, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator, CorporateEndorsement, Course,
+    CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Curriculum, CurriculumCourseMembership,
+    CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline, Endorsement, Fact, IconTextPairing, Image,
+    LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite,
+    Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -207,10 +207,28 @@ class TitleDescriptionSerializer(BaseModelSerializer):
         fields = ('title', 'description',)
 
 
+class HeadingBlurbSerializer(BaseModelSerializer):
+    """Serializer for models inheriting from ``AbstractHeadingBlurb``."""
+    class Meta:
+        fields = ('heading', 'blurb',)
+
+
 class AdditionalPromoAreaSerializer(TitleDescriptionSerializer):
     """Serializer for AdditionalPromoArea """
     class Meta(TitleDescriptionSerializer.Meta):
         model = AdditionalPromoArea
+
+
+class FactSerializer(HeadingBlurbSerializer):
+    """Serializer for Facts """
+    class Meta(HeadingBlurbSerializer.Meta):
+        model = Fact
+
+
+class CertificateInfoSerializer(HeadingBlurbSerializer):
+    """Serializer for CertificateInfo """
+    class Meta(HeadingBlurbSerializer.Meta):
+        model = CertificateInfo
 
 
 class FAQSerializer(BaseModelSerializer):
@@ -603,9 +621,17 @@ class TrackSerializer(BaseModelSerializer):
 
 class AdditionalMetadataSerializer(BaseModelSerializer):
     """Serializer for the ``AdditionalMetadata`` model."""
+
+    facts = FactSerializer(many=True)
+    certificate_info = CertificateInfoSerializer()
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return AdditionalMetadata.objects.select_related('facts', 'certificate_info')
+
     class Meta:
         model = AdditionalMetadata
-        fields = ('external_identifier', 'external_url', 'lead_capture_form_url')
+        fields = ('external_identifier', 'external_url', 'lead_capture_form_url', 'facts', 'certificate_info')
 
 
 class CourseRunTypeSerializer(BaseModelSerializer):
@@ -1167,12 +1193,36 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     def create(self, validated_data):
         return Course.objects.create(**validated_data)
 
+    def update_facts(self, instance, facts_data):
+
+        instance.facts.all().delete()
+        for fact in facts_data:
+            fact_obj = Fact.objects.create(**fact)
+            instance.facts.add(fact_obj)
+
+    def update_certificate_info(self, instance, certificate_info_data):
+
+        if instance.certificate_info:
+            CertificateInfo.objects.filter(id=instance.certificate_info.id).update(**certificate_info_data)
+        else:
+            instance.certificate_info = CertificateInfo.objects.create(**certificate_info_data)
+            instance.save()
+
     def update_additional_metadata(self, instance, additional_metadata):
+
+        facts = additional_metadata.pop('facts', None)
+        certificate_info = additional_metadata.pop('certificate_info', None)
 
         if instance.additional_metadata:
             AdditionalMetadata.objects.filter(id=instance.additional_metadata.id).update(**additional_metadata)
         else:
             instance.additional_metadata = AdditionalMetadata.objects.create(**additional_metadata)
+
+        if facts:
+            self.update_facts(instance.additional_metadata, facts)
+
+        if certificate_info:
+            self.update_certificate_info(instance.additional_metadata, certificate_info)
 
         # save() will be called by main update()
 
