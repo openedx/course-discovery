@@ -81,7 +81,7 @@ class LearnerPathwayStepInline(nested_admin.NestedTabularInline):
 
 @admin.register(LearnerPathway)
 class LearnerPathwayAdmin(nested_admin.NestedModelAdmin):
-    list_display = ('uuid', 'name', 'steps', 'estimated_completion_time')
+    list_display = ('uuid', 'title', 'steps', 'estimated_completion_time')
 
     inlines = [
         LearnerPathwayStepInline,

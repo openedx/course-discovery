@@ -2504,7 +2504,7 @@ class TestLearnerPathwaySearchDocumentSerializer(TestCase):
         image_field._context = {'request': request}  # pylint: disable=protected-access
         return {
             'uuid': str(learner_pathway.uuid),
-            'name': learner_pathway.name,
+            'title': learner_pathway.title,
             'aggregation_key': f'learnerpathway:{learner_pathway.uuid}',
             'content_type': 'learnerpathway',
             'status': learner_pathway.status,

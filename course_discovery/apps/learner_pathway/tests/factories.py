@@ -12,7 +12,7 @@ class LearnerPathwayFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = LearnerPathway
 
-    name = FuzzyText(prefix='learner-pathway-name-')
+    title = FuzzyText(prefix='learner-pathway-title-')
     partner = factory.SubFactory(PartnerFactory)
     uuid = factory.Faker('uuid4')
     banner_image = factory.django.ImageField()

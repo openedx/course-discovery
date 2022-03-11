@@ -86,9 +86,5 @@ CELERY_TASK_ALWAYS_EAGER = False
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
     from .private import *  # pylint: disable=import-error
 
-# Learner Pathway
-# Disable learner pathway on all environment except devstack and testing.
-ENABLE_LEARNER_PATHWAY = True
-
 DISCOVERY_BASE_URL = "http://edx.devstack.discovery:18381"
 
