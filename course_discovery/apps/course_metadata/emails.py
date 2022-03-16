@@ -6,7 +6,7 @@ import dateutil.parser
 from django.conf import settings
 from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import get_template
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from opaque_keys.edx.keys import CourseKey
 
 from course_discovery.apps.core.models import User

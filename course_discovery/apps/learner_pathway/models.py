@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from opaque_keys.edx.django.models import UsageKeyField
 from stdimage.models import StdImageField
 from taxonomy.utils import get_whitelisted_serialized_skills

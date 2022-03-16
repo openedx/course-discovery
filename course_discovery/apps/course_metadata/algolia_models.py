@@ -4,7 +4,7 @@ import itertools
 import pytz
 from django.db import models
 from django.utils.translation import override
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
