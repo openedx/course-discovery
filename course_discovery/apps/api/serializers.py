@@ -13,7 +13,7 @@ import waffle
 from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from opaque_keys.edx.locator import CourseLocator
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers

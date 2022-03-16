@@ -8,7 +8,7 @@ from django.db import DatabaseError
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.constants import Status
@@ -42,7 +42,7 @@ class HealthTests(SiteMixin, TestCase):
             }
         }
 
-        self.assertJSONEqual(force_text(response.content), expected_data)
+        self.assertJSONEqual(force_str(response.content), expected_data)
 
 
 class AutoAuthTests(SiteMixin, TestCase):
