@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.i18n import JavaScriptCatalog
 from drf_yasg.views import get_schema_view
 from edx_api_doc_tools import make_api_info

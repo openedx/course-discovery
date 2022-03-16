@@ -15,7 +15,7 @@ from django.core.validators import FileExtensionValidator
 from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel

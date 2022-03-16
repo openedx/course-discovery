@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timezone
 
 import requests
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from requests.adapters import HTTPAdapter
 from simple_salesforce import Salesforce, SalesforceExpiredSession
 

@@ -8,7 +8,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
 from waffle import get_waffle_flag_model

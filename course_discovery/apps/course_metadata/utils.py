@@ -13,7 +13,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import models, transaction
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from dynamic_filenames import FilePattern
 from slugify import slugify
 from stdimage.models import StdImageFieldFile
