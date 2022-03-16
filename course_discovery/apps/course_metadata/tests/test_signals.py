@@ -28,7 +28,7 @@ LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
 
 
 @pytest.mark.django_db
-@mock.patch('course_discovery.apps.api.cache.set_api_timestamp')
+@mock.patch('course_discovery.apps.api.cache.cache.set')
 class TestCacheInvalidation:
     def test_model_change(self, mock_set_api_timestamp):
         """
