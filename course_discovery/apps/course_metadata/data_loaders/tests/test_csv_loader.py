@@ -398,7 +398,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         test_org = OrganizationFactory(name='testOrg', key='testOrg', partner=self.partner)
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
-        _, image_content = self.mock_image_response()
+        self.mock_image_response()
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(
