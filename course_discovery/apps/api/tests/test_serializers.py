@@ -156,6 +156,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
     @classmethod
     def get_expected_data(cls, course, course_skill, request):
         expected = super().get_expected_data(course, course_skill, request)
+        standard_image_serializer = StdImageSerializerField()
+        standard_image_serializer._context = {'request': request}  # pylint: disable=protected-access
 
         expected.update({
             'short_description': course.short_description,
@@ -200,6 +202,10 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'collaborators': [],
             'skill_names': [course_skill.skill.name],
             'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'organization_short_code_override': '',
+            'organization_logo_override': standard_image_serializer.to_representation(
+                course.organization_logo_override
+            ),
         })
 
         return expected
@@ -248,6 +254,25 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1, 'editable': 1})
         assert serializer.data['marketing_url'] is not None
         assert serializer.data['marketing_url'] == course.marketing_url
+
+    def test_shortcode_and_logo_override(self):
+        request = make_request()
+        course_draft = CourseFactory(draft=True)
+        draft_course_run = CourseRunFactory(draft=True, course=course_draft)
+        course_draft.canonical_course_run = draft_course_run
+        course_draft.save()
+
+        course = CourseFactory(draft=False, draft_version_id=course_draft.id)
+        course_run = CourseRunFactory(draft=False, course=course, draft_version_id=draft_course_run.id)
+        course.canonical_course_run = course_run
+        course.organization_short_code_override = 'testorg_overriden'
+        course.save()
+
+        serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1, 'editable': 1})
+        assert serializer.data['organization_short_code_override'] is not None
+        assert serializer.data['organization_short_code_override'] == 'testorg_overriden'
+
+        assert serializer.data['organization_logo_override'] is not None
 
 
 class CourseEditorSerializerTests(TestCase):

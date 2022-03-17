@@ -1115,6 +1115,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     collaborators = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
                                                        queryset=Collaborator.objects.all(),
                                                        read_serializer=CollaboratorSerializer())
+    organization_short_code_override = serializers.CharField(required=False)
+    organization_logo_override = StdImageSerializerField(required=False)
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
 
@@ -1162,7 +1164,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'extra_description', 'additional_information', 'additional_metadata', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
-            'skills',
+            'skills', 'organization_short_code_override', 'organization_logo_override',
         )
         extra_kwargs = {
             'partner': {'write_only': True}

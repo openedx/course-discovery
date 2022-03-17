@@ -889,6 +889,19 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     # HTML that isn't normally allowed.
     additional_information = models.TextField(blank=True, null=True, default=None,
                                               verbose_name=_('Additional Information'))
+    organization_short_code_override = models.CharField(max_length=255, blank=True)
+    organization_logo_override = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/course/org/logo_override/'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (256, 256),
+            'medium': (128, 128),
+            'small': (64, 64),
+            'x-small': (32, 32),
+        },
+        help_text=_('Please provide an image file with transparent background'),
+    )
 
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
