@@ -244,6 +244,8 @@ class CourseFactory(SalesforceRecordFactory):
     syllabus_raw = FuzzyText()
     outcome = FuzzyText()
     image = factory.django.ImageField()
+    organization_logo_override = FuzzyText(suffix=".png")
+    organization_short_code_override = FuzzyText()
     canonical_course_run = None
     extra_description = factory.SubFactory(AdditionalPromoAreaFactory)
     additional_metadata = factory.SubFactory(AdditionalMetadataFactory)

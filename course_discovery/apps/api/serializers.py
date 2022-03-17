@@ -1115,8 +1115,16 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     collaborators = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
                                                        queryset=Collaborator.objects.all(),
                                                        read_serializer=CollaboratorSerializer())
+    organization_short_code_override = serializers.CharField(required=False)
+    organization_logo_override_url = serializers.SerializerMethodField()
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
+
+    def get_organization_logo_override_url(self, obj):
+        logo_image_override = getattr(obj, 'organization_logo_override', None)
+        if logo_image_override:
+            return logo_image_override.url
+        return None
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
@@ -1162,7 +1170,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'extra_description', 'additional_information', 'additional_metadata', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
-            'skills',
+            'skills', 'organization_short_code_override', 'organization_logo_override_url',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
