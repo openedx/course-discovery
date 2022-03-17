@@ -35,6 +35,7 @@ class CSVDataLoader(AbstractDataLoader):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         self.messages_list = []  # to show failure/skipped ingestion message at the end
+        self.course_uuids = {}  # to show the discovery course ids for each processed course
         try:
             self.reader = csv.DictReader(open(csv_path, 'r'))
             self.is_draft = is_draft
@@ -124,6 +125,7 @@ class CSVDataLoader(AbstractDataLoader):
                     logger.exception("An unknown error occurred while completing course run review")
 
             logger.info("Course and course run updated successfully for course key {}".format(course_key))
+            self.course_uuids[str(course.uuid)] = course_title
         logger.info("CSV loader ingest pipeline has completed.")
 
         # Log the summarized errors at the end for easy filtering of the courses whose ingestion failed
@@ -131,6 +133,12 @@ class CSVDataLoader(AbstractDataLoader):
             logger.info("Summarized errors:")
             for msg in self.messages_list:
                 logger.error(msg)
+
+        # log the processed course uuids and their titles
+        if self.course_uuids:
+            logger.info("Course UUIDs:")
+            for course_uuid, title in self.course_uuids.items():
+                logger.info("{}:{}".format(course_uuid, title))
 
     def _create_course_api_request_data(self, data, course_type, course_run_type_uuid):
         """
@@ -171,7 +179,7 @@ class CSVDataLoader(AbstractDataLoader):
             'draft': self.is_draft,
             'key': course.key,
             'uuid': str(course.uuid),
-            'url_slug': course.url_slug,
+            'url_slug': course.active_url_slug,
             'type': str(course.type.uuid),
             'subjects': subjects,
             'collaborators': collaborator_uuids,
@@ -284,6 +292,8 @@ class CSVDataLoader(AbstractDataLoader):
             json=data,
             headers={'content-type': 'application/json'}
         )
+        if not response.ok:
+            logger.info("API request failed for url {} with response: {}".format(url, response.content.decode('utf-8')))
         response.raise_for_status()
         return response
 
