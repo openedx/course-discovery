@@ -34,6 +34,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 "language": "Español",
                 "subjectMatter": "Marketing",
                 "altSubjectMatter": "Design and Marketing",
+                "altSubjectMatter1": "Marketing, Sales, and Techniques",
                 "universityAbbreviation": "edX",
                 "altUniversityAbbreviation": "altEdx",
                 "cardUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS9pbWFnZS5qcGc=",
@@ -81,6 +82,16 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                         "blurb": "This should answer it"
                     }
                 ],
+                "certificate": {
+                    "headline": "About the certificate",
+                    "blurb": "how this makes you special"
+                },
+                "stats": {
+                    "stat1": "90%",
+                    "stat1Blurb": "<p>A vast number of special beings take this course</p>",
+                    "stat2": "100 million",
+                    "stat2Blurb": "<p>VC fund</p>"
+                }
             },
         ]}
 
@@ -119,7 +130,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
 
                 # Asserting certain data items to verify that both CSV and API
                 # responses are present in the final CSV
-                assert data_row['Organization'] == 'edX'
+                assert data_row['Organization'] == 'altEdx'
                 assert data_row['External Identifier'] == '12345678'
                 assert data_row['Start Time'] == '00:00:00'
                 assert data_row['Short Description'] == 'CSV Course'
@@ -136,7 +147,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Course Pacing'] == 'Instructor-Paced'
                 assert data_row['Content Language'] == 'Spanish - Spain (Modern)'
                 assert data_row['Transcript Language'] == 'Spanish - Spain (Modern)'
-                assert data_row['Primary Subject'] == 'Marketing'
+                assert data_row['Primary Subject'] == 'Design and Marketing'
                 assert data_row['Frequently Asked Questions'] == '<div><p><b>FAQ 1</b></p>This should answer it</div>'
                 assert data_row['Syllabus'] == '<div><p>Test Curriculum</p><p><b>Module 0: </b>Welcome to your course' \
                                                '</p><p><b>Module 1: </b>Welcome to Module 1</p></div>'
@@ -262,14 +273,17 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         """
         Assert the default API response in output CSV dict.
         """
-        assert data_row['Organization'] == 'edX'
-        assert data_row['Alternate Organization Code'] == 'altEdx'
+        assert data_row['Organization'] == 'altEdx'
+        assert data_row['2U Organization Code'] == 'edX'
+        assert data_row['Edx Organization Code'] == 'altEdx'
         assert data_row['Number'] == 'TC'
         assert data_row['Alternate Number'] == 'UCT'
-        assert data_row['Title'] == 'CSV Course'
-        assert data_row['Alternate Title'] == 'Alternative CSV Course'
-        assert data_row['Primary Subject'] == 'Marketing'
-        assert data_row['Alternate Primary Subject'] == 'Design and Marketing'
+        assert data_row['Title'] == 'Alternative CSV Course'
+        assert data_row['2U Title'] == 'CSV Course'
+        assert data_row['Edx Title'] == 'Alternative CSV Course'
+        assert data_row['2U Primary Subject'] == 'Marketing'
+        assert data_row['Primary Subject'] == 'Design and Marketing'
+        assert data_row['Subject Subcategory'] == 'Marketing, Sales, and Techniques'
         assert data_row['External Identifier'] == '12345678'
         assert data_row['Start Time'] == '00:00:00'
         assert data_row['Start Date'] == '2022-03-06'
@@ -282,6 +296,12 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['Course Enrollment Track'] == 'Executive Education(2U)'
         assert data_row['Course Run Enrollment Track'] == 'Unpaid Executive Education'
         assert data_row['Lead Capture Form Url'] == "www.example.com/lead-capture?id=123"
+        assert data_row['Certificate Header'] == "About the certificate"
+        assert data_row['Certificate Text'] == 'how this makes you special'
+        assert data_row['Stat1'] == '90%'
+        assert data_row['Stat1 Text'] == '<p>A vast number of special beings take this course</p>'
+        assert data_row['Stat2'] == '100 million'
+        assert data_row['Stat2 Text'] == '<p>VC fund</p>'
         assert data_row['Length'] == '10'
         assert data_row['Redirect Url'] == 'https://example.com/'
         assert data_row['Image'] == 'https://example.com/image.jpg'
