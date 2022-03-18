@@ -23,14 +23,15 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
-
+import logging
 LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
 
+logger = logging.getLogger(__name__)
 
 @pytest.mark.django_db
-@mock.patch('course_discovery.apps.api.cache.set_cache')
+@mock.patch('course_discovery.apps.api.cache.set_api_timestamp')
 class TestCacheInvalidation:
-    def test_model_change(self, mock_set_cache):
+    def test_model_change(self, mock_set_api_timestamp):
         """
         Verify that the API cache is invalidated after course_metadata models
         are saved or deleted.
@@ -63,14 +64,16 @@ class TestCacheInvalidation:
 
             # Verify that model creation and deletion invalidates the API cache.
             instance = factory()
-
-            assert mock_set_cache.called
-            mock_set_cache.reset_mock()
+            logger.info(f'\n\n\n1>>>Instance --> {instance.model}')
+            logger.info(f'\n\n\n1>>>Model --> {model}')
+              
+            assert mock_set_api_timestamp.called
+            mock_set_api_timestamp.reset_mock()
 
             instance.delete()
 
-            assert mock_set_cache.called
-            mock_set_cache.reset_mock()
+            assert mock_set_api_timestamp.called
+            mock_set_api_timestamp.reset_mock()
 
 
 @ddt.ddt

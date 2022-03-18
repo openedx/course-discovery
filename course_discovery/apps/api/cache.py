@@ -52,11 +52,6 @@ def timestamped_object_key_constructor(*args, **kwargs):  # pylint: disable=unus
 
 def set_api_timestamp():
     timestamp = time.time()
-    set_cache(timestamp)
-    # cache.set(API_TIMESTAMP_KEY, timestamp, None)
-
-
-def set_cache(timestamp):
     cache.set(API_TIMESTAMP_KEY, timestamp, None)
 
 
