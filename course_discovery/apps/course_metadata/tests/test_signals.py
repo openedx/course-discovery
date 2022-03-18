@@ -1,6 +1,6 @@
 import datetime
-from re import escape
 import logging
+from re import escape
 from unittest import mock
 
 import ddt
@@ -65,9 +65,9 @@ class TestCacheInvalidation:
 
             # Verify that model creation and deletion invalidates the API cache.
             instance = factory()
-            logger.info(f'\n\n\n1>>>Instance --> {instance.name}')
+
             logger.info(f'\n\n\n1>>>Model --> {model}')
-              
+            logger.info(f'\n\n\n2>>>Is Mock called --> {mock_set_api_timestamp.called}')
             assert mock_set_api_timestamp.called
             mock_set_api_timestamp.reset_mock()
 
