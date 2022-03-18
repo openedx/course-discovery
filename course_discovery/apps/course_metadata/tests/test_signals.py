@@ -1,5 +1,6 @@
 import datetime
 from re import escape
+import logging
 from unittest import mock
 
 import ddt
@@ -23,7 +24,7 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
-import logging
+
 LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
 
 logger = logging.getLogger(__name__)
@@ -64,7 +65,7 @@ class TestCacheInvalidation:
 
             # Verify that model creation and deletion invalidates the API cache.
             instance = factory()
-            logger.info(f'\n\n\n1>>>Instance --> {instance.model}')
+            logger.info(f'\n\n\n1>>>Instance --> {instance.name}')
             logger.info(f'\n\n\n1>>>Model --> {model}')
               
             assert mock_set_api_timestamp.called
