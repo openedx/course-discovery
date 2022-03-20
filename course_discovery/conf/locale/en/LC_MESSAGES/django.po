@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-13 20:35+0000\n"
+"POT-Creation-Date: 2022-03-20 20:35+0000\n"
 "PO-Revision-Date: 2018-04-09 20:13+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
@@ -1656,7 +1656,7 @@ msgid "Inactive"
 msgstr ""
 
 #: apps/learner_pathway/models.py:82
-msgid "Pathway name"
+msgid "Title of the learner pathway."
 msgstr ""
 
 #: apps/learner_pathway/models.py:85
