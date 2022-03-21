@@ -68,12 +68,6 @@ class TestCacheInvalidation:
             # Verify that model creation and deletion invalidates the API cache.
             instance = factory()
 
-            logger.info(f'\n\n\n1>>>Model --> {model}')
-            logger.info(f'\n\n\n2>>>Is Mock called --> {mock_set_api_timestamp.called}')
-
-            logger.info(f'\n\n\n3>>>Is oauth Mock called --> {mock_oauth.called}')
-            mock_oauth.reset_mock()
-
             assert mock_set_api_timestamp.called
             mock_set_api_timestamp.reset_mock()
 
