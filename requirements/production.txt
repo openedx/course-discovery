@@ -31,9 +31,9 @@ beautifulsoup4==4.10.0
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.21.18
+boto3==1.21.22
     # via django-ses
-botocore==1.24.18
+botocore==1.24.22
     # via
     #   boto3
     #   s3transfer
@@ -70,7 +70,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==36.0.1
+cryptography==36.0.2
     # via
     #   authlib
     #   pyjwt
@@ -136,7 +136,7 @@ django-cors-headers==3.11.0
     # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
-django-dynamic-filenames==1.2.0
+django-dynamic-filenames==1.3.0
     # via -r requirements/base.in
 django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
     # via
@@ -164,7 +164,7 @@ django-object-actions==4.0.0
     # via -r requirements/base.in
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==2.6.0
+django-ses==2.6.1
     # via
     #   -r requirements/production.in
     #   taxonomy-connector
@@ -232,7 +232,7 @@ edx-django-release-util==1.2.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.0.0
     # via -r requirements/base.in
-edx-django-utils==4.5.0
+edx-django-utils==4.6.0
     # via
     #   -r requirements/base.in
     #   edx-drf-extensions
@@ -262,9 +262,7 @@ elasticsearch-dsl==7.4.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl-drf
 future==0.18.2
-    # via
-    #   django-ses
-    #   pyjwkest
+    # via pyjwkest
 gevent==21.12.0
     # via -r requirements/production.in
 greenlet==1.1.2
@@ -287,7 +285,7 @@ itypes==1.2.0
     # via coreapi
 jinja2==3.0.3
     # via coreschema
-jmespath==0.10.0
+jmespath==1.0.0
     # via
     #   boto3
     #   botocore
@@ -303,7 +301,7 @@ lxml==4.8.0
     #   zeep
 markdown==3.3.6
     # via -r requirements/base.in
-markupsafe==2.1.0
+markupsafe==2.1.1
     # via jinja2
 mysqlclient==2.1.0
     # via -r requirements/production.in
@@ -362,7 +360,7 @@ python-monkey-business==1.0.0
     # via django-nested-admin
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2021.3
+pytz==2022.1
     # via
     #   -r requirements/base.in
     #   celery
@@ -464,7 +462,7 @@ uritemplate==4.1.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.8
+urllib3==1.26.9
     # via
     #   botocore
     #   elasticsearch
