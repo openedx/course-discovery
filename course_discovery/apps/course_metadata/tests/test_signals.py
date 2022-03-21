@@ -66,6 +66,7 @@ class TestCacheInvalidation:
             instance = factory()
 
             assert mock_set_api_timestamp.called
+            assert mock_oauth.called
             mock_set_api_timestamp.reset_mock()
 
             instance.delete()
