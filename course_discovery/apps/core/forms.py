@@ -1,6 +1,6 @@
 """ Core forms. """
 from django import forms
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from course_discovery.apps.core.models import UserThrottleRate
 

@@ -4,7 +4,7 @@ import math
 from urllib.parse import parse_qsl, urlencode, urljoin
 
 from django.db.models.fields.related import ManyToManyField
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from opaque_keys.edx.keys import CourseKey
 from requests.exceptions import HTTPError
 from sortedm2m.fields import SortedManyToManyField

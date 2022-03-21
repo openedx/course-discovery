@@ -3,7 +3,7 @@ import re
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management import BaseCommand, CommandError
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from course_discovery.apps.course_metadata.models import CourseUrlRedirect, CourseUrlSlug, RemoveRedirectsConfig
 
