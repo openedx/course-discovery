@@ -274,7 +274,6 @@ class Organization(CachedMixin, TimeStampedModel):
             data['logo_url'] = logo_url
         organizations_url = f'{partner.organizations_api_url}organizations/{key}/'
         try:
-            logger.info(f'\n\n\n1>>>Response OAuth API CLIENT --> {partner.oauth_api_client.put(organizations_url, json=data)}')
             logger.info(f'\n\n\n1>>>Trying OAuth API CLIENT --> {partner.oauth_api_client}')
             partner.oauth_api_client.put(organizations_url, json=data)
         except requests.exceptions.ConnectionError as e:
