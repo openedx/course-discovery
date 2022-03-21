@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters as rest_framework_filters
 from rest_framework import status, viewsets
