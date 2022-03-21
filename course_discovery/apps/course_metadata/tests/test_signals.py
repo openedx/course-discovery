@@ -31,9 +31,10 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.django_db
+@mock.patch('course_discovery.apps.core.models.OAuthAPIClient')
 @mock.patch('course_discovery.apps.api.cache.set_api_timestamp')
 class TestCacheInvalidation:
-    def test_model_change(self, mock_set_api_timestamp):
+    def test_model_change(self, mock_set_api_timestamp, mock_oauth):
         """
         Verify that the API cache is invalidated after course_metadata models
         are saved or deleted.
@@ -71,6 +72,9 @@ class TestCacheInvalidation:
             logger.info(f'\n\n\n2>>>Is Mock called --> {mock_set_api_timestamp.called}')
             assert mock_set_api_timestamp.called
             mock_set_api_timestamp.reset_mock()
+
+            logger.info(f'\n\n\n3>>>Is oauth Mock called --> {mock_oauth.called}')
+            mock_oauth.reset_mock()
 
             instance.delete()
 
