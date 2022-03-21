@@ -6,7 +6,6 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
-import requests
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -43,8 +42,9 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import (
-    UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run,
-    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta, uslugify
+    UploadToFieldNamePath, clean_query, custom_render_variations, push_organization_to_lms,
+    push_to_ecommerce_for_course_run, push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta,
+    uslugify
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
@@ -260,25 +260,7 @@ class Organization(CachedMixin, TimeStampedModel):
         """
         key = self._cache['key']
         super().save(*args, **kwargs)
-        key = key or self.key
-        partner = self.partner
-        data = {
-            'name': self.certificate_name or self.name,
-            'short_name': self.key,
-            'description': self.description,
-        }
-        logo = self.certificate_logo_image
-        if logo:
-            base_url = getattr(settings, 'ORG_BASE_LOGO_URL', None)
-            logo_url = f'{base_url}{logo}' if base_url else logo.url
-            data['logo_url'] = logo_url
-        organizations_url = f'{partner.organizations_api_url}organizations/{key}/'
-        try:
-            partner.oauth_api_client.put(organizations_url, json=data)
-        except requests.exceptions.ConnectionError as e:
-            logger.error('[%s]: Unable to push organization [%s] to lms.', e, self.uuid)
-        except Exception as e:
-            raise e
+        push_organization_to_lms(self, key)
 
 
 class Image(AbstractMediaModel):

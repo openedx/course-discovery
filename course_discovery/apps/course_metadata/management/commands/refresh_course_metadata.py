@@ -9,7 +9,7 @@ from django.core.management import BaseCommand, CommandError
 from django.db import connection
 from django.db.models.signals import post_delete, post_save
 
-from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
+from course_discovery.apps.api.cache import set_api_timestamp
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.utils import delete_orphans
 from course_discovery.apps.course_metadata.data_loaders.analytics_api import AnalyticsAPIDataLoader
@@ -17,6 +17,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig, Image, Video
+from course_discovery.apps.course_metadata.signals import api_change_receiver
 
 logger = logging.getLogger(__name__)
 

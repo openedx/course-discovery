@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 
-from course_discovery.apps.api.cache import api_change_receiver
+from course_discovery.apps.api.cache import set_api_timestamp
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.models import (
@@ -90,13 +90,21 @@ def _find_in_programs(existing_programs, target_curriculum=None, target_program=
     return _find_in_programs(child_programs, target_curriculum=target_curriculum, target_program=target_program)
 
 
+def api_change_receiver(sender, **kwargs):  # pylint: disable=unused-argument
+    """
+    Receiver function for handling post_save and post_delete signals emitted by
+    course_metadata models.
+    """
+    set_api_timestamp()
+
+
 # Invalidate API cache when any model in the course_metadata app is saved or
 # deleted. Given how interconnected our data is and how infrequently our models
 # change (data loading aside), this is a clean and simple way to ensure correctness
 # of the API while providing closer-to-optimal cache TTLs.
 for model in apps.get_app_config('course_metadata').get_models():
     for signal in (post_save, post_delete):
-        signal.connect(api_change_receiver, sender=model)
+        signal.connect(api_change_receiver, sender=model, weak=False)
 
 
 @receiver(pre_save, sender=CourseRun)

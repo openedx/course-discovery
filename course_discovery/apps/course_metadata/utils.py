@@ -714,3 +714,28 @@ def download_and_save_course_image(course, image_url):
     except Exception:  # pylint: disable=broad-except
         logger.exception('An unknown exception occurred while downloading image for course [%s]', course.key)
     return False
+
+
+def push_organization_to_lms(obj, key):
+    """
+    Notifies the LMS about this organization.
+    """
+    key = key or obj.key
+    partner = obj.partner
+    data = {
+        'name': obj.certificate_name or obj.name,
+        'short_name': obj.key,
+        'description': obj.description,
+    }
+    logo = obj.certificate_logo_image
+    if logo:
+        base_url = getattr(settings, 'ORG_BASE_LOGO_URL', None)
+        logo_url = f'{base_url}{logo}' if base_url else logo.url
+        data['logo_url'] = logo_url
+    organizations_url = f'{partner.organizations_api_url}organizations/{key}/'
+    try:
+        partner.oauth_api_client.put(organizations_url, json=data)
+    except requests.exceptions.ConnectionError as e:
+        logger.error('[%s]: Unable to push organization [%s] to lms.', e, obj.uuid)
+    except Exception as e:
+        raise e

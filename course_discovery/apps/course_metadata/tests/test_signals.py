@@ -18,8 +18,9 @@ from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import (
     BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, BulkUpdateImagesConfig,
     CourseRun, Curriculum, CurriculumProgramMembership, DataLoaderConfig, DeletePersonDupsConfig,
-    DrupalPublishUuidConfig, LevelTypeTranslation, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig,
-    Program, ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
+    DrupalPublishUuidConfig, LevelTypeTranslation, MigratePublisherToCourseMetadataConfig, Organization,
+    ProfileImageDownloadConfig, Program, ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation,
+    TagCourseUuidsConfig, TopicTranslation
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
@@ -28,9 +29,10 @@ LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
 
 
 @pytest.mark.django_db
-@mock.patch('course_discovery.apps.api.cache.set_api_timestamp')
+@mock.patch('course_discovery.apps.course_metadata.signals.set_api_timestamp')
+@mock.patch('course_discovery.apps.course_metadata.models.push_organization_to_lms')
 class TestCacheInvalidation:
-    def test_model_change(self, mock_set_api_timestamp):
+    def test_model_change(self, mock_push_organization, mock_set_api_timestamp):
         """
         Verify that the API cache is invalidated after course_metadata models
         are saved or deleted.
@@ -63,6 +65,9 @@ class TestCacheInvalidation:
 
             # Verify that model creation and deletion invalidates the API cache.
             instance = factory()
+
+            if model == Organization:
+                assert mock_push_organization.called
 
             assert mock_set_api_timestamp.called
             mock_set_api_timestamp.reset_mock()

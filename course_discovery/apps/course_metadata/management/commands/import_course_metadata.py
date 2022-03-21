@@ -8,9 +8,10 @@ from django.apps import apps
 from django.core.management import BaseCommand, CommandError
 from django.db.models.signals import post_delete, post_save
 
-from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
+from course_discovery.apps.api.cache import set_api_timestamp
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
+from course_discovery.apps.course_metadata.signals import api_change_receiver
 
 logger = logging.getLogger(__name__)
 

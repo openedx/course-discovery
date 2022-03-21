@@ -55,14 +55,6 @@ def set_api_timestamp():
     cache.set(API_TIMESTAMP_KEY, timestamp, None)
 
 
-def api_change_receiver(sender, **kwargs):  # pylint: disable=unused-argument
-    """
-    Receiver function for handling post_save and post_delete signals emitted by
-    course_metadata models.
-    """
-    set_api_timestamp()
-
-
 class CompressedCacheResponse(CacheResponse):
     """
     Subclasses CacheResponse to allow for compression of content going into the cache

@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import factory
+import requests
 from django.db.models.signals import post_save
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from pytz import UTC
