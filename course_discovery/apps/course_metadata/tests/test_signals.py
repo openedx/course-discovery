@@ -26,8 +26,6 @@ from course_discovery.apps.course_metadata.tests import factories
 
 LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
 
-logger = logging.getLogger(__name__)
-
 
 @pytest.mark.django_db
 @mock.patch('course_discovery.apps.core.models.OAuthAPIClient.put')
