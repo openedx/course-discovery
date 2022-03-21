@@ -4,7 +4,7 @@ import logging
 import pytz
 from django.contrib.auth import get_user_model
 from django.db.models import Q, QuerySet
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django_filters import rest_framework as filters
 from dry_rest_permissions.generics import DRYPermissionFiltersBase
 from guardian.shortcuts import get_objects_for_user
