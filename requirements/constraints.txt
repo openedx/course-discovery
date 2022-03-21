@@ -33,3 +33,6 @@ algoliasearch<2.0.0
 # This version adds support for Django 3.2, so pinning the beta version for Django 3.2
 # Remove this pin once newer stable version is released
 authlib==1.0.0rc1
+
+# Latest version causing some tests to fail intermitently.
+responses==0.16.0
