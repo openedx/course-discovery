@@ -1,5 +1,4 @@
 import datetime
-import logging
 from re import escape
 from unittest import mock
 
