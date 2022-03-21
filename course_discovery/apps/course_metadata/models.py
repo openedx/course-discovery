@@ -6,7 +6,6 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import pytz
-import requests
 import waffle
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -252,33 +251,6 @@ class Organization(CachedMixin, TimeStampedModel):
     @classmethod
     def user_organizations(cls, user):
         return cls.objects.filter(organization_extension__group__in=user.groups.all())
-
-    def save(self, *args, **kwargs):
-        """
-        We cache the key here before saving the record so that we can hit the correct
-        endpoint in lms.
-        """
-        key = self._cache['key']
-        super().save(*args, **kwargs)
-        key = key or self.key
-        partner = self.partner
-        data = {
-            'name': self.certificate_name or self.name,
-            'short_name': self.key,
-            'description': self.description,
-        }
-        logo = self.certificate_logo_image
-        if logo:
-            base_url = getattr(settings, 'ORG_BASE_LOGO_URL', None)
-            logo_url = f'{base_url}{logo}' if base_url else logo.url
-            data['logo_url'] = logo_url
-        organizations_url = f'{partner.organizations_api_url}organizations/{key}/'
-        try:
-            partner.oauth_api_client.put(organizations_url, json=data)
-        except requests.exceptions.ConnectionError as e:
-            logger.error('[%s]: Unable to push organization [%s] to lms.', e, self.uuid)
-        except Exception as e:
-            raise e
 
 
 class Image(AbstractMediaModel):

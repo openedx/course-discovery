@@ -1,7 +1,9 @@
 import logging
 
+import requests
 import waffle
 from django.apps import apps
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
@@ -162,6 +164,32 @@ def ensure_external_key_uniqueness__curriculum(sender, instance, **kwargs):  # p
     ).iterator()
     check_curricula_and_related_programs_for_duplicate_external_key([instance], course_runs)
 
+def push_organizations_to_lms(instance):
+    """
+    We cache the key here before saving the record so that we can hit the correct
+    endpoint in lms.
+    """
+    key = instance._cache['key']
+    key = key or instance.key
+    partner = instance.partner
+    data = {
+        'name': instance.certificate_name or instance.name,
+        'short_name': instance.key,
+        'description': instance.description,
+    }
+    logo = instance.certificate_logo_image
+    if logo:
+        base_url = getattr(settings, 'ORG_BASE_LOGO_URL', None)
+        logo_url = f'{base_url}{logo}' if base_url else logo.url
+        data['logo_url'] = logo_url
+    organizations_url = f'{partner.organizations_api_url}organizations/{key}/'
+    try:
+        partner.oauth_api_client.put(organizations_url, json=data)
+    except requests.exceptions.ConnectionError as e:
+        logger.error('[%s]: Unable to push organization [%s] to lms.', e, instance.uuid)
+    except Exception as e:
+        raise e
+
 
 @receiver(post_save, sender=Organization)
 def update_or_create_salesforce_organization(instance, created, **kwargs):  # pylint: disable=unused-argument
@@ -172,6 +200,8 @@ def update_or_create_salesforce_organization(instance, created, **kwargs):  # py
             util.create_publisher_organization(instance)
         if not created and requires_salesforce_update('organization', instance):
             util.update_publisher_organization(instance)
+
+    push_organizations_to_lms(instance)
 
 
 @receiver(post_save, sender=Course)
