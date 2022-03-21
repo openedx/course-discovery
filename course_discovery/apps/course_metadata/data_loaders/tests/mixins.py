@@ -63,6 +63,14 @@ class CSVLoaderMixin:
         'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text',
         'organization_logo_override', 'organization_short_code_override'
     ]
+    # The list of minimal data headers
+    MINIMAL_CSV_DATA_KEYS_ORDER = [
+        'organization', 'title', 'number', 'course_enrollment_track', 'image', 'short_description',
+        'long_description', 'what_will_you_learn', 'course_level', 'primary_subject', 'verified_price', 'publish_date',
+        'start_date', 'start_time', 'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing',
+        'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language', 'redirect_url',
+        'external_identifier'
+    ]
     BASE_EXPECTED_COURSE_DATA = {
         'draft': False,
         'verified_price': 150,
@@ -115,19 +123,21 @@ class CSVLoaderMixin:
         self.course_run_type = CourseRunType.objects.get(
             slug=CourseRunType.VERIFIED_AUDIT)
 
-    def _write_csv(self, csv, lines_dict_list):
+    def _write_csv(self, csv, lines_dict_list, headers=None):
         """
         Helper method to write given list of data dictionaries to csv, including the csv header.
         """
+        if headers is None:
+            headers = self.CSV_DATA_KEYS_ORDER
         header = ''
         lines = ''
-        for key in self.CSV_DATA_KEYS_ORDER:
+        for key in headers:
             title_case_key = key.replace('_', ' ').title()
             header = '{}{},'.format(header, title_case_key)
         header = f"{header[:-1]}\n"
 
         for line_dict in lines_dict_list:
-            for key in self.CSV_DATA_KEYS_ORDER:
+            for key in headers:
                 lines = '{}"{}",'.format(lines, line_dict[key])
             lines = f"{lines[:-1]}\n"
 

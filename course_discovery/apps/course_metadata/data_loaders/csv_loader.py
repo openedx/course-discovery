@@ -160,7 +160,6 @@ class CSVDataLoader(AbstractDataLoader):
         """
         pricing = self.get_pricing_representation(data['verified_price'], course_type)
 
-        # TODO: make appropriate timezone adjustment when it is confirmed if time values are in EST or UTC
         course_run_creation_fields = {
             'pacing_type': self.get_pacing_type(data['course_pacing']),
             'start': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
@@ -199,14 +198,17 @@ class CSVDataLoader(AbstractDataLoader):
             'prices': self.get_pricing_representation(data['verified_price'], course.type),
 
             'title': data['title'],
-            'syllabus_raw': data['syllabus'],
+            'syllabus_raw': self.get_dict_key_value(data, 'syllabus'),
             'level_type': data['course_level'],
             'outcome': data['what_will_you_learn'],
-            'faq': data['frequently_asked_questions'],
-            'video': {'src': data['about_video_link']},
-            'prerequisites_raw': data['prerequisites'],
+            'faq': self.get_dict_key_value(data, 'frequently_asked_questions'),
+            'video': {'src': self.get_dict_key_value(data, 'about_video_link')},
+            'prerequisites_raw': self.get_dict_key_value(data, 'prerequisites'),
             'full_description': data['long_description'],
             'short_description': data['short_description'],
+            'learner_testimonials': self.get_dict_key_value(data, 'learner_testimonials'),
+            'additional_information': self.get_dict_key_value(data, 'additional_information'),
+            'additional_metadata': self.get_additional_metadata_dict(data),
             'learner_testimonials': data['learner_testimonials'],
             'additional_information': data['additional_information'],
             'organization_short_code_override': data.get('organization_short_code_override', ''),
@@ -229,8 +231,8 @@ class CSVDataLoader(AbstractDataLoader):
         """
         Create and return the request data for making a patch call to update the course run.
         """
-        program_type = data['expected_program_type']
-        staff_uuids = self.process_staff_names(data['staff'], course_run.key)
+        program_type = self.get_dict_key_value(data, 'expected_program_type')
+        staff_uuids = self.process_staff_names(self.get_dict_key_value(data, 'staff'), course_run.key)
         content_language = self.verify_and_get_language_tags(data['content_language'])
         transcript_language = self.verify_and_get_language_tags(data['transcript_language'])
 
@@ -245,12 +247,13 @@ class CSVDataLoader(AbstractDataLoader):
             'min_effort': data['minimum_effort'],
             'max_effort': data['maximum_effort'],
             'content_language': content_language[0],
-            'expected_program_name': data['expected_program_name'],
+            'expected_program_name': self.get_dict_key_value(data, 'expected_program_name'),
             'transcript_languages': transcript_language,
             'go_live_date': self.get_formatted_datetime_string(data['publish_date']),
             'expected_program_type': program_type if program_type in self.PROGRAM_TYPES else None,
             'upgrade_deadline_override': self.get_formatted_datetime_string(
-                f"{data['upgrade_deadline_override_date']} {data['upgrade_deadline_override_time']}".strip()
+                f"{self.get_dict_key_value(data, 'upgrade_deadline_override_date')} "
+                f"{self.get_dict_key_value(data, 'upgrade_deadline_override_time')}".strip()
             ),
         }
         return update_course_run_data
@@ -353,10 +356,10 @@ class CSVDataLoader(AbstractDataLoader):
         """
         Complete the review phase of the course run and publish(internally by model save) if applicable.
         """
-        has_ofac_restrictions = data['course_embargo_(ofac)_restriction_text_added_to_the_faq_section'].lower() in [
-            'yes', '1', 'true'
-        ]
-        ofac_comment = data.get('ofac_comment', '')
+        has_ofac_restrictions = self.get_dict_key_value(
+            data, 'course_embargo_(ofac)_restriction_text_added_to_the_faq_section'
+        ).lower() in ['yes', '1', 'true']
+        ofac_comment = self.get_dict_key_value(data, 'ofac_comment')
         course_run.complete_review_phase(has_ofac_restrictions, ofac_comment)
 
     def transform_dict_keys(self, data):
@@ -462,7 +465,7 @@ class CSVDataLoader(AbstractDataLoader):
         Process and return a representation of dict object, if applicable, for header and blurb fields.
         """
         if not (heading or blurb):
-            return None
+            return ''
         else:
             return {
                 'heading': heading,
@@ -482,3 +485,38 @@ class CSVDataLoader(AbstractDataLoader):
         if stat2_dict:
             stats.append(stat2_dict)
         return stats
+
+    def get_dict_key_value(self, data, key, value=''):
+        """
+        Helper method to get a key value from dict and return a default value if not present.
+        """
+        return data.get(key, value)
+
+    def get_additional_metadata_dict(self, data):
+        """
+        Return the appropriate additional metadata dict representation, skipping the keys that are not
+        present in the input data dict.
+        """
+        additional_metadata = {
+            'external_url': data['redirect_url'],
+            'external_identifier': data['external_identifier'],
+        }
+        lead_capture_url = self.get_dict_key_value(data, 'lead_capture_form_url')
+        certificate_info = self.process_heading_blurb(
+            self.get_dict_key_value(data, 'certificate_header'),
+            self.get_dict_key_value(data, 'certificate_text')
+        )
+        facts = self.process_stats(
+            self.get_dict_key_value(data, 'stat1'),
+            self.get_dict_key_value(data, 'stat1_text'),
+            self.get_dict_key_value(data, 'stat2'),
+            self.get_dict_key_value(data, 'stat2_text')
+
+        )
+        if lead_capture_url:
+            additional_metadata.update({'lead_capture_form_url': lead_capture_url})
+        if certificate_info:
+            additional_metadata.update({'certificate_info': certificate_info})
+        if facts:
+            additional_metadata.update({'facts': facts})
+        return additional_metadata
