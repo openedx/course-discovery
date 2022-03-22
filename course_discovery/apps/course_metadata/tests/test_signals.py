@@ -10,7 +10,7 @@ from django.test import TestCase
 from factory.django import DjangoModelFactory
 from pytz import UTC
 
-from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
+from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt, OAuth2Mixin
 from course_discovery.apps.course_metadata.algolia_models import (
     AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram, SearchDefaultResultsConfiguration
 )
@@ -28,10 +28,9 @@ LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
 
 
 @pytest.mark.django_db
-@mock.patch('course_discovery.apps.core.models.OAuthAPIClient.put')
 @mock.patch('course_discovery.apps.api.cache.set_api_timestamp')
-class TestCacheInvalidation:
-    def test_model_change(self, mock_set_api_timestamp, mock_oauth):
+class TestCacheInvalidation(OAuth2Mixin):
+    def test_model_change(self, mock_set_api_timestamp):
         """
         Verify that the API cache is invalidated after course_metadata models
         are saved or deleted.
@@ -66,7 +65,6 @@ class TestCacheInvalidation:
             instance = factory()
 
             assert mock_set_api_timestamp.called
-            assert mock_oauth.called
             mock_set_api_timestamp.reset_mock()
 
             instance.delete()
