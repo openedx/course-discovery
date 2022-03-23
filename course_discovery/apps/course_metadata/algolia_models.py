@@ -3,8 +3,8 @@ import itertools
 
 import pytz
 from django.db import models
+from django.utils.translation import gettext as _
 from django.utils.translation import override
-from django.utils.translation import ugettext as _
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -51,8 +51,9 @@ def delegate_attributes(cls):
                      'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index']
-    result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'active_run_key',
-                     'active_run_start', 'active_run_type', 'owners', 'program_types', 'course_titles', 'tags']
+    result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'product_weeks_to_complete',
+                     'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
+                     'active_run_type', 'owners', 'program_types', 'course_titles', 'tags']
     object_id_field = ['custom_object_id', ]
     fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -199,6 +200,18 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return None
 
     @property
+    def product_weeks_to_complete(self):
+        return getattr(self.advertised_course_run, 'weeks_to_complete', None)
+
+    @property
+    def product_min_effort(self):
+        return getattr(self.advertised_course_run, 'min_effort', None)
+
+    @property
+    def product_max_effort(self):
+        return getattr(self.advertised_course_run, 'max_effort', None)
+
+    @property
     def owners(self):
         return get_owners(self)
 
@@ -278,6 +291,19 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             return self.card_image.url
         # legacy field for programs with images hosted outside of discovery
         return self.card_image_url
+
+    @property
+    def product_weeks_to_complete(self):
+        # The field `weeks_to_complete` for Programs is now deprecated.
+        return None
+
+    @property
+    def product_min_effort(self):
+        return self.min_hours_effort_per_week
+
+    @property
+    def product_max_effort(self):
+        return self.max_hours_effort_per_week
 
     @property
     def subject_names(self):

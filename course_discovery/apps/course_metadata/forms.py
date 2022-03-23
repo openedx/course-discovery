@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.utils import ErrorList
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Course, CourseRun, Pathway, Program
@@ -51,6 +51,9 @@ class ProgramAdminForm(forms.ModelForm):
         self.fields['courses'].required = False
 
     def clean(self):
+
+        super().clean()
+
         status = self.cleaned_data.get('status')
         banner_image = self.cleaned_data.get('banner_image')
 

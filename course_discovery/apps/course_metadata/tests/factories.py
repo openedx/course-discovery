@@ -28,6 +28,11 @@ class AbstractTitleDescriptionFactory(factory.django.DjangoModelFactory):
     description = FuzzyText()
 
 
+class AbstractHeadingBlurbModelFactory(factory.django.DjangoModelFactory):
+    heading = FuzzyText(length=255)
+    blurb = FuzzyText()
+
+
 class ImageFactory(AbstractMediaModelFactory):
     height = 100
     width = 100
@@ -67,12 +72,29 @@ class TopicFactory(factory.django.DjangoModelFactory):
     uuid = factory.LazyFunction(uuid4)
 
 
+class FactFactory(AbstractHeadingBlurbModelFactory):
+    class Meta:
+        model = Fact
+
+
+class CertificateInfoFactory(AbstractHeadingBlurbModelFactory):
+    class Meta:
+        model = CertificateInfo
+
+
 class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = AdditionalMetadata
 
     external_identifier = FuzzyText()
     external_url = FuzzyURL()
+    lead_capture_form_url = FuzzyURL()
+    certificate_info = factory.SubFactory(CertificateInfoFactory)
+
+    @factory.post_generation
+    def facts(self, create, extracted, **kwargs):
+        if create:  # pragma: no cover
+            add_m2m_data(self.facts, extracted)
 
 
 class LevelTypeFactory(AbstractNamedModelFactory):
@@ -209,7 +231,7 @@ class CourseTypeFactory(factory.django.DjangoModelFactory):
 
 class CourseFactory(SalesforceRecordFactory):
     uuid = factory.LazyFunction(uuid4)
-    key = FuzzyText(prefix='course-id/')
+    key = FuzzyText(prefix='course-id+')
     key_for_reruns = FuzzyText(prefix='OrgX+')
     title = FuzzyText(prefix="Test çօմɾʂҽ ")
     short_description = FuzzyText(prefix="Test çօմɾʂҽ short description")
@@ -291,7 +313,7 @@ class CourseEditorFactory(factory.django.DjangoModelFactory):
 class CourseRunFactory(SalesforceRecordFactory):
     status = CourseRunStatus.Published
     uuid = factory.LazyFunction(uuid4)
-    key = FuzzyText(prefix='course-run-id/', suffix='/fake')
+    key = FuzzyText(prefix='course-v1:org+', suffix='+fake')
     external_key = None
     course = factory.SubFactory(CourseFactory)
     title_override = None

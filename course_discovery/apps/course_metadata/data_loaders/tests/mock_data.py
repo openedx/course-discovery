@@ -3113,6 +3113,13 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'upgrade_deadline_override_time': '00:00',
     'redirect_url': 'http://www.example.com',
     'external_identifier': '123456789',
+    'lead_capture_form_url': 'http://www.interest-form.com?id=1234',
+    'certificate_header': 'About the certificate',
+    'certificate_text': 'For special people',
+    'stat1': '90 million',
+    'stat1_text': 'Bacterias cottage cost',
+    'stat2': 'Diamond mine',
+    'stat2_text': 'Worth it'
 }
 
 INVALID_ORGANIZATION_DATA = {

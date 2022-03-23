@@ -65,6 +65,7 @@ THIRD_PARTY_APPS = [
     'algoliasearch_django',
     'taxonomy',
     'django_object_actions',
+    'nested_admin',
 ]
 
 ALGOLIA = {
@@ -628,10 +629,6 @@ CELERY_TASK_ALWAYS_EAGER = False
 ################################### END CELERY ###################################
 
 FIRE_UPDATE_COURSE_SKILLS_SIGNAL = False
-
-# Learner Pathway
-# Disable learner pathway on all environment except devstack and testing.
-ENABLE_LEARNER_PATHWAY = False
 
 DISCOVERY_BASE_URL = "http://localhost:18381"
 

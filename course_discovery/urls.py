@@ -20,7 +20,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.i18n import JavaScriptCatalog
 from drf_yasg.views import get_schema_view
 from edx_api_doc_tools import make_api_info
@@ -57,12 +57,8 @@ urlpatterns = oauth2_urlpatterns + [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
     url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
+    url(r'^api/', include('course_discovery.apps.learner_pathway.api.urls', namespace='learner_pathway_api')),
 ]
-
-if settings.ENABLE_LEARNER_PATHWAY:
-    urlpatterns += [
-        url(r'^api/', include('course_discovery.apps.learner_pathway.api.urls', namespace='learner_pathway_api')),
-    ]
 
 # edx-drf-extensions csrf app
 urlpatterns += [

@@ -20,7 +20,7 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
     LearnerPathway Elasticsearch document.
     """
 
-    name = fields.TextField(
+    title = fields.TextField(
         analyzer=synonym_text,
         fields={
             'suggest': fields.CompletionField(),
@@ -45,7 +45,7 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
         return 'learnerpathway:{}'.format(obj.uuid)
 
     def prepare_partner(self, obj):
-        return obj.partner.short_code
+        return obj.partner.short_code if obj.partner else ''
 
     def prepare_published(self, obj):
         return obj.status == PathwayStatus.Active

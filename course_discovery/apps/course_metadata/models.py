@@ -15,12 +15,13 @@ from django.core.validators import FileExtensionValidator
 from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
+from opaque_keys.edx.keys import CourseKey
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
@@ -150,6 +151,20 @@ class AbstractTitleDescriptionModel(TimeStampedModel):
         if self.title:
             return self.title
         return self.description
+
+    class Meta:
+        abstract = True
+
+
+class AbstractHeadingBlurbModel(TimeStampedModel):
+    """ Abstract base class for models with a heading and html blurb pair. """
+    heading = models.CharField(max_length=255, blank=True, null=False)
+    blurb = NullHtmlField()
+
+    def __str__(self):
+        if self.heading:
+            return self.heading
+        return self.blurb
 
     class Meta:
         abstract = True
@@ -589,6 +604,14 @@ class TopicTranslation(TranslatedFieldsModel):
         verbose_name = _('Topic model translations')
 
 
+class Fact(AbstractHeadingBlurbModel):
+    """ Fact Model """
+
+
+class CertificateInfo(AbstractHeadingBlurbModel):
+    """ Certificate Information Model """
+
+
 class AdditionalMetadata(TimeStampedModel):
     """
     This model holds 2U related additional fields
@@ -596,6 +619,14 @@ class AdditionalMetadata(TimeStampedModel):
 
     external_url = models.URLField(blank=False, null=False)
     external_identifier = models.CharField(max_length=255, blank=True, null=False)
+    lead_capture_form_url = models.URLField(blank=True, null=False)
+    facts = models.ManyToManyField(
+        Fact, blank=True, related_name='related_course_additional_metadata',
+    )
+    certificate_info = models.ForeignKey(
+        CertificateInfo, models.CASCADE, default=None, null=True, blank=True,
+        related_name='related_course_additional_metadata',
+    )
 
     def __str__(self):
         return f"{self.external_url} - {self.external_identifier}"
@@ -1982,6 +2013,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         """
         if not self.type.is_marketable:
             return False
+        if CourseKey.from_string(self.key).deprecated:  # Old Mongo courses are not marketed
+            return False
         return not self.draft
 
     @property
@@ -2024,7 +2057,11 @@ class Seat(DraftModelMixin, TimeStampedModel):
     CREDIT = 'credit'
     MASTERS = 'masters'
     EXECUTIVE_EDUCATION = 'executive-education'
-    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION]
+    PAID_EXECUTIVE_EDUCATION = 'paid-executive-education'
+    UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education'
+    ENTITLEMENT_MODES = [
+        VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION, PAID_EXECUTIVE_EDUCATION
+    ]
     REQUIRES_AUDIT_SEAT = [VERIFIED]
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.

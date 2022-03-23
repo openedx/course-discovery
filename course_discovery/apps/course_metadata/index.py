@@ -69,8 +69,9 @@ class EnglishProductIndex(BaseProductIndex):
                     ('staff_slugs', 'staff'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
-                     ('product_uuid', 'uuid'), 'active_run_key', 'active_run_start', 'active_run_type', 'owners',
-                     'course_titles', 'tags')
+                     ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
+                     ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'), 'active_run_key',
+                     'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags')
     # Algolia needs this
     object_id_field = (('custom_object_id', 'objectID'), )
     fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
@@ -102,8 +103,9 @@ class SpanishProductIndex(BaseProductIndex):
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
                       'promoted_in_spanish_index')
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
-                     ('product_uuid', 'uuid'), 'active_run_key', 'active_run_start', 'active_run_type', 'owners',
-                     'course_titles', 'tags')
+                     ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
+                     ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'), 'active_run_key',
+                     'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags')
     # Algolia uses objectID as unique identifier. Can't use straight uuids because a program and a course could
     # have the same one, so we add 'course' or 'program' as a prefix
     object_id_field = (('custom_object_id', 'objectID'), )

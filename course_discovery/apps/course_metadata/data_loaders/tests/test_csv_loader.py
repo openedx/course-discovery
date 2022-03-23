@@ -13,7 +13,7 @@ from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDat
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
 from course_discovery.apps.course_metadata.models import Course, CourseRun
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, OrganizationFactory
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.csv_loader'
 
@@ -85,6 +85,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'ERROR',
                         'Organization invalid-organization does not exist in database. Skipping CSV '
                         'loader for course CSV Course'
+                    ),
+                    (
+                        LOGGER_PATH,
+                        'ERROR',
+                        '[MISSING ORGANIZATION] org: invalid-organization, course: CSV Course'
                     )
                 )
                 assert Course.objects.count() == 0
@@ -178,6 +183,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             LOGGER_PATH,
                             'ERROR',
                             'Unexpected error happened while downloading image for course edx+csv_123'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'ERROR',
+                            '[IMAGE DOWNLOAD FAILURE] course CSV Course'
                         )
                     )
 
@@ -310,6 +320,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             LOGGER_PATH,
                             'ERROR',
                             'An unknown error occurred while updating course run information'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'ERROR',
+                            '[COURSE RUN UPDATE ERROR] course CSV Course'
                         )
                     )
 
@@ -374,3 +389,62 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 course_run = CourseRun.everything.filter(course=course).first()
 
                 assert course_run.status == 'published'
+
+    @responses.activate
+    def test_active_slug(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the correct slug is created for two courses with same title in different organizations.
+        """
+        test_org = OrganizationFactory(name='testOrg', key='testOrg', partner=self.partner)
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_image_response()
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(
+                csv, [
+                    mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+                    {**mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT, 'organization': test_org.key}
+                ]
+            )
+
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader.ingest()
+
+                    self._assert_default_logs(log_capture)
+
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Course key edx+csv_123 could not be found in database, creating the course.'
+                        )
+                    )
+
+                    assert Course.everything.count() == 2
+                    assert CourseRun.everything.count() == 2
+
+                    course1 = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+                    course2 = Course.everything.get(key='testOrg+csv_123', partner=self.partner)
+
+                    assert course1.active_url_slug == 'csv-course'
+                    assert course2.active_url_slug == 'csv-course-2'
+
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            '{}:CSV Course'.format(course1.uuid)
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            '{}:CSV Course'.format(course2.uuid)
+                        )
+                    )

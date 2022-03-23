@@ -13,7 +13,7 @@ from course_discovery.apps.learner_pathway.tests.factories import (
 USER_PASSWORD = 'QWERTY'
 LEARNER_PATHWAY_DATA = {
     'uuid': '6b8742ce-f294-4674-aacb-34fbf75249de',
-    'name': 'journey to comics',
+    'title': 'journey to comics',
     'status': PathwayStatus.Active,
     'banner_image': '',
     'overview': 'learn all about Marvel and DC',
@@ -60,7 +60,7 @@ class TestLearnerPathwayViewSet(TestCase):
         # create learner pathway data
         self.learner_pathway = LearnerPathwayFactory(
             uuid=LEARNER_PATHWAY_DATA['uuid'],
-            name=LEARNER_PATHWAY_DATA['name'],
+            title=LEARNER_PATHWAY_DATA['title'],
             status=LEARNER_PATHWAY_DATA['status'],
             overview=LEARNER_PATHWAY_DATA['overview'],
         )
@@ -94,7 +94,7 @@ class TestLearnerPathwayViewSet(TestCase):
 
         # verify pathway data
         assert data['uuid'] == expected_data['uuid']
-        assert data['name'] == expected_data['name']
+        assert data['title'] == expected_data['title']
         assert data['status'] == expected_data['status']
         assert data['overview'] == expected_data['overview']
         # course card_image_url should not be empty

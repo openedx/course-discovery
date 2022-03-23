@@ -1,14 +1,13 @@
 from adminsortable2.admin import SortableAdminMixin
 from dal import autocomplete
-from django.conf.urls import url
 from django.contrib import admin, messages
 from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import re_path, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
 from waffle import get_waffle_flag_model
@@ -158,12 +157,12 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
         Returns the additional urls used by the custom object tools.
         """
         additional_urls = [
-            url(
+            re_path(
                 r"^([^/]+)/course_skills$",
                 self.admin_site.admin_view(CourseSkillsView.as_view()),
                 name=COURSE_SKILLS_URL_NAME
             ),
-            url(
+            re_path(
                 r"^([^/]+)/refresh_course_skills$",
                 self.admin_site.admin_view(RefreshCourseSkillsView.as_view()),
                 name=REFRESH_COURSE_SKILLS_URL_NAME
@@ -410,14 +409,52 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
         ])
 
 
+@admin.register(Fact)
+class FactAdmin(admin.ModelAdmin):
+    list_display = ('heading', 'blurb', 'courses')
+    search_fields = ('heading', 'blurb',)
+
+    def courses(self, obj):
+
+        def _get_course_keys(additional_metadata_object):
+            return ', '.join([course.key for course in additional_metadata_object.related_courses.all()])
+
+        return ', '.join([
+            _get_course_keys(metadata) for metadata in obj.related_course_additional_metadata.all()
+        ])
+
+
+@admin.register(CertificateInfo)
+class CertificateInfoAdmin(admin.ModelAdmin):
+    list_display = ('heading', 'blurb', 'courses')
+    search_fields = ('heading', 'blurb',)
+
+    def courses(self, obj):
+
+        def _get_course_keys(additional_metadata_object):
+            return ', '.join([course.key for course in additional_metadata_object.related_courses.all()])
+
+        return ', '.join([
+            _get_course_keys(metadata) for metadata in obj.related_course_additional_metadata.all()
+        ])
+
+
 @admin.register(AdditionalMetadata)
 class AdditionalMetadataAdmin(admin.ModelAdmin):
-    list_display = ('id', 'external_identifier', 'external_url', 'courses')
+    list_display = (
+        'id', 'external_identifier', 'external_url', 'lead_capture_form_url',
+        'courses', 'facts_list', 'certificate_info'
+    )
     search_fields = ('external_identifier', 'external_url')
 
     def courses(self, obj):
         return ', '.join([
             course.key for course in obj.related_courses.all()
+        ])
+
+    def facts_list(self, obj):
+        return ', '.join([
+            fact.heading for fact in obj.facts.all()
         ])
 
 

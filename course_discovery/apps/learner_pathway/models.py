@@ -7,7 +7,7 @@ from uuid import uuid4
 
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from opaque_keys.edx.django.models import UsageKeyField
 from stdimage.models import StdImageField
 from taxonomy.utils import get_whitelisted_serialized_skills
@@ -79,7 +79,7 @@ class LearnerPathway(models.Model):
     Top level model for learner pathway.
     """
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
-    name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Pathway name'))
+    title = models.CharField(max_length=255, null=False, blank=False, help_text=_('Title of the learner pathway.'))
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     visible_via_association = models.BooleanField(
         default=True, help_text=_('Course/Program associated pathways also appear in search results')
@@ -133,13 +133,13 @@ class LearnerPathway(models.Model):
         """
         Create a human-readable string representation of the object.
         """
-        return f'{self.name} - {self.uuid}'
+        return f'{self.title} - {self.uuid}'
 
     def __repr__(self):
         """
         Return string representation.
         """
-        return f'<LearnerPathway name="{self.name}" uuid="{self.uuid}">'
+        return f'<LearnerPathway title="{self.title}" uuid="{self.uuid}">'
 
 
 class LearnerPathwayStep(models.Model):
@@ -189,7 +189,7 @@ class LearnerPathwayStep(models.Model):
         """
         Create a human-readable string representation of the object.
         """
-        return f'UUID: {self.uuid}, Pathway: {self.pathway.name}'
+        return f'UUID: {self.uuid}, Pathway: {self.pathway.title}'
 
     def __repr__(self):
         """
