@@ -1,11 +1,10 @@
 from adminsortable2.admin import SortableAdminMixin
 from dal import autocomplete
-from django.conf.urls import url
 from django.contrib import admin, messages
 from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import re_path, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -158,12 +157,12 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
         Returns the additional urls used by the custom object tools.
         """
         additional_urls = [
-            url(
+            re_path(
                 r"^([^/]+)/course_skills$",
                 self.admin_site.admin_view(CourseSkillsView.as_view()),
                 name=COURSE_SKILLS_URL_NAME
             ),
-            url(
+            re_path(
                 r"^([^/]+)/refresh_course_skills$",
                 self.admin_site.admin_view(RefreshCourseSkillsView.as_view()),
                 name=REFRESH_COURSE_SKILLS_URL_NAME
