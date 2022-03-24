@@ -1,6 +1,6 @@
 from django.core.management import BaseCommand, CommandError
 from django.db.models import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from course_discovery.apps.course_metadata.data_loaders.course_type import calculate_course_type
 from course_discovery.apps.course_metadata.models import BackpopulateCourseTypeConfig, Course, CourseRunType, CourseType

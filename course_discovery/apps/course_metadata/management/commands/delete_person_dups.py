@@ -2,7 +2,7 @@ import logging
 
 from django.core.management import BaseCommand, CommandError
 from django.db import transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from course_discovery.apps.course_metadata.exceptions import MarketingSiteAPIClientException
 from course_discovery.apps.course_metadata.models import DeletePersonDupsConfig, Endorsement, Partner, Person
