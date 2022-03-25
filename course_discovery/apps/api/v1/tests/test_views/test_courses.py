@@ -1020,6 +1020,24 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert course.level_type == beginner
 
     @responses.activate
+    def test_override_with_shortcode_and_logo_image(self):
+        course = CourseFactory()
+        payload = {
+            'organization_logo_override':
+                'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                '42YAAAAASUVORK5CYII=',
+            'organization_short_code_override': 'test_org'
+        }
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        response = self.client.patch(url, payload, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        serialized_course_data = self.serialize_course(course)
+        self.assertEqual(serialized_course_data['organization_short_code_override'], 'test_org')
+        self.assertDictEqual(response.data, serialized_course_data)
+        assert serialized_course_data['organization_logo_override_url'] is not None
+
+    @responses.activate
     def test_update_with_additional_metadata(self):
         course = CourseFactory(additional_metadata=None)
 

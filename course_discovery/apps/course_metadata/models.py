@@ -889,6 +889,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     # HTML that isn't normally allowed.
     additional_information = models.TextField(blank=True, null=True, default=None,
                                               verbose_name=_('Additional Information'))
+    organization_short_code_override = models.CharField(max_length=255, blank=True)
+    organization_logo_override = models.ImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/logo_override'),
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(['png'])]
+    )
 
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
@@ -916,6 +923,12 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             return self.image.small.url
 
         return self.card_image_url
+
+    @property
+    def organization_logo_override_url(self):
+        if self.organization_logo_override:
+            return self.organization_logo_override.url
+        return None
 
     @property
     def original_image_url(self):
