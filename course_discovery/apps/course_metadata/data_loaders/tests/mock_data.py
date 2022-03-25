@@ -3119,7 +3119,9 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'stat1': '90 million',
     'stat1_text': 'Bacterias cottage cost',
     'stat2': 'Diamond mine',
-    'stat2_text': 'Worth it'
+    'stat2_text': 'Worth it',
+    'organization_short_code_override': 'Org Override',
+    'organization_logo_override': 'https://example.com/image.jpg'
 }
 
 INVALID_ORGANIZATION_DATA = {
