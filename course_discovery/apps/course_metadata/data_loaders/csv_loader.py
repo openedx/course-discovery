@@ -108,6 +108,19 @@ class CSVDataLoader(AbstractDataLoader):
                 self.messages_list.append('[COURSE UPDATE ERROR] course {}'.format(course_title))
                 continue
 
+            if row.get('organization_logo_override'):
+                course.refresh_from_db()
+                is_logo_downloaded = download_and_save_course_image(
+                    course,
+                    row['organization_logo_override'],
+                    'organization_logo_override'
+                )
+                if not is_logo_downloaded:
+                    logger.error("Unexpected error happened while downloading override logo image for course {}".format(
+                        course_key
+                    ))
+                    self.messages_list.append('[OVERRIDE IMAGE DOWNLOAD FAILURE] course {}'.format(course_title))
+
             # No need to update the course run if the run is already in the review
             if not course_run.in_review:
                 try:
@@ -196,6 +209,7 @@ class CSVDataLoader(AbstractDataLoader):
             'short_description': data['short_description'],
             'learner_testimonials': data['learner_testimonials'],
             'additional_information': data['additional_information'],
+            'organization_short_code_override': data.get('organization_short_code_override', ''),
             'additional_metadata': {
                 'external_url': data['redirect_url'],
                 'external_identifier': data['external_identifier'],
