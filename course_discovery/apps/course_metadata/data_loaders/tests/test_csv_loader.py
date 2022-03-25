@@ -230,6 +230,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     course_run = CourseRun.objects.get(course=course)
 
                     assert course.image.read() == image_content
+                    assert course.organization_logo_override.read() == image_content
                     self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
                     self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
 
@@ -334,6 +335,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
 
                     assert course.image.read() == image_content
+                    assert course.organization_logo_override.read() == image_content
                     self._assert_course_data(course, expected_course_response)
 
     @responses.activate
@@ -371,7 +373,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_ecommerce_publication(self.partner)
-        _, image_content = self.mock_image_response()  # pylint: disable=unused-variable
+        self.mock_image_response()  # pylint: disable=unused-variable
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])

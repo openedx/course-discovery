@@ -686,10 +686,10 @@ def clean_html(content):
     return cleaned
 
 
-def download_and_save_course_image(course, image_url):
+def download_and_save_course_image(course, image_url, data_field='image'):
     """
     Helper method to download an image from a provided image url and save it
-    as course card image.
+    in the data field mentioned, defaulting to course card image.
     """
     try:
         response = requests.get(image_url)
@@ -700,7 +700,12 @@ def download_and_save_course_image(course, image_url):
 
             if extension:
                 filename = '{uuid}.{extension}'.format(uuid=str(course.uuid), extension=extension)
-                course.image.save(filename, ContentFile(response.content))
+                # TODO: Get field from _meta.get_field. Tried that approach initially but was getting
+                # field save errors for some reasons.
+                if data_field == 'image':
+                    course.image.save(filename, ContentFile(response.content))
+                elif data_field == 'organization_logo_override':
+                    course.organization_logo_override.save(filename, ContentFile(response.content))
                 logger.info('Image for course [%s] successfully updated.', course.key)
                 return True
             else:

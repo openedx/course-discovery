@@ -60,7 +60,8 @@ class CSVLoaderMixin:
         'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language',
         'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
         'upgrade_deadline_override_time', 'redirect_url', 'external_identifier', 'lead_capture_form_url',
-        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text'
+        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text',
+        'organization_logo_override', 'organization_short_code_override'
     ]
     BASE_EXPECTED_COURSE_DATA = {
         'draft': False,
@@ -82,6 +83,7 @@ class CSVLoaderMixin:
         'external_url': 'http://www.example.com',
         'external_identifier': '123456789',
         'lead_capture_form_url': 'http://www.interest-form.com?id=1234',
+        'organization_short_code_override': 'Org Override',
         'certificate_info': {
             'heading': 'About the certificate',
             'blurb': 'For special people'
@@ -208,6 +210,7 @@ class CSVLoaderMixin:
         assert course.level_type.name_t == expected_data['level_type']
         assert course.video.src == expected_data['about_video_link']
         assert course.type == self.course_type
+        assert course.organization_short_code_override == 'Org Override'
         assert course_entitlement.price == expected_data['verified_price']
         assert course.additional_metadata.external_url == expected_data['external_url']
         assert course.additional_metadata.external_identifier == expected_data['external_identifier']
