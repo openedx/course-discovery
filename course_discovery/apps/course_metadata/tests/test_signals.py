@@ -53,7 +53,7 @@ class TestCacheInvalidation:
                          DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, SubjectTranslation,
                          TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
                          BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
-                         AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation,
+                         AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation, Organization,
                          LevelTypeTranslation, SearchDefaultResultsConfiguration, BulkUpdateImagesConfig]:
                 continue
             if 'abstract' in model.__name__.lower() or 'historical' in model.__name__.lower():
@@ -66,10 +66,7 @@ class TestCacheInvalidation:
             # Verify that model creation and deletion invalidates the API cache.
             instance = factory()
 
-            if model == Organization:
-                assert mock_push_organization.called
-
-            assert mock_set_api_timestamp.called
+            assert mock_set_api_timestamp.called, f'Model name {model.__name__.lower()}'
             mock_set_api_timestamp.reset_mock()
 
             instance.delete()
