@@ -90,13 +90,19 @@ def _find_in_programs(existing_programs, target_curriculum=None, target_program=
     return _find_in_programs(child_programs, target_curriculum=target_curriculum, target_program=target_program)
 
 
-# Invalidate API cache when any model in the course_metadata app is saved or
-# deleted. Given how interconnected our data is and how infrequently our models
-# change (data loading aside), this is a clean and simple way to ensure correctness
-# of the API while providing closer-to-optimal cache TTLs.
-for model in apps.get_app_config('course_metadata').get_models():
-    for signal in (post_save, post_delete):
-        signal.connect(api_change_receiver, sender=model)
+def connect_api_change_receiver():
+    """
+    Invalidate API cache when any model in the course_metadata app is saved or
+    deleted. Given how interconnected our data is and how infrequently our models
+    change (data loading aside), this is a clean and simple way to ensure correctness
+    of the API while providing closer-to-optimal cache TTLs.
+    """
+    for model in apps.get_app_config('course_metadata').get_models():
+        for signal in (post_save, post_delete):
+            signal.connect(api_change_receiver, sender=model)
+
+
+connect_api_change_receiver()
 
 
 @receiver(pre_save, sender=CourseRun)
