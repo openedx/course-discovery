@@ -631,7 +631,10 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
 
     class Meta:
         model = AdditionalMetadata
-        fields = ('external_identifier', 'external_url', 'lead_capture_form_url', 'facts', 'certificate_info')
+        fields = (
+            'external_identifier', 'external_url', 'lead_capture_form_url',
+            'facts', 'certificate_info', 'organic_url'
+        )
 
 
 class CourseRunTypeSerializer(BaseModelSerializer):

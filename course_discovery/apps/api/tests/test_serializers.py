@@ -1914,7 +1914,8 @@ class AdditionalMetadataSerializerTests(TestCase):
             'external_url': additional_metadata.external_url,
             'lead_capture_form_url': additional_metadata.lead_capture_form_url,
             'certificate_info': CertificateInfoSerializer(additional_metadata.certificate_info).data,
-            'facts': FactSerializer(additional_metadata.facts, many=True).data
+            'facts': FactSerializer(additional_metadata.facts, many=True).data,
+            'organic_url': additional_metadata.organic_url,
         }
         assert serializer.data == expected
 
