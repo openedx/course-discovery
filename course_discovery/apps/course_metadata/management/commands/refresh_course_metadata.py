@@ -17,6 +17,7 @@ from course_discovery.apps.course_metadata.data_loaders.api import (
     CoursesApiDataLoader, EcommerceApiDataLoader, ProgramsApiDataLoader
 )
 from course_discovery.apps.course_metadata.models import Course, DataLoaderConfig, Image, Video
+from course_discovery.apps.course_metadata.signals import connect_api_change_receiver
 
 logger = logging.getLogger(__name__)
 
@@ -69,14 +70,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        # We only want to invalidate the API response cache once data loading
-        # completes. Disconnecting the api_change_receiver function from post_save
-        # and post_delete signals prevents model changes during data loading from
-        # repeatedly invalidating the cache.
-        for model in apps.get_app_config('course_metadata').get_models():
-            for signal in (post_save, post_delete):
-                signal.disconnect(receiver=api_change_receiver, sender=model)
-
         # For each partner defined...
         partners = Partner.objects.all()
 
@@ -87,6 +80,14 @@ class Command(BaseCommand):
 
         if not partners:
             raise CommandError('No partners available!')
+
+        # We only want to invalidate the API response cache once data loading
+        # completes. Disconnecting the api_change_receiver function from post_save
+        # and post_delete signals prevents model changes during data loading from
+        # repeatedly invalidating the cache.
+        for model in apps.get_app_config('course_metadata').get_models():
+            for signal in (post_save, post_delete):
+                signal.disconnect(receiver=api_change_receiver, sender=model)
 
         success = True
         for partner in partners:
@@ -179,6 +180,9 @@ class Command(BaseCommand):
         delete_orphans(Video)
 
         set_api_timestamp()
+
+        # Re-connect back the api_change_receiver receiver to post_save and post_delete signals
+        connect_api_change_receiver()
 
         if not success:
             raise CommandError('One or more of the data loaders above failed.')
