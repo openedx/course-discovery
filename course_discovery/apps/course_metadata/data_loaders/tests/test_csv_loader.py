@@ -497,6 +497,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'Organization,Title,Number,Course Enrollment track,Image,'
                         'Short Description,Long Description,</p>'
                     )
+                    assert course.syllabus_raw == '<p>Introduction to Algorithms</p>'
                     assert course.subjects.first().slug == "computer-science"
                     assert course.additional_metadata.external_url == 'http://www.example.com'
                     assert course.additional_metadata.external_identifier == '123456789'
