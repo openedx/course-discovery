@@ -199,6 +199,7 @@ class TestCourse(TestCase):
         self.assertEqual(course.additional_metadata.external_identifier, additional_metadata.external_identifier)
         self.assertEqual(course.additional_metadata.external_url, additional_metadata.external_url)
         self.assertEqual(course.additional_metadata.lead_capture_form_url, additional_metadata.lead_capture_form_url)
+        self.assertEqual(course.additional_metadata.organic_url, additional_metadata.organic_url)
         self.assertEqual(course.additional_metadata.certificate_info, additional_metadata.certificate_info)
         self.assertEqual(course.additional_metadata.facts, additional_metadata.facts)
 

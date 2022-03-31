@@ -443,7 +443,7 @@ class CertificateInfoAdmin(admin.ModelAdmin):
 class AdditionalMetadataAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'external_identifier', 'external_url', 'lead_capture_form_url',
-        'courses', 'facts_list', 'certificate_info'
+        'courses', 'facts_list', 'certificate_info', 'organic_url'
     )
     search_fields = ('external_identifier', 'external_url')
 
