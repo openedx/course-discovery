@@ -617,10 +617,16 @@ class AdditionalMetadata(TimeStampedModel):
     This model holds 2U related additional fields
     """
 
-    external_url = models.URLField(blank=False, null=False)
+    external_url = models.URLField(
+        blank=False, null=False, max_length=511,
+        help_text=_('The redirect URL of the course on external site')
+    )
     external_identifier = models.CharField(max_length=255, blank=True, null=False)
-    lead_capture_form_url = models.URLField(blank=True, null=False)
-    organic_url = models.URLField(blank=True, null=False)
+    lead_capture_form_url = models.URLField(blank=True, null=False, max_length=511)
+    organic_url = models.URLField(
+        blank=True, null=False, max_length=511,
+        help_text=_('The URL of the paid landing page on external site')
+    )
     facts = models.ManyToManyField(
         Fact, blank=True, related_name='related_course_additional_metadata',
     )
