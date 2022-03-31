@@ -5,7 +5,6 @@ from course_discovery.settings.shared.test import *
 
 INSTALLED_APPS += [
     'course_discovery.apps.edx_catalog_extensions',
-    'course_discovery.apps.taxonomy_support',
 ]
 
 ALLOWED_HOSTS = ['*']
