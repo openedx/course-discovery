@@ -69,7 +69,7 @@ class CSVLoaderMixin:
         'long_description', 'what_will_you_learn', 'course_level', 'primary_subject', 'verified_price', 'publish_date',
         'start_date', 'start_time', 'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing',
         'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language', 'redirect_url',
-        'external_identifier'
+        'external_identifier', 'syllabus'
     ]
     BASE_EXPECTED_COURSE_DATA = {
         'draft': False,
