@@ -450,3 +450,58 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             '{}:CSV Course'.format(course2.uuid)
                         )
                     )
+
+    @responses.activate
+    def test_ingest_flow_for_minimal_course_data(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the loader runs as expected for minimal set of data.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_image_response()
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(
+                csv, [mock_data.VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT], self.MINIMAL_CSV_DATA_KEYS_ORDER
+            )
+
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, is_draft=True)
+                    loader.ingest()
+
+                    self._assert_default_logs(log_capture)
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Course key edx+csv_123 could not be found in database, creating the course.'
+                        )
+                    )
+
+                    assert Course.everything.count() == 1
+                    assert CourseRun.everything.count() == 1
+
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+                    course_run = CourseRun.everything.get(course=course)
+
+                    # Asserting some required and optional values to verify the correctnesss
+                    assert course.title == 'CSV Course'
+                    assert course.short_description == '<p>Very short description</p>'
+                    assert course.full_description == (
+                        '<p>Organization,Title,Number,Course Enrollment track,Image,Short Description,Long Description,'
+                        'Organization,Title,Number,Course Enrollment track,Image,'
+                        'Short Description,Long Description,</p>'
+                    )
+                    assert course.syllabus_raw == '<p>Introduction to Algorithms</p>'
+                    assert course.subjects.first().slug == "computer-science"
+                    assert course.additional_metadata.external_url == 'http://www.example.com'
+                    assert course.additional_metadata.external_identifier == '123456789'
+                    assert course.additional_metadata.lead_capture_form_url == ''
+                    assert course.additional_metadata.certificate_info is None
+                    assert course.additional_metadata.facts.exists() is False
+                    assert course_run.staff.exists() is False

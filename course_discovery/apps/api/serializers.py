@@ -1118,7 +1118,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     collaborators = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
                                                        queryset=Collaborator.objects.all(),
                                                        read_serializer=CollaboratorSerializer())
-    organization_short_code_override = serializers.CharField(required=False)
+    organization_short_code_override = serializers.CharField(required=False, allow_blank=True)
     organization_logo_override_url = serializers.SerializerMethodField()
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
