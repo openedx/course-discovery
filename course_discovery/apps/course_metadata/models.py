@@ -2083,7 +2083,7 @@ class Seat(DraftModelMixin, TimeStampedModel):
     UNPAID_BOOTCAMP = 'unpaid-bootcamp'
     ENTITLEMENT_MODES = [
         VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION, PAID_EXECUTIVE_EDUCATION,
-        PAID_BOOTCAMP, UNPAID_BOOTCAMP
+        PAID_BOOTCAMP
     ]
     REQUIRES_AUDIT_SEAT = [VERIFIED]
     # Seat types that may not be purchased without first purchasing another Seat type.
