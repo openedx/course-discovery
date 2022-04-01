@@ -50,6 +50,8 @@ class CertificateType(DjangoChoices):
     Executive_Education = ChoiceItem('executive-education', _('Executive Education'))
     Paid_Executive_Education = ChoiceItem('paid-executive-education', _('Paid Executive Education'))
     Unpaid_Executive_Education = ChoiceItem('unpaid-executive-education', _('Unpaid Executive Education'))
+    Paid_Bootcamp = ChoiceItem('paid-bootcamp', _('Paid Bootcamp'))
+    Unpaid_Bootcamp = ChoiceItem('unpaid-bootcamp', _('Unpaid Bootcamp'))
 
 
 class PayeeType(DjangoChoices):

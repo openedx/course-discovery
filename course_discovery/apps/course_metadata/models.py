@@ -2079,8 +2079,11 @@ class Seat(DraftModelMixin, TimeStampedModel):
     EXECUTIVE_EDUCATION = 'executive-education'
     PAID_EXECUTIVE_EDUCATION = 'paid-executive-education'
     UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education'
+    PAID_BOOTCAMP = 'paid-bootcamp'
+    UNPAID_BOOTCAMP = 'unpaid-bootcamp'
     ENTITLEMENT_MODES = [
-        VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION, PAID_EXECUTIVE_EDUCATION
+        VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION, PAID_EXECUTIVE_EDUCATION,
+        PAID_BOOTCAMP, UNPAID_BOOTCAMP
     ]
     REQUIRES_AUDIT_SEAT = [VERIFIED]
     # Seat types that may not be purchased without first purchasing another Seat type.
