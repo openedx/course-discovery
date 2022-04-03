@@ -5,6 +5,7 @@ because they have direct dependency with models from course discovery.
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from model_utils.models import TimeStampedModel
+from solo.models import SingletonModel
 
 from course_discovery.apps.course_metadata.models import Course
 
@@ -44,3 +45,14 @@ class CourseRecommendation(TimeStampedModel):
         unique_together = ('course', 'recommended_course', )
         verbose_name = _('Course Recommendation')
         verbose_name_plural = _('Course Recommendations')
+
+
+class UpdateCourseRecommendationsConfig(SingletonModel):
+    """
+    Configuration for the update_course_recommendations management command.
+    """
+    all_courses = models.BooleanField(default=False, verbose_name=_('Adds recommendations for all published courses'))
+    uuids = models.TextField(default='', null=False, blank=True, verbose_name=_('Course uuids'))
+
+    def __str__(self):
+        return f'All Courses:{self.all_courses}, UUIDs: {self.uuids}'
