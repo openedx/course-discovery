@@ -1682,7 +1682,7 @@ msgstr "Inactif"
 
 #: apps/learner_pathway/models.py:82
 msgid "Title of the learner pathway."
-msgstr ""
+msgstr "Intitulé du parcours d'apprentissage."
 
 #: apps/learner_pathway/models.py:85
 msgid "Course/Program associated pathways also appear in search results"
