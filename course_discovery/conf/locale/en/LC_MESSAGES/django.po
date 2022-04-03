@@ -2,20 +2,21 @@
 # edX translation file
 # Copyright (C) 2018 edX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# EdX Team <info@edx.org>, 2018.
-#
+# 
+# Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-03-20 20:35+0000\n"
-"PO-Revision-Date: 2018-04-09 20:13+0000\n"
+"PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
-"Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
-"Language: en\n"
+"Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: apps/api/filters.py:47
 #, python-brace-format
@@ -215,7 +216,8 @@ msgid ""
 "Configure the analytics API that will be used to retrieve enrollment data"
 msgstr ""
 
-#. Translators: 'period_choices' is a list of possible values, like ('second', 'minute', 'hour')
+#. Translators: 'period_choices' is a list of possible values, like ('second',
+#. 'minute', 'hour')
 #: apps/core/forms.py:23
 #, python-brace-format
 msgid "period must be one of {period_choices}."
@@ -236,8 +238,8 @@ msgstr ""
 #: apps/core/models.py:33
 msgid ""
 "The rate of requests to limit this user to. The format is specified by "
-"Django Rest Framework (see http://www.django-rest-framework.org/api-guide/"
-"throttling/)."
+"Django Rest Framework (see http://www.django-rest-framework.org/api-"
+"guide/throttling/)."
 msgstr ""
 
 #: apps/core/models.py:53
@@ -296,8 +298,8 @@ msgstr ""
 
 #: apps/core/models.py:75
 msgid ""
-"The base URL of your publisher service, if used. Example: https://publisher."
-"example.com/"
+"The base URL of your publisher service, if used. Example: "
+"https://publisher.example.com/"
 msgstr ""
 
 #: apps/core/models.py:78
@@ -310,8 +312,8 @@ msgstr ""
 
 #: apps/core/models.py:81
 msgid ""
-"The public URL of your LMS Django admin. Example: https://lms-internal."
-"example.com/admin"
+"The public URL of your LMS Django admin. Example: https://lms-"
+"internal.example.com/admin"
 msgstr ""
 
 #: apps/core/models.py:83
@@ -357,8 +359,8 @@ msgstr ""
 #: apps/course_metadata/admin.py:29
 #, python-brace-format
 msgid ""
-"An error occurred while publishing the {model} to the marketing site. Please "
-"try again. If the error persists, please contact the Engineering Team."
+"An error occurred while publishing the {model} to the marketing site. Please"
+" try again. If the error persists, please contact the Engineering Team."
 msgstr ""
 
 #: apps/course_metadata/admin.py:49
@@ -424,13 +426,15 @@ msgstr ""
 msgid "Published"
 msgstr ""
 
-#. Translators: Instructor-paced refers to course runs that operate on a schedule set by the instructor,
+#. Translators: Instructor-paced refers to course runs that operate on a
+#. schedule set by the instructor,
 #. similar to a normal university course.
 #: apps/course_metadata/choices.py:25
 msgid "Instructor-paced"
 msgstr ""
 
-#. Translators: Self-paced refers to course runs that operate on the student's schedule.
+#. Translators: Self-paced refers to course runs that operate on the student's
+#. schedule.
 #: apps/course_metadata/choices.py:27
 msgid "Self-paced"
 msgstr ""
@@ -537,8 +541,8 @@ msgstr ""
 #: apps/course_metadata/emails.py:99
 #, python-brace-format
 msgid ""
-"Not sending notification email for template {template} because no studio URL "
-"is defined for partner {partner}"
+"Not sending notification email for template {template} because no studio URL"
+" is defined for partner {partner}"
 msgstr ""
 
 #: apps/course_metadata/emails.py:165
@@ -640,8 +644,8 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:35
 msgid ""
-"CourseType/CourseRunType mismatches to allow. Specify like course-type-slug:"
-"run-type-slug."
+"CourseType/CourseRunType mismatches to allow. Specify like course-type-"
+"slug:run-type-slug."
 msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:41
@@ -676,7 +680,8 @@ msgstr ""
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:101
 #, python-brace-format
 msgid ""
-"Could not backpopulate a course type for the following courses: {course_keys}"
+"Could not backpopulate a course type for the following courses: "
+"{course_keys}"
 msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:21
@@ -1023,8 +1028,8 @@ msgstr ""
 #: apps/course_metadata/models.py:1389
 msgid ""
 "Whether this run should be hidden from API responses.  Do not edit here - "
-"this value will be overwritten by the \"Course Visibility In Catalog\" field "
-"in Studio via Refresh Course Metadata."
+"this value will be overwritten by the \"Course Visibility In Catalog\" field"
+" in Studio via Refresh Course Metadata."
 msgstr ""
 
 #: apps/course_metadata/models.py:1395
@@ -1033,8 +1038,8 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1402
 msgid ""
-"'What You Will Learn' description for this particular course run. Leave this "
-"value blank to default to the parent course's Outcome attribute."
+"'What You Will Learn' description for this particular course run. Leave this"
+" value blank to default to the parent course's Outcome attribute."
 msgstr ""
 
 #: apps/course_metadata/models.py:1415
@@ -1051,8 +1056,8 @@ msgstr ""
 
 #: apps/course_metadata/models.py:1782
 msgid ""
-"Switching seat types after being reviewed is not supported. Please reach out "
-"to your project coordinator for additional help if necessary."
+"Switching seat types after being reviewed is not supported. Please reach out"
+" to your project coordinator for additional help if necessary."
 msgstr ""
 
 #: apps/course_metadata/models.py:2156
@@ -1081,14 +1086,14 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2183
 msgid ""
-"If this box is not checked, courses will be ordered as in the courses select "
-"box above."
+"If this box is not checked, courses will be ordered as in the courses select"
+" box above."
 msgstr ""
 
 #: apps/course_metadata/models.py:2197
 msgid ""
-"This field is now deprecated (ECOM-6021).Estimated number of weeks needed to "
-"complete a course run belonging to this program."
+"This field is now deprecated (ECOM-6021).Estimated number of weeks needed to"
+" complete a course run belonging to this program."
 msgstr ""
 
 #: apps/course_metadata/models.py:2223
@@ -1122,8 +1127,8 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2258
 msgid ""
-"Total number of learners who have enrolled in courses in this program in the "
-"last 6 months"
+"Total number of learners who have enrolled in courses in this program in the"
+" last 6 months"
 msgstr ""
 
 #: apps/course_metadata/models.py:2263
@@ -1307,8 +1312,7 @@ msgstr ""
 #: apps/course_metadata/models.py:2848
 msgid ""
 "A high-level overview of the degree's courseware. The \"brief\"\n"
-"            text is the first 750 characters of \"marketing_text\" and must "
-"be\n"
+"            text is the first 750 characters of \"marketing_text\" and must be\n"
 "            valid HTML."
 msgstr ""
 
@@ -1494,9 +1498,9 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html:14
 #, python-brace-format
 msgid ""
-"{org_name} has submitted {course_key} for review. {link_start}"
-"{course_page_url}{link_middle}View this course run in Publisher{link_end} to "
-"review the changes and mark it as reviewed."
+"{org_name} has submitted {course_key} for review. "
+"{link_start}{course_page_url}{link_middle}View this course run in "
+"Publisher{link_end} to review the changes and mark it as reviewed."
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/internal_review.html:20
@@ -1536,9 +1540,9 @@ msgstr ""
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html:15
 #, python-brace-format
 msgid ""
-"{org_name} has submitted {course_name} for review. {link_start}"
-"{course_page_url}{link_middle}View this course run in Publisher{link_end} to "
-"determine OFAC status."
+"{org_name} has submitted {course_name} for review. "
+"{link_start}{course_page_url}{link_middle}View this course run in "
+"Publisher{link_end} to determine OFAC status."
 msgstr ""
 
 #: apps/course_metadata/templates/course_metadata/email/legal_review.html:21
