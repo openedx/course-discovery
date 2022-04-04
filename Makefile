@@ -101,7 +101,7 @@ extract_translations: ## Extract strings to be translated, outputting .po and .m
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 pull_translations: ## Pull translations from Transifex
-	tx pull -af --mode reviewed --minimum-perc=1
+	tx pull -a -f --mode reviewed --minimum-perc=1
 
 # This Make target should not be removed since it is relied on by a Jenkins job (`edx-internal/tools-edx-jenkins/translation-jobs.yml`), using `ecommerce-scripts/transifex`.
 push_translations: ## Push source translation files (.po) to Transifex

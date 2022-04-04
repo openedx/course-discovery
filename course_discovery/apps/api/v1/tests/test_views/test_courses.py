@@ -1045,6 +1045,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             'external_url': 'https://example.com/',
             'external_identifier': '12345',
             'lead_capture_form_url': 'https://example.com/lead-capture',
+            'organic_url': 'https://example.com/organic',
             'certificate_info': {
                 'heading': 'Certificate heading',
                 'blurb': '<p>Certificate blurb</p>',

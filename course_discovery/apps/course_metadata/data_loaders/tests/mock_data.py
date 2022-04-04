@@ -3124,6 +3124,36 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'organization_logo_override': 'https://example.com/image.jpg'
 }
 
+VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT = {
+    'organization': 'edx',
+    'title': 'CSV Course',
+    'number': 'csv_123',
+    'course_enrollment_track': 'Verified and Audit',
+    'image': 'https://example.com/image.jpg',
+    'short_description': 'Very short description',
+    'long_description': 'Organization,Title,Number,Course Enrollment track,Image,Short Description,Long Description,'
+                        'Organization,Title,Number,Course Enrollment track,Image,Short Description,Long Description,',
+    'what_will_you_learn': 'Outcomes',
+    'course_level': 'beginner',
+    'primary_subject': 'Computer Science',
+    'verified_price': 150,
+    'publish_date': '01/25/2020',
+    'start_date': '01/25/2020',
+    'syllabus': 'Introduction to Algorithms',
+    'start_time': '00:00',
+    'end_date': '02/25/2020',
+    'end_time': '00:00',
+    'course_pacing': 'self-paced',
+    'course_run_enrollment_track': 'Verified and Audit',
+    'minimum_effort': 4,
+    'maximum_effort': 10,
+    'length': 10,
+    'content_language': 'English - United States',
+    'transcript_language': 'English - Great Britain',
+    'redirect_url': 'http://www.example.com',
+    'external_identifier': '123456789',
+}
+
 INVALID_ORGANIZATION_DATA = {
     **VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
     'organization': 'invalid-organization'

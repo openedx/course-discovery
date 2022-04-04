@@ -1,0 +1,28 @@
+# #-#-#-#-#  djangojs.po (course-discovery)  #-#-#-#-#
+# edX translation file
+# Copyright (C) 2018 edX
+# This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
+# 
+# Translators:
+# Bao Truong <chanquav3@gmail.com>, 2019
+# Hoà Lê Thanh <hoa.lethanh@gmail.com>, 2017
+# Nguyen Nhat Quang <technicalmanager@gmail.com>, 2016
+# truong tran <tranminhtruong88@yahoo.com.vn>, 2017
+# Tuan Nguyen <tuannn.bk@gmail.com>, 2019
+msgid ""
+msgstr ""
+"Project-Id-Version: edx-platform\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-03-20 20:35+0000\n"
+"PO-Revision-Date: 2016-05-25 15:41+0000\n"
+"Last-Translator: Bao Truong <chanquav3@gmail.com>, 2019\n"
+"Language-Team: Vietnamese (http://www.transifex.com/open-edx/edx-platform/language/vi/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: vi\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: static/js/catalogs-change-form.js:17
+msgid "Preview"
+msgstr ""

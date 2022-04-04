@@ -11,6 +11,7 @@ from django.db.models.signals import post_delete, post_save
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
+from course_discovery.apps.course_metadata.signals import connect_api_change_receiver
 
 logger = logging.getLogger(__name__)
 
@@ -42,16 +43,6 @@ class Command(BaseCommand):
         """
         Example usage: ./manage.py import_course_metadata --partner_code=edx --csv_path=test.csv
         """
-
-        # The signal disconnect has been taken from refresh_course_metadata management command.
-        # We only want to invalidate the API response cache once data loading
-        # completes. Disconnecting the api_change_receiver function from post_save
-        # and post_delete signals prevents model changes during data loading from
-        # repeatedly invalidating the cache.
-        for model in apps.get_app_config('course_metadata').get_models():
-            for signal in (post_save, post_delete):
-                signal.disconnect(receiver=api_change_receiver, sender=model)
-
         partner_short_code = options.get('partner_code')
         csv_path = options.get('csv_path')
         # its default value is False, it will be treated as True if passed by any value via command-line
@@ -62,6 +53,15 @@ class Command(BaseCommand):
             raise CommandError(  # pylint: disable=raise-missing-from
                 "Unable to locate partner with code {}".format(partner_short_code)
             )
+
+        # The signal disconnect has been taken from refresh_course_metadata management command.
+        # We only want to invalidate the API response cache once data loading
+        # completes. Disconnecting the api_change_receiver function from post_save
+        # and post_delete signals prevents model changes during data loading from
+        # repeatedly invalidating the cache.
+        for model in apps.get_app_config('course_metadata').get_models():
+            for signal in (post_save, post_delete):
+                signal.disconnect(receiver=api_change_receiver, sender=model)
 
         try:
             loader = CSVDataLoader(partner, csv_path=csv_path, is_draft=is_draft)
@@ -74,3 +74,6 @@ class Command(BaseCommand):
         else:
             set_api_timestamp()
             logger.info("CSV loader import flow completed.")
+        finally:
+            # Re-connect back the api_change_receiver receiver to post_save and post_delete signals
+            connect_api_change_receiver()

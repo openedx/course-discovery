@@ -24,7 +24,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-13 20:35+0000\n"
+"POT-Creation-Date: 2022-03-20 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Stefania Trabucchi <stefania.trabucchi@abstract-technology.de>, 2018-2021\n"
 "Language-Team: German (Germany) (http://www.transifex.com/open-edx/edx-platform/language/de_DE/)\n"
@@ -1676,7 +1676,7 @@ msgid "Inactive"
 msgstr ""
 
 #: apps/learner_pathway/models.py:82
-msgid "Pathway name"
+msgid "Title of the learner pathway."
 msgstr ""
 
 #: apps/learner_pathway/models.py:85
