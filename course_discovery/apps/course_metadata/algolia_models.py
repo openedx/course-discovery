@@ -126,10 +126,15 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
 
 class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
-    product_type = 'Course'
-
     class Meta:
         proxy = True
+
+    @property 
+    # change this later
+    def product_type(self):
+        if self.type in ['Executive Education', 'Executive Education(2U)']:
+            return 'Executive Execution'
+        return 'Course'   
 
     @property
     def custom_object_id(self):
