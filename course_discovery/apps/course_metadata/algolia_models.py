@@ -8,7 +8,7 @@ from django.utils.translation import override
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, Program, ProgramType
+from course_discovery.apps.course_metadata.models import Course, CourseType, Program, ProgramType
 
 
 # Utility methods used by both courses and programs
@@ -130,11 +130,10 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         proxy = True
 
     @property 
-    # change this later
     def product_type(self):
-        if self.type in ['Executive Education', 'Executive Education(2U)']:
+        if self.type.slug = CourseType.EXECUTIVE_EDUCATION_2U
             return 'Executive Execution'
-        return 'Course'   
+        return 'Course'
 
     @property
     def custom_object_id(self):
