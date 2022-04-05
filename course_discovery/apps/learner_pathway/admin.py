@@ -102,10 +102,8 @@ class LearnerPathwayAdmin(nested_admin.NestedModelAdmin):
         # if some object isn't saved to database then manually add changed_data
         for step_form in formsets[0]:
             if not step_form.instance.pk:
-                step_form.changed_data = ['pathway', 'min_requirement', 'id']
-        form.save_m2m()
-        for formset in formsets:
-            self.save_formset(request, form, formset, change=change)
+                step_form.changed_data = ['id']
+        super().save_related(request, form, formsets, change)
 
 
 @admin.register(LearnerPathwayCourse)
