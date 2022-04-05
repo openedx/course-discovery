@@ -26,7 +26,7 @@ jobs:
         # that would note the failure, but not fail the entire workflow and not email the author about it.
         # See https://github.com/actions/toolkit/issues/399
         continue-on-error: ${{ matrix.status == 'ignored' }}
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v2
 
   quality:
     runs-on: ubuntu-latest
