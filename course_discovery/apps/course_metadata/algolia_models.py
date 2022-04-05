@@ -131,7 +131,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property 
     def product_type(self):
-        if self.type.slug = CourseType.EXECUTIVE_EDUCATION_2U
+        if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
             return 'Executive Execution'
         return 'Course'
 
