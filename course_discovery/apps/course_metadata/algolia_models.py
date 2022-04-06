@@ -242,7 +242,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
                 self.availability_level and
                 bool(self.advertised_course_run) and
                 not self.advertised_course_run.hidden and
-                self.course_type.slug != CourseType.EXECUTIVE_EDUCATION_2U)
+                self.type.slug != CourseType.EXECUTIVE_EDUCATION_2U)
 
     @property
     def availability_rank(self):
