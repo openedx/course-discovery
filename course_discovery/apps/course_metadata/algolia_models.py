@@ -8,7 +8,7 @@ from django.utils.translation import override
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, Program, ProgramType
+from course_discovery.apps.course_metadata.models import Course, CourseType, Program, ProgramType
 
 
 # Utility methods used by both courses and programs
@@ -384,7 +384,8 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.status == ProgramStatus.Active and
                 self.availability_level and
                 self.partner.name == 'edX' and
-                not self.hidden)
+                not self.hidden and
+                self.course_type.slug != CourseType.EXECUTIVE_EDUCATION_2U)
 
 
 class SearchDefaultResultsConfiguration(models.Model):
