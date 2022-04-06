@@ -482,6 +482,7 @@ class CSVDataLoader(AbstractDataLoader):
             'external_identifier': data['external_identifier'],
         }
         lead_capture_url = data.get('lead_capture_form_url', '')
+        organic_url = data.get('organic_url', '')
         certificate_info = self.process_heading_blurb(
             data.get('certificate_header', ''),
             data.get('certificate_text', '')
@@ -494,6 +495,8 @@ class CSVDataLoader(AbstractDataLoader):
         )
         if lead_capture_url:
             additional_metadata.update({'lead_capture_form_url': lead_capture_url})
+        if organic_url:
+            additional_metadata.update({'organic_url': organic_url})
         if certificate_info:
             additional_metadata.update({'certificate_info': certificate_info})
         if facts:
