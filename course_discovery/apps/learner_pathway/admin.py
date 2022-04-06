@@ -20,7 +20,8 @@ class LearnerPathwayProgramInline(nested_admin.NestedTabularInline):
     readonly_fields = ('estimated_completion_time',)
 
     def estimated_completion_time(self, pathway_program):
-        return pathway_program.get_estimated_time_of_completion() or '-'
+        estimated_time = pathway_program.get_estimated_time_of_completion()
+        return estimated_time if estimated_time is not None else '-'
 
 
 class LearnerPathwayCourseInline(nested_admin.NestedTabularInline):
@@ -30,7 +31,8 @@ class LearnerPathwayCourseInline(nested_admin.NestedTabularInline):
     readonly_fields = ('estimated_completion_time',)
 
     def estimated_completion_time(self, pathway_course):
-        return pathway_course.get_estimated_time_of_completion() or '-'
+        estimated_time = pathway_course.get_estimated_time_of_completion()
+        return estimated_time if estimated_time is not None else '-'
 
 
 @admin.register(LearnerPathwayStep)
@@ -48,7 +50,8 @@ class StepAdmin(nested_admin.NestedModelAdmin):
     ]
 
     def estimated_completion_time(self, pathway_step):
-        return pathway_step.get_estimated_time_of_completion() or '-'
+        estimated_time = pathway_step.get_estimated_time_of_completion()
+        return estimated_time if estimated_time is not None else '-'
 
     def courses(self, pathway_step):
         return pathway_step.get_node_type_count()[constants.NODE_TYPE_COURSE]
@@ -73,7 +76,8 @@ class LearnerPathwayStepInline(nested_admin.NestedTabularInline):
         return format_html('<a href="{}">{}</a>', step_change_url, pathway_step.uuid)
 
     def estimated_completion_time(self, pathway_step):
-        return pathway_step.get_estimated_time_of_completion() or '-'
+        estimated_time = pathway_step.get_estimated_time_of_completion()
+        return estimated_time if estimated_time is not None else '-'
 
     def has_add_permission(self, request, obj=None):  # pylint: disable=unused-argument
         return True
@@ -91,7 +95,15 @@ class LearnerPathwayAdmin(nested_admin.NestedModelAdmin):
         return pathway.steps.count()
 
     def estimated_completion_time(self, pathway):
-        return pathway.time_of_completion or '-'
+        estimated_time = pathway.time_of_completion
+        return estimated_time if estimated_time is not None else '-'
+
+    def save_related(self, request, form, formsets, change):
+        # if some object isn't saved to database then manually add changed_data
+        for step_form in formsets[0]:
+            if not step_form.instance.pk:
+                step_form.changed_data = ['id']
+        super().save_related(request, form, formsets, change)
 
 
 @admin.register(LearnerPathwayCourse)

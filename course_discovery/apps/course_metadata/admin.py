@@ -23,6 +23,7 @@ from course_discovery.apps.course_metadata.forms import (
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.course_metadata.views import CourseSkillsView, RefreshCourseSkillsView
+from course_discovery.apps.learner_pathway.api.urls import app_name as learner_pathway_app_name
 
 PUBLICATION_FAILURE_MSG_TPL = _(
     'An error occurred while publishing the {model} to the marketing site. '
@@ -109,6 +110,12 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
     change_actions = ('course_skills', 'refresh_course_skills')
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)
+        if request.GET.get('app_label') == learner_pathway_app_name:
+            queryset = queryset.filter(draft=False)
+        return queryset, may_have_duplicates
 
     def get_readonly_fields(self, request, obj=None):
         """
