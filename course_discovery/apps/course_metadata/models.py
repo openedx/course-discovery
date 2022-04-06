@@ -503,6 +503,7 @@ class CourseType(TimeStampedModel):
     PROFESSIONAL = 'professional'
     CREDIT_VERIFIED_AUDIT = 'credit-verified-audit'
     EMPTY = 'empty'
+    EXECUTIVE_EDUCATION_2U = 'executive-education-2u'
 
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
