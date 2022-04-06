@@ -47,6 +47,7 @@ def delegate_attributes(cls):
     fields are prefixed with 'product_' to make them Algolia-specific
     '''
 
+    product_type_fields = ['product_type']
     search_fields = ['partner_names', 'partner_keys', 'product_title', 'primary_description', 'secondary_description',
                      'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs']
@@ -55,7 +56,7 @@ def delegate_attributes(cls):
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags']
     object_id_field = ['custom_object_id', ]
-    fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
+    fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
         def _closure(name):
             def _wrap(self, *args, **kwargs):  # pylint: disable=unused-argument
@@ -93,9 +94,6 @@ class AlgoliaProxyProduct(Program):
         super().__init__()
         self.product = product
         self.product.language = language
-
-    def product_type(self):
-        return getattr(type(self.product), 'product_type', None)
 
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
@@ -264,10 +262,12 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
 class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
-    product_type = 'Program'
-
     class Meta:
         proxy = True
+
+    @property 
+    def product_type(self):
+        return 'Program'
 
     @property
     def product_title(self):
