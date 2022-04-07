@@ -130,7 +130,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     @property 
     def product_type(self):
         if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
-            return 'Executive Execution'
+            return 'Executive Education'
         return 'Course'
 
     @property
@@ -236,6 +236,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def should_index(self):
+        return True
         """Only index courses in the edX catalog with a non-hidden advertiseable course run, at least one owner, and
         a marketing url slug"""
         return (len(self.owners) > 0 and
