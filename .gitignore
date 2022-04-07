@@ -98,3 +98,4 @@ webpack-stats.json
 
 # Emacs
 *~
+.test_durations

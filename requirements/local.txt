@@ -178,6 +178,8 @@ django-crum==0.7.9
     # via edx-django-utils
 django-debug-toolbar==3.2.4
     # via -r requirements/local.in
+django-dry-rest-permissions==1.2.0
+    # via -r requirements/base.in
 django-dynamic-filenames==1.3.0
     # via -r requirements/base.in
 django-elasticsearch-debug-toolbar==3.0.2
@@ -270,8 +272,6 @@ drf-yasg==1.20.0
     # via
     #   -r requirements/base.in
     #   edx-api-doc-tools
-django-dry-rest-permissions==1.2.0
-    # via -r requirements/base.in
 edx-analytics-data-api-client==0.17.0
     # via -r requirements/base.in
 edx-api-doc-tools==1.6.0
@@ -491,6 +491,7 @@ pytest==7.1.1
     #   pytest-django
     #   pytest-forked
     #   pytest-responses
+    #   pytest-split
     #   pytest-xdist
 pytest-cov==3.0.0
     # via -r requirements/test.in
@@ -500,6 +501,8 @@ pytest-forked==1.4.0
     # via pytest-xdist
 pytest-responses==0.5.0
     # via -r requirements/test.in
+pytest-split==0.7.0
+    # via -r requirements/local.in
 pytest-xdist==2.5.0
     # via -r requirements/test.in
 python-dateutil==2.8.2

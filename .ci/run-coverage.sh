@@ -7,4 +7,6 @@ apt-get update
 apt-get install -y --no-install-recommends firefox gettext
 make requirements
 
-make test
+coverage combine coverage*/.coverage*
+coverage report
+coverage xml
