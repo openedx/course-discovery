@@ -1032,6 +1032,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     type = serializers.SlugRelatedField(required=True, slug_field='uuid', queryset=CourseType.objects.all())
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
     url_slug = serializers.SerializerMethodField()
+    course_type = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -1044,6 +1045,9 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
             cls.prefetch_course_runs(MinimalCourseRunSerializer, course_runs),
         )
+
+    def get_course_type(self, obj):
+        return obj.type.slug
 
     def get_url_slug(self, obj):  # pylint: disable=unused-argument
         return None  # this has been removed from the MinimalCourseSerializer, set to None to not break APIs
@@ -1065,7 +1069,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     class Meta:
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
-                  'short_description', 'type', 'url_slug',)
+                  'short_description', 'type', 'url_slug', 'course_type')
 
 
 class CourseEditorSerializer(serializers.ModelSerializer):
@@ -1173,7 +1177,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'extra_description', 'additional_information', 'additional_metadata', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
-            'skills', 'organization_short_code_override', 'organization_logo_override_url',
+            'skills', 'organization_short_code_override', 'organization_logo_override_url'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
