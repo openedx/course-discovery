@@ -29,6 +29,7 @@ jobs:
         # See https://github.com/actions/toolkit/issues/399
         continue-on-error: ${{ matrix.status == 'ignored' }}
       - name: Upload coverage
+        if: matrix.db-version == 'mysql57'  # TODO: Remove this condition when removing 'mysql57' db-version.
         uses: actions/upload-artifact@v2
         with:
           name: coverage${{ matrix.pytest-split-group }}
