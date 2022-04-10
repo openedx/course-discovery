@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-03 20:35+0000\n"
+"POT-Creation-Date: 2022-04-10 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -570,6 +570,14 @@ msgstr "Päïd Éxéçütïvé Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσ
 #: apps/course_metadata/choices.py
 msgid "Unpaid Executive Education"
 msgstr "Ûnpäïd Éxéçütïvé Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Paid Bootcamp"
+msgstr "Päïd Böötçämp Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/choices.py
+msgid "Unpaid Bootcamp"
+msgstr "Ûnpäïd Böötçämp Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/course_metadata/choices.py
 msgid "Platform"
@@ -1769,7 +1777,7 @@ msgstr ""
 "Àdd rédïréçts fröm äll püßlïshéd çöürsé ürl slügs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/taxonomy_support/models.py
 msgid "Course uuids"
 msgstr "Çöürsé üüïds Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -2174,6 +2182,80 @@ msgstr "Léärnér Päthwäý Prögräms Ⱡ'σяєм ιρѕυм ∂σłσя ѕ�
 #: apps/publisher/models.py
 msgid "Organization Role"
 msgstr "Örgänïzätïön Rölé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py
+msgid "Update the course recommendations based on skills."
+msgstr ""
+"Ûpdäté thé çöürsé réçömméndätïöns ßäséd ön skïlls. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py
+msgid ""
+"Use arguments from the UpdateCourseRecommendationsConfig model instead of "
+"the command line."
+msgstr ""
+"Ûsé ärgüménts fröm thé ÛpdätéÇöürséRéçömméndätïönsÇönfïg mödél ïnstéäd öf "
+"thé çömmänd lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py
+#, python-brace-format
+msgid "Could not add recommendations for the following courses: {course_keys}"
+msgstr ""
+"Çöüld nöt ädd réçömméndätïöns för thé föllöwïng çöürsés: {course_keys} "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid "The original course, whose recommendation is stored here."
+msgstr ""
+"Thé örïgïnäl çöürsé, whösé réçömméndätïön ïs störéd héré. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"This is the course recommended after learner completes the original course."
+msgstr ""
+"Thïs ïs thé çöürsé réçömméndéd äftér léärnér çömplétés thé örïgïnäl çöürsé. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/taxonomy_support/models.py
+msgid "Ratio of number of common skills and total skill count."
+msgstr ""
+"Rätïö öf nümßér öf çömmön skïlls änd tötäl skïll çöünt. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"Count of common skills between the original course and recommended course."
+msgstr ""
+"Çöünt öf çömmön skïlls ßétwéén thé örïgïnäl çöürsé änd réçömméndéd çöürsé. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/taxonomy_support/models.py
+msgid "Ratio of number of common subjects and total subject count."
+msgstr ""
+"Rätïö öf nümßér öf çömmön süßjéçts änd tötäl süßjéçt çöünt. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"Count of common subjects between the original course and recommended course."
+msgstr ""
+"Çöünt öf çömmön süßjéçts ßétwéén thé örïgïnäl çöürsé änd réçömméndéd çöürsé."
+" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/taxonomy_support/models.py
+msgid "Course Recommendation"
+msgstr "Çöürsé Réçömméndätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/taxonomy_support/models.py
+msgid "Course Recommendations"
+msgstr "Çöürsé Réçömméndätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/taxonomy_support/models.py
+msgid "Adds recommendations for all published courses"
+msgstr ""
+"Àdds réçömméndätïöns för äll püßlïshéd çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
 
 #: urls.py
 msgid "Discovery Service Administration"
