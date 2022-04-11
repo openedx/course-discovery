@@ -130,7 +130,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     class Meta:
         proxy = True
 
-    @property 
+    @property
     def product_type(self):
         if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
             return 'Executive Education'
@@ -273,7 +273,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     class Meta:
         proxy = True
 
-    @property 
+    @property
     def product_type(self):
         return 'Program'
 
@@ -401,7 +401,8 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def should_index_spanish(self):
         return self.should_index
-    
+
+
 class SearchDefaultResultsConfiguration(models.Model):
     index_name = models.CharField(max_length=32, unique=True)
     programs = SortedManyToManyField(Program, blank=True, null=True, limit_choices_to={'status': ProgramStatus.Active})
