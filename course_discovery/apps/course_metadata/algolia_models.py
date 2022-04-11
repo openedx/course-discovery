@@ -99,6 +99,9 @@ class AlgoliaProxyProduct(Program):
     def should_index(self):
         return getattr(self.product, 'should_index', True)
 
+    def should_index_spanish(self):
+        return getattr(self.product, 'should_index_spanish', True)
+
 
 class AlgoliaBasicModelFieldsMixin(models.Model):
 
@@ -247,6 +250,11 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
                 self.type.slug != CourseType.EXECUTIVE_EDUCATION_2U)
 
     @property
+    def should_index_spanish(self):
+        return (self.should_index and
+                self.type.slug != CourseType.EXECUTIVE_EDUCATION_2U)
+
+    @property
     def availability_rank(self):
         today_midnight = datetime.datetime.now(pytz.UTC).replace(hour=0, minute=0, second=0, microsecond=0)
         if self.advertised_course_run:
@@ -391,7 +399,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.partner.name == 'edX' and
                 not self.hidden)
 
-
+    @property
+    def should_index_spanish(self):
+        return self.should_index
+    
 class SearchDefaultResultsConfiguration(models.Model):
     index_name = models.CharField(max_length=32, unique=True)
     programs = SortedManyToManyField(Program, blank=True, null=True, limit_choices_to={'status': ProgramStatus.Active})

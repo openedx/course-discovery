@@ -124,7 +124,7 @@ class SpanishProductIndex(BaseProductIndex):
         'customRanking': ['desc(promoted_in_spanish_index)', 'asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'spanish_product'
-    should_index = 'should_index'
+    should_index = 'should_index_spanish'
 
 
 # Standard algoliasearch_django pattern for populating 2 indices with one model. These are the signatures and structure
