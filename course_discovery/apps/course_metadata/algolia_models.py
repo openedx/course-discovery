@@ -246,8 +246,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
                 self.partner.name == 'edX' and
                 self.availability_level and
                 bool(self.advertised_course_run) and
-                not self.advertised_course_run.hidden and
-                self.type.slug != CourseType.EXECUTIVE_EDUCATION_2U)
+                not self.advertised_course_run.hidden)
 
     @property
     def should_index_spanish(self):
