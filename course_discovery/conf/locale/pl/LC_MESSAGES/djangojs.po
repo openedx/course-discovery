@@ -4,13 +4,14 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
+# Translators:
 # Maciej Kolankowski <maciej@eduprojekt.org>, 2016-2017
 # Paweł Marchewka <mamior@o2.pl>, 2016
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-20 20:35+0000\n"
+"POT-Creation-Date: 2022-04-10 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Maciej Kolankowski <maciej@eduprojekt.org>, 2016-2017\n"
 "Language-Team: Polish (http://www.transifex.com/open-edx/edx-platform/language/pl/)\n"

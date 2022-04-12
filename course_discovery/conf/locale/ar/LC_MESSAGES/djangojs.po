@@ -4,6 +4,7 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
+# Translators:
 # Ahmed Gad <ahmed3oss46@gmail.com>, 2016
 # Ahmed Rizk <mr.rizk@gmail.com>, 2019
 # 6e68c7971a89e50e680ae9444d303c8f, 2016
@@ -16,7 +17,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-20 20:35+0000\n"
+"POT-Creation-Date: 2022-04-10 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Ahmed Rizk <mr.rizk@gmail.com>, 2019\n"
 "Language-Team: Arabic (http://www.transifex.com/open-edx/edx-platform/language/ar/)\n"

@@ -4,6 +4,7 @@
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
 # 
 # Translators:
+# Translators:
 # Illya Klymov <xanf@xanf.me>, 2017
 # Madina Kanlybaeva <madika.kanlybaeva@mail.ru>, 2016
 # Oleg Demakov <oleg.demakov@epfl.ch>, 2019
@@ -12,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-20 20:35+0000\n"
+"POT-Creation-Date: 2022-04-10 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Валентина Пицик <lushalusha007@gmail.com>, 2019\n"
 "Language-Team: Russian (http://www.transifex.com/open-edx/edx-platform/language/ru/)\n"
