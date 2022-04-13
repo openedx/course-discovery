@@ -134,6 +134,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'image': ImageField().to_representation(course.image_url),
             'short_description': course.short_description,
             'type': course.type.uuid,
+            'course_type': course.type.slug,
             'url_slug': None,
         }
 

@@ -1137,6 +1137,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert course.title == 'Course title'
         assert 0 == course.entitlements.count()
 
+    @responses.activate
+    def test_check_course_type_slug_exists_in_response(self):
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.get(url)
+        response_data = response.data
+        assert response_data.get('course_type') == self.course.type.slug
+
     def test_update_keeps_url_slug_if_removed_from_form(self):
         self.course.set_active_url_slug('fake-test')
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
