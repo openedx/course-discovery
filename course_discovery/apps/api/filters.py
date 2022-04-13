@@ -13,7 +13,7 @@ from rest_framework.exceptions import NotFound, PermissionDenied
 from course_discovery.apps.api.utils import cast2int
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseRun, LevelType, Organization, Person, Program, ProgramType, Subject, Topic
+    Course, CourseEditor, CourseRun, CourseType, LevelType, Organization, Person, Program, ProgramType, Subject, Topic
 )
 
 logger = logging.getLogger(__name__)
@@ -88,6 +88,7 @@ class CourseFilter(filters.FilterSet):
     uuids = UUIDListFilter()
     course_run_statuses = CharListFilter(method='filter_by_course_run_statuses')
     editors = CharListFilter(field_name='editors__user__pk', lookup_expr='in', distinct=True)
+    course_type = filters.CharFilter(method='filter_by_course_type')
 
     class Meta:
         model = Course
@@ -112,6 +113,19 @@ class CourseFilter(filters.FilterSet):
             status_check |= query
 
         return queryset.filter(status_check, course_runs__hidden=False).distinct()
+
+    def filter_by_course_type(self, queryset, _, value):
+        """
+        Filter the courses by the course type by validating if the provided type slug is a valid slug.
+
+        If the filter value is `open-courses`, all the courses except Bootcamp and Executive Education
+        courses would be returned.
+        """
+        if value == 'open-courses':
+            filter_value = ~Q(type__slug__in=[CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U])
+        else:
+            filter_value = Q(type__slug=value)
+        return queryset.filter(filter_value)
 
 
 class CourseRunFilter(FilterSetMixin, filters.FilterSet):
