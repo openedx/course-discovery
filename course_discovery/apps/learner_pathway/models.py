@@ -106,10 +106,7 @@ class LearnerPathway(models.Model):
         blank=True,
         null=True,
         variations={
-            'large': (1440, 480),
-            'medium': (726, 242),
-            'small': (435, 145),
-            'x-small': (348, 116),
+            'card': (378, 225),
         },
         help_text='image that will be displayed on learner pathway cards',
     )
