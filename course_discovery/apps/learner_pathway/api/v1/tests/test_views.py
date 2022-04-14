@@ -16,6 +16,7 @@ LEARNER_PATHWAY_DATA = {
     'title': 'journey to comics',
     'status': PathwayStatus.Active,
     'banner_image': '',
+    'card_image': '',
     'overview': 'learn all about Marvel and DC',
     'steps': [
         {
@@ -97,8 +98,9 @@ class TestLearnerPathwayViewSet(TestCase):
         assert data['title'] == expected_data['title']
         assert data['status'] == expected_data['status']
         assert data['overview'] == expected_data['overview']
-        # course card_image_url should not be empty
+        # banner image and card image should not be empty
         assert data['banner_image']
+        assert data['card_image']
 
         # verify step data
         assert data['steps'][0]['min_requirement'] == expected_data['steps'][0]['min_requirement']

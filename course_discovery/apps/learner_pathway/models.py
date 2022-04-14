@@ -98,7 +98,20 @@ class LearnerPathway(models.Model):
             'medium': (726, 242),
             'small': (435, 145),
             'x-small': (348, 116),
-        }
+        },
+        help_text='image that will be displayed on learner pathway modal',
+    )
+    card_image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/learner_pathway/card_images'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (1440, 480),
+            'medium': (726, 242),
+            'small': (435, 145),
+            'x-small': (348, 116),
+        },
+        help_text='image that will be displayed on learner pathway cards',
     )
     overview = models.TextField(blank=True)
 
