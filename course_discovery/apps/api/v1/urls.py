@@ -36,7 +36,7 @@ partners_router.register(
 urlpatterns = [
     path('partners/', include((partners_router.urls, 'partners'))),
     path('search/typeahead', search_views.TypeaheadSearchView.as_view(), name='search-typeahead'),
-    path('search/person_typeahead', search_views.PersonTypeaheadSearchView.as_view(), name='person-search-typeahead'),
+    path('search/person_typeahead/', search_views.PersonTypeaheadSearchView.as_view(), name='person-search-typeahead'),
     path('currency', CurrencyView.as_view(), name='currency'),
     re_path(r'^catalog/query_contains/?', CatalogQueryContainsViewSet.as_view(), name='catalog-query_contains'),
     path('replace_usernames/', UsernameReplacementView.as_view(), name="replace_usernames"),
