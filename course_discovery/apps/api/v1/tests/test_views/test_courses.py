@@ -355,6 +355,37 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert len(response2.data['results']) == 1
         assert response2.data['results'][0]['uuid'] == str(course2.uuid)
 
+    @ddt.data(
+        ('audit', 1),
+        ('verified-audit', 1),
+        ('executive-education-2u', 1),
+        ('bootcamp-2u', 1),
+        ('open-courses', 2),
+        ('incorrect-type', 0)
+    )
+    @ddt.unpack
+    def test_list_courses_course_type_filter(self, course_type, expected_length):
+        """
+        Verify the endpoint returns a list of courses filtered by correct course type.
+
+        * For explicit type slugs, only those courses are returned
+        * For open-courses, all except bootcamps and executive education are returned
+        * For an incorrect slug, no filtering is the done and default list is returned.
+        """
+        executive_ed_type, _ = CourseType.objects.get_or_create(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
+
+        # Audit course is already created in setUp, the following courses are meant for this test case only
+        CourseFactory(partner=self.partner, title='Fake Test', key='edX+exEd', type=executive_ed_type)
+        CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
+        CourseFactory(partner=self.partner, title='Fake Test', key='edX+ver', type=self.verified_type)
+
+        url = reverse('api:v1:course-list') + '?editable=1&course_type={}'.format(course_type)
+
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results']) == expected_length
+
     def test_unsubmitted_status(self):
         """ Verify we support composite status 'unsubmitted' (unpublished & unarchived). """
         self.course.delete()
