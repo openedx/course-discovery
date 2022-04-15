@@ -37,7 +37,9 @@ class Command(BaseCommand):
             CourseSkills.objects.filter(course_key=course.key).values_list('skill__name', flat=True)
         ))
         course_subjects = set(list(course.subjects.all()))
-        if not course_skills and course_subjects:
+        course_skills_count = len(course_skills)
+        course_subjects_count = len(course_subjects)
+        if course_skills_count == 0 and course_subjects_count == 0:
             return False
         all_courses = Course.objects.all()
         for course_candidate in all_courses:
@@ -48,21 +50,25 @@ class Command(BaseCommand):
             ))
             skills_intersection = course_skills.intersection(course_candidate_skills)
             skills_intersection_length = len(skills_intersection)
-            skills_intersection_ratio = skills_intersection_length / len(course_skills)
+            skills_intersection_ratio = skills_intersection_length / course_skills_count \
+                if course_skills_count != 0 else 0
             course_candidate_subjects = set(list(course_candidate.subjects.all()))
             subjects_intersection = course_subjects.intersection(course_candidate_subjects)
             subjects_intersection_length = len(subjects_intersection)
-            subjects_intersection_ratio = subjects_intersection_length / len(course_subjects)
+            subjects_intersection_ratio = subjects_intersection_length / course_subjects_count \
+                if course_subjects_count != 0 else 0
             if skills_intersection_length > 0 or subjects_intersection_length > 0:
-                course_recommendation = CourseRecommendation(
+                update_parameters = {
+                    'skills_intersection_ratio': skills_intersection_ratio,
+                    'skills_intersection_length': skills_intersection_length,
+                    'subjects_intersection_ratio': subjects_intersection_ratio,
+                    'subjects_intersection_length': subjects_intersection_length
+                }
+                CourseRecommendation.objects.update_or_create(
                     course=course,
                     recommended_course=course_candidate,
-                    skills_intersection_ratio=skills_intersection_ratio,
-                    skills_intersection_length=skills_intersection_length,
-                    subjects_intersection_ratio=subjects_intersection_ratio,
-                    subjects_intersection_length=subjects_intersection_length
+                    defaults=update_parameters,
                 )
-                course_recommendation.save()
         return True
 
     def add_recommendations(self, **kwargs):
