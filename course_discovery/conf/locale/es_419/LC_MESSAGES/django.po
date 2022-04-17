@@ -957,11 +957,11 @@ msgstr "Traducciones modelo para el tema."
 
 #: apps/course_metadata/models.py:623
 msgid "The redirect URL of the course on external site"
-msgstr ""
+msgstr "La URL de redireccionamiento del curso en un sitio externo"
 
 #: apps/course_metadata/models.py:629
 msgid "The URL of the paid landing page on external site"
-msgstr ""
+msgstr "La URL de la página de destino paga en el sitio externo"
 
 #: apps/course_metadata/models.py:685
 msgid "A list of major works by this person. Must be valid HTML."
@@ -1702,7 +1702,7 @@ msgstr "Inactivo"
 
 #: apps/learner_pathway/models.py:82
 msgid "Title of the learner pathway."
-msgstr ""
+msgstr "Título de la vía de aprendizaje."
 
 #: apps/learner_pathway/models.py:85
 msgid "Course/Program associated pathways also appear in search results"
@@ -1754,7 +1754,7 @@ msgstr "Rol de la organización"
 
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:10
 msgid "Update the course recommendations based on skills."
-msgstr ""
+msgstr "Actualice las recomendaciones del curso en función de las habilidades."
 
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:26
 msgid ""
@@ -1765,46 +1765,46 @@ msgstr ""
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:82
 #, python-brace-format
 msgid "Could not add recommendations for the following courses: {course_keys}"
-msgstr ""
+msgstr "No se pudieron agregar recomendaciones para los siguientes cursos: {course_keys}"
 
 #: apps/taxonomy_support/models.py:24
 msgid "The original course, whose recommendation is stored here."
-msgstr ""
+msgstr "El curso original, cuya recomendación se almacena aquí."
 
 #: apps/taxonomy_support/models.py:29
 msgid ""
 "This is the course recommended after learner completes the original course."
-msgstr ""
+msgstr "Este es el curso recomendado después de que el alumno complete el curso original."
 
 #: apps/taxonomy_support/models.py:32
 msgid "Ratio of number of common skills and total skill count."
-msgstr ""
+msgstr "Relación entre el número de habilidades comunes y el recuento total de habilidades."
 
 #: apps/taxonomy_support/models.py:35
 msgid ""
 "Count of common skills between the original course and recommended course."
-msgstr ""
+msgstr "Recuento de habilidades comunes entre el curso original y el curso recomendado."
 
 #: apps/taxonomy_support/models.py:38
 msgid "Ratio of number of common subjects and total subject count."
-msgstr ""
+msgstr "Relación entre el número de sujetos comunes y el número total de sujetos."
 
 #: apps/taxonomy_support/models.py:41
 msgid ""
 "Count of common subjects between the original course and recommended course."
-msgstr ""
+msgstr "Recuento de materias comunes entre el curso original y el curso recomendado."
 
 #: apps/taxonomy_support/models.py:46
 msgid "Course Recommendation"
-msgstr ""
+msgstr "Recomendación de curso"
 
 #: apps/taxonomy_support/models.py:47
 msgid "Course Recommendations"
-msgstr ""
+msgstr "Recomendaciones de cursos"
 
 #: apps/taxonomy_support/models.py:54
 msgid "Adds recommendations for all published courses"
-msgstr ""
+msgstr "Agrega recomendaciones para todos los cursos publicados"
 
 #: urls.py:32
 msgid "Discovery Service Administration"
