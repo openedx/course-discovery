@@ -16,10 +16,6 @@ elasticsearch-dsl>=7.2,<8.0
 # FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
 transifex-client<0.13
 
-# sphinx has dropped support for python 3.5, latest version requires at least python3.6
-# see https://www.sphinx-doc.org/en/master/intro.html#prerequisites
-sphinx==2.4.4
-
 celery>=5.2.3,<6.0.0
 
 # latest version of edx-lint is pulling code-annotations and code-annotations is pulling python-slugify and
@@ -33,3 +29,6 @@ algoliasearch<2.0.0
 # This version adds support for Django 3.2, so pinning the beta version for Django 3.2
 # Remove this pin once newer stable version is released
 authlib==1.0.0rc1
+
+# The latest version require Django 4.0, remove once we have upgraded to Django 4.0
+django-admin-sortable2<2.0.0

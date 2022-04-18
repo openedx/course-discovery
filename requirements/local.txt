@@ -15,7 +15,7 @@ algoliasearch-django==1.7.3
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-amqp==5.1.0
+amqp==5.1.1
     # via kombu
 asgiref==3.5.0
     # via django
@@ -27,6 +27,8 @@ async-generator==1.10
     # via
     #   trio
     #   trio-websocket
+async-timeout==4.0.2
+    # via redis
 attrs==21.4.0
     # via
     #   jsonschema
@@ -44,21 +46,21 @@ backoff==1.11.1
     # via -r requirements/base.in
 bcrypt==3.2.0
     # via paramiko
-beautifulsoup4==4.10.0
+beautifulsoup4==4.11.1
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.21.22
+boto3==1.21.42
     # via django-ses
-botocore==1.24.22
+botocore==1.24.42
     # via
     #   boto3
     #   s3transfer
 cached-property==1.5.2
     # via zeep
-celery==5.2.3
+celery==5.2.6
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
@@ -74,7 +76,7 @@ cffi==1.15.0
     #   pynacl
 charset-normalizer==2.0.12
     # via requests
-click==8.0.4
+click==8.1.2
     # via
     #   celery
     #   click-didyoumean
@@ -159,7 +161,9 @@ distro==1.7.0
     #   taxonomy-connector
     #   xss-utils
 django-admin-sortable2==1.0.4
-    # via -r requirements/base.in
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.in
 django-appconf==1.0.5
     # via django-compressor
 django-autocomplete-light==3.9.0rc1
@@ -210,7 +214,7 @@ django-object-actions==4.0.0
     # via -r requirements/base.in
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==2.6.1
+django-ses==3.0.1
     # via taxonomy-connector
 django-simple-history==3.0.0
     # via -r requirements/base.in
@@ -230,12 +234,12 @@ django-taggit==2.1.0
     #   django-taggit-autosuggest
 django-taggit-autosuggest==0.3.8
     # via -r requirements/base.in
-django-waffle==2.3.0
+django-waffle==2.4.1
     # via
     #   -r requirements/base.in
     #   edx-django-utils
     #   edx-drf-extensions
-django-webpack-loader==1.4.1
+django-webpack-loader==1.5.0
     # via -r requirements/base.in
 djangorestframework==3.13.1
     # via
@@ -260,11 +264,11 @@ dockerpty==0.4.1
     # via docker-compose
 docopt==0.6.2
     # via docker-compose
-docutils==0.18.1
+docutils==0.17.1
     # via sphinx
 drf-extensions==0.7.1
     # via -r requirements/base.in
-drf-flex-fields==0.9.7
+drf-flex-fields==0.9.8
     # via -r requirements/base.in
 drf-jwt==1.19.2
     # via edx-drf-extensions
@@ -326,7 +330,7 @@ execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==13.3.2
+faker==13.3.4
     # via factory-boy
 filelock==3.6.0
     # via
@@ -351,6 +355,7 @@ importlib-metadata==4.11.3
     # via
     #   -r requirements/base.in
     #   markdown
+    #   sphinx
 inflection==0.5.1
     # via drf-yasg
 iniconfig==1.1.1
@@ -363,7 +368,7 @@ isort==5.10.1
     #   pylint
 itypes==1.2.0
     # via coreapi
-jinja2==3.0.3
+jinja2==3.1.1
     # via
     #   coreschema
     #   sphinx
@@ -395,7 +400,7 @@ mock==4.0.3
     # via -r requirements/test.in
 mysqlclient==2.1.0
     # via -r requirements/test.in
-newrelic==7.6.0.173
+newrelic==7.10.0.175
     # via edx-django-utils
 oauthlib==3.2.0
     # via
@@ -416,11 +421,11 @@ path==16.4.0
     # via edx-i18n-tools
 pbr==5.8.1
     # via stevedore
-pillow==9.0.1
+pillow==9.1.0
     # via
     #   -r requirements/base.in
     #   django-stdimage
-platformdirs==2.5.1
+platformdirs==2.5.2
     # via
     #   virtualenv
     #   zeep
@@ -430,7 +435,7 @@ pluggy==1.0.0
     #   tox
 polib==1.1.1
     # via edx-i18n-tools
-prompt-toolkit==3.0.28
+prompt-toolkit==3.0.29
     # via click-repl
 psutil==5.9.0
     # via edx-django-utils
@@ -478,7 +483,7 @@ pynacl==1.5.0
     # via paramiko
 pyopenssl==22.0.0
     # via urllib3
-pyparsing==3.0.7
+pyparsing==3.0.8
     # via packaging
 pyrsistent==0.18.1
     # via jsonschema
@@ -513,7 +518,7 @@ python-dateutil==2.8.2
     #   elasticsearch-dsl
     #   faker
     #   freezegun
-python-dotenv==0.19.2
+python-dotenv==0.20.0
     # via docker-compose
 python-memcached==1.59
     # via -r requirements/test.in
@@ -540,7 +545,7 @@ pyyaml==5.4.1
     #   edx-i18n-tools
 rcssmin==1.1.0
     # via django-compressor
-redis==4.1.4
+redis==4.2.2
     # via -r requirements/base.in
 requests==2.27.1
     # via
@@ -634,11 +639,10 @@ social-auth-core==4.2.0
     #   social-auth-app-django
 sortedcontainers==2.4.0
     # via trio
-soupsieve==2.3.1
+soupsieve==2.3.2.post1
     # via beautifulsoup4
-sphinx==2.4.4
+sphinx==4.5.0
     # via
-    #   -c requirements/constraints.txt
     #   -r requirements/docs.in
     #   edx-sphinx-theme
 sphinxcontrib-applehelp==1.0.2
@@ -661,7 +665,7 @@ stevedore==3.5.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.15.3
+taxonomy-connector==1.15.4
     # via -r requirements/base.in
 testfixtures==6.18.5
     # via -r requirements/test.in
@@ -675,7 +679,7 @@ tomli==2.0.1
     # via
     #   coverage
     #   pytest
-tox==3.24.5
+tox==3.25.0
     # via -r requirements/test.in
 transifex-client==0.12.5
     # via
@@ -710,7 +714,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.13.4
+virtualenv==20.14.1
     # via tox
 wcwidth==0.2.5
     # via prompt-toolkit
@@ -728,7 +732,7 @@ xss-utils==0.4.0
     # via -r requirements/base.in
 zeep==4.1.0
     # via simple-salesforce
-zipp==3.7.0
+zipp==3.8.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
