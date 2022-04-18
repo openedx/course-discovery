@@ -64,7 +64,7 @@ def format_curriculum(data):
     if 'modules' in data:
         for modules in data['modules']:
             heading = modules['heading']
-            description = modules['description']
+            description = modules['description'].strip()
             formatted_html += p_tag(f"<b>{heading}: </b>{description}")
 
     return cleaner.clean_html(formatted_html) if formatted_html else formatted_html

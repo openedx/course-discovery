@@ -36,7 +36,7 @@ class Command(BaseCommand):
         'staff', 'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language',
         'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
         'upgrade_deadline_override_time', 'redirect_url', 'external_identifier', 'lead_capture_form_url',
-        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text'
+        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'organic_url'
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -292,6 +292,7 @@ class Command(BaseCommand):
             'stat1_text': stats['stat1Blurb'],
             'stat2': stats['stat2'],
             'stat2_text': stats['stat2Blurb'],
+            'organic_url': utils.format_base64_strings(product_dict.get('edxPlpUrl', '')),
 
             'title': partially_filled_csv_dict.get('title') or product_dict['altName'] or product_dict['name'],
             '2u_title': product_dict['name'],
