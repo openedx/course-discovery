@@ -1,9 +1,13 @@
+import logging
+
 from django.core.management import BaseCommand, CommandError
 from django.utils.translation import gettext as _
 from taxonomy.models import CourseSkills
 
 from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.taxonomy_support.models import CourseRecommendation, UpdateCourseRecommendationsConfig
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -84,8 +88,8 @@ class Command(BaseCommand):
 
         if failures:
             keys = sorted(f'{failure.key} ({failure.id})' for failure in failures)
-            raise CommandError(
-                _('Could not add recommendations for the following courses: {course_keys}').format(
+            logger.warning(
+                '[UPDATE_COURSE_RECOMMENDATIONS] Skipping the following courses: {course_keys}'.format(
                     course_keys=', '.join(keys)
                 )
             )
