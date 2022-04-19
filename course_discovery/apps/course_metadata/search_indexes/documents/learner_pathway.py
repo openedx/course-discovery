@@ -36,7 +36,6 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
     overview = fields.TextField()
     published = fields.BooleanField()
     skill_names = fields.KeywordField(multi=True)
-    get_card_image_url = fields.TextField()
     skills = fields.NestedField(properties={
         'name': fields.TextField(),
         'description': fields.TextField(),

@@ -98,17 +98,7 @@ class LearnerPathway(models.Model):
             'medium': (726, 242),
             'small': (435, 145),
             'x-small': (348, 116),
-        },
-        help_text='image that will be displayed on learner pathway modal',
-    )
-    card_image = StdImageField(
-        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/learner_pathway/card_images'),
-        blank=True,
-        null=True,
-        variations={
-            'card': (378, 225),
-        },
-        help_text='image that will be displayed on learner pathway cards',
+        }
     )
     overview = models.TextField(blank=True)
 
@@ -138,12 +128,6 @@ class LearnerPathway(models.Model):
                 if step_skill not in skills:
                     skills.append(step_skill)
         return skills
-
-    @property
-    def get_card_image_url(self):
-        if self.card_image and hasattr(self.card_image, 'url'):
-            return self.card_image.url
-        return None
 
     def __str__(self):
         """

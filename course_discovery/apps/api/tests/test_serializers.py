@@ -2529,7 +2529,6 @@ class TestLearnerPathwaySearchDocumentSerializer(TestCase):
             'content_type': 'learnerpathway',
             'status': learner_pathway.status,
             'banner_image': image_field.to_representation(learner_pathway.banner_image),
-            'card_image_url': learner_pathway.get_card_image_url,
             'overview': learner_pathway.overview,
             'published': learner_pathway.status == ProgramStatus.Active,
             'skill_names': [skill['name'] for skill in learner_pathway.skills],

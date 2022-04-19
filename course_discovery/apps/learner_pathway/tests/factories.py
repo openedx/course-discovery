@@ -16,7 +16,6 @@ class LearnerPathwayFactory(factory.django.DjangoModelFactory):
     partner = factory.SubFactory(PartnerFactory)
     uuid = factory.Faker('uuid4')
     banner_image = factory.django.ImageField()
-    card_image = factory.django.ImageField()
     overview = FuzzyText(prefix='learner-pathway-overview-')
 
 
