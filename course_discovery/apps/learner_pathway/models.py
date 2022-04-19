@@ -139,11 +139,11 @@ class LearnerPathway(models.Model):
                     skills.append(step_skill)
         return skills
 
-    @property
-    def get_card_image_url(self):
-        if self.card_image and hasattr(self.card_image, 'url'):
-            return self.card_image.url
-        return None
+    # @property
+    # def card_image_url(self):
+    #     if self.card_image and hasattr(self.card_image, 'url'):
+    #         return self.card_image.url
+    #     return None
 
     def __str__(self):
         """
