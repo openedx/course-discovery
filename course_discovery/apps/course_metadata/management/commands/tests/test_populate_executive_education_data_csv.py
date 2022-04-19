@@ -39,6 +39,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 "altUniversityAbbreviation": "altEdx",
                 "cardUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS9pbWFnZS5qcGc=",
                 "edxRedirectUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS8=",
+                "edxPlpUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS8=",
                 "durationWeeks": 10,
                 "effort": "7–10 hours per week",
                 'introduction': 'Very short description\n',
@@ -142,6 +143,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Length'] == '10'
                 assert data_row['Number'] == 'TC'
                 assert data_row['Redirect Url'] == 'https://example.com/'
+                assert data_row['Organic Url'] == 'https://example.com/'
                 assert data_row['Image'] == 'https://example.com/image.jpg'
                 assert data_row['Course Level'] == 'Introductory'
                 assert data_row['Course Pacing'] == 'Instructor-Paced'
@@ -304,6 +306,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['Stat2 Text'] == '<p>VC fund</p>'
         assert data_row['Length'] == '10'
         assert data_row['Redirect Url'] == 'https://example.com/'
+        assert data_row['Organic Url'] == 'https://example.com/'
         assert data_row['Image'] == 'https://example.com/image.jpg'
         assert data_row['Course Level'] == 'Introductory'
         assert data_row['Course Pacing'] == 'Instructor-Paced'
