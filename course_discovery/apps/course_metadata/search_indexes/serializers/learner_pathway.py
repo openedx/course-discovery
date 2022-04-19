@@ -1,5 +1,4 @@
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
-from rest_framework import serializers
 
 from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.api.serializers import ContentTypeSerializer
