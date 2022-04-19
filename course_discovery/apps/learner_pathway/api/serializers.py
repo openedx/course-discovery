@@ -72,4 +72,4 @@ class LearnerPathwaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.LearnerPathway
-        fields = ('id', 'uuid', 'title', 'status', 'banner_image', 'overview', 'steps',)
+        fields = ('id', 'uuid', 'title', 'status', 'banner_image', 'card_image', 'overview', 'steps',)

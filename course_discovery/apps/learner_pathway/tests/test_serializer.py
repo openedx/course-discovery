@@ -25,6 +25,7 @@ class TestLearnerPathwaySerializer(TestCase):
             'title': learner_pathway.title,
             'status': learner_pathway.status,
             'banner_image': request.build_absolute_uri(learner_pathway.banner_image.url),
+            'card_image': request.build_absolute_uri(learner_pathway.card_image.url),
             'overview': learner_pathway.overview,
             'steps': [{
                 'uuid': str(step.uuid),
