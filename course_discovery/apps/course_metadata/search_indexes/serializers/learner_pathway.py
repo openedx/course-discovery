@@ -35,7 +35,6 @@ class LearnerPathwaySearchDocumentSerializer(ModelObjectDocumentSerializerMixin,
             )
         )
 
-
     def to_representation(self, instance):
         _object = self.get_model_object_by_instance(instance)
         setattr(instance, 'object', _object)  # pylint: disable=literal-used-as-attribute
