@@ -30,8 +30,8 @@ class LearnerPathwaySearchDocumentSerializer(ModelObjectDocumentSerializerMixin,
         ignore_fields = COMMON_IGNORED_FIELDS
         fields = (
             BASE_SEARCH_INDEX_FIELDS + (
-                'uuid', 'title', 'status', 'banner_image', 'card_image_url', 'overview', 'published', 'skills', 'skill_names', 'partner',
-                'steps', 'visible_via_association',
+                'uuid', 'title', 'status', 'banner_image', 'card_image_url', 'overview', 'published', 'skills',
+                'skill_names', 'partner', 'steps', 'visible_via_association',
             )
         )
 
