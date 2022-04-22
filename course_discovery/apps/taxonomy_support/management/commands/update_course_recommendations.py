@@ -35,8 +35,9 @@ class Command(BaseCommand):
         config = UpdateCourseRecommendationsConfig.get_solo()
         return {"all": config.all_courses, "uuids": config.uuids.split()}
 
-    def update_course_recommendations(self, course):
+    def update_course_recommendations(self, course, all_courses):
         """ Adds recommendations for a course. """
+        CourseRecommendation.objects.filter(course=course).delete()
         course_skills = set(list(
             CourseSkills.objects.filter(course_key=course.key).values_list('skill__name', flat=True)
         ))
@@ -45,7 +46,7 @@ class Command(BaseCommand):
         course_subjects_count = len(course_subjects)
         if course_skills_count == 0 and course_subjects_count == 0:
             return False
-        all_courses = Course.objects.all()
+        recommendation_objects = []
         for course_candidate in all_courses:
             if course.uuid == course_candidate.uuid:
                 continue
@@ -62,28 +63,28 @@ class Command(BaseCommand):
             subjects_intersection_ratio = subjects_intersection_length / course_subjects_count \
                 if course_subjects_count != 0 else 0
             if skills_intersection_length > 0 or subjects_intersection_length > 0:
-                update_parameters = {
-                    'skills_intersection_ratio': skills_intersection_ratio,
-                    'skills_intersection_length': skills_intersection_length,
-                    'subjects_intersection_ratio': subjects_intersection_ratio,
-                    'subjects_intersection_length': subjects_intersection_length
-                }
-                CourseRecommendation.objects.update_or_create(
+                obj = CourseRecommendation(
                     course=course,
                     recommended_course=course_candidate,
-                    defaults=update_parameters,
+                    skills_intersection_ratio=skills_intersection_ratio,
+                    skills_intersection_length=skills_intersection_length,
+                    subjects_intersection_ratio=subjects_intersection_ratio,
+                    subjects_intersection_length=subjects_intersection_length
                 )
+                recommendation_objects.append(obj)
+        CourseRecommendation.objects.bulk_create(recommendation_objects, batch_size=1000, ignore_conflicts=False)
         return True
 
     def add_recommendations(self, **kwargs):
         """ Adds recommendations for courses. """
+        all_courses = Course.objects.all().prefetch_related('subjects')
         if kwargs['uuids']:
             courses = Course.objects.filter(uuid__in=kwargs['uuids']).all()
         else:
-            courses = Course.objects.all()
+            courses = all_courses
         failures = set()
         for course in courses:
-            if not self.update_course_recommendations(course):
+            if not self.update_course_recommendations(course, all_courses):
                 failures.add(course)
 
         if failures:
