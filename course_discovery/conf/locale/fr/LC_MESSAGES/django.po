@@ -33,7 +33,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-04-10 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: Jorg722, 2022\n"
+"Last-Translator: iderr <ibrahim@derraz.fr>, 2021-2022\n"
 "Language-Team: French (http://www.transifex.com/open-edx/edx-platform/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -504,11 +504,11 @@ msgstr "Formation des cadres non rémunérée"
 
 #: apps/course_metadata/choices.py:53
 msgid "Paid Bootcamp"
-msgstr ""
+msgstr "Bootcamp payant"
 
 #: apps/course_metadata/choices.py:54
 msgid "Unpaid Bootcamp"
-msgstr ""
+msgstr "Bootcamp non rémunéré"
 
 #: apps/course_metadata/choices.py:58
 msgid "Platform"
@@ -955,11 +955,11 @@ msgstr "Modèle de traduction du thème"
 
 #: apps/course_metadata/models.py:623
 msgid "The redirect URL of the course on external site"
-msgstr ""
+msgstr "L'URL de redirection du cours sur le site externe"
 
 #: apps/course_metadata/models.py:629
 msgid "The URL of the paid landing page on external site"
-msgstr ""
+msgstr "L'URL de la page de destination payante sur le site externe"
 
 #: apps/course_metadata/models.py:685
 msgid "A list of major works by this person. Must be valid HTML."
@@ -1752,57 +1752,57 @@ msgstr "Rôle dans l'organisation"
 
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:10
 msgid "Update the course recommendations based on skills."
-msgstr ""
+msgstr "Mettre à jour les recommandations de cours en fonction des compétences."
 
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:26
 msgid ""
 "Use arguments from the UpdateCourseRecommendationsConfig model instead of "
 "the command line."
-msgstr ""
+msgstr "Utilisez les arguments du modèle UpdateCourseRecommendationsConfig au lieu de la ligne de commande."
 
 #: apps/taxonomy_support/management/commands/update_course_recommendations.py:82
 #, python-brace-format
 msgid "Could not add recommendations for the following courses: {course_keys}"
-msgstr ""
+msgstr "Impossible d'ajouter des recommandations pour les cours suivants : {course_keys}"
 
 #: apps/taxonomy_support/models.py:24
 msgid "The original course, whose recommendation is stored here."
-msgstr ""
+msgstr "Le cours d'origine, dont la recommandation est stockée ici."
 
 #: apps/taxonomy_support/models.py:29
 msgid ""
 "This is the course recommended after learner completes the original course."
-msgstr ""
+msgstr "Il s'agit du cours recommandé une fois que l'apprenant a terminé le cours original."
 
 #: apps/taxonomy_support/models.py:32
 msgid "Ratio of number of common skills and total skill count."
-msgstr ""
+msgstr "Ratio du nombre de compétences communes et du nombre total de compétences."
 
 #: apps/taxonomy_support/models.py:35
 msgid ""
 "Count of common skills between the original course and recommended course."
-msgstr ""
+msgstr "Décompte des compétences communes entre le cours d'origine et le cours recommandé."
 
 #: apps/taxonomy_support/models.py:38
 msgid "Ratio of number of common subjects and total subject count."
-msgstr ""
+msgstr "Rapport du nombre de sujets communs et du nombre total de sujets."
 
 #: apps/taxonomy_support/models.py:41
 msgid ""
 "Count of common subjects between the original course and recommended course."
-msgstr ""
+msgstr "Nombre de matières communes entre le cours d'origine et le cours recommandé."
 
 #: apps/taxonomy_support/models.py:46
 msgid "Course Recommendation"
-msgstr ""
+msgstr "Recommandation de cours"
 
 #: apps/taxonomy_support/models.py:47
 msgid "Course Recommendations"
-msgstr ""
+msgstr "Recommandations de cours"
 
 #: apps/taxonomy_support/models.py:54
 msgid "Adds recommendations for all published courses"
-msgstr ""
+msgstr "Ajoute des recommandations pour tous les cours publiés"
 
 #: urls.py:32
 msgid "Discovery Service Administration"
