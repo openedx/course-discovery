@@ -621,7 +621,7 @@ class AdditionalMetadata(TimeStampedModel):
 
     external_url = models.URLField(
         blank=False, null=False, max_length=511,
-        help_text = _('The URL of the paid landing page on external site')
+        help_text=_('The URL of the paid landing page on external site')
     )
     external_identifier = models.CharField(max_length=255, blank=True, null=False)
     lead_capture_form_url = models.URLField(blank=True, null=False, max_length=511)
