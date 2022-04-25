@@ -53,6 +53,10 @@ class UpdateCourseRecommendationsConfig(SingletonModel):
     """
     all_courses = models.BooleanField(default=False, verbose_name=_('Adds recommendations for all published courses'))
     uuids = models.TextField(default='', null=False, blank=True, verbose_name=_('Course uuids'))
+    num_past_days = models.IntegerField(
+        default=10,
+        verbose_name=_('Adds recommendations for courses created or modified in the past num days')
+    )
 
     def __str__(self):
         return f'All Courses:{self.all_courses}, UUIDs: {self.uuids}'
