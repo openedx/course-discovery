@@ -9,6 +9,8 @@ from course_discovery.apps.taxonomy_support.models import CourseRecommendation, 
 
 logger = logging.getLogger(__name__)
 
+RECOMMENDATION_OBJECTS_CHUNK_SIZE = 50000
+
 
 class Command(BaseCommand):
     help = _('Update the course recommendations based on skills.')
@@ -35,9 +37,8 @@ class Command(BaseCommand):
         config = UpdateCourseRecommendationsConfig.get_solo()
         return {"all": config.all_courses, "uuids": config.uuids.split()}
 
-    def update_course_recommendations(self, course, all_courses):
+    def get_course_recommendations(self, course, all_courses):
         """ Adds recommendations for a course. """
-        CourseRecommendation.objects.filter(course=course).delete()
         course_skills = set(list(
             CourseSkills.objects.filter(course_key=course.key).values_list('skill__name', flat=True)
         ))
@@ -45,7 +46,7 @@ class Command(BaseCommand):
         course_skills_count = len(course_skills)
         course_subjects_count = len(course_subjects)
         if course_skills_count == 0 and course_subjects_count == 0:
-            return False
+            return [], False
         recommendation_objects = []
         for course_candidate in all_courses:
             if course.uuid == course_candidate.uuid:
@@ -72,8 +73,7 @@ class Command(BaseCommand):
                     subjects_intersection_length=subjects_intersection_length
                 )
                 recommendation_objects.append(obj)
-        CourseRecommendation.objects.bulk_create(recommendation_objects, batch_size=1000, ignore_conflicts=False)
-        return True
+        return recommendation_objects, True
 
     def add_recommendations(self, **kwargs):
         """ Adds recommendations for courses. """
@@ -83,10 +83,18 @@ class Command(BaseCommand):
         else:
             courses = all_courses
         failures = set()
+        recommendation_object_chunks = []
         for course in courses:
-            if not self.update_course_recommendations(course, all_courses):
+            recommendation_objects, success = self.get_course_recommendations(course, all_courses)
+            if success:
+                recommendation_object_chunks.extend(recommendation_objects)
+                CourseRecommendation.objects.filter(course=course).delete()
+            else:
                 failures.add(course)
-
+            if len(recommendation_object_chunks) > RECOMMENDATION_OBJECTS_CHUNK_SIZE:
+                CourseRecommendation.objects.bulk_create(recommendation_object_chunks, batch_size=2000)
+                recommendation_object_chunks.clear()
+        CourseRecommendation.objects.bulk_create(recommendation_object_chunks, batch_size=2000)
         if failures:
             keys = sorted(f'{failure.key} ({failure.id})' for failure in failures)
             logger.warning(
