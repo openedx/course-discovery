@@ -282,7 +282,7 @@ class Command(BaseCommand):
             'about_video_link': utils.format_base64_strings(product_dict['videoURL']),
             'end_date': product_dict['variant']['endDate'],
             'length': product_dict['durationWeeks'],
-            'redirect_url': utils.format_base64_strings(product_dict['edxRedirectUrl']),
+            'redirect_url': utils.format_base64_strings(product_dict.get('edxPlpUrl', '')),
             'external_identifier': product_dict['id'],
             'long_description': f"{product_dict['introduction']}{product_dict['isThisCourseForYou']}",
             'lead_capture_form_url': product_dict['lcfURL'],
@@ -292,7 +292,7 @@ class Command(BaseCommand):
             'stat1_text': stats['stat1Blurb'],
             'stat2': stats['stat2'],
             'stat2_text': stats['stat2Blurb'],
-            'organic_url': utils.format_base64_strings(product_dict.get('edxPlpUrl', '')),
+            'organic_url': utils.format_base64_strings(product_dict.get('edxRedirectUrl', '')),
 
             'title': partially_filled_csv_dict.get('title') or product_dict['altName'] or product_dict['name'],
             '2u_title': product_dict['name'],
