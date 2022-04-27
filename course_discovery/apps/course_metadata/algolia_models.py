@@ -218,11 +218,11 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return getattr(self.advertised_course_run, 'max_effort', None)
 
     @property
-    def organization_short_code_override(self):
+    def product_organization_short_code_override(self):
         return self.organization_short_code_override
 
     @property
-    def organization_logo_override(self):
+    def product_organization_logo_override(self):
         return self.organization_logo_override
 
     @property
