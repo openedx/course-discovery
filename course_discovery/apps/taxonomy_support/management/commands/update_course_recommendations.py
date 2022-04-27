@@ -1,6 +1,9 @@
+import datetime
 import logging
 
 from django.core.management import BaseCommand, CommandError
+from django.db.models import Q
+from django.utils import timezone as tz
 from django.utils.translation import gettext as _
 from taxonomy.models import CourseSkills
 
@@ -9,7 +12,7 @@ from course_discovery.apps.taxonomy_support.models import CourseRecommendation, 
 
 logger = logging.getLogger(__name__)
 
-RECOMMENDATION_OBJECTS_CHUNK_SIZE = 50000
+RECOMMENDATION_OBJECTS_CHUNK_SIZE = 10000
 
 
 class Command(BaseCommand):
@@ -27,6 +30,12 @@ class Command(BaseCommand):
             help='Add course recommendations for specific courses'
         )
         parser.add_argument(
+            '-num-past-days',
+            action='store',
+            dest='num_past_days',
+            type=int,
+            help='Add recommendations for courses created or updated in the past n days.')
+        parser.add_argument(
             '--args-from-database',
             action='store_true',
             help=_('Use arguments from the UpdateCourseRecommendationsConfig model instead of the command line.'),
@@ -35,7 +44,7 @@ class Command(BaseCommand):
     def get_args_from_database(self):
         """ Returns an options dictionary from the current UpdateCourseRecommendationsConfig model. """
         config = UpdateCourseRecommendationsConfig.get_solo()
-        return {"all": config.all_courses, "uuids": config.uuids.split()}
+        return {'all': config.all_courses, 'uuids': config.uuids.split(), 'num_past_days': config.num_past_days}
 
     def get_course_recommendations(self, course, all_courses):
         """ Adds recommendations for a course. """
@@ -80,8 +89,17 @@ class Command(BaseCommand):
         all_courses = Course.objects.all().prefetch_related('subjects')
         if kwargs['uuids']:
             courses = Course.objects.filter(uuid__in=kwargs['uuids']).all()
-        else:
+        elif kwargs['all']:
             courses = all_courses
+        else:
+            num_past_days = kwargs['num_past_days'] or 10
+            from_date = tz.now() - datetime.timedelta(days=num_past_days)
+            courses = all_courses.filter(Q(created__gt=from_date) | Q(modified__gt=from_date))
+        logger.info(
+            '[UPDATE_COURSE_RECOMMENDATIONS] Updating {course_count} courses'.format(
+                course_count=courses.count()
+            )
+        )
         failures = set()
         recommendation_object_chunks = []
         for course in courses:
@@ -92,9 +110,9 @@ class Command(BaseCommand):
             else:
                 failures.add(course)
             if len(recommendation_object_chunks) > RECOMMENDATION_OBJECTS_CHUNK_SIZE:
-                CourseRecommendation.objects.bulk_create(recommendation_object_chunks, batch_size=2000)
+                CourseRecommendation.objects.bulk_create(recommendation_object_chunks, batch_size=1000)
                 recommendation_object_chunks.clear()
-        CourseRecommendation.objects.bulk_create(recommendation_object_chunks, batch_size=2000)
+        CourseRecommendation.objects.bulk_create(recommendation_object_chunks, batch_size=1000)
         if failures:
             keys = sorted(f'{failure.key} ({failure.id})' for failure in failures)
             logger.warning(
@@ -104,7 +122,8 @@ class Command(BaseCommand):
             )
 
     def handle(self, *args, **options):
-        if not bool(options['args_from_database']) ^ (bool(options['uuids']) ^ bool(options['all'])):
+        if not bool(options['args_from_database']) ^ (
+                bool(options['uuids']) ^ bool(options['all']) ^ bool(options['num_past_days'])):
             raise CommandError('Invalid arguments')
         options_dict = options
         if options_dict['args_from_database']:

@@ -48,6 +48,12 @@ class UpdateCourseRecommendationsCommandTests(TestCase):
         with pytest.raises(CommandError):
             call_command('update_course_recommendations', '--all', '-uuids', self.course1.uuid)
         with pytest.raises(CommandError):
+            call_command('update_course_recommendations', '--all', '-num-past-days', 10)
+        with pytest.raises(CommandError):
+            call_command('update_course_recommendations', '-num-past-days', 10, '-uuids', self.course1.uuid)
+        with pytest.raises(CommandError):
+            call_command('update_course_recommendations', '-num-past-days', 10, '--args-from-database')
+        with pytest.raises(CommandError):
             call_command('update_course_recommendations', '-uuids', self.course1.uuid, '--args-from-database')
 
     @ddt.data(
