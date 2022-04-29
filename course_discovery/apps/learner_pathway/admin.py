@@ -51,7 +51,7 @@ class StepAdmin(nested_admin.NestedModelAdmin):
 
     def estimated_completion_time(self, pathway_step):
         estimated_time = pathway_step.get_estimated_time_of_completion()
-        return estimated_time if estimated_time is not None else '-'
+        return " - ".join(map(str, estimated_time)) if estimated_time is not None else '-'
 
     def courses(self, pathway_step):
         return pathway_step.get_node_type_count()[constants.NODE_TYPE_COURSE]
@@ -77,7 +77,7 @@ class LearnerPathwayStepInline(nested_admin.NestedTabularInline):
 
     def estimated_completion_time(self, pathway_step):
         estimated_time = pathway_step.get_estimated_time_of_completion()
-        return estimated_time if estimated_time is not None else '-'
+        return " - ".join(map(str, estimated_time)) if estimated_time is not None else '-'
 
     def has_add_permission(self, request, obj=None):  # pylint: disable=unused-argument
         return True

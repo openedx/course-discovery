@@ -17,7 +17,7 @@ from course_discovery.apps.course_metadata.models import Course, Program
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.learner_pathway import constants
 from course_discovery.apps.learner_pathway.choices import PathwayStatus
-from course_discovery.apps.learner_pathway.utils import get_advertised_course_run_estimated_hours
+from course_discovery.apps.learner_pathway.utils import avg, get_advertised_course_run_estimated_hours
 
 
 class AbstractModelMeta(ABCMeta, type(models.Model)):
@@ -35,7 +35,7 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
         abstract = True
 
     @abstractmethod
-    def get_estimated_time_of_completion(self) -> str:
+    def get_estimated_time_of_completion(self) -> int:
         """
         Subclasses must implement this method to calculate and return the estimated time of completion of the node.
         """
@@ -123,7 +123,7 @@ class LearnerPathway(models.Model):
         """
         completion_time = 0
         for step in self.steps.all():
-            completion_time += step.get_estimated_time_of_completion()
+            completion_time += avg(step.get_estimated_time_of_completion())
         return completion_time
 
     @property
@@ -181,8 +181,25 @@ class LearnerPathwayStep(models.Model):
     def get_node_type_count(self):
         return LearnerPathwayNode.get_node_type_count(self)
 
-    def get_estimated_time_of_completion(self):
-        return sum([node.get_estimated_time_of_completion() for node in self.get_nodes()])
+    def get_estimated_time_of_completion(self) -> (int, int):
+        """
+        Get a range of estimated time of completion.
+
+        Returns:
+            (tuple<int, int>): A tuple containing the min and max of estimated time of completion.
+        """
+        estimated_completion_times_of_nodes = sorted(
+            [node.get_estimated_time_of_completion() for node in self.get_nodes()]
+        )
+        # get the lowest and largest estimated time of completion and return that as a tuple in respective order.
+        # To get the lowest estimated time of completion by getting the N smallest numbers, where N is `min_requirement`
+        # and sum them up to get lowest estimated time of completion.
+        # To get the highest estimated time of completion by getting the N largest numbers, where N is `min_requirement`
+        # and sum them up to get highest estimated time of completion.
+        return (
+            sum(estimated_completion_times_of_nodes[:self.min_requirement]),
+            sum(estimated_completion_times_of_nodes[-self.min_requirement:]),
+        )
 
     def get_skills(self):
         already_added_skills = set()
@@ -221,7 +238,7 @@ class LearnerPathwayCourse(LearnerPathwayNode):
             ('step', 'course'),
         )
 
-    def get_estimated_time_of_completion(self) -> str:
+    def get_estimated_time_of_completion(self) -> int:
         """
         Returns the average estimated work hours to complete the course run.
         """
@@ -259,7 +276,7 @@ class LearnerPathwayProgram(LearnerPathwayNode):
             ('step', 'program'),
         )
 
-    def get_estimated_time_of_completion(self) -> str:
+    def get_estimated_time_of_completion(self) -> int:
         """
         Returns the sum of estimated work hours to complete the course run for all program courses.
         """
@@ -301,11 +318,11 @@ class LearnerPathwayBlock(LearnerPathwayNode):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='learner_pathway_blocks')
     block_id = UsageKeyField(max_length=255)
 
-    def get_estimated_time_of_completion(self) -> str:
+    def get_estimated_time_of_completion(self) -> int:
         """
         Returns the average estimated work hours to complete the course run.
         """
-        return 'Not known'
+        return 0
 
     def get_skills(self) -> [str]:
         """
