@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-24 20:35+0000\n"
+"POT-Creation-Date: 2022-05-01 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -1139,15 +1139,15 @@ msgid "Topic model translations"
 msgstr "Töpïç mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/course_metadata/models.py
-msgid "The redirect URL of the course on external site"
-msgstr ""
-"Thé rédïréçt ÛRL öf thé çöürsé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
-" ¢σηѕє¢тєтυя α#"
-
-#: apps/course_metadata/models.py
 msgid "The URL of the paid landing page on external site"
 msgstr ""
 "Thé ÛRL öf thé päïd ländïng pägé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The URL of the organic landing page on external site"
+msgstr ""
+"Thé ÛRL öf thé örgänïç ländïng pägé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
@@ -2249,6 +2249,13 @@ msgid "Adds recommendations for all published courses"
 msgstr ""
 "Àdds réçömméndätïöns för äll püßlïshéd çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
 "¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"Adds recommendations for courses created or modified in the past num days"
+msgstr ""
+"Àdds réçömméndätïöns för çöürsés çréätéd ör mödïfïéd ïn thé päst nüm däýs "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: urls.py
 msgid "Discovery Service Administration"
