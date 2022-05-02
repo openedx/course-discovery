@@ -55,7 +55,7 @@ def delegate_attributes(cls):
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'product_weeks_to_complete',
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
-                     'organization_short_code_override', 'organization_logo_override']
+                     'product_organization_short_code_override', 'product_organization_logo_override']
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
