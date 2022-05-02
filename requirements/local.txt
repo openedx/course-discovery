@@ -17,7 +17,7 @@ algoliasearch-django==1.7.3
     #   -r requirements/base.in
 amqp==5.1.1
     # via kombu
-asgiref==3.5.0
+asgiref==3.5.1
     # via django
 astroid==2.5
     # via
@@ -42,9 +42,9 @@ authlib==1.0.0rc1
     #   simple-salesforce
 babel==2.10.1
     # via sphinx
-backoff==1.11.1
+backoff==2.0.1
     # via -r requirements/base.in
-bcrypt==3.2.0
+bcrypt==3.2.2
     # via paramiko
 beautifulsoup4==4.11.1
     # via
@@ -52,9 +52,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.21.46
+boto3==1.22.4
     # via django-ses
-botocore==1.24.46
+botocore==1.25.4
     # via
     #   boto3
     #   s3transfer
@@ -76,7 +76,7 @@ cffi==1.15.0
     #   pynacl
 charset-normalizer==2.0.12
     # via requests
-click==8.1.2
+click==8.1.3
     # via
     #   celery
     #   click-didyoumean
@@ -102,7 +102,7 @@ coverage[toml]==6.3.2
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==36.0.2
+cryptography==37.0.1
     # via
     #   authlib
     #   paramiko
@@ -180,7 +180,7 @@ django-cors-headers==3.11.0
     # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
-django-debug-toolbar==3.2.4
+django-debug-toolbar==3.3.0
     # via -r requirements/local.in
 django-dry-rest-permissions==1.2.0
     # via -r requirements/base.in
@@ -330,7 +330,7 @@ execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==13.4.0
+faker==13.6.0
     # via factory-boy
 filelock==3.6.0
     # via
@@ -368,7 +368,7 @@ isort==5.10.1
     #   pylint
 itypes==1.2.0
     # via coreapi
-jinja2==3.1.1
+jinja2==3.1.2
     # via
     #   coreschema
     #   sphinx
@@ -415,7 +415,7 @@ packaging==21.3
     #   redis
     #   sphinx
     #   tox
-paramiko==2.10.3
+paramiko==2.10.4
     # via docker
 path==16.4.0
     # via edx-i18n-tools
@@ -593,7 +593,6 @@ simple-salesforce==1.11.6
     # via -r requirements/base.in
 six==1.16.0
     # via
-    #   bcrypt
     #   click-repl
     #   django-autocomplete-light
     #   django-choices
