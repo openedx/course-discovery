@@ -223,7 +223,9 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def product_organization_logo_override(self):
-        return self.organization_logo_override
+        if self.organization_logo_override:
+            return getattr(self.organization_logo_override, 'url', None)
+        return None
 
     @property
     def owners(self):
