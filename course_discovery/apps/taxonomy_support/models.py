@@ -59,4 +59,4 @@ class UpdateCourseRecommendationsConfig(SingletonModel):
     )
 
     def __str__(self):
-        return f'All Courses:{self.all_courses}, UUIDs: {self.uuids}'
+        return 'Configuration for the update_course_recommendations management command'

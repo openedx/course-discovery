@@ -94,7 +94,9 @@ class Command(BaseCommand):
         else:
             num_past_days = kwargs['num_past_days'] or 10
             from_date = tz.now() - datetime.timedelta(days=num_past_days)
-            courses = all_courses.filter(Q(created__gt=from_date) | Q(modified__gt=from_date))
+            courses_with_modified_skills = CourseSkills.objects.filter(
+                modified__gt=from_date).values_list('course_key', flat=True)
+            courses = all_courses.filter(Q(created__gt=from_date) | Q(key__in=list(courses_with_modified_skills)))
         logger.info(
             '[UPDATE_COURSE_RECOMMENDATIONS] Updating {course_count} courses'.format(
                 course_count=courses.count()
