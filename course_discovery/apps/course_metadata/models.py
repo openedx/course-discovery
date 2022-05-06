@@ -905,6 +905,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         null=True,
         validators=[FileExtensionValidator(['png'])]
     )
+    search_rank = models.IntegerField(
+        null=True, blank=True, default=0,
+        help_text=_('Optionally allow weighting of a course in the search by a numerical tier value')
+    )
 
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
