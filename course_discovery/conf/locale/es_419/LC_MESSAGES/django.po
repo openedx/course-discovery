@@ -33,7 +33,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-24 20:35+0000\n"
+"POT-Creation-Date: 2022-05-01 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Carolina De Mares <carolina.demares@edunext.co>, 2022\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
@@ -956,12 +956,12 @@ msgid "Topic model translations"
 msgstr "Traducciones modelo para el tema."
 
 #: apps/course_metadata/models.py:624
-msgid "The redirect URL of the course on external site"
-msgstr "La URL de redireccionamiento del curso en un sitio externo"
-
-#: apps/course_metadata/models.py:630
 msgid "The URL of the paid landing page on external site"
 msgstr "La URL de la página de destino paga en el sitio externo"
+
+#: apps/course_metadata/models.py:630
+msgid "The URL of the organic landing page on external site"
+msgstr ""
 
 #: apps/course_metadata/models.py:686
 msgid "A list of major works by this person. Must be valid HTML."
@@ -1752,11 +1752,11 @@ msgstr "Programas de vías de aprendizaje"
 msgid "Organization Role"
 msgstr "Rol de la organización"
 
-#: apps/taxonomy_support/management/commands/update_course_recommendations.py:14
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py:19
 msgid "Update the course recommendations based on skills."
 msgstr "Actualice las recomendaciones del curso en función de las habilidades."
 
-#: apps/taxonomy_support/management/commands/update_course_recommendations.py:30
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py:41
 msgid ""
 "Use arguments from the UpdateCourseRecommendationsConfig model instead of "
 "the command line."
@@ -1800,6 +1800,11 @@ msgstr "Recomendaciones de cursos"
 #: apps/taxonomy_support/models.py:54
 msgid "Adds recommendations for all published courses"
 msgstr "Agrega recomendaciones para todos los cursos publicados"
+
+#: apps/taxonomy_support/models.py:58
+msgid ""
+"Adds recommendations for courses created or modified in the past num days"
+msgstr ""
 
 #: urls.py:32
 msgid "Discovery Service Administration"

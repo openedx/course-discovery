@@ -31,7 +31,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-24 20:35+0000\n"
+"POT-Creation-Date: 2022-05-01 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: iderr <ibrahim@derraz.fr>, 2021-2022\n"
 "Language-Team: French (http://www.transifex.com/open-edx/edx-platform/language/fr/)\n"
@@ -954,12 +954,12 @@ msgid "Topic model translations"
 msgstr "Modèle de traduction du thème"
 
 #: apps/course_metadata/models.py:624
-msgid "The redirect URL of the course on external site"
-msgstr "L'URL de redirection du cours sur le site externe"
-
-#: apps/course_metadata/models.py:630
 msgid "The URL of the paid landing page on external site"
 msgstr "L'URL de la page de destination payante sur le site externe"
+
+#: apps/course_metadata/models.py:630
+msgid "The URL of the organic landing page on external site"
+msgstr ""
 
 #: apps/course_metadata/models.py:686
 msgid "A list of major works by this person. Must be valid HTML."
@@ -1750,11 +1750,11 @@ msgstr "Programmes de parcours d&#39;apprentissage"
 msgid "Organization Role"
 msgstr "Rôle dans l'organisation"
 
-#: apps/taxonomy_support/management/commands/update_course_recommendations.py:14
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py:19
 msgid "Update the course recommendations based on skills."
 msgstr "Mettre à jour les recommandations de cours en fonction des compétences."
 
-#: apps/taxonomy_support/management/commands/update_course_recommendations.py:30
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py:41
 msgid ""
 "Use arguments from the UpdateCourseRecommendationsConfig model instead of "
 "the command line."
@@ -1798,6 +1798,11 @@ msgstr "Recommandations de cours"
 #: apps/taxonomy_support/models.py:54
 msgid "Adds recommendations for all published courses"
 msgstr "Ajoute des recommandations pour tous les cours publiés"
+
+#: apps/taxonomy_support/models.py:58
+msgid ""
+"Adds recommendations for courses created or modified in the past num days"
+msgstr ""
 
 #: urls.py:32
 msgid "Discovery Service Administration"
