@@ -80,6 +80,10 @@ class TestCourse(TestCase):
         course.image = None
         assert course.original_image_url is None
 
+    def test_default_search_rank(self):
+        course = factories.CourseFactory()
+        assert course.search_rank == 0
+
     @ddt.data('faq', 'full_description', 'learner_testimonials', 'outcome', 'prerequisites_raw', 'short_description',
               'syllabus_raw')
     def test_html_fields_are_validated(self, field_name):

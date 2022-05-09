@@ -202,7 +202,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'skill_names': [course_skill.skill.name],
             'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
             'organization_short_code_override': course.organization_short_code_override,
-            'organization_logo_override_url': course.organization_logo_override_url
+            'organization_logo_override_url': course.organization_logo_override_url,
+            'search_rank': 0,
         })
 
         return expected
@@ -267,6 +268,17 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1, 'editable': 1})
         assert serializer.data['organization_short_code_override'] is not None
         assert serializer.data['organization_logo_override_url'] is not None
+
+    def test_search_rank(self):
+        """
+        Verify the serializer returns the correct value for search rank field in Course.
+        """
+        request = make_request()
+        course_draft = CourseFactory(draft=True, search_rank=10)
+        course_draft.save()
+
+        serializer = self.serializer_class(course_draft, context={'request': request, 'exclude_utm': 1, 'editable': 1})
+        assert serializer.data['search_rank'] == 10
 
 
 class CourseEditorSerializerTests(TestCase):

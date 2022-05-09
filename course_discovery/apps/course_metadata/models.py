@@ -929,6 +929,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             self.enrollment_count = 0
         if self.recent_enrollment_count is None:
             self.recent_enrollment_count = 0
+        if self.search_rank is None:
+            self.search_rank = 0
 
     @property
     def image_url(self):

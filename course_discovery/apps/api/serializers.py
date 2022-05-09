@@ -1123,6 +1123,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
                                                        queryset=Collaborator.objects.all(),
                                                        read_serializer=CollaboratorSerializer())
     organization_short_code_override = serializers.CharField(required=False, allow_blank=True)
+    search_rank = serializers.IntegerField(required=False, allow_null=True)
     organization_logo_override_url = serializers.SerializerMethodField()
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
@@ -1177,7 +1178,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'extra_description', 'additional_information', 'additional_metadata', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
-            'skills', 'organization_short_code_override', 'organization_logo_override_url'
+            'skills', 'organization_short_code_override', 'organization_logo_override_url', 'search_rank'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
