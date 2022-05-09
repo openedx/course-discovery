@@ -689,8 +689,18 @@ class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
         )
 
 
+@admin.register(ExpectedLearningItem)
+class ExpectedLearningItemAdmin(admin.ModelAdmin):
+    search_fields = ('value',)
+
+
+@admin.register(JobOutlookItem)
+class JobOutlookItemAdmin(admin.ModelAdmin):
+    search_fields = ('value',)
+
+
 # Register remaining models using basic ModelAdmin classes
-for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
+for model in (Image, SyllabusItem, PersonSocialNetwork, DataLoaderConfig,
               DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCommentsToSalesforce,
               MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, PersonAreaOfExpertise,
               TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig, BulkModifyProgramHookConfig,
