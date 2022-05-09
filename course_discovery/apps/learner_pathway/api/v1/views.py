@@ -1,6 +1,13 @@
 """
 API Views for learner_pathway app.
 """
+import pdb
+from urllib.parse import quote_plus, unquote
+
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from course_discovery.apps.api.pagination import ProxiedPagination
@@ -21,6 +28,12 @@ class LearnerPathwayViewSet(ReadOnlyModelViewSet):
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
+
+    @action(detail=True)
+    def snapshot(self, request, uuid):
+        pathway = get_object_or_404(models.LearnerPathway, uuid=uuid, status=PathwayStatus.Active)
+        serializer = serializers.LearnerPathwayMinimalSerializer(pathway, many=False)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
 
 
 class LearnerPathwayStepViewSet(ReadOnlyModelViewSet):

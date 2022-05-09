@@ -42,6 +42,27 @@ LEARNER_PATHWAY_DATA = {
     ]
 }
 
+LEARNER_PATHWAY_SNAPSHOT_DATA = {
+    "uuid": "6b8742ce-f294-4674-aacb-34fbf75249de",
+    "status": "active",
+    "steps": [
+        {
+            "uuid": "9d91b42a-f3e4-461a-b9e1-e53a4fc927ed",
+            "min_requirement": 2,
+            "courses": [
+                {
+                    "key": "AA+AA101"
+                }
+            ],
+            "programs": [
+                {
+                    "uuid": "1f301a72-f344-4a31-9e9a-e0b04d8d86b2"
+                }
+            ]
+        }
+    ]
+}
+
 
 @mark.django_db
 class TestLearnerPathwayViewSet(TestCase):
@@ -140,3 +161,14 @@ class TestLearnerPathwayViewSet(TestCase):
 
         api_response = self.client.get(self.view_url)
         assert api_response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_learner_pathway_snapshot_api(self):
+        """
+        Verify that learner pathway snapshot api  returns the expected response.
+        """
+        snapshot_url = f'{self.view_url}snapshot/'
+        api_response = self.client.get(snapshot_url)
+        data = api_response.json()
+        # remove id/pk of the object, we don't need to compare it
+        data.pop('id')
+        assert data == LEARNER_PATHWAY_SNAPSHOT_DATA
