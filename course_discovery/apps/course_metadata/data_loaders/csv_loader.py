@@ -90,7 +90,7 @@ class CSVDataLoader(AbstractDataLoader):
             message = self.validate_course_data(course_type, row)
             if message:
                 logger.error("Data validation issue for course {}, skipping ingestion".format(course_title))
-                self.messages_list.append("[DATA VALIDATION ERROR] Course {}.  Missing data: {}".format(
+                self.messages_list.append("[DATA VALIDATION ERROR] Course {}. Missing data: {}".format(
                     course_title, message
                 ))
                 continue
