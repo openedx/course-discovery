@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class CSVDataLoader(AbstractDataLoader):
+
     PROGRAM_TYPES = [
         ProgramType.XSERIES,
         ProgramType.MASTERS,
@@ -29,6 +30,18 @@ class CSVDataLoader(AbstractDataLoader):
         ProgramType.MICROBACHELORS,
         ProgramType.PROFESSIONAL_PROGRAM_WL,
         ProgramType.PROFESSIONAL_CERTIFICATE
+    ]
+    # list of data fields (present as CSV columns) that should be present in each row
+    BASE_REQUIRED_DATA_FIELDS = [
+        'title', 'number', 'image', 'short_description', 'long_description', 'what_will_you_learn', 'course_level',
+        'primary_subject', 'verified_price', 'syllabus', 'frequently_asked_questions', 'publish_date', 'start_date',
+        'start_time', 'end_date', 'end_time', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
+        'content_language', 'transcript_language'
+    ]
+
+    EXECUTIVE_EDUCATION_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
+        'redirect_url', 'organic_url', 'external_identifier', 'lead_capture_form_url', 'certificate_header',
+        'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text',
     ]
 
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, is_draft=False):
@@ -71,6 +84,14 @@ class CSVDataLoader(AbstractDataLoader):
             except CourseRunType.DoesNotExist:
                 logger.exception("CourseRunType {} does not exist in the database.".format(
                     row['course_run_enrollment_track']
+                ))
+                continue
+
+            message = self.validate_course_data(course_type, row)
+            if message:
+                logger.error("Data validation issue for course {}, skipping ingestion".format(course_title))
+                self.messages_list.append("[DATA VALIDATION ERROR] Course {}.  Missing data: {}".format(
+                    course_title, message
                 ))
                 continue
 
@@ -152,6 +173,24 @@ class CSVDataLoader(AbstractDataLoader):
             logger.info("Course UUIDs:")
             for course_uuid, title in self.course_uuids.items():
                 logger.info("{}:{}".format(course_uuid, title))
+
+    def validate_course_data(self, course_type, data):
+        """
+        Verify the required data key-values for a course type are present in the provided
+        data dictionary and return a comma separated string of missing data fields.
+        """
+        missing_fields = []
+        required_fields = self.BASE_REQUIRED_DATA_FIELDS
+        if course_type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
+            required_fields = self.EXECUTIVE_EDUCATION_REQUIRED_FIELDS
+
+        for field in required_fields:
+            if not (field in data and data[field]):
+                missing_fields.append(field)
+
+        if missing_fields:
+            return ', '.join(missing_fields)
+        return ''
 
     def _create_course_api_request_data(self, data, course_type, course_run_type_uuid):
         """
@@ -392,7 +431,10 @@ class CSVDataLoader(AbstractDataLoader):
                 sub_obj = Subject.objects.get(translations__name=subject, translations__language_code='en')
                 subject_slugs.append(sub_obj.slug)
             except Subject.DoesNotExist:
-                logger.exception("Unable to locate subject {} in the database. Skipping subject association")
+                logger.exception("Unable to locate subject {} in the database. Skipping subject association".format(
+                    subject
+                ))
+                raise
 
         return subject_slugs
 
