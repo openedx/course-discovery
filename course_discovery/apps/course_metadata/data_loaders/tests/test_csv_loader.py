@@ -36,7 +36,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.user = UserFactory.create(username="test_user", password=USER_PASSWORD, is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
-    def mock_call_course_api(self, method, url, data):
+    def mock_call_course_api(self, method, url, payload):
         """
         Helper method to make api calls using test client.
         """
@@ -44,13 +44,13 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         if method == 'POST':
             response = self.client.post(
                 url,
-                data=data,
+                data=payload,
                 format='json'
             )
         elif method == 'PATCH':
             response = self.client.patch(
                 url,
-                data=data,
+                data=payload,
                 format='json'
             )
         return response
@@ -377,7 +377,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_ecommerce_publication(self.partner)
-        self.mock_image_response()  # pylint: disable=unused-variable
+        self.mock_image_response()
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
@@ -525,7 +525,9 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
          ),
     )
     @unpack
-    def test_data_validation_checks(self, missing_fields, course_type, expected_message, jwt_decode_patch):
+    def test_data_validation_checks(
+            self, missing_fields, course_type, expected_message, jwt_decode_patch
+    ):  # pylint: disable=unused-argument
         """
         Verify that if any of the required field is missing in data, the ingestion is not done.
         """
