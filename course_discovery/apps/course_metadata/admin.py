@@ -1,14 +1,13 @@
 from adminsortable2.admin import SortableAdminMixin
 from dal import autocomplete
-from django.conf.urls import url
 from django.contrib import admin, messages
 from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import re_path, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
 from waffle import get_waffle_flag_model
@@ -24,6 +23,7 @@ from course_discovery.apps.course_metadata.forms import (
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.course_metadata.views import CourseSkillsView, RefreshCourseSkillsView
+from course_discovery.apps.learner_pathway.api.urls import app_name as learner_pathway_app_name
 
 PUBLICATION_FAILURE_MSG_TPL = _(
     'An error occurred while publishing the {model} to the marketing site. '
@@ -94,6 +94,11 @@ class PersonAreaOfExpertiseInline(admin.TabularInline):
     extra = 0
 
 
+class AdditionalMetadataInline(admin.TabularInline):
+    model = AdditionalMetadata
+    extra = 0
+
+
 @admin.register(Course)
 class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = CourseAdminForm
@@ -105,6 +110,12 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     raw_id_fields = ('canonical_course_run', 'draft_version',)
     autocomplete_fields = ['canonical_course_run']
     change_actions = ('course_skills', 'refresh_course_skills')
+
+    def get_search_results(self, request, queryset, search_term):
+        queryset, may_have_duplicates = super().get_search_results(request, queryset, search_term)
+        if request.GET.get('app_label') == learner_pathway_app_name:
+            queryset = queryset.filter(draft=False)
+        return queryset, may_have_duplicates
 
     def get_readonly_fields(self, request, obj=None):
         """
@@ -153,12 +164,12 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
         Returns the additional urls used by the custom object tools.
         """
         additional_urls = [
-            url(
+            re_path(
                 r"^([^/]+)/course_skills$",
                 self.admin_site.admin_view(CourseSkillsView.as_view()),
                 name=COURSE_SKILLS_URL_NAME
             ),
-            url(
+            re_path(
                 r"^([^/]+)/refresh_course_skills$",
                 self.admin_site.admin_view(RefreshCourseSkillsView.as_view()),
                 name=REFRESH_COURSE_SKILLS_URL_NAME
@@ -405,6 +416,55 @@ class AdditionalPromoAreaAdmin(admin.ModelAdmin):
         ])
 
 
+@admin.register(Fact)
+class FactAdmin(admin.ModelAdmin):
+    list_display = ('heading', 'blurb', 'courses')
+    search_fields = ('heading', 'blurb',)
+
+    def courses(self, obj):
+
+        def _get_course_keys(additional_metadata_object):
+            return ', '.join([course.key for course in additional_metadata_object.related_courses.all()])
+
+        return ', '.join([
+            _get_course_keys(metadata) for metadata in obj.related_course_additional_metadata.all()
+        ])
+
+
+@admin.register(CertificateInfo)
+class CertificateInfoAdmin(admin.ModelAdmin):
+    list_display = ('heading', 'blurb', 'courses')
+    search_fields = ('heading', 'blurb',)
+
+    def courses(self, obj):
+
+        def _get_course_keys(additional_metadata_object):
+            return ', '.join([course.key for course in additional_metadata_object.related_courses.all()])
+
+        return ', '.join([
+            _get_course_keys(metadata) for metadata in obj.related_course_additional_metadata.all()
+        ])
+
+
+@admin.register(AdditionalMetadata)
+class AdditionalMetadataAdmin(admin.ModelAdmin):
+    list_display = (
+        'id', 'external_identifier', 'external_url', 'lead_capture_form_url',
+        'courses', 'facts_list', 'certificate_info', 'organic_url'
+    )
+    search_fields = ('external_identifier', 'external_url')
+
+    def courses(self, obj):
+        return ', '.join([
+            course.key for course in obj.related_courses.all()
+        ])
+
+    def facts_list(self, obj):
+        return ', '.join([
+            fact.heading for fact in obj.facts.all()
+        ])
+
+
 class OrganizationUserRoleInline(admin.TabularInline):
     # course-meta-data models are importing in publisher app. So just for safe side
     # to avoid any circular issue importing the publisher model here.
@@ -629,8 +689,18 @@ class SearchDefaultResultsConfigurationAdmin(admin.ModelAdmin):
         )
 
 
+@admin.register(ExpectedLearningItem)
+class ExpectedLearningItemAdmin(admin.ModelAdmin):
+    search_fields = ('value',)
+
+
+@admin.register(JobOutlookItem)
+class JobOutlookItemAdmin(admin.ModelAdmin):
+    search_fields = ('value',)
+
+
 # Register remaining models using basic ModelAdmin classes
-for model in (Image, ExpectedLearningItem, SyllabusItem, PersonSocialNetwork, JobOutlookItem, DataLoaderConfig,
+for model in (Image, SyllabusItem, PersonSocialNetwork, DataLoaderConfig,
               DeletePersonDupsConfig, DrupalPublishUuidConfig, MigrateCommentsToSalesforce,
               MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig, PersonAreaOfExpertise,
               TagCourseUuidsConfig, BackpopulateCourseTypeConfig, RemoveRedirectsConfig, BulkModifyProgramHookConfig,
@@ -643,3 +713,9 @@ class CollaboratorAdmin(admin.ModelAdmin):
     list_display = ('uuid', 'name', 'image')
     readonly_fields = ('uuid', )
     search_fields = ('uuid', 'name')
+
+
+@admin.register(CourseUrlSlug)
+class CourseUrlSlugAdmin(admin.ModelAdmin):
+    list_display = ('course', 'url_slug', 'is_active')
+    search_fields = ('url_slug', 'course__title', 'course__key',)

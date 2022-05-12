@@ -17,10 +17,10 @@ import os
 
 from auth_backends.urls import oauth2_urlpatterns
 from django.conf import settings
-from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from django.urls import include, path
+from django.utils.translation import gettext_lazy as _
 from django.views.i18n import JavaScriptCatalog
 from drf_yasg.views import get_schema_view
 from edx_api_doc_tools import make_api_info
@@ -41,38 +41,34 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = oauth2_urlpatterns + [
-    url(r'^admin/course_metadata/', include('course_discovery.apps.course_metadata.urls', namespace='admin_metadata')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^api/', include('course_discovery.apps.api.urls', namespace='api')),
+    path('admin/course_metadata/', include('course_discovery.apps.course_metadata.urls', namespace='admin_metadata')),
+    path('admin/', admin.site.urls),
+    path('api/', include('course_discovery.apps.api.urls', namespace='api')),
     # Use the same auth views for all logins, including those originating from the browseable API.
-    url(r'^api-auth/', include((oauth2_urlpatterns, 'rest_framework'))),
-    url(r'^api-docs/$', schema_view.with_ui('swagger', cache_timeout=0), name='api_docs'),
-    url(r'^auto_auth/$', core_views.AutoAuth.as_view(), name='auto_auth'),
-    url(r'^health/$', core_views.health, name='health'),
-    url('^$', QueryPreviewView.as_view()),
-    url(r'^publisher/', include('course_discovery.apps.publisher.urls', namespace='publisher')),
-    url(r'^language-tags/', include('course_discovery.apps.ietf_language_tags.urls', namespace='language_tags')),
-    url(r'^taxonomy/', include('course_discovery.apps.taxonomy_support.urls', namespace='taxonomy_support')),
-    url(r'^comments/', include('django_comments.urls')),
-    url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^jsi18n/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
-    url(r'^taggit_autosuggest/', include('taggit_autosuggest.urls')),
+    path('api-auth/', include((oauth2_urlpatterns, 'rest_framework'))),
+    path('api-docs/', schema_view.with_ui('swagger', cache_timeout=0), name='api_docs'),
+    path('auto_auth/', core_views.AutoAuth.as_view(), name='auto_auth'),
+    path('health/', core_views.health, name='health'),
+    path('', QueryPreviewView.as_view()),
+    path('publisher/', include('course_discovery.apps.publisher.urls', namespace='publisher')),
+    path('language-tags/', include('course_discovery.apps.ietf_language_tags.urls', namespace='language_tags')),
+    path('taxonomy/', include('course_discovery.apps.taxonomy_support.urls', namespace='taxonomy_support')),
+    path('comments/', include('django_comments.urls')),
+    path('i18n/', include('django.conf.urls.i18n')),
+    path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    path('taggit_autosuggest/', include('taggit_autosuggest.urls')),
+    path('api/', include('course_discovery.apps.learner_pathway.api.urls', namespace='learner_pathway_api')),
 ]
-
-if settings.ENABLE_LEARNER_PATHWAY:
-    urlpatterns += [
-        url(r'^api/', include('course_discovery.apps.learner_pathway.api.urls', namespace='learner_pathway_api')),
-    ]
 
 # edx-drf-extensions csrf app
 urlpatterns += [
-    url(r'', include('csrf.urls')),
+    path('', include('csrf.urls')),
 ]
 
 # Add the catalog extension urls if edx_catalog_extensions is installed.
 if 'course_discovery.apps.edx_catalog_extensions' in settings.INSTALLED_APPS:
     urlpatterns.append(
-        url(r'^extensions/', include('course_discovery.apps.edx_catalog_extensions.urls', namespace='extensions'))
+        path('extensions/', include('course_discovery.apps.edx_catalog_extensions.urls', namespace='extensions'))
     )
 
 if settings.DEBUG:  # pragma: no cover
@@ -86,4 +82,4 @@ if settings.DEBUG:  # pragma: no cover
     if os.environ.get('ENABLE_DJANGO_TOOLBAR', False):
         import debug_toolbar
 
-        urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
+        urlpatterns.append(path('__debug__/', include(debug_toolbar.urls)))

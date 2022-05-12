@@ -28,8 +28,8 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel, AbstractValueModel,
-    CorporateEndorsement, Course, CourseEditor, CourseRun, Curriculum, CurriculumCourseMembership,
+    FAQ, AbstractHeadingBlurbModel, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel,
+    AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, Curriculum, CurriculumCourseMembership,
     CurriculumCourseRunExclusion, CurriculumProgramMembership, DegreeCost, DegreeDeadline, Endorsement, Organization,
     Program, Ranking, Seat, SeatType, Subject, Topic
 )
@@ -188,6 +188,20 @@ class TestCourse(TestCase):
         course = factories.CourseFactory.create()
         factories.CourseRunFactory(course=course, end=end)
         self.assertEqual(course.course_ends, expected)
+
+    def test_additional_metadata(self):
+        """ Verify the property returns valid additional metadata fields. """
+
+        additional_metadata = factories.AdditionalMetadataFactory(
+            facts=[factories.FactFactory(), factories.FactFactory()]
+        )
+        course = factories.CourseFactory(additional_metadata=additional_metadata)
+        self.assertEqual(course.additional_metadata.external_identifier, additional_metadata.external_identifier)
+        self.assertEqual(course.additional_metadata.external_url, additional_metadata.external_url)
+        self.assertEqual(course.additional_metadata.lead_capture_form_url, additional_metadata.lead_capture_form_url)
+        self.assertEqual(course.additional_metadata.organic_url, additional_metadata.organic_url)
+        self.assertEqual(course.additional_metadata.certificate_info, additional_metadata.certificate_info)
+        self.assertEqual(course.additional_metadata.facts, additional_metadata.facts)
 
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
@@ -582,7 +596,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         assert self.course_run.program_types == [active_program.type.name]
 
     def test_new_course_run_excluded_in_retired_programs(self):
-        """ Verify the newly created course run must be excluded in associated retired programs"""
+        """ Verify the newly reviewed course run must be excluded in associated retired programs"""
         course = factories.CourseFactory()
         course_run = factories.CourseRunFactory(course=course)
         program = factories.ProgramFactory(
@@ -590,7 +604,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         )
         course_run.weeks_to_complete = 2
         course_run.save()
-        new_course_run = factories.CourseRunFactory(course=course)
+        new_course_run = factories.CourseRunFactory(course=course, status=CourseRunStatus.Reviewed, draft=False)
         new_course_run.save()
         assert program.excluded_course_runs.count() == 1
         assert len(list(program.course_runs)) == 1
@@ -887,6 +901,17 @@ class CourseRunTests(OAuth2Mixin, TestCase):
                 course_run.save()
                 assert mock_publish_obj.called == expected
 
+    @ddt.data(
+        ('old/mongo/key', False),
+        ('course-v1:modern+style+key', True),
+    )
+    @ddt.unpack
+    def test_old_mongo_not_marketable(self, key, expected):
+        course_run = factories.CourseRunFactory.create(key=key)
+        factories.SeatFactory.create(course_run=course_run)
+        assert course_run.is_marketable == expected
+        assert course_run.could_be_marketable == expected
+
 
 class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
     """
@@ -929,7 +954,6 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
         assert official_run.course.draft is False
         assert official_run.course.draft_version == draft_run.course
         assert official_run.course != draft_run.course
-        assert official_run.course.slug == draft_run.course.slug
 
         official_entitlement = official_run.course.entitlements.first()
         draft_entitlement = draft_run.course.entitlements.first()
@@ -1324,6 +1348,23 @@ class AbstractTitleDescriptionModelTests(TestCase):
 
         instance = TestAbstractTitleDescriptionModel(title=title, description=description)
         assert str(instance) == title
+
+
+class AbstractHeadingBlurbModelTests(TestCase):
+    """ Tests for AbstractHeadingBlurbModelTests. """
+
+    def test_str(self):
+        class TestAbstractHeadingBlurbModel(AbstractHeadingBlurbModel):
+            """ Model to test instances of abstract model """
+
+        heading = 'test heading'
+        blurb = '<p>test blurb<p>'
+
+        instance = TestAbstractHeadingBlurbModel(heading=None, blurb=blurb)
+        assert str(instance) == blurb
+
+        instance = TestAbstractHeadingBlurbModel(heading=heading, blurb=blurb)
+        assert str(instance) == heading
 
 
 @ddt.ddt

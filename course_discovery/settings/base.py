@@ -66,6 +66,7 @@ THIRD_PARTY_APPS = [
     'taxonomy',
     'django_object_actions',
     "django_migration_linter",
+    'nested_admin',
 ]
 
 ALGOLIA = {
@@ -84,6 +85,7 @@ PROJECT_APPS = [
     'course_discovery.apps.publisher',
     'course_discovery.apps.publisher_comments',
     'course_discovery.apps.learner_pathway',
+    'course_discovery.apps.taxonomy_support',
 ]
 
 ES_APPS = [
@@ -469,6 +471,7 @@ ELASTICSEARCH_DSL = {
 ELASTICSEARCH_INDEX_NAMES = {
     'course_discovery.apps.course_metadata.search_indexes.documents.course': 'course',
     'course_discovery.apps.course_metadata.search_indexes.documents.course_run': 'course_run',
+    'course_discovery.apps.course_metadata.search_indexes.documents.learner_pathway': 'learner_pathway',
     'course_discovery.apps.course_metadata.search_indexes.documents.person': 'person',
     'course_discovery.apps.course_metadata.search_indexes.documents.program': 'program',
 }
@@ -629,6 +632,6 @@ CELERY_TASK_ALWAYS_EAGER = False
 
 FIRE_UPDATE_COURSE_SKILLS_SIGNAL = False
 
-# Learner Pathway
-# Disable learner pathway on all environment except devstack and testing.
-ENABLE_LEARNER_PATHWAY = False
+DISCOVERY_BASE_URL = "http://localhost:18381"
+
+PRODUCT_API_URL = ''

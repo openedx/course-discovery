@@ -408,9 +408,6 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         assert ensured_draft_course.uuid == not_draft_course.uuid
         assert ensured_draft_course.draft
 
-        # Check slugs are equal
-        assert ensured_draft_course.slug == not_draft_course.slug
-
         # Check authoring orgs are equal
         assert list(ensured_draft_course.authoring_organizations.all()) ==\
                list(not_draft_course.authoring_organizations.all())

@@ -1,7 +1,8 @@
-from django.conf.urls import include, url
+from django.conf.urls import include
+from django.urls import path
 
 app_name = 'catalog_extensions'
 
 urlpatterns = [
-    url(r'^api/', include('course_discovery.apps.edx_catalog_extensions.api.urls')),
+    path('api/', include('course_discovery.apps.edx_catalog_extensions.api.urls')),
 ]

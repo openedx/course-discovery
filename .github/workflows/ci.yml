@@ -12,16 +12,41 @@ jobs:
       matrix:
         python-version: ['py38']
         django-version: ['django32']
+        db-version: ['mysql57', 'mysql80']
+        pytest-split-group: [1, 2, 3, 4, 5, 6]
         status: ['']
 
     steps:
       - uses: actions/checkout@v2
       - run: make ci_up
-      - run: make ci_test TOXENV=${{ matrix.python-version }}-${{ matrix.django-version }}
+      - name: run tests
+        env:
+          DB_HOST: ${{ matrix.db-version }}
+          PYTEST_SPLIT_GROUP: ${{ matrix.pytest-split-group }}
+        run: make ci_test TOXENV=${{ matrix.python-version }}-${{ matrix.django-version }}
         # Unfortunately, continue-on-error marks the job as successful. We really want something like "allow failure"
         # that would note the failure, but not fail the entire workflow and not email the author about it.
         # See https://github.com/actions/toolkit/issues/399
         continue-on-error: ${{ matrix.status == 'ignored' }}
+      - name: Upload coverage
+        if: matrix.db-version == 'mysql57'  # TODO: Remove this condition when removing 'mysql57' db-version.
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage${{ matrix.pytest-split-group }}
+          path: .coverage
+
+  # Combine and upload coverage reports.
+  coverage:
+    needs: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: make ci_up
+      - name: Download all artifacts
+        # Downloads coverage1, coverage2, etc.
+        uses: actions/download-artifact@v2
+      - name: Run coverage
+        run: make ci_coverage
       - uses: codecov/codecov-action@v1
 
   quality:

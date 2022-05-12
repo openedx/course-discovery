@@ -1,5 +1,6 @@
 import datetime
 from unittest import mock
+from urllib.parse import urlencode
 
 import ddt
 import pytest
@@ -65,7 +66,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
 
-        with self.assertNumQueries(40):
+        with self.assertNumQueries(44):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
@@ -74,7 +75,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns the details for a single course with UUID. """
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
 
-        with self.assertNumQueries(40):
+        with self.assertNumQueries(44):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course)
@@ -83,7 +84,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns no deleted associated programs """
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
-        with self.assertNumQueries(40):
+        with self.assertNumQueries(44):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data.get('programs') == []
@@ -96,7 +97,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         ProgramFactory(courses=[self.course], status=ProgramStatus.Deleted)
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
         url += '?include_deleted_programs=1'
-        with self.assertNumQueries(43):
+        with self.assertNumQueries(47):
             response = self.client.get(url)
         assert response.status_code == 200
         assert response.data == self.serialize_course(self.course, extra_context={'include_deleted_programs': True})
@@ -244,7 +245,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of all courses. """
         url = reverse('api:v1:course-list')
 
-        with self.assertNumQueries(28):
+        with self.assertNumQueries(32):
             response = self.client.get(url)
         assert response.status_code == 200
         self.assertListEqual(
@@ -261,7 +262,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # Known to be flaky prior to the addition of tearDown()
         # and logout() code which is the same number of additional queries
-        with self.assertNumQueries(48):
+        with self.assertNumQueries(57):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -269,9 +270,9 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         """ Verify the endpoint returns a list of courses filtered by the specified keys. """
         courses = CourseFactory.create_batch(3, partner=self.partner)
         keys = ','.join([course.key for course in courses])
-        url = '{root}?keys={keys}'.format(root=reverse('api:v1:course-list'), keys=keys)
+        url = '{root}?{params}'.format(root=reverse('api:v1:course-list'), params=urlencode({'keys': keys}))
 
-        with self.assertNumQueries(49):
+        with self.assertNumQueries(57):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -281,7 +282,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(48):
+        with self.assertNumQueries(57):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -353,6 +354,37 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert response2.status_code == 200
         assert len(response2.data['results']) == 1
         assert response2.data['results'][0]['uuid'] == str(course2.uuid)
+
+    @ddt.data(
+        ('audit', 1),
+        ('verified-audit', 1),
+        ('executive-education-2u', 1),
+        ('bootcamp-2u', 1),
+        ('open-courses', 2),
+        ('incorrect-type', 0)
+    )
+    @ddt.unpack
+    def test_list_courses_course_type_filter(self, course_type, expected_length):
+        """
+        Verify the endpoint returns a list of courses filtered by correct course type.
+
+        * For explicit type slugs, only those courses are returned
+        * For open-courses, all except bootcamps and executive education are returned
+        * For an incorrect slug, no filtering is the done and default list is returned.
+        """
+        executive_ed_type, _ = CourseType.objects.get_or_create(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        bootcamp_type, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
+
+        # Audit course is already created in setUp, the following courses are meant for this test case only
+        CourseFactory(partner=self.partner, title='Fake Test', key='edX+exEd', type=executive_ed_type)
+        CourseFactory(partner=self.partner, title='Fake Test', key='edX+bootcamp', type=bootcamp_type)
+        CourseFactory(partner=self.partner, title='Fake Test', key='edX+ver', type=self.verified_type)
+
+        url = reverse('api:v1:course-list') + '?editable=1&course_type={}'.format(course_type)
+
+        response = self.client.get(url)
+        assert response.status_code == 200
+        assert len(response.data['results']) == expected_length
 
     def test_unsubmitted_status(self):
         """ Verify we support composite status 'unsubmitted' (unpublished & unarchived). """
@@ -1019,6 +1051,85 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert course.level_type == beginner
 
     @responses.activate
+    def test_override_with_shortcode_and_logo_image(self):
+        course = CourseFactory()
+        payload = {
+            'organization_logo_override':
+                'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
+                '42YAAAAASUVORK5CYII=',
+            'organization_short_code_override': 'test_org'
+        }
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        response = self.client.patch(url, payload, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        serialized_course_data = self.serialize_course(course)
+        self.assertEqual(serialized_course_data['organization_short_code_override'], 'test_org')
+        self.assertDictEqual(response.data, serialized_course_data)
+        assert serialized_course_data['organization_logo_override_url'] is not None
+
+    @responses.activate
+    def test_update_with_additional_metadata(self):
+        course = CourseFactory(additional_metadata=None)
+
+        additional_metadata = {
+            'external_url': 'https://example.com/',
+            'external_identifier': '12345',
+            'lead_capture_form_url': 'https://example.com/lead-capture',
+            'organic_url': 'https://example.com/organic',
+            'certificate_info': {
+                'heading': 'Certificate heading',
+                'blurb': '<p>Certificate blurb</p>',
+            },
+            'facts': [
+                {
+                    'heading': 'Fact heading',
+                    'blurb': '<p>Fact blurb</p>',
+                }
+            ]
+        }
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        course_data = {
+            'additional_metadata': additional_metadata
+        }
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+
+        # test if object update on same course is successful
+        new_facts = [
+            {
+                'heading': 'New Fact heading 1',
+                'blurb': '<p>New Fact blurb 2</p>',
+            },
+            {
+                'heading': 'New Fact heading 333',
+                'blurb': '<p>New Fact blurb 2</p>',
+            }
+
+        ]
+        new_cert = {
+            'heading': 'New Certificate heading',
+            'blurb': '<p>New Certificate blurb</p>',
+        }
+        course_data = {
+            'additional_metadata': {
+                'external_identifier': '67890',  # change external_identifier
+                'facts': new_facts,
+                'certificate_info': new_cert,
+            }
+        }
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+
+        additional_metadata['external_identifier'] = '67890'  # to make sure that the value is updated
+        additional_metadata['facts'] = new_facts
+        additional_metadata['certificate_info'] = new_cert
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+
+    @responses.activate
     def test_update_success_with_course_type_verified(self):
         verified_mode = SeatTypeFactory.verified()
         CourseEntitlementFactory(course=self.course, mode=verified_mode)
@@ -1056,6 +1167,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertDictEqual(response.data, self.serialize_course(course))
         assert course.title == 'Course title'
         assert 0 == course.entitlements.count()
+
+    @responses.activate
+    def test_check_course_type_slug_exists_in_response(self):
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
+        response = self.client.get(url)
+        response_data = response.data
+        assert response_data.get('course_type') == self.course.type.slug
 
     def test_update_keeps_url_slug_if_removed_from_form(self):
         self.course.set_active_url_slug('fake-test')
@@ -1274,6 +1392,56 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.create_course({'url_slug': 'unpublished', 'number': 'a123'})
         new_course = Course.everything.last()
         assert new_course.active_url_slug == 'unpublished'
+
+    def test_update_url_slug(self):
+        self.mock_ecommerce_publication()
+        self.create_course_and_course_run()
+        draft_course = Course.everything.last()
+        draft_course_run = CourseRun.everything.last()
+        draft_course_run.status = CourseRunStatus.Reviewed  # Triggers creation of official versions
+        draft_course_run.save()
+
+        official_course = Course.everything.get(uuid=draft_course.uuid, draft=False)
+        draft_course = official_course.draft_version
+
+        assert official_course.active_url_slug == 'course-title'
+
+        # url slug will only update for draft course when the course run is in unpublished state
+        draft_course_run.status = CourseRunStatus.Unpublished
+        draft_course_run.save()
+
+        url = reverse('api:v1:course-detail', kwargs={'key': draft_course.uuid})
+        response = self.client.patch(url, {'url_slug': 'unpublished-url-slug', 'draft': True}, format='json')
+        assert response.status_code == 200
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        assert draft_course.active_url_slug == 'unpublished-url-slug'
+        assert official_course.active_url_slug == 'course-title'
+
+        # url slug will update for both draft and official course when the course run is in reviewed state
+        draft_course_run.status = CourseRunStatus.Reviewed
+        draft_course_run.save()
+
+        response = self.client.patch(url, {'url_slug': 'reviewed-url-slug', 'draft': True}, format='json')
+        assert response.status_code == 200
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        assert draft_course.active_url_slug == 'reviewed-url-slug'
+        assert official_course.active_url_slug == 'reviewed-url-slug'
+
+        # url slug will update for both draft and official course when the course run is in published state
+        draft_course_run.status = CourseRunStatus.Published
+        draft_course_run.save()
+
+        response = self.client.patch(url, {'url_slug': 'published-url-slug', 'draft': False}, format='json')
+        assert response.status_code == 200
+
+        draft_course.refresh_from_db()
+        official_course.refresh_from_db()
+        assert draft_course.active_url_slug == 'published-url-slug'
+        assert official_course.active_url_slug == 'published-url-slug'
 
     @responses.activate
     def test_patch_published_switch_audit_to_verified(self):

@@ -12,15 +12,16 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import FileExtensionValidator
-from django.db import models, transaction
+from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
+from opaque_keys.edx.keys import CourseKey
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
 from solo.models import SingletonModel
@@ -150,6 +151,20 @@ class AbstractTitleDescriptionModel(TimeStampedModel):
         if self.title:
             return self.title
         return self.description
+
+    class Meta:
+        abstract = True
+
+
+class AbstractHeadingBlurbModel(TimeStampedModel):
+    """ Abstract base class for models with a heading and html blurb pair. """
+    heading = models.CharField(max_length=255, blank=True, null=False)
+    blurb = NullHtmlField()
+
+    def __str__(self):
+        if self.heading:
+            return self.heading
+        return self.blurb
 
     class Meta:
         abstract = True
@@ -488,6 +503,8 @@ class CourseType(TimeStampedModel):
     PROFESSIONAL = 'professional'
     CREDIT_VERIFIED_AUDIT = 'credit-verified-audit'
     EMPTY = 'empty'
+    EXECUTIVE_EDUCATION_2U = 'executive-education-2u'
+    BOOTCAMP_2U = 'bootcamp-2u'
 
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
@@ -587,6 +604,41 @@ class TopicTranslation(TranslatedFieldsModel):
     class Meta:
         unique_together = ('language_code', 'master')
         verbose_name = _('Topic model translations')
+
+
+class Fact(AbstractHeadingBlurbModel):
+    """ Fact Model """
+
+
+class CertificateInfo(AbstractHeadingBlurbModel):
+    """ Certificate Information Model """
+
+
+class AdditionalMetadata(TimeStampedModel):
+    """
+    This model holds 2U related additional fields
+    """
+
+    external_url = models.URLField(
+        blank=False, null=False, max_length=511,
+        help_text=_('The URL of the paid landing page on external site')
+    )
+    external_identifier = models.CharField(max_length=255, blank=True, null=False)
+    lead_capture_form_url = models.URLField(blank=True, null=False, max_length=511)
+    organic_url = models.URLField(
+        blank=True, null=False, max_length=511,
+        help_text=_('The URL of the organic landing page on external site')
+    )
+    facts = models.ManyToManyField(
+        Fact, blank=True, related_name='related_course_additional_metadata',
+    )
+    certificate_info = models.ForeignKey(
+        CertificateInfo, models.CASCADE, default=None, null=True, blank=True,
+        related_name='related_course_additional_metadata',
+    )
+
+    def __str__(self):
+        return f"{self.external_url} - {self.external_identifier}"
 
 
 class Prerequisite(AbstractNamedModel):
@@ -783,6 +835,11 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     extra_description = models.ForeignKey(
         AdditionalPromoArea, models.CASCADE, default=None, null=True, blank=True, related_name='extra_description',
     )
+    additional_metadata = models.ForeignKey(
+        AdditionalMetadata, models.CASCADE,
+        related_name='related_courses',
+        default=None, null=True, blank=True
+    )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     collaborators = SortedManyToManyField(Collaborator, null=True, blank=True, related_name='courses_collaborated')
@@ -804,7 +861,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         },
         help_text=_('Add the course image')
     )
-    slug = AutoSlugField(populate_from='key', editable=True, slugify_function=uslugify)
     video = models.ForeignKey(Video, models.CASCADE, default=None, null=True, blank=True)
     faq = NullHtmlField(verbose_name=_('FAQ'))
     learner_testimonials = NullHtmlField()
@@ -842,6 +898,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     # HTML that isn't normally allowed.
     additional_information = models.TextField(blank=True, null=True, default=None,
                                               verbose_name=_('Additional Information'))
+    organization_short_code_override = models.CharField(max_length=255, blank=True)
+    organization_logo_override = models.ImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/logo_override'),
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(['png'])]
+    )
 
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
@@ -869,6 +932,12 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             return self.image.small.url
 
         return self.card_image_url
+
+    @property
+    def organization_logo_override_url(self):
+        if self.organization_logo_override:
+            return self.organization_logo_override.url
+        return None
 
     @property
     def original_image_url(self):
@@ -1047,7 +1116,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         if creating:
             official_version.canonical_course_run = course_run
-            official_version.slug = self.slug
             official_version.save()
             self.canonical_course_run = course_run.draft_version
             self.save()
@@ -1059,6 +1127,14 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         # logging to help debug error around course url slugs incrementing
         logger.info('The current slug is {}; The slug to be set is {}; Current course is a draft: {}'
                     .format(self.url_slug, slug, self.draft))
+
+        if slug:
+            # case 0: if slug is already in use with another, rasie an IntegrityError
+            excluded_course = self.official_version if self.draft else self.draft_version
+            slug_already_in_use = CourseUrlSlug.objects.filter(url_slug__iexact=slug.lower()).exclude(
+                course__in=[self, excluded_course]).exists()
+            if slug_already_in_use:
+                raise IntegrityError(f'This slug {slug} is already in use with another course')
 
         if self.draft:
             active_draft_url_slug_object = self.url_slug_history.filter(is_active=True).first()
@@ -1848,7 +1924,6 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             suppress_publication (bool): if True, we won't push the run data to the marketing site
             send_emails (bool): whether to send email notifications for status changes from this save
         """
-        is_new_course_run = not self.id
         push_to_marketing = (not suppress_publication and
                              self.course.partner.has_marketing_site and
                              waffle.switch_is_active('publish_course_runs_to_marketing_site') and
@@ -1864,7 +1939,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             if push_to_marketing:
                 self.push_to_marketing_site(previous_obj)
 
-        if is_new_course_run:
+        if self.status == CourseRunStatus.Reviewed and not self.draft:
             retired_programs = self.programs.filter(status=ProgramStatus.Retired)
             for program in retired_programs:
                 program.excluded_course_runs.add(self)
@@ -1960,6 +2035,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         """
         if not self.type.is_marketable:
             return False
+        if CourseKey.from_string(self.key).deprecated:  # Old Mongo courses are not marketed
+            return False
         return not self.draft
 
     @property
@@ -1978,6 +2055,16 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         is_published = self.status == CourseRunStatus.Published
         return is_published and self.seats.exists() and bool(self.marketing_url)
 
+    def complete_review_phase(self, has_ofac_restrictions, ofac_comment):
+        """
+        Complete the review phase of the course run by marking status as reviewed and adding
+        ofac fields' values.
+        """
+        self.has_ofac_restrictions = has_ofac_restrictions
+        self.ofac_comment = ofac_comment
+        self.status = CourseRunStatus.Reviewed
+        self.save()
+
 
 class Seat(DraftModelMixin, TimeStampedModel):
     """ Seat model. """
@@ -1992,7 +2079,14 @@ class Seat(DraftModelMixin, TimeStampedModel):
     CREDIT = 'credit'
     MASTERS = 'masters'
     EXECUTIVE_EDUCATION = 'executive-education'
-    ENTITLEMENT_MODES = [VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION]
+    PAID_EXECUTIVE_EDUCATION = 'paid-executive-education'
+    UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education'
+    PAID_BOOTCAMP = 'paid-bootcamp'
+    UNPAID_BOOTCAMP = 'unpaid-bootcamp'
+    ENTITLEMENT_MODES = [
+        VERIFIED, PROFESSIONAL, EXECUTIVE_EDUCATION, PAID_EXECUTIVE_EDUCATION,
+        PAID_BOOTCAMP
+    ]
     REQUIRES_AUDIT_SEAT = [VERIFIED]
     # Seat types that may not be purchased without first purchasing another Seat type.
     # EX: 'credit' seats may not be purchased without first purchasing a 'verified' Seat.

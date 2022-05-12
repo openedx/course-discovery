@@ -12,10 +12,11 @@ from course_discovery.apps.api import serializers
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.search_indexes.documents import (
-    CourseDocument, CourseRunDocument, ProgramDocument
+    CourseDocument, CourseRunDocument, LearnerPathwayDocument, ProgramDocument
 )
 from course_discovery.apps.course_metadata.search_indexes.serializers import (
-    CourseRunSearchDocumentSerializer, CourseSearchDocumentSerializer, ProgramSearchDocumentSerializer
+    CourseRunSearchDocumentSerializer, CourseSearchDocumentSerializer, LearnerPathwaySearchDocumentSerializer,
+    ProgramSearchDocumentSerializer
 )
 from course_discovery.apps.course_metadata.tests import factories
 
@@ -84,6 +85,10 @@ class SerializationMixin:
     def serialize_program_search(self, program, serializer=None):
         obj = self._get_search_result(ProgramDocument, uuid=program.uuid)
         return self._serialize_object(serializer or ProgramSearchDocumentSerializer, obj)
+
+    def serialize_learner_pathway_search(self, learner_pathway, serializer=None):
+        obj = self._get_search_result(LearnerPathwayDocument, uuid=learner_pathway.uuid)
+        return self._serialize_object(serializer or LearnerPathwaySearchDocumentSerializer, obj)
 
     def serialize_program_type(self, program_type, many=False, format=None, extra_context=None):
         return self._serialize_object(serializers.ProgramTypeSerializer, program_type, many, format, extra_context)

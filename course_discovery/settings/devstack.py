@@ -15,6 +15,7 @@ INTERNAL_IPS = ('127.0.0.1',)
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:8734',  # frontend-app-learner-portal-enterprise
+    'http://localhost:1991',  # frontend-app-admin-portal
     'http://localhost:18400',  # frontend-app-publisher
     'http://localhost:18450',  # frontend-app-support-tools
     'http://localhost:2000',  # frontend-app-learning
@@ -86,6 +87,5 @@ CELERY_TASK_ALWAYS_EAGER = False
 if os.path.isfile(join(dirname(abspath(__file__)), 'private.py')):
     from .private import *  # pylint: disable=import-error
 
-# Learner Pathway
-# Disable learner pathway on all environment except devstack and testing.
-ENABLE_LEARNER_PATHWAY = True
+DISCOVERY_BASE_URL = "http://edx.devstack.discovery:18381"
+

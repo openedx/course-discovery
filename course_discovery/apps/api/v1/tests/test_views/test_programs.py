@@ -1,5 +1,6 @@
 import datetime
 import urllib.parse
+from unittest import mock
 
 import pytest
 import pytz
@@ -210,6 +211,21 @@ class TestProgramViewSet(SerializationMixin):
 
         self.assert_list_results(self.list_path, expected, 19)
 
+    def test_extended_query_param_fields(self):
+        """ Verify that the `extended` query param will result in an extended amount of fields returned. """
+        for _ in range(3):
+            self.create_program()
+
+        extra_field_url = self.list_path + '?extended=True'
+        extra_fields_program_set = self.client.get(extra_field_url)
+        normal_list_program_set = self.client.get(self.list_path)
+        for extended_program in extra_fields_program_set.data.get('results'):
+            assert 'expected_learning_items' in extended_program.keys()
+            assert 'price_ranges' in extended_program.keys()
+        for minimal_program in normal_list_program_set.data.get('results'):
+            assert 'expected_learning_items' not in minimal_program.keys()
+            assert 'price_ranges' not in minimal_program.keys()
+
     def test_uuids_only(self):
         """
         Verify that the list view returns a simply list of UUIDs when the
@@ -336,7 +352,9 @@ class TestProgramViewSet(SerializationMixin):
 
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """
-        assert ProgramViewSet(action='list').get_serializer_class() == MinimalProgramSerializer
+        mock_request = mock.MagicMock()
+        mock_request.query_params = dict()
+        assert ProgramViewSet(action='list', request=mock_request).get_serializer_class() == MinimalProgramSerializer
 
     def test_update_card_image(self):
         program = self.create_program()

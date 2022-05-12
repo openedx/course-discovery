@@ -13,3 +13,16 @@ def get_advertised_course_run_estimated_hours(course):
                 return get_course_run_estimated_hours(course_run)
 
     return None
+
+
+def avg(numbers) -> float:
+    """
+    Get the average of given numbers.
+
+    Arguments:
+        (numbers): An iterable object containing the numbers whose average we need to calculate.
+
+    Returns:
+        (float): Average of the numbers calculated from the input list.
+    """
+    return sum(numbers) / len(numbers)

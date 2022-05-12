@@ -18,7 +18,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     LOADER_MAX_RETRY = 3
     PAGE_SIZE = 50
 
-    def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False):
         """
         Arguments:
             partner (Partner): Partner which owns the APIs and data being loaded
@@ -27,7 +27,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
             is_threadsafe (bool): True if multiple threads can be used to write data.
         """
         self.partner = partner
-        self.api_url = api_url.strip('/')
+        self.api_url = api_url.strip('/') if api_url else api_url
         self.api_client = self.partner.oauth_api_client
         self.username = self.get_username_from_client(self.api_client)
 

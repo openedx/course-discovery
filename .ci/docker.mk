@@ -11,6 +11,10 @@ ci_test: ## Run tests on Docker containers, as on CI
 	.ci/run-in-docker.sh -f .ci/run-tests.sh
 .PHONY: ci_test
 
+ci_coverage: ## Run overall coverage on Docker containers, as on CI
+	.ci/run-in-docker.sh -f .ci/run-coverage.sh
+.PHONY: ci_coverage
+
 ci_quality: ## Run quality on Docker containers, as on CI
 	.ci/run-in-docker.sh -f .ci/run-quality.sh
 .PHONY: ci_quality

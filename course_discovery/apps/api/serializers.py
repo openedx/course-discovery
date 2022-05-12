@@ -13,7 +13,7 @@ import waffle
 from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from opaque_keys.edx.locator import CourseLocator
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
@@ -32,11 +32,11 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AdditionalPromoArea, Collaborator, CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseRun,
-    CourseRunType, CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeCost,
-    DegreeDeadline, Endorsement, IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person,
-    PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType,
-    Subject, Topic, Track, Video
+    FAQ, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator, CorporateEndorsement, Course,
+    CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Curriculum, CurriculumCourseMembership,
+    CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline, Endorsement, Fact, IconTextPairing, Image,
+    LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite,
+    Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -207,10 +207,28 @@ class TitleDescriptionSerializer(BaseModelSerializer):
         fields = ('title', 'description',)
 
 
+class HeadingBlurbSerializer(BaseModelSerializer):
+    """Serializer for models inheriting from ``AbstractHeadingBlurb``."""
+    class Meta:
+        fields = ('heading', 'blurb',)
+
+
 class AdditionalPromoAreaSerializer(TitleDescriptionSerializer):
     """Serializer for AdditionalPromoArea """
     class Meta(TitleDescriptionSerializer.Meta):
         model = AdditionalPromoArea
+
+
+class FactSerializer(HeadingBlurbSerializer):
+    """Serializer for Facts """
+    class Meta(HeadingBlurbSerializer.Meta):
+        model = Fact
+
+
+class CertificateInfoSerializer(HeadingBlurbSerializer):
+    """Serializer for CertificateInfo """
+    class Meta(HeadingBlurbSerializer.Meta):
+        model = CertificateInfo
 
 
 class FAQSerializer(BaseModelSerializer):
@@ -601,6 +619,24 @@ class TrackSerializer(BaseModelSerializer):
         fields = ('seat_type', 'mode')
 
 
+class AdditionalMetadataSerializer(BaseModelSerializer):
+    """Serializer for the ``AdditionalMetadata`` model."""
+
+    facts = FactSerializer(many=True)
+    certificate_info = CertificateInfoSerializer()
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return AdditionalMetadata.objects.select_related('facts', 'certificate_info')
+
+    class Meta:
+        model = AdditionalMetadata
+        fields = (
+            'external_identifier', 'external_url', 'lead_capture_form_url',
+            'facts', 'certificate_info', 'organic_url'
+        )
+
+
 class CourseRunTypeSerializer(BaseModelSerializer):
     """Serializer for the ``CourseRunType`` model."""
     modes = serializers.SerializerMethodField()
@@ -785,7 +821,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
-                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term',)
+                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability')
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -890,7 +926,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         fields = MinimalCourseRunSerializer.Meta.fields + (
             'course', 'full_description', 'announcement', 'video', 'seats', 'content_language', 'license', 'outcome',
             'transcript_languages', 'instructors', 'staff', 'min_effort', 'max_effort', 'weeks_to_complete', 'modified',
-            'level_type', 'availability', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
+            'level_type', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
             'course_uuid', 'estimated_hours', 'content_language_search_facet_name',
@@ -996,6 +1032,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     type = serializers.SlugRelatedField(required=True, slug_field='uuid', queryset=CourseType.objects.all())
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
     url_slug = serializers.SerializerMethodField()
+    course_type = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -1008,6 +1045,9 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
             Prefetch('entitlements', queryset=CourseEntitlementSerializer.prefetch_queryset()),
             cls.prefetch_course_runs(MinimalCourseRunSerializer, course_runs),
         )
+
+    def get_course_type(self, obj):
+        return obj.type.slug
 
     def get_url_slug(self, obj):  # pylint: disable=unused-argument
         return None  # this has been removed from the MinimalCourseSerializer, set to None to not break APIs
@@ -1029,7 +1069,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     class Meta:
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
-                  'short_description', 'type', 'url_slug',)
+                  'short_description', 'type', 'url_slug', 'course_type')
 
 
 class CourseEditorSerializer(serializers.ModelSerializer):
@@ -1072,6 +1112,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     canonical_course_run_key = serializers.SerializerMethodField()
     original_image = ImageField(read_only=True, source='original_image_url')
     extra_description = AdditionalPromoAreaSerializer(required=False)
+    additional_metadata = AdditionalMetadataSerializer(required=False)
     topics = TagListSerializerField(required=False)
     url_slug = serializers.SlugField(read_only=True, source='active_url_slug')
     url_slug_history = serializers.SlugRelatedField(slug_field='url_slug', read_only=True, many=True)
@@ -1081,8 +1122,16 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     collaborators = SlugRelatedFieldWithReadSerializer(slug_field='uuid', required=False, many=True,
                                                        queryset=Collaborator.objects.all(),
                                                        read_serializer=CollaboratorSerializer())
+    organization_short_code_override = serializers.CharField(required=False, allow_blank=True)
+    organization_logo_override_url = serializers.SerializerMethodField()
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
+
+    def get_organization_logo_override_url(self, obj):
+        logo_image_override = getattr(obj, 'organization_logo_override', None)
+        if logo_image_override:
+            return logo_image_override.url
+        return None
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
@@ -1096,6 +1145,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'video__image',
             'partner',
             'extra_description',
+            'additional_metadata',
             '_official_version',
             'canonical_course_run',
             'type',
@@ -1124,10 +1174,10 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'full_description', 'level_type', 'subjects', 'prerequisites',
             'prerequisites_raw', 'expected_learning_items', 'video', 'sponsors', 'modified', 'marketing_url',
             'syllabus_raw', 'outcome', 'original_image', 'card_image_url', 'canonical_course_run_key',
-            'extra_description', 'additional_information', 'faq', 'learner_testimonials',
+            'extra_description', 'additional_information', 'additional_metadata', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
-            'skills',
+            'skills', 'organization_short_code_override', 'organization_logo_override_url'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1157,6 +1207,45 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
     def create(self, validated_data):
         return Course.objects.create(**validated_data)
+
+    def update_facts(self, instance, facts_data):
+
+        instance.facts.all().delete()
+        for fact in facts_data:
+            fact_obj = Fact.objects.create(**fact)
+            instance.facts.add(fact_obj)
+
+    def update_certificate_info(self, instance, certificate_info_data):
+
+        if instance.certificate_info:
+            CertificateInfo.objects.filter(id=instance.certificate_info.id).update(**certificate_info_data)
+        else:
+            instance.certificate_info = CertificateInfo.objects.create(**certificate_info_data)
+            instance.save()
+
+    def update_additional_metadata(self, instance, additional_metadata):
+
+        facts = additional_metadata.pop('facts', None)
+        certificate_info = additional_metadata.pop('certificate_info', None)
+
+        if instance.additional_metadata:
+            AdditionalMetadata.objects.filter(id=instance.additional_metadata.id).update(**additional_metadata)
+        else:
+            instance.additional_metadata = AdditionalMetadata.objects.create(**additional_metadata)
+
+        if facts:
+            self.update_facts(instance.additional_metadata, facts)
+
+        if certificate_info:
+            self.update_certificate_info(instance.additional_metadata, certificate_info)
+
+        # save() will be called by main update()
+
+    def update(self, instance, validated_data):
+        # Handle writing nested additional_metadata separately
+        if 'additional_metadata' in validated_data:
+            self.update_additional_metadata(instance, validated_data.pop('additional_metadata'))
+        return super().update(instance, validated_data)
 
 
 class CourseWithProgramsSerializer(CourseSerializer):
@@ -1640,6 +1729,52 @@ class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
         if obj.card_image:
             return obj.card_image.url
         return obj.card_image_url
+
+
+class MinimalExtendedProgramSerializer(MinimalProgramSerializer):
+    """
+    Extended minimal program serializer.
+
+    Identical to the `MinimalProgramSerializer` except with two additional fields
+
+    When using the FlexFieldsSerializerMixin to get the courses field on a program,
+    you will also need to include the fields you want on the course object
+    since the course serializer also uses drf_dynamic_fields.
+    Eg: ?fields=courses,course_runs
+    """
+
+    authoring_organizations = MinimalOrganizationSerializer(many=True)
+    banner_image = StdImageSerializerField()
+    courses = serializers.SerializerMethodField()
+    type = serializers.SlugRelatedField(slug_field='name_t', queryset=ProgramType.objects.all())
+    type_attrs = ProgramTypeAttrsSerializer(source='type')
+    degree = DegreeSerializer()
+    curricula = CurriculumSerializer(many=True)
+    card_image_url = serializers.SerializerMethodField()
+    expected_learning_items = serializers.SlugRelatedField(many=True, read_only=True, slug_field='value')
+
+    @classmethod
+    def prefetch_queryset(cls, partner, queryset=None):
+        # Explicitly check if the queryset is None before selecting related
+        queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
+
+        return queryset.select_related('type', 'partner').prefetch_related(
+            'excluded_course_runs',
+            'expected_learning_items',
+            # `type` is serialized by a third-party serializer. Providing this field name allows us to
+            # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
+            # `ProgramType` on `Program`.
+            'type__applicable_seat_types',
+            'type__translations',
+            'authoring_organizations',
+            'degree',
+            'curricula',
+            Prefetch('courses', queryset=MinimalProgramCourseSerializer.prefetch_queryset()),
+        )
+
+    class Meta(MinimalProgramSerializer.Meta):
+        model = Program
+        fields = MinimalProgramSerializer.Meta.fields + ('expected_learning_items', 'price_ranges')
 
 
 class ProgramSerializer(MinimalProgramSerializer):

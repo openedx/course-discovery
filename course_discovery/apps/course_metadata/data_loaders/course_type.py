@@ -1,7 +1,7 @@
 import logging
 
 from django.db import transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from course_discovery.apps.course_metadata.models import CourseRunType, CourseType
 

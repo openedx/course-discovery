@@ -2,16 +2,16 @@
 # edX translation file
 # Copyright (C) 2018 edX
 # This file is distributed under the GNU AFFERO GENERAL PUBLIC LICENSE.
-# EdX Team <info@edx.org>, 2018.
 #
+# Translators:
 msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-05 20:35+0000\n"
-"PO-Revision-Date: 2018-04-09 20:13+0000\n"
+"POT-Creation-Date: 2022-05-01 20:35+0000\n"
+"PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
-"Language-Team: openedx-translation <openedx-translation@googlegroups.com>\n"
+"Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -531,7 +531,7 @@ msgstr "Ìnstrüçtör-päçéd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#
 msgid "Self-paced"
 msgstr "Sélf-päçéd Ⱡ'σяєм ιρѕυм ∂σłσ#"
 
-#: apps/course_metadata/choices.py
+#: apps/course_metadata/choices.py apps/learner_pathway/choices.py
 msgid "Active"
 msgstr "Àçtïvé Ⱡ'σяєм ιρѕυ#"
 
@@ -562,6 +562,22 @@ msgstr "Pröféssïönäl Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 #: apps/course_metadata/choices.py
 msgid "Executive Education"
 msgstr "Éxéçütïvé Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/choices.py
+msgid "Paid Executive Education"
+msgstr "Päïd Éxéçütïvé Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/choices.py
+msgid "Unpaid Executive Education"
+msgstr "Ûnpäïd Éxéçütïvé Édüçätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
+
+#: apps/course_metadata/choices.py
+msgid "Paid Bootcamp"
+msgstr "Päïd Böötçämp Ⱡ'σяєм ιρѕυм ∂σłσя ѕι#"
+
+#: apps/course_metadata/choices.py
+msgid "Unpaid Bootcamp"
+msgstr "Ûnpäïd Böötçämp Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
 
 #: apps/course_metadata/choices.py
 msgid "Platform"
@@ -1121,6 +1137,18 @@ msgstr "Süßjéçt mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя
 #: apps/course_metadata/models.py
 msgid "Topic model translations"
 msgstr "Töpïç mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/models.py
+msgid "The URL of the paid landing page on external site"
+msgstr ""
+"Thé ÛRL öf thé päïd ländïng pägé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The URL of the organic landing page on external site"
+msgstr ""
+"Thé ÛRL öf thé örgänïç ländïng pägé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
 msgid "A list of major works by this person. Must be valid HTML."
@@ -1749,7 +1777,7 @@ msgstr ""
 "Àdd rédïréçts fröm äll püßlïshéd çöürsé ürl slügs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/taxonomy_support/models.py
 msgid "Course uuids"
 msgstr "Çöürsé üüïds Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
 
@@ -2093,13 +2121,141 @@ msgstr "Nämé för tränslätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт �
 msgid "LanguageTag model translations"
 msgstr "LängüägéTäg mödél tränslätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢т#"
 
+#: apps/learner_pathway/choices.py
+msgid "Inactive"
+msgstr "Ìnäçtïvé Ⱡ'σяєм ιρѕυм ∂#"
+
 #: apps/learner_pathway/models.py
-msgid "Pathway name"
-msgstr "Päthwäý nämé Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+msgid "Title of the learner pathway."
+msgstr "Tïtlé öf thé léärnér päthwäý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/learner_pathway/models.py
+msgid "Course/Program associated pathways also appear in search results"
+msgstr ""
+"Çöürsé/Prögräm ässöçïätéd päthwäýs älsö äppéär ïn séärçh résülts Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/learner_pathway/models.py
+msgid "The active/inactive status of this Pathway."
+msgstr ""
+"Thé äçtïvé/ïnäçtïvé stätüs öf thïs Päthwäý. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway"
+msgstr "Léärnér Päthwäý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт α#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathways"
+msgstr "Léärnér Päthwäýs Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αм#"
+
+#: apps/learner_pathway/models.py
+msgid "Minimum number of nodes to complete this step of the pathway"
+msgstr ""
+"Mïnïmüm nümßér öf nödés tö çömplété thïs stép öf thé päthwäý Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Step"
+msgstr "Léärnér Päthwäý Stép Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Steps"
+msgstr "Léärnér Päthwäý Stéps Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Course"
+msgstr "Léärnér Päthwäý Çöürsé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Courses"
+msgstr "Léärnér Päthwäý Çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Program"
+msgstr "Léärnér Päthwäý Prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σ#"
+
+#: apps/learner_pathway/models.py
+msgid "Learner Pathway Programs"
+msgstr "Léärnér Päthwäý Prögräms Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/publisher/models.py
 msgid "Organization Role"
 msgstr "Örgänïzätïön Rölé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмє#"
+
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py
+msgid "Update the course recommendations based on skills."
+msgstr ""
+"Ûpdäté thé çöürsé réçömméndätïöns ßäséd ön skïlls. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
+"αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/management/commands/update_course_recommendations.py
+msgid ""
+"Use arguments from the UpdateCourseRecommendationsConfig model instead of "
+"the command line."
+msgstr ""
+"Ûsé ärgüménts fröm thé ÛpdätéÇöürséRéçömméndätïönsÇönfïg mödél ïnstéäd öf "
+"thé çömmänd lïné. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/taxonomy_support/models.py
+msgid "The original course, whose recommendation is stored here."
+msgstr ""
+"Thé örïgïnäl çöürsé, whösé réçömméndätïön ïs störéd héré. Ⱡ'σяєм ιρѕυм ∂σłσя"
+" ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"This is the course recommended after learner completes the original course."
+msgstr ""
+"Thïs ïs thé çöürsé réçömméndéd äftér léärnér çömplétés thé örïgïnäl çöürsé. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/taxonomy_support/models.py
+msgid "Ratio of number of common skills and total skill count."
+msgstr ""
+"Rätïö öf nümßér öf çömmön skïlls änd tötäl skïll çöünt. Ⱡ'σяєм ιρѕυм ∂σłσя "
+"ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"Count of common skills between the original course and recommended course."
+msgstr ""
+"Çöünt öf çömmön skïlls ßétwéén thé örïgïnäl çöürsé änd réçömméndéd çöürsé. "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/taxonomy_support/models.py
+msgid "Ratio of number of common subjects and total subject count."
+msgstr ""
+"Rätïö öf nümßér öf çömmön süßjéçts änd tötäl süßjéçt çöünt. Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"Count of common subjects between the original course and recommended course."
+msgstr ""
+"Çöünt öf çömmön süßjéçts ßétwéén thé örïgïnäl çöürsé änd réçömméndéd çöürsé."
+" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/taxonomy_support/models.py
+msgid "Course Recommendation"
+msgstr "Çöürsé Réçömméndätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/taxonomy_support/models.py
+msgid "Course Recommendations"
+msgstr "Çöürsé Réçömméndätïöns Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/taxonomy_support/models.py
+msgid "Adds recommendations for all published courses"
+msgstr ""
+"Àdds réçömméndätïöns för äll püßlïshéd çöürsés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#: apps/taxonomy_support/models.py
+msgid ""
+"Adds recommendations for courses created or modified in the past num days"
+msgstr ""
+"Àdds réçömméndätïöns för çöürsés çréätéd ör mödïfïéd ïn thé päst nüm däýs "
+"Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: urls.py
 msgid "Discovery Service Administration"

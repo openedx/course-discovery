@@ -9,6 +9,7 @@ from course_discovery.apps.course_metadata.utils import get_course_run_estimated
 from course_discovery.apps.learner_pathway.models import LearnerPathwayCourse, LearnerPathwayProgram
 from course_discovery.apps.learner_pathway.tests import factories
 from course_discovery.apps.learner_pathway.tests.utils import generate_course
+from course_discovery.apps.learner_pathway.utils import avg
 
 
 @pytest.mark.django_db
@@ -28,11 +29,11 @@ class LearnerPathwayTests(TestCase):
         """ Validate that model aggregates the time to completion correctly. """
         with mock.patch(
                 'course_discovery.apps.learner_pathway.models.LearnerPathwayStep.get_estimated_time_of_completion',
-                return_value=10.0
+                return_value=(2.0, 10.0)
         ):
             self.assertEqual(
                 self.learner_pathway.time_of_completion,
-                self.learner_pathway_step_1.get_estimated_time_of_completion() * 3
+                avg(self.learner_pathway_step_1.get_estimated_time_of_completion()) * 3
             )
 
     def test_learner_pathway_skills(self):
@@ -127,9 +128,11 @@ class LearnerPathwayStepTests(TestCase):
     def test_get_estimated_time_of_completion(self):
         """ Verify that `LearnerPathwayStep.get_estimated_time_of_completion` method is working as expected """
 
-        estimated_time_of_completion = self.learner_pathway_course.get_estimated_time_of_completion() + \
-            self.learner_pathway_program.get_estimated_time_of_completion()
-        assert estimated_time_of_completion == self.step.get_estimated_time_of_completion()
+        estimated_time_of_completion = sorted([
+            self.learner_pathway_course.get_estimated_time_of_completion(),
+            self.learner_pathway_program.get_estimated_time_of_completion(),
+        ])
+        assert tuple(estimated_time_of_completion) == self.step.get_estimated_time_of_completion()
 
     def test_get_nodes(self):
         """ Verify that `LearnerPathwayStep.get_nodes` method is returning all associated nodes """

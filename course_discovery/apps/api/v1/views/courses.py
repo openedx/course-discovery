@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http.response import Http404
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters as rest_framework_filters
 from rest_framework import status, viewsets
@@ -383,6 +383,8 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         course = serializer.save()
         if url_slug:
             course.set_active_url_slug(url_slug)
+            if course.official_version and (not draft or self._is_course_run_reviewed(course)):
+                course.official_version.set_active_url_slug(url_slug)
 
         if not draft:
             for course_run in course.active_course_runs:
@@ -397,10 +399,6 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
                         if any(field in COURSE_FIELDS_FOR_SKILLS for field in changed_fields):
                             logger.info('Signal fired to update course skills. Course: [%s]', course.uuid)
                             UPDATE_COURSE_SKILLS.send(self.__class__, course_uuid=course.uuid)
-                elif course.official_version:
-                    # If there is an official version available but no active or published
-                    # course run, update the slug for official version
-                    course.official_version.set_active_url_slug(url_slug)
 
         # Revert any Reviewed course runs back to Unpublished
         if changed:
@@ -414,6 +412,10 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         return_dict = {'url_slug': course.active_url_slug}
         return_dict.update(serializer.data)
         return Response(return_dict)
+
+    def _is_course_run_reviewed(self, course):
+        """ Checks if any course run for a course is in reviewed state """
+        return course.course_runs.filter(status=CourseRunStatus.Reviewed).exists()
 
     def update(self, request, *_args, **_kwargs):
         """ Update details for a course. """

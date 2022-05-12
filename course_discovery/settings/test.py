@@ -5,7 +5,6 @@ from course_discovery.settings.shared.test import *
 
 INSTALLED_APPS += [
     'course_discovery.apps.edx_catalog_extensions',
-    'course_discovery.apps.taxonomy_support',
 ]
 
 ALLOWED_HOSTS = ['*']
@@ -79,6 +78,4 @@ CELERY_BROKER_URL = 'memory://localhost/'
 
 ################################### END CELERY ###################################
 
-# Learner Pathway
-# Disable learner pathway on all environment except devstack and testing.
-ENABLE_LEARNER_PATHWAY = True
+PRODUCT_API_URL = 'http://www.example.com'

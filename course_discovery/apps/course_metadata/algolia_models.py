@@ -3,12 +3,12 @@ import itertools
 
 import pytz
 from django.db import models
+from django.utils.translation import gettext as _
 from django.utils.translation import override
-from django.utils.translation import ugettext as _
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, Program, ProgramType
+from course_discovery.apps.course_metadata.models import Course, CourseType, Program, ProgramType
 
 
 # Utility methods used by both courses and programs
@@ -47,14 +47,17 @@ def delegate_attributes(cls):
     fields are prefixed with 'product_' to make them Algolia-specific
     '''
 
+    product_type_fields = ['product_type']
     search_fields = ['partner_names', 'partner_keys', 'product_title', 'primary_description', 'secondary_description',
                      'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index']
-    result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'active_run_key',
-                     'active_run_start', 'active_run_type', 'owners', 'program_types', 'course_titles', 'tags']
+    result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'product_weeks_to_complete',
+                     'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
+                     'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
+                     'product_organization_short_code_override', 'product_organization_logo_override']
     object_id_field = ['custom_object_id', ]
-    fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
+    fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
         def _closure(name):
             def _wrap(self, *args, **kwargs):  # pylint: disable=unused-argument
@@ -93,12 +96,12 @@ class AlgoliaProxyProduct(Program):
         self.product = product
         self.product.language = language
 
-    def product_type(self):
-        return getattr(type(self.product), 'product_type', None)
-
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
         return getattr(self.product, 'should_index', True)
+
+    def should_index_spanish(self):
+        return getattr(self.product, 'should_index_spanish', True)
 
 
 class AlgoliaBasicModelFieldsMixin(models.Model):
@@ -125,10 +128,14 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
 
 class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
-    product_type = 'Course'
-
     class Meta:
         proxy = True
+
+    @property
+    def product_type(self):
+        if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
+            return 'Executive Education'
+        return 'Course'
 
     @property
     def custom_object_id(self):
@@ -199,6 +206,28 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return None
 
     @property
+    def product_weeks_to_complete(self):
+        return getattr(self.advertised_course_run, 'weeks_to_complete', None)
+
+    @property
+    def product_min_effort(self):
+        return getattr(self.advertised_course_run, 'min_effort', None)
+
+    @property
+    def product_max_effort(self):
+        return getattr(self.advertised_course_run, 'max_effort', None)
+
+    @property
+    def product_organization_short_code_override(self):
+        return self.organization_short_code_override
+
+    @property
+    def product_organization_logo_override(self):
+        if self.organization_logo_override:
+            return getattr(self.organization_logo_override, 'url', None)
+        return None
+
+    @property
     def owners(self):
         return get_owners(self)
 
@@ -231,6 +260,11 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
                 not self.advertised_course_run.hidden)
 
     @property
+    def should_index_spanish(self):
+        return (self.should_index and
+                self.type.slug != CourseType.EXECUTIVE_EDUCATION_2U)
+
+    @property
     def availability_rank(self):
         today_midnight = datetime.datetime.now(pytz.UTC).replace(hour=0, minute=0, second=0, microsecond=0)
         if self.advertised_course_run:
@@ -247,10 +281,12 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
 class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
-    product_type = 'Program'
-
     class Meta:
         proxy = True
+
+    @property
+    def product_type(self):
+        return 'Program'
 
     @property
     def product_title(self):
@@ -278,6 +314,19 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             return self.card_image.url
         # legacy field for programs with images hosted outside of discovery
         return self.card_image_url
+
+    @property
+    def product_weeks_to_complete(self):
+        # The field `weeks_to_complete` for Programs is now deprecated.
+        return None
+
+    @property
+    def product_min_effort(self):
+        return self.min_hours_effort_per_week
+
+    @property
+    def product_max_effort(self):
+        return self.max_hours_effort_per_week
 
     @property
     def subject_names(self):
@@ -359,6 +408,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.availability_level and
                 self.partner.name == 'edX' and
                 not self.hidden)
+
+    @property
+    def should_index_spanish(self):
+        return self.should_index
 
 
 class SearchDefaultResultsConfiguration(models.Model):

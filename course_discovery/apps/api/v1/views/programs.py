@@ -30,6 +30,8 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet
 
     def get_serializer_class(self):
         if self.action == 'list':
+            if self.request.query_params.get('extended'):
+                return serializers.MinimalExtendedProgramSerializer
             return serializers.MinimalProgramSerializer
         return serializers.ProgramSerializer
 
@@ -102,6 +104,8 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet
               type: string
               paramType: query
               multiple: false
+            - name: extended
+              description: Boolean flag to include additional fields in the list response payload
         """
         if get_query_param(self.request, 'uuids_only'):
             # DRF serializers don't have good support for simple, flat

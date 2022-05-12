@@ -48,8 +48,16 @@ class BaseProductIndex(AlgoliaIndex):
 
     # Rules aren't automatically set in regular reindex_all, so set them explicitly
     def reindex_all(self, batch_size=1000):
+        # Since reindexing removes all the rules, we will need to recreate the 2U rules after reindexing
+        rules_to_create = self.get_rules()
+        rules_to_create_ids = {rule['objectID'] for rule in rules_to_create}
+        existing_rules_to_keep = [
+            rule for rule in self._AlgoliaIndex__index.iter_rules()  # pylint: disable=no-member
+            if rule['objectID'] not in rules_to_create_ids
+        ]
+        final_rules = rules_to_create + existing_rules_to_keep
         super().reindex_all(batch_size)
-        self._AlgoliaIndex__index.replace_all_rules(self.get_rules())  # pylint: disable=no-member
+        self._AlgoliaIndex__index.replace_all_rules(final_rules)  # pylint: disable=no-member
 
 
 class EnglishProductIndex(BaseProductIndex):
@@ -62,8 +70,12 @@ class EnglishProductIndex(BaseProductIndex):
                     ('staff_slugs', 'staff'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
-                     ('product_uuid', 'uuid'), 'active_run_key', 'active_run_start', 'active_run_type', 'owners',
-                     'course_titles', 'tags')
+                     ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
+                     ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'),
+                     ('product_organization_short_code_override', 'organization_short_code_override'),
+                     ('product_organization_logo_override', 'organization_logo_override'),
+                     'active_run_key', 'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags')
+
     # Algolia needs this
     object_id_field = (('custom_object_id', 'objectID'), )
     fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
@@ -95,8 +107,12 @@ class SpanishProductIndex(BaseProductIndex):
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
                       'promoted_in_spanish_index')
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
-                     ('product_uuid', 'uuid'), 'active_run_key', 'active_run_start', 'active_run_type', 'owners',
-                     'course_titles', 'tags')
+                     ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
+                     ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'), 'active_run_key',
+                     ('product_organization_short_code_override', 'organization_short_code_override'),
+                     ('product_organization_logo_override', 'organization_logo_override'),
+                     'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags')
+
     # Algolia uses objectID as unique identifier. Can't use straight uuids because a program and a course could
     # have the same one, so we add 'course' or 'program' as a prefix
     object_id_field = (('custom_object_id', 'objectID'), )
@@ -115,7 +131,7 @@ class SpanishProductIndex(BaseProductIndex):
         'customRanking': ['desc(promoted_in_spanish_index)', 'asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'spanish_product'
-    should_index = 'should_index'
+    should_index = 'should_index_spanish'
 
 
 # Standard algoliasearch_django pattern for populating 2 indices with one model. These are the signatures and structure

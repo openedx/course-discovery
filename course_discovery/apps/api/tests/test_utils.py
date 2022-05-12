@@ -9,13 +9,33 @@ from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
+from rest_framework.views import APIView
 
 from course_discovery.apps.api.utils import StudioAPI, cast2int, get_query_param
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
+from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.tests.factories import CourseEditorFactory, CourseRunFactory
 
 LOGGER_PATH = 'course_discovery.apps.api.utils.logger.exception'
+
+
+def make_request(query_param=None):
+    user = UserFactory()
+    if query_param:
+        request = APIRequestFactory().get('/', query_param)
+    else:
+        request = APIRequestFactory().get('/')
+    request.user = user
+
+    # Convert a Django HTTPResponse object into a rest_framework.request
+    # using a generic API view. This is necessary because the drf-flex-fields
+    # library relies on the `.query_params` property of the request. DRF requests
+    # always have the `query_params` parameter unless the request is created using
+    # `APIRequestFactory`, which yelds Django's standard `HttpRequest`.
+    # Documentation: https://www.django-rest-framework.org/api-guide/testing/#forcing-authentication
+    # DRF issue: https://github.com/encode/django-rest-framework/issues/6488
+    return APIView().initialize_request(request)
 
 
 @ddt.ddt
@@ -149,7 +169,7 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
         mock_logger.assert_called_with(
             'No course team admin specified for course [%s]. This may result in a Studio course run '
             'being created without a course team.',
-            run.key.split('/')[1]
+            run.key.split('+')[1]
         )
 
     def test_calculate_course_run_key_run_value_with_multiple_runs_per_trimester(self):

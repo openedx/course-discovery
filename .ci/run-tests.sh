@@ -8,4 +8,3 @@ apt-get install -y --no-install-recommends firefox gettext
 make requirements
 
 make test
-coverage xml

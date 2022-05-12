@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timezone
 
 import requests
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from requests.adapters import HTTPAdapter
 from simple_salesforce import Salesforce, SalesforceExpiredSession
 
@@ -129,7 +129,7 @@ class SalesforceUtil:
                 'password': salesforce_config.password,
                 'organizationId': salesforce_config.organization_id,
                 # security_token must be an empty string if organizationId is set
-                'security_token': '' if salesforce_config.organization_id else salesforce_config.token,
+                'security_token': '' if salesforce_config.organization_id else salesforce_config.security_token,
                 'domain': 'test' if salesforce_config.is_sandbox else None
             }
             self.client = Salesforce(session=session, **sf_kwargs)

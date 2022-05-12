@@ -1,28 +1,29 @@
 """
 API Views for learner_pathway app.
 """
-from rest_framework import viewsets
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.learner_pathway import models
 from course_discovery.apps.learner_pathway.api import serializers
+from course_discovery.apps.learner_pathway.choices import PathwayStatus
 
 
-class LearnerPathwayViewSet(viewsets.ModelViewSet):
+class LearnerPathwayViewSet(ReadOnlyModelViewSet):
     """
     View-set for LearnerPathway model.
     """
 
     lookup_field = 'uuid'
     serializer_class = serializers.LearnerPathwaySerializer
-    queryset = models.LearnerPathway.objects.all()
+    queryset = models.LearnerPathway.objects.filter(status=PathwayStatus.Active)
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
 
 
-class LearnerPathwayStepViewSet(viewsets.ModelViewSet):
+class LearnerPathwayStepViewSet(ReadOnlyModelViewSet):
     """
     View-set for LearnerPathwayStep model.
     """
@@ -36,7 +37,7 @@ class LearnerPathwayStepViewSet(viewsets.ModelViewSet):
     pagination_class = ProxiedPagination
 
 
-class LearnerPathwayCourseViewSet(viewsets.ModelViewSet):
+class LearnerPathwayCourseViewSet(ReadOnlyModelViewSet):
     """
     View-set for LearnerPathwayCourse model.
     """
@@ -50,7 +51,7 @@ class LearnerPathwayCourseViewSet(viewsets.ModelViewSet):
     pagination_class = ProxiedPagination
 
 
-class LearnerPathwayProgramViewSet(viewsets.ModelViewSet):
+class LearnerPathwayProgramViewSet(ReadOnlyModelViewSet):
     """
     View-set for LearnerPathwayProgram model.
     """
@@ -64,7 +65,7 @@ class LearnerPathwayProgramViewSet(viewsets.ModelViewSet):
     pagination_class = ProxiedPagination
 
 
-class LearnerPathwayBlocViewSet(viewsets.ModelViewSet):
+class LearnerPathwayBlocViewSet(ReadOnlyModelViewSet):
     """
     View-set for LearnerPathwayBlock model.
     """

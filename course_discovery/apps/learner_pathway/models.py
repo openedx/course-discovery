@@ -2,15 +2,22 @@
 Model definitions for the learner pathway app.
 """
 from abc import ABCMeta, abstractmethod
+from collections import defaultdict
 from uuid import uuid4
 
+from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from opaque_keys.edx.django.models import UsageKeyField
+from stdimage.models import StdImageField
 from taxonomy.utils import get_whitelisted_serialized_skills
 
+from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.models import Course, Program
-from course_discovery.apps.learner_pathway.utils import get_advertised_course_run_estimated_hours
+from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
+from course_discovery.apps.learner_pathway import constants
+from course_discovery.apps.learner_pathway.choices import PathwayStatus
+from course_discovery.apps.learner_pathway.utils import avg, get_advertised_course_run_estimated_hours
 
 
 class AbstractModelMeta(ABCMeta, type(models.Model)):
@@ -28,7 +35,7 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
         abstract = True
 
     @abstractmethod
-    def get_estimated_time_of_completion(self) -> str:
+    def get_estimated_time_of_completion(self) -> int:
         """
         Subclasses must implement this method to calculate and return the estimated time of completion of the node.
         """
@@ -45,6 +52,14 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
         for node_class in cls.get_subclasses():
             nodes += node_class.objects.filter(step=step).all()
         return nodes
+
+    @classmethod
+    def get_node_type_count(cls, step):
+        node_type_count = defaultdict(int)
+        for node_class in cls.get_subclasses():
+            node_type_count[node_class.NODE_TYPE] = node_class.objects.filter(step=step).count()
+
+        return dict(node_type_count)
 
     @classmethod
     def get_subclasses(cls):
@@ -64,16 +79,51 @@ class LearnerPathway(models.Model):
     Top level model for learner pathway.
     """
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
-    name = models.CharField(max_length=255, null=False, blank=False, help_text=_('Pathway name'))
+    title = models.CharField(max_length=255, null=False, blank=False, help_text=_('Title of the learner pathway.'))
+    partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
+    visible_via_association = models.BooleanField(
+        default=True, help_text=_('Course/Program associated pathways also appear in search results')
+    )
+    status = models.CharField(
+        help_text=_('The active/inactive status of this Pathway.'),
+        max_length=16, default=PathwayStatus.Inactive,
+        choices=PathwayStatus.choices, validators=[PathwayStatus.validator]
+    )
+    banner_image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/learner_pathway/banner_images'),
+        blank=True,
+        null=True,
+        variations={
+            'large': (1440, 480),
+            'medium': (726, 242),
+            'small': (435, 145),
+            'x-small': (348, 116),
+        },
+        help_text='image that will be displayed on learner pathway modal',
+    )
+    card_image = StdImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/learner_pathway/card_images'),
+        blank=True,
+        null=True,
+        variations={
+            'card': (378, 225),
+        },
+        help_text='image that will be displayed on learner pathway cards',
+    )
+    overview = models.TextField(blank=True)
+
+    class Meta:
+        verbose_name = _('Learner Pathway')
+        verbose_name_plural = _('Learner Pathways')
 
     @property
     def time_of_completion(self) -> float:
         """
         Return the aggregated time to completion.
         """
-        completion_time = 0.0
+        completion_time = 0
         for step in self.steps.all():
-            completion_time += step.get_estimated_time_of_completion()
+            completion_time += avg(step.get_estimated_time_of_completion())
         return completion_time
 
     @property
@@ -93,18 +143,29 @@ class LearnerPathway(models.Model):
         """
         Create a human-readable string representation of the object.
         """
-        return f'{self.name} - {self.uuid}'
+        return f'{self.title} - {self.uuid}'
 
     def __repr__(self):
         """
         Return string representation.
         """
-        return f'<LearnerPathway name="{self.name}" uuid="{self.uuid}">'
+        return f'<LearnerPathway title="{self.title}" uuid="{self.uuid}">'
 
 
 class LearnerPathwayStep(models.Model):
     uuid = models.UUIDField(default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     pathway = models.ForeignKey(LearnerPathway, related_name='steps', on_delete=models.CASCADE)
+    min_requirement = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[
+            MinValueValidator(1)
+        ],
+        help_text=_('Minimum number of nodes to complete this step of the pathway')
+    )
+
+    class Meta:
+        verbose_name = _('Learner Pathway Step')
+        verbose_name_plural = _('Learner Pathway Steps')
 
     def get_nodes(self):
         return LearnerPathwayNode.get_nodes(self)
@@ -117,8 +178,28 @@ class LearnerPathwayStep(models.Model):
         if node:
             node.delete()
 
-    def get_estimated_time_of_completion(self):
-        return sum([node.get_estimated_time_of_completion() for node in self.get_nodes()])
+    def get_node_type_count(self):
+        return LearnerPathwayNode.get_node_type_count(self)
+
+    def get_estimated_time_of_completion(self) -> (int, int):
+        """
+        Get a range of estimated time of completion.
+
+        Returns:
+            (tuple<int, int>): A tuple containing the min and max of estimated time of completion.
+        """
+        estimated_completion_times_of_nodes = sorted(
+            [node.get_estimated_time_of_completion() for node in self.get_nodes()]
+        )
+        # get the lowest and largest estimated time of completion and return that as a tuple in respective order.
+        # To get the lowest estimated time of completion by getting the N smallest numbers, where N is `min_requirement`
+        # and sum them up to get lowest estimated time of completion.
+        # To get the highest estimated time of completion by getting the N largest numbers, where N is `min_requirement`
+        # and sum them up to get highest estimated time of completion.
+        return (
+            sum(estimated_completion_times_of_nodes[:self.min_requirement]),
+            sum(estimated_completion_times_of_nodes[-self.min_requirement:]),
+        )
 
     def get_skills(self):
         already_added_skills = set()
@@ -135,7 +216,7 @@ class LearnerPathwayStep(models.Model):
         """
         Create a human-readable string representation of the object.
         """
-        return f'UUID: {self.uuid}, Pathway: {self.pathway.name}'
+        return f'UUID: {self.uuid}, Pathway: {self.pathway.title}'
 
     def __repr__(self):
         """
@@ -146,13 +227,22 @@ class LearnerPathwayStep(models.Model):
 
 class LearnerPathwayCourse(LearnerPathwayNode):
 
+    NODE_TYPE = constants.NODE_TYPE_COURSE
+
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='learner_pathway_courses')
 
-    def get_estimated_time_of_completion(self) -> str:
+    class Meta:
+        verbose_name = _('Learner Pathway Course')
+        verbose_name_plural = _('Learner Pathway Courses')
+        unique_together = (
+            ('step', 'course'),
+        )
+
+    def get_estimated_time_of_completion(self) -> int:
         """
         Returns the average estimated work hours to complete the course run.
         """
-        return get_advertised_course_run_estimated_hours(self.course)
+        return get_advertised_course_run_estimated_hours(self.course) or 0
 
     def get_skills(self) -> [str]:
         """
@@ -175,9 +265,18 @@ class LearnerPathwayCourse(LearnerPathwayNode):
 
 class LearnerPathwayProgram(LearnerPathwayNode):
 
+    NODE_TYPE = constants.NODE_TYPE_PROGRAM
+
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name='learner_pathway_programs')
 
-    def get_estimated_time_of_completion(self) -> str:
+    class Meta:
+        verbose_name = _('Learner Pathway Program')
+        verbose_name_plural = _('Learner Pathway Programs')
+        unique_together = (
+            ('step', 'program'),
+        )
+
+    def get_estimated_time_of_completion(self) -> int:
         """
         Returns the sum of estimated work hours to complete the course run for all program courses.
         """
@@ -214,14 +313,16 @@ class LearnerPathwayBlock(LearnerPathwayNode):
     """
     Mode for storing course block information from a learner pathway.
     """
+    NODE_TYPE = constants.NODE_TYPE_BLOCK
+
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='learner_pathway_blocks')
     block_id = UsageKeyField(max_length=255)
 
-    def get_estimated_time_of_completion(self) -> str:
+    def get_estimated_time_of_completion(self) -> int:
         """
         Returns the average estimated work hours to complete the course run.
         """
-        return 'Not known'
+        return 0
 
     def get_skills(self) -> [str]:
         """
