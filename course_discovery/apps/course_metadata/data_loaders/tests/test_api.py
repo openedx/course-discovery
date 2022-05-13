@@ -338,7 +338,8 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         if draft_exists or official_exists:
             org = OrganizationFactory(key=datum['org'])
         if draft_exists:
-            draft_course = Course.objects.create(partner=self.partner, key=course_key, title='Title', type=course_type, draft=True)
+            draft_course = Course.objects.create(partner=self.partner, key=course_key,
+                                                 title='Title', type=course_type, draft=True)
             draft_run = CourseRun.objects.create(course=draft_course, key=run_key, type=audit_run_type, draft=True)
             draft_course.canonical_course_run = draft_run
             draft_course.save()
@@ -348,8 +349,8 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
             all_courses.add(draft_course)
             all_runs.add(draft_run)
         if official_exists:
-            official_course = Course.objects.create(partner=self.partner, key=course_key, title='Title', type=course_type,
-                                                    **official_course_kwargs)
+            official_course = Course.objects.create(
+                partner=self.partner, key=course_key, title='Title', type=course_type, **official_course_kwargs)
             official_run = CourseRun.objects.create(course=official_course, key=run_key, type=audit_run_type,
                                                     **official_run_kwargs)
             official_course.canonical_course_run = official_run
