@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseRunType
+from course_discovery.apps.course_metadata.models import Course, CourseType, CourseRun, CourseRunType
 
 
 class TestUpdateCourseRunInSalesforce(TestCase):
