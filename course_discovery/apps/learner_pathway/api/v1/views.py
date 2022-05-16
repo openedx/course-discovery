@@ -33,6 +33,30 @@ class LearnerPathwayViewSet(ReadOnlyModelViewSet):
         serializer = serializers.LearnerPathwayMinimalSerializer(pathway, many=False)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=False)
+    def uuids(self, request):
+        """
+        Return uuids of all paythways having course run key or program uuid
+        """
+        course_keys = request.GET.getlist('course_keys', [])
+        program_uuids = request.GET.getlist('program_uuids', [])
+
+        pathway_courses = models.LearnerPathwayCourse.objects.filter(
+            course__key__in=course_keys
+        ).values_list(
+            'step__pathway__uuid',
+            flat=True
+        )
+        pathway_programs = models.LearnerPathwayProgram.objects.filter(
+            program__uuid__in=program_uuids
+        ).values_list(
+            'step__pathway__uuid',
+            flat=True
+        )
+
+        ids = list(pathway_courses) + list(pathway_programs)
+        return Response(set(ids))
+
 
 class LearnerPathwayStepViewSet(ReadOnlyModelViewSet):
     """

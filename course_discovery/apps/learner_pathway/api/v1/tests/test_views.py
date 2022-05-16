@@ -1,3 +1,6 @@
+from urllib.parse import urlencode
+
+import ddt
 from django.test import Client, TestCase
 from django.urls import reverse
 from pytest import mark
@@ -42,6 +45,9 @@ LEARNER_PATHWAY_DATA = {
         }
     ]
 }
+LEARNER_PATHWAY_UUID = LEARNER_PATHWAY_DATA['uuid']
+LEARNER_PATHWAY_COURSE_KEY = LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['key']
+LEARNER_PATHWAY_PROGRAM_UUID = LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['uuid']
 
 LEARNER_PATHWAY_SNAPSHOT_DATA = {
     "uuid": "6b8742ce-f294-4674-aacb-34fbf75249de",
@@ -71,6 +77,7 @@ LEARNER_PATHWAY_SNAPSHOT_DATA = {
 
 
 @mark.django_db
+@ddt.ddt
 class TestLearnerPathwayViewSet(TestCase):
     """
     Tests for LearnerPathwayViewSet.
@@ -183,3 +190,37 @@ class TestLearnerPathwayViewSet(TestCase):
         # remove id/pk of the object, we don't need to compare it
         data.pop('id')
         assert data == LEARNER_PATHWAY_SNAPSHOT_DATA
+
+    @ddt.data(
+        {
+            'query_params': {},
+            'response': [],
+        },
+        {
+            'query_params': {
+                'course_keys': LEARNER_PATHWAY_COURSE_KEY,
+            },
+            'response': [LEARNER_PATHWAY_UUID],
+        },
+        {
+            'query_params': {
+                'program_uuids': LEARNER_PATHWAY_PROGRAM_UUID,
+            },
+            'response': [LEARNER_PATHWAY_UUID],
+        },
+        {
+            'query_params': {
+                'course_keys': LEARNER_PATHWAY_COURSE_KEY,
+                'program_uuids': LEARNER_PATHWAY_PROGRAM_UUID,
+            },
+            'response': [LEARNER_PATHWAY_UUID],
+        },
+    )
+    @ddt.unpack
+    def test_learner_pathway_uuids_endpoint(self, query_params, response):
+        """
+        Verify that learner pathway uuids endpoint returns the correct uuids.
+        """
+        learner_pathway_uuids_url = f'/api/v1/learner-pathway/uuids/?{urlencode(query_params)}'
+        api_response = self.client.get(learner_pathway_uuids_url)
+        assert api_response.json() == response
