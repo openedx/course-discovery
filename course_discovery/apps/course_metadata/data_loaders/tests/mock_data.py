@@ -3141,6 +3141,7 @@ VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'publish_date': '01/25/2020',
     'start_date': '01/25/2020',
     'syllabus': 'Introduction to Algorithms',
+    'frequently_asked_questions': 'Is day 19 really that tough?',
     'start_time': '00:00',
     'end_date': '02/25/2020',
     'end_time': '00:00',

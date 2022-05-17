@@ -5,6 +5,7 @@ from tempfile import NamedTemporaryFile
 from unittest import mock
 
 import responses
+from ddt import data, ddt, unpack
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -13,11 +14,14 @@ from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDat
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
 from course_discovery.apps.course_metadata.models import Course, CourseRun
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory, CourseRunFactory, OrganizationFactory
+from course_discovery.apps.course_metadata.tests.factories import (
+    CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory
+)
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.csv_loader'
 
 
+@ddt
 @mock.patch(
     'course_discovery.apps.course_metadata.data_loaders.configured_jwt_decode_handler',
     return_value={'preferred_username': 'test_username'}
@@ -32,7 +36,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.user = UserFactory.create(username="test_user", password=USER_PASSWORD, is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
 
-    def mock_call_course_api(self, method, url, data):
+    def mock_call_course_api(self, method, url, payload):
         """
         Helper method to make api calls using test client.
         """
@@ -40,13 +44,13 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         if method == 'POST':
             response = self.client.post(
                 url,
-                data=data,
+                data=payload,
                 format='json'
             )
         elif method == 'PATCH':
             response = self.client.patch(
                 url,
-                data=data,
+                data=payload,
                 format='json'
             )
         return response
@@ -373,7 +377,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_ecommerce_publication(self.partner)
-        self.mock_image_response()  # pylint: disable=unused-variable
+        self.mock_image_response()
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
@@ -505,3 +509,60 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     assert course.additional_metadata.certificate_info is None
                     assert course.additional_metadata.facts.exists() is False
                     assert course_run.staff.exists() is False
+
+    @data(
+        (['primary_subject', 'image', 'long_description'],
+         ('Executive Education(2U)', 'executive-education-2u'),
+         '[DATA VALIDATION ERROR] Course CSV Course. Missing data: image, long_description, primary_subject',
+         ),
+        (['publish_date', 'organic_url', 'stat1_text'],
+         ('Executive Education(2U)', 'executive-education-2u'),
+         '[DATA VALIDATION ERROR] Course CSV Course. Missing data: publish_date, organic_url, stat1_text',
+         ),
+        (['publish_date', 'organic_url', 'stat1_text'],  # ExEd data fields are not considered for other types
+         ('Professional', 'prof-ed'),
+         '[DATA VALIDATION ERROR] Course CSV Course. Missing data: publish_date',
+         ),
+    )
+    @unpack
+    def test_data_validation_checks(
+            self, missing_fields, course_type, expected_message, jwt_decode_patch
+    ):  # pylint: disable=unused-argument
+        """
+        Verify that if any of the required field is missing in data, the ingestion is not done.
+        """
+        self._setup_prerequisites(self.partner)
+        _ = CourseTypeFactory(name=course_type[0], slug=course_type[1])
+
+        csv_data = {
+            **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            'course_enrollment_track': course_type[0]
+        }
+        # Set data fields to be empty
+        for field in missing_fields:
+            csv_data[field] = ''
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [csv_data])
+
+            with LogCapture(LOGGER_PATH) as log_capture:
+                loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                loader.ingest()
+
+                self._assert_default_logs(log_capture)
+
+                log_capture.check_present(
+                    (
+                        LOGGER_PATH,
+                        'ERROR',
+                        'Data validation issue for course CSV Course, skipping ingestion'
+                    ),
+                    (
+                        LOGGER_PATH,
+                        'ERROR',
+                        expected_message
+                    )
+                )
+
+                assert Course.everything.count() == 0
+                assert CourseRun.everything.count() == 0
