@@ -221,6 +221,10 @@ class Organization(CachedMixin, TimeStampedModel):
             " generated.  When this flag is disabled, the key can be manually set."
         )
     )
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This field signifies if any of this org\'s courses are in the enterprise subscription catalog'),
+    )
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
@@ -910,12 +914,27 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
 
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This field signifies if this course is in the enterprise subscription catalog'),
+    )
+
     class Meta:
         unique_together = (
             ('partner', 'uuid', 'draft'),
             ('partner', 'key', 'draft'),
         )
         ordering = ['id']
+
+    def check_enterprise_subscription_inclusion(self):
+        for org in self.authoring_organizations:
+            if not org.enterprise_subscription_inclusion:
+                return False
+        return True
+
+    def save(self, *args, **kwargs):
+        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.key}: {self.title}'
@@ -1472,11 +1491,21 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         'ofac_comment',
     )
 
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('Caculated field based on if course is included in enterprise subscription catalog, and course run is self-paced'),
+    )
+
     class Meta:
         unique_together = (
             ('key', 'draft'),
             ('uuid', 'draft'),
         )
+
+    def check_enterprise_subscription_inclusion(self):
+        if self.pacing_type == 'instructor_paced':
+            return False
+        return self.course.enterprise_subscription_inclusion
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1925,6 +1954,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             suppress_publication (bool): if True, we won't push the run data to the marketing site
             send_emails (bool): whether to send email notifications for status changes from this save
         """
+        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion
         push_to_marketing = (not suppress_publication and
                              self.course.partner.has_marketing_site and
                              waffle.switch_is_active('publish_course_runs_to_marketing_site') and
@@ -2292,6 +2322,11 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     history = HistoricalRecords()
 
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('Caculated field based on if all courses in this program are included in the enterprise subscription catalog'),
+    )
+
     class Meta:
         ordering = ['created']
         get_latest_by = 'created'
@@ -2588,7 +2623,19 @@ class Program(PkSearchableMixin, TimeStampedModel):
     def is_active(self):
         return self.status == ProgramStatus.Active
 
+    def check_enterprise_subscription_inclusion(self):
+        if self.type == 'micromasters' or self.type == 'masters':
+            return False
+        for course in self.courses.all():
+            if not course.enterprise_subscription_inclusion:
+                return False
+        for org in self.authoring_organizations:
+            if not org.enterprise_subscription_inclusion:
+                return False
+        return True
+
     def save(self, *args, **kwargs):
+        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
             self.partner.has_marketing_site and
