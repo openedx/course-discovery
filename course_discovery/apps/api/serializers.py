@@ -34,9 +34,9 @@ from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHt
 from course_discovery.apps.course_metadata.models import (
     FAQ, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator, CorporateEndorsement, Course,
     CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Curriculum, CurriculumCourseMembership,
-    CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline, Endorsement, Fact, IconTextPairing, Image,
-    LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite,
-    Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track, Video
+    CurriculumProgramMembership, Degree, DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact,
+    IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork,
+    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -635,6 +635,14 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
             'external_identifier', 'external_url', 'lead_capture_form_url',
             'facts', 'certificate_info', 'organic_url'
         )
+
+
+class DegreeAdditionalMetadataSerializer(BaseModelSerializer):
+    """Serializer for the ``DegreeAdditionalMetadata`` model."""
+
+    class Meta:
+        model = DegreeAdditionalMetadata
+        fields = ('external_identifier', 'external_url', 'organic_url')
 
 
 class CourseRunTypeSerializer(BaseModelSerializer):
@@ -1574,6 +1582,7 @@ class DegreeSerializer(BaseModelSerializer):
     rankings = RankingSerializer(many=True)
     micromasters_background_image = StdImageSerializerField()
     micromasters_path = serializers.SerializerMethodField()
+    degree_additional_metadata = DegreeAdditionalMetadataSerializer(required=False)
 
     class Meta:
         model = Degree
@@ -1584,7 +1593,7 @@ class DegreeSerializer(BaseModelSerializer):
             'lead_capture_image', 'micromasters_path', 'micromasters_url',
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
-            'deadlines_fine_print', 'hubspot_lead_capture_form_id',
+            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'degree_additional_metadata',
         )
 
     def get_micromasters_path(self, degree):

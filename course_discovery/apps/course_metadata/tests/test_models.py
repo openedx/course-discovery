@@ -2432,6 +2432,16 @@ class DegreeTests(TestCase):
         assert self.degree.title_background_image is not None
         assert self.degree.micromasters_background_image is not None
 
+    def test_degree_additional_metadata(self):
+        """ Verify the property returns valid  degree additional metadata fields. """
+        degree_additional_metadata = factories.DegreeAdditionalMetadataFactory()
+        degree = factories.DegreeFactory(degree_additional_metadata=degree_additional_metadata)
+        self.assertEqual(degree.degree_additional_metadata.external_url, degree_additional_metadata.external_url)
+        self.assertEqual(degree.degree_additional_metadata.organic_url, degree_additional_metadata.organic_url)
+        self.assertEqual(
+            degree.degree_additional_metadata.external_identifier, degree_additional_metadata.external_identifier
+        )
+
 
 class CourseUrlSlugHistoryTest(TestCase):
 
