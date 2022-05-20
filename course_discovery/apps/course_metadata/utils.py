@@ -704,3 +704,39 @@ def download_and_save_course_image(course, image_url, data_field='image', header
     except Exception:  # pylint: disable=broad-except
         logger.exception('An unknown exception occurred while downloading image for course [%s]', course.key)
     return False
+
+
+def download_and_save_program_image(program, image_url, data_field='image', headers=None):
+    """
+    Helper method to download an image from a provided image url and save it
+    in the data field mentioned, defaulting to program card image.
+    """
+    # TODO: refactor and merge program image download to use the same code as course image download
+    try:
+        response = requests.get(image_url, headers=headers)
+
+        if response.status_code == requests.codes.ok:  # pylint: disable=no-member
+            content_type = response.headers['Content-Type'].lower()
+            extension = IMAGE_TYPES.get(content_type)
+
+            if extension:
+                filename = '{uuid}.{extension}'.format(uuid=str(program.uuid), extension=extension)
+                # TODO: Get field from _meta.get_field. Tried that approach initially but was getting
+                # field save errors for some reasons.
+                if data_field == 'image':
+                    program.card_image.save(filename, ContentFile(response.content))
+                elif data_field == 'organization_logo_override':
+                    program.organization_logo_override.save(filename, ContentFile(response.content))
+                logger.info('Image for program [%s] successfully updated.', program.title)
+                return True
+            else:
+                # pylint: disable=line-too-long
+                msg = 'Image retrieved for program [%s] from [%s] has an unknown content type [%s] and will not be saved.'
+                logger.error(msg, program.title, image_url, content_type)
+
+        else:
+            msg = 'Failed to download image for program [%s] from [%s]! Response was [%d]:\n%s'
+            logger.error(msg, program.title, image_url, response.status_code, response.content)
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('An unknown exception occurred while downloading image for program [%s]', program.title)
+    return False
