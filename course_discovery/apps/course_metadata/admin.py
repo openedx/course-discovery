@@ -653,6 +653,16 @@ class DegreeCostInlineAdmin(admin.StackedInline):
     extra = 1
 
 
+class DegreeInlineAdmin(admin.StackedInline):
+    model = Degree
+
+
+@admin.register(DegreeAdditionalMetadata)
+class DegreeAdditionalMetadataAdmin(admin.ModelAdmin):
+    list_display = ('degree', 'external_url', 'external_identifier', 'organic_url')
+    inlines = (DegreeInlineAdmin, )
+
+
 @admin.register(Degree)
 class DegreeAdmin(admin.ModelAdmin):
     """
@@ -672,7 +682,7 @@ class DegreeAdmin(admin.ModelAdmin):
         'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
         'hubspot_lead_capture_form_id', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url',
         'micromasters_background_image', 'micromasters_org_name_override', 'faq', 'costs_fine_print',
-        'deadlines_fine_print',
+        'deadlines_fine_print', 'degree_additional_metadata'
     )
 
 
