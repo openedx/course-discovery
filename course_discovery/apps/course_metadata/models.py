@@ -932,7 +932,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         return True
 
     def save(self, *args, **kwargs):
-        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion
+        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion()
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -1492,7 +1492,8 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     enterprise_subscription_inclusion = models.BooleanField(
         default=False,
-        help_text=_('Caculated field based on if course is included in enterprise subscription catalog, and course run is self-paced'),
+        help_text=_('Caculated field based on if course is included in enterprise subscription catalog, '
+                    'and course run is self-paced'),
     )
 
     class Meta:
@@ -1953,7 +1954,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             suppress_publication (bool): if True, we won't push the run data to the marketing site
             send_emails (bool): whether to send email notifications for status changes from this save
         """
-        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion
+        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion()
         push_to_marketing = (not suppress_publication and
                              self.course.partner.has_marketing_site and
                              waffle.switch_is_active('publish_course_runs_to_marketing_site') and
@@ -2323,7 +2324,8 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
     enterprise_subscription_inclusion = models.BooleanField(
         default=False,
-        help_text=_('Caculated field based on if all courses in this program are included in the enterprise subscription catalog'),
+        help_text=_('Caculated field based on if all courses in this program are '
+                    'included in the enterprise subscription catalog'),
     )
 
     class Meta:
@@ -2634,7 +2636,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
         return True
 
     def save(self, *args, **kwargs):
-        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion
+        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion()
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
             self.partner.has_marketing_site and
