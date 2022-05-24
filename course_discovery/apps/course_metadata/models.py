@@ -906,6 +906,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         validators=[FileExtensionValidator(['png'])]
     )
 
+    value_per_lead = models.IntegerField(null=True, blank=True, default=None)
+
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
 
@@ -2287,6 +2289,9 @@ class Program(PkSearchableMixin, TimeStampedModel):
         blank=True, default=0, help_text=_(
             'Number of credits a learner will earn upon successful completion of the program')
     )
+
+    value_per_lead = models.IntegerField(null=True, blank=True, default=None)
+
     objects = ProgramQuerySet.as_manager()
 
     history = HistoricalRecords()

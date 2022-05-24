@@ -327,7 +327,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             'field-authoring_organizations', 'field-credit_backing_organizations', 'field-one_click_purchase_enabled',
             'field-hidden', 'field-corporate_endorsements', 'field-faq', 'field-individual_endorsements',
             'field-job_outlook_items', 'field-expected_learning_items', 'field-instructor_ordering',
-            'field-enrollment_count', 'field-recent_enrollment_count', 'field-credit_value',
+            'field-enrollment_count', 'field-recent_enrollment_count', 'field-credit_value', 'field-value_per_lead'
         ]
         assert actual == expected
 
