@@ -3,7 +3,23 @@ Serializers for learner_pathway app.
 """
 from rest_framework import serializers
 
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.learner_pathway import models
+
+
+class LearnerPathwayCourseMinimalSerializer(serializers.ModelSerializer):
+    """
+    Minimal course and coursrun data serializer for LearnerPathwayCourse model.
+    """
+    key = serializers.CharField(source="course.key")
+    course_runs = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.LearnerPathwayCourse
+        fields = ('key', 'course_runs')
+
+    def get_course_runs(self, obj):
+        return obj.course.course_runs.filter(status=CourseRunStatus.Published).values('key')
 
 
 class LearnerPathwayCourseSerializer(serializers.ModelSerializer):
@@ -21,7 +37,18 @@ class LearnerPathwayCourseSerializer(serializers.ModelSerializer):
         fields = ('key', 'title', 'short_description', 'card_image_url', 'content_type')
 
 
-class LearnerPathwayProgramSerializer(serializers.ModelSerializer):
+class LearnerPathwayProgramMinimalSerializer(serializers.ModelSerializer):
+    """
+    Minimal data serializer for LearnerPathwayProgram model.
+    """
+    uuid = serializers.CharField(source="program.uuid")
+
+    class Meta:
+        model = models.LearnerPathwayProgram
+        fields = ('uuid',)
+
+
+class LearnerPathwayProgramSerializer(LearnerPathwayProgramMinimalSerializer):
     """
     Serializer for LearnerPathwayProgram model.
     """
@@ -31,9 +58,15 @@ class LearnerPathwayProgramSerializer(serializers.ModelSerializer):
     content_type = serializers.CharField(source="NODE_TYPE")
     card_image_url = serializers.SerializerMethodField()
 
-    class Meta:
+    class Meta(LearnerPathwayProgramMinimalSerializer.Meta):
         model = models.LearnerPathwayProgram
-        fields = ('uuid', 'title', 'short_description', 'card_image_url', 'content_type')
+        fields = LearnerPathwayProgramMinimalSerializer.Meta.fields + (
+            'uuid',
+            'title',
+            'short_description',
+            'card_image_url',
+            'content_type'
+        )
 
     def get_card_image_url(self, step):
         program = step.program
@@ -50,6 +83,18 @@ class LearnerPathwayBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.LearnerPathwayBlock
         fields = ('uuid', 'step', 'course', 'block_id')
+
+
+class LearnerPathwayStepMinimalSerializer(serializers.ModelSerializer):
+    """
+    Serializer for LearnerPathwayStep model.
+    """
+    courses = LearnerPathwayCourseMinimalSerializer(source="learnerpathwaycourse_set", many=True)
+    programs = LearnerPathwayProgramMinimalSerializer(source="learnerpathwayprogram_set", many=True)
+
+    class Meta:
+        model = models.LearnerPathwayStep
+        fields = ('uuid', 'min_requirement', 'courses', 'programs',)
 
 
 class LearnerPathwayStepSerializer(serializers.ModelSerializer):
@@ -73,3 +118,14 @@ class LearnerPathwaySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.LearnerPathway
         fields = ('id', 'uuid', 'title', 'status', 'banner_image', 'card_image', 'overview', 'steps',)
+
+
+class LearnerPathwayMinimalSerializer(serializers.ModelSerializer):
+    """
+    Serializer for LearnerPathway Snapshot data.
+    """
+    steps = LearnerPathwayStepMinimalSerializer(many=True)
+
+    class Meta:
+        model = models.LearnerPathway
+        fields = ('id', 'uuid', 'status', 'steps',)

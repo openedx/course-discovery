@@ -1,6 +1,11 @@
 """
 API Views for learner_pathway app.
 """
+
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from course_discovery.apps.api.pagination import ProxiedPagination
@@ -16,11 +21,41 @@ class LearnerPathwayViewSet(ReadOnlyModelViewSet):
 
     lookup_field = 'uuid'
     serializer_class = serializers.LearnerPathwaySerializer
-    queryset = models.LearnerPathway.objects.filter(status=PathwayStatus.Active)
+    queryset = models.LearnerPathway.objects.prefetch_related('steps').filter(status=PathwayStatus.Active)
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.
     pagination_class = ProxiedPagination
+
+    @action(detail=True)
+    def snapshot(self, request, uuid):
+        pathway = get_object_or_404(self.queryset, uuid=uuid, status=PathwayStatus.Active)
+        serializer = serializers.LearnerPathwayMinimalSerializer(pathway, many=False)
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False)
+    def uuids(self, request):
+        """
+        Return uuids of all paythways having course run key or program uuid
+        """
+        course_keys = request.GET.getlist('course_keys', [])
+        program_uuids = request.GET.getlist('program_uuids', [])
+
+        pathway_courses = models.LearnerPathwayCourse.objects.filter(
+            course__key__in=course_keys
+        ).values_list(
+            'step__pathway__uuid',
+            flat=True
+        )
+        pathway_programs = models.LearnerPathwayProgram.objects.filter(
+            program__uuid__in=program_uuids
+        ).values_list(
+            'step__pathway__uuid',
+            flat=True
+        )
+
+        ids = list(pathway_courses) + list(pathway_programs)
+        return Response(set(ids))
 
 
 class LearnerPathwayStepViewSet(ReadOnlyModelViewSet):

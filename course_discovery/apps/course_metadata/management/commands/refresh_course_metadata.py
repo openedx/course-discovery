@@ -74,6 +74,7 @@ class Command(BaseCommand):
         partners = Partner.objects.all()
 
         # If a specific partner was indicated, filter down the set
+        logger.info('[VAN-941] Filtering based on partner code')
         partner_code = options.get('partner_code')
         if partner_code:
             partners = partners.filter(short_code=partner_code)
@@ -85,6 +86,7 @@ class Command(BaseCommand):
         # completes. Disconnecting the api_change_receiver function from post_save
         # and post_delete signals prevents model changes during data loading from
         # repeatedly invalidating the cache.
+        logger.info('[VAN-941] Disconnect api_change_receiver from post_save and post_delete')
         for model in apps.get_app_config('course_metadata').get_models():
             for signal in (post_save, post_delete):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
