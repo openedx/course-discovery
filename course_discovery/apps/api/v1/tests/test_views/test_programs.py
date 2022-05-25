@@ -65,7 +65,8 @@ class TestProgramViewSet(SerializationMixin):
             instructor_ordering=PersonFactory.create_batch(1),
             banner_image=make_image_file('test_banner.jpg'),
             video=VideoFactory(),
-            partner=self.partner
+            partner=self.partner,
+            enterprise_subscription_inclusion = False,
         )
         return program
 

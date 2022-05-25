@@ -926,14 +926,17 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         )
         ordering = ['id']
 
-    def check_enterprise_subscription_inclusion(self):
-        for org in self.authoring_organizations:
+    def _check_enterprise_subscription_inclusion(course):
+        for org in course.authoring_organizations.all():
             if not org.enterprise_subscription_inclusion:
                 return False
         return True
 
     def save(self, *args, **kwargs):
-        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion()
+        super().save(*args, **kwargs)
+        self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+        kwargs['force_insert'] = False
+        kwargs['force_update'] = True 
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -1472,6 +1475,11 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Course_Run__c in Salesforce
 
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This calculated field signifies if this course run is in the enterprise subscription catalog'),
+    )
+
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',
         'end',
@@ -1491,22 +1499,11 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         'ofac_comment',
     )
 
-    enterprise_subscription_inclusion = models.BooleanField(
-        default=False,
-        help_text=_('Caculated field based on if course is included in enterprise subscription catalog, '
-                    'and course run is self-paced'),
-    )
-
     class Meta:
         unique_together = (
             ('key', 'draft'),
             ('uuid', 'draft'),
         )
-
-    def check_enterprise_subscription_inclusion(self):
-        if self.pacing_type == 'instructor_paced':
-            return False
-        return self.course.enterprise_subscription_inclusion
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1949,13 +1946,19 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if send_emails and email_method:
             email_method(self)
 
-    def save(self, suppress_publication=False, send_emails=True, **kwargs):
+    def _check_enterprise_subscription_inclusion(course_run):
+        if not course_run.course.enterprise_subscription_inclusion:
+            return False
+        if course_run.pacing_type == 'instructor_paced':
+            return False
+        return True
+
+    def save(self, suppress_publication=False, send_emails=True, **kwargs):  # pylint: disable=arguments-differ
         """
         Arguments:
             suppress_publication (bool): if True, we won't push the run data to the marketing site
             send_emails (bool): whether to send email notifications for status changes from this save
         """
-        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion()
         push_to_marketing = (not suppress_publication and
                              self.course.partner.has_marketing_site and
                              waffle.switch_is_active('publish_course_runs_to_marketing_site') and
@@ -1965,6 +1968,10 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             if push_to_marketing:
                 previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
 
+            super().save(**kwargs)
+            self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+            kwargs['force_insert'] = False
+            kwargs['force_update'] = True 
             super().save(**kwargs)
             self.handle_status_change(send_emails)
 
@@ -2319,15 +2326,15 @@ class Program(PkSearchableMixin, TimeStampedModel):
         blank=True, default=0, help_text=_(
             'Number of credits a learner will earn upon successful completion of the program')
     )
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This calculated field signifies if all the courses in '
+                    'this program are included in the enterprise subscription catalog '),
+    )
+
     objects = ProgramQuerySet.as_manager()
 
     history = HistoricalRecords()
-
-    enterprise_subscription_inclusion = models.BooleanField(
-        default=False,
-        help_text=_('Caculated field based on if all courses in this program are '
-                    'included in the enterprise subscription catalog'),
-    )
 
     class Meta:
         ordering = ['created']
@@ -2625,19 +2632,15 @@ class Program(PkSearchableMixin, TimeStampedModel):
     def is_active(self):
         return self.status == ProgramStatus.Active
 
-    def check_enterprise_subscription_inclusion(self):
-        if self.type == 'micromasters' or self.type == 'masters':
+    def _check_enterprise_subscription_inclusion(program):
+        if program.type is 'micromasters':
             return False
-        for course in self.courses.all():
+        for course in program.courses.all():
             if not course.enterprise_subscription_inclusion:
-                return False
-        for org in self.authoring_organizations:
-            if not org.enterprise_subscription_inclusion:
                 return False
         return True
 
     def save(self, *args, **kwargs):
-        self.enterprise_subscription_inclusion = self.check_enterprise_subscription_inclusion()
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
             self.partner.has_marketing_site and
@@ -2652,9 +2655,17 @@ class Program(PkSearchableMixin, TimeStampedModel):
 
             with transaction.atomic():
                 super().save(*args, **kwargs)
+                self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+                kwargs['force_insert'] = False
+                kwargs['force_update'] = True 
+                super().save(**kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
             super().save(*args, **kwargs)
+            self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+            kwargs['force_insert'] = False
+            kwargs['force_update'] = True 
+            super().save(**kwargs)
 
 
 class Ranking(TimeStampedModel):
