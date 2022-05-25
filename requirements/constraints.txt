@@ -32,3 +32,7 @@ authlib==1.0.0rc1
 
 # The latest version require Django 4.0, remove once we have upgraded to Django 4.0
 django-admin-sortable2<2.0.0
+
+# django-stdimage>5.3.0 causing failures and the package itself has been deprecated.
+# This needs to be replaced with django-pictures later on.
+django-stdimage<6.0.0
