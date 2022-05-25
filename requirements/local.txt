@@ -186,7 +186,7 @@ django-cors-headers==3.12.0
     # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
-django-debug-toolbar==3.4.0
+django-debug-toolbar==3.2.4
     # via -r requirements/local.in
 django-dry-rest-permissions==1.2.0
     # via -r requirements/base.in
@@ -222,7 +222,7 @@ django-parler==2.3
     # via -r requirements/base.in
 django-ses==3.0.1
     # via taxonomy-connector
-django-simple-history==3.1.1
+django-simple-history==3.0.0
     # via -r requirements/base.in
 django-solo==2.0.0
     # via
@@ -230,11 +230,11 @@ django-solo==2.0.0
     #   taxonomy-connector
 django-sortedm2m==3.1.1
     # via -r requirements/base.in
-django-stdimage==6.0.1
+django-stdimage==5.3.0
     # via -r requirements/base.in
 django-storages==1.12.3
     # via -r requirements/base.in
-django-taggit==3.0.0
+django-taggit==2.1.0
     # via
     #   -r requirements/base.in
     #   django-taggit-autosuggest

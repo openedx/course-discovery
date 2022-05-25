@@ -10,7 +10,7 @@ from rest_framework_extensions.cache.decorators import cache_response
 logger = logging.getLogger(__name__)
 
 
-def exchange_rate_cache_key(*args, **kwargs):  # pylint: disable=unused-argument
+def exchange_rate_cache_key(*args, **kwargs):
     return 'exchange_rate_key'
 
 
@@ -69,7 +69,7 @@ class CurrencyView(views.APIView):
 
         for country, currency in currencies.items():
             currency_name = currency['code']
-            currencies[country]['rate'] = rates.get(currency_name)
+            currencies[country]['rate'] = rates.get(currency_name)  # lint-amnesty, pylint: disable=unnecessary-dict-index-lookup
 
         eurozone_data = {'code': 'EUR', 'symbol': '€', 'rate': rates.get('EUR')}
         for country in eurozone_countries:

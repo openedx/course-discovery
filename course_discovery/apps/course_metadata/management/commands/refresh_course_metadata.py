@@ -3,7 +3,7 @@ import itertools
 import logging
 
 import backoff
-import waffle
+import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from django.apps import apps
 from django.core.management import BaseCommand, CommandError
 from django.db import connection
@@ -132,7 +132,7 @@ class Command(BaseCommand):
             max_workers = DataLoaderConfig.get_solo().max_workers
 
             logger.info(
-                'Command is{negation} using threads to write data.'.format(negation='' if is_threadsafe else ' not')
+                'Command is{negation} using threads to write data.'.format(negation='' if is_threadsafe else ' not')  # lint-amnesty, pylint: disable=logging-format-interpolation
             )
 
             pipeline = (
@@ -152,7 +152,7 @@ class Command(BaseCommand):
                 try:
                     pipeline = (pipeline[data_loader_stage - 1],)
                 except IndexError:
-                    raise CommandError(f'Invalid data loader stage. It must be between 1-{len(pipeline)}')
+                    raise CommandError(f'Invalid data loader stage. It must be between 1-{len(pipeline)}')  # lint-amnesty, pylint: disable=raise-missing-from
 
             if waffle.switch_is_active('parallel_refresh_pipeline'):
                 futures = []

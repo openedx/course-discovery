@@ -79,7 +79,7 @@ class CatalogDataViewSet(viewsets.GenericViewSet):
 
     @update_query_params_with_body_data
     def create(self, request):
-        return self.list(request)  # pylint: disable=no-member
+        return self.list(request)
 
 
 class CourseSearchViewSet(BaseElasticsearchDocumentViewSet):

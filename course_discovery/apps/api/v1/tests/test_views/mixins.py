@@ -197,13 +197,13 @@ class FuzzyInt(int):
         return obj
 
     def __eq__(self, other):
-        return (self.value - self.threshold) <= other <= (self.value + self.threshold)  # pylint: disable=no-member
+        return (self.value - self.threshold) <= other <= (self.value + self.threshold)
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __str__(self):
-        return f'FuzzyInt(value={self.value}, threshold={self.threshold})'  # pylint: disable=no-member
+        return f'FuzzyInt(value={self.value}, threshold={self.threshold})'
 
 
 class APITestCase(SiteMixin, RestAPITestCase):

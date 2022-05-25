@@ -15,7 +15,7 @@ class Command(BaseCommand):
     """
     Remove ProgramTypes with slugs matching those created by migrations
     """
-    # pylint: disable=unused-argument
+
     def handle(self, *args, **kwargs):
         program_types = ProgramType.objects.filter(slug__in=MB_PROGRAM_TYPES + M_PROGRAM_TYPES)
         program_types.delete()

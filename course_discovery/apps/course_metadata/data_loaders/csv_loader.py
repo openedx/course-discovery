@@ -50,10 +50,10 @@ class CSVDataLoader(AbstractDataLoader):
         self.messages_list = []  # to show failure/skipped ingestion message at the end
         self.course_uuids = {}  # to show the discovery course ids for each processed course
         try:
-            self.reader = csv.DictReader(open(csv_path, 'r'))
+            self.reader = csv.DictReader(open(csv_path, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
             self.is_draft = is_draft
         except FileNotFoundError:
-            logger.exception("Error opening csv file at path {}".format(csv_path))
+            logger.exception("Error opening csv file at path {}".format(csv_path))  # lint-amnesty, pylint: disable=logging-format-interpolation
             raise  # re-raising exception to avoid moving the code flow
 
     def ingest(self):  # pylint: disable=too-many-statements
@@ -64,9 +64,9 @@ class CSVDataLoader(AbstractDataLoader):
             course_title = row['title']
             org_key = row['organization']
 
-            logger.info('Starting data import flow for {}'.format(course_title))
+            logger.info('Starting data import flow for {}'.format(course_title))  # lint-amnesty, pylint: disable=logging-format-interpolation
             if not Organization.objects.filter(key=org_key).exists():
-                logger.error("Organization {} does not exist in database. Skipping CSV loader for course {}".format(
+                logger.error("Organization {} does not exist in database. Skipping CSV loader for course {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     org_key,
                     course_title
                 ))
@@ -77,19 +77,19 @@ class CSVDataLoader(AbstractDataLoader):
                 course_type = CourseType.objects.get(name=row['course_enrollment_track'])
                 course_run_type = CourseRunType.objects.get(name=row['course_run_enrollment_track'])
             except CourseType.DoesNotExist:
-                logger.exception("CourseType {} does not exist in the database.".format(
+                logger.exception("CourseType {} does not exist in the database.".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     row['course_enrollment_track']
                 ))
                 continue
             except CourseRunType.DoesNotExist:
-                logger.exception("CourseRunType {} does not exist in the database.".format(
+                logger.exception("CourseRunType {} does not exist in the database.".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     row['course_run_enrollment_track']
                 ))
                 continue
 
             message = self.validate_course_data(course_type, row)
             if message:
-                logger.error("Data validation issue for course {}, skipping ingestion".format(course_title))
+                logger.error("Data validation issue for course {}, skipping ingestion".format(course_title))  # lint-amnesty, pylint: disable=logging-format-interpolation
                 self.messages_list.append("[DATA VALIDATION ERROR] Course {}. Missing data: {}".format(
                     course_title, message
                 ))
@@ -100,13 +100,13 @@ class CSVDataLoader(AbstractDataLoader):
             course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
             if course:
                 course_run = CourseRun.objects.filter_drafts(course=course).first()
-                logger.info("Course {} is located in the database.".format(course_key))
+                logger.info("Course {} is located in the database.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             else:
-                logger.info("Course key {} could not be found in database, creating the course.".format(course_key))
+                logger.info("Course key {} could not be found in database, creating the course.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
                 try:
                     _ = self._create_course(row, course_type, course_run_type.uuid)
                 except Exception:  # pylint: disable=broad-except
-                    logger.exception("Error occurred when attempting to create a new course against key {}".format(
+                    logger.exception("Error occurred when attempting to create a new course against key {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                         course_key
                     ))
                     self.messages_list.append('[COURSE CREATION ERROR] course {}'.format(course_title))
@@ -116,7 +116,7 @@ class CSVDataLoader(AbstractDataLoader):
 
             is_downloaded = download_and_save_course_image(course, row['image'])
             if not is_downloaded:
-                logger.error("Unexpected error happened while downloading image for course {}".format(
+                logger.error("Unexpected error happened while downloading image for course {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     course_key
                 ))
                 self.messages_list.append('[IMAGE DOWNLOAD FAILURE] course {}'.format(course_title))
@@ -137,7 +137,7 @@ class CSVDataLoader(AbstractDataLoader):
                     'organization_logo_override'
                 )
                 if not is_logo_downloaded:
-                    logger.error("Unexpected error happened while downloading override logo image for course {}".format(
+                    logger.error("Unexpected error happened while downloading override logo image for course {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                         course_key
                     ))
                     self.messages_list.append('[OVERRIDE IMAGE DOWNLOAD FAILURE] course {}'.format(course_title))
@@ -158,7 +158,7 @@ class CSVDataLoader(AbstractDataLoader):
                 except Exception:  # pylint: disable=broad-except
                     logger.exception("An unknown error occurred while completing course run review")
 
-            logger.info("Course and course run updated successfully for course key {}".format(course_key))
+            logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
         logger.info("CSV loader ingest pipeline has completed.")
 
@@ -172,7 +172,7 @@ class CSVDataLoader(AbstractDataLoader):
         if self.course_uuids:
             logger.info("Course UUIDs:")
             for course_uuid, title in self.course_uuids.items():
-                logger.info("{}:{}".format(course_uuid, title))
+                logger.info("{}:{}".format(course_uuid, title))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
     def validate_course_data(self, course_type, data):
         """
@@ -335,7 +335,7 @@ class CSVDataLoader(AbstractDataLoader):
             headers={'content-type': 'application/json'}
         )
         if not response.ok:
-            logger.info("API request failed for url {} with response: {}".format(url, response.content.decode('utf-8')))
+            logger.info("API request failed for url {} with response: {}".format(url, response.content.decode('utf-8')))  # lint-amnesty, pylint: disable=logging-format-interpolation
         response.raise_for_status()
         return response
 
@@ -349,7 +349,7 @@ class CSVDataLoader(AbstractDataLoader):
         request_data = self._create_course_api_request_data(data, course_type, course_run_type_uuid)
         response = self._call_course_api('POST', url, request_data)
         if response.status_code not in (200, 201):
-            logger.info("Course creation response: {}".format(response.content))
+            logger.info("Course creation response: {}".format(response.content))  # lint-amnesty, pylint: disable=logging-format-interpolation
         return response.json()
 
     def _update_course(self, data, course):
@@ -362,7 +362,7 @@ class CSVDataLoader(AbstractDataLoader):
         response = self._call_course_api('PATCH', url, request_data)
 
         if response.status_code not in (200, 201):
-            logger.info("Course update response: {}".format(response.content))
+            logger.info("Course update response: {}".format(response.content))  # lint-amnesty, pylint: disable=logging-format-interpolation
         return response.json()
 
     def _update_course_run(self, data, course_run, course_type):
@@ -374,7 +374,7 @@ class CSVDataLoader(AbstractDataLoader):
         request_data = self._update_course_run_request_data(data, course_run, course_type)
         response = self._call_course_api('PATCH', url, request_data)
         if response.status_code not in (200, 201):
-            logger.info("Course run update response: {}".format(response.content))
+            logger.info("Course run update response: {}".format(response.content))  # lint-amnesty, pylint: disable=logging-format-interpolation
         return response.json()
 
     def _complete_run_review(self, data, course_run):
@@ -431,7 +431,7 @@ class CSVDataLoader(AbstractDataLoader):
                 sub_obj = Subject.objects.get(translations__name=subject, translations__language_code='en')
                 subject_slugs.append(sub_obj.slug)
             except Subject.DoesNotExist:
-                logger.exception("Unable to locate subject {} in the database. Skipping subject association".format(
+                logger.exception("Unable to locate subject {} in the database. Skipping subject association".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     subject
                 ))
                 raise
@@ -455,7 +455,7 @@ class CSVDataLoader(AbstractDataLoader):
             collaborator_obj, created = Collaborator.objects.get_or_create(name=collaborator)
             collaborator_uuids.append(str(collaborator_obj.uuid))
             if created:
-                logger.info("Collaborator {} created for course {}".format(collaborator, course_key))
+                logger.info("Collaborator {} created for course {}".format(collaborator, course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
         return collaborator_uuids
 
     def process_staff_names(self, staff_names, course_run_key):
@@ -482,7 +482,7 @@ class CSVDataLoader(AbstractDataLoader):
             )
             staff_uuids.append(str(person.uuid))
             if created:
-                logger.info("Staff with name {} has been created for course run {}".format(
+                logger.info("Staff with name {} has been created for course run {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     staff_name,
                     course_run_key
                 ))

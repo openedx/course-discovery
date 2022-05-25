@@ -38,7 +38,7 @@ class M2MRelatedModel(models.Model):
 class ModelUtilTests(TestCase):
     def test_get_all_related_field_names(self):
         """ Verify the method returns the names of all relational fields for a model. """
-        assert get_all_related_field_names(UnrelatedModel) == []
+        assert get_all_related_field_names(UnrelatedModel) == []  # lint-amnesty, pylint: disable=use-implicit-booleaness-not-comparison
         assert set(get_all_related_field_names(RelatedModel)) == {'foreignrelatedmodel', 'm2mrelatedmodel'}
 
     def test_delete_orphans(self):

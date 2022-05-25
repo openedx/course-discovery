@@ -60,7 +60,7 @@ def delegate_attributes(cls):
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
         def _closure(name):
-            def _wrap(self, *args, **kwargs):  # pylint: disable=unused-argument
+            def _wrap(self, *args, **kwargs):
                 with override(getattr(self.product, 'language', 'en')):
                     return getattr(self.product, name, None)
             return _wrap

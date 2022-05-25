@@ -225,7 +225,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         mock_update_node_alias,
         mock_create_node,
         *args
-    ):  # pylint: disable=unused-argument
+    ):
         self.publisher.publish_obj(self.obj)
         mock_create_node.assert_called_with({'data': 'test', 'field_course_uuid': str(self.obj.uuid)})
         mock_update_node_alias.assert_called_with(self.obj, 'node_id', None)
@@ -242,7 +242,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
         mock_serialize_obj,
         mock_node_id,
         *args
-    ):  # pylint: disable=unused-argument
+    ):
         self.publisher.publish_obj(self.obj)
         mock_node_id.assert_called_with(self.obj)
         mock_serialize_obj.assert_called_with(self.obj)
@@ -253,7 +253,7 @@ class CourseRunMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     @mock.patch.object(CourseRunMarketingSitePublisher, 'serialize_obj', return_value='data')
     @mock.patch.object(CourseRunMarketingSitePublisher, 'edit_node', return_value=None)
     @mock.patch.object(CourseRunMarketingSitePublisher, 'update_node_alias')
-    def test_publish_obj_edit(self, mock_node_alias, mock_edit_node, *args):  # pylint: disable=unused-argument
+    def test_publish_obj_edit(self, mock_node_alias, mock_edit_node, *args):
         """
         Verify that the publisher attempts to publish when course run status changes.
         """
@@ -401,7 +401,7 @@ class ProgramMarketingSitePublisherTests(MarketingSitePublisherTestMixin):
     @mock.patch.object(ProgramMarketingSitePublisher, 'get_and_delete_alias', return_value=None)
     def test_publish_obj(
             self, mock_get_and_delete_alias, mock_update_node_alias, mock_edit_node, mock_create_node, *args
-    ):  # pylint: disable=unused-argument
+    ):
         """
         Verify that the publisher only attempts to publish programs of certain types,
         only attempts an edit when any one of a set of trigger fields is changed,

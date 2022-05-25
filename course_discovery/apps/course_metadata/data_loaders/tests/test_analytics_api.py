@@ -69,7 +69,7 @@ class AnalyticsAPIDataLoaderTests(DataLoaderTestMixin, TestCase):
             assert course_run.enrollment_count > 0
             assert course_run.recent_enrollment_count > 0
             course = course_run.course
-            if course.key in expected_course_enrollment_counts.keys():
+            if course.key in expected_course_enrollment_counts.keys():  # lint-amnesty, pylint: disable=consider-iterating-dictionary
                 expected_course_enrollment_counts[course.key]['count'] += course_run.enrollment_count
                 expected_course_enrollment_counts[course.key]['recent_count'] += course_run.recent_enrollment_count
             else:
