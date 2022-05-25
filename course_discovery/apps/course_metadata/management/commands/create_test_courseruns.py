@@ -29,7 +29,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         partner_code = options.get('partner_code')
-        logger.info('Searching for partner by code: {}'.format(partner_code))
+        logger.info('Searching for partner by code: {}'.format(partner_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
         partner = Partner.objects.get(short_code=partner_code)
 
@@ -37,13 +37,13 @@ class Command(BaseCommand):
         if partner.courses_api_url != base_course_url:
             partner.courses_api_url = base_course_url
             logger.info(
-                'Changing base partner URL for courses to {}'.format(base_course_url))
+                'Changing base partner URL for courses to {}'.format(base_course_url))  # lint-amnesty, pylint: disable=logging-format-interpolation
             partner.save()
 
         if not partner.marketing_site_url_root:
             partner.marketing_site_url_root = base_course_url
             logger.info(
-                'Changing blank base partner marketing URL for courses to {}'.format(base_course_url))
+                'Changing blank base partner marketing URL for courses to {}'.format(base_course_url))  # lint-amnesty, pylint: disable=logging-format-interpolation
             partner.save()
 
         self.create_test_courseruns(partner)
@@ -91,11 +91,11 @@ class Command(BaseCommand):
         course.authoring_organizations.add(org)
         course.save()
 
-        logger.info('Advertised course run will be: {}'.format(
+        logger.info('Advertised course run will be: {}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
             course.advertised_course_run))
 
-        logger.info('Using Partner: {}'.format(partner))
-        logger.info('Using Org: {}'.format(org))
-        logger.info('Created new course: {}'.format(course))
-        logger.info('Created new course run: {}'.format(course_run_1))
-        logger.info('Created new course run: {}'.format(course_run_2))
+        logger.info('Using Partner: {}'.format(partner))  # lint-amnesty, pylint: disable=logging-format-interpolation
+        logger.info('Using Org: {}'.format(org))  # lint-amnesty, pylint: disable=logging-format-interpolation
+        logger.info('Created new course: {}'.format(course))  # lint-amnesty, pylint: disable=logging-format-interpolation
+        logger.info('Created new course run: {}'.format(course_run_1))  # lint-amnesty, pylint: disable=logging-format-interpolation
+        logger.info('Created new course run: {}'.format(course_run_2))  # lint-amnesty, pylint: disable=logging-format-interpolation

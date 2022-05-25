@@ -354,7 +354,7 @@ class TestProgramViewSet(SerializationMixin):
     def test_minimal_serializer_use(self):
         """ Verify that the list view uses the minimal serializer. """
         mock_request = mock.MagicMock()
-        mock_request.query_params = dict()
+        mock_request.query_params = dict()  # lint-amnesty, pylint: disable=use-dict-literal
         assert ProgramViewSet(action='list', request=mock_request).get_serializer_class() == MinimalProgramSerializer
 
     def test_update_card_image(self):

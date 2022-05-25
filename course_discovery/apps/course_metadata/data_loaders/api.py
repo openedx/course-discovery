@@ -37,11 +37,13 @@ def _fatal_code(ex):
         ex.response is not None and
         ex.response.status_code != 429 and
         400 <= ex.response.status_code < 500
-    )  # pylint: disable=no-member
+    )
 
 
 class CoursesApiDataLoader(AbstractDataLoader):
     """ Loads course runs from the Courses API. """
+
+    PAGE_SIZE = 25
 
     def ingest(self):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
@@ -452,7 +454,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         results = response['results']
         logger.info('Retrieved %d course seats...', len(results))
         # Add to the collected count
-        self.course_run_count_lock.acquire()
+        self.course_run_count_lock.acquire()  # lint-amnesty, pylint: disable=consider-using-with
         self.course_run_count += len(results)
         self.course_run_count_lock.release()
         for body in results:
@@ -463,7 +465,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         results = response['results']
         logger.info('Retrieved %d course entitlements...', len(results))
         # Add to the collected count
-        self.entitlement_count_lock.acquire()
+        self.entitlement_count_lock.acquire()  # lint-amnesty, pylint: disable=consider-using-with
         self.entitlement_count += len(results)
         self.entitlement_count_lock.release()
 
@@ -474,7 +476,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
     def _process_enrollment_codes(self, response):
         results = response['results']
         logger.info('Retrieved %d course enrollment codes...', len(results))
-        self.enrollment_code_lock.acquire()
+        self.enrollment_code_lock.acquire()  # lint-amnesty, pylint: disable=consider-using-with
         self.enrollment_code_count += len(results)
         self.enrollment_code_lock.release()
 
@@ -556,7 +558,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             return
         if not course_run.type.empty and not course_run.type.tracks.filter(seat_type=seat_type).exists():
             logger.warning(
-                'Seat type {seat_type} is not compatible with course run type {run_type} for course run {key}'.format(
+                'Seat type {seat_type} is not compatible with course run type {run_type} for course run {key}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     seat_type=seat_type.slug, run_type=course_run.type.slug, key=course_run.key,
                 )
             )
@@ -698,7 +700,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
             return None
         if not course.type.empty and mode not in course.type.entitlement_types.all():
             logger.warning(
-                'Seat type {seat_type} is not compatible with course type {course_type} for course {uuid}'.format(
+                'Seat type {seat_type} is not compatible with course type {course_type} for course {uuid}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     seat_type=mode.slug, course_type=course.type.slug, uuid=course_uuid,
                 )
             )

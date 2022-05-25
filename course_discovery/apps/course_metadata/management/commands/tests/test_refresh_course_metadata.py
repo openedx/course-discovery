@@ -167,6 +167,24 @@ class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
             expected_calls = [mock.call('%s failed!', loader_class.__name__) for loader_class in loader_classes]
             mock_logger.exception.assert_has_calls(expected_calls)
 
+    def test_refresh_course_metadata_with_invalid_stage_argument(self):
+        """ Verify that if invalid data loader stage is given error is thrown """
+        with pytest.raises(CommandError):
+            command_args = ['--data_loader_stage=100']
+            call_command('refresh_course_metadata', *command_args)
+
+    def test_refresh_course_metadata_runs_specific_stage_of_pipeline(self):
+        """ Verify that if data loader stage is given to the command it only runs that stage. """
+        self.mock_apis()
+
+        with mock.patch('course_discovery.apps.course_metadata.management.commands.'
+                        'refresh_course_metadata.execute_loader', return_value=True) as mock_executor:
+            command_args = ['--data_loader_stage=1']
+            call_command('refresh_course_metadata', *command_args)
+
+            stage_1 = self.pipeline[0]
+            mock_executor.assert_has_calls([mock.call(stage_1[0], self.partner, stage_1[1], 7, False)])
+
     @mock.patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.delete_orphans')
     def test_deletes_orphans(self, mock_delete_orphans):
         """ Verify execution culls any orphans left behind. """

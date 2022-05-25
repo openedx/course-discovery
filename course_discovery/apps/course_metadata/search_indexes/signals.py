@@ -21,7 +21,7 @@ class RegistryUpdateHandler(ABC):
     Implements pattern 'Chain of responsibilities.'
     """
 
-    @abstractproperty
+    @abstractproperty  # lint-amnesty, pylint: disable=deprecated-decorator
     def expected_models(self):
         pass
 

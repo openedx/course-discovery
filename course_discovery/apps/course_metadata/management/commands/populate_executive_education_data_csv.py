@@ -89,7 +89,7 @@ class Command(BaseCommand):
 
         if input_csv:
             try:
-                input_reader = csv.DictReader(open(input_csv, 'r'))
+                input_reader = csv.DictReader(open(input_csv, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
                 input_reader = list(input_reader)
             except FileNotFoundError:
                 raise CommandError(  # pylint: disable=raise-missing-from
@@ -123,7 +123,7 @@ class Command(BaseCommand):
 
                 output_dict = self.get_transformed_data(row, product)
                 output_writer = self.write_csv_row(output_writer, output_dict)
-                logger.info(self.SUCCESS_MESSAGE.format(product['name']))
+                logger.info(self.SUCCESS_MESSAGE.format(product['name']))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
             logger.info("Data Transformation has completed. Warnings raised during the transformation:")
             for message in self.messages_list:

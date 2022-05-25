@@ -44,7 +44,7 @@ class Command(BaseCommand):
         assets = {}
         for key, value in kwargs.items():
             try:
-                assets[key] = File(open(value, "rb"))
+                assets[key] = File(open(value, "rb"))  # lint-amnesty, pylint: disable=consider-using-with
             except OSError as cannot_open_file:
                 raise CommandError from cannot_open_file
         return assets

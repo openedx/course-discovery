@@ -12,6 +12,6 @@ class CatalogFactory(factory.django.DjangoModelFactory):
     query = '*:*'
 
     @factory.post_generation
-    def viewers(self, create, extracted, **kwargs):  # pylint: disable=method-hidden,unused-argument
+    def viewers(self, create, extracted, **kwargs):  # pylint: disable=method-hidden
         if create and extracted:
             self.viewers = extracted

@@ -7,7 +7,7 @@ from uuid import uuid4
 
 import pytz
 import requests
-import waffle
+import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -552,7 +552,7 @@ class Subject(TranslatableModel, TimeStampedModel):
         )
         ordering = ['created']
 
-    def validate_unique(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def validate_unique(self, *args, **kwargs):
         super().validate_unique(*args, **kwargs)
         qs = Subject.objects.filter(partner=self.partner_id)
         if qs.filter(translations__name=self.name).exclude(pk=self.pk).exists():
@@ -590,7 +590,7 @@ class Topic(TranslatableModel, TimeStampedModel):
         )
         ordering = ['created']
 
-    def validate_unique(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def validate_unique(self, *args, **kwargs):
         super().validate_unique(*args, **kwargs)
         qs = Topic.objects.filter(partner=self.partner_id)
         if qs.filter(translations__name=self.name).exclude(pk=self.pk).exists():
@@ -1147,7 +1147,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     @transaction.atomic
     def set_active_url_slug(self, slug):
         # logging to help debug error around course url slugs incrementing
-        logger.info('The current slug is {}; The slug to be set is {}; Current course is a draft: {}'
+        logger.info('The current slug is {}; The slug to be set is {}; Current course is a draft: {}'  # lint-amnesty, pylint: disable=logging-format-interpolation
                     .format(self.url_slug, slug, self.draft))
 
         if slug:
@@ -1176,18 +1176,18 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
                         active_draft_url_slug_object.delete()
                     return
             # case 2: slug has not been used for this course before
-            obj = self.url_slug_history.update_or_create(is_active=True, defaults={  # pylint: disable=no-member
+            obj = self.url_slug_history.update_or_create(is_active=True, defaults={
                 'course': self,
                 'partner': self.partner,
                 'is_active': True,
                 'url_slug': slug,
             })[0]  # update_or_create returns an (obj, created?) tuple, so just get the object
             # this line necessary to clear the prefetch cache
-            self.url_slug_history.add(obj)  # pylint: disable=no-member
+            self.url_slug_history.add(obj)
         else:
             if self.draft_version:
                 self.draft_version.url_slug_history.filter(is_active=True).delete()
-            obj = self.url_slug_history.update_or_create(url_slug=slug, defaults={  # pylint: disable=no-member
+            obj = self.url_slug_history.update_or_create(url_slug=slug, defaults={
                 'url_slug': slug,
                 'is_active': True,
                 'is_active_on_draft': True,
@@ -1739,7 +1739,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     @property
     def programs(self):
-        return self.course.programs  # pylint: disable=no-member
+        return self.course.programs
 
     @property
     def seat_types(self):
@@ -1881,7 +1881,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         # One example of how this situation can happen is if a course team is switching between
         # professional and verified before actually publishing their course run.
         self.seats.exclude(type__in=seat_types).delete()
-        self.seats.set(seats)  # pylint: disable=no-member
+        self.seats.set(seats)
 
     def update_or_create_official_version(self, notify_services=True):
         draft_version = CourseRun.everything.get(pk=self.pk)
@@ -1952,7 +1952,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             return False
         return True
 
-    def save(self, suppress_publication=False, send_emails=True, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, suppress_publication=False, send_emails=True, **kwargs):
         """
         Arguments:
             suppress_publication (bool): if True, we won't push the run data to the marketing site
@@ -2549,7 +2549,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
                         # and the course is enrollable, then choose the new seat associated with the course instead,
                         # and mark the original seat in the array to be removed
                         logger.info(
-                            "Use course_run {} instead of course_run {} for total program price calculation".format(
+                            "Use course_run {} instead of course_run {} for total program price calculation".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                                 seat.course_run.key,
                                 selected_seat.course_run.key
                             )

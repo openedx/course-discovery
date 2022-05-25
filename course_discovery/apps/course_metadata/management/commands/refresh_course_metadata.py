@@ -3,7 +3,7 @@ import itertools
 import logging
 
 import backoff
-import waffle
+import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from django.apps import apps
 from django.core.management import BaseCommand, CommandError
 from django.db import connection
@@ -69,10 +69,17 @@ class Command(BaseCommand):
             help='The short code for a specific partner to refresh.'
         )
 
+        parser.add_argument(
+            '--data_loader_stage',
+            type=int,
+            help='The stage of pipeline to be run. If this argument is not provided it runs all pipeline stages.'
+        )
+
     def handle(self, *args, **options):
         # For each partner defined...
         partners = Partner.objects.all()
 
+        data_loader_stage = options.get('data_loader_stage')
         # If a specific partner was indicated, filter down the set
         partner_code = options.get('partner_code')
         if partner_code:
@@ -125,7 +132,7 @@ class Command(BaseCommand):
             max_workers = DataLoaderConfig.get_solo().max_workers
 
             logger.info(
-                'Command is{negation} using threads to write data.'.format(negation='' if is_threadsafe else ' not')
+                'Command is{negation} using threads to write data.'.format(negation='' if is_threadsafe else ' not')  # lint-amnesty, pylint: disable=logging-format-interpolation
             )
 
             pipeline = (
@@ -141,13 +148,19 @@ class Command(BaseCommand):
                 ),
             )
 
+            if data_loader_stage:
+                try:
+                    pipeline = (pipeline[data_loader_stage - 1],)
+                except IndexError:
+                    raise CommandError(f'Invalid data loader stage. It must be between 1-{len(pipeline)}')  # lint-amnesty, pylint: disable=raise-missing-from
+
             if waffle.switch_is_active('parallel_refresh_pipeline'):
                 futures = []
                 for stage in pipeline:
                     with concurrent.futures.ProcessPoolExecutor() as executor:
                         for loader_class, api_url, max_workers in stage:
                             if api_url:
-                                logger.info('Executing Loader [%s]', api_url)
+                                logger.info(f'Executing Loader {loader_class.__name__}, url: {api_url}')
                                 futures.append(executor.submit(
                                     execute_parallel_loader,
                                     loader_class,
@@ -162,7 +175,7 @@ class Command(BaseCommand):
                 # Flatten pipeline and run serially.
                 for loader_class, api_url, max_workers in itertools.chain(*(stage for stage in pipeline)):
                     if api_url:
-                        logger.info('Executing Loader [%s]', api_url)
+                        logger.info(f'Executing Loader {loader_class.__name__}, url: {api_url}')
                         success = execute_loader(
                             loader_class,
                             partner,

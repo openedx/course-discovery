@@ -65,7 +65,7 @@ class Command(BaseCommand):
 
         try:
             loader = CSVDataLoader(partner, csv_path=csv_path, is_draft=is_draft)
-            logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))
+            logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             loader.ingest()
         except Exception as exc:
             raise CommandError(  # pylint: disable=raise-missing-from

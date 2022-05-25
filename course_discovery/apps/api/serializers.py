@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 from uuid import uuid4
 
 import pytz
-import waffle
+import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
@@ -964,7 +964,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 
     def update(self, instance, validated_data):
         # logging to help debug error around course url slugs incrementing
-        logger.info('The data coming from publisher is {}.'.format(validated_data))
+        logger.info('The data coming from publisher is {}.'.format(validated_data))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
         # Handle writing nested video data separately
         if 'get_video' in validated_data:
@@ -1138,7 +1138,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         return None
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # lint-amnesty, pylint: disable=arguments-renamed
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
@@ -1262,7 +1262,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
     editable = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, course_runs=None, programs=None):  # pylint: disable=arguments-differ
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None, programs=None):
         """
         Similar to the CourseSerializer's prefetch_queryset, but prefetches a
         filtered CourseRun queryset.

@@ -98,7 +98,7 @@ class Command(BaseCommand):
                 modified__gt=from_date).values_list('course_key', flat=True)
             courses = all_courses.filter(Q(created__gt=from_date) | Q(key__in=list(courses_with_modified_skills)))
         logger.info(
-            '[UPDATE_COURSE_RECOMMENDATIONS] Updating {course_count} courses'.format(
+            '[UPDATE_COURSE_RECOMMENDATIONS] Updating {course_count} courses'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                 course_count=courses.count()
             )
         )
@@ -118,7 +118,7 @@ class Command(BaseCommand):
         if failures:
             keys = sorted(f'{failure.key} ({failure.id})' for failure in failures)
             logger.warning(
-                '[UPDATE_COURSE_RECOMMENDATIONS] Skipping the following courses: {course_keys}'.format(
+                '[UPDATE_COURSE_RECOMMENDATIONS] Skipping the following courses: {course_keys}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     course_keys=', '.join(keys)
                 )
             )

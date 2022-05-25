@@ -40,7 +40,7 @@ class Command(BaseCommand):
         if existing_slug:
             if existing_slug.course.uuid != course_run.course.uuid:
                 logger.warning(
-                    'Cannot add slug {slug} to course {uuid0}. Slug already belongs to course {uuid1}'.format(
+                    'Cannot add slug {slug} to course {uuid0}. Slug already belongs to course {uuid1}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                         slug=course_run.slug,
                         uuid0=course_run.course.uuid,
                         uuid1=existing_slug.course.uuid

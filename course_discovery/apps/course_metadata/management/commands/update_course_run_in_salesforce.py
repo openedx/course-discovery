@@ -24,7 +24,7 @@ class Command(BaseCommand):
                 for course_run in course_runs:
                     try:
                         util.update_course_run(course_run)
-                        logger.info('Successfully synced the salesforce {key}'.format(key=course_run.key))
+                        logger.info('Successfully synced the salesforce {key}'.format(key=course_run.key))  # lint-amnesty, pylint: disable=logging-format-interpolation
                     except Exception:  # pylint: disable=broad-except
                         logger.exception('Failed to sync data for course [%s]', course_run.key)
                         failed_course_runs.append(course_run.key)
