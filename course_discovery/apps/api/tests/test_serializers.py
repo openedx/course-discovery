@@ -202,7 +202,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'skill_names': [course_skill.skill.name],
             'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
             'organization_short_code_override': course.organization_short_code_override,
-            'organization_logo_override_url': course.organization_logo_override_url
+            'organization_logo_override_url': course.organization_logo_override_url,
+            'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
         })
 
         return expected
@@ -676,7 +677,8 @@ class CourseRunSerializerTests(MinimalCourseRunBaseTestSerializer):
             'expected_program_type': course_run.expected_program_type,
             'first_enrollable_paid_seat_price': course_run.first_enrollable_paid_seat_price,
             'ofac_comment': course_run.ofac_comment,
-            'estimated_hours': get_course_run_estimated_hours(course_run)
+            'estimated_hours': get_course_run_estimated_hours(course_run),
+            'enterprise_subscription_inclusion': course_run.enterprise_subscription_inclusion,
         })
         return expected
 
@@ -1104,6 +1106,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'recent_enrollment_count': 0,
             'topics': [topic.name for topic in program.topics],
             'credit_value': program.credit_value,
+            'enterprise_subscription_inclusion': program.enterprise_subscription_inclusion,
         })
         return expected
 
@@ -1586,6 +1589,7 @@ class MinimalOrganizationSerializerTests(TestCase):
 
     @classmethod
     def get_expected_data(cls, organization):
+
         certificate_logo_image_url = getattr(
             getattr(
                 organization,
@@ -1617,6 +1621,11 @@ class MinimalOrganizationSerializerTests(TestCase):
         organization = self.create_organization()
         serializer = self.serializer_class(organization)
         expected = self.get_expected_data(organization)
+        print("HARRY serializer")
+        print(serializer.data)
+        print('HARRY expected')
+        print(expected)
+
         self.assertDictEqual(serializer.data, expected)
 
 
@@ -1642,6 +1651,7 @@ class OrganizationSerializerTests(MinimalOrganizationSerializerTests):
             'marketing_url': organization.marketing_url,
             'slug': organization.slug,
             'banner_image_url': organization.banner_image.url,
+            'enterprise_subscription_inclusion': False,
         })
 
         return expected

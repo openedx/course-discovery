@@ -48,10 +48,11 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
 
         # Ensure that there are multiple history records for each course run.  For each
         # course run, there should be 2 (baseline) + the amount we added at the
-        # beginning of this test.
-        assert courserun1_count_initial == (2 + 2)
-        assert courserun2_count_initial == (2 + 0)
-        assert courserun3_count_initial == (2 + 3)
+        # beginning of this test * 2 because of double saves due to the enterprise catalog
+        # inclusion boolean 
+        assert courserun1_count_initial == ((2 + 2) * 2)
+        assert courserun2_count_initial == ((2 + 0) * 2)
+        assert courserun3_count_initial == ((2 + 3) * 2)
 
         self.run_command('course_metadata.CourseRun')
 
@@ -59,7 +60,7 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
         courserun2_count_final = len(CourseRun.history.filter(id=self.courserun2.id).all())  # pylint: disable=no-member
         courserun3_count_final = len(CourseRun.history.filter(id=self.courserun3.id).all())  # pylint: disable=no-member
 
-        # Ensure that the only history records left are the 3 original creates.
+        # Ensure that the only history records left are the 3 original double creates.
         assert courserun1_count_final == 1
         assert courserun2_count_final == 1
         assert courserun3_count_final == 1
