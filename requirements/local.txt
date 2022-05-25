@@ -40,7 +40,7 @@ authlib==1.0.0rc1
     # via
     #   -c requirements/constraints.txt
     #   simple-salesforce
-babel==2.10.1
+babel==2.9.1
     # via sphinx
 backoff==1.11.1
     # via -r requirements/base.in
@@ -52,9 +52,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.21.46
+boto3==1.21.42
     # via django-ses
-botocore==1.24.46
+botocore==1.24.42
     # via
     #   boto3
     #   s3transfer
@@ -170,7 +170,7 @@ django-autocomplete-light==3.9.0rc1
     # via -r requirements/base.in
 django-choices==1.7.2
     # via -r requirements/base.in
-django-compressor==4.0
+django-compressor==3.1
     # via
     #   -r requirements/base.in
     #   django-libsass
@@ -330,7 +330,7 @@ execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==13.4.0
+faker==13.3.4
     # via factory-boy
 filelock==3.6.0
     # via
@@ -452,7 +452,7 @@ pycparser==2.21
     # via cffi
 pycryptodomex==3.14.1
     # via pyjwkest
-pygments==2.12.0
+pygments==2.11.2
     # via sphinx
 pyjwkest==1.4.2
     # via edx-drf-extensions
@@ -489,7 +489,7 @@ pyrsistent==0.18.1
     # via jsonschema
 pysocks==1.7.1
     # via urllib3
-pytest==7.1.2
+pytest==7.1.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -506,7 +506,7 @@ pytest-forked==1.4.0
     # via pytest-xdist
 pytest-responses==0.5.0
     # via -r requirements/test.in
-pytest-split==0.8.0
+pytest-split==0.7.0
     # via -r requirements/local.in
 pytest-xdist==2.5.0
     # via -r requirements/test.in
