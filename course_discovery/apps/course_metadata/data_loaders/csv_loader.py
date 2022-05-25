@@ -134,7 +134,12 @@ class CSVDataLoader(AbstractDataLoader):
                 is_logo_downloaded = download_and_save_course_image(
                     course,
                     row['organization_logo_override'],
-                    'organization_logo_override'
+                    'organization_logo_override',
+                    # TODO: Temporary addition of User agent to allow access to data CDNs
+                    headers={
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+                                      '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
+                    }
                 )
                 if not is_logo_downloaded:
                     logger.error("Unexpected error happened while downloading override logo image for course {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -146,17 +151,10 @@ class CSVDataLoader(AbstractDataLoader):
             if not course_run.in_review:
                 try:
                     self._update_course_run(row, course_run, course_type)
-                    course_run.refresh_from_db()
                 except Exception:  # pylint: disable=broad-except
                     logger.exception("An unknown error occurred while updating course run information")
                     self.messages_list.append('[COURSE RUN UPDATE ERROR] course {}'.format(course_title))
                     continue
-
-            if not self.is_draft:
-                try:
-                    self._complete_run_review(row, course_run)
-                except Exception:  # pylint: disable=broad-except
-                    logger.exception("An unknown error occurred while completing course run review")
 
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title

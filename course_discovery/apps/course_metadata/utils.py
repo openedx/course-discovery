@@ -671,13 +671,13 @@ def clean_html(content):
     return cleaned
 
 
-def download_and_save_course_image(course, image_url, data_field='image'):
+def download_and_save_course_image(course, image_url, data_field='image', headers=None):
     """
     Helper method to download an image from a provided image url and save it
     in the data field mentioned, defaulting to course card image.
     """
     try:
-        response = requests.get(image_url)
+        response = requests.get(image_url, headers=headers)
 
         if response.status_code == requests.codes.ok:  # pylint: disable=no-member
             content_type = response.headers['Content-Type'].lower()
