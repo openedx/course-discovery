@@ -69,12 +69,18 @@ class Command(BaseCommand):
             help='The short code for a specific partner to refresh.'
         )
 
+        parser.add_argument(
+            '--data_loader_stage',
+            type=int,
+            help='The stage of pipeline to be run. If this argument is not provided it runs all pipeline stages.'
+        )
+
     def handle(self, *args, **options):
         # For each partner defined...
         partners = Partner.objects.all()
 
+        data_loader_stage = options.get('data_loader_stage')
         # If a specific partner was indicated, filter down the set
-        logger.info('[VAN-941] Filtering based on partner code')
         partner_code = options.get('partner_code')
         if partner_code:
             partners = partners.filter(short_code=partner_code)
@@ -86,7 +92,6 @@ class Command(BaseCommand):
         # completes. Disconnecting the api_change_receiver function from post_save
         # and post_delete signals prevents model changes during data loading from
         # repeatedly invalidating the cache.
-        logger.info('[VAN-941] Disconnect api_change_receiver from post_save and post_delete')
         for model in apps.get_app_config('course_metadata').get_models():
             for signal in (post_save, post_delete):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
@@ -143,13 +148,19 @@ class Command(BaseCommand):
                 ),
             )
 
+            if data_loader_stage:
+                try:
+                    pipeline = (pipeline[data_loader_stage - 1],)
+                except IndexError:
+                    raise CommandError(f'Invalid data loader stage. It must be between 1-{len(pipeline)}')
+
             if waffle.switch_is_active('parallel_refresh_pipeline'):
                 futures = []
                 for stage in pipeline:
                     with concurrent.futures.ProcessPoolExecutor() as executor:
                         for loader_class, api_url, max_workers in stage:
                             if api_url:
-                                logger.info('Executing Loader [%s]', api_url)
+                                logger.info(f'Executing Loader {loader_class.__name__}, url: {api_url}')
                                 futures.append(executor.submit(
                                     execute_parallel_loader,
                                     loader_class,
@@ -164,7 +175,7 @@ class Command(BaseCommand):
                 # Flatten pipeline and run serially.
                 for loader_class, api_url, max_workers in itertools.chain(*(stage for stage in pipeline)):
                     if api_url:
-                        logger.info('Executing Loader [%s]', api_url)
+                        logger.info(f'Executing Loader {loader_class.__name__}, url: {api_url}')
                         success = execute_loader(
                             loader_class,
                             partner,

@@ -43,6 +43,8 @@ def _fatal_code(ex):
 class CoursesApiDataLoader(AbstractDataLoader):
     """ Loads course runs from the Courses API. """
 
+    PAGE_SIZE = 25
+
     def ingest(self):
         logger.info('Refreshing Courses and CourseRuns from %s...', self.partner.courses_api_url)
 
