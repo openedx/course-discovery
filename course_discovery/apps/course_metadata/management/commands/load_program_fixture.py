@@ -128,7 +128,7 @@ class Command(BaseCommand):
     def save_fixture_object(self, obj):
         try:
             obj.save()
-            logger.info('Saved {object_label}(pk={pk})'.format(
+            logger.info('Saved {object_label}(pk={pk})'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                 object_label=obj.object._meta.label,
                 pk=obj.object.pk,
             ))

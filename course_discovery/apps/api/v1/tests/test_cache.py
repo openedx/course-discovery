@@ -24,7 +24,7 @@ class CompressedCacheResponseTest(TestCase):
 
     def test_should_handle_getting_uncompressed_response_from_cache(self):
         """ Verify that the decorator correctly returns uncompressed responses """
-        def key_func(**kwargs):  # pylint: disable=unused-argument
+        def key_func(**kwargs):
             return self.cache_response_key
 
         class TestView(views.APIView):
@@ -53,7 +53,7 @@ class CompressedCacheResponseTest(TestCase):
 
     def test_should_handle_getting_compressed_response_from_cache(self):
         """ Verify that the decorator correctly returns compressed responses """
-        def key_func(**kwargs):  # pylint: disable=unused-argument
+        def key_func(**kwargs):
             return self.cache_response_key
 
         class TestView(views.APIView):
@@ -83,7 +83,7 @@ class CompressedCacheResponseTest(TestCase):
 
     def test_should_not_cache_for_non_json_responses(self):
         """ Verify that the decorator does not cache if the response is not json """
-        def key_func(**kwargs):  # pylint: disable=unused-argument
+        def key_func(**kwargs):
             return 'non_json_cache_key'
 
         class TestView(views.APIView):
@@ -104,7 +104,7 @@ class CompressedCacheResponseTest(TestCase):
     @ddt.data(True, False)
     def test_should_not_cache_if_waffled(self, waffle_active):
         """ Verify that the decorator does not cache the waffle flag is turned off """
-        def key_func(**kwargs):  # pylint: disable=unused-argument
+        def key_func(**kwargs):
             return self.cache_response_key
 
         class TestView(views.APIView):
@@ -140,7 +140,7 @@ class CompressedCacheResponseTest(TestCase):
 
     def test_should_return_response_without_tuple_headers(self):
         """ In django32 headers appeared as simple string."""
-        def key_func(**kwargs):  # pylint: disable=unused-argument
+        def key_func(**kwargs):
             return self.cache_response_key
 
         class TestView(views.APIView):

@@ -183,7 +183,7 @@ class DistinctCountsElasticsearchQueryWrapper:
 
         return self._process_results(raw_results)
 
-    def _build_search_kwargs(self, *args, **kwargs):  # pylint: disable=unused-argument
+    def _build_search_kwargs(self, *args, **kwargs):
         """
         Build and return the arguments for the elasticsearch query.
         """
@@ -255,7 +255,7 @@ class DistinctCountsElasticsearchQueryWrapper:
             }
         return aggregations
 
-    def _process_results(self, raw_results, **kwargs):  # pylint: disable=unused-argument
+    def _process_results(self, raw_results, **kwargs):
         """
         Process the query results into a form that is more easily consumable by the client.
         """

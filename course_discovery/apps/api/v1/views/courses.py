@@ -297,7 +297,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         current_subjects = ', '.join(list(map(lambda s: s.slug, course.subjects.all())))
         prices = data.get('prices', {})
         logger.info(
-            'UPDATE to course uuid - {uuid}, req subjects - [{req_subjects}], request prices - {prices}, '
+            'UPDATE to course uuid - {uuid}, req subjects - [{req_subjects}], request prices - {prices}, '  # lint-amnesty, pylint: disable=logging-format-interpolation
             'current subjects - [{current_subjects}]'.format(uuid=data.get('uuid'), req_subjects=req_subjects,
                                                              prices=prices, current_subjects=current_subjects)
         )
@@ -306,7 +306,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     def update_course(self, data, partial=False):  # pylint: disable=too-many-statements
         """ Updates an existing course from incoming data. """
         # logging to help debug error around course url slugs incrementing
-        logger.info('The raw course data coming from publisher is {}.'.format(data))
+        logger.info('The raw course data coming from publisher is {}.'.format(data))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
         changed = False
         # Sending draft=False means the course data is live and updates should be pushed out immediately

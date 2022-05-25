@@ -27,11 +27,11 @@ class Command(BaseCommand):
             try:
                 image = Image.objects.filter(src=tokenized[0]).first()
                 if not image:
-                    logger.warning('Cannot find image with url "{url}"'.format(url=tokenized[0]))
+                    logger.warning('Cannot find image with url "{url}"'.format(url=tokenized[0]))  # lint-amnesty, pylint: disable=logging-format-interpolation
                     continue
                 image.src = tokenized[1]
                 image.full_clean()
                 image.save()
             except ValidationError:
-                logger.warning('Invalid image url: "{url}"'.format(url=tokenized[1]))
+                logger.warning('Invalid image url: "{url}"'.format(url=tokenized[1]))  # lint-amnesty, pylint: disable=logging-format-interpolation
                 continue
