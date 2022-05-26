@@ -24,6 +24,7 @@ from elasticsearch_dsl.query import Q as ESDSLQ
 from opaque_keys.edx.keys import CourseKey
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
+from slugify import slugify as uslugify
 from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
@@ -44,7 +45,7 @@ from course_discovery.apps.course_metadata.publishers import (
 from course_discovery.apps.course_metadata.query import CourseQuerySet, CourseRunQuerySet, ProgramQuerySet
 from course_discovery.apps.course_metadata.utils import (
     UploadToFieldNamePath, clean_query, custom_render_variations, push_to_ecommerce_for_course_run,
-    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta, uslugify
+    push_tracks_to_lms_for_course_run, set_official_state, subtract_deadline_delta
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.utils import VALID_CHARS_IN_COURSE_NUM_AND_ORG_KEY
