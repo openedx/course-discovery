@@ -441,6 +441,8 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
 
     def test_create_course_run__course_run_only(self):
         course = self._create_course_and_runs()
+        course.partner.marketing_site_url_root = ''
+        course.partner.save()
         course_run = course.course_runs.first()
         message = _duplicate_external_key_message([course_run])
         with self.assertNumQueries(11, threshold=0):
@@ -452,6 +454,8 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
 
     def test_modify_course_run__course_run_only(self):
         course = self._create_course_and_runs(1)
+        course.partner.marketing_site_url_root = ''
+        course.partner.save()
         course_run_1a = course.course_runs.get(external_key='ext-key-course-1a')
         course_run_1b = course.course_runs.get(external_key='ext-key-course-1b')
         message = _duplicate_external_key_message([course_run_1a])
@@ -462,11 +466,14 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
 
     def test_create_course_run__curriculum_only(self):
         course_run, _ = self._create_single_course_curriculum('colliding-key', 'curriculum_1')
+        course = course_run.course
+        course.partner.marketing_site_url_root = ''
+        course.partner.save()
         message = _duplicate_external_key_message([course_run])
         with self.assertNumQueries(11, threshold=0):
             with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
-                    course=course_run.course,
+                    course=course,
                     external_key='colliding-key'
                 )
 
@@ -476,6 +483,9 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
             course=course_run_1a.course,
             external_key='this-is-a-different-external-key'
         )
+        course = course_run_1b.course
+        course.partner.marketing_site_url_root = ''
+        course.partner.save()
         message = _duplicate_external_key_message([course_run_1a])
         with self.assertNumQueries(6):
             with self.assertRaisesRegex(ValidationError, escape(message)):
