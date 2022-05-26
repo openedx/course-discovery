@@ -2,7 +2,7 @@ import json
 import logging
 from urllib.parse import urljoin
 
-import waffle
+import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from bs4 import BeautifulSoup
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
@@ -312,7 +312,7 @@ class CourseRunMarketingSitePublisher(BaseMarketingSitePublisher):
     unique_field = 'key'
     node_lookup_field = 'field_course_id'
 
-    def publish_obj(self, obj, previous_obj=None, include_uuid=False):  # pylint: disable=arguments-differ
+    def publish_obj(self, obj, previous_obj=None, include_uuid=False):
         """
         Publish a CourseRun to the marketing site.
 

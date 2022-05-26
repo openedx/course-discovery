@@ -1,4 +1,4 @@
-# pylint: disable=no-member
+
 import datetime
 
 import ddt
@@ -47,7 +47,7 @@ class CourseQuerySetTests(TestCase):
                 other_course_run.save()
                 assert list(Course.objects.available()) == [course]
             else:
-                assert list(Course.objects.available()) == []
+                assert list(Course.objects.available()) == []  # lint-amnesty, pylint: disable=use-implicit-booleaness-not-comparison
 
 
 @ddt.ddt

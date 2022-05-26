@@ -11,7 +11,7 @@ from rest_framework_extensions.key_constructor.bits import KeyBitBase, QueryPara
 from rest_framework_extensions.key_constructor.constructors import (
     DefaultListKeyConstructor, DefaultObjectKeyConstructor
 )
-from waffle import get_waffle_flag_model
+from waffle import get_waffle_flag_model  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 
 from course_discovery.apps.api.utils import conditional_decorator
 
@@ -42,11 +42,11 @@ class TimestampedObjectKeyConstructor(DefaultObjectKeyConstructor):
     querystring = QueryParamsKeyBit()
 
 
-def timestamped_list_key_constructor(*args, **kwargs):  # pylint: disable=unused-argument
+def timestamped_list_key_constructor(*args, **kwargs):
     return TimestampedListKeyConstructor()(**kwargs)
 
 
-def timestamped_object_key_constructor(*args, **kwargs):  # pylint: disable=unused-argument
+def timestamped_object_key_constructor(*args, **kwargs):
     return TimestampedObjectKeyConstructor()(**kwargs)
 
 

@@ -118,7 +118,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
             input_csv = self._write_csv(input_csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
 
             with LogCapture(LOGGER_PATH) as log_capture:
-                output_csv = NamedTemporaryFile()
+                output_csv = NamedTemporaryFile()  # lint-amnesty, pylint: disable=consider-using-with
                 call_command(
                     'populate_executive_education_data_csv',
                     '--input_csv', input_csv.name,
@@ -126,7 +126,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                     '--auth_token', self.AUTH_TOKEN
                 )
                 output_csv.seek(0)
-                reader = csv.DictReader(open(output_csv.name, 'r'))
+                reader = csv.DictReader(open(output_csv.name, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
                 data_row = next(reader)
 
                 # Asserting certain data items to verify that both CSV and API
@@ -173,14 +173,14 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         self.mock_product_api_call()
 
         with LogCapture(LOGGER_PATH) as log_capture:
-            output_csv = NamedTemporaryFile()
+            output_csv = NamedTemporaryFile()  # lint-amnesty, pylint: disable=consider-using-with
             call_command(
                 'populate_executive_education_data_csv',
                 '--output_csv', output_csv.name,
                 '--auth_token', self.AUTH_TOKEN
             )
             output_csv.seek(0)
-            reader = csv.DictReader(open(output_csv.name, 'r'))
+            reader = csv.DictReader(open(output_csv.name, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
             data_row = next(reader)
 
             self._assert_api_response(data_row)
@@ -208,7 +208,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
             input_csv = self._write_csv(input_csv, [mismatched_product])
 
             with LogCapture(LOGGER_PATH) as log_capture:
-                output_csv = NamedTemporaryFile()
+                output_csv = NamedTemporaryFile()  # lint-amnesty, pylint: disable=consider-using-with
                 call_command(
                     'populate_executive_education_data_csv',
                     '--input_csv', input_csv.name,
@@ -217,7 +217,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 )
 
                 output_csv.seek(0)
-                reader = csv.DictReader(open(output_csv.name, 'r'))
+                reader = csv.DictReader(open(output_csv.name, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
                 data_row = next(reader)
 
                 self._assert_api_response(data_row)
@@ -242,7 +242,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         with self.assertRaisesMessage(
                 CommandError, 'Error opening csv file at path /tmp/invalid_csv.csv'
         ):
-            output_csv = NamedTemporaryFile()
+            output_csv = NamedTemporaryFile()  # lint-amnesty, pylint: disable=consider-using-with
             call_command(
                 'populate_executive_education_data_csv',
                 '--input_csv', '/tmp/invalid_csv.csv',
@@ -263,7 +263,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         with self.assertRaisesMessage(
                 CommandError, 'Unexpected error occurred while fetching products'
         ):
-            csv_file = NamedTemporaryFile()
+            csv_file = NamedTemporaryFile()  # lint-amnesty, pylint: disable=consider-using-with
             call_command(
                 'populate_executive_education_data_csv',
                 '--input_csv', csv_file.name,

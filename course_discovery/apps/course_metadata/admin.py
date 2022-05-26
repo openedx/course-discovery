@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
-from waffle import get_waffle_flag_model
+from waffle import get_waffle_flag_model  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration

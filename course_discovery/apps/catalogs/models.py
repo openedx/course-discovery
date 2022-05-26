@@ -1,4 +1,4 @@
-from collections import Iterable  # pylint: disable=no-name-in-module
+from collections import Iterable  # lint-amnesty, pylint: disable=deprecated-class, no-name-in-module
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _

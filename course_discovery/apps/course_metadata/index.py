@@ -52,12 +52,12 @@ class BaseProductIndex(AlgoliaIndex):
         rules_to_create = self.get_rules()
         rules_to_create_ids = {rule['objectID'] for rule in rules_to_create}
         existing_rules_to_keep = [
-            rule for rule in self._AlgoliaIndex__index.iter_rules()  # pylint: disable=no-member
+            rule for rule in self._AlgoliaIndex__index.iter_rules()
             if rule['objectID'] not in rules_to_create_ids
         ]
         final_rules = rules_to_create + existing_rules_to_keep
         super().reindex_all(batch_size)
-        self._AlgoliaIndex__index.replace_all_rules(final_rules)  # pylint: disable=no-member
+        self._AlgoliaIndex__index.replace_all_rules(final_rules)
 
 
 class EnglishProductIndex(BaseProductIndex):
@@ -138,7 +138,7 @@ class SpanishProductIndex(BaseProductIndex):
 
 # Standard algoliasearch_django pattern for populating 2 indices with one model. These are the signatures and structure
 # AlgoliaIndex expects, so ignore warnings
-# pylint: disable=no-member,super-init-not-called,dangerous-default-value
+# pylint: disable=super-init-not-called,dangerous-default-value
 class ProductMetaIndex(AlgoliaIndex):
     model_index = []
 
