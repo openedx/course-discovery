@@ -227,11 +227,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         )
                     )
 
-                    assert Course.objects.count() == 1
-                    assert CourseRun.objects.count() == 1
+                    assert Course.everything.count() == 1
+                    assert CourseRun.everything.count() == 1
 
-                    course = Course.objects.get(key=self.COURSE_KEY, partner=self.partner)
-                    course_run = CourseRun.objects.get(course=course)
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+                    course_run = CourseRun.everything.get(course=course)
 
                     assert course.image.read() == image_content
                     assert course.organization_logo_override.read() == image_content
@@ -254,6 +254,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             course=course,
             key=self.COURSE_RUN_KEY,
             type=self.course_run_type,
+            status='unpublished',
             draft=True,
         )
 
@@ -278,8 +279,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         )
                     )
 
-                    course = Course.objects.get(key=self.COURSE_KEY, partner=self.partner)
-                    course_run = CourseRun.objects.get(course=course)
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+                    course_run = CourseRun.everything.get(course=course)
 
                     self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
                     self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
@@ -370,9 +371,9 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert course_run.status == 'unpublished'
 
     @responses.activate
-    def test_course_status_is_published_if_draft_disabled(self, jwt_decode_patch):  # pylint: disable=unused-argument
+    def test_course_status_is_legal_review_if_draft_disabled(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
-        Verify that the course run will be published if csv loader ingests data with draft disabled
+        Verify that the course run will be in legal review if csv loader ingests data with draft disabled
         """
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
@@ -394,7 +395,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 course = Course.everything.filter(key=self.COURSE_KEY, partner=self.partner).first()
                 course_run = CourseRun.everything.filter(course=course).first()
 
-                assert course_run.status == 'published'
+                assert course_run.status == 'review_by_legal'
 
     @responses.activate
     def test_active_slug(self, jwt_decode_patch):  # pylint: disable=unused-argument

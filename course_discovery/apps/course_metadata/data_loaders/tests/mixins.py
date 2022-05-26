@@ -72,7 +72,9 @@ class CSVLoaderMixin:
         'external_identifier', 'syllabus', 'frequently_asked_questions'
     ]
     BASE_EXPECTED_COURSE_DATA = {
-        'draft': False,
+        # Loader does not publish newly created course or a course that has not reached published status.
+        # That's why only the draft version of the course exists.
+        'draft': True,
         'verified_price': 150,
         'title': 'CSV Course',
         'level_type': 'beginner',
@@ -101,14 +103,14 @@ class CSVLoaderMixin:
     }
 
     BASE_EXPECTED_COURSE_RUN_DATA = {
-        'draft': False,
-        'status': CourseRunStatus.Published,
+        # Loader does not publish newly created course or a course that has not reached published status.
+        # That's why only the draft version of the course run exists.
+        'draft': True,
+        'status': CourseRunStatus.LegalReview,
         'length': 10,
         'minimum_effort': 4,
         'maximum_effort': 10,
         'verified_price': 150,
-        'ofac_restrictions': False,
-        'ofac_comment': '',
         'staff': ['staff_2', 'staff_1'],
         'content_language': 'English - United States',
         'transcript_language': ['English - Great Britain'],
@@ -250,8 +252,6 @@ class CSVLoaderMixin:
         assert course_run.min_effort == expected_data['minimum_effort']
         assert course_run.max_effort == expected_data['maximum_effort']
         assert course_run_seat.price == expected_data['verified_price']
-        assert course_run.has_ofac_restrictions == expected_data['ofac_restrictions']
-        assert course_run.ofac_comment == expected_data['ofac_comment']
         assert course_run.go_live_date.isoformat() == expected_data['go_live_date']
         assert course_run.expected_program_type.slug == expected_data['expected_program_type']
         assert course_run.expected_program_name == expected_data['expected_program_name']
