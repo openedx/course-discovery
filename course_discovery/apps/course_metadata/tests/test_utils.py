@@ -54,22 +54,6 @@ class UploadToFieldNamePathTests(TestCase):
         assert regex.match(upload_path)
 
 
-@ddt.ddt
-class UslugifyTests(TestCase):
-    """
-    Test the utility function uslugify
-    """
-    @ddt.data(
-        ('技研究', 'ji-yan-jiu'),
-        ('عائشة', 'ysh'),
-        ('TWO WORDS', 'two-words'),
-    )
-    @ddt.unpack
-    def test_uslugify(self, string, expected):
-        output = utils.uslugify(string)
-        assert output == expected
-
-
 class PushToEcommerceTests(OAuth2Mixin, TestCase):
     """
     Test the utility function push_to_ecommerce_for_course_run

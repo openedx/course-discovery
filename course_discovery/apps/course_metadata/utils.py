@@ -15,7 +15,6 @@ from django.db import models, transaction
 from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from dynamic_filenames import FilePattern
-from slugify import slugify
 from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
@@ -334,20 +333,6 @@ def custom_render_variations(file_name, variations, storage, replace=True):
 
     # to prevent default behaviour
     return False
-
-
-def uslugify(s):
-    """Slugifies a string, while handling unicode"""
-    # only_ascii=True asks slugify to convert unicode to ascii
-    slug = slugify(s, only_ascii=True)  # lint-amnesty, pylint: disable=unexpected-keyword-arg
-
-    # Version 0.1.3 of unicode-slugify does not do the following for us.
-    # But 0.1.4 does! So once it's available and we upgrade, we can drop this extra logic.
-    slug = slug.strip().replace(' ', '-').lower()
-    slug = ''.join(filter(lambda c: c.isalnum() or c in '-_~', slug))
-    # End code that can be dropped with 0.1.4
-
-    return slug
 
 
 def parse_course_key_fragment(fragment):
