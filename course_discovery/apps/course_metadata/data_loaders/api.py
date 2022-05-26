@@ -429,6 +429,7 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         max_tries=5
     )
     def _request_course_runs(self, page):
+        logger.info(f'processing page number: {page}')
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'include_products': True}
         return self.api_client.get(self.api_url + '/courses/', params=params).json()
 
@@ -451,15 +452,19 @@ class EcommerceApiDataLoader(AbstractDataLoader):
         return self.api_client.get(self.api_url + '/products/', params=params).json()
 
     def _process_course_runs(self, response):
-        results = response['results']
-        logger.info('Retrieved %d course seats...', len(results))
-        # Add to the collected count
-        self.course_run_count_lock.acquire()  # lint-amnesty, pylint: disable=consider-using-with
-        self.course_run_count += len(results)
-        self.course_run_count_lock.release()
-        for body in results:
-            body = self.clean_strings(body)
-            self.update_seats(body)
+        results = response.get('results')
+        if results:
+            logger.info('Retrieved %d course seats...', len(results))
+            # Add to the collected count
+            self.course_run_count_lock.acquire()  # lint-amnesty, pylint: disable=consider-using-with
+            self.course_run_count += len(results)
+            self.course_run_count_lock.release()
+            for body in results:
+                body = self.clean_strings(body)
+                self.update_seats(body)
+        else:
+            self.processing_failure_occurred = True
+            logger.info(response.keys())
 
     def _process_entitlements(self, response):
         results = response['results']
