@@ -531,7 +531,7 @@ class ExternalCourseKeyDBTests(TestCase, ExternalCourseKeyTestMixin):
                 course_run.external_key = course_run_ca.external_key
                 course_run.save()
 
-        with self.assertNumQueries(FuzzyInt(36, 1)):
+        with self.assertNumQueries(FuzzyInt(67, 1)):
             course_run.external_key = 'some-safe-key'
             course_run.save()
 
@@ -554,7 +554,7 @@ class ExternalCourseKeyDBTests(TestCase, ExternalCourseKeyTestMixin):
                 course_run.external_key = course_run_ba.external_key
                 course_run.save()
 
-        with self.assertNumQueries(FuzzyInt(36, 1)):
+        with self.assertNumQueries(FuzzyInt(67, 1)):
             course_run.external_key = 'some-safe-key'
             course_run.save()
 
@@ -580,7 +580,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
         )
 
     def test_draft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(FuzzyInt(21, 1)):
+        with self.assertNumQueries(FuzzyInt(28, 1)):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=True,
@@ -601,7 +601,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                 )
 
     def test_nondraft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(FuzzyInt(75, 1)):
+        with self.assertNumQueries(FuzzyInt(136, 1)):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
@@ -611,7 +611,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
             )
 
     def test_collision_does_not_include_drafts(self):
-        with self.assertNumQueries(FuzzyInt(75, 1)):
+        with self.assertNumQueries(FuzzyInt(136, 1)):
             course_run = factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,

@@ -935,7 +935,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         super().save(*args, **kwargs)
         self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
         kwargs['force_insert'] = False
-        kwargs['force_update'] = True 
+        kwargs['force_update'] = True
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -1970,7 +1970,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             super().save(**kwargs)
             self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
             kwargs['force_insert'] = False
-            kwargs['force_update'] = True 
+            kwargs['force_update'] = True
             super().save(**kwargs)
             self.handle_status_change(send_emails)
 
@@ -2632,7 +2632,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
         return self.status == ProgramStatus.Active
 
     def _check_enterprise_subscription_inclusion(program):
-        if program.type is 'micromasters':
+        if program.type == 'micromasters':
             return False
         for course in program.courses.all():
             if not course.enterprise_subscription_inclusion:
@@ -2656,14 +2656,14 @@ class Program(PkSearchableMixin, TimeStampedModel):
                 super().save(*args, **kwargs)
                 self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
                 kwargs['force_insert'] = False
-                kwargs['force_update'] = True 
+                kwargs['force_update'] = True
                 super().save(**kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
             super().save(*args, **kwargs)
             self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
             kwargs['force_insert'] = False
-            kwargs['force_update'] = True 
+            kwargs['force_update'] = True
             super().save(**kwargs)
 
 
