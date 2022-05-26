@@ -934,7 +934,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'course_uuid', 'estimated_hours', 'content_language_search_facet_name', 'enterprise_subscription_inclusion'
         )
         read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',
-            'enterprise_subscription_inclusion')
+                            'enterprise_subscription_inclusion')
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
@@ -1181,7 +1181,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'extra_description', 'additional_information', 'additional_metadata', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
-            'skills', 'organization_short_code_override', 'organization_logo_override_url', 
+            'skills', 'organization_short_code_override', 'organization_logo_override_url',
             'enterprise_subscription_inclusion'
         )
         extra_kwargs = {

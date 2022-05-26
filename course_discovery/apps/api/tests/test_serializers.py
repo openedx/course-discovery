@@ -1621,11 +1621,6 @@ class MinimalOrganizationSerializerTests(TestCase):
         organization = self.create_organization()
         serializer = self.serializer_class(organization)
         expected = self.get_expected_data(organization)
-        print("HARRY serializer")
-        print(serializer.data)
-        print('HARRY expected')
-        print(expected)
-
         self.assertDictEqual(serializer.data, expected)
 
 
