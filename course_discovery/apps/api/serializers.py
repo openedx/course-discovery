@@ -1582,7 +1582,7 @@ class DegreeSerializer(BaseModelSerializer):
     rankings = RankingSerializer(many=True)
     micromasters_background_image = StdImageSerializerField()
     micromasters_path = serializers.SerializerMethodField()
-    degree_additional_metadata = DegreeAdditionalMetadataSerializer(required=False)
+    additional_metadata = DegreeAdditionalMetadataSerializer(required=False)
 
     class Meta:
         model = Degree
@@ -1593,7 +1593,7 @@ class DegreeSerializer(BaseModelSerializer):
             'lead_capture_image', 'micromasters_path', 'micromasters_url',
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
-            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'degree_additional_metadata',
+            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'additional_metadata',
         )
 
     def get_micromasters_path(self, degree):

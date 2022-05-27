@@ -2434,12 +2434,12 @@ class DegreeTests(TestCase):
 
     def test_degree_additional_metadata(self):
         """ Verify the property returns valid  degree additional metadata fields. """
-        degree_additional_metadata = factories.DegreeAdditionalMetadataFactory()
-        degree = factories.DegreeFactory(degree_additional_metadata=degree_additional_metadata)
-        self.assertEqual(degree.degree_additional_metadata.external_url, degree_additional_metadata.external_url)
-        self.assertEqual(degree.degree_additional_metadata.organic_url, degree_additional_metadata.organic_url)
+        degree = factories.DegreeFactory()
+        degree_additional_metadata = factories.DegreeAdditionalMetadataFactory(degree=degree)
+        self.assertEqual(degree.additional_metadata.external_url, degree_additional_metadata.external_url)
+        self.assertEqual(degree.additional_metadata.organic_url, degree_additional_metadata.organic_url)
         self.assertEqual(
-            degree.degree_additional_metadata.external_identifier, degree_additional_metadata.external_identifier
+            degree.additional_metadata.external_identifier, degree_additional_metadata.external_identifier
         )
 
 
