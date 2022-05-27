@@ -96,6 +96,15 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.facts, extracted)
 
 
+class DegreeAdditionalMetadataFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = DegreeAdditionalMetadata
+
+    external_identifier = FuzzyText()
+    external_url = FuzzyURL()
+    organic_url = FuzzyURL()
+
+
 class LevelTypeFactory(AbstractNamedModelFactory):
     name_t = FuzzyText()
 
@@ -600,6 +609,7 @@ class DegreeFactory(ProgramFactory):
     search_card_cost = FuzzyText()
     search_card_courses = FuzzyText()
     banner_border_color = FuzzyText(length=6)
+    degree_additional_metadata = factory.SubFactory(DegreeAdditionalMetadataFactory)
 
     @factory.post_generation
     def rankings(self, create, extracted, **kwargs):
