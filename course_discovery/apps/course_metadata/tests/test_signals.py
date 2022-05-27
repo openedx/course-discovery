@@ -477,7 +477,7 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
             external_key='this-is-a-different-external-key'
         )
         message = _duplicate_external_key_message([course_run_1a])
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(7):
             with self.assertRaisesRegex(ValidationError, escape(message)):
                 course_run_1b.external_key = 'colliding-key'
                 course_run_1b.save()

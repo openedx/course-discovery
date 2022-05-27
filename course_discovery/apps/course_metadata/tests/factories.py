@@ -400,7 +400,6 @@ class OrganizationFactory(SalesforceRecordFactory):
     banner_image = FuzzyText()
     certificate_logo_image = FuzzyText()
     partner = factory.SubFactory(PartnerFactory)
-    enterprise_subscription_inclusion = False
 
     class Meta:
         model = Organization

@@ -61,6 +61,6 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
         courserun3_count_final = len(CourseRun.history.filter(id=self.courserun3.id).all())  # pylint: disable=no-member
 
         # Ensure that the only history records left are the 3 original double creates.
-        assert courserun1_count_final == 2
-        assert courserun2_count_final == 2
-        assert courserun3_count_final == 2
+        assert courserun1_count_final == 1
+        assert courserun2_count_final == 1
+        assert courserun3_count_final == 1
