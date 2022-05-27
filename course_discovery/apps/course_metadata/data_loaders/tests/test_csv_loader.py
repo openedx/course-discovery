@@ -263,6 +263,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         expected_course_run_data = {
             **self.BASE_EXPECTED_COURSE_RUN_DATA,
             'draft': False,
+            'status': 'published'
         }
 
         with NamedTemporaryFile() as csv:

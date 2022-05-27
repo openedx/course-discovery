@@ -224,7 +224,7 @@ class CSVDataLoader(AbstractDataLoader):
         No 1 is not applicable at the moment. For 2, CSV loader right now only expects
         one course run for each course, hence the status of the single fetched course run is checked.
         """
-        return not (course_run.status == CourseRunStatus.Published)
+        return not course_run.status == CourseRunStatus.Published
 
     def _update_course_api_request_data(self, data, course, is_draft):
         """
