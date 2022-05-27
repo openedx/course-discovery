@@ -198,8 +198,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
     @responses.activate
     def test_single_valid_row(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
-        Verify that for a single row of valid data, both official/non-draft versions
-        of course and course runs are created with correct data.
+        Verify that for a single row of valid data for a non-existent course, the draft unpublished
+        entries are created.
         """
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
@@ -239,10 +239,9 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
 
     @responses.activate
-    def test_ingest_flow_for_preexisting_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
+    def test_ingest_flow_for_preexisting_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
-        Verify that the loader updates the existing draft versions of the course and its
-        associated course run.
+        Verify that the loader uses False draft flag for a published course run.
         """
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
@@ -254,9 +253,17 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             course=course,
             key=self.COURSE_RUN_KEY,
             type=self.course_run_type,
-            status='unpublished',
+            status='published',
             draft=True,
         )
+        expected_course_data = {
+            **self.BASE_EXPECTED_COURSE_DATA,
+            'draft': False,
+        }
+        expected_course_run_data = {
+            **self.BASE_EXPECTED_COURSE_RUN_DATA,
+            'draft': False,
+        }
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
@@ -276,14 +283,23 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             LOGGER_PATH,
                             'INFO',
                             'Course edx+csv_123 is located in the database.'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Draft flag is set to False for the course CSV Course'
                         )
                     )
 
-                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
-                    course_run = CourseRun.everything.get(course=course)
+                    # Verify the existence of both draft and non-draft versions
+                    assert Course.everything.count() == 2
+                    assert CourseRun.everything.count() == 2
 
-                    self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
-                    self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
+                    course = Course.objects.get(key=self.COURSE_KEY, partner=self.partner)
+                    course_run = CourseRun.objects.get(course=course)
+
+                    self._assert_course_data(course, expected_course_data)
+                    self._assert_course_run_data(course_run, expected_course_run_data)
 
     @responses.activate
     def test_invalid_language(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -294,11 +310,6 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
         _, image_content = self.mock_image_response()
-
-        expected_course_response = {
-            **self.BASE_EXPECTED_COURSE_DATA,
-            'draft': True
-        }
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.INVALID_LANGUAGE])
@@ -319,6 +330,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             LOGGER_PATH,
                             'INFO',
                             'Course key edx+csv_123 could not be found in database, creating the course.'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Draft flag is set to True for the course CSV Course'
                         )
                     )
                     log_capture.check_present(
@@ -341,61 +357,61 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
                     assert course.image.read() == image_content
                     assert course.organization_logo_override.read() == image_content
-                    self._assert_course_data(course, expected_course_response)
+                    self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
 
     @responses.activate
-    def test_course_status_is_unpublished_if_draft_enabled(self, jwt_decode_patch):  # pylint: disable=unused-argument
+    def test_ingest_flow_for_preexisting_unpublished_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
-        Verify that the course run will be unpublished if csv loader ingests data with draft enabled
+        Verify that the course run will be unpublished if csv loader updates data for an unpublished course.
         """
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_ecommerce_publication(self.partner)
         self.mock_image_response()
 
-        with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
-
-            with mock.patch.object(
-                    CSVDataLoader,
-                    '_call_course_api',
-                    self.mock_call_course_api
-            ):
-
-                loader = CSVDataLoader(self.partner, csv_path=csv.name, is_draft=True)
-                loader.ingest()
-
-                course = Course.everything.filter(key=self.COURSE_KEY, partner=self.partner).first()
-                course_run = CourseRun.everything.filter(course=course).first()
-
-                assert course_run.status == 'unpublished'
-
-    @responses.activate
-    def test_course_status_is_legal_review_if_draft_disabled(self, jwt_decode_patch):  # pylint: disable=unused-argument
-        """
-        Verify that the course run will be in legal review if csv loader ingests data with draft disabled
-        """
-        self._setup_prerequisites(self.partner)
-        self.mock_studio_calls(self.partner)
-        self.mock_ecommerce_publication(self.partner)
-        self.mock_image_response()
+        course = CourseFactory(key=self.COURSE_KEY, partner=self.partner, type=self.course_type, draft=True)
+        CourseRunFactory(
+            course=course,
+            key=self.COURSE_RUN_KEY,
+            type=self.course_run_type,
+            status='unpublished',
+            draft=True,
+        )
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
 
-            with mock.patch.object(
-                    CSVDataLoader,
-                    '_call_course_api',
-                    self.mock_call_course_api
-            ):
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader.ingest()
 
-                loader = CSVDataLoader(self.partner, csv_path=csv.name, is_draft=False)
-                loader.ingest()
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Course edx+csv_123 is located in the database.'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Draft flag is set to True for the course CSV Course'
+                        )
+                    )
 
-                course = Course.everything.filter(key=self.COURSE_KEY, partner=self.partner).first()
-                course_run = CourseRun.everything.filter(course=course).first()
+                    # Verify the existence of draft only
+                    assert Course.everything.count() == 1
+                    assert CourseRun.everything.count() == 1
 
-                assert course_run.status == 'review_by_legal'
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+                    course_run = CourseRun.everything.get(course=course)
+
+                    self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
+                    self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
 
     @responses.activate
     def test_active_slug(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -431,6 +447,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             LOGGER_PATH,
                             'INFO',
                             'Course key edx+csv_123 could not be found in database, creating the course.'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Draft flag is set to True for the course CSV Course'
                         )
                     )
 
@@ -476,7 +497,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         '_call_course_api',
                         self.mock_call_course_api
                 ):
-                    loader = CSVDataLoader(self.partner, csv_path=csv.name, is_draft=True)
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
                     loader.ingest()
 
                     self._assert_default_logs(log_capture)
@@ -485,6 +506,11 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                             LOGGER_PATH,
                             'INFO',
                             'Course key edx+csv_123 could not be found in database, creating the course.'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Draft flag is set to True for the course CSV Course'
                         )
                     )
 

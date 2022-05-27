@@ -32,12 +32,6 @@ class Command(BaseCommand):
             type=str,
             required=True
         )
-        parser.add_argument(
-            '--is_draft',
-            help='The boolean value which is used to toggle draft courses',
-            type=bool,
-            default=False
-        )
 
     def handle(self, *args, **options):
         """
@@ -45,8 +39,6 @@ class Command(BaseCommand):
         """
         partner_short_code = options.get('partner_code')
         csv_path = options.get('csv_path')
-        # its default value is False, it will be treated as True if passed by any value via command-line
-        is_draft = options.get('is_draft')
         try:
             partner = Partner.objects.get(short_code=partner_short_code)
         except Partner.DoesNotExist:
@@ -64,7 +56,7 @@ class Command(BaseCommand):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
 
         try:
-            loader = CSVDataLoader(partner, csv_path=csv_path, is_draft=is_draft)
+            loader = CSVDataLoader(partner, csv_path=csv_path)
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             loader.ingest()
         except Exception as exc:
