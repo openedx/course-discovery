@@ -2620,25 +2620,6 @@ class Ranking(TimeStampedModel):
         return self.description
 
 
-class DegreeAdditionalMetadata(TimeStampedModel):
-    """
-    This model holds 2U degree related additional fields
-    """
-
-    external_url = models.URLField(
-        blank=True, null=False, max_length=511,
-        help_text=_('The redirect URL of the degree on external site')
-    )
-    external_identifier = models.CharField(max_length=255, blank=True, null=False)
-    organic_url = models.URLField(
-        blank=True, null=False, max_length=511,
-        help_text=_('The URL of the landing page on external site')
-    )
-
-    def __str__(self):
-        return f"{self.external_url} - {self.external_identifier}"
-
-
 class Degree(Program):
     """
     This model captures information about a Degree (e.g. a Master's Degree).
@@ -2763,20 +2744,39 @@ class Degree(Program):
         null=True,
     )
 
-    degree_additional_metadata = models.OneToOneField(
-        DegreeAdditionalMetadata,
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-        default=None,
-        related_name='degree',
-    )
-
     class Meta:
         verbose_name_plural = "Degrees"
 
     def __str__(self):
         return str(f'Degree: {self.title}')
+
+
+class DegreeAdditionalMetadata(TimeStampedModel):
+    """
+    This model holds 2U degree related additional fields
+    """
+
+    external_url = models.URLField(
+        blank=True, null=False, max_length=511,
+        help_text=_('The redirect URL of the degree on external site')
+    )
+    external_identifier = models.CharField(max_length=255, blank=True, null=False)
+    organic_url = models.URLField(
+        blank=True, null=False, max_length=511,
+        help_text=_('The URL of the landing page on external site')
+    )
+
+    degree = models.OneToOneField(
+        Degree,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        default=None,
+        related_name='additional_metadata',
+    )
+
+    def __str__(self):
+        return f"{self.external_url} - {self.external_identifier}"
 
 
 class IconTextPairing(TimeStampedModel):
