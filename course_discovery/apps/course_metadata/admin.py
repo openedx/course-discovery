@@ -301,7 +301,8 @@ class ProgramAdmin(admin.ModelAdmin):
         'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
         'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden', 'corporate_endorsements', 'faq',
         'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
-        'enrollment_count', 'recent_enrollment_count', 'credit_value',
+        'enrollment_count', 'recent_enrollment_count', 'credit_value', 'organization_short_code_override',
+        'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
     )
 
     save_error = False

@@ -2288,6 +2288,32 @@ class Program(PkSearchableMixin, TimeStampedModel):
         blank=True, default=0, help_text=_(
             'Number of credits a learner will earn upon successful completion of the program')
     )
+    organization_short_code_override = models.CharField(max_length=255, blank=True, help_text=_(
+        'A field to override Organization short code alias specific for this program.')
+    )
+    organization_logo_override = models.ImageField(
+        upload_to=UploadToFieldNamePath(populate_from='uuid', path='organization/logo_override'),
+        blank=True,
+        null=True,
+        validators=[FileExtensionValidator(['png'])],
+        help_text=_('A field to override Organization logo specific for this program.')
+    )
+    primary_subject_override = models.ForeignKey(
+        Subject, models.SET_NULL, default=None, null=True, blank=True, help_text=_(
+            'Primary subject field specific for this program. '
+            'Useful field in case there are no courses associated with this program.')
+    )
+    level_type_override = models.ForeignKey(
+        LevelType, models.SET_NULL, default=None, null=True, blank=True, help_text=_(
+            'Level type specific for this program. '
+            'Useful field in case there are no courses associated with this program.')
+    )
+    language_override = models.ForeignKey(
+        LanguageTag, models.SET_NULL, default=None, null=True, blank=True, help_text=_(
+            'Language code specific for this program. '
+            'Useful field in case there are no courses associated with this program.')
+    )
+
     objects = ProgramQuerySet.as_manager()
 
     history = HistoricalRecords()
@@ -2457,6 +2483,15 @@ class Program(PkSearchableMixin, TimeStampedModel):
     @property
     def seat_types(self):
         return {seat.type for seat in self.seats}
+
+    @property
+    def organization_logo_override_url(self):
+        """
+        Property to get url for organization_logo_override.
+        """
+        if self.organization_logo_override:
+            return self.organization_logo_override.url
+        return None
 
     def _select_for_total_price(self, selected_seat, candidate_seat):
         """
