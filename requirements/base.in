@@ -58,7 +58,7 @@ requests
 redis
 simple-salesforce
 social-auth-app-django
-unicode-slugify
+python-slugify
 xss-utils
 taxonomy-connector
 importlib-metadata

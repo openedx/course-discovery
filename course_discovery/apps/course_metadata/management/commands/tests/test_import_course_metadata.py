@@ -104,11 +104,11 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.')
                     )
 
-                    assert Course.objects.count() == 1
-                    assert CourseRun.objects.count() == 1
+                    assert Course.everything.count() == 1
+                    assert CourseRun.everything.count() == 1
 
-                    course = Course.objects.get(key=self.COURSE_KEY, partner=self.partner)
-                    course_run = CourseRun.objects.get(course=course)
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+                    course_run = CourseRun.everything.get(course=course)
 
                     assert course.image.read() == image_content
                     self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)

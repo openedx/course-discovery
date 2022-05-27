@@ -65,8 +65,10 @@ class TestProgramViewSet(SerializationMixin):
             instructor_ordering=PersonFactory.create_batch(1),
             banner_image=make_image_file('test_banner.jpg'),
             video=VideoFactory(),
-            partner=self.partner
+            partner=self.partner,
         )
+        
+        print (program.enterprise_subscription_inclusion)
         return program
 
     def create_curriculum(self, parent_program):
@@ -87,9 +89,17 @@ class TestProgramViewSet(SerializationMixin):
     def assert_retrieve_success(self, program, querystring=None):
         """ Verify the retrieve endpoint succesfully returns a serialized program. """
         url = reverse('api:v1:program-detail', kwargs={'uuid': program.uuid})
+        url2 = '/api/v1/programs/'
+
 
         if querystring:
             url += '?' + urllib.parse.urlencode(querystring)
+
+        print("kiraurl")
+        print(url)
+        response2 = self.client.get(url2)
+        print(response2.data)
+
 
         response = self.client.get(url)
         assert response.status_code == 200

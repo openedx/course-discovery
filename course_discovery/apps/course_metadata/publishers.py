@@ -4,13 +4,14 @@ from urllib.parse import urljoin
 
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from bs4 import BeautifulSoup
+from slugify import slugify
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.exceptions import (
     AliasCreateError, AliasDeleteError, FormRetrievalError, NodeCreateError, NodeDeleteError, NodeEditError,
     NodeLookupError
 )
-from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient, uslugify
+from course_discovery.apps.course_metadata.utils import MarketingSiteAPIClient
 
 logger = logging.getLogger(__name__)
 
@@ -436,7 +437,7 @@ class ProgramMarketingSitePublisher(BaseMarketingSitePublisher):
                     changed = True
 
             if changed:
-                self.get_and_delete_alias(uslugify(obj.title))
+                self.get_and_delete_alias(slugify(obj.title))
                 self.update_node_alias(obj, node_id, previous_obj)
 
     def serialize_obj(self, obj):
