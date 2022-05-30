@@ -22,12 +22,12 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         self.messages_list = []  # to show failure/skipped ingestion message at the end
         self.degree_uuids = {}  # to show the discovery degrees/program ids for each processed degree
         try:
-            self.reader = csv.DictReader(open(csv_path, 'r'))   # lint-amnesty, pylint: disable=consider-using-with
+            self.reader = csv.DictReader(open(csv_path, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))    # lint-amnesty, pylint: disable=logging-format-interpolation
             raise  # re-raising exception to avoid moving the code flow
 
-    def ingest(self):  # pylint: disable=too-many-statements
+    def ingest(self):
         logger.info("Initiating Degree CSV data loader flow.")
         for row in self.reader:
             # TODO: test and decide if need to make transaction atomic
@@ -35,27 +35,25 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
             row = self.transform_dict_keys(row)
             degree_title = row['title']
-            external_identifier = row['identifier']
-            org_key = row['organization_key']
 
             logger.info('Starting data import flow for {}'.format(degree_title))    # lint-amnesty, pylint: disable=logging-format-interpolation
 
-            if not Organization.objects.filter(key=org_key).exists():
-                logger.error("Organization {} does not exist. Skipping CSV loader for degree {}".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
-                    org_key,
-                    degree_title
-                ))
-                self.messages_list.append('[MISSING ORGANIZATION] org: {}, degree: {}'.format(
-                    org_key, degree_title
-                ))
-                continue
+            org = self._get_object(Organization, "key", row['organization_key'], degree_title)
+            program_type = self._get_object(ProgramType, "slug", row['product_type'], degree_title)
+            # primary_subject_override = self._get_object(
+            #     Subjetcs, "translations__name",
+            #     row['primary_subject_override'], degree_title
+            # )
+            # level_type_override = self._get_object(
+            #     LevelType, "name_t",
+            #     row['level_type_override'], degree_title
+            # )
+            # language_override = self._get_object(
+            #     LanguageTag, "code",
+            #     row['language_override'], degree_title
+            # )
 
-            try:
-                program_type = ProgramType.objects.get(slug=row['product_type'])
-            except ProgramType.DoesNotExist:
-                logger.exception("ProgramType {} does not exist in the database.".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-                    row['product_type']
-                ))
+            if not org or not program_type:
                 continue
 
             message = self.validate_degree_data(program_type, row)
@@ -66,58 +64,51 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 ))
                 continue
 
-            # TODO: handle org override
-            # simple field populate
+            # get degree object from title and external_identifier
+            degree = Degree.objects.filter(
+                title=degree_title, partner=self.partner,
+                # additional_metadata__external_identifier=row['identifier']
+            ).first()
 
-            # get degree object from title
-            degree = Degree.objects.filter(title=degree_title, partner=self.partner).first()
-
-            degree_title = degree.title if degree else degree_title
-
-            if degree:
-                logger.info("Degree {} is located in the database.".format(degree_title))    # lint-amnesty, pylint: disable=logging-format-interpolation
-
-                additional_metadata = DegreeAdditionalMetadata.objects.filter(degree=degree).first()
-
-                if not additional_metadata or \
-                        additional_metadata.external_identifier == external_identifier:
-                    try:
-                        self._update_degree(row, degree, program_type)
-                    except Exception:  # pylint: disable=broad-except
-                        logger.exception("An unknown error occurred while updating degree information")
-                        self.messages_list.append('[DEGREE UPDATE ERROR] degree {}'.format(degree_title))
-                        continue
-                else:
-                    logger.error("Skipping Degree {} Othrwise it will overwrite existing OCM degree data.".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-                        degree_title
-                    ))
-                    self.messages_list.append('[DEGREE UPDATE ERROR] degree {}'.format(degree_title))
-                    continue
-            else:
-                logger.info("Degree Program {} could not be found in database, creating the degree.".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
+            # temp check to prevent existing degree/programs from being overwritten
+            additioanl_metadata = DegreeAdditionalMetadata.objects.filter(degree=degree).first()
+            if degree and (not additioanl_metadata or additioanl_metadata.external_identifier != row['identifier']):
+                logger.error("Degree {} already exists, but external identifier didn't match. Skipping".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
                     degree_title
                 ))
-                try:
-                    degree = self._create_degree(row, program_type)
-                except Exception:  # pylint: disable=broad-except
-                    logger.exception("Error occurred when attempting to create a new degree against key {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-                        degree_title
-                    ))
-                    self.messages_list.append('[DEGREE CREATION ERROR] degree {}'.format(degree_title))
-                    continue
-                degree = Degree.objects.get(uuid=degree.uuid, partner=self.partner)
-
-            program = Program.objects.get(degree=degree, partner=self.partner)
-            is_downloaded = download_and_save_program_image(program, row['card_image_url'])
-            if not is_downloaded:
-                logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
+                self.messages_list.append('[DEGREE UPDATE ERROR] degree {}'.format(
                     degree_title
                 ))
-                self.messages_list.append('[IMAGE DOWNLOAD FAILURE] degree {}'.format(degree_title))
                 continue
 
+            logger.info("Degree {} {} located in the database. {} degree.".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
+                degree_title,
+                "is" if degree else "is not",
+                "Creating new" if not degree else "Updating existing"
+            ))
+
+            try:
+                degree = self._update_or_create_degree(row, program_type)
+            except Exception:   # pylint: disable=broad-except
+                logger.exception("An unknown error occurred while {} degree information".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
+                    "updating" if degree else "creating"
+                ))
+                self.messages_list.append('[DEGREE {} ERROR] degree {}'.format(
+                    "UPDATE" if degree else "CREATE",
+                    degree_title
+                ))
+                continue
+
+            # degree.authoring_organizations.clear()
+            degree.authoring_organizations.add(org)
+
+            self._handle_additional_metadata(row, degree)
+            self._handle_image_fields(row, degree)
+            # self._handle_specialization(row, degree)
+            # TODO: handle curricula
+
             logger.info("Degree updated successfully for degree key {}".format(degree.uuid))    # lint-amnesty, pylint: disable=logging-format-interpolation
-            self.degree_uuids[str(degree.uuid)] = degree_title
+            self.degree_uuids[str(degree.uuid)] = degree.title
 
         logger.info("Degree CSV loader ingest pipeline has completed.")
 
@@ -157,66 +148,97 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             transformed_dict[updated_key] = value
         return transformed_dict
 
-    def _create_degree(self, data, program_type):
+    def _update_or_create_degree(self, data, program_type):
         """
         Make a degree object through ORM
         """
-        org = Organization.objects.get(key=data['organization_key'])
+        data_dict = {
+            "type": program_type,
+            "status": ProgramStatus.Unpublished,
+            # "primary_subject_override":  primary_subject_override,
+            # "level_type_override": level_type_override,
+            # "language_override": language_override,
+            "marketing_slug": data['slug'],
+            "overview": data['overview'],
+            # "organization_short_code_override": data.get('organization_short_code_override', ''),
+            "partner": self.partner,
 
-        degree = Degree.objects.create(
+        }
+        # TODO: handle exceptions
+        degree, updated = Degree.objects.update_or_create(
             title=data['title'],
-            type=program_type,
-            status=ProgramStatus.Unpublished,
-            marketing_slug=data['slug'],
-            overview=data['overview'],
-            partner=self.partner,
+            # additional_metadata__external_identifier=data['identifier'],
+            defaults=data_dict
         )
-        if degree:
-            logger.info("Degree with title {} has been created".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-                degree,
-            ))
 
-            degree.authoring_organizations.add(org)
-            additional_metadata = DegreeAdditionalMetadata.objects.create(
-                external_identifier=data['identifier'],
-                organic_url=data['organic_url'],
-                external_url=data['paid_landing_page_url'],
-                degree=degree
-            )
-
-            if additional_metadata:
-                logger.info("AdditionalMetdata {} has been created with Degree title {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-                    additional_metadata,
-                    degree,
-                ))
+        logger.info("Degree with title {} is {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
+            "updated" if updated else "created",
+            degree,
+        ))
 
         return degree
 
-    def _update_degree(self, data, degree, program_type):
+    def _handle_image_fields(self, data, degree):
         """
-        Update degree object through ORM
+        Handle the image fields for the degree
         """
-        updated = Degree.objects.filter(title=degree.title).update(
-            type=program_type,
-            status=ProgramStatus.Unpublished,
-            marketing_slug=data['slug'],
-            overview=data['overview'],
-            partner=self.partner,
-        )
-        if updated:
-            logger.info("Degree with title {} is updated".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-                degree,
-            ))
-        else:
-            logger.error("Degree with title {} has not been updated".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-                degree,
-            ))
-            return
 
-        org = Organization.objects.get(key=data['organization_key'])
-        degree.authoring_organizations.clear()
-        degree.authoring_organizations.add(org)
+        program = Program.objects.get(degree=degree, partner=self.partner)
+        is_downloaded = download_and_save_program_image(program, data['card_image_url'])
+        if not is_downloaded:
+            logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
+                degree.title
+            ))
+            self.messages_list.append('[IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
 
+        if data.get('organization_logo_override'):
+            is_downloaded = download_and_save_program_image(
+                program, data['organization_logo_override'],
+                'organization_logo_override'
+            )
+            if not is_downloaded:
+                logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
+                    degree.title
+                ))
+                self.messages_list.append('[IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
+
+    # def _handle_specialization(self, data, degree):
+    #     """
+    #     Handle the specialization fields for the degree
+    #     """
+    #     specialization_data = data.get('specialization', '')
+    #     if specialization_data:
+    #         degree.specialization.clear()
+    #         specialization_data = specialization_data.split(',')
+    #         for specialization in specialization_data:
+    #             specialization = specialization.strip()
+    #             if specialization:
+    #                 specialization_obj, _ = Specialization.objects.get_or_create(value=specialization)
+    #                 degree.specialization.add(specialization_obj)
+
+    def _get_object(self, model, key, value, degree_title):
+        """
+        Get an object from the database by its key and value
+        """
+        model_name = model().__class__.__name__
+        try:
+            obj = model.objects.get(**{key: value})
+            return obj
+        except model.DoesNotExist:
+            logger.exception("{} {} does not exist. Skipping CSV loader for degree {}".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
+                model_name,
+                value,
+                degree_title
+            ))
+            self.messages_list.append('[MISSING {}] {}: {}, degree: {}'.format(
+                model_name.upper(), model_name, value, degree_title
+            ))
+            return None
+
+    def _handle_additional_metadata(self, data, degree):
+        """
+        Make a degree additional metadata object through ORM
+        """
         additional_metadata_dict = {
             "external_identifier": data['identifier'],
             "organic_url": data['organic_url'],
@@ -228,8 +250,8 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             defaults=additional_metadata_dict
         )
 
-        if created:
-            logger.info("AdditionalMetdata {} has been created with Degree title {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-                additional_metadata,
-                degree,
-            ))
+        logger.info("AdditionalMetdata {} is {} with Degree title {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
+            additional_metadata,
+            "created" if created else "updated",
+            degree,
+        ))

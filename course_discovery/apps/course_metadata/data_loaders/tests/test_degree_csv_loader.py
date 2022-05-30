@@ -68,12 +68,14 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                         LOGGER_PATH,
                         'ERROR',
                         'Organization invalid-organization does not exist. Skipping CSV '
-                        'loader for degree Test Degree'
+                        'loader for degree {}'.format(self.DEGREE_TITLE)
                     ),
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        '[MISSING ORGANIZATION] org: invalid-organization, degree: Test Degree'
+                        '[MISSING ORGANIZATION] Organization: invalid-organization, degree: {}'.format(
+                            self.DEGREE_TITLE
+                        )
                     )
                 )
                 assert Degree.objects.count() == 0
@@ -93,7 +95,8 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'ProgramType invalid-program-type does not exist in the database.'
+                        'ProgramType invalid-program-type does not exist. Skipping CSV '
+                        'loader for degree {}'.format(self.DEGREE_TITLE)
                     )
                 )
                 assert Degree.objects.count() == 0
@@ -118,7 +121,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree Program Test Degree could not be found in database, creating the degree.'
+                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_TITLE)
                     )
                 )
 
@@ -155,7 +158,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree {} is located in the database.'.format(self.DEGREE_TITLE)
+                        'Degree {} is located in the database. Updating existing degree.'.format(self.DEGREE_TITLE)
                     )
                 )
 
@@ -184,7 +187,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree Program Test Degree could not be found in database, creating the degree.'
+                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_TITLE)
                     )
                 )
 
@@ -226,7 +229,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree Program Test Degree could not be found in database, creating the degree.'
+                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_TITLE)
                     )
                 )
 
@@ -237,11 +240,11 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Unexpected error happened while downloading image for degree Test Degree'
+                        'Unexpected error happened while downloading image for degree {}'.format(self.DEGREE_TITLE)
                     ),
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        '[IMAGE DOWNLOAD FAILURE] degree Test Degree'
+                        '[IMAGE DOWNLOAD FAILURE] degree {}'.format(self.DEGREE_TITLE)
                     )
                 )
