@@ -2442,6 +2442,15 @@ class DegreeTests(TestCase):
             degree.additional_metadata.external_identifier, degree_additional_metadata.external_identifier
         )
 
+    def test_specializations_in_degree(self):
+        """ Verify specialization field in Degree model"""
+        degree = factories.DegreeFactory()
+        specialization = factories.SpecializationFactory()
+        self.assertEqual(degree.specializations.count(), 0)
+        degree.specializations.add(specialization)
+        self.assertEqual(degree.specializations.count(), 1)
+        self.assertEqual(degree.specializations.first().value, specialization.value)
+
 
 class CourseUrlSlugHistoryTest(TestCase):
 

@@ -2620,6 +2620,10 @@ class Ranking(TimeStampedModel):
         return self.description
 
 
+class Specialization(AbstractValueModel):
+    """Specialization model for degree"""
+
+
 class Degree(Program):
     """
     This model captures information about a Degree (e.g. a Master's Degree).
@@ -2743,6 +2747,7 @@ class Degree(Program):
         blank=True,
         null=True,
     )
+    specializations = SortedManyToManyField(Specialization, blank=True, null=True)
 
     class Meta:
         verbose_name_plural = "Degrees"
