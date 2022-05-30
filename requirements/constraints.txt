@@ -13,9 +13,6 @@ elasticsearch-dsl>=7.2,<8.0
 # TODO: Enable this once new version is released after we move to Django 3.2
 # django-elasticsearch-dsl>=7.1,<8.0
 
-# FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
-transifex-client<0.13
-
 celery>=5.2.3,<6.0.0
 
 # latest version causing issues in IDAs.

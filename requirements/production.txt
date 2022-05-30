@@ -33,15 +33,15 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.23.8
+boto3==1.23.10
     # via django-ses
-botocore==1.26.8
+botocore==1.26.10
     # via
     #   boto3
     #   s3transfer
 cached-property==1.5.2
     # via zeep
-celery==5.2.6
+celery==5.2.7
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
@@ -179,6 +179,7 @@ django-ses==3.0.1
     #   taxonomy-connector
 django-simple-history==3.0.0
     # via
+    #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
 django-solo==2.0.0
@@ -422,7 +423,7 @@ ruamel-yaml-clib==0.2.6
     # via ruamel-yaml
 s3transfer==0.5.2
     # via boto3
-semantic-version==2.9.0
+semantic-version==2.10.0
     # via edx-drf-extensions
 simple-salesforce==1.11.6
     # via -r requirements/base.in

@@ -16,7 +16,7 @@ charset-normalizer==2.0.12
     # via requests
 django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
     # via -r requirements/github.in
-docutils==0.17.1
+docutils==0.18.1
     # via sphinx
 edx-sphinx-theme==3.0.0
     # via -r requirements/docs.in
@@ -59,7 +59,7 @@ six==1.16.0
     #   python-dateutil
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==4.5.0
+sphinx==5.0.0
     # via
     #   -r requirements/docs.in
     #   edx-sphinx-theme
