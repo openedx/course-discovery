@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.urls import reverse
 
 from course_discovery.apps.core.utils import serialize_datetime
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
     Collaborator, Course, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization, Person, ProgramType,
@@ -44,14 +45,13 @@ class CSVDataLoader(AbstractDataLoader):
         'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text',
     ]
 
-    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, is_draft=False):
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         self.messages_list = []  # to show failure/skipped ingestion message at the end
         self.course_uuids = {}  # to show the discovery course ids for each processed course
         try:
             self.reader = csv.DictReader(open(csv_path, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
-            self.is_draft = is_draft
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))  # lint-amnesty, pylint: disable=logging-format-interpolation
             raise  # re-raising exception to avoid moving the code flow
@@ -122,8 +122,11 @@ class CSVDataLoader(AbstractDataLoader):
                 self.messages_list.append('[IMAGE DOWNLOAD FAILURE] course {}'.format(course_title))
                 continue
 
+            is_draft = self.get_draft_flag(course_run)
+            logger.info(f"Draft flag is set to {is_draft} for the course {course_title}")
+
             try:
-                self._update_course(row, course)
+                self._update_course(row, course, is_draft)
             except Exception:  # pylint: disable=broad-except
                 logger.exception("An unknown error occurred while updating course information")
                 self.messages_list.append('[COURSE UPDATE ERROR] course {}'.format(course_title))
@@ -150,7 +153,7 @@ class CSVDataLoader(AbstractDataLoader):
             # No need to update the course run if the run is already in the review
             if not course_run.in_review:
                 try:
-                    self._update_course_run(row, course_run, course_type)
+                    self._update_course_run(row, course_run, course_type, is_draft)
                 except Exception:  # pylint: disable=broad-except
                     logger.exception("An unknown error occurred while updating course run information")
                     self.messages_list.append('[COURSE RUN UPDATE ERROR] course {}'.format(course_title))
@@ -213,7 +216,17 @@ class CSVDataLoader(AbstractDataLoader):
             'course_run': course_run_creation_fields
         }
 
-    def _update_course_api_request_data(self, data, course):
+    def get_draft_flag(self, course_run):
+        """
+        To keep behavior of CSV loader consistent with publisher, draft flag is false only when:
+            1. Course run is moved from Unpublished -> Review State
+            2. Any of the Course run is in published state
+        No 1 is not applicable at the moment. For 2, CSV loader right now only expects
+        one course run for each course, hence the status of the single fetched course run is checked.
+        """
+        return not course_run.status == CourseRunStatus.Published
+
+    def _update_course_api_request_data(self, data, course, is_draft):
         """
         Create and return the request data for making a patch call to update the course.
         """
@@ -225,7 +238,7 @@ class CSVDataLoader(AbstractDataLoader):
         )
 
         update_course_data = {
-            'draft': self.is_draft,
+            'draft': is_draft,
             'key': course.key,
             'uuid': str(course.uuid),
             'url_slug': course.active_url_slug,
@@ -250,7 +263,7 @@ class CSVDataLoader(AbstractDataLoader):
         }
         return update_course_data
 
-    def _update_course_run_request_data(self, data, course_run, course_type):
+    def _update_course_run_request_data(self, data, course_run, course_type, is_draft):
         """
         Create and return the request data for making a patch call to update the course run.
         """
@@ -264,7 +277,7 @@ class CSVDataLoader(AbstractDataLoader):
             'key': course_run.key,
             'prices': self.get_pricing_representation(data['verified_price'], course_type),
             'staff': staff_uuids,
-            'draft': self.is_draft,
+            'draft': is_draft,
 
             'weeks_to_complete': data['length'],
             'min_effort': data['minimum_effort'],
@@ -350,26 +363,26 @@ class CSVDataLoader(AbstractDataLoader):
             logger.info("Course creation response: {}".format(response.content))  # lint-amnesty, pylint: disable=logging-format-interpolation
         return response.json()
 
-    def _update_course(self, data, course):
+    def _update_course(self, data, course, is_draft):
         """
         Update the course data.
         """
         course_api_url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         url = f"{settings.DISCOVERY_BASE_URL}{course_api_url}?exclude_utm=1"
-        request_data = self._update_course_api_request_data(data, course)
+        request_data = self._update_course_api_request_data(data, course, is_draft)
         response = self._call_course_api('PATCH', url, request_data)
 
         if response.status_code not in (200, 201):
             logger.info("Course update response: {}".format(response.content))  # lint-amnesty, pylint: disable=logging-format-interpolation
         return response.json()
 
-    def _update_course_run(self, data, course_run, course_type):
+    def _update_course_run(self, data, course_run, course_type, is_draft):
         """
         Update the course run data.
         """
         course_run_api_url = reverse('api:v1:course_run-detail', kwargs={'key': course_run.key})
         url = f"{settings.DISCOVERY_BASE_URL}{course_run_api_url}?exclude_utm=1"
-        request_data = self._update_course_run_request_data(data, course_run, course_type)
+        request_data = self._update_course_run_request_data(data, course_run, course_type, is_draft)
         response = self._call_course_api('PATCH', url, request_data)
         if response.status_code not in (200, 201):
             logger.info("Course run update response: {}".format(response.content))  # lint-amnesty, pylint: disable=logging-format-interpolation
