@@ -57,7 +57,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
     ExpectedLearningItemFactory, FactFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory,
     OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory,
     PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory,
-    SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
+    SeatTypeFactory, SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -1311,9 +1311,11 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         mm_background_image_field._context = {'request': request}  # pylint: disable=protected-access
 
         rankings = RankingFactory.create_batch(3)
+        specializations = SpecializationFactory.create_batch(3)
         degree = DegreeFactory.create(rankings=rankings)
         curriculum = CurriculumFactory.create(program=degree)
         degree.curricula.set([curriculum])
+        degree.specializations.set(specializations)
         quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
         degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
         degree.cost = DegreeCostFactory.create_batch(size=3, degree=degree)
@@ -1327,6 +1329,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         expected_degree_deadlines = DegreeDeadlineSerializer(degree.deadline, many=True).data
         expected_degree_costs = DegreeCostSerializer(degree.cost, many=True).data
         expected_degree_additional_metadata = DegreeAdditionalMetadataSerializer(degree.additional_metadata).data
+        expected_specializations = [specialization.value for specialization in specializations]
 
         url = re.compile(r"https?:\/\/[^\/]*")
         expected_micromasters_path = url.sub('', degree.micromasters_url)
@@ -1359,6 +1362,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'deadlines_fine_print': degree.deadlines_fine_print,
             'title_background_image': degree.title_background_image,
             'additional_metadata': expected_degree_additional_metadata,
+            'specializations': expected_specializations,
         }
         self.assertDictEqual(serializer.data, expected)
 

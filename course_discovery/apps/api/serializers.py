@@ -36,7 +36,7 @@ from course_discovery.apps.course_metadata.models import (
     CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Curriculum, CurriculumCourseMembership,
     CurriculumProgramMembership, Degree, DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact,
     IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork,
-    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track, Video
+    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Specialization, Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -1449,6 +1449,13 @@ class RankingSerializer(BaseModelSerializer):
         )
 
 
+class SpecializationSerializer(BaseModelSerializer):
+    """ Specialization model serializer """
+    class Meta:
+        model = Specialization
+        fields = ('value', )
+
+
 class DegreeDeadlineSerializer(BaseModelSerializer):
     """ DegreeDeadline model serializer """
     class Meta:
@@ -1583,6 +1590,7 @@ class DegreeSerializer(BaseModelSerializer):
     micromasters_background_image = StdImageSerializerField()
     micromasters_path = serializers.SerializerMethodField()
     additional_metadata = DegreeAdditionalMetadataSerializer(required=False)
+    specializations = serializers.SerializerMethodField()
 
     class Meta:
         model = Degree
@@ -1593,7 +1601,7 @@ class DegreeSerializer(BaseModelSerializer):
             'lead_capture_image', 'micromasters_path', 'micromasters_url',
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
-            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'additional_metadata',
+            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'additional_metadata', 'specializations'
         )
 
     def get_micromasters_path(self, degree):
@@ -1602,6 +1610,9 @@ class DegreeSerializer(BaseModelSerializer):
             return url.sub('', degree.micromasters_url)
         else:
             return degree.micromasters_url
+
+    def get_specializations(self, degree):
+        return list(degree.specializations.values_list('value', flat=True))
 
 
 class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):

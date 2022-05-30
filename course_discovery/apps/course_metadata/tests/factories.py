@@ -579,6 +579,13 @@ class ProgramFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.curricula, extracted)
 
 
+class SpecializationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Specialization
+
+    value = FuzzyText()
+
+
 class DegreeFactory(ProgramFactory):
     class Meta:
         model = Degree
