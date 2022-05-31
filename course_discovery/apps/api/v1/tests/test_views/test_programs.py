@@ -67,8 +67,6 @@ class TestProgramViewSet(SerializationMixin):
             video=VideoFactory(),
             partner=self.partner,
         )
-        
-        print (program.enterprise_subscription_inclusion)
         return program
 
     def create_curriculum(self, parent_program):
@@ -89,17 +87,9 @@ class TestProgramViewSet(SerializationMixin):
     def assert_retrieve_success(self, program, querystring=None):
         """ Verify the retrieve endpoint succesfully returns a serialized program. """
         url = reverse('api:v1:program-detail', kwargs={'uuid': program.uuid})
-        url2 = '/api/v1/programs/'
-
 
         if querystring:
             url += '?' + urllib.parse.urlencode(querystring)
-
-        print("kiraurl")
-        print(url)
-        response2 = self.client.get(url2)
-        print(response2.data)
-
 
         response = self.client.get(url)
         assert response.status_code == 200
@@ -167,7 +157,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(FuzzyInt(114, 1)):  
+        with django_assert_num_queries(FuzzyInt(114, 1)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())
