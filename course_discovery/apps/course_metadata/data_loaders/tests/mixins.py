@@ -62,6 +62,7 @@ class DegreeCSVLoaderMixin:
         'organic_url',
         'overview',
         'specializations',
+        'courses',
     ]
 
     # TODO: update it

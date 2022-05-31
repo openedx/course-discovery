@@ -3084,6 +3084,7 @@ VALID_DEGREE_CSV_DICT = {
     'organic_url': 'http://example.com/organic-page.html',
     'overview': 'Test Degree Overview',
     'specializations': 'Marketing | Finance',
+    'courses': 'ABC|D&E|Harvard CS50',
 }
 
 VALID_MINIMAL_DEGREE_CSV_DICT = VALID_DEGREE_CSV_DICT

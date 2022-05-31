@@ -13,7 +13,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.data_loaders.degrees_loader import DegreeCSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DegreeCSVLoaderMixin
-from course_discovery.apps.course_metadata.models import Degree
+from course_discovery.apps.course_metadata.models import Degree, Program, Curriculum
 from course_discovery.apps.course_metadata.tests.factories import DegreeAdditionalMetadataFactory, DegreeFactory
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.degrees_loader'
@@ -126,11 +126,16 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 )
 
                 assert Degree.objects.count() == 1
+                assert Program.objects.count() == 1
+                assert Curriculum.objects.count() == 1
 
                 degree = Degree.objects.get(title=self.DEGREE_TITLE, partner=self.partner)
+                program = Program.objects.get(degree=degree, partner=self.partner)
+                curriculam = Curriculum.objects.get(program=program)
 
                 assert degree.card_image.read() == image_content
                 assert degree.specializations.count() == 2
+                assert curriculam.marketing_text == "ABC\nD&E\nHarvard CS50"
                 self._assert_degree_data(degree, self.BASE_EXPECTED_DEGREE_DATA)
 
     def test_ingest_flow_for_preexisting_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -162,9 +167,16 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'Degree {} is located in the database. Updating existing degree.'.format(self.DEGREE_TITLE)
                     )
                 )
+                assert Degree.objects.count() == 1
+                assert Program.objects.count() == 1
+                assert Curriculum.objects.count() == 1
 
                 degree = Degree.objects.get(title=self.DEGREE_TITLE, partner=self.partner)
+                program = Program.objects.get(degree=degree, partner=self.partner)
+                curriculam = Curriculum.objects.get(program=program)
 
+                assert degree.specializations.count() == 2
+                assert curriculam.marketing_text == "ABC\nD&E\nHarvard CS50"
                 assert degree.card_image.read() == image_content
                 self._assert_degree_data(degree, self.BASE_EXPECTED_DEGREE_DATA)
 
@@ -173,6 +185,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
         Verify that the loader runs as expected for minimal set of data.
         """
         self._setup_prerequisites(self.partner)
+        _, image_content = self.mock_image_response()
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(
@@ -193,8 +206,16 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 )
 
                 assert Degree.objects.count() == 1
+                assert Program.objects.count() == 1
+                assert Curriculum.objects.count() == 1
 
                 degree = Degree.objects.get(title=self.DEGREE_TITLE, partner=self.partner)
+                program = Program.objects.get(degree=degree, partner=self.partner)
+                curriculam = Curriculum.objects.get(program=program)
+
+                assert degree.card_image.read() == image_content
+                assert degree.specializations.count() == 2
+                assert curriculam.marketing_text == "ABC\nD&E\nHarvard CS50"
 
                 assert degree.title == 'Test Degree'
                 assert degree.overview == 'Test Degree Overview'

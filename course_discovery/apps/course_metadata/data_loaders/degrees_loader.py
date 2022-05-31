@@ -7,7 +7,7 @@ import logging
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Degree, DegreeAdditionalMetadata, Organization, Program, ProgramType, Specialization
+    Degree, DegreeAdditionalMetadata, Organization, Program, ProgramType, Specialization, Curriculum
 )
 from course_discovery.apps.course_metadata.utils import download_and_save_program_image
 
@@ -105,6 +105,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             self._handle_additional_metadata(row, degree)
             self._handle_image_fields(row, degree)
             self._handle_specializations(row, degree)
+            self._handle_courses(row, degree)
             # TODO: handle curricula
 
             logger.info("Degree updated successfully for degree key {}".format(degree.uuid))    # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -201,6 +202,31 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                     degree.title
                 ))
                 self.messages_list.append('[IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
+
+    def _handle_courses(self, data, degree):
+        """
+        Handle the courses for the degree
+        """
+        delimeter = '|'
+        courses_data = data.get('courses', '')
+        if courses_data:
+            courses = courses_data.split(delimeter)
+            marketing_text = [course.strip() for course in courses]
+            marketing_text = "\n".join(marketing_text)
+
+            program = Program.objects.get(degree=degree, partner=self.partner)
+            curriculam, created = Curriculum.objects.update_or_create(
+                program=program,
+                defaults={
+                    'marketing_text': marketing_text,
+                }
+            )
+
+            logger.info("Curriculam {} is {} with Degree title {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
+                curriculam,
+                "created" if created else "updated",
+                degree,
+            ))
 
     def _handle_specializations(self, data, degree):
         """
