@@ -13,7 +13,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.data_loaders.degrees_loader import DegreeCSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DegreeCSVLoaderMixin
-from course_discovery.apps.course_metadata.models import Degree, Program, Curriculum
+from course_discovery.apps.course_metadata.models import Curriculum, Degree, Program
 from course_discovery.apps.course_metadata.tests.factories import DegreeAdditionalMetadataFactory, DegreeFactory
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.degrees_loader'

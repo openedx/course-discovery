@@ -7,7 +7,7 @@ import logging
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Degree, DegreeAdditionalMetadata, Organization, Program, ProgramType, Specialization, Curriculum
+    Curriculum, Degree, DegreeAdditionalMetadata, Organization, Program, ProgramType, Specialization
 )
 from course_discovery.apps.course_metadata.utils import download_and_save_program_image
 
