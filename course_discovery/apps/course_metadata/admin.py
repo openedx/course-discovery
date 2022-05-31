@@ -653,14 +653,18 @@ class DegreeCostInlineAdmin(admin.StackedInline):
     extra = 1
 
 
-class DegreeInlineAdmin(admin.StackedInline):
-    model = Degree
+class DegreeAdditionalMetadataInlineAdmin(admin.StackedInline):
+    model = DegreeAdditionalMetadata
 
 
 @admin.register(DegreeAdditionalMetadata)
 class DegreeAdditionalMetadataAdmin(admin.ModelAdmin):
     list_display = ('degree', 'external_url', 'external_identifier', 'organic_url')
-    inlines = (DegreeInlineAdmin, )
+
+
+@admin.register(Specialization)
+class SpecializationAdmin(admin.ModelAdmin):
+    list_display = ('value', )
 
 
 @admin.register(Degree)
@@ -673,7 +677,13 @@ class DegreeAdmin(admin.ModelAdmin):
     ordering = ('title', 'status')
     readonly_fields = ('uuid', )
     search_fields = ('title', 'partner', 'marketing_slug')
-    inlines = (CurriculumAdminInline, DegreeDeadlineInlineAdmin, DegreeCostInlineAdmin, IconTextPairingInline)
+    inlines = (
+        CurriculumAdminInline,
+        DegreeDeadlineInlineAdmin,
+        DegreeCostInlineAdmin,
+        IconTextPairingInline,
+        DegreeAdditionalMetadataInlineAdmin,
+    )
     # ordering the field display on admin page.
     fields = (
         'type', 'uuid', 'status', 'hidden', 'partner', 'authoring_organizations', 'marketing_slug', 'card_image_url',
@@ -682,7 +692,7 @@ class DegreeAdmin(admin.ModelAdmin):
         'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
         'hubspot_lead_capture_form_id', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url',
         'micromasters_background_image', 'micromasters_org_name_override', 'faq', 'costs_fine_print',
-        'deadlines_fine_print', 'degree_additional_metadata'
+        'deadlines_fine_print', 'specializations'
     )
 
 
