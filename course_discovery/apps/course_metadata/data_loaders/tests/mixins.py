@@ -61,6 +61,7 @@ class DegreeCSVLoaderMixin:
         'paid_landing_page_url',
         'organic_url',
         'overview',
+        'specializations',
     ]
 
     # TODO: update it

@@ -130,6 +130,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 degree = Degree.objects.get(title=self.DEGREE_TITLE, partner=self.partner)
 
                 assert degree.card_image.read() == image_content
+                assert degree.specializations.count() == 2
                 self._assert_degree_data(degree, self.BASE_EXPECTED_DEGREE_DATA)
 
     def test_ingest_flow_for_preexisting_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -202,6 +203,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert degree.additional_metadata.external_url == 'http://example.com/landing-page.html'
                 assert degree.additional_metadata.external_identifier == '123456'
                 assert degree.additional_metadata.organic_url == 'http://example.com/organic-page.html'
+                assert degree.specializations.count() == 2
 
     @responses.activate
     def test_image_download_failure(self, jwt_decode_patch):  # pylint: disable=unused-argument

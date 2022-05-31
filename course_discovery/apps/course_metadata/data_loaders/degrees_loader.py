@@ -7,7 +7,7 @@ import logging
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Degree, DegreeAdditionalMetadata, Organization, Program, ProgramType
+    Degree, DegreeAdditionalMetadata, Organization, Program, ProgramType, Specialization
 )
 from course_discovery.apps.course_metadata.utils import download_and_save_program_image
 
@@ -104,7 +104,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
             self._handle_additional_metadata(row, degree)
             self._handle_image_fields(row, degree)
-            # self._handle_specialization(row, degree)
+            self._handle_specializations(row, degree)
             # TODO: handle curricula
 
             logger.info("Degree updated successfully for degree key {}".format(degree.uuid))    # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -172,8 +172,8 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         )
 
         logger.info("Degree with title {} is {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-            "updated" if updated else "created",
             degree,
+            "updated" if updated else "created",
         ))
 
         return degree
@@ -202,25 +202,25 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 ))
                 self.messages_list.append('[IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
 
-    # def _handle_specialization(self, data, degree):
-    #     """
-    #     Handle the specialization fields for the degree
-    #     """
-    #     specialization_data = data.get('specialization', '')
-    #     if specialization_data:
-    #         degree.specialization.clear()
-    #         specialization_data = specialization_data.split(',')
-    #         for specialization in specialization_data:
-    #             specialization = specialization.strip()
-    #             if specialization:
-    #                 specialization_obj, _ = Specialization.objects.get_or_create(value=specialization)
-    #                 degree.specialization.add(specialization_obj)
+    def _handle_specializations(self, data, degree):
+        """
+        Handle the specialization fields for the degree
+        """
+        specializations_data = data.get('specializations', '')
+        if specializations_data:
+            degree.specializations.clear()
+            specializations_data = specializations_data.split('|')
+            for specialization in specializations_data:
+                specialization = specialization.strip()
+                if specialization:
+                    specialization_obj, _ = Specialization.objects.get_or_create(value=specialization)
+                    degree.specializations.add(specialization_obj)
 
     def _get_object(self, model, key, value, degree_title):
         """
         Get an object from the database by its key and value
         """
-        model_name = model().__class__.__name__
+        model_name = model._meta.object_name
         try:
             obj = model.objects.get(**{key: value})
             return obj

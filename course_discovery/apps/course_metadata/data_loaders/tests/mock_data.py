@@ -3083,6 +3083,7 @@ VALID_DEGREE_CSV_DICT = {
     'paid_landing_page_url': 'http://example.com/landing-page.html',
     'organic_url': 'http://example.com/organic-page.html',
     'overview': 'Test Degree Overview',
+    'specializations': 'Marketing | Finance',
 }
 
 VALID_MINIMAL_DEGREE_CSV_DICT = VALID_DEGREE_CSV_DICT
