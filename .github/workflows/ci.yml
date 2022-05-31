@@ -17,7 +17,7 @@ jobs:
         status: ['']
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: make ci_up
       - name: run tests
         env:
@@ -40,7 +40,7 @@ jobs:
     needs: pytest
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: make ci_up
       - name: Download all artifacts
         # Downloads coverage1, coverage2, etc.
@@ -52,14 +52,14 @@ jobs:
   quality:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: make ci_up
       - run: make ci_quality
 
   semgrep:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: returntocorp/semgrep-action@v1
         name: django rules
         with:
