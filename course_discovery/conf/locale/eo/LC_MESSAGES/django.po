@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-01 20:35+0000\n"
+"POT-Creation-Date: 2022-05-31 09:21+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -1588,6 +1588,18 @@ msgid "Number of courses for search card (e.g. \"11 Courses\""
 msgstr ""
 "Nümßér öf çöürsés för séärçh çärd (é.g. \"11 Çöürsés\" Ⱡ'σяєм ιρѕυм ∂σłσя "
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The redirect URL of the degree on external site"
+msgstr ""
+"Thé rédïréçt ÛRL öf thé dégréé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The URL of the landing page on external site"
+msgstr ""
+"Thé ÛRL öf thé ländïng pägé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
 msgid "Bell"
