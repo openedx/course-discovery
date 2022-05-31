@@ -21,15 +21,15 @@ from course_discovery.apps.api.serializers import (
     CertificateInfoSerializer, CollaboratorSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
     ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer, CourseEntitlementSerializer,
     CourseRecommendationSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSerializer,
-    CourseWithProgramsSerializer, CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeCostSerializer,
-    DegreeDeadlineSerializer, EndorsementSerializer, FactSerializer, FAQSerializer,
-    FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, MinimalCourseRunSerializer,
-    MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer, MinimalProgramCourseSerializer,
-    MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer, PathwaySerializer, PersonSerializer,
-    PositionSerializer, PrerequisiteSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
-    ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer,
-    TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
-    get_lms_course_url_for_archived, get_utm_source_for_user
+    CourseWithProgramsSerializer, CourseWithRecommendationsSerializer, CurriculumSerializer,
+    DegreeAdditionalMetadataSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer,
+    FactSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer,
+    MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer,
+    MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer,
+    PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramsAffiliateWindowSerializer,
+    ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer,
+    SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
+    VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.tests.test_utils import make_request
@@ -53,11 +53,11 @@ from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, AdditionalPromoAreaFactory, CertificateInfoFactory, CollaboratorFactory,
     CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory,
     CourseSkillsFactory, CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory,
-    DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory,
-    FactFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
-    PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory, SubjectFactory, TopicFactory,
-    VideoFactory
+    DegreeAdditionalMetadataFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory,
+    ExpectedLearningItemFactory, FactFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory,
+    OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory,
+    PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory,
+    SeatTypeFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -1317,6 +1317,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         quick_facts = IconTextPairingFactory.create_batch(3, degree=degree)
         degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
         degree.cost = DegreeCostFactory.create_batch(size=3, degree=degree)
+        degree.additional_metadata = DegreeAdditionalMetadataFactory.create(degree=degree)
 
         serializer = self.serializer_class(degree, context={'request': request})
         expected = self.get_expected_data(degree, request)
@@ -1325,6 +1326,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         expected_quick_facts = IconTextPairingSerializer(quick_facts, many=True).data
         expected_degree_deadlines = DegreeDeadlineSerializer(degree.deadline, many=True).data
         expected_degree_costs = DegreeCostSerializer(degree.cost, many=True).data
+        expected_degree_additional_metadata = DegreeAdditionalMetadataSerializer(degree.additional_metadata).data
 
         url = re.compile(r"https?:\/\/[^\/]*")
         expected_micromasters_path = url.sub('', degree.micromasters_url)
@@ -1356,6 +1358,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'costs_fine_print': degree.costs_fine_print,
             'deadlines_fine_print': degree.deadlines_fine_print,
             'title_background_image': degree.title_background_image,
+            'additional_metadata': expected_degree_additional_metadata,
         }
         self.assertDictEqual(serializer.data, expected)
 

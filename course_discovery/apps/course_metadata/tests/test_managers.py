@@ -26,7 +26,7 @@ class DraftManagerTests(TestCase):
         """
         Verify the query set allows access to draft rows too.
         """
-        assert CourseRun._base_manager.count() == 2  # pylint: disable=protected-access, no-member
+        assert CourseRun._base_manager.count() == 2  # pylint: disable=protected-access
         assert CourseRun.objects._with_drafts().count() == 2  # pylint: disable=protected-access
         assert CourseRun.objects.count() == 1  # sanity check
 

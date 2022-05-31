@@ -322,7 +322,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
     # pylint: disable=arguments-differ
     def update(self, request, **kwargs):
         # logging to help debug error around course url slugs incrementing
-        log.info('The raw course run data coming from publisher is {}.'.format(request.data))
+        log.info('The raw course run data coming from publisher is {}.'.format(request.data))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
         # Update one, or more, fields for a course run.
         course_run = self.get_object()

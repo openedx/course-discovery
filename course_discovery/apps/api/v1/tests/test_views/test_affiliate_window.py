@@ -203,7 +203,7 @@ class AffiliateWindowViewSetTests(ElasticsearchTestMixin, SerializationMixin, AP
         assert response.status_code == 200
 
         filename = abspath(join(dirname(dirname(__file__)), 'affiliate_window_product_feed.1.4.dtd'))
-        dtd = etree.DTD(open(filename))
+        dtd = etree.DTD(open(filename))  # lint-amnesty, pylint: disable=consider-using-with
         root = etree.XML(response.content)
         assert dtd.validate(root)
 

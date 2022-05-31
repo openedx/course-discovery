@@ -54,7 +54,6 @@ class FacetedSearch(OriginSearch):
         super().__init__(*args, **kwargs)
         self._response_class = DSLResponse
 
-    # pylint: disable=arguments-differ
     def _clone(self, klass=None, using=None, index=None, doc_type=None):
         """
         Overwrite `_clone` method to be able a class, which be used to clone.

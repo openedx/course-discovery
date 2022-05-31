@@ -11,8 +11,6 @@ from course_discovery.apps.core.tests.utils import FuzzyURL
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
-# pylint: disable=unused-argument
-
 
 class AbstractMediaModelFactory(factory.django.DjangoModelFactory):
     src = FuzzyURL()
@@ -603,6 +601,16 @@ class DegreeFactory(ProgramFactory):
     def rankings(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.rankings, extracted)
+
+
+class DegreeAdditionalMetadataFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = DegreeAdditionalMetadata
+
+    external_identifier = FuzzyText()
+    external_url = FuzzyURL()
+    organic_url = FuzzyURL()
+    degree = factory.SubFactory(DegreeFactory)
 
 
 class IconTextPairingFactory(factory.django.DjangoModelFactory):

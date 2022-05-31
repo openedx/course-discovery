@@ -17,6 +17,7 @@ from django.core.management import call_command
 from django.db import IntegrityError, transaction
 from django.test import TestCase
 from freezegun import freeze_time
+from slugify import slugify
 from taggit.models import Tag
 from testfixtures import LogCapture
 from waffle.testutils import override_switch
@@ -43,7 +44,6 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.course_metadata.utils import logger as utils_logger
-from course_discovery.apps.course_metadata.utils import uslugify
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
 
@@ -564,7 +564,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
     def test_slug_defined_on_create(self):
         """ Verify the slug is created on first save from the title and key. """
         course_run = CourseRunFactory(title='Test Title')
-        slug_key = uslugify(course_run.key)
+        slug_key = slugify(course_run.key)
         assert course_run.slug == f'test-title-{slug_key}'
 
     def test_empty_slug_defined_on_save(self):
@@ -572,7 +572,7 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         self.course_run.slug = ''
         self.course_run.title = 'Test Title'
         self.course_run.save()
-        slug_key = uslugify(self.course_run.key)
+        slug_key = slugify(self.course_run.key)
         assert self.course_run.slug == f'test-title-{slug_key}'
 
     def test_program_types(self):
@@ -2431,6 +2431,16 @@ class DegreeTests(TestCase):
         assert self.degree.banner_border_color is not None
         assert self.degree.title_background_image is not None
         assert self.degree.micromasters_background_image is not None
+
+    def test_degree_additional_metadata(self):
+        """ Verify the property returns valid  degree additional metadata fields. """
+        degree = factories.DegreeFactory()
+        degree_additional_metadata = factories.DegreeAdditionalMetadataFactory(degree=degree)
+        self.assertEqual(degree.additional_metadata.external_url, degree_additional_metadata.external_url)
+        self.assertEqual(degree.additional_metadata.organic_url, degree_additional_metadata.organic_url)
+        self.assertEqual(
+            degree.additional_metadata.external_identifier, degree_additional_metadata.external_identifier
+        )
 
 
 class CourseUrlSlugHistoryTest(TestCase):

@@ -25,7 +25,7 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
     """
 
     @staticmethod
-    def get_courses(course_ids):
+    def get_courses(course_ids):  # lint-amnesty, pylint: disable=arguments-differ
         """
         Get list of courses matching the given course UUIDs and return then in the form of a dict.
         """
@@ -39,7 +39,7 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
         } for course in courses]
 
     @staticmethod
-    def get_all_courses():
+    def get_all_courses():  # lint-amnesty, pylint: disable=arguments-differ
         """
         Get iterator for all the courses (excluding drafts).
         """

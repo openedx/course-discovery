@@ -4,7 +4,8 @@ TOX := tox
 
 .PHONY: accept clean clean_static check_keywords detect_changed_source_translations extract_translations \
 	help html_coverage migrate open-devstack production-requirements pull_translations quality requirements.js \
-	requirements.python requirements start-devstack static stop-devstack test docs static.dev static.watch
+	requirements.python requirements start-devstack static stop-devstack test docs static.dev static.watch \
+	install_transifex_client
 
 include .ci/docker.mk
 
@@ -146,3 +147,7 @@ docker_push: docker_tag docker_auth ## push to docker hub
 	docker push "openedx/discovery:${GITHUB_SHA}"
 	docker push 'openedx/discovery:latest-newrelic'
 	docker push "openedx/discovery:${GITHUB_SHA}-newrelic"
+
+install_transifex_client: ## Install the Transifex client
+	curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
+	git checkout -- LICENSE README.md

@@ -11,4 +11,3 @@ docker-compose
 edx-i18n-tools
 pytest-split
 pywatchman                                 # For devserver code reloading
-transifex-client

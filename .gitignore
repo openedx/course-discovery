@@ -99,3 +99,6 @@ webpack-stats.json
 # Emacs
 *~
 .test_durations
+
+# transifex exe
+tx

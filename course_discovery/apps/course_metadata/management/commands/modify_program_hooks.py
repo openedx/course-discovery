@@ -28,10 +28,10 @@ class Command(BaseCommand):
                 program_uuid = uuid.UUID(tokenized[0].strip())
                 program = Program.objects.filter(uuid=program_uuid).first()
                 if not program:
-                    logger.warning('Cannot find program with uuid {uuid}'.format(uuid=tokenized[0]))
+                    logger.warning('Cannot find program with uuid {uuid}'.format(uuid=tokenized[0]))  # lint-amnesty, pylint: disable=logging-format-interpolation
                     continue
                 program.marketing_hook = tokenized[1]
                 program.save(suppress_publication=True)
             except ValueError:
-                logger.warning('Incorrectly formatted uuid "{uuid}"'.format(uuid=tokenized[0]))
+                logger.warning('Incorrectly formatted uuid "{uuid}"'.format(uuid=tokenized[0]))  # lint-amnesty, pylint: disable=logging-format-interpolation
                 continue

@@ -69,7 +69,7 @@ def salesforce_request_wrapper(method):
                     return method(self, *args, **kwargs)
                 # Need to catch OSError for the 'Connection aborted.' error when Salesforce reaps a connection
                 except OSError:
-                    logger.warning('An OSError occurred while attempting to call {} for {}'.format(
+                    logger.warning('An OSError occurred while attempting to call {} for {}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                         method.__name__, str(args[0])
                     ))
                     self.login()

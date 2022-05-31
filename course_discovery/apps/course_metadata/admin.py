@@ -10,7 +10,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_object_actions import DjangoObjectActions
 from parler.admin import TranslatableAdmin
-from waffle import get_waffle_flag_model
+from waffle import get_waffle_flag_model  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
@@ -653,6 +653,15 @@ class DegreeCostInlineAdmin(admin.StackedInline):
     extra = 1
 
 
+class DegreeAdditionalMetadataInlineAdmin(admin.StackedInline):
+    model = DegreeAdditionalMetadata
+
+
+@admin.register(DegreeAdditionalMetadata)
+class DegreeAdditionalMetadataAdmin(admin.ModelAdmin):
+    list_display = ('degree', 'external_url', 'external_identifier', 'organic_url')
+
+
 @admin.register(Degree)
 class DegreeAdmin(admin.ModelAdmin):
     """
@@ -663,7 +672,13 @@ class DegreeAdmin(admin.ModelAdmin):
     ordering = ('title', 'status')
     readonly_fields = ('uuid', )
     search_fields = ('title', 'partner', 'marketing_slug')
-    inlines = (CurriculumAdminInline, DegreeDeadlineInlineAdmin, DegreeCostInlineAdmin, IconTextPairingInline)
+    inlines = (
+        CurriculumAdminInline,
+        DegreeDeadlineInlineAdmin,
+        DegreeCostInlineAdmin,
+        IconTextPairingInline,
+        DegreeAdditionalMetadataInlineAdmin,
+    )
     # ordering the field display on admin page.
     fields = (
         'type', 'uuid', 'status', 'hidden', 'partner', 'authoring_organizations', 'marketing_slug', 'card_image_url',

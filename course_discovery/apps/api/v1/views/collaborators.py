@@ -23,12 +23,12 @@ class CollaboratorViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     pagination_class = CursorPagination
 
     def create(self, request, *args, **kwargs):
-        logger.info('The raw collaborator data coming from the publisher POST is {}.'.format(request.data))
+        logger.info('The raw collaborator data coming from the publisher POST is {}.'.format(request.data))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        logger.info('The raw collaborator data coming from the publisher PATCH is {}.'.format(request.data))
+        logger.info('The raw collaborator data coming from the publisher PATCH is {}.'.format(request.data))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
         return super().update(request, *args, **kwargs)
 

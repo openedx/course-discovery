@@ -13,14 +13,7 @@ elasticsearch-dsl>=7.2,<8.0
 # TODO: Enable this once new version is released after we move to Django 3.2
 # django-elasticsearch-dsl>=7.1,<8.0
 
-# FIXME: 0.13+ requires python-slugify, which conflicts with unicode-slugify
-transifex-client<0.13
-
 celery>=5.2.3,<6.0.0
-
-# latest version of edx-lint is pulling code-annotations and code-annotations is pulling python-slugify and
-# python-slugify is conflicting with unicode-slugify
-edx-lint<=1.6
 
 # latest version causing issues in IDAs.
 algoliasearch-django<2.0.0
@@ -32,3 +25,8 @@ authlib==1.0.0rc1
 
 # The latest version require Django 4.0, remove once we have upgraded to Django 4.0
 django-admin-sortable2<2.0.0
+
+# The latest versions of django-simple-history and django-stdimage have breaking changes
+# Remove this pin after fixing them.
+django-simple-history<=3.0.0
+django-stdimage<=5.3.0

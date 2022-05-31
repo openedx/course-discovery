@@ -9,7 +9,7 @@ from urllib.parse import urlencode
 from uuid import uuid4
 
 import pytz
-import waffle
+import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
@@ -34,9 +34,9 @@ from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHt
 from course_discovery.apps.course_metadata.models import (
     FAQ, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator, CorporateEndorsement, Course,
     CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Curriculum, CurriculumCourseMembership,
-    CurriculumProgramMembership, Degree, DegreeCost, DegreeDeadline, Endorsement, Fact, IconTextPairing, Image,
-    LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite,
-    Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track, Video
+    CurriculumProgramMembership, Degree, DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact,
+    IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork,
+    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -637,6 +637,14 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
         )
 
 
+class DegreeAdditionalMetadataSerializer(BaseModelSerializer):
+    """Serializer for the ``DegreeAdditionalMetadata`` model."""
+
+    class Meta:
+        model = DegreeAdditionalMetadata
+        fields = ('external_identifier', 'external_url', 'organic_url')
+
+
 class CourseRunTypeSerializer(BaseModelSerializer):
     """Serializer for the ``CourseRunType`` model."""
     modes = serializers.SerializerMethodField()
@@ -961,7 +969,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
 
     def update(self, instance, validated_data):
         # logging to help debug error around course url slugs incrementing
-        logger.info('The data coming from publisher is {}.'.format(validated_data))
+        logger.info('The data coming from publisher is {}.'.format(validated_data))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
         # Handle writing nested video data separately
         if 'get_video' in validated_data:
@@ -1134,7 +1142,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         return None
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # pylint: disable=arguments-differ
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None):  # lint-amnesty, pylint: disable=arguments-renamed
         # Explicitly check for None to avoid returning all Courses when the
         # queryset passed in happens to be empty.
         queryset = queryset if queryset is not None else Course.objects.filter(partner=partner)
@@ -1257,7 +1265,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
     editable = serializers.SerializerMethodField()
 
     @classmethod
-    def prefetch_queryset(cls, partner, queryset=None, course_runs=None, programs=None):  # pylint: disable=arguments-differ
+    def prefetch_queryset(cls, partner, queryset=None, course_runs=None, programs=None):
         """
         Similar to the CourseSerializer's prefetch_queryset, but prefetches a
         filtered CourseRun queryset.
@@ -1574,6 +1582,7 @@ class DegreeSerializer(BaseModelSerializer):
     rankings = RankingSerializer(many=True)
     micromasters_background_image = StdImageSerializerField()
     micromasters_path = serializers.SerializerMethodField()
+    additional_metadata = DegreeAdditionalMetadataSerializer(required=False)
 
     class Meta:
         model = Degree
@@ -1584,7 +1593,7 @@ class DegreeSerializer(BaseModelSerializer):
             'lead_capture_image', 'micromasters_path', 'micromasters_url',
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
-            'deadlines_fine_print', 'hubspot_lead_capture_form_id',
+            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'additional_metadata',
         )
 
     def get_micromasters_path(self, degree):

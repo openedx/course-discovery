@@ -1,6 +1,6 @@
 import logging
 
-import waffle
+import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -170,7 +170,7 @@ def ensure_external_key_uniqueness__curriculum(sender, instance, **kwargs):  # p
 
 
 @receiver(post_save, sender=Organization)
-def update_or_create_salesforce_organization(instance, created, **kwargs):  # pylint: disable=unused-argument
+def update_or_create_salesforce_organization(instance, created, **kwargs):
     partner = instance.partner
     util = get_salesforce_util(partner)
     if util:
@@ -181,7 +181,7 @@ def update_or_create_salesforce_organization(instance, created, **kwargs):  # py
 
 
 @receiver(post_save, sender=Course)
-def update_or_create_salesforce_course(instance, created, **kwargs):  # pylint: disable=unused-argument
+def update_or_create_salesforce_course(instance, created, **kwargs):
     partner = instance.partner
     util = get_salesforce_util(partner)
     # Only bother to create the course if there's a util, and the auth orgs are already set up
@@ -208,7 +208,7 @@ def authoring_organizations_changed(sender, instance, action, **kwargs):  # pyli
 
 
 @receiver(post_save, sender=CourseRun)
-def update_or_create_salesforce_course_run(instance, created, **kwargs):  # pylint: disable=unused-argument
+def update_or_create_salesforce_course_run(instance, created, **kwargs):
     try:
         partner = instance.course.partner
     except (Course.DoesNotExist, Partner.DoesNotExist):

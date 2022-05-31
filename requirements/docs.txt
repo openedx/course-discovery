@@ -8,7 +8,7 @@ alabaster==0.7.12
     # via sphinx
 babel==2.10.1
     # via sphinx
-certifi==2021.10.8
+certifi==2022.5.18.1
     # via
     #   elasticsearch
     #   requests
@@ -16,7 +16,7 @@ charset-normalizer==2.0.12
     # via requests
 django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
     # via -r requirements/github.in
-docutils==0.17.1
+docutils==0.18.1
     # via sphinx
 edx-sphinx-theme==3.0.0
     # via -r requirements/docs.in
@@ -33,9 +33,9 @@ idna==3.3
     # via requests
 imagesize==1.3.0
     # via sphinx
-importlib-metadata==4.11.3
+importlib-metadata==4.11.4
     # via sphinx
-jinja2==3.1.1
+jinja2==3.1.2
     # via sphinx
 markupsafe==2.1.1
     # via jinja2
@@ -43,7 +43,7 @@ packaging==21.3
     # via sphinx
 pygments==2.12.0
     # via sphinx
-pyparsing==3.0.8
+pyparsing==3.0.9
     # via packaging
 python-dateutil==2.8.2
     # via elasticsearch-dsl
@@ -59,7 +59,7 @@ six==1.16.0
     #   python-dateutil
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==4.5.0
+sphinx==5.0.0
     # via
     #   -r requirements/docs.in
     #   edx-sphinx-theme
