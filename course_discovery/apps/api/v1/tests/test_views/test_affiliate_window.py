@@ -17,7 +17,7 @@ from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import ProgramType, Seat, SeatType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunFactory, ProgramFactory, SeatFactory, SeatTypeFactory
+    CourseRunFactory, ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory
 )
 
 
@@ -47,9 +47,27 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         # Generate test programs
         self.test_image = make_image_file('test_banner.jpg')
         self.masters_program_type = ProgramType.objects.get(slug=ProgramType.MASTERS)
+        self.bachelors_program_type = ProgramTypeFactory(name_t=ProgramType.BACHELORS)
+        self.doctorate_program_type = ProgramTypeFactory(name_t=ProgramType.DOCTORATE)
+        self.license_program_type = ProgramTypeFactory(name_t=ProgramType.LICENSE)
         self.microbachelors_program_type = ProgramType.objects.get(slug=ProgramType.MICROBACHELORS)
         self.ms_program = ProgramFactory(
             type=self.masters_program_type,
+            courses=[self.course],
+            banner_image=self.test_image,
+        )
+        self.bs_program = ProgramFactory(
+            type=self.bachelors_program_type,
+            courses=[self.course],
+            banner_image=self.test_image,
+        )
+        self.doc_program = ProgramFactory(
+            type=self.doctorate_program_type,
+            courses=[self.course],
+            banner_image=self.test_image,
+        )
+        self.lic_program = ProgramFactory(
+            type=self.license_program_type,
             courses=[self.course],
             banner_image=self.test_image,
         )
@@ -68,12 +86,15 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         assert response.status_code == 401
 
     def test_affiliate_with_approved_programs(self):
-        """Verify that only the expected Program types are returned, No Masters programs"""
+        """
+        Verify that only the expected Program types are returned,
+        No Masters, Bachelors, Doctorate, License programs
+        """
         response = self.client.get(self.affiliate_url)
         assert response.status_code == status.HTTP_200_OK
         root = ET.fromstring(response.content)
 
-        # Assert that there is only on Program in the returned data even though 2
+        # Assert that there is only on Program in the returned data even though 5
         # are created in setup
         assert len(root.findall('product')) == 1
         self._assert_product_xml(
@@ -89,7 +110,7 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         assert response.status_code == status.HTTP_200_OK
         root = ET.fromstring(response.content)
 
-        # Assert that there is only on Program in the returned data even though 2
+        # Assert that there are two Programs in the returned data even though 6
         # are created in setup
         assert len(root.findall('product')) == 2
         self._assert_product_xml(
@@ -104,6 +125,12 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
 
         # Verify that the Masters program is not in the data
         assert not root.findall(f'product/[pid="{self.ms_program.uuid}"]')
+        # Verify that the Bachelors program is not in the data
+        assert not root.findall(f'product/[pid="{self.bs_program.uuid}"]')
+        # Verify that the Doctorate program is not in the data
+        assert not root.findall(f'product/[pid="{self.doc_program.uuid}"]')
+        # Verify that the License program is not in the data
+        assert not root.findall(f'product/[pid="{self.lic_program.uuid}"]')
 
 
 @ddt.ddt
