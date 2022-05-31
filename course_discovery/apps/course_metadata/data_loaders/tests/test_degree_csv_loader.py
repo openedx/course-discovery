@@ -135,10 +135,10 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
                 assert degree.card_image.read() == image_content
                 assert degree.specializations.count() == 2
-                assert curriculam.marketing_text == "ABC\nD&E\nHarvard CS50"
+                assert curriculam.marketing_text == self.marketing_text
                 self._assert_degree_data(degree, self.BASE_EXPECTED_DEGREE_DATA)
 
-    def test_ingest_flow_for_preexisting_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
+    def test_ingest_flow_for_preexisting_degree(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that the loader updates the existing degree in database.
         """
@@ -176,11 +176,11 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 curriculam = Curriculum.objects.get(program=program)
 
                 assert degree.specializations.count() == 2
-                assert curriculam.marketing_text == "ABC\nD&E\nHarvard CS50"
+                assert curriculam.marketing_text == self.marketing_text
                 assert degree.card_image.read() == image_content
                 self._assert_degree_data(degree, self.BASE_EXPECTED_DEGREE_DATA)
 
-    def test_ingest_flow_for_minimal_course_data(self, jwt_decode_patch):  # pylint: disable=unused-argument
+    def test_ingest_flow_for_minimal_degree_data(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that the loader runs as expected for minimal set of data.
         """
@@ -215,7 +215,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
                 assert degree.card_image.read() == image_content
                 assert degree.specializations.count() == 2
-                assert curriculam.marketing_text == "ABC\nD&E\nHarvard CS50"
+                assert curriculam.marketing_text == self.marketing_text
 
                 assert degree.title == 'Test Degree'
                 assert degree.overview == 'Test Degree Overview'
@@ -268,6 +268,6 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        '[IMAGE DOWNLOAD FAILURE] degree {}'.format(self.DEGREE_TITLE)
+                        '[OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(self.DEGREE_TITLE)
                     )
                 )

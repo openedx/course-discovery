@@ -68,7 +68,6 @@ class DegreeCSVLoaderMixin:
     # TODO: update it
     MINIMAL_CSV_DATA_KEYS_ORDER = CSV_DATA_KEYS_ORDER
 
-    # TODO: handle card image url
     BASE_EXPECTED_DEGREE_DATA = {
         'external_identifier': '123456',
         'title': 'Test Degree',
@@ -84,6 +83,7 @@ class DegreeCSVLoaderMixin:
     def setUp(self):
         super().setUp()
         self.program_type = ProgramType.objects.get(slug=ProgramType.MASTERS)
+        self.marketing_text = "<ul><li>ABC</li><li>D&E</li><li>Harvard CS50</li></ul>"
 
     def _write_csv(self, csv, lines_dict_list, headers=None):
         """

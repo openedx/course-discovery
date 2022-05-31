@@ -30,9 +30,6 @@ class DegreeCSVDataLoader(AbstractDataLoader):
     def ingest(self):
         logger.info("Initiating Degree CSV data loader flow.")
         for row in self.reader:
-            # TODO: test and decide if need to make transaction atomic
-            # with transaction.atomic():
-
             row = self.transform_dict_keys(row)
             degree_title = row['title']
 
@@ -53,7 +50,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             #     row['language_override'], degree_title
             # )
 
-            if not org or not program_type:
+            if not (org and program_type):
                 continue
 
             message = self.validate_degree_data(program_type, row)
@@ -71,8 +68,8 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             ).first()
 
             # temp check to prevent existing degree/programs from being overwritten
-            additioanl_metadata = DegreeAdditionalMetadata.objects.filter(degree=degree).first()
-            if degree and (not additioanl_metadata or additioanl_metadata.external_identifier != row['identifier']):
+            additional_metadata = DegreeAdditionalMetadata.objects.filter(degree=degree).first()
+            if degree and (not additional_metadata or additional_metadata.external_identifier != row['identifier']):
                 logger.error("Degree {} already exists, but external identifier didn't match. Skipping".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
                     degree_title
                 ))
@@ -89,6 +86,8 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
             try:
                 degree = self._update_or_create_degree(row, program_type)
+            # we can get the IntegrityError if the degree already exists in the database
+            # or any related error while updating or creating degree object
             except Exception:   # pylint: disable=broad-except
                 logger.exception("An unknown error occurred while {} degree information".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     "updating" if degree else "creating"
@@ -99,14 +98,11 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 ))
                 continue
 
-            # degree.authoring_organizations.clear()
-            degree.authoring_organizations.add(org)
-
+            self._handle_organization_data(org, degree)
             self._handle_additional_metadata(row, degree)
             self._handle_image_fields(row, degree)
             self._handle_specializations(row, degree)
             self._handle_courses(row, degree)
-            # TODO: handle curricula
 
             logger.info("Degree updated successfully for degree key {}".format(degree.uuid))    # lint-amnesty, pylint: disable=logging-format-interpolation
             self.degree_uuids[str(degree.uuid)] = degree.title
@@ -165,10 +161,9 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             "partner": self.partner,
 
         }
-        # TODO: handle exceptions
         degree, updated = Degree.objects.update_or_create(
             title=data['title'],
-            # additional_metadata__external_identifier=data['identifier'],
+            additional_metadata__external_identifier=data['identifier'],
             defaults=data_dict
         )
 
@@ -178,6 +173,13 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         ))
 
         return degree
+
+    def _handle_organization_data(self, org, degree):
+        """
+        Handle organization data for a degree.
+        """
+        degree.authoring_organizations.clear()
+        degree.authoring_organizations.add(org)
 
     def _handle_image_fields(self, data, degree):
         """
@@ -190,7 +192,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                 degree.title
             ))
-            self.messages_list.append('[IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
+            self.messages_list.append('[OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
 
         if data.get('organization_logo_override'):
             is_downloaded = download_and_save_program_image(
@@ -201,7 +203,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     degree.title
                 ))
-                self.messages_list.append('[IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
+                self.messages_list.append('[OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
 
     def _handle_courses(self, data, degree):
         """
@@ -211,8 +213,8 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         courses_data = data.get('courses', '')
         if courses_data:
             courses = courses_data.split(delimeter)
-            marketing_text = [course.strip() for course in courses]
-            marketing_text = "\n".join(marketing_text)
+            html_list = [f"<li>{course.strip()}</li>" for course in courses]
+            marketing_text = '<ul>{}</ul>'.format("".join(html_list))
 
             program = Program.objects.get(degree=degree, partner=self.partner)
             curriculam, created = Curriculum.objects.update_or_create(
@@ -222,7 +224,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 }
             )
 
-            logger.info("Curriculam {} is {} with Degree title {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
+            logger.info("Curriculam {} is {} for Degree title {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
                 curriculam,
                 "created" if created else "updated",
                 degree,
