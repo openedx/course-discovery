@@ -119,8 +119,8 @@ class CSVDataLoader(AbstractDataLoader):
                 row['image'],
                 # TODO: Temporary addition of User agent to allow access to data CDNs
                 headers={
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
-                                      '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+                                  '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
                 })
             if not is_downloaded:
                 logger.error("Unexpected error happened while downloading image for course {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
