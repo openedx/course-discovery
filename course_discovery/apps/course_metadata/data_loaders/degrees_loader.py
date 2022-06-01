@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class DegreeCSVDataLoader(AbstractDataLoader):
+    """ Loads the degrees from the csv file """
 
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
@@ -210,10 +211,12 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 'organization_logo_override',
             )
             if not is_downloaded:
-                logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
+                logger.error("Unexpected error happened while downloading org logo image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     degree.title
                 ))
-                self.messages_list.append('[OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
+                self.messages_list.append('[ORG LOGO OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
+                    degree.title
+                ))
 
     def _handle_courses(self, data, degree):
         """
@@ -227,15 +230,15 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             marketing_text = '<ul>{}</ul>'.format("".join(html_list))
 
             program = Program.objects.get(degree=degree, partner=self.partner)
-            curriculam, created = Curriculum.objects.update_or_create(
+            curriculum, created = Curriculum.objects.update_or_create(
                 program=program,
                 defaults={
                     'marketing_text': marketing_text,
                 }
             )
 
-            logger.info("Curriculam {} is {} for Degree title {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-                curriculam,
+            logger.info("Curriculum {} is {} for Degree title {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
+                curriculum,
                 "created" if created else "updated",
                 degree,
             ))
