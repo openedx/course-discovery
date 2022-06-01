@@ -230,7 +230,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
     @responses.activate
     def test_image_download_failure(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
-        Verify that if the course image download fails, the ingestion does not complete.
+        Verify that if the degree image download fails, the ingestion does not complete.
         """
         self._setup_prerequisites(self.partner)
         responses.add(
@@ -269,6 +269,6 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        '[OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(self.DEGREE_TITLE)
+                        '[DEGREE IMAGE DOWNLOAD FAILURE] degree {}'.format(self.DEGREE_TITLE)
                     )
                 )

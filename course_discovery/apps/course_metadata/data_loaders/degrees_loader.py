@@ -155,7 +155,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         level_type_override, language_override
     ):
         """
-        Make a degree object through ORM
+        Create or Update a degree object through ORM
         """
         data_dict = {
             "type": program_type,
@@ -202,7 +202,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                 degree.title
             ))
-            self.messages_list.append('[OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
+            self.messages_list.append('[DEGREE IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
 
         if data.get('organization_logo_override'):
             is_downloaded = download_and_save_program_image(
