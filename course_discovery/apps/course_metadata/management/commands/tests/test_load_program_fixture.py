@@ -18,7 +18,7 @@ from course_discovery.apps.course_metadata.models import (
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
     CurriculumProgramMembershipFactory, OrganizationFactory, PartnerFactory, ProgramFactory, ProgramTypeFactory,
-    SeatTypeFactory
+    SeatTypeFactory, SubjectFactory
 )
 
 
@@ -63,10 +63,12 @@ class TestLoadProgramFixture(TestCase):
 
         self.course = CourseFactory(partner=self.partner, authoring_organizations=[self.organization])
         self.course_run = CourseRunFactory(course=self.course)
+        self.primary_subject_override = SubjectFactory()
         self.program = ProgramFactory(
             type=self.program_type_masters,
             partner=self.partner,
-            authoring_organizations=[self.organization]
+            authoring_organizations=[self.organization],
+            primary_subject_override=self.primary_subject_override
         )
         self.course_mm = CourseFactory(partner=self.partner, authoring_organizations=[self.organization])
         self.course_run_mm = CourseRunFactory(course=self.course)
@@ -74,7 +76,8 @@ class TestLoadProgramFixture(TestCase):
             type=self.program_type_mm,
             partner=self.partner,
             authoring_organizations=[self.organization],
-            courses=[self.course_mm]
+            courses=[self.course_mm],
+            primary_subject_override=self.primary_subject_override
         )
         self.curriculum = CurriculumFactory(program=self.program)
         self.curriculum_course_membership = CurriculumCourseMembershipFactory(
@@ -87,7 +90,8 @@ class TestLoadProgramFixture(TestCase):
         self.program_2 = ProgramFactory(
             type=self.program_type_masters,
             partner=self.partner,
-            authoring_organizations=[self.organization]
+            authoring_organizations=[self.organization],
+            primary_subject_override=self.primary_subject_override
         )
 
         self._mock_oauth_request()
@@ -138,6 +142,7 @@ class TestLoadProgramFixture(TestCase):
             self.program_type_mm_translation,
             self.organization,
             self.seat_type_verified,
+            self.primary_subject_override,
             self.program,
             self.program_2,
             self.program_mm,
@@ -216,6 +221,7 @@ class TestLoadProgramFixture(TestCase):
             self.organization,
             self.seat_type_verified,
             self.program_type_masters,
+            self.primary_subject_override,
             self.program_type_masters_translation,
             self.program,
         ])

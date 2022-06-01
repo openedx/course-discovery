@@ -522,6 +522,11 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     credit_redemption_overview = FuzzyText()
     order_courses_by_start_date = True
     hidden = False
+    organization_short_code_override = FuzzyText()
+    organization_logo_override = FuzzyText(suffix=".png")
+    primary_subject_override = factory.SubFactory(SubjectFactory)
+    level_type_override = factory.SubFactory(LevelTypeFactory)
+    language_override = factory.Iterator(LanguageTag.objects.all())
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):

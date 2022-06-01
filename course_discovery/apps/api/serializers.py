@@ -1633,6 +1633,17 @@ class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
     degree = DegreeSerializer()
     curricula = CurriculumSerializer(many=True)
     card_image_url = serializers.SerializerMethodField()
+    organization_short_code_override = serializers.CharField(required=False, allow_blank=True)
+    organization_logo_override_url = serializers.SerializerMethodField()
+    primary_subject_override = SubjectSerializer()
+    level_type_override = LevelTypeSerializer()
+    language_override = serializers.SlugRelatedField(slug_field='code', read_only=True)
+
+    def get_organization_logo_override_url(self, obj):
+        logo_image_override = getattr(obj, 'organization_logo_override', None)
+        if logo_image_override:
+            return logo_image_override.url
+        return None
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -1658,7 +1669,8 @@ class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
             'uuid', 'title', 'subtitle', 'type', 'type_attrs', 'status', 'marketing_slug', 'marketing_url',
             'banner_image', 'hidden', 'courses', 'authoring_organizations', 'card_image_url',
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
-            'total_hours_of_effort', 'recent_enrollment_count',
+            'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
+            'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 

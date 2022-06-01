@@ -24,12 +24,12 @@ from course_discovery.apps.api.serializers import (
     CourseWithProgramsSerializer, CourseWithRecommendationsSerializer, CurriculumSerializer,
     DegreeAdditionalMetadataSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer,
     FactSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer,
-    MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer,
-    MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer,
-    PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProgramsAffiliateWindowSerializer,
-    ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer,
-    SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer,
-    VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
+    LevelTypeSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
+    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
+    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
+    RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.tests.test_utils import make_request
@@ -1051,6 +1051,11 @@ class MinimalProgramSerializerTests(TestCase):
             'marketing_hook': program.marketing_hook,
             'total_hours_of_effort': program.total_hours_of_effort,
             'recent_enrollment_count': 0,
+            'organization_short_code_override': program.organization_short_code_override,
+            'organization_logo_override_url': program.organization_logo_override_url,
+            'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
+            'level_type_override': LevelTypeSerializer(program.level_type_override).data,
+            'language_override': program.language_override.code,
         }
 
     def test_data(self):
@@ -1104,6 +1109,11 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'recent_enrollment_count': 0,
             'topics': [topic.name for topic in program.topics],
             'credit_value': program.credit_value,
+            'organization_short_code_override': program.organization_short_code_override,
+            'organization_logo_override_url': program.organization_logo_override_url,
+            'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
+            'level_type_override': LevelTypeSerializer(program.level_type_override).data,
+            'language_override': program.language_override.code,
         })
         return expected
 
