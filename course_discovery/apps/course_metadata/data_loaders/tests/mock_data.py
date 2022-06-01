@@ -3071,6 +3071,39 @@ DISCOVERY_CREATED_MARKETING_SITE_API_COURSE_BODY = {
     'vuuid': 'e0f8c80a-b377-4546-b247-1c94ab3a218a'
 }
 
+VALID_DEGREE_CSV_DICT = {
+    'identifier': '123456',
+    'title': 'Test Degree',
+    'card_image_url': 'https://example.com/image.jpg',
+    'product_type': 'masters',
+    'organization_key': 'edx',
+    'slug': 'test-degree',
+    'paid_landing_page_url': 'http://example.com/landing-page.html',
+    'organic_url': 'http://example.com/organic-page.html',
+    'overview': 'Test Degree Overview',
+    'specializations': 'Marketing | Finance',
+    'courses': 'ABC|D&E|Harvard CS50',
+    'course_level': 'Intermediate',
+    'primary_subject': 'Computer Science',
+    'content_language': 'English - United States',
+    'organization_logo_override': 'https://example.com/image.jpg',
+    'organization_short_code_override': 'Org Override',
+}
+
+VALID_MINIMAL_DEGREE_CSV_DICT = VALID_DEGREE_CSV_DICT
+
+
+INVALID_DEGREE_ORGANIZATION_DATA = {
+    **VALID_DEGREE_CSV_DICT,
+    'organization_key': 'invalid-organization'
+}
+
+INVALID_PROGRAM_TYPE_DATA = {
+    **VALID_DEGREE_CSV_DICT,
+    'product_type': 'invalid-program-type'
+}
+
+
 VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'organization': 'edx',
     'title': 'CSV Course',
