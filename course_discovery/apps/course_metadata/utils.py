@@ -3,7 +3,7 @@ import logging
 import random
 import string
 import uuid
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import html2text
 import markdown
@@ -705,6 +705,16 @@ def download_and_save_course_image(course, image_url, data_field='image', header
         logger.exception('An unknown exception occurred while downloading image for course [%s]', course.key)
     return False
 
+def get_downloadable_url_from_drive_link(file_path):
+    """
+    Helper method to get the downloadable url from a drive link
+    """
+    URL = 'https://docs.google.com/uc?id={file_id}'
+    parsed_url = urlparse(file_path)
+    if parsed_url.hostname == 'drive.google.com':
+        file_id = parsed_url.path.split('/')[3]
+        return URL.format(file_id=file_id)
+    return file_path
 
 def download_and_save_program_image(program, image_url, data_field='image', headers=None):
     """
@@ -713,6 +723,7 @@ def download_and_save_program_image(program, image_url, data_field='image', head
     """
     # TODO: refactor and merge program image download to use the same code as course image download
     try:
+        image_url = get_downloadable_url_from_drive_link(image_url)
         response = requests.get(image_url, headers=headers)
 
         if response.status_code == requests.codes.ok:  # pylint: disable=no-member

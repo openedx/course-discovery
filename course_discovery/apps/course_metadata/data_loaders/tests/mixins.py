@@ -63,6 +63,11 @@ class DegreeCSVLoaderMixin:
         'overview',
         'specializations',
         'courses',
+        # 'primary_subject',
+        # 'course_level',
+        # 'content_language',
+        # 'organization_logo_override',
+        # 'organization_short_code_override',
     ]
 
     # TODO: update it

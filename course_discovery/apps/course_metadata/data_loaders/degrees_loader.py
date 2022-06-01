@@ -32,22 +32,23 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         for row in self.reader:
             row = self.transform_dict_keys(row)
             degree_title = row['title']
+            program_type = row['product_type'].replace('\'', '')
 
             logger.info('Starting data import flow for {}'.format(degree_title))    # lint-amnesty, pylint: disable=logging-format-interpolation
 
             org = self._get_object(Organization, "key", row['organization_key'], degree_title)
-            program_type = self._get_object(ProgramType, "slug", row['product_type'], degree_title)
+            program_type = self._get_object(ProgramType, "slug", program_type, degree_title)
             # primary_subject_override = self._get_object(
             #     Subjetcs, "translations__name",
-            #     row['primary_subject_override'], degree_title
+            #     row['primary_subject'], degree_title
             # )
             # level_type_override = self._get_object(
             #     LevelType, "name_t",
-            #     row['level_type_override'], degree_title
+            #     row['course_level'], degree_title
             # )
             # language_override = self._get_object(
             #     LanguageTag, "code",
-            #     row['language_override'], degree_title
+            #     row['content_language'], degree_title
             # )
 
             if not (org and program_type):
@@ -187,7 +188,9 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         """
 
         program = Program.objects.get(degree=degree, partner=self.partner)
-        is_downloaded = download_and_save_program_image(program, data['card_image_url'])
+        is_downloaded = download_and_save_program_image(
+            program, data['card_image_url'],
+        )
         if not is_downloaded:
             logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                 degree.title
@@ -197,7 +200,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         if data.get('organization_logo_override'):
             is_downloaded = download_and_save_program_image(
                 program, data['organization_logo_override'],
-                'organization_logo_override'
+                'organization_logo_override',
             )
             if not is_downloaded:
                 logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
