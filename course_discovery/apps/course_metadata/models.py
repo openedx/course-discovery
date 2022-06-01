@@ -925,8 +925,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         )
         ordering = ['id']
 
-    def _check_enterprise_subscription_inclusion(course):
-        for org in course.authoring_organizations.all():
+    def _check_enterprise_subscription_inclusion(self):
+        for org in self.authoring_organizations.all():
             if not org.enterprise_subscription_inclusion:
                 return False
         return True
@@ -1945,10 +1945,10 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if send_emails and email_method:
             email_method(self)
 
-    def _check_enterprise_subscription_inclusion(course_run):
-        if not course_run.course.enterprise_subscription_inclusion:
+    def _check_enterprise_subscription_inclusion(self):
+        if not self.course.enterprise_subscription_inclusion:
             return False
-        if course_run.pacing_type == 'instructor_paced':
+        if self.pacing_type == 'instructor_paced':
             return False
         return True
 
@@ -2665,10 +2665,10 @@ class Program(PkSearchableMixin, TimeStampedModel):
     def is_active(self):
         return self.status == ProgramStatus.Active
 
-    def _check_enterprise_subscription_inclusion(program):
-        if program.type == 'micromasters':
+    def _check_enterprise_subscription_inclusion(self):
+        if self.type == 'micromasters':
             return False
-        for course in program.courses.all():
+        for course in self.courses.all():
             if not course.enterprise_subscription_inclusion:
                 return False
         return True
