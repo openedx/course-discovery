@@ -7,7 +7,8 @@ import logging
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    Curriculum, Degree, DegreeAdditionalMetadata, Organization, Program, ProgramType, Specialization
+    Curriculum, Degree, DegreeAdditionalMetadata, LanguageTag, LevelType, Organization, Program, ProgramType,
+    Specialization, Subject
 )
 from course_discovery.apps.course_metadata.utils import download_and_save_program_image
 
@@ -38,20 +39,20 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
             org = self._get_object(Organization, "key", row['organization_key'], degree_title)
             program_type = self._get_object(ProgramType, "slug", program_type, degree_title)
-            # primary_subject_override = self._get_object(
-            #     Subjetcs, "translations__name",
-            #     row['primary_subject'], degree_title
-            # )
-            # level_type_override = self._get_object(
-            #     LevelType, "name_t",
-            #     row['course_level'], degree_title
-            # )
-            # language_override = self._get_object(
-            #     LanguageTag, "code",
-            #     row['content_language'], degree_title
-            # )
+            primary_subject_override = self._get_object(
+                Subject, "translations__name",
+                row['primary_subject'], degree_title
+            )
+            level_type_override = self._get_object(
+                LevelType, "translations__name_t",
+                row['course_level'], degree_title
+            )
+            language_override = self._get_object(
+                LanguageTag, "name",
+                row['content_language'], degree_title
+            )
 
-            if not (org and program_type):
+            if not (org and program_type and primary_subject_override and level_type_override and language_override):
                 continue
 
             message = self.validate_degree_data(program_type, row)
@@ -86,7 +87,10 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             ))
 
             try:
-                degree = self._update_or_create_degree(row, program_type)
+                degree = self._update_or_create_degree(
+                    row, program_type, primary_subject_override,
+                    level_type_override, language_override
+                )
             # we can get the IntegrityError if the degree already exists in the database
             # or any related error while updating or creating degree object
             except Exception:   # pylint: disable=broad-except
@@ -146,19 +150,22 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             transformed_dict[updated_key] = value
         return transformed_dict
 
-    def _update_or_create_degree(self, data, program_type):
+    def _update_or_create_degree(
+        self, data, program_type, primary_subject_override,
+        level_type_override, language_override
+    ):
         """
         Make a degree object through ORM
         """
         data_dict = {
             "type": program_type,
             "status": ProgramStatus.Unpublished,
-            # "primary_subject_override":  primary_subject_override,
-            # "level_type_override": level_type_override,
-            # "language_override": language_override,
+            "primary_subject_override": primary_subject_override,
+            "level_type_override": level_type_override,
+            "language_override": language_override,
             "marketing_slug": data['slug'],
             "overview": data['overview'],
-            # "organization_short_code_override": data.get('organization_short_code_override', ''),
+            "organization_short_code_override": data.get('organization_short_code_override', ''),
             "partner": self.partner,
 
         }
@@ -252,8 +259,12 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         Get an object from the database by its key and value
         """
         model_name = model._meta.object_name
+        kwrags = {key: value}
+        # for translatable models, we need to pass the language code
+        if model_name in ['Subject', 'LevelType']:
+            kwrags['translations__language_code'] = 'en'
         try:
-            obj = model.objects.get(**{key: value})
+            obj = model.objects.get(**kwrags)
             return obj
         except model.DoesNotExist:
             logger.exception("{} {} does not exist. Skipping CSV loader for degree {}".format(   # lint-amnesty, pylint: disable=logging-format-interpolation

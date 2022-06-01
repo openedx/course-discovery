@@ -55,19 +55,17 @@ class DegreeCSVLoaderMixin:
         'card_image_url',
         'product_type',
         'organization_key',
-        'organization_name',
-        'organization_logo',
         'slug',
         'paid_landing_page_url',
         'organic_url',
         'overview',
         'specializations',
         'courses',
-        # 'primary_subject',
-        # 'course_level',
-        # 'content_language',
-        # 'organization_logo_override',
-        # 'organization_short_code_override',
+        'course_level',
+        'primary_subject',
+        'content_language',
+        'organization_logo_override',
+        'organization_short_code_override',
     ]
 
     # TODO: update it
@@ -78,11 +76,14 @@ class DegreeCSVLoaderMixin:
         'title': 'Test Degree',
         'type': 'masters',
         'organization_key': 'edx',
-        'organization_name': 'edx',
         'marketing_slug': 'test-degree',
         'paid_landing_page_url': 'http://example.com/landing-page.html',
         'organic_url': 'http://example.com/organic-page.html',
         'overview': 'Test Degree Overview',
+        'level_type_override': 'Intermediate',
+        'primary_subject_override': 'computer-science',
+        'language_override': 'English - United States',
+        'organization_short_code_override': 'Org Override',
     }
 
     def setUp(self):
@@ -125,6 +126,13 @@ class DegreeCSVLoaderMixin:
         """
         self._setup_organization(partner)
 
+        intermediate = LevelTypeFactory(name='Intermediate')
+        intermediate.set_current_language('en')
+        intermediate.name_t = 'Intermediate'
+        intermediate.save()
+
+        SubjectFactory(name='Computer Science')
+
     def _assert_degree_data(self, degree, expected_data):
         """
         Verify the degree's data fields have same values as the expected data dict.
@@ -137,6 +145,10 @@ class DegreeCSVLoaderMixin:
         assert degree.additional_metadata.external_url == expected_data['paid_landing_page_url']
         assert degree.additional_metadata.external_identifier == expected_data['external_identifier']
         assert degree.additional_metadata.organic_url == expected_data['organic_url']
+        assert degree.level_type_override.name == expected_data['level_type_override']
+        assert degree.primary_subject_override.slug == expected_data['primary_subject_override']
+        assert degree.language_override.name == expected_data['language_override']
+        assert degree.organization_short_code_override == expected_data['organization_short_code_override']
 
     def mock_image_response(self, status=200, body=None, content_type='image/jpeg'):
         """

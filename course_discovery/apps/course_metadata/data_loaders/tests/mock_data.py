@@ -3077,14 +3077,17 @@ VALID_DEGREE_CSV_DICT = {
     'card_image_url': 'https://example.com/image.jpg',
     'product_type': 'masters',
     'organization_key': 'edx',
-    'organization_name': 'edx',
-    'organization_logo': 'https://example.com/image.jpg',
     'slug': 'test-degree',
     'paid_landing_page_url': 'http://example.com/landing-page.html',
     'organic_url': 'http://example.com/organic-page.html',
     'overview': 'Test Degree Overview',
     'specializations': 'Marketing | Finance',
     'courses': 'ABC|D&E|Harvard CS50',
+    'course_level': 'Intermediate',
+    'primary_subject': 'Computer Science',
+    'content_language': 'English - United States',
+    'organization_logo_override': 'https://example.com/image.jpg',
+    'organization_short_code_override': 'Org Override',
 }
 
 VALID_MINIMAL_DEGREE_CSV_DICT = VALID_DEGREE_CSV_DICT

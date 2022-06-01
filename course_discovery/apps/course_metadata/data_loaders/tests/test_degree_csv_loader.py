@@ -214,6 +214,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 curriculam = Curriculum.objects.get(program=program)
 
                 assert degree.card_image.read() == image_content
+                assert program.organization_logo_override.read() == image_content
                 assert degree.specializations.count() == 2
                 assert curriculam.marketing_text == self.marketing_text
 
