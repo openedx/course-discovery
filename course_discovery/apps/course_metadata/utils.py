@@ -705,6 +705,7 @@ def download_and_save_course_image(course, image_url, data_field='image', header
         logger.exception('An unknown exception occurred while downloading image for course [%s]', course.key)
     return False
 
+
 def get_downloadable_url_from_drive_link(file_path):
     """
     Helper method to get the downloadable url from a drive link
@@ -715,6 +716,7 @@ def get_downloadable_url_from_drive_link(file_path):
         file_id = parsed_url.path.split('/')[3]
         return URL.format(file_id=file_id)
     return file_path
+
 
 def download_and_save_program_image(program, image_url, data_field='image', headers=None):
     """
