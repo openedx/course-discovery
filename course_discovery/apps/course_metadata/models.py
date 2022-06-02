@@ -914,7 +914,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
     enterprise_subscription_inclusion = models.BooleanField(
-        default=False,
+        null=True,
         help_text=_('This field signifies if this course is in the enterprise subscription catalog'),
     )
 
@@ -926,9 +926,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         ordering = ['id']
 
     def _check_enterprise_subscription_inclusion(self):
+        print("original: ", self.enterprise_subscription_inclusion)
         for org in self.authoring_organizations.all():
-            if not org.enterprise_subscription_inclusion:
+            if org.enterprise_subscription_inclusion is False:
                 return False
+        # if false has been passed in, or it's already been set to false
+        if self.enterprise_subscription_inclusion is False:
+            return False
         return True
 
     def save(self, *args, **kwargs):
@@ -1946,9 +1950,12 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             email_method(self)
 
     def _check_enterprise_subscription_inclusion(self):
-        if not self.course.enterprise_subscription_inclusion:
+        print('course should be true - ', self.course.enterprise_subscription_inclusion)
+        if self.course.enterprise_subscription_inclusion is False:
+            print("does it fall here? 1")
             return False
         if self.pacing_type == 'instructor_paced':
+            print("does it fall here? 2")
             return False
         return True
 
@@ -1972,6 +1979,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             kwargs['force_insert'] = False
             kwargs['force_update'] = True
             super().save(**kwargs)
+            print('course run should be true - ', self.enterprise_subscription_inclusion)
             self.handle_status_change(send_emails)
 
             if push_to_marketing:
@@ -2669,7 +2677,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
         if self.type == 'micromasters':
             return False
         for course in self.courses.all():
-            if not course.enterprise_subscription_inclusion:
+            if course.enterprise_subscription_inclusion is False:
                 return False
         return True
 
