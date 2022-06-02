@@ -205,16 +205,17 @@ class TestCourse(TestCase):
 
     def test_enterprise_subscription_inclusion(self):
         """ Verify the enterprise inclusion boolean is calculated as expected. """
-        org1 = factories.OrganizationFactory(enterprise_subscription_inclusion = True)
-        org2 = factories.OrganizationFactory(enterprise_subscription_inclusion = True)
+        org1 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
+        org2 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
         org_list = [org1, org2]
-        course = factories.CourseFactory(authoring_organizations=org_list, enterprise_subscription_inclusion = None)
+        course = factories.CourseFactory(authoring_organizations=org_list, enterprise_subscription_inclusion=None)
         assert course.enterprise_subscription_inclusion is True
 
-        org3 = factories.OrganizationFactory(enterprise_subscription_inclusion = False)
+        org3 = factories.OrganizationFactory(enterprise_subscription_inclusion=False)
         org_list = [org2, org3]
-        course1 = factories.CourseFactory(authoring_organizations=org_list, enterprise_subscription_inclusion = None)
+        course1 = factories.CourseFactory(authoring_organizations=org_list, enterprise_subscription_inclusion=None)
         assert course1.enterprise_subscription_inclusion is False
+
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
     @classmethod
