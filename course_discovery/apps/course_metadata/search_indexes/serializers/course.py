@@ -135,6 +135,7 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
             'outcome',
             'level_type',
             'modified',
+            'course_type',
         )
 
 
