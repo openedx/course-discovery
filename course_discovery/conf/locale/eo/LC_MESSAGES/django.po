@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-01 20:35+0000\n"
+"POT-Creation-Date: 2022-06-03 17:22+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -1470,6 +1470,43 @@ msgstr ""
 "prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
 #: apps/course_metadata/models.py
+msgid ""
+"A field to override Organization short code alias specific for this program."
+msgstr ""
+"À fïéld tö övérrïdé Örgänïzätïön shört çödé älïäs spéçïfïç för thïs prögräm."
+" Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "A field to override Organization logo specific for this program."
+msgstr ""
+"À fïéld tö övérrïdé Örgänïzätïön lögö spéçïfïç för thïs prögräm. Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Primary subject field specific for this program. Useful field in case there "
+"are no courses associated with this program."
+msgstr ""
+"Prïmärý süßjéçt fïéld spéçïfïç för thïs prögräm. Ûséfül fïéld ïn çäsé théré "
+"äré nö çöürsés ässöçïätéd wïth thïs prögräm. Ⱡ'σяєм ιρѕυ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Level type specific for this program. Useful field in case there are no "
+"courses associated with this program."
+msgstr ""
+"Lévél týpé spéçïfïç för thïs prögräm. Ûséfül fïéld ïn çäsé théré äré nö "
+"çöürsés ässöçïätéd wïth thïs prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя ѕ#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Language code specific for this program. Useful field in case there are no "
+"courses associated with this program."
+msgstr ""
+"Längüägé çödé spéçïfïç för thïs prögräm. Ûséfül fïéld ïn çäsé théré äré nö "
+"çöürsés ässöçïätéd wïth thïs prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя#"
+
+#: apps/course_metadata/models.py
 msgid "The actual rank number"
 msgstr "Thé äçtüäl ränk nümßér Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
 
@@ -1588,6 +1625,18 @@ msgid "Number of courses for search card (e.g. \"11 Courses\""
 msgstr ""
 "Nümßér öf çöürsés för séärçh çärd (é.g. \"11 Çöürsés\" Ⱡ'σяєм ιρѕυм ∂σłσя "
 "ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The redirect URL of the degree on external site"
+msgstr ""
+"Thé rédïréçt ÛRL öf thé dégréé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
+" ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
+msgid "The URL of the landing page on external site"
+msgstr ""
+"Thé ÛRL öf thé ländïng pägé ön éxtérnäl sïté Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
 msgid "Bell"
