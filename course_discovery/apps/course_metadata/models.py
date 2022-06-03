@@ -926,7 +926,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         ordering = ['id']
 
     def _check_enterprise_subscription_inclusion(self):
-        print("original: ", self.enterprise_subscription_inclusion)
         for org in self.authoring_organizations.all():
             if org.enterprise_subscription_inclusion is False:
                 return False
@@ -1950,12 +1949,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             email_method(self)
 
     def _check_enterprise_subscription_inclusion(self):
-        print('course should be true - ', self.course.enterprise_subscription_inclusion)
         if self.course.enterprise_subscription_inclusion is False:
-            print("does it fall here? 1")
             return False
         if self.pacing_type == 'instructor_paced':
-            print("does it fall here? 2")
             return False
         return True
 
@@ -1979,7 +1975,6 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             kwargs['force_insert'] = False
             kwargs['force_update'] = True
             super().save(**kwargs)
-            print('course run should be true - ', self.enterprise_subscription_inclusion)
             self.handle_status_change(send_emails)
 
             if push_to_marketing:

@@ -46,7 +46,7 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet
             queryset = Program.objects.filter(uuid=program_uuid)
         elif q:
             queryset = Program.search(q, queryset=queryset)
-        return queryset
+        return self.get_serializer_class().prefetch_queryset(queryset=queryset, partner=partner)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()

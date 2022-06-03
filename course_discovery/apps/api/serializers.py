@@ -1855,7 +1855,6 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq',
             'job_outlook_items',
             'instructor_ordering',
-            'enterprise_subscription_inclusion',
             # `type` is serialized by a third-party serializer. Providing this field name allows us to
             # prefetch `applicable_seat_types`, a m2m on `ProgramType`, through `type`, a foreign key to
             # `ProgramType` on `Program`.
