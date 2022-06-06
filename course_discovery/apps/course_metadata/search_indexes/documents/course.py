@@ -50,6 +50,7 @@ class CourseDocument(BaseCourseDocument):
     })
     status = fields.KeywordField(multi=True)
     start = fields.DateField(multi=True)
+    course_type = fields.KeywordField(multi=True)
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
@@ -118,6 +119,9 @@ class CourseDocument(BaseCourseDocument):
 
     def get_queryset(self):
         return super().get_queryset().prefetch_related('course_runs__seats__type')
+
+    def prepare_course_type(self, obj):
+        return obj.type.slug
 
     class Django:
         """
