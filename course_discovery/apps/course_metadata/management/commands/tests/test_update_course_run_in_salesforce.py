@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseRunType
+from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseRunType, CourseType
 
 
 class TestUpdateCourseRunInSalesforce(TestCase):
@@ -22,9 +22,10 @@ class TestUpdateCourseRunInSalesforce(TestCase):
         )
         self.salesforce_util_path = 'course_discovery.apps.course_metadata.utils.SalesforceUtil'
 
-        course = Course.objects.create(partner=self.partner, key='test-org-course', title='Title')
-        course_type = CourseRunType.objects.get(slug=CourseRunType.AUDIT)
-        CourseRun.objects.create(course=course, key='course-v1:edX+DemoX+Demo_Course', type=course_type,
+        course_type = CourseType.objects.get(slug=CourseType.AUDIT)
+        course = Course.objects.create(partner=self.partner, key='test-org-course', type=course_type, title='Title')
+        course_run_type = CourseRunType.objects.get(slug=CourseRunType.AUDIT)
+        CourseRun.objects.create(course=course, key='course-v1:edX+DemoX+Demo_Course', type=course_run_type,
                                  status=CourseRunStatus.Published, salesforce_id='SomeSalesforceId')
 
     def test_update_course_run(self):
