@@ -630,7 +630,6 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         assert course_run1.enterprise_subscription_inclusion is False
 
         course2 = factories.CourseFactory(enterprise_subscription_inclusion=True)
-        print("course inclusion ", course2.enterprise_subscription_inclusion)
         course_run2 = factories.CourseRunFactory(course=course2, pacing_type='self_paced')
         course_run2.save()
         assert course_run2.enterprise_subscription_inclusion is True

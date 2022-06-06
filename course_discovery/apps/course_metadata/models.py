@@ -934,6 +934,9 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             return False
         return True
 
+    # there have to be two saves because in order to check for if this is included in the
+    # subscription catalog, we need the id that is created on save to access the many-to-many fields
+    # and then need to update the boolean in the record based on conditional logic
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
@@ -1955,6 +1958,9 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             return False
         return True
 
+    # there have to be two saves because in order to check for if this is included in the
+    # subscription catalog, we need the id that is created on save to access the many-to-many fields
+    # and then need to update the boolean in the record based on conditional logic
     def save(self, suppress_publication=False, send_emails=True, **kwargs):
         """
         Arguments:
@@ -2689,6 +2695,9 @@ class Program(PkSearchableMixin, TimeStampedModel):
             publisher = ProgramMarketingSitePublisher(self.partner)
             previous_obj = Program.objects.get(id=self.id) if self.id else None
 
+            # there have to be two saves because in order to check for if this is included in the
+            # subscription catalog, we need the id that is created on save to access the many-to-many fields
+            # and then need to update the boolean in the record based on conditional logic
             with transaction.atomic():
                 super().save(*args, **kwargs)
                 self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
