@@ -4,8 +4,8 @@ Unit tests for Degree CSV Data loader.
 from tempfile import NamedTemporaryFile
 from unittest import mock
 
+import ddt
 import responses
-from ddt import ddt
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -19,7 +19,7 @@ from course_discovery.apps.course_metadata.tests.factories import DegreeAddition
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.degrees_loader'
 
 
-@ddt
+@ddt.ddt
 @mock.patch(
     'course_discovery.apps.course_metadata.data_loaders.configured_jwt_decode_handler',
     return_value={'preferred_username': 'test_username'}
@@ -52,6 +52,38 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             )
 
         )
+
+    @ddt.data('identifier', 'card_image_url', 'slug', 'paid_landing_page_url', 'organic_url', 'courses')
+    def test_validation_failure(self, missing_key, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that data validation fails given an invalid data.
+        """
+        self._setup_prerequisites(self.partner)
+        INVALID_DEGREE_CSV_DICT = {
+            **mock_data.VALID_DEGREE_CSV_DICT,
+            missing_key: ''
+        }
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [INVALID_DEGREE_CSV_DICT])
+            with LogCapture(LOGGER_PATH) as log_capture:
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name)
+                loader.ingest()
+                self._assert_default_logs(log_capture)
+                log_capture.check_present(
+                    (
+                        LOGGER_PATH,
+                        'ERROR',
+                        'Data validation issue for degree {}, skipping ingestion'.format(self.DEGREE_TITLE)
+                    ),
+                    (
+                        LOGGER_PATH,
+                        'ERROR',
+                        '[DATA VALIDATION ERROR] Degree {}. Missing data: {}'.format(
+                            self.DEGREE_TITLE, missing_key
+                        )
+                    )
+                )
+                assert Degree.objects.count() == 0
 
     def test_missing_organization(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
