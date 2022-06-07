@@ -595,6 +595,7 @@ class Topic(TranslatableModel, TimeStampedModel):
 
 
 class TopicTranslation(TranslatedFieldsModel):
+    """ To be deprecated """
     master = models.ForeignKey(Topic, models.CASCADE, related_name='translations', null=True)
 
     name = models.CharField(max_length=255, blank=False, null=False)
@@ -605,6 +606,20 @@ class TopicTranslation(TranslatedFieldsModel):
     class Meta:
         unique_together = ('language_code', 'master')
         verbose_name = _('Topic model translations')
+
+
+class ProductTopic(TimeStampedModel):
+    """ Topic model. """
+    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
+    name = models.CharField(max_length=255, blank=False)
+    subjects = SortedManyToManyField(Subject, blank=False)
+    parent_topics = SortedManyToManyField('self', symmetrical=False, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
 
 
 class Fact(AbstractHeadingBlurbModel):
@@ -844,7 +859,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     collaborators = SortedManyToManyField(Collaborator, null=True, blank=True, related_name='courses_collaborated')
+
     subjects = SortedManyToManyField(Subject, blank=True)
+    product_topics = SortedManyToManyField(ProductTopic, blank=True)
+
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, models.CASCADE, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
@@ -888,6 +906,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         )
     )
 
+    # Legacy field - this field is displayed as "Tags" in Django admin, and is not related to course taxonomy.
+    # See subjects and product_topics above for taxonomy relationships.
     topics = TaggableManager(
         blank=True,
         help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),
