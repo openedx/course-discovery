@@ -30,7 +30,7 @@ class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
         self.partner = PartnerFactory()
         partner = self.partner
         self.pipeline = [
-            (CoursesApiDataLoader, partner.courses_api_url, None),
+            (CoursesApiDataLoader, partner.courses_api_url, 1),
             (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
             (ProgramsApiDataLoader, partner.programs_api_url, None),
             (AnalyticsAPIDataLoader, partner.analytics_url, 1),
@@ -183,7 +183,7 @@ class RefreshCourseMetadataCommandTests(OAuth2Mixin, TransactionTestCase):
             call_command('refresh_course_metadata', *command_args)
 
             stage_1 = self.pipeline[0]
-            mock_executor.assert_has_calls([mock.call(stage_1[0], self.partner, stage_1[1], 7, False)])
+            mock_executor.assert_has_calls([mock.call(stage_1[0], self.partner, stage_1[1], 1, False)])
 
     @mock.patch('course_discovery.apps.course_metadata.management.commands.refresh_course_metadata.delete_orphans')
     def test_deletes_orphans(self, mock_delete_orphans):
