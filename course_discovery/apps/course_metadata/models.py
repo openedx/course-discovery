@@ -335,6 +335,9 @@ class ProgramType(TranslatableModel, TimeStampedModel):
     PROFESSIONAL_CERTIFICATE = 'professional-certificate'
     PROFESSIONAL_PROGRAM_WL = 'professional-program-wl'
     MASTERS = 'masters'
+    BACHELORS = 'bachelors'
+    DOCTORATE = 'doctorate'
+    LICENSE = 'license'
     MICROBACHELORS = 'microbachelors'
 
     name = models.CharField(max_length=32, blank=False)
