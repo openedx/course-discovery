@@ -1,6 +1,7 @@
 import datetime
 from collections import ChainMap
 
+import ddt
 import pytest
 from django.conf import settings
 from django.contrib.sites.models import Site
@@ -320,6 +321,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         assert not english_course.promoted_in_spanish_index
 
 
+@ddt.ddt
 @pytest.mark.django_db
 class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
 
@@ -382,30 +384,10 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         assert 'Upcoming' in program.availability_level
         assert 'Archived' in program.availability_level
 
-    def test_program_available_now_if_program_type_is_masters(self):
+    @ddt.data('masters', 'bachelors', 'doctorate', 'license')
+    def test_program_available_now(self, program_type_slug):
         program_type = ProgramTypeFactory()
-        program_type.slug = 'masters'
-        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
-
-        assert program.availability_level == 'Available now'
-
-    def test_program_available_now_if_program_type_is_bachelors(self):
-        program_type = ProgramTypeFactory()
-        program_type.slug = 'bachelors'
-        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
-
-        assert program.availability_level == 'Available now'
-
-    def test_program_available_now_if_program_type_is_doctorate(self):
-        program_type = ProgramTypeFactory()
-        program_type.slug = 'doctorate'
-        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
-
-        assert program.availability_level == 'Available now'
-
-    def test_program_available_now_if_program_type_is_license(self):
-        program_type = ProgramTypeFactory()
-        program_type.slug = 'license'
+        program_type.slug = program_type_slug
         program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, type=program_type)
 
         assert program.availability_level == 'Available now'

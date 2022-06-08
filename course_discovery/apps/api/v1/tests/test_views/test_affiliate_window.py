@@ -94,7 +94,7 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         assert response.status_code == status.HTTP_200_OK
         root = ET.fromstring(response.content)
 
-        # Assert that there is only on Program in the returned data even though 5
+        # Assert that there is only one Program in the returned data even though 5
         # are created in setup
         assert len(root.findall('product')) == 1
         self._assert_product_xml(
