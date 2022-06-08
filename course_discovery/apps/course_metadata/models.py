@@ -568,43 +568,24 @@ class SubjectTranslation(TranslatedFieldsModel):
         verbose_name = _('Subject model translations')
 
 
-class Topic(TranslatableModel, TimeStampedModel):
+class Topic(TimeStampedModel):
     """ Topic model. """
     uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
-    banner_image_url = models.URLField(blank=True, null=True)
-    slug = AutoSlugField(populate_from='name', editable=True, blank=True, slugify_function=uslugify,
-                         help_text=_('Leave this field blank to have the value generated automatically.'))
+    name = models.CharField(max_length=255, blank=False, null=True)
+    subjects = SortedManyToManyField(Subject, blank=False)
+    parent_topics = SortedManyToManyField('self', symmetrical=False, blank=True)
 
-    partner = models.ForeignKey(Partner, models.CASCADE)
+    # Fields to be deprecated
+    banner_image_url = models.URLField(blank=True, null=True, help_text=_('Deprecated field.'))
+    slug = AutoSlugField(populate_from='name', editable=True, blank=True, slugify_function=uslugify,
+                         help_text=_('Deprecated field. Leave this field blank to have the value generated automatically.'))
+    partner = models.ForeignKey(Partner, models.SET_NULL, blank=True, null=True, help_text=_('Deprecated field.'))
 
     def __str__(self):
         return self.name
 
     class Meta:
-        unique_together = (
-            ('partner', 'slug'),
-            ('partner', 'uuid'),
-        )
-        ordering = ['created']
-
-    def validate_unique(self, *args, **kwargs):
-        super().validate_unique(*args, **kwargs)
-        qs = Topic.objects.filter(partner=self.partner_id)
-        if qs.filter(translations__name=self.name).exclude(pk=self.pk).exists():
-            raise ValidationError({'name': ['Topic with this Name and Partner already exists', ]})
-
-
-class TopicTranslation(TranslatedFieldsModel):
-    master = models.ForeignKey(Topic, models.CASCADE, related_name='translations', null=True)
-
-    name = models.CharField(max_length=255, blank=False, null=False)
-    subtitle = models.CharField(max_length=255, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    long_description = models.TextField(blank=True, null=True)
-
-    class Meta:
-        unique_together = ('language_code', 'master')
-        verbose_name = _('Topic model translations')
+        ordering = ['name']
 
 
 class Fact(AbstractHeadingBlurbModel):
@@ -844,7 +825,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     collaborators = SortedManyToManyField(Collaborator, null=True, blank=True, related_name='courses_collaborated')
+
     subjects = SortedManyToManyField(Subject, blank=True)
+    product_topics = SortedManyToManyField(Topic, blank=True)
+
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, models.CASCADE, default=None, null=True, blank=True)
     expected_learning_items = SortedManyToManyField(ExpectedLearningItem, blank=True)
@@ -888,6 +872,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         )
     )
 
+    # Legacy field - this field is displayed as "Tags" in Django admin, and is not related to course taxonomy.
+    # See subjects and product_topics above for taxonomy relationships.
     topics = TaggableManager(
         blank=True,
         help_text=_('Pick a tag from the suggestions. To make a new tag, add a comma after the tag name.'),

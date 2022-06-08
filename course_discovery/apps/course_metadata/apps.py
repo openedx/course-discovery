@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.db.models.signals import post_migrate
 from PIL import ImageFile
 
 
@@ -14,3 +15,6 @@ class CourseMetadataConfig(AppConfig):
         ImageFile.LOAD_TRUNCATED_IMAGES = True
         # noinspection PyUnresolvedReferences
         import course_discovery.apps.course_metadata.signals  # pylint: disable=import-outside-toplevel,unused-import
+        post_migrate.connect(
+            course_discovery.apps.course_metadata.signals.populate_topic_name, sender=self
+        )

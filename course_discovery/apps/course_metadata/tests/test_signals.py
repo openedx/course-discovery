@@ -19,7 +19,7 @@ from course_discovery.apps.course_metadata.models import (
     BackfillCourseRunSlugsConfig, BackpopulateCourseTypeConfig, BulkModifyProgramHookConfig, BulkUpdateImagesConfig,
     CourseRun, Curriculum, CurriculumProgramMembership, DataLoaderConfig, DeletePersonDupsConfig,
     DrupalPublishUuidConfig, LevelTypeTranslation, MigratePublisherToCourseMetadataConfig, ProfileImageDownloadConfig,
-    Program, ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig, TopicTranslation
+    Program, ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation, TagCourseUuidsConfig
 )
 from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
 from course_discovery.apps.course_metadata.tests import factories
@@ -49,7 +49,7 @@ class TestCacheInvalidation:
             # Ignore models that aren't exposed by the API or are only used for testing.
             if model in [BackpopulateCourseTypeConfig, DataLoaderConfig, DeletePersonDupsConfig,
                          DrupalPublishUuidConfig, MigratePublisherToCourseMetadataConfig, SubjectTranslation,
-                         TopicTranslation, ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
+                         ProfileImageDownloadConfig, TagCourseUuidsConfig, RemoveRedirectsConfig,
                          BulkModifyProgramHookConfig, BackfillCourseRunSlugsConfig, AlgoliaProxyCourse,
                          AlgoliaProxyProgram, AlgoliaProxyProduct, ProgramTypeTranslation,
                          LevelTypeTranslation, SearchDefaultResultsConfiguration, BulkUpdateImagesConfig]:

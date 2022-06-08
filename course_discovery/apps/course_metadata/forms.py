@@ -4,7 +4,7 @@ from django.forms.utils import ErrorList
 from django.utils.translation import gettext_lazy as _
 
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseRun, Pathway, Program
+from course_discovery.apps.course_metadata.models import Course, CourseRun, Pathway, Program, Topic
 from course_discovery.apps.course_metadata.widgets import SortedModelSelect2Multiple
 
 
@@ -92,6 +92,29 @@ class CourseAdminForm(forms.ModelForm):
         fields = '__all__'
         exclude = ('slug', 'url_slug', )
 
+        def clean(self):
+            super().clean()
+
+            # Course must have at least one subject in order to add topics
+            subjects = self.cleaned_data.get('subjects')
+            product_topics = self.cleaned_data.get('product_topics')
+            if product_topics and not subjects:
+                raise ValidationError('Course must have a subject to add topics.')
+
+            # Added topics must share at least one subject with the course
+            subject_ids = [subject.id for subject in subjects]
+            failed_topics = []
+            for topic in product_topics:
+                qs = Topic.objects.filter(id=topic.id, subjects__id__in=subject_ids)
+                if not qs.exists():
+                    failed_topics.append(topic.name)
+            if len(failed_topics) > 0:
+                raise ValidationError(
+                    f'Topics must share at least one subject with course. Failed on: {*failed_topics,}'
+                )
+
+            return self.cleaned_data
+
 
 class CourseRunAdminForm(forms.ModelForm):
     class Meta:
@@ -158,3 +181,26 @@ class ExcludeSkillsForm(forms.Form):
             choices=((course_skill.skill.id, course_skill.skill.name) for course_skill in excluded_skills),
             required=False,
         )
+
+
+class TopicAdminForm(forms.ModelForm):
+    class Meta:
+        model = Topic
+        fields = '__all__'
+
+    def clean(self):
+        super().clean()
+
+        if self.instance.id:
+            parent_topics = self.cleaned_data.get('parent_topics')
+            for parent_topic in parent_topics:
+                if parent_topic.id == self.instance.id:
+                    raise ValidationError('Cannot add self as a parent topic.')
+                qs = Topic.objects.filter(id=parent_topic.id, parent_topics__id=self.instance.id)
+                if qs.exists():
+                    raise ValidationError(
+                        f'"{parent_topic.name}" is already a child topic of "{self.instance.name}". Please'
+                        ' remove from parent topics.'
+                    )
+
+        return self.cleaned_data

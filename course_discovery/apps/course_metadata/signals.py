@@ -11,7 +11,8 @@ from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program
+    Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization,
+    Program, Topic
 )
 from course_discovery.apps.course_metadata.publishers import ProgramMarketingSitePublisher
 from course_discovery.apps.course_metadata.salesforce import (
@@ -224,6 +225,20 @@ def update_or_create_salesforce_course_run(instance, created, **kwargs):
                 created_in_salesforce = populate_official_with_existing_draft(instance, util)
             if not created_in_salesforce and requires_salesforce_update('course_run', instance):
                 util.update_course_run(instance)
+
+
+def populate_topic_name(sender, **kwargs):
+    """
+    Temporary signal to pull the topic name from the slug field. When deleting the TranslatableModel mixin,
+    we're also removing the name field and adding it directly to the Topic model - the name is not copied
+    over automatically.
+    """
+    unnamed_topics = Topic.objects.filter(name=None)
+    if unnamed_topics.exists():
+        for topic in unnamed_topics:
+            topic.name = ' '.join([word.capitalize() for word in topic.slug.split('-')])
+        Topic.objects.bulk_update(unnamed_topics, ['name'])
+        
 
 
 def _build_external_key_sets(course_runs):

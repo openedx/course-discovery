@@ -19,7 +19,7 @@ from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
 from course_discovery.apps.course_metadata.forms import (
-    CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm
+    CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm, TopicAdminForm
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
 from course_discovery.apps.course_metadata.views import CourseSkillsView, RefreshCourseSkillsView
@@ -502,11 +502,10 @@ class SubjectAdmin(TranslatableAdmin):
 
 
 @admin.register(Topic)
-class TopicAdmin(TranslatableAdmin):
-    list_display = ('uuid', 'name', 'slug',)
-    list_filter = ('partner',)
-    readonly_fields = ('uuid',)
-    search_fields = ('uuid', 'name', 'slug',)
+class TopicAdmin(admin.ModelAdmin):
+    form = TopicAdminForm
+    list_display = ('uuid', 'name',)
+    search_fields = ('uuid', 'name',)
 
 
 @admin.register(Person)
