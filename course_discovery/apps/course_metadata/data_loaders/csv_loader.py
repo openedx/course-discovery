@@ -27,6 +27,9 @@ class CSVDataLoader(AbstractDataLoader):
     PROGRAM_TYPES = [
         ProgramType.XSERIES,
         ProgramType.MASTERS,
+        ProgramType.BACHELORS,
+        ProgramType.DOCTORATE,
+        ProgramType.LICENSE,
         ProgramType.MICROMASTERS,
         ProgramType.MICROBACHELORS,
         ProgramType.PROFESSIONAL_PROGRAM_WL,
