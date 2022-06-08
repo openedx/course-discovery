@@ -376,10 +376,15 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def availability_level(self):
-        # Master's programs don't have courses in the same way that our other programs do.
+        # Master's and 2U programs don't have courses in the same way that our other programs do.
         # We got confirmation from masters POs that we should make masters Programs always
         # 'Available now'
-        if self.type and self.type.slug == ProgramType.MASTERS:
+        if self.type and self.type.slug in [
+            ProgramType.MASTERS,
+            ProgramType.BACHELORS,
+            ProgramType.DOCTORATE,
+            ProgramType.LICENSE,
+        ]:
             return _('Available now')
 
         all_courses = self.courses.all()

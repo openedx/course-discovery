@@ -137,7 +137,7 @@ class Command(BaseCommand):
 
             pipeline = (
                 (
-                    (CoursesApiDataLoader, partner.courses_api_url, max_workers),
+                    (CoursesApiDataLoader, partner.courses_api_url, 1),
                 ),
                 (
                     (EcommerceApiDataLoader, partner.ecommerce_api_url, 1),
