@@ -5,13 +5,14 @@ from unittest import mock
 import ddt
 import pytest
 import responses
+from django.core.files.base import ContentFile
 from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
-from course_discovery.apps.api.utils import StudioAPI, cast2int, get_query_param
+from course_discovery.apps.api.utils import StudioAPI, cast2int, decode_image_data, get_query_param
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.utils import serialize_datetime
@@ -58,6 +59,16 @@ class Cast2IntTests(TestCase):
                 cast2int(value, self.name)
 
         assert mock_logger.called
+
+
+class TestDecodeImageData(TestCase):
+    def test_decode_image_data(self):
+        test_image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk' \
+                     '+A8AAQUBAScY42YAAAAASUVORK5CYII='
+        img_name, img_data = decode_image_data(test_image)
+        assert img_name == 'tmp.png'
+        assert img_data is not None
+        assert isinstance(img_data, ContentFile)
 
 
 class TestGetQueryParam:
