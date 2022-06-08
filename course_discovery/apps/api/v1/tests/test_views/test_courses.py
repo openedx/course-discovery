@@ -1010,6 +1010,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             # The API is expecting the image to be base64 encoded. We are simulating that here.
             'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
                      '42YAAAAASUVORK5CYII=',
+            'organization_logo_override': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0l'
+                                          'EQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
             'video': {'src': 'https://link.to.video.for.testing/watch?t_s=5'},
         }
 
@@ -1019,6 +1021,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
         assert course.title == 'Course title'
         assert course.active_url_slug == 'manual'
+        assert course.organization_logo_override.url is not None
         self.assertDictEqual(response.data, self.serialize_course(course))
 
     @responses.activate

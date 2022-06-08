@@ -1,8 +1,10 @@
+import base64
 import functools
 import logging
 import math
 from urllib.parse import parse_qsl, urlencode, urljoin
 
+from django.core.files.base import ContentFile
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import gettext as _
 from opaque_keys.edx.keys import CourseKey
@@ -129,6 +131,17 @@ def conditional_decorator(condition, decorator):
     Util decorator that allows for only using the given decorator arg if the condition passes
     """
     return decorator if condition else lambda x: x
+
+
+def decode_image_data(image_data):
+    """
+    Given a encoded base64 image, it will decode encoded image and
+    return image name and decoded image_data
+    """
+    file_format, img_str = image_data.split(';base64,')  # format ~= data:image/X;base64,/xxxyyyzzz/
+    ext = file_format.split('/')[-1]  # guess file extension
+    image_data = ContentFile(base64.b64decode(img_str), name=f'tmp.{ext}')
+    return image_data.name, image_data
 
 
 class StudioAPI:

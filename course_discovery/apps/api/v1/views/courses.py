@@ -1,11 +1,9 @@
-import base64
 import logging
 import re
 
 from django.conf import settings
 from django.core import validators
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.db import models, transaction
 from django.db.models import Q
 from django.db.models.functions import Lower
@@ -26,7 +24,7 @@ from course_discovery.apps.api.cache import CompressedCacheResponseMixin
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.permissions import IsCourseEditorOrReadOnly
 from course_discovery.apps.api.serializers import CourseEntitlementSerializer, MetadataWithType
-from course_discovery.apps.api.utils import get_query_param, reviewable_data_has_changed
+from course_discovery.apps.api.utils import decode_image_data, get_query_param, reviewable_data_has_changed
 from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.views.course_runs import CourseRunViewSet
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -312,6 +310,7 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # Sending draft=False means the course data is live and updates should be pushed out immediately
         draft = data.pop('draft', True)
         image_data = data.pop('image', None)
+        org_logo_override_image = data.pop('organization_logo_override', None)
         video_data = data.pop('video', None)
         url_slug = data.pop('url_slug', '')
 
@@ -355,10 +354,14 @@ class CourseViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
         # Save image and convert to the correct format
         if image_data and isinstance(image_data, str) and image_data.startswith('data:image'):
             # base64 encoded image - decode
-            file_format, imgstr = image_data.split(';base64,')  # format ~= data:image/X;base64,/xxxyyyzzz/
-            ext = file_format.split('/')[-1]  # guess file extension
-            image_data = ContentFile(base64.b64decode(imgstr), name=f'tmp.{ext}')
-            course.image.save(image_data.name, image_data)
+            img_name, img_data = decode_image_data(image_data)
+            course.image.save(img_name, img_data)
+
+        # Save organization logo override and convert to the correct format
+        if org_logo_override_image and isinstance(org_logo_override_image, str) \
+                and org_logo_override_image.startswith('data:image'):
+            img_name, img_data = decode_image_data(org_logo_override_image)
+            course.organization_logo_override.save(img_name, img_data)
 
         if data.get('collaborators'):
             collaborators_uuids = data.get('collaborators')
