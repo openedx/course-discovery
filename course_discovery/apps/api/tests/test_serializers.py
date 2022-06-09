@@ -20,16 +20,18 @@ from course_discovery.apps.api.serializers import (
     AdditionalMetadataSerializer, AdditionalPromoAreaSerializer, AffiliateWindowSerializer, CatalogSerializer,
     CertificateInfoSerializer, CollaboratorSerializer, ContainedCourseRunsSerializer, ContainedCoursesSerializer,
     ContentTypeSerializer, CorporateEndorsementSerializer, CourseEditorSerializer, CourseEntitlementSerializer,
-    CourseRecommendationSerializer, CourseRunSerializer, CourseRunWithProgramsSerializer, CourseSerializer,
-    CourseWithProgramsSerializer, CourseWithRecommendationsSerializer, CurriculumSerializer,
-    DegreeAdditionalMetadataSerializer, DegreeCostSerializer, DegreeDeadlineSerializer, EndorsementSerializer,
-    FactSerializer, FAQSerializer, FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer,
-    LevelTypeSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
-    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
-    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
-    ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
-    RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
-    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
+    CourseLocationRestrictionSerializer, CourseRecommendationSerializer, CourseRunSerializer,
+    CourseRunWithProgramsSerializer, CourseSerializer, CourseWithProgramsSerializer,
+    CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeAdditionalMetadataSerializer, DegreeCostSerializer,
+    DegreeDeadlineSerializer, EndorsementSerializer, FactSerializer, FAQSerializer,
+    FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, LevelTypeSerializer,
+    MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer,
+    MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer,
+    PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    ProgramLocationRestrictionSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
+    ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer,
+    TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
+    get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.tests.test_utils import make_request
@@ -40,6 +42,7 @@ from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin, LMSAPIClientMixin
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.models import AbstractLocationRestrictionModel
 from course_discovery.apps.course_metadata.search_indexes.documents import (
     CourseDocument, CourseRunDocument, LearnerPathwayDocument, PersonDocument, ProgramDocument
 )
@@ -51,13 +54,14 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, AdditionalPromoAreaFactory, CertificateInfoFactory, CollaboratorFactory,
-    CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory,
-    CourseSkillsFactory, CurriculumCourseMembershipFactory, CurriculumFactory, CurriculumProgramMembershipFactory,
-    DegreeAdditionalMetadataFactory, DegreeCostFactory, DegreeDeadlineFactory, DegreeFactory, EndorsementFactory,
-    ExpectedLearningItemFactory, FactFactory, IconTextPairingFactory, ImageFactory, JobOutlookItemFactory,
-    OrganizationFactory, PathwayFactory, PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory,
-    PositionFactory, PrerequisiteFactory, ProgramFactory, ProgramTypeFactory, RankingFactory, SeatFactory,
-    SeatTypeFactory, SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
+    CorporateEndorsementFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory,
+    CourseLocationRestrictionFactory, CourseRunFactory, CourseSkillsFactory, CurriculumCourseMembershipFactory,
+    CurriculumFactory, CurriculumProgramMembershipFactory, DegreeAdditionalMetadataFactory, DegreeCostFactory,
+    DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, FactFactory,
+    IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
+    PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
+    ProgramFactory, ProgramLocationRestrictionFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
+    SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -204,6 +208,11 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'organization_short_code_override': course.organization_short_code_override,
             'organization_logo_override_url': course.organization_logo_override_url,
             'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
+            'country': course.country,
+            'state': course.state,
+            'location_restriction': CourseLocationRestrictionSerializer(
+                course.location_restriction
+            ).data,
         })
 
         return expected
@@ -268,6 +277,19 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1, 'editable': 1})
         assert serializer.data['organization_short_code_override'] is not None
         assert serializer.data['organization_logo_override_url'] is not None
+
+    def test_invalid_country_state(self):
+        request = make_request()
+        course = CourseFactory()
+        invalid_data = {
+            'country': 'XX',
+            'state': 'XX'
+        }
+        serializer = CourseSerializer(course, context={'request': request}, data=invalid_data)
+        serializer.is_valid()
+
+        assert serializer.errors['country']
+        assert serializer.errors['state']
 
 
 class CourseEditorSerializerTests(TestCase):
@@ -1117,6 +1139,11 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
+            'country': program.country,
+            'state': program.state,
+            'location_restriction': ProgramLocationRestrictionSerializer(
+                program.location_restriction, read_only=True
+            ).data,
         })
         return expected
 
@@ -1390,6 +1417,19 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'card_image_url': '/media/test_card.jpg'
         })
         self.assertDictEqual(serializer.data, expected)
+
+    def test_invalid_country_state(self):
+        request = make_request()
+        program = self.create_program()
+        invalid_data = {
+            'country': 'XX',
+            'state': 'XX'
+        }
+        serializer = self.serializer_class(program, context={'request': request}, data=invalid_data)
+        serializer.is_valid()
+
+        assert serializer.errors['country']
+        assert serializer.errors['state']
 
 
 class PathwaySerialzerTests(TestCase):
@@ -2815,3 +2855,44 @@ class CourseWithRecommendationSerializerTests(MinimalCourseSerializerTests):
             SeatFactory.create_batch(2, course_run=course_run)
         serializer = self.serializer_class(course_with_recs, context={'request': request, 'exclude_utm': 1})
         assert serializer.data['recommendations'][0]['marketing_url'] == recommended_course_0.marketing_url
+
+
+class LocationRestrictionSerializerTests(TestCase):
+    def test_course_data(self):
+        request = make_request()
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        serializer = CourseSerializer(course, context={'request': request})
+        expected = {
+            'restriction_type': location_restriction.restriction_type,
+            'countries': location_restriction.countries,
+            'states': location_restriction.states
+        }
+        assert serializer.data['location_restriction'] == expected
+
+    def test_program_data(self):
+        request = make_request()
+        program = ProgramFactory(location_restriction=None)
+        location_restriction = ProgramLocationRestrictionFactory(program=program)
+        serializer = ProgramSerializer(program, context={'request': request})
+        expected = {
+            'restriction_type': location_restriction.restriction_type,
+            'countries': location_restriction.countries,
+            'states': location_restriction.states
+        }
+        assert serializer.data['location_restriction'] == expected
+
+    def test_invalid_codes(self):
+        request = make_request()
+        course = CourseFactory()
+        invalid_data = {
+            'location_restriction': {
+                'restriction_type': AbstractLocationRestrictionModel.ALLOWLIST,
+                'countries': ['ABC', 'XX'],
+                'states': ['AB']
+            }
+        }
+        serializer = CourseSerializer(course, context={'request': request}, data=invalid_data)
+        serializer.is_valid()
+
+        assert serializer.errors['location_restriction']

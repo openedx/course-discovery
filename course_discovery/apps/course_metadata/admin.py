@@ -109,7 +109,7 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     ordering = ('key', 'title',)
     readonly_fields = ('enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number')
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
-    raw_id_fields = ('canonical_course_run', 'draft_version',)
+    raw_id_fields = ('canonical_course_run', 'draft_version', 'location_restriction')
     autocomplete_fields = ['canonical_course_run']
     change_actions = ('course_skills', 'refresh_course_skills')
 
@@ -283,6 +283,38 @@ class CourseRunAdmin(admin.ModelAdmin):
             messages.add_message(request, messages.ERROR, msg)
 
 
+class CourseInline(admin.TabularInline):
+    model = Course
+    fields = ('key', 'title', 'draft')
+    show_change_link = True
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(CourseLocationRestriction)
+class CourseLocationRestrictionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'restriction_type')
+    fields = ('restriction_type', 'countries', 'states', 'created', 'modified')
+    readonly_fields = ('created', 'modified')
+    inlines = (CourseInline,)
+
+
+@admin.register(ProgramLocationRestriction)
+class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
+    list_display = ('program', 'restriction_type',)
+    fields = ('program', 'restriction_type', 'countries', 'states', 'created', 'modified')
+    readonly_fields = ('created', 'modified')
+    raw_id_fields = ('program',)
+    search_fields = ('program__name', 'program__marketing_slug')
+
+
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm
@@ -297,14 +329,15 @@ class ProgramAdmin(admin.ModelAdmin):
 
     # ordering the field display on admin page.
     fields = (
-        'uuid', 'title', 'subtitle', 'marketing_hook', 'status', 'type', 'partner', 'banner_image', 'banner_image_url',
-        'card_image', 'marketing_slug', 'overview', 'credit_redemption_overview', 'video', 'total_hours_of_effort',
-        'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week', 'courses',
-        'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs', 'authoring_organizations',
-        'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden', 'corporate_endorsements', 'faq',
-        'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
-        'enrollment_count', 'recent_enrollment_count', 'credit_value', 'organization_short_code_override',
-        'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
+        'uuid', 'title', 'subtitle', 'marketing_hook', 'status', 'type', 'partner', 'country', 'state',
+        'banner_image', 'banner_image_url', 'card_image', 'marketing_slug', 'overview', 'credit_redemption_overview',
+        'video', 'total_hours_of_effort', 'weeks_to_complete', 'min_hours_effort_per_week', 'max_hours_effort_per_week',
+        'courses', 'order_courses_by_start_date', 'custom_course_runs_display', 'excluded_course_runs',
+        'authoring_organizations', 'credit_backing_organizations', 'one_click_purchase_enabled', 'hidden',
+        'corporate_endorsements', 'faq', 'individual_endorsements', 'job_outlook_items', 'expected_learning_items',
+        'instructor_ordering', 'enrollment_count', 'recent_enrollment_count', 'credit_value',
+        'organization_short_code_override', 'organization_logo_override', 'primary_subject_override',
+        'level_type_override', 'language_override',
     )
 
     save_error = False
@@ -726,13 +759,13 @@ class DegreeAdmin(admin.ModelAdmin):
     )
     # ordering the field display on admin page.
     fields = (
-        'type', 'uuid', 'status', 'hidden', 'partner', 'authoring_organizations', 'marketing_slug', 'card_image_url',
-        'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title',
-        'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
-        'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
-        'hubspot_lead_capture_form_id', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url',
-        'micromasters_background_image', 'micromasters_org_name_override', 'faq', 'costs_fine_print',
-        'deadlines_fine_print', 'specializations'
+        'type', 'uuid', 'status', 'hidden', 'partner', 'country', 'state', 'authoring_organizations',
+        'marketing_slug', 'card_image_url', 'search_card_ranking', 'search_card_cost', 'search_card_courses',
+        'overall_ranking', 'campus_image', 'title', 'subtitle', 'title_background_image', 'banner_border_color',
+        'apply_url', 'overview', 'rankings', 'application_requirements', 'prerequisite_coursework',
+        'lead_capture_image', 'lead_capture_list_name', 'hubspot_lead_capture_form_id', 'micromasters_long_title',
+        'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
+        'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations'
     )
     actions = [publish_degrees, unpublish_degrees]
 

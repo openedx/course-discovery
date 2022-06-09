@@ -16,11 +16,16 @@ from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from django_countries import countries as COUNTRIES
+from django_countries.fields import CountryField
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
+from localflavor.us.models import USStateField
+from localflavor.us.us_states import CONTIGUOUS_STATES
+from multiselectfield import MultiSelectField
 from opaque_keys.edx.keys import CourseKey
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
@@ -834,6 +839,32 @@ class Collaborator(TimeStampedModel):
         return f'{self.name}'
 
 
+class AbstractLocationRestrictionModel(TimeStampedModel):
+    ALLOWLIST = 'allowlist'
+    BLOCKLIST = 'blocklist'
+    RESTRICTION_TYPE_CHOICES = (
+        (ALLOWLIST, _('Allowlist')),
+        (BLOCKLIST, _('Blocklist'))
+    )
+
+    countries = MultiSelectField(choices=COUNTRIES, null=True, blank=True)
+    states = MultiSelectField(choices=CONTIGUOUS_STATES, null=True, blank=True)
+    restriction_type = models.CharField(
+        max_length=255, choices=RESTRICTION_TYPE_CHOICES, default=ALLOWLIST
+    )
+
+    class Meta:
+        abstract = True
+
+
+class CourseLocationRestriction(AbstractLocationRestrictionModel):
+    """
+    Course location restriction model.
+
+    We have to set this as a foreign key field on course rather than a one to one relationship, due to draft courses.
+    """
+
+
 class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
@@ -863,6 +894,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     collaborators = SortedManyToManyField(Collaborator, null=True, blank=True, related_name='courses_collaborated')
+    country = CountryField(null=True, blank=True)
+    state = USStateField(null=True, blank=True)
     subjects = SortedManyToManyField(Subject, blank=True)
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, models.CASCADE, default=None, null=True, blank=True)
@@ -926,6 +959,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         validators=[FileExtensionValidator(['png'])]
     )
 
+    location_restriction = models.ForeignKey(
+        CourseLocationRestriction, models.SET_NULL, related_name='courses', default=None, null=True, blank=True
+    )
+
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
     enterprise_subscription_inclusion = models.BooleanField(
@@ -975,6 +1012,12 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             return self.image.small.url
 
         return self.card_image_url
+
+    @property
+    def country_code(self):
+        if self.country:
+            return self.country.code  # pylint: disable=no-member
+        return None
 
     @property
     def organization_logo_override_url(self):
@@ -2253,6 +2296,8 @@ class Program(PkSearchableMixin, TimeStampedModel):
         help_text=_('The user-facing display title for this Program.'), max_length=255)
     subtitle = models.CharField(
         help_text=_('A brief, descriptive subtitle for the Program.'), max_length=255, blank=True)
+    country = CountryField(null=True, blank=True)
+    state = USStateField(null=True, blank=True)
     marketing_hook = models.CharField(
         help_text=_('A brief hook for the marketing website'), max_length=255, blank=True)
     type = models.ForeignKey(ProgramType, models.CASCADE, null=True, blank=True)
@@ -2453,6 +2498,12 @@ class Program(PkSearchableMixin, TimeStampedModel):
             path = f'{self.type.slug.lower()}/{self.marketing_slug}'
             return urljoin(self.partner.marketing_site_url_root, path)
 
+        return None
+
+    @property
+    def country_code(self):
+        if self.country:
+            return self.country.code  # pylint: disable=no-member
         return None
 
     @property
@@ -3228,6 +3279,13 @@ class CourseUrlRedirect(AbstractValueModel):
         unique_together = (
             ('partner', 'value')
         )
+
+
+class ProgramLocationRestriction(AbstractLocationRestrictionModel):
+    """ Program location restriction """
+    program = models.OneToOneField(
+        Program, on_delete=models.CASCADE, null=True, blank=True, related_name='location_restriction'
+    )
 
 
 class BackpopulateCourseTypeConfig(SingletonModel):
