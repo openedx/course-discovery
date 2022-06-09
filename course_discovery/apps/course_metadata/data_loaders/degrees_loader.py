@@ -18,6 +18,13 @@ logger = logging.getLogger(__name__)
 class DegreeCSVDataLoader(AbstractDataLoader):
     """ Loads the degrees from the csv file """
 
+    DEGREE_REQUIRED_DATA_FIELDS = [
+        'title', 'card_image_url', 'product_type', 'organization_key', 'organization_short_code_override',
+        'slug', 'primary_subject', 'content_language', 'course_level', 'paid_landing_page_url', 'organic_url',
+        'identifier',
+        'overview', 'courses',
+    ]
+
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
@@ -56,7 +63,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             if not (org and program_type and primary_subject_override and level_type_override and language_override):
                 continue
 
-            message = self.validate_degree_data(program_type, row)
+            message = self.validate_degree_data(row)
             if message:
                 logger.error("Data validation issue for degree {}, skipping ingestion".format(degree_title))    # lint-amnesty, pylint: disable=logging-format-interpolation
                 self.messages_list.append("[DATA VALIDATION ERROR] Degree {}. Missing data: {}".format(
@@ -127,12 +134,19 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             for degree_uuid, title in self.degree_uuids.items():
                 logger.info("{}:{}".format(degree_uuid, title))    # lint-amnesty, pylint: disable=logging-format-interpolation
 
-    def validate_degree_data(self, program_type, data):  # pylint: disable=unused-argument
+    def validate_degree_data(self, data):
         """
         Verify the required data key-values for a program type are present in the provided
         data dictionary and return a comma separated string of missing data fields.
         """
-        # TODO
+        missing_fields = []
+
+        for field in self.DEGREE_REQUIRED_DATA_FIELDS:
+            if not (field in data and data[field]):
+                missing_fields.append(field)
+
+        if missing_fields:
+            return ', '.join(missing_fields)
         return ''
 
     def transform_dict_keys(self, data):
@@ -214,7 +228,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 logger.error("Unexpected error happened while downloading org logo image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     degree.title
                 ))
-                self.messages_list.append('[ORG LOGO OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
+                self.messages_list.append('[ORG LOGO OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(
                     degree.title
                 ))
 
