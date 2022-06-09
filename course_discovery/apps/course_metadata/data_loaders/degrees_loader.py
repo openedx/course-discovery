@@ -174,7 +174,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             "partner": self.partner,
 
         }
-        degree, updated = Degree.objects.update_or_create(
+        degree, created = Degree.objects.update_or_create(
             marketing_slug=data['slug'],
             additional_metadata__external_identifier=data['identifier'],
             defaults=data_dict
@@ -182,7 +182,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
         logger.info("Degree with slug {} is {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
             degree.marketing_slug,
-            "updated" if updated else "created",
+            "created" if created else "updated",
         ))
 
         return degree
@@ -299,7 +299,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             defaults=additional_metadata_dict
         )
 
-        logger.info("AdditionalMetdata {} is {} with Degree slug {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
+        logger.info("AdditionalMetadata {} is {} with Degree slug {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
             additional_metadata,
             "created" if created else "updated",
             degree.marketing_slug,
