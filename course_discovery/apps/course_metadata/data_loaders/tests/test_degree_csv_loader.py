@@ -53,7 +53,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         )
 
-    @ddt.data('identifier', 'card_image_url', 'slug', 'paid_landing_page_url', 'organic_url', 'courses')
+    @ddt.data('identifier', 'card_image_url', 'title', 'paid_landing_page_url', 'organic_url', 'courses')
     def test_validation_failure(self, missing_key, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that data validation fails given an invalid data.
@@ -73,13 +73,13 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Data validation issue for degree {}, skipping ingestion'.format(self.DEGREE_TITLE)
+                        'Data validation issue for degree {}, skipping ingestion'.format(self.DEGREE_SLUG)
                     ),
                     (
                         LOGGER_PATH,
                         'ERROR',
                         '[DATA VALIDATION ERROR] Degree {}. Missing data: {}'.format(
-                            self.DEGREE_TITLE, missing_key
+                            self.DEGREE_SLUG, missing_key
                         )
                     )
                 )
