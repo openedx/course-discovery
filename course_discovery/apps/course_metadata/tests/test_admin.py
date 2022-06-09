@@ -482,7 +482,9 @@ class PathwayAdminTest(TestCase):
         partner1 = PartnerFactory()
         partner2 = PartnerFactory()
         program1 = factories.ProgramFactory(partner=partner1)
-        program2 = factories.ProgramFactory(partner=partner2, title='partner2 program')
+        program2 = factories.ProgramFactory(
+            partner=partner2, title='partner2 program', marketing_slug='partner2-program'
+        )
         data = {
             'partner': partner1.id,
             'name': 'Name',
@@ -494,5 +496,6 @@ class PathwayAdminTest(TestCase):
         form = PathwayAdminForm(data=data)
 
         self.assertDictEqual(form.errors, {
-            '__all__': ['These programs are for a different partner than the pathway itself: partner2 program']
+            '__all__': ['These programs are for a different partner than the pathway itself: '
+                        'partner2 program - partner2-program']
         })

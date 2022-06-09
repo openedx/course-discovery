@@ -1704,7 +1704,7 @@ class ProgramTests(TestCase):
 
     def test_str(self):
         """Verify that a program is properly converted to a str."""
-        assert str(self.program) == self.program.title
+        assert str(self.program) == f"{self.program.title} - {self.program.marketing_slug}"
 
     def test_weeks_to_complete_range(self):
         """ Verify that weeks to complete range works correctly """
