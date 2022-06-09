@@ -297,7 +297,7 @@ class Command(BaseCommand):
             'title': partially_filled_csv_dict.get('title') or product_dict['altName'] or product_dict['name'],
             '2u_title': product_dict['name'],
             'edx_title': product_dict['altName'],
-            'short_description': partially_filled_csv_dict.get('title') or product_dict['name'],
+            'short_description': product_dict.get('blurb') or product_dict.get('name'),
             'what_will_you_learn': product_dict['whatWillSetYouApart'] or partially_filled_csv_dict.get(
                 'what_will_you_learn'
             ),
