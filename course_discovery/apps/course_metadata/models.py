@@ -16,11 +16,14 @@ from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from django_countries import countries as COUNTRIES
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
+from localflavor.us.us_states import CONTIGUOUS_STATES
+from multiselectfield import MultiSelectField
 from opaque_keys.edx.keys import CourseKey
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
@@ -834,6 +837,32 @@ class Collaborator(TimeStampedModel):
         return f'{self.name}'
 
 
+class AbstractLocationRestrictionModel(TimeStampedModel):
+    ALLOWLIST = 'allowlist'
+    BLOCKLIST = 'blocklist'
+    RESTRICTION_TYPE_CHOICES = (
+        (ALLOWLIST, _('Allowlist')),
+        (BLOCKLIST, _('Blocklist'))
+    )
+
+    countries = MultiSelectField(choices=COUNTRIES, null=True, blank=True)
+    states = MultiSelectField(choices=CONTIGUOUS_STATES, null=True, blank=True)
+    restriction_type = models.CharField(
+        max_length=255, choices=RESTRICTION_TYPE_CHOICES, default=ALLOWLIST
+    )
+
+    class Meta:
+        abstract = True
+
+
+class CourseLocationRestriction(AbstractLocationRestrictionModel):
+    """
+    Course location restriction model.
+
+    We have to set this as a foreign key field on course rather than a one to one relationship, due to draft courses.
+    """
+
+
 class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
@@ -924,6 +953,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         blank=True,
         null=True,
         validators=[FileExtensionValidator(['png'])]
+    )
+
+    location_restriction = models.ForeignKey(
+        CourseLocationRestriction, models.SET_NULL, related_name='courses', default=None, null=True, blank=True
     )
 
     everything = CourseQuerySet.as_manager()
@@ -3228,6 +3261,13 @@ class CourseUrlRedirect(AbstractValueModel):
         unique_together = (
             ('partner', 'value')
         )
+
+
+class ProgramLocationRestriction(AbstractLocationRestrictionModel):
+    """ Program location restriction """
+    program = models.OneToOneField(
+        Program, on_delete=models.CASCADE, null=True, blank=True, related_name='location_restriction'
+    )
 
 
 class BackpopulateCourseTypeConfig(SingletonModel):

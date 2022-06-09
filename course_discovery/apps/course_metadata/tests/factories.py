@@ -1,8 +1,11 @@
 from datetime import datetime
+from random import randint
 
 import factory
 from django.db.models.signals import post_save
+from django_countries import countries as COUNTRIES
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
+from localflavor.us.us_states import CONTIGUOUS_STATES
 from pytz import UTC
 from taxonomy.models import CourseSkills, Skill
 
@@ -230,6 +233,35 @@ class CourseTypeFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.course_run_types, extracted)
 
 
+class AbstractLocationRestrictionModelFactory(factory.django.DjangoModelFactory):
+    restriction_type = factory.fuzzy.FuzzyChoice(
+        AbstractLocationRestrictionModel.RESTRICTION_TYPE_CHOICES, getter=lambda c: c[0]
+    )
+    countries = factory.List([
+        factory.fuzzy.FuzzyChoice(COUNTRIES, getter=lambda c: c[0]) for _ in range(randint(0, 3))
+    ])
+    states = factory.List([
+        factory.fuzzy.FuzzyChoice(CONTIGUOUS_STATES, getter=lambda c: c[0]) for _ in range(randint(0, 3))
+    ])
+
+
+class CourseLocationRestrictionFactory(AbstractLocationRestrictionModelFactory):
+    class Meta:
+        model = CourseLocationRestriction
+
+
+class ProgramLocationRestrictionFactory(AbstractLocationRestrictionModelFactory):
+    # We pass in location_restriction=None to prevent ProgramFactory from creating
+    # another location_restriction (this disables the RelatedFactory)
+    program = factory.SubFactory(
+        'course_discovery.apps.course_metadata.tests.factories.ProgramFactory',
+        location_restriction=None
+    )
+
+    class Meta:
+        model = ProgramLocationRestriction
+
+
 class CourseFactory(SalesforceRecordFactory):
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-id+')
@@ -255,6 +287,7 @@ class CourseFactory(SalesforceRecordFactory):
     learner_testimonials = FuzzyText()
     type = factory.SubFactory(CourseTypeFactory)
     enterprise_subscription_inclusion = False
+    location_restriction = factory.SubFactory(CourseLocationRestrictionFactory)
 
     class Meta:
         model = Course
@@ -532,6 +565,9 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
     primary_subject_override = factory.SubFactory(SubjectFactory)
     level_type_override = factory.SubFactory(LevelTypeFactory)
     language_override = factory.Iterator(LanguageTag.objects.all())
+    location_restriction = factory.RelatedFactory(
+        ProgramLocationRestrictionFactory, factory_related_name='program'
+    )
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):

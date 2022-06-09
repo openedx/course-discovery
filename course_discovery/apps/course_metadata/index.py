@@ -67,7 +67,8 @@ class EnglishProductIndex(BaseProductIndex):
                      'primary_description', 'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
-                    ('staff_slugs', 'staff'))
+                    ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
+                    ('product_blocked_in', 'blocked_in'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
                      ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
@@ -103,7 +104,8 @@ class SpanishProductIndex(BaseProductIndex):
                      'primary_description', 'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
-                    ('staff_slugs', 'staff'))
+                    ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
+                    ('product_blocked_in', 'blocked_in'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
                       'promoted_in_spanish_index')
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
