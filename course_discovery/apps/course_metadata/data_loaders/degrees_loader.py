@@ -40,6 +40,15 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         logger.info("Initiating Degree CSV data loader flow.")
         for row in self.reader:
             row = self.transform_dict_keys(row)
+
+            message = self.validate_degree_data(row)
+            if message:
+                logger.error("Data validation issue for degree {}, skipping ingestion".format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
+                self.messages_list.append("[DATA VALIDATION ERROR] Degree {}. Missing data: {}".format(
+                    degree_slug, message
+                ))
+                continue
+
             degree_slug = row['slug']
             program_type = row['product_type'].replace('\'', '').lower()
 
@@ -61,14 +70,6 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             )
 
             if not (org and program_type and primary_subject_override and level_type_override and language_override):
-                continue
-
-            message = self.validate_degree_data(row)
-            if message:
-                logger.error("Data validation issue for degree {}, skipping ingestion".format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
-                self.messages_list.append("[DATA VALIDATION ERROR] Degree {}. Missing data: {}".format(
-                    degree_slug, message
-                ))
                 continue
 
             # get degree object from slug and external_identifier
