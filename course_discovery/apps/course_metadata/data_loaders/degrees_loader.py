@@ -41,6 +41,9 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         for row in self.reader:
             row = self.transform_dict_keys(row)
 
+            degree_slug = row['slug']
+            program_type = row['product_type'].replace('\'', '').lower()
+
             message = self.validate_degree_data(row)
             if message:
                 logger.error("Data validation issue for degree {}, skipping ingestion".format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -48,9 +51,6 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                     degree_slug, message
                 ))
                 continue
-
-            degree_slug = row['slug']
-            program_type = row['product_type'].replace('\'', '').lower()
 
             logger.info('Starting data import flow for {}'.format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
 
