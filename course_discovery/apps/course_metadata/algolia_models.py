@@ -135,6 +135,8 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     def product_type(self):
         if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
             return 'Executive Education'
+        if self.type.slug == CourseType.BOOTCAMP_2U:
+            return 'Boot Camp'
         return 'Course'
 
     @property
@@ -262,7 +264,8 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     @property
     def should_index_spanish(self):
         return (self.should_index and
-                self.type.slug != CourseType.EXECUTIVE_EDUCATION_2U)
+                self.type.slug != CourseType.EXECUTIVE_EDUCATION_2U and
+                self.type.slug != CourseType.BOOTCAMP_2U)
 
     @property
     def availability_rank(self):
