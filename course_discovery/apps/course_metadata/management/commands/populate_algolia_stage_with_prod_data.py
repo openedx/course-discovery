@@ -12,7 +12,7 @@ adminAPIKey = 'meowmeow'
 indexName = 'meowmeow'
 
 class Command(BaseCommand):
-    client = SearchClient.create(applicationID, adminAPIKey)
+    client = SearchClient.create(applicationID, apiKey)
     index = client.init_index(indexName)
 
     hits = []
@@ -20,6 +20,6 @@ class Command(BaseCommand):
     for hit in index.browse_objects({'query': ''}):
         hits.append(hit)
 
-    with open('algolia_prod_data', 'w') as f:
+    with open('algolia_prod_data.py', 'w') as f:
         json.dump(hits, f)
 
