@@ -159,6 +159,7 @@ class BaseAggregateSearchViewSet(FacetQueryFieldsMixin, BaseElasticsearchDocumen
 
     faceted_search_fields = {
         'content_type': {'field': 'content_type', 'enabled': True},
+        'course_type': {'field': 'course_type', 'enabled': True},
         'first_enrollable_paid_seat_price': {'field': 'first_enrollable_paid_seat_price', 'enabled': True},
         'language': {'field': 'language.raw', 'enabled': True},
         'level_type': {'field': 'level_type.raw', 'enabled': True},
