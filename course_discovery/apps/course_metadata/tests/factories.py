@@ -252,6 +252,7 @@ class CourseFactory(SalesforceRecordFactory):
     faq = FuzzyText()
     learner_testimonials = FuzzyText()
     type = factory.SubFactory(CourseTypeFactory)
+    enterprise_subscription_inclusion = False
 
     class Meta:
         model = Course
@@ -337,6 +338,7 @@ class CourseRunFactory(SalesforceRecordFactory):
     weeks_to_complete = FuzzyInteger(1)
     license = 'all-rights-reserved'
     has_ofac_restrictions = True
+    enterprise_subscription_inclusion = False
     type = factory.SubFactory(CourseRunTypeFactory)
 
     @factory.post_generation
@@ -398,6 +400,7 @@ class OrganizationFactory(SalesforceRecordFactory):
     banner_image = FuzzyText()
     certificate_logo_image = FuzzyText()
     partner = factory.SubFactory(PartnerFactory)
+    enterprise_subscription_inclusion = False
 
     class Meta:
         model = Organization
@@ -521,6 +524,7 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     max_hours_effort_per_week = FuzzyInteger(4)
     credit_redemption_overview = FuzzyText()
     order_courses_by_start_date = True
+    enterprise_subscription_inclusion = False
     hidden = False
     organization_short_code_override = FuzzyText()
     organization_logo_override = FuzzyText(suffix=".png")

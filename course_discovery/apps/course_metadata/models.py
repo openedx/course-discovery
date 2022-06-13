@@ -221,6 +221,10 @@ class Organization(CachedMixin, TimeStampedModel):
             " generated.  When this flag is disabled, the key can be manually set."
         )
     )
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This field signifies if any of this org\'s courses are in the enterprise subscription catalog'),
+    )
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
@@ -912,6 +916,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
+    enterprise_subscription_inclusion = models.BooleanField(
+        null=True,
+        help_text=_('This field signifies if this course is in the enterprise subscription catalog'),
+    )
 
     class Meta:
         unique_together = (
@@ -919,6 +927,25 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             ('partner', 'key', 'draft'),
         )
         ordering = ['id']
+
+    def _check_enterprise_subscription_inclusion(self):
+        # if false has been passed in, or it's already been set to false
+        if self.enterprise_subscription_inclusion is False:
+            return False
+        for org in self.authoring_organizations.all():
+            if org.enterprise_subscription_inclusion is False:
+                return False
+        return True
+
+    # there have to be two saves because in order to check for if this is included in the
+    # subscription catalog, we need the id that is created on save to access the many-to-many fields
+    # and then need to update the boolean in the record based on conditional logic
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+        kwargs['force_insert'] = False
+        kwargs['force_update'] = True
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.key}: {self.title}'
@@ -1456,6 +1483,11 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Course_Run__c in Salesforce
 
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This calculated field signifies if this course run is in the enterprise subscription catalog'),
+    )
+
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',
         'end',
@@ -1922,6 +1954,16 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if send_emails and email_method:
             email_method(self)
 
+    def _check_enterprise_subscription_inclusion(self):
+        if self.course.enterprise_subscription_inclusion is False:
+            return False
+        if self.pacing_type == 'instructor_paced':
+            return False
+        return True
+
+    # there have to be two saves because in order to check for if this is included in the
+    # subscription catalog, we need the id that is created on save to access the many-to-many fields
+    # and then need to update the boolean in the record based on conditional logic
     def save(self, suppress_publication=False, send_emails=True, **kwargs):
         """
         Arguments:
@@ -1937,6 +1979,10 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             if push_to_marketing:
                 previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
 
+            super().save(**kwargs)
+            self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+            kwargs['force_insert'] = False
+            kwargs['force_update'] = True
             super().save(**kwargs)
             self.handle_status_change(send_emails)
 
@@ -2291,6 +2337,11 @@ class Program(PkSearchableMixin, TimeStampedModel):
         blank=True, default=0, help_text=_(
             'Number of credits a learner will earn upon successful completion of the program')
     )
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This calculated field signifies if all the courses in '
+                    'this program are included in the enterprise subscription catalog '),
+    )
     organization_short_code_override = models.CharField(max_length=255, blank=True, help_text=_(
         'A field to override Organization short code alias specific for this program.')
     )
@@ -2626,6 +2677,14 @@ class Program(PkSearchableMixin, TimeStampedModel):
     def is_active(self):
         return self.status == ProgramStatus.Active
 
+    def _check_enterprise_subscription_inclusion(self):
+        if self.type == 'micromasters':
+            return False
+        for course in self.courses.all():
+            if course.enterprise_subscription_inclusion is False:
+                return False
+        return True
+
     def save(self, *args, **kwargs):
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
@@ -2639,11 +2698,22 @@ class Program(PkSearchableMixin, TimeStampedModel):
             publisher = ProgramMarketingSitePublisher(self.partner)
             previous_obj = Program.objects.get(id=self.id) if self.id else None
 
+            # there have to be two saves because in order to check for if this is included in the
+            # subscription catalog, we need the id that is created on save to access the many-to-many fields
+            # and then need to update the boolean in the record based on conditional logic
             with transaction.atomic():
                 super().save(*args, **kwargs)
+                self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+                kwargs['force_insert'] = False
+                kwargs['force_update'] = True
+                super().save(**kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
             super().save(*args, **kwargs)
+            self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+            kwargs['force_insert'] = False
+            kwargs['force_update'] = True
+            super().save(**kwargs)
 
 
 class Ranking(TimeStampedModel):

@@ -395,6 +395,7 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
             'marketing_url',
             'slug',
             'banner_image_url',
+            'enterprise_subscription_inclusion',
         )
         read_only_fields = ('slug',)
 
@@ -918,6 +919,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         queryset=ProgramType.objects.all()
     )
     estimated_hours = serializers.SerializerMethodField()
+    enterprise_subscription_inclusion = serializers.BooleanField(required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -937,9 +939,10 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'level_type', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
-            'course_uuid', 'estimated_hours', 'content_language_search_facet_name',
+            'course_uuid', 'estimated_hours', 'content_language_search_facet_name', 'enterprise_subscription_inclusion'
         )
-        read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',)
+        read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',
+                            'enterprise_subscription_inclusion')
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
@@ -1134,6 +1137,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     organization_logo_override_url = serializers.SerializerMethodField()
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
+    enterprise_subscription_inclusion = serializers.BooleanField(required=False)
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1185,7 +1189,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'extra_description', 'additional_information', 'additional_metadata', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
-            'skills', 'organization_short_code_override', 'organization_logo_override_url'
+            'skills', 'organization_short_code_override', 'organization_logo_override_url',
+            'enterprise_subscription_inclusion'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1831,6 +1836,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     instructor_ordering = MinimalPersonSerializer(many=True)
     applicable_seat_types = serializers.SerializerMethodField()
     topics = serializers.SerializerMethodField()
+    enterprise_subscription_inclusion = serializers.BooleanField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -1876,8 +1882,9 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
-            'enrollment_count', 'topics', 'credit_value',
+            'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion',
         )
+        read_only_fields = ('enterprise_subscription_inclusion',)
 
 
 class PathwaySerializer(BaseModelSerializer):

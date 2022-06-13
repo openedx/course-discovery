@@ -122,10 +122,6 @@ class TestProgramViewSet(SerializationMixin):
         program = self.create_program(courses=[])
         self.create_curriculum(program)
 
-        # Notes on this query count:
-        # 42 queries to get program without a curriculum and no courses
-        # +2 for curriculum details (related courses, related programs)
-        # +8 for course details on 1 or more courses across all sibling curricula
         with django_assert_num_queries(52):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
@@ -161,7 +157,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(FuzzyInt(45, 1)):  # CI is often 41
+        with django_assert_num_queries(FuzzyInt(45, 1)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())
@@ -398,3 +394,15 @@ class TestProgramViewSet(SerializationMixin):
         update_url = reverse('api:v1:program-update-card-image', kwargs={'uuid': program.uuid})
         response = self.client.post(update_url, image_dict, format='json')
         assert response.status_code == 400
+
+    def test_enterprise_subscription_inclusion(self):
+        course = CourseFactory(enterprise_subscription_inclusion=True)
+        course2 = CourseFactory(enterprise_subscription_inclusion=True)
+        course3 = CourseFactory(enterprise_subscription_inclusion=False)
+        course_list_false = [course, course2, course3]
+        program = self.create_program(courses=course_list_false)
+        assert program.enterprise_subscription_inclusion is False
+
+        course_list_true = CourseFactory.create_batch(3, enterprise_subscription_inclusion=True)
+        program = self.create_program(courses=course_list_true)
+        assert program.enterprise_subscription_inclusion is True
