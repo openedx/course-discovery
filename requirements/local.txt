@@ -6,12 +6,12 @@
 #
 alabaster==0.7.12
     # via sphinx
-algoliasearch==1.20.0
+algoliasearch==2.6.0
     # via
     #   -c requirements/constraints.txt
     #   algoliasearch-django
     #   taxonomy-connector
-algoliasearch-django==1.7.3
+algoliasearch-django==2.0.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
