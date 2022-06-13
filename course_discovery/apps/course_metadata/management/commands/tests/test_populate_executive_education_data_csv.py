@@ -132,7 +132,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
 
                 # Asserting certain data items to verify that both CSV and API
                 # responses are present in the final CSV
-                assert data_row['Organization'] == 'altEdx'
+                assert data_row['Organization Short Code Override'] == 'altEdx'
                 assert data_row['External Identifier'] == '12345678'
                 assert data_row['Start Time'] == '00:00:00'
                 assert data_row['Short Description'] == 'A short description for CSV course'
@@ -276,9 +276,8 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         """
         Assert the default API response in output CSV dict.
         """
-        assert data_row['Organization'] == 'altEdx'
+        assert data_row['Organization Short Code Override'] == 'altEdx'
         assert data_row['2U Organization Code'] == 'edX'
-        assert data_row['Edx Organization Code'] == 'altEdx'
         assert data_row['Number'] == 'TC'
         assert data_row['Alternate Number'] == 'UCT'
         assert data_row['Title'] == 'Alternative CSV Course'

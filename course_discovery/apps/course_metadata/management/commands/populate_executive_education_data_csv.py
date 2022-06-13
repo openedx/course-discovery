@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
     # The list to define order of the header keys in csv.
     OUTPUT_CSV_HEADERS = [
-        'organization', '2u_organization_code', 'edx_organization_code', 'title', '2u_title', 'edx_title', 'number',
+        '2u_organization_code', 'title', '2u_title', 'edx_title', 'number',
         'alternate_number', 'course_enrollment_track', 'image', 'short_description', 'long_description',
         'what_will_you_learn', 'course_level', 'primary_subject', '2u_primary_subject', 'subject_subcategory',
         'verified_price', 'collaborators', 'syllabus', 'prerequisites', 'learner_testimonials',
@@ -36,7 +36,8 @@ class Command(BaseCommand):
         'staff', 'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language',
         'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
         'upgrade_deadline_override_time', 'redirect_url', 'external_identifier', 'lead_capture_form_url',
-        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'organic_url'
+        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'organic_url',
+        'organization_short_code_override',
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -267,8 +268,7 @@ class Command(BaseCommand):
 
         return {
             **default_values,
-            'organization': product_dict['altUniversityAbbreviation'] or product_dict['universityAbbreviation'],
-            'edx_organization_code': product_dict['altUniversityAbbreviation'],
+            'organization_short_code_override': product_dict['altUniversityAbbreviation'],
             '2u_organization_code': product_dict['universityAbbreviation'],
             'number': product_dict['abbreviation'],
             'alternate_number': product_dict['altAbbreviation'],
