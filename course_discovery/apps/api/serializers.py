@@ -1884,6 +1884,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion',
         )
+        read_only_fields = ('enterprise_subscription_inclusion',)
 
 
 class PathwaySerializer(BaseModelSerializer):

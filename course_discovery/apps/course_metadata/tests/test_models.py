@@ -1729,7 +1729,7 @@ class ProgramTests(TestCase):
 
     def test_str(self):
         """Verify that a program is properly converted to a str."""
-        assert str(self.program) == self.program.title
+        assert str(self.program) == f"{self.program.title} - {self.program.marketing_slug}"
 
     def test_weeks_to_complete_range(self):
         """ Verify that weeks to complete range works correctly """
@@ -2110,6 +2110,70 @@ class ProgramTests(TestCase):
 
         program_from_db = Program.objects.get(uuid=program.uuid)
         assert 1 == program_from_db.credit_value
+
+    def test_same_title_programs(self):
+        """
+        Verify that two different programs with same titles can be created and updated independently.
+        """
+        program_1 = factories.ProgramFactory(
+            title='Test Program',
+            marketing_slug='test-program-1',
+            overview='This is Test Program with marketing slug test-program-1',
+            weeks_to_complete=10
+        )
+        program_2 = factories.ProgramFactory(
+            title='Test Program',
+            marketing_slug='test-program-2',
+            overview='This is Test Program with marketing slug test-program-2',
+            weeks_to_complete=15
+        )
+
+        assert Program.objects.filter(title='Test Program').count() == 2
+        assert program_1.title == program_2.title
+        assert program_1.overview != program_2.overview
+
+        program_1.overview = 'this is updated overview'
+        program_2.weeks_to_complete = 50
+
+        program_1.save()
+        program_2.save()
+
+        # Re-fetching the programs to highlight that additional attr alongside title will be pivotal
+        # in getting the correct object
+        program_1 = Program.objects.get(
+            title='Test Program',
+            marketing_slug='test-program-1',
+        )
+        program_2 = Program.objects.get(
+            title='Test Program',
+            marketing_slug='test-program-2'
+        )
+
+        assert program_1.overview == 'this is updated overview'
+        assert program_1.weeks_to_complete == 10
+
+        assert program_2.overview == 'This is Test Program with marketing slug test-program-2'
+        assert program_2.weeks_to_complete == 50
+
+    def test_same_title_slug_programs(self):
+        """
+        Verify that two different programs with same titles and slug can not be created simultaneously.
+        """
+        factories.ProgramFactory(
+            title='Test Program',
+            marketing_slug='test-program-1',
+            overview='This is Test Program with marketing slug test-program-1',
+            weeks_to_complete=10
+        )
+        # Use of atomic here to avoid Transaction error in tearDown()
+        with transaction.atomic():
+            with pytest.raises(IntegrityError):
+                factories.ProgramFactory(
+                    title='Test Program',
+                    marketing_slug='test-program-1',
+                    overview='This is another Test Program with marketing slug test-program-1',
+                    weeks_to_complete=15
+                )
 
 
 class PathwayTests(TestCase):

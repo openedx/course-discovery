@@ -18,6 +18,13 @@ logger = logging.getLogger(__name__)
 class DegreeCSVDataLoader(AbstractDataLoader):
     """ Loads the degrees from the csv file """
 
+    DEGREE_REQUIRED_DATA_FIELDS = [
+        'title', 'card_image_url', 'product_type', 'organization_key', 'organization_short_code_override',
+        'slug', 'primary_subject', 'content_language', 'course_level', 'paid_landing_page_url', 'organic_url',
+        'identifier',
+        'overview', 'courses',
+    ]
+
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
@@ -33,56 +40,46 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         logger.info("Initiating Degree CSV data loader flow.")
         for row in self.reader:
             row = self.transform_dict_keys(row)
-            degree_title = row['title']
-            program_type = row['product_type'].replace('\'', '')
 
-            logger.info('Starting data import flow for {}'.format(degree_title))    # lint-amnesty, pylint: disable=logging-format-interpolation
+            degree_slug = row['slug']
+            program_type = row['product_type'].replace('\'', '').lower()
 
-            org = self._get_object(Organization, "key", row['organization_key'], degree_title)
-            program_type = self._get_object(ProgramType, "slug", program_type, degree_title)
+            message = self.validate_degree_data(row)
+            if message:
+                logger.error("Data validation issue for degree {}, skipping ingestion".format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
+                self.messages_list.append("[DATA VALIDATION ERROR] Degree {}. Missing data: {}".format(
+                    degree_slug, message
+                ))
+                continue
+
+            logger.info('Starting data import flow for {}'.format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
+
+            org = self._get_object(Organization, "key", row['organization_key'], degree_slug)
+            program_type = self._get_object(ProgramType, "slug", program_type, degree_slug)
             primary_subject_override = self._get_object(
                 Subject, "translations__name",
-                row['primary_subject'], degree_title
+                row['primary_subject'], degree_slug
             )
             level_type_override = self._get_object(
                 LevelType, "translations__name_t",
-                row['course_level'], degree_title
+                row['course_level'], degree_slug
             )
             language_override = self._get_object(
                 LanguageTag, "name",
-                row['content_language'], degree_title
+                row['content_language'], degree_slug
             )
 
             if not (org and program_type and primary_subject_override and level_type_override and language_override):
                 continue
 
-            message = self.validate_degree_data(program_type, row)
-            if message:
-                logger.error("Data validation issue for degree {}, skipping ingestion".format(degree_title))    # lint-amnesty, pylint: disable=logging-format-interpolation
-                self.messages_list.append("[DATA VALIDATION ERROR] Degree {}. Missing data: {}".format(
-                    degree_title, message
-                ))
-                continue
-
-            # get degree object from title and external_identifier
+            # get degree object from slug and external_identifier
             degree = Degree.objects.filter(
-                title=degree_title, partner=self.partner,
-                # additional_metadata__external_identifier=row['identifier']
+                marketing_slug=degree_slug, partner=self.partner,
+                additional_metadata__external_identifier=row['identifier']
             ).first()
 
-            # temp check to prevent existing degree/programs from being overwritten
-            additional_metadata = DegreeAdditionalMetadata.objects.filter(degree=degree).first()
-            if degree and (not additional_metadata or additional_metadata.external_identifier != row['identifier']):
-                logger.error("Degree {} already exists, but external identifier didn't match. Skipping".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
-                    degree_title
-                ))
-                self.messages_list.append('[DEGREE UPDATE ERROR] degree {}'.format(
-                    degree_title
-                ))
-                continue
-
             logger.info("Degree {} {} located in the database. {} degree.".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
-                degree_title,
+                degree_slug,
                 "is" if degree else "is not",
                 "Creating new" if not degree else "Updating existing"
             ))
@@ -100,7 +97,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 ))
                 self.messages_list.append('[DEGREE {} ERROR] degree {}'.format(
                     "UPDATE" if degree else "CREATE",
-                    degree_title
+                    degree_slug
                 ))
                 continue
 
@@ -111,7 +108,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             self._handle_courses(row, degree)
 
             logger.info("Degree updated successfully for degree key {}".format(degree.uuid))    # lint-amnesty, pylint: disable=logging-format-interpolation
-            self.degree_uuids[str(degree.uuid)] = degree.title
+            self.degree_uuids[str(degree.uuid)] = degree.marketing_slug
 
         logger.info("Degree CSV loader ingest pipeline has completed.")
 
@@ -121,18 +118,25 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             for msg in self.messages_list:
                 logger.error(msg)
 
-        # log the processed degree uuids and their titles
+        # log the processed degree uuids and their marketing_slugs
         if self.degree_uuids:
             logger.info("Degree UUIDs:")
-            for degree_uuid, title in self.degree_uuids.items():
-                logger.info("{}:{}".format(degree_uuid, title))    # lint-amnesty, pylint: disable=logging-format-interpolation
+            for degree_uuid, marketing_slug in self.degree_uuids.items():
+                logger.info("{}:{}".format(degree_uuid, marketing_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
 
-    def validate_degree_data(self, program_type, data):  # pylint: disable=unused-argument
+    def validate_degree_data(self, data):
         """
         Verify the required data key-values for a program type are present in the provided
         data dictionary and return a comma separated string of missing data fields.
         """
-        # TODO
+        missing_fields = []
+
+        for field in self.DEGREE_REQUIRED_DATA_FIELDS:
+            if not (field in data and data[field]):
+                missing_fields.append(field)
+
+        if missing_fields:
+            return ', '.join(missing_fields)
         return ''
 
     def transform_dict_keys(self, data):
@@ -164,21 +168,21 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             "primary_subject_override": primary_subject_override,
             "level_type_override": level_type_override,
             "language_override": language_override,
-            "marketing_slug": data['slug'],
+            "title": data['title'],
             "overview": data['overview'],
             "organization_short_code_override": data.get('organization_short_code_override', ''),
             "partner": self.partner,
 
         }
-        degree, updated = Degree.objects.update_or_create(
-            title=data['title'],
+        degree, created = Degree.objects.update_or_create(
+            marketing_slug=data['slug'],
             additional_metadata__external_identifier=data['identifier'],
             defaults=data_dict
         )
 
-        logger.info("Degree with title {} is {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
-            degree,
-            "updated" if updated else "created",
+        logger.info("Degree with slug {} is {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
+            degree.marketing_slug,
+            "created" if created else "updated",
         ))
 
         return degree
@@ -201,9 +205,9 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         )
         if not is_downloaded:
             logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                degree.title
+                degree.marketing_slug
             ))
-            self.messages_list.append('[DEGREE IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.title))
+            self.messages_list.append('[DEGREE IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.marketing_slug))
 
         if data.get('organization_logo_override'):
             is_downloaded = download_and_save_program_image(
@@ -212,10 +216,10 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             )
             if not is_downloaded:
                 logger.error("Unexpected error happened while downloading org logo image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                    degree.title
+                    degree.marketing_slug
                 ))
-                self.messages_list.append('[ORG LOGO OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(
-                    degree.title
+                self.messages_list.append('[ORG LOGO OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
+                    degree.marketing_slug
                 ))
 
     def _handle_courses(self, data, degree):
@@ -237,10 +241,10 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 }
             )
 
-            logger.info("Curriculum {} is {} for Degree title {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
+            logger.info("Curriculum {} is {} for Degree slug {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
                 curriculum,
                 "created" if created else "updated",
-                degree,
+                degree.marketing_slug,
             ))
 
     def _handle_specializations(self, data, degree):
@@ -257,7 +261,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                     specialization_obj, _ = Specialization.objects.get_or_create(value=specialization)
                     degree.specializations.add(specialization_obj)
 
-    def _get_object(self, model, key, value, degree_title):
+    def _get_object(self, model, key, value, degree_slug):
         """
         Get an object from the database by its key and value
         """
@@ -273,10 +277,10 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             logger.exception("{} {} does not exist. Skipping CSV loader for degree {}".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
                 model_name,
                 value,
-                degree_title
+                degree_slug
             ))
             self.messages_list.append('[MISSING {}] {}: {}, degree: {}'.format(
-                model_name.upper(), model_name, value, degree_title
+                model_name.upper(), model_name, value, degree_slug
             ))
             return None
 
@@ -295,8 +299,8 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             defaults=additional_metadata_dict
         )
 
-        logger.info("AdditionalMetdata {} is {} with Degree title {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
+        logger.info("AdditionalMetadata {} is {} with Degree slug {}".format(    # lint-amnesty, pylint: disable=logging-format-interpolation
             additional_metadata,
             "created" if created else "updated",
-            degree,
+            degree.marketing_slug,
         ))

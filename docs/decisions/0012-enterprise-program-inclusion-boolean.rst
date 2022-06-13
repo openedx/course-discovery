@@ -1,4 +1,4 @@
-Adding Subscription Inclusion toggle to Publisher/Studio
+Adding Subscription Inclusion toggle to Publisher/Discovery
 ============================================================
 
 Status
@@ -12,16 +12,21 @@ Context
 Our edX catalog has many subsets, which add distinctions onto which are allowed to be enrolled 
 in by our enterprise customers. 
 
-- Enterprise Catalog: The entirety of the enrollable edX courses excluding Stanford and UPenn
-- Subscription Catalog: A subset of the Enterprise Catalog including self-paced courses from participating partners. Sometimes referred to as OC Catalog 
-- B2B Subscription Catalog: A subset of the Subscription Catalog excluding Harvard
+- Enterprise Catalog: The entirety of the enrollable edX courses**
+- Subscription Catalog: A subset of the Enterprise Catalog including self-paced courses from 
+participating partners. Sometimes referred to as OC Catalog 
+- B2B Subscription Catalog: A subset of the Subscription Catalog**
+
+** Does exclude some select partners
 
 Currently, our system for subscription tagging is brittle and relies on communication between 
 two individuals, which leaves us open to a risk multiple issues including:
 
-- Data Integrity: We copy or pull data from 4 different platforms (Discovery/Publisher, Explore Catalog, Google Sheet, and Django/LMS)
-- Course Key Tagging: Recently published courses are excluded as the process is manual and is therefore time-gapped
-- Source of Truth/SME Ownership: Current process is owned by one (overworked) member of enterprise and not owners of partner relationships 
+- Data Integrity: We copy or pull data from multiple different platforms
+- Course Key Tagging: Recently published courses are excluded as the process is manual and 
+is therefore time-gapped
+- Source of Truth/SME Ownership: Current process is owned by one (overworked) member of 
+enterprise and not owners of partner relationships 
 
 The full process must be repeated on a weekly basis and whenever a new partner is included 
 in subscriptions to ensure that the catalog accurately reflects courses that should be included
@@ -56,6 +61,8 @@ is included in that catalog, we will set the flag to true. Course runs are set t
 the parent course is set to true and the course run is not instructor-led. 
 
 There are some existing organizations with unique customizations. Because of the value-add of 
-these partner’s courses, we have allowed places like Harvard to exclude their courses from
+these partner’s courses, we have allowed places to exclude their courses from
 the B2B catalog. However, these are the exception and not the rule, and we intend not to 
-generally allow or advertise these customization options for future partners. 
+generally allow or advertise these customization options for future partners. We will be 
+filtering/manually excluding unique partner courses through a downstream query on a case by 
+case basis.

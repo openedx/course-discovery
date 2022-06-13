@@ -4,8 +4,8 @@ Unit tests for Degree CSV Data loader.
 from tempfile import NamedTemporaryFile
 from unittest import mock
 
+import ddt
 import responses
-from ddt import ddt
 from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
@@ -19,7 +19,7 @@ from course_discovery.apps.course_metadata.tests.factories import DegreeAddition
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.degrees_loader'
 
 
-@ddt
+@ddt.ddt
 @mock.patch(
     'course_discovery.apps.course_metadata.data_loaders.configured_jwt_decode_handler',
     return_value={'preferred_username': 'test_username'}
@@ -53,6 +53,38 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         )
 
+    @ddt.data('identifier', 'card_image_url', 'title', 'paid_landing_page_url', 'organic_url', 'courses')
+    def test_validation_failure(self, missing_key, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that data validation fails given an invalid data.
+        """
+        self._setup_prerequisites(self.partner)
+        INVALID_DEGREE_CSV_DICT = {
+            **mock_data.VALID_DEGREE_CSV_DICT,
+            missing_key: ''
+        }
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [INVALID_DEGREE_CSV_DICT])
+            with LogCapture(LOGGER_PATH) as log_capture:
+                loader = DegreeCSVDataLoader(self.partner, csv_path=csv.name)
+                loader.ingest()
+                self._assert_default_logs(log_capture)
+                log_capture.check_present(
+                    (
+                        LOGGER_PATH,
+                        'ERROR',
+                        'Data validation issue for degree {}, skipping ingestion'.format(self.DEGREE_SLUG)
+                    ),
+                    (
+                        LOGGER_PATH,
+                        'ERROR',
+                        '[DATA VALIDATION ERROR] Degree {}. Missing data: {}'.format(
+                            self.DEGREE_SLUG, missing_key
+                        )
+                    )
+                )
+                assert Degree.objects.count() == 0
+
     def test_missing_organization(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that no degree is created for a missing organization in the database.
@@ -68,13 +100,13 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                         LOGGER_PATH,
                         'ERROR',
                         'Organization invalid-organization does not exist. Skipping CSV '
-                        'loader for degree {}'.format(self.DEGREE_TITLE)
+                        'loader for degree {}'.format(self.DEGREE_SLUG)
                     ),
                     (
                         LOGGER_PATH,
                         'ERROR',
                         '[MISSING ORGANIZATION] Organization: invalid-organization, degree: {}'.format(
-                            self.DEGREE_TITLE
+                            self.DEGREE_SLUG
                         )
                     )
                 )
@@ -96,7 +128,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                         LOGGER_PATH,
                         'ERROR',
                         'ProgramType invalid-program-type does not exist. Skipping CSV '
-                        'loader for degree {}'.format(self.DEGREE_TITLE)
+                        'loader for degree {}'.format(self.DEGREE_SLUG)
                     )
                 )
                 assert Degree.objects.count() == 0
@@ -121,7 +153,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_TITLE)
+                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_SLUG)
                     )
                 )
 
@@ -129,7 +161,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert Program.objects.count() == 1
                 assert Curriculum.objects.count() == 1
 
-                degree = Degree.objects.get(title=self.DEGREE_TITLE, partner=self.partner)
+                degree = Degree.objects.get(marketing_slug=self.DEGREE_SLUG, partner=self.partner)
                 program = Program.objects.get(degree=degree, partner=self.partner)
                 curriculam = Curriculum.objects.get(program=program)
 
@@ -147,7 +179,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
         _, image_content = self.mock_image_response()
 
         degree = DegreeFactory(
-            title=self.DEGREE_TITLE, partner=self.partner,
+            marketing_slug=self.DEGREE_SLUG, partner=self.partner,
             type=self.program_type
         )
         _ = DegreeAdditionalMetadataFactory(degree=degree, external_identifier='123456')
@@ -164,14 +196,14 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree {} is located in the database. Updating existing degree.'.format(self.DEGREE_TITLE)
+                        'Degree {} is located in the database. Updating existing degree.'.format(self.DEGREE_SLUG)
                     )
                 )
                 assert Degree.objects.count() == 1
                 assert Program.objects.count() == 1
                 assert Curriculum.objects.count() == 1
 
-                degree = Degree.objects.get(title=self.DEGREE_TITLE, partner=self.partner)
+                degree = Degree.objects.get(marketing_slug=self.DEGREE_SLUG, partner=self.partner)
                 program = Program.objects.get(degree=degree, partner=self.partner)
                 curriculam = Curriculum.objects.get(program=program)
 
@@ -201,7 +233,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_TITLE)
+                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_SLUG)
                     )
                 )
 
@@ -209,7 +241,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert Program.objects.count() == 1
                 assert Curriculum.objects.count() == 1
 
-                degree = Degree.objects.get(title=self.DEGREE_TITLE, partner=self.partner)
+                degree = Degree.objects.get(marketing_slug=self.DEGREE_SLUG, partner=self.partner)
                 program = Program.objects.get(degree=degree, partner=self.partner)
                 curriculam = Curriculum.objects.get(program=program)
 
@@ -253,7 +285,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'INFO',
-                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_TITLE)
+                        'Degree {} is not located in the database. Creating new degree.'.format(self.DEGREE_SLUG)
                     )
                 )
 
@@ -264,11 +296,11 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Unexpected error happened while downloading image for degree {}'.format(self.DEGREE_TITLE)
+                        'Unexpected error happened while downloading image for degree {}'.format(self.DEGREE_SLUG)
                     ),
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        '[DEGREE IMAGE DOWNLOAD FAILURE] degree {}'.format(self.DEGREE_TITLE)
+                        '[DEGREE IMAGE DOWNLOAD FAILURE] degree {}'.format(self.DEGREE_SLUG)
                     )
                 )

@@ -929,12 +929,12 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         ordering = ['id']
 
     def _check_enterprise_subscription_inclusion(self):
-        for org in self.authoring_organizations.all():
-            if org.enterprise_subscription_inclusion is False:
-                return False
         # if false has been passed in, or it's already been set to false
         if self.enterprise_subscription_inclusion is False:
             return False
+        for org in self.authoring_organizations.all():
+            if org.enterprise_subscription_inclusion is False:
+                return False
         return True
 
     # there have to be two saves because in order to check for if this is included in the
@@ -2238,7 +2238,7 @@ class FAQ(TimeStampedModel):
 class Program(PkSearchableMixin, TimeStampedModel):
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
-        help_text=_('The user-facing display title for this Program.'), max_length=255, unique=True)
+        help_text=_('The user-facing display title for this Program.'), max_length=255)
     subtitle = models.CharField(
         help_text=_('A brief, descriptive subtitle for the Program.'), max_length=255, blank=True)
     marketing_hook = models.CharField(
@@ -2377,7 +2377,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
         get_latest_by = 'created'
 
     def __str__(self):
-        return self.title
+        return f"{self.title} - {self.marketing_slug}"
 
     def clean(self):
         # See https://stackoverflow.com/questions/47819247
