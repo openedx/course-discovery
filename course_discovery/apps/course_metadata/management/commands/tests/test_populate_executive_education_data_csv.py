@@ -31,6 +31,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 "altName": "Alternative CSV Course",
                 "abbreviation": "TC",
                 "altAbbreviation": "UCT",
+                "blurb": "A short description for CSV course",
                 "language": "Español",
                 "subjectMatter": "Marketing",
                 "altSubjectMatter": "Design and Marketing",
@@ -134,7 +135,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Organization'] == 'altEdx'
                 assert data_row['External Identifier'] == '12345678'
                 assert data_row['Start Time'] == '00:00:00'
-                assert data_row['Short Description'] == 'CSV Course'
+                assert data_row['Short Description'] == 'A short description for CSV course'
                 assert data_row['Long Description'] == 'Very short description\n' \
                                                        'This is supposed to be a long description'
                 assert data_row['End Time'] == '23:59:59'
@@ -292,7 +293,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['End Time'] == '23:59:59'
         assert data_row['End Date'] == '2022-05-06'
         assert data_row['Verified Price'] == '1998'
-        assert data_row['Short Description'] == 'CSV Course'
+        assert data_row['Short Description'] == 'A short description for CSV course'
         assert data_row['Long Description'] == 'Very short description\n' \
                                                'This is supposed to be a long description'
         assert data_row['Course Enrollment Track'] == 'Executive Education(2U)'
