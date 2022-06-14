@@ -37,7 +37,7 @@ class Command(BaseCommand):
         'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
         'upgrade_deadline_override_time', 'redirect_url', 'external_identifier', 'lead_capture_form_url',
         'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'organic_url',
-        'organization_short_code_override',
+        'organization_short_code_override', 'logo_url',
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -310,4 +310,5 @@ class Command(BaseCommand):
             'start_date': partially_filled_csv_dict.get('start_date') or product_dict['variant']['startDate'],
             'minimum_effort': minimum_effort,
             'maximum_effort': maximum_effort,
+            'logo_url': product_dict['logoUrl'],
         }

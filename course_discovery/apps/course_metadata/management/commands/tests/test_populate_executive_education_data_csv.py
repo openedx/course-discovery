@@ -47,6 +47,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 'isThisCourseForYou': 'This is supposed to be a long description',
                 'whatWillSetYouApart': "New ways to learn",
                 "videoURL": "",
+                "logoUrl": "https://example.com/",
                 "lcfURL": "www.example.com/lead-capture?id=123",
                 "variant": {
                     "id": "test_id",
@@ -156,6 +157,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                                                '</p><p><b>Module 1: </b>Welcome to Module 1</p></div>'
                 assert data_row['Learner Testimonials'] == '<div><p><i>" This is a good course"</i></p><p>-Lorem ' \
                                                            'Ipsum (Gibberish)</p></div>'
+                assert data_row['Logo Url'] == 'https://example.com/'
                 assert str(date.today().year) in data_row['Publish Date']
 
                 log_capture.check_present(
@@ -318,4 +320,5 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                                        '</p><p><b>Module 1: </b>Welcome to Module 1</p></div>'
         assert data_row['Learner Testimonials'] == '<div><p><i>" This is a good course"</i></p><p>-Lorem ' \
                                                    'Ipsum (Gibberish)</p></div>'
+        assert data_row['Logo Url'] == 'https://example.com/'
         assert str(date.today().year) in data_row['Publish Date']
