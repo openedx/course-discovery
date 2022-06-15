@@ -644,6 +644,8 @@ class AdditionalMetadata(TimeStampedModel):
         CertificateInfo, models.CASCADE, default=None, null=True, blank=True,
         related_name='related_course_additional_metadata',
     )
+    start_date = models.DateTimeField(default=None, blank=True, null=True)
+    registration_deadline = models.DateTimeField(default=None, blank=True, null=True)
 
     def __str__(self):
         return f"{self.external_url} - {self.external_identifier}"

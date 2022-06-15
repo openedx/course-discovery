@@ -202,6 +202,8 @@ class TestCourse(TestCase):
         self.assertEqual(course.additional_metadata.organic_url, additional_metadata.organic_url)
         self.assertEqual(course.additional_metadata.certificate_info, additional_metadata.certificate_info)
         self.assertEqual(course.additional_metadata.facts, additional_metadata.facts)
+        self.assertEqual(course.additional_metadata.start_date, additional_metadata.start_date)
+        self.assertEqual(course.additional_metadata.registration_deadline, additional_metadata.registration_deadline)
 
     def test_enterprise_subscription_inclusion(self):
         """ Verify the enterprise inclusion boolean is calculated as expected. """

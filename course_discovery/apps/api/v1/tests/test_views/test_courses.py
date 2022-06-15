@@ -16,6 +16,7 @@ from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
@@ -1071,6 +1072,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
     @responses.activate
     def test_update_with_additional_metadata(self):
         course = CourseFactory(additional_metadata=None)
+        current = datetime.datetime.now(pytz.UTC)
+        future = current + datetime.timedelta(days=10)
 
         additional_metadata = {
             'external_url': 'https://example.com/',
@@ -1086,7 +1089,9 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                     'heading': 'Fact heading',
                     'blurb': '<p>Fact blurb</p>',
                 }
-            ]
+            ],
+            'start_date': serialize_datetime(future),
+            'registration_deadline': serialize_datetime(current),
         }
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         course_data = {

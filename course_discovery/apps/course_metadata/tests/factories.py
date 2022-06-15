@@ -89,6 +89,8 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     lead_capture_form_url = FuzzyURL()
     organic_url = FuzzyURL()
     certificate_info = factory.SubFactory(CertificateInfoFactory)
+    start_date = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC), force_microsecond=0)
+    registration_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC), force_microsecond=0)
 
     @factory.post_generation
     def facts(self, create, extracted, **kwargs):
