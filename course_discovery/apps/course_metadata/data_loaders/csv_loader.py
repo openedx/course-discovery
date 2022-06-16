@@ -39,8 +39,8 @@ class CSVDataLoader(AbstractDataLoader):
     BASE_REQUIRED_DATA_FIELDS = [
         'title', 'number', 'image', 'short_description', 'long_description', 'what_will_you_learn', 'course_level',
         'primary_subject', 'verified_price', 'syllabus', 'frequently_asked_questions', 'publish_date', 'start_date',
-        'start_time', 'end_date', 'end_time', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
-        'content_language', 'transcript_language'
+        'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time', 'course_pacing', 'minimum_effort',
+        'maximum_effort', 'length', 'content_language', 'transcript_language'
     ]
 
     EXECUTIVE_EDUCATION_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
@@ -543,6 +543,8 @@ class CSVDataLoader(AbstractDataLoader):
         additional_metadata = {
             'external_url': data['redirect_url'],
             'external_identifier': data['external_identifier'],
+            'start_date': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
+            'registration_deadline': self.get_formatted_datetime_string(f"{data['reg_close_date']} {data['reg_close_time']}"),
         }
         lead_capture_url = data.get('lead_capture_form_url', '')
         organic_url = data.get('organic_url', '')
