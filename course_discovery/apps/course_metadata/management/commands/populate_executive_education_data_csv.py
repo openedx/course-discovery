@@ -32,12 +32,12 @@ class Command(BaseCommand):
         'verified_price', 'collaborators', 'syllabus', 'prerequisites', 'learner_testimonials',
         'frequently_asked_questions', 'additional_information', 'about_video_link', 'secondary_subject',
         'tertiary_subject', 'course_embargo_(ofac)_restriction_text_added_to_the_faq_section', 'publish_date',
-        'start_date', 'start_time', 'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing',
-        'staff', 'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language',
-        'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
-        'upgrade_deadline_override_time', 'redirect_url', 'external_identifier', 'lead_capture_form_url',
-        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'organic_url',
-        'organization_short_code_override',
+        'start_date', 'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time',
+        'course_run_enrollment_track', 'course_pacing', 'staff', 'minimum_effort', 'maximum_effort', 'length',
+        'content_language', 'transcript_language', 'expected_program_type', 'expected_program_name',
+        'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
+        'lead_capture_form_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2',
+        'stat2_text', 'organic_url', 'organization_short_code_override',
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -251,6 +251,7 @@ class Command(BaseCommand):
             'course_run_enrollment_track': 'Unpaid Executive Education',
             'start_time': '00:00:00',
             'end_time': '23:59:59',
+            'reg_close_time': '23:59:59',
             'publish_date': date.today().isoformat(),
             'course_level': 'Introductory',
             'course_pacing': 'Instructor-Paced',
@@ -308,6 +309,7 @@ class Command(BaseCommand):
             'secondary_subject': partially_filled_csv_dict.get('secondary_subject', ''),
             'tertiary_subject': partially_filled_csv_dict.get('tertiary_subject', ''),
             'start_date': partially_filled_csv_dict.get('start_date') or product_dict['variant']['startDate'],
+            'reg_close_date': partially_filled_csv_dict.get('regCloseDate') or product_dict['variant']['regCloseDate'],
             'minimum_effort': minimum_effort,
             'maximum_effort': maximum_effort,
         }

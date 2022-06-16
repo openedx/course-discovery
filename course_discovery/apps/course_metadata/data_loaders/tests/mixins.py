@@ -183,20 +183,21 @@ class CSVLoaderMixin:
         'syllabus', 'prerequisites', 'learner_testimonials', 'frequently_asked_questions', 'additional_information',
         'about_video_link', 'secondary_subject', 'tertiary_subject',
         'course_embargo_(ofac)_restriction_text_added_to_the_faq_section', 'publish_date',
-        'start_date', 'start_time', 'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing', 'staff',
-        'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language',
-        'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
-        'upgrade_deadline_override_time', 'redirect_url', 'external_identifier', 'lead_capture_form_url', 'organic_url',
-        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text',
-        'organization_logo_override', 'organization_short_code_override'
+        'start_date', 'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time',
+        'course_run_enrollment_track', 'course_pacing', 'staff', 'minimum_effort', 'maximum_effort',
+        'length', 'content_language', 'transcript_language', 'expected_program_type', 'expected_program_name',
+        'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
+        'lead_capture_form_url', 'organic_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text',
+        'stat2', 'stat2_text', 'organization_logo_override', 'organization_short_code_override'
     ]
     # The list of minimal data headers
     MINIMAL_CSV_DATA_KEYS_ORDER = [
         'organization', 'title', 'number', 'course_enrollment_track', 'image', 'short_description',
         'long_description', 'what_will_you_learn', 'course_level', 'primary_subject', 'verified_price', 'publish_date',
-        'start_date', 'start_time', 'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing',
-        'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language', 'redirect_url',
-        'external_identifier', 'syllabus', 'frequently_asked_questions'
+        'start_date', 'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time',
+        'course_run_enrollment_track', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
+        'content_language', 'transcript_language', 'redirect_url', 'external_identifier', 'syllabus',
+        'frequently_asked_questions'
     ]
     BASE_EXPECTED_COURSE_DATA = {
         # Loader does not publish newly created course or a course that has not reached published status.
@@ -226,7 +227,9 @@ class CSVLoaderMixin:
             'heading': 'About the certificate',
             'blurb': 'For special people'
         },
-        'facts_data': ['90 million', '<p>Bacterias cottage cost</p>', 'Diamond mine', '<p>Worth it</p>']
+        'facts_data': ['90 million', '<p>Bacterias cottage cost</p>', 'Diamond mine', '<p>Worth it</p>'],
+        'start_date': '2020-01-25T00:00:00+00:00',
+        'registration_deadline': '2020-01-25T00:00:00+00:00'
     }
 
     BASE_EXPECTED_COURSE_RUN_DATA = {
@@ -356,6 +359,8 @@ class CSVLoaderMixin:
         assert course.additional_metadata.external_identifier == expected_data['external_identifier']
         assert course.additional_metadata.lead_capture_form_url == expected_data['lead_capture_form_url']
         assert course.additional_metadata.organic_url == expected_data['organic_url']
+        assert course.additional_metadata.start_date.isoformat() == expected_data['start_date']
+        assert course.additional_metadata.registration_deadline.isoformat() == expected_data['registration_deadline']
         assert course.additional_metadata.certificate_info.heading == expected_data['certificate_info']['heading']
         assert expected_data['certificate_info']['blurb'] in course.additional_metadata.certificate_info.blurb
         assert sorted([subject.slug for subject in course.subjects.all()]) == sorted(expected_data['subjects'])

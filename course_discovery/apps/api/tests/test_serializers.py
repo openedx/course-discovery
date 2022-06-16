@@ -1938,6 +1938,8 @@ class AdditionalMetadataSerializerTests(TestCase):
             'certificate_info': CertificateInfoSerializer(additional_metadata.certificate_info).data,
             'facts': FactSerializer(additional_metadata.facts, many=True).data,
             'organic_url': additional_metadata.organic_url,
+            'start_date': serialize_datetime(additional_metadata.start_date),
+            'registration_deadline': serialize_datetime(additional_metadata.registration_deadline),
         }
         assert serializer.data == expected
 

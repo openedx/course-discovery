@@ -533,6 +533,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     assert course.subjects.first().slug == "computer-science"
                     assert course.additional_metadata.external_url == 'http://www.example.com'
                     assert course.additional_metadata.external_identifier == '123456789'
+                    assert course.additional_metadata.start_date.isoformat() == '2020-01-25T00:00:00+00:00'
+                    assert course.additional_metadata.registration_deadline.isoformat() == '2020-01-25T00:00:00+00:00'
                     assert course.additional_metadata.lead_capture_form_url == ''
                     assert course.additional_metadata.certificate_info is None
                     assert course.additional_metadata.facts.exists() is False
