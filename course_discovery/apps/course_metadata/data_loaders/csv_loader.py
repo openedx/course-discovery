@@ -38,15 +38,15 @@ class CSVDataLoader(AbstractDataLoader):
     # list of data fields (present as CSV columns) that should be present in each row
     BASE_REQUIRED_DATA_FIELDS = [
         'title', 'number', 'image', 'short_description', 'long_description', 'what_will_you_learn', 'course_level',
-        'primary_subject', 'verified_price', 'syllabus', 'publish_date', 'start_date',
-        'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time',
-        'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
+        'primary_subject', 'verified_price', 'syllabus', 'publish_date', 'start_date', 'start_time', 'end_date',
+        'end_time', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
         'content_language', 'transcript_language'
     ]
 
     EXECUTIVE_EDUCATION_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
         'redirect_url', 'organic_url', 'external_identifier', 'lead_capture_form_url', 'certificate_header',
-        'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'frequently_asked_questions'
+        'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'frequently_asked_questions',
+        'reg_close_date', 'reg_close_time'
     ]
 
     BOOTCAMP_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
@@ -551,7 +551,6 @@ class CSVDataLoader(AbstractDataLoader):
             'external_url': data['redirect_url'],
             'external_identifier': data['external_identifier'],
             'start_date': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
-            'registration_deadline': self.get_formatted_datetime_string(f"{data['reg_close_date']} {data['reg_close_time']}"),
         }
         lead_capture_url = data.get('lead_capture_form_url', '')
         organic_url = data.get('organic_url', '')
@@ -565,6 +564,7 @@ class CSVDataLoader(AbstractDataLoader):
             data.get('stat2', ''),
             data.get('stat2_text', ''),
         )
+        registration_deadline = data.get('reg_close_date', '')
         if lead_capture_url:
             additional_metadata.update({'lead_capture_form_url': lead_capture_url})
         if organic_url:
@@ -573,4 +573,8 @@ class CSVDataLoader(AbstractDataLoader):
             additional_metadata.update({'certificate_info': certificate_info})
         if facts:
             additional_metadata.update({'facts': facts})
+        if registration_deadline:
+            additional_metadata.update({'registration_deadline': self.get_formatted_datetime_string(
+                f"{data['reg_close_date']} {data['reg_close_time']}"
+            )})
         return additional_metadata
