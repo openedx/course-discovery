@@ -38,14 +38,18 @@ class CSVDataLoader(AbstractDataLoader):
     # list of data fields (present as CSV columns) that should be present in each row
     BASE_REQUIRED_DATA_FIELDS = [
         'title', 'number', 'image', 'short_description', 'long_description', 'what_will_you_learn', 'course_level',
-        'primary_subject', 'verified_price', 'syllabus', 'frequently_asked_questions', 'publish_date', 'start_date',
+        'primary_subject', 'verified_price', 'syllabus', 'publish_date', 'start_date',
         'start_time', 'end_date', 'end_time', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
         'content_language', 'transcript_language'
     ]
 
     EXECUTIVE_EDUCATION_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
         'redirect_url', 'organic_url', 'external_identifier', 'lead_capture_form_url', 'certificate_header',
-        'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text',
+        'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'frequently_asked_questions'
+    ]
+
+    BOOTCAMP_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
+        'redirect_url', 'organic_url', 'external_identifier',
     ]
 
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None):
@@ -194,6 +198,8 @@ class CSVDataLoader(AbstractDataLoader):
         required_fields = self.BASE_REQUIRED_DATA_FIELDS
         if course_type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
             required_fields = self.EXECUTIVE_EDUCATION_REQUIRED_FIELDS
+        elif course_type.slug == CourseType.BOOTCAMP_2U:
+            required_fields = self.BOOTCAMP_REQUIRED_FIELDS
 
         for field in required_fields:
             if not (field in data and data[field]):
