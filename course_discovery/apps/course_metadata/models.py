@@ -174,7 +174,7 @@ class AbstractHeadingBlurbModel(TimeStampedModel):
 class Organization(CachedMixin, TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
-    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
+    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=True, verbose_name=_('UUID'))
     key = models.CharField(max_length=255, help_text=_('Please do not use any spaces or special characters other '
                                                        'than period, underscore or hyphen. This key will be used '
                                                        'in the course\'s course key.'))

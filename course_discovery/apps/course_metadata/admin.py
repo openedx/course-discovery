@@ -488,6 +488,10 @@ class OrganizationAdmin(admin.ModelAdmin):
         Ensure that 'key' cannot be edited after creation.
         """
         if obj:
+            flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
+            flag = get_waffle_flag_model().get(flag_name)
+            if flag.is_active(request):
+                return ['key', ]
             return ['uuid', 'key', ]
         else:
             return ['uuid', ]
