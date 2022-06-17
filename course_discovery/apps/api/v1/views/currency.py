@@ -5,7 +5,6 @@ from django.conf import settings
 from rest_framework import views
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework_extensions.cache.decorators import cache_response
 
 logger = logging.getLogger(__name__)
 
@@ -60,8 +59,9 @@ class CurrencyView(views.APIView):
         ]
         return [rates, currencies, eurozone_countries]
 
+    # temp disbale cache to unblock prospectus build
     # Cache exchange rates for 1 day
-    @cache_response(60 * 60 * 24, key_func=exchange_rate_cache_key)
+    # @cache_response(60 * 60 * 24, key_func=exchange_rate_cache_key)
     def get(self, request, *_args, **_kwargs):
         rates, currencies, eurozone_countries = self.get_data()
         if not rates:
