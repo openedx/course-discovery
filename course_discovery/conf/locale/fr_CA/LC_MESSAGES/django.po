@@ -1220,29 +1220,29 @@ msgstr "Nombre de crédit qu'un apprenant peut obtenir en réussisant ce parcour
 #: apps/course_metadata/models.py:2292
 msgid ""
 "A field to override Organization short code alias specific for this program."
-msgstr ""
+msgstr "Un champ pour remplacer l'alias de code abrégé de l'organisation spécifique à ce programme."
 
 #: apps/course_metadata/models.py:2299
 msgid "A field to override Organization logo specific for this program."
-msgstr ""
+msgstr "Un champ pour remplacer le logo de l'organisation spécifique à ce programme."
 
 #: apps/course_metadata/models.py:2303
 msgid ""
 "Primary subject field specific for this program. Useful field in case there "
 "are no courses associated with this program."
-msgstr ""
+msgstr "Domaine principal spécifique à ce programme. Champ utile s'il n'y a pas de cours associés à ce programme."
 
 #: apps/course_metadata/models.py:2308
 msgid ""
 "Level type specific for this program. Useful field in case there are no "
 "courses associated with this program."
-msgstr ""
+msgstr "Type de niveau spécifique à ce programme. Champ utile s'il n'y a pas de cours associés à ce programme."
 
 #: apps/course_metadata/models.py:2313
 msgid ""
 "Language code specific for this program. Useful field in case there are no "
 "courses associated with this program."
-msgstr ""
+msgstr "Code de langue spécifique à ce programme. Champ utile s'il n'y a pas de cours associés à ce programme."
 
 #: apps/course_metadata/models.py:2650
 msgid "The actual rank number"
@@ -1334,11 +1334,11 @@ msgstr "Nombre de cours sur la carte de recherche (ex. «11 cours»"
 
 #: apps/course_metadata/models.py:2801
 msgid "The redirect URL of the degree on external site"
-msgstr ""
+msgstr "L'URL de redirection du diplôme sur le site externe"
 
 #: apps/course_metadata/models.py:2806
 msgid "The URL of the landing page on external site"
-msgstr ""
+msgstr "L'URL de la page de destination sur le site externe"
 
 #: apps/course_metadata/models.py:2841
 msgid "Bell"
