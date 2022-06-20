@@ -406,3 +406,50 @@ class TestProgramViewSet(SerializationMixin):
         course_list_true = CourseFactory.create_batch(3, enterprise_subscription_inclusion=True)
         program = self.create_program(courses=course_list_true)
         assert program.enterprise_subscription_inclusion is True
+
+
+@pytest.mark.django_db
+@pytest.mark.usefixtures('django_cache')
+class TestProgramBySlugViewSet(SerializationMixin):
+
+    client = None
+    django_assert_num_queries = None
+    partner = None
+    request = None
+
+    @pytest.fixture(autouse=True)
+    def setup(self, client, django_assert_num_queries, partner):
+        user = UserFactory(is_staff=True, is_superuser=True)
+
+        client.login(username=user.username, password=USER_PASSWORD)
+
+        site = partner.site
+        request = RequestFactory(SERVER_NAME=site.domain).get('')
+        request.site = site
+        request.user = user
+
+        self.client = client
+        self.django_assert_num_queries = django_assert_num_queries
+        self.partner = partner
+        self.request = request
+
+    def assert_retrieve_success(self, program, querystring=None):
+        """ Verify the retrieve using slug endpoint successfully returns a serialized program. """
+        url = reverse('api:v1:program-slug-detail', kwargs={'marketing_slug': program.marketing_slug})
+
+        if querystring:
+            url += '?' + urllib.parse.urlencode(querystring)
+
+        response = self.client.get(url)
+        assert response.status_code == 200
+        return response
+
+    def test_retrieve(self, django_assert_num_queries):
+        """ Verify the endpoint returns the details for a single program using slug. """
+        program = ProgramFactory(partner=self.partner)
+
+        with django_assert_num_queries(FuzzyInt(26, 2)):
+            response = self.assert_retrieve_success(program)
+        # property does not have the right values while being indexed
+        del program._course_run_weeks_to_complete
+        assert response.data == self.serialize_program(program)

@@ -135,3 +135,8 @@ class ProgramViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet
             return Response(msg)
         else:
             return Response('Bad image data in request', status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProgramBySlugViewSet(ProgramViewSet):
+    lookup_field = 'marketing_slug'
+    lookup_value_regex = '[^/.]+'

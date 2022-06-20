@@ -18,7 +18,7 @@ from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet
 from course_discovery.apps.api.v1.views.pathways import PathwayViewSet
 from course_discovery.apps.api.v1.views.people import PersonViewSet
 from course_discovery.apps.api.v1.views.program_types import ProgramTypeViewSet
-from course_discovery.apps.api.v1.views.programs import ProgramViewSet
+from course_discovery.apps.api.v1.views.programs import ProgramViewSet, ProgramBySlugViewSet
 from course_discovery.apps.api.v1.views.subjects import SubjectViewSet
 from course_discovery.apps.api.v1.views.topics import TopicViewSet
 from course_discovery.apps.api.v1.views.user_management import UsernameReplacementView
@@ -56,6 +56,7 @@ router.register(r'subjects', SubjectViewSet, basename='subject')
 router.register(r'topics', TopicViewSet, basename='topic')
 router.register(r'pathways', PathwayViewSet, basename='pathway')
 router.register(r'programs', ProgramViewSet, basename='program')
+router.register(r'programs/slug', ProgramBySlugViewSet, basename='program-slug')
 router.register(r'level_types', LevelTypeViewSet, basename='level_type')
 router.register(r'program_types', ProgramTypeViewSet, basename='program_type')
 router.register(r'search/limited', search_views.LimitedAggregateSearchView, basename='search-limited')
