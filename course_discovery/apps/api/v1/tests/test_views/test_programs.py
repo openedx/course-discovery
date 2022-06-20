@@ -411,6 +411,10 @@ class TestProgramViewSet(SerializationMixin):
 @pytest.mark.django_db
 @pytest.mark.usefixtures('django_cache')
 class TestProgramBySlugViewSet(SerializationMixin):
+    client = None
+    django_assert_num_queries = None
+    partner = None
+    request = None
 
     @pytest.fixture(autouse=True)
     def setup(self, client, django_assert_num_queries, partner):
