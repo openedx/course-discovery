@@ -18,7 +18,7 @@ from course_discovery.apps.api.v1.views.organizations import OrganizationViewSet
 from course_discovery.apps.api.v1.views.pathways import PathwayViewSet
 from course_discovery.apps.api.v1.views.people import PersonViewSet
 from course_discovery.apps.api.v1.views.program_types import ProgramTypeViewSet
-from course_discovery.apps.api.v1.views.programs import ProgramViewSet, ProgramBySlugViewSet
+from course_discovery.apps.api.v1.views.programs import ProgramBySlugViewSet, ProgramViewSet
 from course_discovery.apps.api.v1.views.subjects import SubjectViewSet
 from course_discovery.apps.api.v1.views.topics import TopicViewSet
 from course_discovery.apps.api.v1.views.user_management import UsernameReplacementView
