@@ -273,7 +273,7 @@ class CSVDataLoader(AbstractDataLoader):
             'prerequisites_raw': data.get('prerequisites', ''),
             'full_description': data['long_description'],
             'short_description': data['short_description'],
-            'additional_metadata': self.get_additional_metadata_dict(data),
+            'additional_metadata': self.get_additional_metadata_dict(data, course.type.slug),
             'learner_testimonials': data.get('learner_testimonials', ''),
             'additional_information': data.get('additional_information', ''),
             'organization_short_code_override': data.get('organization_short_code_override', ''),
@@ -542,11 +542,14 @@ class CSVDataLoader(AbstractDataLoader):
             stats.append(stat2_dict)
         return stats
 
-    def get_additional_metadata_dict(self, data):
+    def get_additional_metadata_dict(self, data, type_slug):
         """
         Return the appropriate additional metadata dict representation, skipping the keys that are not
         present in the input data dict.
         """
+        if type_slug not in [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]:
+            return {}
+
         additional_metadata = {
             'external_url': data['redirect_url'],
             'external_identifier': data['external_identifier'],
