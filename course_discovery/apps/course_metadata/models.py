@@ -2258,7 +2258,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     type = models.ForeignKey(ProgramType, models.CASCADE, null=True, blank=True)
     status = models.CharField(
         help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False, db_index=True,
-        choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
+        choices=ProgramStatus.choices, validators=[ProgramStatus.validator], default=ProgramStatus.Unpublished
     )
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'), unique=True, max_length=255, db_index=True)
