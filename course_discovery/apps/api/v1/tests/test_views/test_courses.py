@@ -22,7 +22,7 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, LevelTypeFactory,
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, LevelTypeFactory,
     OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -1072,9 +1072,11 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertDictEqual(response.data, serialized_course_data)
         assert serialized_course_data['organization_logo_override_url'] is not None
 
+    @ddt.data(CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U)
     @responses.activate
-    def test_update_with_additional_metadata(self):
-        course = CourseFactory(additional_metadata=None)
+    def test_update_with_additional_metadata_if_type_2U(self, type_slug):
+        type_2U = CourseTypeFactory(slug=type_slug)
+        course = CourseFactory(additional_metadata=None, type=type_2U)
         current = datetime.datetime.now(pytz.UTC)
         future = current + datetime.timedelta(days=10)
 
@@ -1136,6 +1138,25 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         additional_metadata['facts'] = new_facts
         additional_metadata['certificate_info'] = new_cert
         self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+
+    @ddt.data(CourseType.VERIFIED_AUDIT, CourseType.PROFESSIONAL)
+    @responses.activate
+    def test_no_update_with_additional_metadata_if_type_not_2U(self, type_slug):
+        non_2U = CourseType.objects.get(slug=type_slug)
+        course = CourseFactory(additional_metadata=None, type=non_2U)
+
+        additional_metadata = {
+            'external_url': 'https://example.com/',
+            'external_identifier': '12345',
+        }
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        course_data = {
+            'additional_metadata': additional_metadata
+        }
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        assert self.serialize_course(course)['additional_metadata'] is None
 
     @responses.activate
     def test_update_success_with_course_type_verified(self):
