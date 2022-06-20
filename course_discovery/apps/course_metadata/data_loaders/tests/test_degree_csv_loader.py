@@ -10,6 +10,7 @@ from testfixtures import LogCapture
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.data_loaders.degrees_loader import DegreeCSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import DegreeCSVLoaderMixin
@@ -258,6 +259,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert degree.additional_metadata.external_identifier == '123456'
                 assert degree.additional_metadata.organic_url == 'http://example.com/organic-page.html'
                 assert degree.specializations.count() == 2
+                assert degree.status == ProgramStatus.Unpublished
 
     @responses.activate
     def test_image_download_failure(self, jwt_decode_patch):  # pylint: disable=unused-argument

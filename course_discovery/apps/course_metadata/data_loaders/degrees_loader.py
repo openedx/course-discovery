@@ -4,7 +4,6 @@ Data loader responsible for creating degree entries in discovery Database,
 import csv
 import logging
 
-from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
     Curriculum, Degree, DegreeAdditionalMetadata, LanguageTag, LevelType, Organization, Program, ProgramType,
@@ -164,7 +163,6 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         """
         data_dict = {
             "type": program_type,
-            "status": ProgramStatus.Unpublished,
             "primary_subject_override": primary_subject_override,
             "level_type_override": level_type_override,
             "language_override": language_override,

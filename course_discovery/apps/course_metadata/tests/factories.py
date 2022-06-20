@@ -505,7 +505,7 @@ class RankingFactory(factory.django.DjangoModelFactory):
     source = FuzzyText(length=99)
 
 
-class ProgramFactory(factory.django.DjangoModelFactory):
+class ProgramBaseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Program
 
@@ -514,7 +514,6 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     subtitle = FuzzyText()
     marketing_hook = FuzzyText()
     type = factory.SubFactory(ProgramTypeFactory)
-    status = ProgramStatus.Active
     marketing_slug = factory.Sequence(lambda n: f'test-slug-{n}')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
     partner = factory.SubFactory(PartnerFactory)
@@ -588,6 +587,10 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     def curricula(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.curricula, extracted)
+
+
+class ProgramFactory(ProgramBaseFactory):
+    status = ProgramStatus.Active
 
 
 class SpecializationFactory(factory.django.DjangoModelFactory):

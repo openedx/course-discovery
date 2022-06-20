@@ -2177,6 +2177,11 @@ class ProgramTests(TestCase):
                     weeks_to_complete=15
                 )
 
+    def test_program_default_status(self):
+        """Verify that program default status is Unpublished"""
+        program = factories.ProgramBaseFactory()
+        assert program.status == ProgramStatus.Unpublished
+
 
 class PathwayTests(TestCase):
     """ Tests of the Pathway model."""
