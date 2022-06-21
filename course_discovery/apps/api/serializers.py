@@ -1260,7 +1260,11 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     def update(self, instance, validated_data):
         # Handle writing nested additional_metadata separately
         if 'additional_metadata' in validated_data:
-            self.update_additional_metadata(instance, validated_data.pop('additional_metadata'))
+            # Handle additional metadata only for 2U courses else just pop
+            additional_metadata_data = validated_data.pop('additional_metadata')
+            if instance.type.slug in [CourseType.BOOTCAMP_2U, CourseType.EXECUTIVE_EDUCATION_2U]:
+                self.update_additional_metadata(instance, additional_metadata_data)
+
         return super().update(instance, validated_data)
 
 

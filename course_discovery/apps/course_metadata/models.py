@@ -480,6 +480,10 @@ class CourseRunType(TimeStampedModel):
     VERIFIED_HONOR = 'verified-honor'
     VERIFIED_AUDIT_HONOR = 'verified-audit-honor'
     EMPTY = 'empty'
+    PAID_EXECUTIVE_EDUCATION = 'paid-executive-education'
+    UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education'
+    PAID_BOOTCAMP = 'paid-bootcamp'
+    UNPAID_BOOTCAMP = 'unpaid-bootcamp'
 
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)

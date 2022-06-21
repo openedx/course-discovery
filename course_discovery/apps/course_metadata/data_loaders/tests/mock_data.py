@@ -3108,7 +3108,7 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'organization': 'edx',
     'title': 'CSV Course',
     'number': 'csv_123',
-    'course_enrollment_track': 'Verified and Audit',
+    'course_enrollment_track': 'Executive Education(2U)',
     'image': 'https://example.com/image.jpg',
     'short_description': 'Very short description',
     'long_description': 'Organization,Title,Number,Course Enrollment track,Image,Short Description,Long Description,'
@@ -3135,7 +3135,7 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'reg_close_date': '01/25/2020',
     'reg_close_time': '00:00',
     'course_pacing': 'self-paced',
-    'course_run_enrollment_track': 'Verified and Audit',
+    'course_run_enrollment_track': 'Paid Executive Education',
     'staff': 'staff_1,staff_2',
     'minimum_effort': 4,
     'maximum_effort': 10,
@@ -3189,8 +3189,6 @@ VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'length': 10,
     'content_language': 'English - United States',
     'transcript_language': 'English - Great Britain',
-    'redirect_url': 'http://www.example.com',
-    'external_identifier': '123456789',
 }
 
 INVALID_ORGANIZATION_DATA = {
