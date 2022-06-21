@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.http import HttpRequest
 from django.test import LiveServerTestCase, TestCase
 from django.urls import reverse
+from rest_framework.status import HTTP_200_OK
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
@@ -20,11 +21,11 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, PartnerFactory, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
-from course_discovery.apps.course_metadata.admin import PositionAdmin, ProgramEligibilityFilter
+from course_discovery.apps.course_metadata.admin import DegreeAdmin, PositionAdmin, ProgramEligibilityFilter
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.forms import PathwayAdminForm, ProgramAdminForm
-from course_discovery.apps.course_metadata.models import Person, Position, Program, ProgramType
+from course_discovery.apps.course_metadata.models import Degree, Person, Position, Program, ProgramType
 from course_discovery.apps.course_metadata.tests import factories
 
 
@@ -429,6 +430,51 @@ class ProgramEligibilityFilterTests(SiteMixin, TestCase):
         one_click_purchase_ineligible_program = factories.ProgramFactory(one_click_purchase_enabled=False)
         with self.assertNumQueries(4):
             assert list(program_filter.queryset({}, Program.objects.all())) == [one_click_purchase_ineligible_program]
+
+
+@ddt.ddt
+class DegreeAdminTest(TestCase):
+    """
+    Tests for Degree admin.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.degree = factories.DegreeFactory()
+        self.degree_admin = DegreeAdmin(self.degree, AdminSite())
+        self.request = HttpRequest()
+        self.request.user = self.user
+        self.client.login(username=self.user.username, password=USER_PASSWORD)
+
+    def test_degree_actions(self):
+        """
+        Test that publish actions are present in Degree Admin.
+        """
+        admin_actions = self.degree_admin.get_actions(self.request)
+        assert 'publish_degrees' in admin_actions
+        assert 'unpublish_degrees' in admin_actions
+
+    @ddt.data(
+        (ProgramStatus.Unpublished, ProgramStatus.Active, 'publish_degrees', b'Successfully published 1 degree.'),
+        (ProgramStatus.Active, ProgramStatus.Unpublished, 'unpublish_degrees', b'Successfully unpublished 1 degree.')
+    )
+    @ddt.unpack
+    def test_publish_degree_actions(self, before_status, after_status, admin_action, success_message):
+        """
+        Test that the publish_degree and unpublish_degree work as expected.
+        """
+        self.degree.status = before_status
+        self.degree.save()
+        response = self.client.post(
+            reverse('admin:course_metadata_degree_changelist'),
+            {'action': admin_action, '_selected_action': [self.degree.id, ]},
+            follow=True
+        )
+        assert response.status_code == HTTP_200_OK
+        assert success_message in response.content
+        updated_degree = Degree.objects.get(id=self.degree.id)
+        assert updated_degree.status == after_status
 
 
 class PersonPositionAdminTest(TestCase):

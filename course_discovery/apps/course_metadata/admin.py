@@ -1,6 +1,7 @@
 from adminsortable2.admin import SortableAdminMixin
 from dal import autocomplete
 from django.contrib import admin, messages
+from django.contrib.admin.utils import model_ngettext
 from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
@@ -14,6 +15,7 @@ from waffle import get_waffle_flag_model  # lint-amnesty, pylint: disable=invali
 
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME, REFRESH_COURSE_SKILLS_URL_NAME
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
@@ -672,6 +674,39 @@ class SpecializationAdmin(admin.ModelAdmin):
     list_display = ('value', )
 
 
+def change_degree_status(modeladmin, request, queryset, status):
+    """
+    Changes the status of a degree.
+    """
+    count = queryset.count()
+    if count:
+        for obj in queryset:
+            obj.status = status
+            obj.save()
+
+        modeladmin.message_user(request, _("Successfully %(status)s %(count)d %(items)s.") % {
+            "status": "published" if status == ProgramStatus.Active else "unpublished",
+            "count": count,
+            "items": model_ngettext(modeladmin.opts, count),
+        }, messages.SUCCESS)
+
+
+@admin.action(permissions=['change'], description='Publish selected Degrees')
+def publish_degrees(modeladmin, request, queryset):
+    """
+    Django admin action to bulk publish degrees.
+    """
+    change_degree_status(modeladmin, request, queryset, ProgramStatus.Active)
+
+
+@admin.action(permissions=['change'], description='Unpublish selected Degrees')
+def unpublish_degrees(modeladmin, request, queryset):
+    """
+    Django admin action to bulk unpublish degrees.
+    """
+    change_degree_status(modeladmin, request, queryset, ProgramStatus.Unpublished)
+
+
 @admin.register(Degree)
 class DegreeAdmin(admin.ModelAdmin):
     """
@@ -699,6 +734,7 @@ class DegreeAdmin(admin.ModelAdmin):
         'micromasters_background_image', 'micromasters_org_name_override', 'faq', 'costs_fine_print',
         'deadlines_fine_print', 'specializations'
     )
+    actions = [publish_degrees, unpublish_degrees]
 
 
 @admin.register(SearchDefaultResultsConfiguration)
