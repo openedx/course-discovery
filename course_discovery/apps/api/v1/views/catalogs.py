@@ -11,8 +11,9 @@ from rest_framework.response import Response
 from course_discovery.apps.api import filters, serializers
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.api.renderers import CourseRunCSVRenderer
+from course_discovery.apps.api.utils import check_catalog_api_access
 from course_discovery.apps.catalogs.models import Catalog
-from course_discovery.apps.course_metadata.models import CourseRun
+from course_discovery.apps.course_metadata.models import CourseRun, CourseType
 
 User = get_user_model()
 
@@ -94,6 +95,12 @@ class CatalogViewSet(viewsets.ModelViewSet):
         catalog = self.get_object()
 
         queryset = catalog.courses()
+        catalog_api_access_response = check_catalog_api_access(request.site.partner, request.user)
+        # exclude 2u products if the requesting user has approval for accessing catalog api
+        if catalog_api_access_response and catalog_api_access_response.get('status') == 'approved':
+            course_types_2U = [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]
+            queryset = queryset.exclude(type__slug__in=course_types_2U)
+
         course_runs = CourseRun.objects.all()
         if not catalog.include_archived:
             queryset = queryset.available()
