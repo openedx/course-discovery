@@ -2874,6 +2874,12 @@ class Degree(Program):
 
     def __str__(self):
         return str(f'Degree: {self.title}')
+    
+    @property
+    def is_2u_degree(self):
+        return self.additional_metadata is None
+        # or should this be ...?
+        # return self.degree.additional_metadata is None
 
 
 class DegreeAdditionalMetadata(TimeStampedModel):
