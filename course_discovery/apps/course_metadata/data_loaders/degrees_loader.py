@@ -216,7 +216,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 logger.error("Unexpected error happened while downloading org logo image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     degree.marketing_slug
                 ))
-                self.messages_list.append('[ORG LOGO OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
+                self.messages_list.append('[ORG LOGO OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(
                     degree.marketing_slug
                 ))
 
