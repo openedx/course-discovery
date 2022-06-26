@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-19 20:35+0000\n"
+"POT-Creation-Date: 2022-06-26 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -484,6 +484,13 @@ msgstr ""
 #: apps/course_metadata/admin.py
 msgid "Edit link"
 msgstr "Édït lïnk Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/admin.py
+#, python-format
+msgid "Successfully %(status)s %(count)d %(items)s."
+msgstr ""
+"Süççéssfüllý %(status)s %(count)d %(items)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕ#"
 
 #: apps/course_metadata/algolia_models.py
 #: apps/course_metadata/algolia_models.py
