@@ -208,8 +208,6 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'organization_short_code_override': course.organization_short_code_override,
             'organization_logo_override_url': course.organization_logo_override_url,
             'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
-            'country': course.country,
-            'state': course.state,
             'location_restriction': CourseLocationRestrictionSerializer(
                 course.location_restriction
             ).data,
@@ -277,19 +275,6 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
         serializer = self.serializer_class(course, context={'request': request, 'exclude_utm': 1, 'editable': 1})
         assert serializer.data['organization_short_code_override'] is not None
         assert serializer.data['organization_logo_override_url'] is not None
-
-    def test_invalid_country_state(self):
-        request = make_request()
-        course = CourseFactory()
-        invalid_data = {
-            'country': 'XX',
-            'state': 'XX'
-        }
-        serializer = CourseSerializer(course, context={'request': request}, data=invalid_data)
-        serializer.is_valid()
-
-        assert serializer.errors['country']
-        assert serializer.errors['state']
 
 
 class CourseEditorSerializerTests(TestCase):
@@ -1139,8 +1124,6 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
-            'country': program.country,
-            'state': program.state,
             'location_restriction': ProgramLocationRestrictionSerializer(
                 program.location_restriction, read_only=True
             ).data,
@@ -1417,19 +1400,6 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'card_image_url': '/media/test_card.jpg'
         })
         self.assertDictEqual(serializer.data, expected)
-
-    def test_invalid_country_state(self):
-        request = make_request()
-        program = self.create_program()
-        invalid_data = {
-            'country': 'XX',
-            'state': 'XX'
-        }
-        serializer = self.serializer_class(program, context={'request': request}, data=invalid_data)
-        serializer.is_valid()
-
-        assert serializer.errors['country']
-        assert serializer.errors['state']
 
 
 class PathwaySerialzerTests(TestCase):

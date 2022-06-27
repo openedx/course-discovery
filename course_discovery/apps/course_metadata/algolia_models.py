@@ -56,7 +56,7 @@ def delegate_attributes(cls):
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
                      'product_organization_short_code_override', 'product_organization_logo_override',
-                     'product_country', 'product_state', 'product_location_restriction']
+                     'product_location_restriction']
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -125,14 +125,6 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
     @property
     def product_recent_enrollment_count(self):
         return self.recent_enrollment_count
-
-    @property
-    def product_country(self):
-        return self.country_code
-
-    @property
-    def product_state(self):
-        return self.state
 
     @property
     def product_location_restriction(self):

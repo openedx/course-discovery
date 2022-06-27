@@ -17,13 +17,11 @@ from django.db.models import F, Q
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django_countries import countries as COUNTRIES
-from django_countries.fields import CountryField
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
-from localflavor.us.models import USStateField
 from localflavor.us.us_states import CONTIGUOUS_STATES
 from multiselectfield import MultiSelectField
 from opaque_keys.edx.keys import CourseKey
@@ -894,8 +892,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
     collaborators = SortedManyToManyField(Collaborator, null=True, blank=True, related_name='courses_collaborated')
-    country = CountryField(null=True, blank=True)
-    state = USStateField(null=True, blank=True)
     subjects = SortedManyToManyField(Subject, blank=True)
     prerequisites = models.ManyToManyField(Prerequisite, blank=True)
     level_type = models.ForeignKey(LevelType, models.CASCADE, default=None, null=True, blank=True)
@@ -1012,12 +1008,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             return self.image.small.url
 
         return self.card_image_url
-
-    @property
-    def country_code(self):
-        if self.country:
-            return self.country.code  # pylint: disable=no-member
-        return None
 
     @property
     def organization_logo_override_url(self):
@@ -2296,8 +2286,6 @@ class Program(PkSearchableMixin, TimeStampedModel):
         help_text=_('The user-facing display title for this Program.'), max_length=255)
     subtitle = models.CharField(
         help_text=_('A brief, descriptive subtitle for the Program.'), max_length=255, blank=True)
-    country = CountryField(null=True, blank=True)
-    state = USStateField(null=True, blank=True)
     marketing_hook = models.CharField(
         help_text=_('A brief hook for the marketing website'), max_length=255, blank=True)
     type = models.ForeignKey(ProgramType, models.CASCADE, null=True, blank=True)
@@ -2498,12 +2486,6 @@ class Program(PkSearchableMixin, TimeStampedModel):
             path = f'{self.type.slug.lower()}/{self.marketing_slug}'
             return urljoin(self.partner.marketing_site_url_root, path)
 
-        return None
-
-    @property
-    def country_code(self):
-        if self.country:
-            return self.country.code  # pylint: disable=no-member
         return None
 
     @property
