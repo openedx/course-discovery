@@ -716,7 +716,8 @@ class DegreeAdmin(admin.ModelAdmin):
     list_display = ('title', 'partner', 'status', 'hidden')
     ordering = ('title', 'status')
     readonly_fields = ('uuid', )
-    search_fields = ('title', 'partner', 'marketing_slug')
+    list_filter = ('partner',)
+    search_fields = ('title', 'marketing_slug',)
     inlines = (
         CurriculumAdminInline,
         DegreeDeadlineInlineAdmin,
