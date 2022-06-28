@@ -16,8 +16,8 @@ from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import Program
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
-    CurriculumProgramMembershipFactory, EndorsementFactory, ExpectedLearningItemFactory, JobOutlookItemFactory,
-    OrganizationFactory, PersonFactory, ProgramFactory, VideoFactory
+    CurriculumProgramMembershipFactory, DegreeAdditionalMetadataFactory, DegreeFactory, EndorsementFactory,
+    ExpectedLearningItemFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory, VideoFactory
 )
 
 
@@ -406,3 +406,12 @@ class TestProgramViewSet(SerializationMixin):
         course_list_true = CourseFactory.create_batch(3, enterprise_subscription_inclusion=True)
         program = self.create_program(courses=course_list_true)
         assert program.enterprise_subscription_inclusion is True
+
+    def test_is_2u_degree_program(self):
+        course_list = CourseFactory.create_batch(3)
+        not_2u_degree_program = self.create_program(courses=course_list)
+        assert not_2u_degree_program.is_2u_degree_program is False
+
+        degree = DegreeFactory()
+        DegreeAdditionalMetadataFactory(degree=degree)
+        assert degree.is_2u_degree_program is True
