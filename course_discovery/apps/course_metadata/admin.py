@@ -713,10 +713,10 @@ class DegreeAdmin(admin.ModelAdmin):
     This is an inheritance model from Program
 
     """
-    list_display = ('title', 'partner', 'status', 'hidden')
+    list_display = ('uuid', 'title', 'marketing_slug', 'status', 'hidden')
     ordering = ('title', 'status')
     readonly_fields = ('uuid', )
-    list_filter = ('partner',)
+    list_filter = ('partner', 'status',)
     search_fields = ('uuid', 'title', 'marketing_slug',)
     inlines = (
         CurriculumAdminInline,
