@@ -18,6 +18,7 @@
 # Poxtic <erandelle@outlook.com>, 2017
 # d708d71c59e877c881227089ff727163, 2017
 # Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2018,2020-2021
+# Karen Ríos, 2022
 # Laura Silva <lingison@edx.org>, 2016
 # Luis Alberto Lucio <luisalberto.lucio@gmail.com>, 2020
 # luisa rivero zambrano <luisarz11@hotmail.com>, 2016
@@ -35,7 +36,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-03 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: Carolina De Mares <carolina.demares@edunext.co>, 2022\n"
+"Last-Translator: Karen Ríos, 2022\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -895,7 +896,7 @@ msgstr "Cuando esta marca está habilitada, la clave de un nuevo curso se genera
 msgid ""
 "This field signifies if any of this org's courses are in the enterprise "
 "subscription catalog"
-msgstr ""
+msgstr "Este campo indica si alguno de los cursos de esta organización está en el catálogo de suscripción empresarial."
 
 #: apps/course_metadata/models.py:238
 msgid ""
@@ -1039,7 +1040,7 @@ msgstr "Información adicional"
 msgid ""
 "This field signifies if this course is in the enterprise subscription "
 "catalog"
-msgstr ""
+msgstr "Este campo indica si este curso está en el catálogo de suscripción empresarial"
 
 #: apps/course_metadata/models.py:1104
 msgid "Future"
@@ -1221,7 +1222,7 @@ msgstr "Número de créditos que un estudiante obtendrá al completar con éxito
 msgid ""
 "This calculated field signifies if all the courses in this program are "
 "included in the enterprise subscription catalog "
-msgstr ""
+msgstr "Este campo calculado indica si todos los cursos de este programa están incluidos en el catálogo de suscripción empresarial."
 
 #: apps/course_metadata/models.py:2392
 msgid ""
@@ -1483,7 +1484,7 @@ msgstr "Socio {partner_key} y socio del curso {course_partner_key} no coindciden
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
-msgstr ""
+msgstr "Se espera que los datos se proporcionen en un formato de archivo csv con la primera fila que contiene todos los encabezados."
 
 #: apps/course_metadata/models.py:3332
 msgid "Course Run IDs"
@@ -1890,7 +1891,7 @@ msgstr "Agrega recomendaciones para todos los cursos publicados"
 #: apps/taxonomy_support/models.py:58
 msgid ""
 "Adds recommendations for courses created or modified in the past num days"
-msgstr ""
+msgstr "Agrega recomendaciones para cursos creados o modificados en los últimos días."
 
 #: urls.py:32
 msgid "Discovery Service Administration"

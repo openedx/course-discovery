@@ -1310,7 +1310,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         if 'additional_metadata' in validated_data:
             # Handle additional metadata only for 2U courses else just pop
             additional_metadata_data = validated_data.pop('additional_metadata')
-            if instance.type.slug in [CourseType.BOOTCAMP_2U, CourseType.EXECUTIVE_EDUCATION_2U]:
+            if instance.is_external_course:
                 self.update_additional_metadata(instance, additional_metadata_data)
         if 'location_restriction' in validated_data:
             self.update_location_restriction(instance, validated_data.pop('location_restriction'))
@@ -1894,6 +1894,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     topics = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField()
     location_restriction = ProgramLocationRestrictionSerializer(read_only=True)
+    is_2u_degree_program = serializers.BooleanField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -1940,7 +1941,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion',
-            'location_restriction'
+            'location_restriction', 'is_2u_degree_program'
         )
         read_only_fields = ('enterprise_subscription_inclusion',)
 
@@ -2269,6 +2270,7 @@ class TypeaheadCourseRunSearchSerializer(TypeaheadBaseSearchSerializer):
 class TypeaheadProgramSearchSerializer(TypeaheadBaseSearchSerializer):
     uuid = serializers.CharField()
     type = serializers.CharField()
+    is_2u_degree_program = serializers.BooleanField()
 
 
 class TypeaheadSearchSerializer(serializers.Serializer):

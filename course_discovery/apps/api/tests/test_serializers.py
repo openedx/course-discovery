@@ -1124,6 +1124,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
+            'is_2u_degree_program': program.is_2u_degree_program,
             'location_restriction': ProgramLocationRestrictionSerializer(
                 program.location_restriction, read_only=True
             ).data,
@@ -2493,6 +2494,7 @@ class TestProgramSearchDocumentSerializer(TestCase):
             'hidden': program.hidden,
             'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
             'search_card_display': [],
+            'is_2u_degree_program': program.is_2u_degree_program
         }
 
     def serialize_program(self, program, request):
@@ -2644,6 +2646,7 @@ class TestTypeaheadProgramSearchSerializer:
             'type': program.type.name_t,
             'orgs': [org.key for org in program.authoring_organizations.all()],
             'marketing_url': program.marketing_url,
+            'is_2u_degree_program': program.is_2u_degree_program,
         }
 
     def test_data(self):
