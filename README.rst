@@ -3,7 +3,7 @@ Course Discovery Service  |Codecov|_
 .. |Codecov| image:: http://codecov.io/github/edx/course-discovery/coverage.svg?branch=master
 .. _Codecov: http://codecov.io/github/edx/course-discovery?branch=master
 
-Service providing access to consolidated course and program metadata.
+Service providing access to consolidated course and program metadata. Oks
 
 Documentation
 -------------
