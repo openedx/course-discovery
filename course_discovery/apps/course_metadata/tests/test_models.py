@@ -1868,6 +1868,7 @@ class ProgramTests(TestCase):
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
         program's courses. """
+
         expected_start = min(course_run.start for course_run in self.course_runs)
         assert self.program.start == expected_start
 
