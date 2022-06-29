@@ -5,6 +5,7 @@ from io import StringIO
 
 import ddt
 import factory
+import mock
 import pytest
 import pytz
 from django.contrib.auth import get_user_model
@@ -18,7 +19,7 @@ from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.tests.mixins import ElasticsearchTestMixin
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
-from course_discovery.apps.course_metadata.models import Course
+from course_discovery.apps.course_metadata.models import Course, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseRunFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
@@ -610,3 +611,47 @@ class CatalogViewSetTests(ElasticsearchTestMixin, SerializationMixin, OAuth2Mixi
         assert response.status_code == 404
         expected = {'detail': f'No user with the username [{username}] exists.'}
         self.assertDictEqual(response.data, expected)
+
+    @ddt.data(('approved', 1), ('pending', 3))
+    @ddt.unpack
+    def test_exclude_2u_products_from_catalog(self, status, product_count):
+        """
+        Verify the endpoint returns 2u products only for edX
+        """
+        url = reverse('api:v1:catalog-courses', kwargs={'id': self.catalog.id})
+        Course.objects.all().delete()
+        now = datetime.datetime.now(pytz.UTC)
+        future = now + datetime.timedelta(days=30)
+
+        executive_ed_type, _ = CourseType.objects.get_or_create(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        bootcamp, _ = CourseType.objects.get_or_create(slug=CourseType.BOOTCAMP_2U)
+
+        course_run_exec_ed = CourseRunFactory.create(
+            course__type=executive_ed_type,
+            course__title='ABC Course Exec ed',
+            end=future,
+            enrollment_end=future
+        )
+        SeatFactory.create(course_run=course_run_exec_ed)
+
+        course_run_bootcamp = CourseRunFactory.create(
+            course__type=bootcamp,
+            course__title='ABC Course Bootcamp',
+            end=future,
+            enrollment_end=future
+        )
+        SeatFactory.create(course_run=course_run_bootcamp)
+
+        course_run = CourseRunFactory.create(
+            course__title='ABC Course',
+            end=future,
+            enrollment_end=future
+        )
+        SeatFactory.create(course_run=course_run)
+
+        with mock.patch(
+            'course_discovery.apps.api.v1.views.catalogs.check_catalog_api_access',
+                return_value={'status': status}
+        ):
+            response = self.client.get(url)
+            assert len(response.data['results']) == product_count
