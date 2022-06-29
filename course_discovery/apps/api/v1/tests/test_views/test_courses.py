@@ -19,7 +19,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
+    Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Fact, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, LevelTypeFactory,
@@ -1157,6 +1157,95 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert response.status_code == 200
         course = Course.everything.get(uuid=course.uuid, draft=True)
         assert self.serialize_course(course)['additional_metadata'] is None
+
+    @responses.activate
+    def test_update_facts_with_additional_metadata(self):
+        current = datetime.datetime.now(pytz.UTC)
+
+        EE_type_2U = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course_1 = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        course_2 = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        course_3 = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        fact_1 = {'heading': 'Fact1 heading', 'blurb': '<p>Fact1 blurb</p>'}
+        fact_2 = {'heading': 'Fact2 heading', 'blurb': '<p>Fact2 blurb</p>'}
+        fact_3 = {'heading': 'Fact3 heading', 'blurb': '<p>Fact3 blurb</p>'}
+        fact_4 = {'heading': 'Fact4 heading', 'blurb': '<p>Fact4 blurb</p>'}
+
+        additional_metadata = {
+            'lead_capture_form_url': 'https://example.com/lead-capture',
+            'organic_url': 'https://example.com/organic',
+            'certificate_info': {
+                'heading': 'Certificate heading',
+                'blurb': '<p>Certificate blurb</p>',
+            },
+            'start_date': serialize_datetime(current),
+            'registration_deadline': serialize_datetime(current),
+        }
+        additional_metadata_1 = {
+            **additional_metadata,
+            'external_url': 'https://example.com/123',
+            'external_identifier': '123',
+            'facts': [fact_1, fact_2],
+        }
+        additional_metadata_2 = {
+            **additional_metadata,
+            'external_url': 'https://example.com/456',
+            'external_identifier': '456',
+            'facts': [fact_2],
+        }
+        additional_metadata_3 = {
+            **additional_metadata,
+            'external_url': 'https://example.com/789',
+            'external_identifier': '789',
+            'facts': [fact_2, fact_4],
+        }
+        url_1 = reverse('api:v1:course-detail', kwargs={'key': course_1.uuid})
+        url_2 = reverse('api:v1:course-detail', kwargs={'key': course_2.uuid})
+        url_3 = reverse('api:v1:course-detail', kwargs={'key': course_3.uuid})
+
+        response_1 = self.client.patch(url_1, {'additional_metadata': additional_metadata_1}, format='json')
+        assert response_1.status_code == 200
+        assert Fact.objects.count() == 2    # created two new objects
+
+        response_2 = self.client.patch(url_2, {'additional_metadata': additional_metadata_2}, format='json')
+        assert response_2.status_code == 200
+        assert Fact.objects.count() == 3    # created 1 new object even fact wih same data existed
+
+        response_3 = self.client.patch(url_3, {'additional_metadata': additional_metadata_3}, format='json')
+        assert response_3.status_code == 200
+        assert Fact.objects.count() == 5    # created two new objects
+
+        course_1 = Course.everything.get(uuid=course_1.uuid, draft=True)
+        course_2 = Course.everything.get(uuid=course_2.uuid, draft=True)
+        course_3 = Course.everything.get(uuid=course_3.uuid, draft=True)
+
+        self.assertDictEqual(self.serialize_course(course_1)['additional_metadata'], additional_metadata_1)
+        self.assertDictEqual(self.serialize_course(course_2)['additional_metadata'], additional_metadata_2)
+        self.assertDictEqual(self.serialize_course(course_3)['additional_metadata'], additional_metadata_3)
+
+        response_1 = self.client.patch(url_1, {'additional_metadata': {'facts': [fact_3]}}, format='json')
+        assert response_1.status_code == 200
+        assert Fact.objects.count() == 6    # orphaned fact 1, and just removed 2 from relation, created 3
+
+        response_2 = self.client.patch(url_2, {'additional_metadata': {'facts': [fact_1]}}, format='json')
+        assert response_2.status_code == 200
+        assert Fact.objects.count() == 6    # fact 1 was already orphaned, it just used it
+
+        response_3 = self.client.patch(url_3, {'additional_metadata': {'facts': [fact_1, fact_3]}}, format='json')
+        assert response_2.status_code == 200
+        assert Fact.objects.count() == 6    # no new fact created, just updated/overwrite self facts as count is same
+
+        course_1 = Course.everything.get(uuid=course_1.uuid, draft=True)
+        course_2 = Course.everything.get(uuid=course_2.uuid, draft=True)
+        course_3 = Course.everything.get(uuid=course_3.uuid, draft=True)
+
+        additional_metadata_1['facts'] = [fact_3]
+        additional_metadata_2['facts'] = [fact_1]
+        additional_metadata_3['facts'] = [fact_1, fact_3]
+
+        self.assertDictEqual(self.serialize_course(course_1)['additional_metadata'], additional_metadata_1)
+        self.assertDictEqual(self.serialize_course(course_2)['additional_metadata'], additional_metadata_2)
+        self.assertDictEqual(self.serialize_course(course_3)['additional_metadata'], additional_metadata_3)
 
     @responses.activate
     def test_update_success_with_course_type_verified(self):
