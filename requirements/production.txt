@@ -285,6 +285,7 @@ elasticsearch-dsl==7.4.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
+    #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
 future==0.18.2
     # via pyjwkest
@@ -447,6 +448,7 @@ six==1.16.0
     #   click-repl
     #   django-autocomplete-light
     #   django-choices
+    #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
     #   django-nested-admin
     #   djangorestframework-csv

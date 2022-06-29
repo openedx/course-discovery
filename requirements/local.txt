@@ -59,9 +59,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.24.21
+boto3==1.24.22
     # via django-ses
-botocore==1.27.21
+botocore==1.27.22
     # via
     #   boto3
     #   s3transfer
@@ -145,6 +145,7 @@ distlib==0.3.4
     # via virtualenv
 distro==1.7.0
     # via docker-compose
+django==3.2.14
     # via
     #   -c requirements/common_constraints.txt
     #   -c requirements/constraints.txt
@@ -221,7 +222,7 @@ django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch
     # via
     #   -r requirements/github.in
     #   django-elasticsearch-dsl-drf
-django-elasticsearch-dsl-drf==0.22.4
+django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.in
 django-extensions==3.1.5
     # via -r requirements/base.in
@@ -391,7 +392,7 @@ idna==3.3
     #   requests
     #   trio
     #   urllib3
-imagesize==1.4.0
+imagesize==1.4.1
     # via sphinx
 importlib-metadata==4.12.0
     # via
@@ -431,7 +432,7 @@ lazy-object-proxy==1.7.1
     # via astroid
 libsass==0.21.0
     # via django-libsass
-lxml==4.9.0
+lxml==4.9.1
     # via
     #   -r requirements/base.in
     #   zeep
@@ -469,7 +470,7 @@ pbr==5.9.0
     # via stevedore
 peewee==3.15.0
     # via semgrep
-pillow==9.1.1
+pillow==9.2.0
     # via
     #   -r requirements/base.in
     #   django-stdimage
@@ -755,13 +756,13 @@ trio==0.21.0
     #   trio-websocket
 trio-websocket==0.9.2
     # via selenium
-typing-extensions==4.2.0
+typing-extensions==4.3.0
     # via
     #   astroid
     #   django-countries
     #   pylint
     #   semgrep
-ujson==5.3.0
+ujson==5.4.0
     # via python-lsp-jsonrpc
 unicodecsv==0.14.1
     # via djangorestframework-csv

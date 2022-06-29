@@ -31,7 +31,7 @@ elasticsearch-dsl==7.4.0
     #   django-elasticsearch-dsl
 idna==3.3
     # via requests
-imagesize==1.4.0
+imagesize==1.4.1
     # via sphinx
 importlib-metadata==4.12.0
     # via sphinx
