@@ -304,11 +304,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         self._wait_for_add_edit_page_to_load()
 
     def _select_option(self, select_id, option_value):
-<<<<<<< HEAD
         select = Select(self.browser.find_element(By.ID, select_id))
-=======
-        select = Select(self.browser.find_element('id', select_id))
->>>>>>> fix: test failure
         select.select_by_value(option_value)
 
     def _submit_program_form(self):
@@ -319,11 +315,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         """ Asserts the correct fields are rendered on the form. """
         # Check the model fields
         actual = []
-<<<<<<< HEAD
         for element in self.browser.find_elements(By.CLASS_NAME, 'form-row'):
-=======
-        for element in self.browser.find_elements('class-name', 'form-row'):
->>>>>>> fix: test failure
             actual += [_class for _class in element.get_attribute('class').split(' ') if _class.startswith('field-')]
 
         expected = [
@@ -354,15 +346,9 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             type=ProgramType.objects.first(),
             marketing_slug='foo'
         )
-<<<<<<< HEAD
         self.browser.find_element(By.ID, 'id_title').send_keys(program.title)
         self.browser.find_element(By.ID, 'id_subtitle').send_keys(program.subtitle)
         self.browser.find_element(By.ID, 'id_marketing_slug').send_keys(program.marketing_slug)
-=======
-        self.browser.find_element('id', 'id_title').send_keys(program.title)
-        self.browser.find_element('id', 'id_subtitle').send_keys(program.subtitle)
-        self.browser.find_element('id', 'id_marketing_slug').send_keys(program.marketing_slug)
->>>>>>> fix: test failure
         self._select_option('id_status', program.status)
         self._select_option('id_type', str(program.type.id))
         self._select_option('id_partner', str(program.partner.id))
@@ -390,11 +376,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         )
 
         for field, value in data:
-<<<<<<< HEAD
             element = self.browser.find_element(By.ID, 'id_' + field)
-=======
-            element = self.browser.find_element('id', 'id_' + field)
->>>>>>> fix: test failure
             element.clear()
             element.send_keys(value)
 
