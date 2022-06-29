@@ -361,6 +361,7 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
             assert draft_seat.official_version == not_draft_seats[i]
             assert not_draft_seats[i].draft_version == draft_seat
 
+
         # Check draft course is also created
         draft_course = ensured_draft_course_run.course
         not_draft_course = Course.objects.get(uuid=course.uuid)
