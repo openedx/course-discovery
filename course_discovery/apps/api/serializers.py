@@ -1226,10 +1226,24 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
     def update_facts(self, instance, facts_data):
 
-        instance.facts.all().delete()
-        for fact in facts_data:
-            fact_obj = Fact.objects.create(**fact)
-            instance.facts.add(fact_obj)
+        existing_facts = instance.facts.all()
+        if len(existing_facts) == len(facts_data):
+            for i, fact in enumerate(existing_facts):
+                Fact.objects.filter(id=fact.id).update(**facts_data[i])
+        else:
+            instance.facts.clear()
+            for fact in facts_data:
+                # we can query all orphan facts and use one of them but that is more computation
+                # therefore, just checking if a fact with same data exists
+                facts_queryset = Fact.objects.filter(**fact)
+                fact_obj = facts_queryset.first() if facts_queryset.exists() else None
+
+                # create a new fact object if (a) it does not exist or (b) it exists but it is not orphan
+                # related object count > 0 means it is not orphan and updating it will cause an unwanted update
+                if not fact_obj or fact_obj.related_course_additional_metadata.count():
+                    fact_obj = Fact.objects.create(**fact)
+
+                instance.facts.add(fact_obj)
 
     def update_certificate_info(self, instance, certificate_info_data):
 
