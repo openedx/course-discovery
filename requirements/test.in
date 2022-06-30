@@ -17,5 +17,6 @@ pytest-responses
 pytest-xdist
 responses
 selenium
+semgrep
 testfixtures
 tox
