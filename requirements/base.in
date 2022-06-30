@@ -8,12 +8,15 @@ django-choices
 django-compressor
 django-contrib-comments
 django-cors-headers
+django-countries
 django-dynamic-filenames
 django-extensions
 django-filter
 django-fsm
 django-guardian
 django-libsass
+django-localflavor
+django-multiselectfield
 django-nested-admin
 django-parler
 drf-yasg

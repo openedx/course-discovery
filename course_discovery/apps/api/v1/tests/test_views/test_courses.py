@@ -19,11 +19,13 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Fact, Seat
+    AbstractLocationRestrictionModel, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType,
+    Fact, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, LevelTypeFactory,
-    OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
+    CourseTypeFactory, LevelTypeFactory, OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory,
+    SubjectFactory
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -263,7 +265,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # Known to be flaky prior to the addition of tearDown()
         # and logout() code which is the same number of additional queries
-        with self.assertNumQueries(57):
+        with self.assertNumQueries(60, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -273,7 +275,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?{params}'.format(root=reverse('api:v1:course-list'), params=urlencode({'keys': keys}))
 
-        with self.assertNumQueries(57):
+        with self.assertNumQueries(60, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -283,7 +285,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(57):
+        with self.assertNumQueries(60, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -1285,6 +1287,60 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertDictEqual(response.data, self.serialize_course(course))
         assert course.title == 'Course title'
         assert 0 == course.entitlements.count()
+
+    @ddt.data(False, True)
+    @responses.activate
+    def test_update_location_restriction(self, existing_location_restriction):
+        """
+        Location restriction can be updated whether or not there is existing data.
+        """
+        location_restriction = None
+        if existing_location_restriction:
+            location_restriction = CourseLocationRestrictionFactory(
+                restriction_type=AbstractLocationRestrictionModel.ALLOWLIST,
+                countries=['US'], states=['MA']
+            )
+        course = CourseFactory(location_restriction=location_restriction)
+
+        location_restriction_data = {
+            'restriction_type': AbstractLocationRestrictionModel.BLOCKLIST,
+            'countries': ['US', 'CA'],
+            'states': []
+        }
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        course_data = {'location_restriction': location_restriction_data}
+
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['location_restriction'], location_restriction_data)
+
+    @responses.activate
+    def test_update_location_restriction_no_countries_or_states(self):
+        """
+        If countries and/or states fields are not included in the request, then existing data for those fields
+        should not be affected.
+        """
+        location_restriction_data = {
+            'restriction_type': AbstractLocationRestrictionModel.ALLOWLIST,
+            'countries': ['US'],
+            'states': ['MA']
+        }
+        location_restriction = CourseLocationRestrictionFactory(**location_restriction_data)
+        course = CourseFactory(location_restriction=location_restriction)
+
+        location_restriction_data['restriction_type'] = AbstractLocationRestrictionModel.BLOCKLIST
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        course_data = {
+            'location_restriction': {'restriction_type': location_restriction_data['restriction_type']}
+        }
+
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['location_restriction'], location_restriction_data)
 
     @responses.activate
     def test_check_course_type_slug_exists_in_response(self):

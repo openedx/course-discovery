@@ -109,7 +109,7 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     ordering = ('key', 'title',)
     readonly_fields = ('enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number')
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
-    raw_id_fields = ('canonical_course_run', 'draft_version',)
+    raw_id_fields = ('canonical_course_run', 'draft_version', 'location_restriction')
     autocomplete_fields = ['canonical_course_run']
     change_actions = ('course_skills', 'refresh_course_skills')
 
@@ -281,6 +281,38 @@ class CourseRunAdmin(admin.ModelAdmin):
 
             msg = PUBLICATION_FAILURE_MSG_TPL.format(model='course run')
             messages.add_message(request, messages.ERROR, msg)
+
+
+class CourseInline(admin.TabularInline):
+    model = Course
+    fields = ('key', 'title', 'draft')
+    show_change_link = True
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(CourseLocationRestriction)
+class CourseLocationRestrictionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'restriction_type')
+    fields = ('restriction_type', 'countries', 'states', 'created', 'modified')
+    readonly_fields = ('created', 'modified')
+    inlines = (CourseInline,)
+
+
+@admin.register(ProgramLocationRestriction)
+class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
+    list_display = ('program', 'restriction_type',)
+    fields = ('program', 'restriction_type', 'countries', 'states', 'created', 'modified')
+    readonly_fields = ('created', 'modified')
+    raw_id_fields = ('program',)
+    search_fields = ('program__name', 'program__marketing_slug')
 
 
 @admin.register(Program)

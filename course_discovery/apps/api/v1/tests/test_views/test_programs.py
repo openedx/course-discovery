@@ -122,7 +122,7 @@ class TestProgramViewSet(SerializationMixin):
         program = self.create_program(courses=[])
         self.create_curriculum(program)
 
-        with django_assert_num_queries(52):
+        with django_assert_num_queries(FuzzyInt(53, 2)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 
