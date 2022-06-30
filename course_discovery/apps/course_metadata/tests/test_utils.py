@@ -353,13 +353,13 @@ class TestEnsureDraftWorld(SiteMixin, TestCase):
         not_draft_seats = not_draft_course_run.seats.all()
         assert draft_seats != not_draft_seats
         assert len(draft_seats) == len(not_draft_seats)
-        for i, __ in enumerate(draft_seats):
-            assert draft_seats[i].price == not_draft_seats[i].price
-            assert draft_seats[i].sku == not_draft_seats[i].sku
-            assert draft_seats[i].course_run != not_draft_seats[i].course_run
-            assert draft_seats[i].course_run.uuid == not_draft_seats[i].course_run.uuid
-            assert draft_seats[i].official_version == not_draft_seats[i]
-            assert not_draft_seats[i].draft_version == draft_seats[i]
+        for ds, nds in zip(draft_seats, not_draft_seats):
+            assert ds.price == nds.price
+            assert ds.sku == nds.sku
+            assert ds.course_run != nds.course_run
+            assert ds.course_run.uuid == nds.course_run.uuid
+            assert ds.official_version == nds
+            assert nds.draft_version == ds
 
         # Check draft course is also created
         draft_course = ensured_draft_course_run.course
