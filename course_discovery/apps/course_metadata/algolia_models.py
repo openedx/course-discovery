@@ -421,6 +421,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     def should_index_spanish(self):
         return self.should_index
 
+    @property
+    def is_2u_degree(self):
+        return hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata')
+
 
 class SearchDefaultResultsConfiguration(models.Model):
     index_name = models.CharField(max_length=32, unique=True)

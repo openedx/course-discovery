@@ -1117,6 +1117,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
+            'is_2u_degree': program.is_2u_degree,
         })
         return expected
 
@@ -2634,6 +2635,7 @@ class TestTypeaheadProgramSearchSerializer:
             'type': program.type.name_t,
             'orgs': [org.key for org in program.authoring_organizations.all()],
             'marketing_url': program.marketing_url,
+            'is_2u_degree': program.is_2u_degree,
         }
 
     def test_data(self):

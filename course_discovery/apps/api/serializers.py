@@ -1858,6 +1858,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     applicable_seat_types = serializers.SerializerMethodField()
     topics = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField()
+    is_2u_degree = serializers.BooleanField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -1903,7 +1904,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
-            'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion',
+            'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'is_2u_degree'
         )
         read_only_fields = ('enterprise_subscription_inclusion',)
 
@@ -2232,6 +2233,7 @@ class TypeaheadCourseRunSearchSerializer(TypeaheadBaseSearchSerializer):
 class TypeaheadProgramSearchSerializer(TypeaheadBaseSearchSerializer):
     uuid = serializers.CharField()
     type = serializers.CharField()
+    is_2u_degree = serializers.BooleanField()
 
 
 class TypeaheadSearchSerializer(serializers.Serializer):

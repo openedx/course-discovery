@@ -2182,6 +2182,23 @@ class ProgramTests(TestCase):
         program = factories.ProgramBaseFactory()
         assert program.status == ProgramStatus.Unpublished
 
+    def test_program_is_2u_degree(self):
+        program = factories.ProgramBaseFactory()
+        degree = factories.DegreeFactory()
+        degree.additional_metadata = factories.DegreeAdditionalMetadataFactory()
+        program.degree = degree
+        assert program.is_2u_degree
+
+    def test_program_without_degree_is_not_2u_degree(self):
+        program = factories.ProgramBaseFactory()
+        assert not program.is_2u_degree
+
+    def test_program_with_degree_without_metadata_is_not_2u_degree(self):
+        program = factories.ProgramBaseFactory()
+        degree = factories.DegreeFactory()
+        program.degree = degree
+        assert not program.is_2u_degree
+
 
 class PathwayTests(TestCase):
     """ Tests of the Pathway model."""
