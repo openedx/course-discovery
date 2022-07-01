@@ -287,9 +287,9 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
     def _login(self):
         """ Log into Django admin. """
         self.browser.get(self._build_url(reverse('admin:login')))
-        self.browser.find_element_by_id('id_username').send_keys(self.user.username)
-        self.browser.find_element_by_id('id_password').send_keys(USER_PASSWORD)
-        self.browser.find_element_by_css_selector('input[type=submit]').click()
+        self.browser.find_element(By.ID, 'id_username').send_keys(self.user.username)
+        self.browser.find_element(By.ID, 'id_password').send_keys(USER_PASSWORD)
+        self.browser.find_element(By.CSS_SELECTOR, 'input[type=submit]').click()
         self._wait_for_page_load('dashboard')
 
     def _wait_for_add_edit_page_to_load(self):
@@ -304,18 +304,18 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         self._wait_for_add_edit_page_to_load()
 
     def _select_option(self, select_id, option_value):
-        select = Select(self.browser.find_element_by_id(select_id))
+        select = Select(self.browser.find_element(By.ID, select_id))
         select.select_by_value(option_value)
 
     def _submit_program_form(self):
-        self.browser.find_element_by_css_selector('input[type=submit][name=_save]').click()
+        self.browser.find_element(By.CSS_SELECTOR, 'input[type=submit][name=_save]').click()
         self._wait_for_excluded_course_runs_page_to_load()
 
     def assert_form_fields_present(self):
         """ Asserts the correct fields are rendered on the form. """
         # Check the model fields
         actual = []
-        for element in self.browser.find_elements_by_class_name('form-row'):
+        for element in self.browser.find_elements(By.CLASS_NAME, 'form-row'):
             actual += [_class for _class in element.get_attribute('class').split(' ') if _class.startswith('field-')]
 
         expected = [
@@ -346,9 +346,9 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
             type=ProgramType.objects.first(),
             marketing_slug='foo'
         )
-        self.browser.find_element_by_id('id_title').send_keys(program.title)
-        self.browser.find_element_by_id('id_subtitle').send_keys(program.subtitle)
-        self.browser.find_element_by_id('id_marketing_slug').send_keys(program.marketing_slug)
+        self.browser.find_element(By.ID, 'id_title').send_keys(program.title)
+        self.browser.find_element(By.ID, 'id_subtitle').send_keys(program.subtitle)
+        self.browser.find_element(By.ID, 'id_marketing_slug').send_keys(program.marketing_slug)
         self._select_option('id_status', program.status)
         self._select_option('id_type', str(program.type.id))
         self._select_option('id_partner', str(program.partner.id))
@@ -376,7 +376,7 @@ class ProgramAdminFunctionalTests(SiteMixin, LiveServerTestCase):
         )
 
         for field, value in data:
-            element = self.browser.find_element_by_id('id_' + field)
+            element = self.browser.find_element(By.ID, 'id_' + field)
             element.clear()
             element.send_keys(value)
 
