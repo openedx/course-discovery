@@ -1868,7 +1868,7 @@ class ProgramTests(TestCase):
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
         program's courses. """
-        expected_start = min([course_run.start for course_run in self.course_runs])
+        expected_start = min(course_run.start for course_run in self.course_runs)
         assert self.program.start == expected_start
 
         # Verify start is None for programs with no courses.
@@ -2519,7 +2519,7 @@ class TopicTests(SiteMixin, TestCase):
     def test_str(self):
         name = "name"
         topic = Topic.objects.create(name=name, partner_id=self.partner.id)
-        assert topic.__str__() == name
+        assert str(topic) == name
 
 
 class DegreeTests(TestCase):
