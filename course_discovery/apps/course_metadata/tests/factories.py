@@ -791,6 +791,11 @@ class DrupalPublishUuidConfigFactory(factory.django.DjangoModelFactory):
         model = DrupalPublishUuidConfig
 
 
+class CSVDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = CSVDataLoaderConfiguration
+
+
 class ProfileImageDownloadConfigFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ProfileImageDownloadConfig

@@ -813,3 +813,11 @@ class CollaboratorAdmin(admin.ModelAdmin):
 class CourseUrlSlugAdmin(admin.ModelAdmin):
     list_display = ('course', 'url_slug', 'is_active')
     search_fields = ('url_slug', 'course__title', 'course__key',)
+
+
+@admin.register(CSVDataLoaderConfiguration)
+class CSVDataLoaderConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for CSVDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
