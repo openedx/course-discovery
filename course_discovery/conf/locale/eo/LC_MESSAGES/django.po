@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-26 20:35+0000\n"
+"POT-Creation-Date: 2022-07-03 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -1195,6 +1195,14 @@ msgstr ""
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: apps/course_metadata/models.py
+msgid "Allowlist"
+msgstr "Àllöwlïst Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
+msgid "Blocklist"
+msgstr "Blöçklïst Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
 msgid ""
 "When making reruns for this course, they will use this key instead of the "
 "course key."
@@ -1846,6 +1854,14 @@ msgstr ""
 "Pärtnér {partner_key} änd çöürsé pärtnér {course_partner_key} dö nöt mätçh "
 "whén ättémptïng tö sävé ürl rédïréçt {url_path} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"It expects the data will be provided in a csv file format with first row "
+"containing all the headers."
+msgstr ""
+"Ìt éxpéçts thé dätä wïll ßé prövïdéd ïn ä çsv fïlé förmät wïth fïrst röw "
+"çöntäïnïng äll thé héädérs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: apps/course_metadata/models.py
 msgid "Course Run IDs"
