@@ -5,6 +5,7 @@ creating and updating related objects in Studio, and ecommerce, provided a csv c
 import csv
 import logging
 
+import unicodecsv
 from django.conf import settings
 from django.db.models import Q
 from django.urls import reverse
@@ -53,13 +54,15 @@ class CSVDataLoader(AbstractDataLoader):
         'redirect_url', 'organic_url', 'external_identifier',
     ]
 
-    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None):
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, csv_file=None):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         self.messages_list = []  # to show failure/skipped ingestion message at the end
         self.course_uuids = {}  # to show the discovery course ids for each processed course
         try:
-            self.reader = csv.DictReader(open(csv_path, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
+            # Read file from the path if given. Otherwise, read from the file received from CSVDataLoaderConfiguration.
+            self.reader = csv.DictReader(open(csv_path, 'r')) if csv_path \
+                else list(unicodecsv.DictReader(csv_file))  # lint-amnesty, pylint: disable=consider-using-with
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))  # lint-amnesty, pylint: disable=logging-format-interpolation
             raise  # re-raising exception to avoid moving the code flow

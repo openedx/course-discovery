@@ -40,8 +40,8 @@ class Command(BaseCommand):
         """
         partner_short_code = options.get('partner_code')
         csv_loader_config = CSVDataLoaderConfiguration.current()
-        csv_path = options.get('csv_path') if options.get('csv_path') \
-            else csv_loader_config.csv_file.path if csv_loader_config.is_enabled() else ''
+        csv_path = options.get('csv_path', None)
+        csv_file = csv_loader_config.csv_file if csv_loader_config.is_enabled() else None
         try:
             partner = Partner.objects.get(short_code=partner_short_code)
         except Partner.DoesNotExist:
@@ -59,7 +59,7 @@ class Command(BaseCommand):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
 
         try:
-            loader = CSVDataLoader(partner, csv_path=csv_path)
+            loader = CSVDataLoader(partner, csv_path=csv_path, csv_file=csv_file)
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             loader.ingest()
         except Exception as exc:
