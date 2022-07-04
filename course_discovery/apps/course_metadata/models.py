@@ -1017,6 +1017,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         return None
 
     @property
+    def is_external_course(self):
+        """
+        Property to check if the course is an external product type.
+        """
+        return self.type.slug in [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]
+
+    @property
     def original_image_url(self):
         if self.image:
             return self.image.url
