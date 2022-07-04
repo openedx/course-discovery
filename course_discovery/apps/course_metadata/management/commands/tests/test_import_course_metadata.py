@@ -65,7 +65,7 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         Test that the command raises ValueError if no csv file is provided.
         """
         _ = CSVDataLoaderConfigurationFactory.create(enabled=True)
-        with self.assertRaisesMessage(ValueError, "The 'csv_file' attribute has no file associated with it."):
+        with self.assertRaisesMessage(CommandError, "The 'csv_file' attribute has no file associated with it."):
             call_command(
                 'import_course_metadata', '--partner_code', self.partner.short_code,
             )
