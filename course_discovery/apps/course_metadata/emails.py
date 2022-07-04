@@ -198,10 +198,10 @@ def send_email_to_editors(course_run, template_name, subject, context=None):
     from course_discovery.apps.course_metadata.models import CourseEditor  # pylint: disable=import-outside-toplevel
 
     if course_run.course.is_external_course:
-        logger.info("Skipping send email to the editors of external course: '{}' with type: '{}'".format(
-            course_run.course.title,
-            course_run.course.type.slug
-        ))
+        logger.info("Skipping send email to the editors of external course: '%s' with type: '%s'",
+                    course_run.course.title,
+                    course_run.course.type.slug
+                    )
         return
 
     editors = CourseEditor.course_editors(course_run.course)
