@@ -25,8 +25,8 @@ from course_discovery.apps.course_metadata.tests.factories import (
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
-    calculated_seat_upgrade_deadline, clean_html, create_missing_entitlement, ensure_draft_world,
-    serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api, transform_skills_data
+    calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
+    ensure_draft_world, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api, transform_skills_data
 )
 
 
@@ -705,3 +705,9 @@ class UtilsTests(TestCase):
 
         output = transform_skills_data(input_data)
         assert output == expected_data
+
+
+class TestConvertSvgToPngFromUrl(TestCase):
+    @mock.patch('course_discovery.apps.course_metadata.utils.svg2png')
+    def test_convert_svg_to_png_from_url(self, _svg2png_mock):
+        assert convert_svg_to_png_from_url('https://www.svgimageurl.com') is not None

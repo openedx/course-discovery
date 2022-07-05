@@ -11,6 +11,7 @@ MASTERS_PROGRAM_TYPE_SLUG = 'masters'
 IMAGE_TYPES = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
+    'image/svg+xml': 'svg'
 }
 
 
