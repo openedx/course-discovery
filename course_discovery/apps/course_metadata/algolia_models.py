@@ -12,6 +12,9 @@ from course_discovery.apps.course_metadata.models import (
     AbstractLocationRestrictionModel, Course, CourseType, Program, ProgramType
 )
 
+# Algolia can't filter on an empty list, provide a value we can still filter on
+EMPTY_LOCATION_RESTRICTION_LIST = ['null']
+
 
 # Utility methods used by both courses and programs
 def get_active_language_tag(course):
@@ -90,6 +93,9 @@ def get_course_availability(course):
 
 
 def get_location_restriction(location_restriction):
+    if (len(location_restriction.countries) == 0 and len(location_restriction.states) == 0):
+        return EMPTY_LOCATION_RESTRICTION_LIST
+
     # Combine list of country and state codes in order to make filtering in Algolia easier
     states = ['US-' + state for state in location_restriction.states]
     return location_restriction.countries + states
@@ -266,7 +272,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
             self.location_restriction.restriction_type == AbstractLocationRestrictionModel.ALLOWLIST
         ):
             return get_location_restriction(self.location_restriction)
-        return []
+        return EMPTY_LOCATION_RESTRICTION_LIST
 
     @property
     def product_blocked_in(self):
@@ -275,7 +281,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
             self.location_restriction.restriction_type == AbstractLocationRestrictionModel.BLOCKLIST
         ):
             return get_location_restriction(self.location_restriction)
-        return []
+        return EMPTY_LOCATION_RESTRICTION_LIST
 
     @property
     def should_index(self):
@@ -411,7 +417,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             self.location_restriction.restriction_type == AbstractLocationRestrictionModel.ALLOWLIST
         ):
             return get_location_restriction(self.location_restriction)
-        return []
+        return EMPTY_LOCATION_RESTRICTION_LIST
 
     @property
     def product_blocked_in(self):
@@ -420,7 +426,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             self.location_restriction.restriction_type == AbstractLocationRestrictionModel.BLOCKLIST
         ):
             return get_location_restriction(self.location_restriction)
-        return []
+        return EMPTY_LOCATION_RESTRICTION_LIST
 
     @property
     def availability_level(self):
