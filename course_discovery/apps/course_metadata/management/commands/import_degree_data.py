@@ -10,13 +10,15 @@ from django.db.models.signals import post_delete, post_save
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.degrees_loader import DegreeCSVDataLoader
+from course_discovery.apps.course_metadata.models import DegreeDataLoaderConfiguration
 from course_discovery.apps.course_metadata.signals import connect_api_change_receiver
 
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Import degree information from a CSV available on a provided csv path.'
+    help = 'Import degree information from a CSV available either through a provided csv file path ' \
+           'or a CSV file uploaded through DegreeDataLoaderConfiguration in django admin.'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -29,7 +31,6 @@ class Command(BaseCommand):
             '--csv_path',
             help='Path to the CSV file',
             type=str,
-            required=True
         )
 
     def handle(self, *args, **options):
@@ -37,7 +38,9 @@ class Command(BaseCommand):
         Example usage: ./manage.py import_degree_data --partner_code=edx --csv_path=test.csv
         """
         partner_short_code = options.get('partner_code')
-        csv_path = options.get('csv_path')
+        degree_loader_config = DegreeDataLoaderConfiguration.current()
+        csv_path = options.get('csv_path', None)
+        csv_file = degree_loader_config.csv_file if degree_loader_config.is_enabled() else None
         try:
             partner = Partner.objects.get(short_code=partner_short_code)
         except Partner.DoesNotExist:
@@ -55,7 +58,7 @@ class Command(BaseCommand):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
 
         try:
-            loader = DegreeCSVDataLoader(partner, csv_path=csv_path)
+            loader = DegreeCSVDataLoader(partner, csv_path=csv_path, csv_file=csv_file)
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             loader.ingest()
         except Exception as exc:

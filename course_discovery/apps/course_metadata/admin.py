@@ -821,3 +821,11 @@ class CSVDataLoaderConfigurationAdmin(admin.ModelAdmin):
     Admin for CSVDataLoaderConfiguration model.
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(DegreeDataLoaderConfiguration)
+class DegreeDataLoaderConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for DegreeDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')

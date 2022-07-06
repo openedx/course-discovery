@@ -4,6 +4,8 @@ Data loader responsible for creating degree entries in discovery Database,
 import csv
 import logging
 
+import unicodecsv
+
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
     Curriculum, Degree, DegreeAdditionalMetadata, LanguageTag, LevelType, Organization, Program, ProgramType,
@@ -20,17 +22,19 @@ class DegreeCSVDataLoader(AbstractDataLoader):
     DEGREE_REQUIRED_DATA_FIELDS = [
         'title', 'card_image_url', 'product_type', 'organization_key', 'organization_short_code_override',
         'slug', 'primary_subject', 'content_language', 'course_level', 'paid_landing_page_url', 'organic_url',
-        'identifier',
-        'overview', 'courses',
+        'identifier', 'overview', 'courses',
     ]
 
-    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None):
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, csv_file=None):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         self.messages_list = []  # to show failure/skipped ingestion message at the end
         self.degree_uuids = {}  # to show the discovery degrees/program ids for each processed degree
         try:
-            self.reader = csv.DictReader(open(csv_path, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
+            # Read file from the path if given. Otherwise,
+            # read from the file received from DegreeDataLoaderConfiguration.
+            self.reader = csv.DictReader(open(csv_path, 'r')) if csv_path \
+                else list(unicodecsv.DictReader(csv_file))  # lint-amnesty, pylint: disable=consider-using-with
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))    # lint-amnesty, pylint: disable=logging-format-interpolation
             raise  # re-raising exception to avoid moving the code flow
