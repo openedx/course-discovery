@@ -22,7 +22,7 @@ from course_discovery.apps.course_metadata.search_indexes.serializers import (
     CourseRunSearchDocumentSerializer, CourseRunSearchModelSerializer, LimitedAggregateSearchSerializer
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory
+    CourseFactory, CourseRunFactory, OrganizationFactory, PersonFactory, PositionFactory, ProgramFactory, SeatFactory
 )
 from course_discovery.apps.learner_pathway.models import LearnerPathway
 from course_discovery.apps.learner_pathway.tests.factories import LearnerPathwayStepFactory
@@ -495,6 +495,71 @@ class AggregateSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
             json.loads(JSONRenderer().render(self.serialize_course_search(course_run.course)).decode('utf-8')),
         ]
         self.assertCountEqual(response_data['results'], expected)
+
+    @ddt.data("GET", "POST")
+    def test_results_filtered_by_exclude_expired_course_run(self, request_method):
+        """ Verify that there the result of combining exclud_expired_course_run and other parameters work fine. """
+        now = datetime.datetime.now(pytz.UTC)
+
+        # Creating course and its course runs for testing both parameters
+        course = CourseFactory(key='edX+DemoX', title='ABCs of Ͳҽʂէìղց', partner=self.partner)
+        course_run1 = CourseRunFactory(course=course,
+                                       status=CourseRunStatus.Published,
+                                       enrollment_start=now - datetime.timedelta(weeks=90),
+                                       enrollment_end=None, end=now - datetime.timedelta(weeks=80))
+        course_run2 = CourseRunFactory(course=course,
+                                       status=CourseRunStatus.Published,
+                                       enrollment_start=now - datetime.timedelta(weeks=100),
+                                       enrollment_end=now - datetime.timedelta(weeks=87),
+                                       start=now - datetime.timedelta(weeks=85),
+                                       end=now - datetime.timedelta(weeks=80))
+        course_run3 = CourseRunFactory(course=course,
+                                       status=CourseRunStatus.Unpublished,
+                                       enrollment_start=None,
+                                       enrollment_end=None,
+                                       end=now + datetime.timedelta(weeks=80))
+        course_run4 = CourseRunFactory(course=course,
+                                       status=CourseRunStatus.Unpublished,
+                                       enrollment_start=None,
+                                       enrollment_end=None,
+                                       end=now - datetime.timedelta(weeks=60))
+
+        course.canonical_course_run = course_run1
+        course.save()
+
+        # Craeting seats to make course runs marketable
+        SeatFactory(course_run=course_run1)
+        SeatFactory(course_run=course_run2)
+        SeatFactory(course_run=course_run3)
+        SeatFactory(course_run=course_run4)
+
+        response = None
+
+        # Filter results excluding expired course runs but inclusing published course runs.
+        if request_method == "GET":
+            query = {'content_type': 'course', 'status': 'published', 'exclude_expired_course_run': 'true'}
+
+            with self.assertNumQueries(10):
+                response = self.get_response(query, endpoint=self.list_path)
+        else:
+            data = {'content_type': 'course', 'status': 'published'}
+            query = {'exclude_expired_course_run': 'true'}
+
+            with self.assertNumQueries(10):
+                qs = urllib.parse.urlencode(query)
+                url = f'{self.list_path}?{qs}'
+                response = self.client.post(url, data=data, format='json')
+
+        assert response.status_code == 200
+        response_data = response.json()
+
+        actual_course_runs = response_data['results'][0]['course_runs']
+        expected_course_runs = [course_run1, course_run2, course_run3]
+        assert len(actual_course_runs) == len(expected_course_runs)
+
+        actual_course_run_keys = [course_run['key'] for course_run in actual_course_runs]
+        expected_course_run_keys = [course_run.key for course_run in expected_course_runs]
+        assert set(actual_course_run_keys) == set(expected_course_run_keys)
 
     def test_empty_query(self):
         """ Verify, when the query (q) parameter is empty, the endpoint behaves as if the parameter
