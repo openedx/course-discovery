@@ -72,7 +72,8 @@ CELERY_TASK_ALWAYS_EAGER = True
 
 CELERY_TASK_IGNORE_RESULT = True
 
-CELERY_RESULT_BACKEND = f'file://{tempfile.TemporaryDirectory()}'
+results_dir = tempfile.TemporaryDirectory()
+CELERY_RESULT_BACKEND = f'file://{results_dir.name}'
 
 CELERY_BROKER_URL = 'memory://localhost/'
 

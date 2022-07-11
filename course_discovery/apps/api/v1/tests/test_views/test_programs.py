@@ -13,11 +13,12 @@ from course_discovery.apps.api.v1.views.programs import ProgramViewSet
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import Program
+from course_discovery.apps.course_metadata.models import CourseType, Program, ProgramType
 from course_discovery.apps.course_metadata.tests.factories import (
     CorporateEndorsementFactory, CourseFactory, CourseRunFactory, CurriculumCourseMembershipFactory, CurriculumFactory,
     CurriculumProgramMembershipFactory, DegreeAdditionalMetadataFactory, DegreeFactory, EndorsementFactory,
-    ExpectedLearningItemFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory, VideoFactory
+    ExpectedLearningItemFactory, JobOutlookItemFactory, OrganizationFactory, PersonFactory, ProgramFactory,
+    ProgramTypeFactory, VideoFactory
 )
 
 
@@ -46,13 +47,16 @@ class TestProgramViewSet(SerializationMixin):
         self.partner = partner
         self.request = request
 
-    def create_program(self, courses=None):
+    def create_program(self, courses=None, program_type=None):
         organizations = [OrganizationFactory(partner=self.partner)]
         person = PersonFactory()
 
         if courses is None:
             courses = [CourseFactory(partner=self.partner)]
             CourseRunFactory(course=courses[0], staff=[person])
+
+        if program_type is None:
+            program_type = ProgramTypeFactory()
 
         program = ProgramFactory(
             courses=courses,
@@ -65,7 +69,8 @@ class TestProgramViewSet(SerializationMixin):
             instructor_ordering=PersonFactory.create_batch(1),
             banner_image=make_image_file('test_banner.jpg'),
             video=VideoFactory(),
-            partner=self.partner
+            partner=self.partner,
+            type=program_type,
         )
         return program
 
@@ -396,16 +401,18 @@ class TestProgramViewSet(SerializationMixin):
         assert response.status_code == 400
 
     def test_enterprise_subscription_inclusion(self):
-        course = CourseFactory(enterprise_subscription_inclusion=True)
-        course2 = CourseFactory(enterprise_subscription_inclusion=True)
-        course3 = CourseFactory(enterprise_subscription_inclusion=False)
+        course_type = CourseType.objects.filter(slug=CourseType.VERIFIED_AUDIT).first()
+        course = CourseFactory(enterprise_subscription_inclusion=True, type=course_type)
+        course2 = CourseFactory(enterprise_subscription_inclusion=True, type=course_type)
+        course3 = CourseFactory(enterprise_subscription_inclusion=False, type=course_type)
         course_list_false = [course, course2, course3]
-        program = self.create_program(courses=course_list_false)
-        assert program.enterprise_subscription_inclusion is False
+        program_type = ProgramType.objects.get(translations__name_t='XSeries')
+        program1 = self.create_program(courses=course_list_false, program_type=program_type)
+        assert program1.enterprise_subscription_inclusion is False
 
-        course_list_true = CourseFactory.create_batch(3, enterprise_subscription_inclusion=True)
-        program = self.create_program(courses=course_list_true)
-        assert program.enterprise_subscription_inclusion is True
+        course_list_true = CourseFactory.create_batch(3, enterprise_subscription_inclusion=True, type=course_type)
+        program2 = self.create_program(courses=course_list_true, program_type=program_type)
+        assert program2.enterprise_subscription_inclusion is True
 
     def test_is_2u_degree_program(self):
         course_list = CourseFactory.create_batch(3)

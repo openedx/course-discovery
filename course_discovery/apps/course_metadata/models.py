@@ -398,6 +398,12 @@ class ProgramType(TranslatableModel, TimeStampedModel):
             program_type = program_model.objects.get(slug=slug)
         return program_type, name
 
+    @classmethod
+    def is_enterprise_catalog_program_type(cls, program_type):
+        return program_type.slug in [
+            cls.XSERIES, cls.MICROMASTERS, cls.PROFESSIONAL_CERTIFICATE, cls.PROFESSIONAL_PROGRAM_WL, cls.MICROBACHELORS
+        ]
+
 
 class ProgramTypeTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
@@ -543,6 +549,12 @@ class CourseType(TimeStampedModel):
     def empty(self):
         """ Empty types are special - they are the default type used when we don't know a real type """
         return self.slug == self.EMPTY
+
+    @classmethod
+    def is_enterprise_catalog_course_type(cls, course_type):
+        return course_type.slug in [
+            cls.AUDIT, cls.VERIFIED_AUDIT, cls.PROFESSIONAL, cls.CREDIT_VERIFIED_AUDIT, cls.EMPTY
+        ]
 
 
 class Subject(TranslatableModel, TimeStampedModel):
@@ -1007,7 +1019,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     def _check_enterprise_subscription_inclusion(self):
         # if false has been passed in, or it's already been set to false
-        if self.enterprise_subscription_inclusion is False:
+        if not CourseType.is_enterprise_catalog_course_type(self.type) or \
+                self.enterprise_subscription_inclusion is False:
             return False
         for org in self.authoring_organizations.all():
             if not org.enterprise_subscription_inclusion:
@@ -1023,6 +1036,12 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         kwargs['force_insert'] = False
         kwargs['force_update'] = True
         super().save(*args, **kwargs)
+
+        # Course runs calculate enterprise subscription inclusion based off of their parent's status, so we need to
+        # force a recalculation
+        course_runs = CourseRun.objects.filter(course=self)
+        for course_run in course_runs:
+            course_run.save()
 
     def __str__(self):
         return f'{self.key}: {self.title}'
@@ -2765,8 +2784,10 @@ class Program(PkSearchableMixin, TimeStampedModel):
         return self.status == ProgramStatus.Active
 
     def _check_enterprise_subscription_inclusion(self):
-        if self.type == 'micromasters':
+        # We exclude Bachelors, Masters, and Doctorate programs as the cost per user would be too high
+        if not ProgramType.is_enterprise_catalog_program_type(self.type):
             return False
+
         for course in self.courses.all():
             if not course.enterprise_subscription_inclusion:
                 return False
