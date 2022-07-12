@@ -2846,7 +2846,11 @@ class Degree(Program):
         blank=True,
         max_length=128,
     )
-
+    lead_capture_form_url = models.URLField(
+        help_text=_('The URL to the form that would be rendered in an iFrame. If a url is supplied, it will override HubSpot form field above.`'),
+        null=True,
+        blank=True,
+    )
     micromasters_url = models.URLField(
         help_text=_('URL to micromasters landing page'),
         max_length=255,
