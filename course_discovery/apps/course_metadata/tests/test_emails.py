@@ -1,6 +1,7 @@
 import datetime
 import re
 
+import ddt
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
@@ -10,9 +11,9 @@ from testfixtures import LogCapture, StringComparison
 
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata import emails
-from course_discovery.apps.course_metadata.models import CourseEditor
+from course_discovery.apps.course_metadata.models import CourseEditor, CourseRunStatus, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseRunFactory, OrganizationFactory
+    CourseEditorFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory
 )
 from course_discovery.apps.publisher.choices import InternalUserRole
 from course_discovery.apps.publisher.constants import LEGAL_TEAM_GROUP_NAME
@@ -21,6 +22,7 @@ from course_discovery.apps.publisher.tests.factories import (
 )
 
 
+@ddt.ddt
 class EmailTests(TestCase):
     def setUp(self):
         super().setUp()
@@ -354,4 +356,44 @@ class EmailTests(TestCase):
                 f'{self.editor.username} made the following comment on',
                 comment
             ],
+        )
+
+    @ddt.data(
+        ('Executive Education(2U)', CourseType.EXECUTIVE_EDUCATION_2U),
+        ('Bootcamp(2U)', CourseType.BOOTCAMP_2U),
+    )
+    @ddt.unpack
+    def test_no_email_sent_for_external_courses(self, type_name, type_slug):
+        """
+        Verify the editor emails are not sent when the course in question is
+        an external course.
+        """
+        course_type = CourseTypeFactory(
+            name=type_name,
+            slug=type_slug
+        )
+        course = CourseFactory(partner=self.partner, title='No email Test', key='edX+bootcamp', type=course_type)
+        course.authoring_organizations.add(self.org)
+        CourseEditorFactory(user=self.editor, course=course)
+        CourseEditorFactory(user=self.editor2, course=course)
+        self.course_run.course = course
+        self.course_run.status = CourseRunStatus.Published
+        # Save method internally sends emails to PCs and editors of the published course.
+        # Skipping email send here to explicitly call email method below to emphasize no email to editors
+        # is sent for external courses.
+        self.course_run.save(send_emails=False)
+
+        with LogCapture(emails.logger.name) as log_capture:
+            emails.send_email_to_editors(self.course_run, 'course_metadata/email/go_live', 'Published')
+
+        assert len(mail.outbox) == 0
+
+        log_capture.check(
+            (
+                emails.logger.name,
+                'INFO',
+                "Skipping send email to the editors of external course: 'No email Test' with type: '{}'".format(
+                    type_slug
+                )
+            )
         )

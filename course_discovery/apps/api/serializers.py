@@ -1310,7 +1310,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         if 'additional_metadata' in validated_data:
             # Handle additional metadata only for 2U courses else just pop
             additional_metadata_data = validated_data.pop('additional_metadata')
-            if instance.type.slug in [CourseType.BOOTCAMP_2U, CourseType.EXECUTIVE_EDUCATION_2U]:
+            if instance.is_external_course:
                 self.update_additional_metadata(instance, additional_metadata_data)
         if 'location_restriction' in validated_data:
             self.update_location_restriction(instance, validated_data.pop('location_restriction'))
