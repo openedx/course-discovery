@@ -2846,11 +2846,6 @@ class Degree(Program):
         blank=True,
         max_length=128,
     )
-    lead_capture_form_url = models.URLField(
-        help_text=_('The URL to the form that would be rendered in an iFrame. If a url is supplied, it will override HubSpot form field above.`'),
-        null=True,
-        blank=True,
-    )
     micromasters_url = models.URLField(
         help_text=_('URL to micromasters landing page'),
         max_length=255,
@@ -2927,6 +2922,12 @@ class DegreeAdditionalMetadata(TimeStampedModel):
     organic_url = models.URLField(
         blank=True, null=False, max_length=511,
         help_text=_('The URL of the landing page on external site')
+    )
+
+    lead_capture_form_url = models.URLField(
+        help_text=_('The URL to the form that would be rendered in an iFrame. If a url is supplied, it will override HubSpot form field above.`'),
+        null=True,
+        blank=True,
     )
 
     degree = models.OneToOneField(

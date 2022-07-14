@@ -1373,7 +1373,6 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'lead_capture_list_name': degree.lead_capture_list_name,
             'lead_capture_image': lead_capture_image_field.to_representation(degree.lead_capture_image),
             'hubspot_lead_capture_form_id': degree.hubspot_lead_capture_form_id,
-            'lead_capture_form_url': degree.lead_capture_form_url,
             'micromasters_path': expected_micromasters_path,
             'micromasters_url': degree.micromasters_url,
             'micromasters_long_title': degree.micromasters_long_title,
