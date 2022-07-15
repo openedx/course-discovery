@@ -204,6 +204,11 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         program = Program.objects.get(degree=degree, partner=self.partner)
         is_downloaded = download_and_save_program_image(
             program, data['card_image_url'],
+            # TODO: Temporary addition of User agent to allow access to data CDNs
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+                              '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
+            }
         )
         if not is_downloaded:
             logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -215,6 +220,11 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             is_downloaded = download_and_save_program_image(
                 program, data['organization_logo_override'],
                 'organization_logo_override',
+                # TODO: Temporary addition of User agent to allow access to data CDNs
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+                                  '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
+                }
             )
             if not is_downloaded:
                 logger.error("Unexpected error happened while downloading org logo image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
