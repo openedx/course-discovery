@@ -10,7 +10,7 @@ from course_discovery.apps.publisher.models import OrganizationExtension
 
 
 # pylint: disable=useless-super-delegation
-class OrganizationViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelViewSet):
+class OrganizationViewSet(CompressedCacheResponseMixin, viewsets.ModelViewSet):
     """ Organization resource. """
 
     filter_backends = (DjangoFilterBackend,)
@@ -50,3 +50,7 @@ class OrganizationViewSet(CompressedCacheResponseMixin, viewsets.ReadOnlyModelVi
     def retrieve(self, request, *args, **kwargs):
         """ Retrieve details for an organization. """
         return super().retrieve(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        """ Update one or more fields for an organization. """
+        return super().partial_update(request, *args, **kwargs)

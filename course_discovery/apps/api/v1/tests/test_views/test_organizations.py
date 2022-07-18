@@ -174,3 +174,18 @@ class OrganizationViewSetTests(SerializationMixin, APITestCase):
 
         response = self.client.get(url)
         assert response.status_code == 404
+
+    def test_partial_update(self):
+        organization = OrganizationFactory.create(partner=self.partner)
+        url = reverse('api:v1:organization-detail', kwargs={'uuid': organization.uuid})
+        response = self.client.get(url)
+
+        assert response.data.get('enterprise_subscription_inclusion') is False
+        payload = {
+            'enterprise_subscription_inclusion': True
+        }
+        response = self.client.patch(url, payload, format='json')
+        assert response.status_code == 200
+
+        response = self.client.get(url)
+        assert response.data.get('enterprise_subscription_inclusion') is True
