@@ -458,7 +458,7 @@ msgstr "Éditer le lien"
 #: apps/course_metadata/admin.py:719
 #, python-format
 msgid "Successfully %(status)s %(count)d %(items)s."
-msgstr ""
+msgstr "Avec succès %(status)s %(count)d %(items)s."
 
 #: apps/course_metadata/algolia_models.py:80
 #: apps/course_metadata/algolia_models.py:436
@@ -1036,11 +1036,11 @@ msgstr "Ajoutez l'image du collaborateur, assurez-vous que ses dimensions sont d
 
 #: apps/course_metadata/models.py:845
 msgid "Allowlist"
-msgstr ""
+msgstr "Liste d'autorisation"
 
 #: apps/course_metadata/models.py:846
 msgid "Blocklist"
-msgstr ""
+msgstr "Liste de blocage"
 
 #: apps/course_metadata/models.py:878
 msgid ""
@@ -1522,7 +1522,7 @@ msgstr "Le partenaire {partner_key} et le partenaire du cours {course_partner_ke
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
-msgstr ""
+msgstr "Il s'attend à ce que les données soient fournies dans un format de fichier csv avec la première ligne contenant tous les en-têtes."
 
 #: apps/course_metadata/models.py:3332
 msgid "Course Run IDs"
