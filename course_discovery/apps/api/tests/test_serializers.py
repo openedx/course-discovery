@@ -27,7 +27,7 @@ from course_discovery.apps.api.serializers import (
     FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, LevelTypeSerializer,
     MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer,
     MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer,
-    PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProductValueSerializer,
     ProgramLocationRestrictionSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
     ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer,
     TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
@@ -211,6 +211,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'location_restriction': CourseLocationRestrictionSerializer(
                 course.location_restriction
             ).data,
+            'in_year_value': ProductValueSerializer(course.in_year_value).data
         })
 
         return expected
@@ -1128,6 +1129,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'location_restriction': ProgramLocationRestrictionSerializer(
                 program.location_restriction, read_only=True
             ).data,
+            'in_year_value': ProductValueSerializer(program.in_year_value).data
         })
         return expected
 

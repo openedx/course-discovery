@@ -838,6 +838,32 @@ class Collaborator(TimeStampedModel):
         return f'{self.name}'
 
 
+class ProductValue(TimeStampedModel):
+    """
+    ProductValue model, with fields related to projected value for a product.
+    """
+    per_lead_usa = models.IntegerField(
+        null=True, blank=True, default=0, verbose_name=_('U.S. Value Per Lead'), help_text=_(
+            'U.S. value per lead in U.S. dollars.'
+        )
+    )
+    per_lead_international = models.IntegerField(
+        null=True, blank=True, default=0, verbose_name=_('International Value Per Lead'), help_text=_(
+            'International value per lead in U.S. dollars.'
+        )
+    )
+    per_click_usa = models.IntegerField(
+        null=True, blank=True, default=0, verbose_name=_('U.S. Value Per Click'), help_text=_(
+            'U.S. value per click in U.S. dollars.'
+        )
+    )
+    per_click_international = models.IntegerField(
+        null=True, blank=True, default=0, verbose_name=_('International Value Per Click'), help_text=_(
+            'International value per click in U.S. dollars.'
+        )
+    )
+
+
 class AbstractLocationRestrictionModel(TimeStampedModel):
     ALLOWLIST = 'allowlist'
     BLOCKLIST = 'blocklist'
@@ -958,6 +984,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     location_restriction = models.ForeignKey(
         CourseLocationRestriction, models.SET_NULL, related_name='courses', default=None, null=True, blank=True
+    )
+
+    in_year_value = models.ForeignKey(
+        ProductValue, models.SET_NULL, related_name='courses', default=None, null=True, blank=True
     )
 
     everything = CourseQuerySet.as_manager()
@@ -2419,6 +2449,9 @@ class Program(PkSearchableMixin, TimeStampedModel):
         LanguageTag, models.SET_NULL, default=None, null=True, blank=True, help_text=_(
             'Language code specific for this program. '
             'Useful field in case there are no courses associated with this program.')
+    )
+    in_year_value = models.ForeignKey(
+        ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
     )
 
     objects = ProgramQuerySet.as_manager()
