@@ -211,6 +211,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'location_restriction': CourseLocationRestrictionSerializer(
                 course.location_restriction
             ).data,
+            'value_per_click': course.value_per_click,
         })
 
         return expected
@@ -1065,6 +1066,7 @@ class MinimalProgramSerializerTests(TestCase):
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
+            'value_per_click': program.value_per_click,
         }
 
     def test_data(self):
@@ -1127,6 +1129,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'location_restriction': ProgramLocationRestrictionSerializer(
                 program.location_restriction, read_only=True
             ).data,
+            'value_per_click': program.value_per_click,
         })
         return expected
 
