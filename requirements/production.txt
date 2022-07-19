@@ -43,6 +43,10 @@ botocore==1.27.70
     #   s3transfer
 cached-property==1.5.2
     # via zeep
+cairocffi==1.3.0
+    # via cairosvg
+cairosvg==2.5.2
+    # via -r requirements/base.in
 celery==5.2.7
     # via
     #   -c requirements/constraints.txt
@@ -54,6 +58,7 @@ certifi==2022.6.15.1
     #   requests
 cffi==1.15.1
     # via
+    #   cairocffi
     #   cryptography
     #   pynacl
 charset-normalizer==2.1.1
@@ -85,8 +90,11 @@ cryptography==38.0.1
     #   authlib
     #   pyjwt
     #   social-auth-core
+cssselect2==0.6.0
+    # via cairosvg
 defusedxml==0.7.1
     # via
+    #   cairosvg
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
@@ -378,6 +386,7 @@ pbr==5.10.0
 pillow==9.2.0
     # via
     #   -r requirements/base.in
+    #   cairosvg
     #   django-stdimage
 platformdirs==2.5.2
     # via zeep
@@ -521,6 +530,10 @@ taxonomy-connector==1.22.3
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
+tinycss2==1.1.1
+    # via
+    #   cairosvg
+    #   cssselect2
 typing-extensions==4.3.0
     # via django-countries
 unicodecsv==0.14.1
@@ -541,6 +554,10 @@ vine==5.0.0
     #   kombu
 wcwidth==0.2.5
     # via prompt-toolkit
+webencodings==0.5.1
+    # via
+    #   cssselect2
+    #   tinycss2
 wrapt==1.14.1
     # via deprecated
 xss-utils==0.4.0
