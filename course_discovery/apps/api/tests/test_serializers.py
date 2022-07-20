@@ -211,7 +211,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'location_restriction': CourseLocationRestrictionSerializer(
                 course.location_restriction
             ).data,
-            'value_per_click_us': course.value_per_click_us,
+            'value_per_click_usa': course.value_per_click_usa,
             'value_per_click_international': course.value_per_click_international,
         })
 
@@ -1129,7 +1129,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'location_restriction': ProgramLocationRestrictionSerializer(
                 program.location_restriction, read_only=True
             ).data,
-            'value_per_click_us': program.value_per_click_us,
+            'value_per_click_usa': program.value_per_click_usa,
             'value_per_click_international': program.value_per_click_international,
         })
         return expected

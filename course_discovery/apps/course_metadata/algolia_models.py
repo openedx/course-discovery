@@ -58,7 +58,7 @@ def delegate_attributes(cls):
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
                     'product_allowed_in', 'product_blocked_in']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index',
-                      'product_value_per_click']
+                      'product_value_per_click_usa', 'product_value_per_click_international']
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'product_weeks_to_complete',
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
@@ -142,8 +142,12 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
         return self.recent_enrollment_count
 
     @property
-    def product_value_per_click(self):
-        return self.value_per_click
+    def product_value_per_click_usa(self):
+        return self.value_per_click_usa
+
+    @property
+    def product_value_per_click_international(self):
+        return self.value_per_click_international
 
 
 class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):

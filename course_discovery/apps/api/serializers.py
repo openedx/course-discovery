@@ -1169,7 +1169,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     skills = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField(required=False)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
-    value_per_click_us = serializers.IntegerField(required=False)
+    value_per_click_usa = serializers.IntegerField(required=False)
     value_per_click_international = serializers.IntegerField(required=False)
 
     def get_organization_logo_override_url(self, obj):
@@ -1223,7 +1223,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
-            'enterprise_subscription_inclusion', 'location_restriction', 'value_per_click_us',
+            'enterprise_subscription_inclusion', 'location_restriction', 'value_per_click_usa',
             'value_per_click_international',
         )
         extra_kwargs = {
@@ -1897,7 +1897,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     topics = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField()
     location_restriction = ProgramLocationRestrictionSerializer(read_only=True)
-    value_per_click_us = serializers.IntegerField(required=False)
+    value_per_click_usa = serializers.IntegerField(required=False)
     value_per_click_international = serializers.IntegerField(required=False)
 
     @classmethod
@@ -1945,7 +1945,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion',
-            'location_restriction', 'value_per_click_us', 'value_per_click_international'
+            'location_restriction', 'value_per_click_usa', 'value_per_click_international'
         )
         read_only_fields = ('enterprise_subscription_inclusion',)
 

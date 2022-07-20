@@ -568,6 +568,8 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
     location_restriction = factory.RelatedFactory(
         ProgramLocationRestrictionFactory, factory_related_name='program'
     )
+    value_per_click_usa = FuzzyInteger(100)
+    value_per_click_international = FuzzyInteger(100)
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):
