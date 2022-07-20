@@ -145,6 +145,7 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
     def product_value_per_click(self):
         return self.value_per_click
 
+
 class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     class Meta:
