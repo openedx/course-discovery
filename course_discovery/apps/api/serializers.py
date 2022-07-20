@@ -1223,7 +1223,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
-            'enterprise_subscription_inclusion', 'location_restriction', 'value_per_click_us', 'value_per_click_international',
+            'enterprise_subscription_inclusion', 'location_restriction', 'value_per_click_us',
+            'value_per_click_international',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
