@@ -1067,8 +1067,6 @@ class MinimalProgramSerializerTests(TestCase):
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
-            'value_per_click_us': program.value_per_click_us,
-            'value_per_click_international': program.value_per_click_international,
         }
 
     def test_data(self):
