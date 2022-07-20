@@ -92,7 +92,7 @@ class EnglishProductIndex(BaseProductIndex):
         ],
         'attributesForFaceting': ['partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
                                   'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)'],
-        'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)', 'desc(value_per_click)']
+        'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'product'
     should_index = 'should_index'
@@ -132,7 +132,7 @@ class SpanishProductIndex(BaseProductIndex):
         'attributesForFaceting': ['partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
                                   'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)'],
         'customRanking': ['desc(promoted_in_spanish_index)', 'asc(availability_rank)',
-                          'desc(recent_enrollment_count)', 'desc(value_per_click)']
+                          'desc(recent_enrollment_count)']
     }
     index_name = 'spanish_product'
     should_index = 'should_index_spanish'
