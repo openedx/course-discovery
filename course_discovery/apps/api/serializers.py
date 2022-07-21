@@ -783,7 +783,7 @@ class MinimalProgramSerializer(serializers.ModelSerializer):
         model = Program
         fields = (
             'uuid', 'title', 'subtitle', 'type', 'status', 'partner', 'marketing_slug', 'marketing_url', 'hidden',
-            'authoring_organizations',
+            'authoring_organizations', 'visibility',
             'courses', 'card_image_url', 'is_program_eligible_for_one_click_purchase', 'duration', 'language',
             'start', 'end', 'enrollment_start', 'enrollment_end'
         )
