@@ -23,9 +23,9 @@ class ProgramStatus(DjangoChoices):
 
 
 class ProgramVisibility(DjangoChoices):
-    Active = ChoiceItem('active', _('Active'))
-    Retired = ChoiceItem('retired', _('Retired'))
-    Deleted = ChoiceItem('deleted', _('Deleted'))
+    Public = ChoiceItem(0, _('Full public'))
+    Accessible = ChoiceItem(1, _('Accessible by URL'))
+    Private = ChoiceItem(2, _('Private'))
 
 
 class ReportingType(DjangoChoices):
