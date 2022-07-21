@@ -15,8 +15,8 @@ from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCou
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRunStatus
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, OrganizationFactory, ProgramFactory, ProgramTypeFactory, SeatFactory,
-    SeatTypeFactory
+    CourseFactory, CourseRunFactory, DegreeAdditionalMetadataFactory, DegreeFactory, OrganizationFactory,
+    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -467,3 +467,14 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         program.authoring_organizations.add(OrganizationFactory())
         self.attach_archived_course(program=program)
         assert not program.should_index
+
+    def test_is_2u_degree_program(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        degree = DegreeFactory()
+        degree.additional_metadata = DegreeAdditionalMetadataFactory()
+        program.degree = degree
+        assert program.is_2u_degree_program
+
+    def test_is_not_2u_degree_program(self):
+        program = AlgoliaProxyProgramFactory()
+        assert not program.is_2u_degree_program
