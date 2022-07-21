@@ -46,6 +46,7 @@ class ProgramSearchDocumentSerializer(DocumentSerializer):
                 'weeks_to_complete_max',
                 'weeks_to_complete_min',
                 'search_card_display',
+                'is_2u_degree_program',
             )
         )
 
