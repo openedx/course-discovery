@@ -2859,8 +2859,8 @@ class Degree(Program):
         blank=True,
         max_length=128,
     )
-    lead_capture_form_url = models.URLField(
-        help_text=_('The URL to the form that would be rendered in an iFrame. If a url is supplied, it will override HubSpot form field above.`'),
+    internal_2u_lead_capture_form_id = models.URLField(
+        help_text=_('The ID of the internal 2u form that would be rendered in place of the hubspot capture form.`'),
         null=True,
         blank=True,
     )
