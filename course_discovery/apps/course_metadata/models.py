@@ -2768,12 +2768,6 @@ class Program(PkSearchableMixin, TimeStampedModel):
             kwargs['force_update'] = True
             super().save(**kwargs)
 
-    @property
-    def is_2u_degree_program(self):
-        # this is a temporary field used by prospectus to easily and semantically
-        # determine if a program is a 2u degree
-        return hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata')
-
 
 class Ranking(TimeStampedModel):
     """

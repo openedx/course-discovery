@@ -319,7 +319,7 @@ class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
 class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
-    list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden')
+    list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden',)
     ordering = ('uuid', 'title', 'status')
     readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count',
                        'recent_enrollment_count',)
