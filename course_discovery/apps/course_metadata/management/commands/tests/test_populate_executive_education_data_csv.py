@@ -48,6 +48,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 'whatWillSetYouApart': "New ways to learn",
                 "videoURL": "",
                 "lcfURL": "d3d3LmV4YW1wbGUuY29tL2xlYWQtY2FwdHVyZT9pZD0xMjM=",
+                "logoUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS9pbWFnZS5qcGc=g",
                 "variant": {
                     "id": "00000000-0000-0000-0000-000000000000",
                     "endDate": "2022-05-06",
@@ -147,6 +148,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 assert data_row['Redirect Url'] == 'https://example.com/'
                 assert data_row['Organic Url'] == 'https://example.com/'
                 assert data_row['Image'] == 'https://example.com/image.jpg'
+                assert data_row['Organization Logo Override'] == 'https://example.com/image.jpg'
                 assert data_row['Course Level'] == 'Introductory'
                 assert data_row['Course Pacing'] == 'Instructor-Paced'
                 assert data_row['Content Language'] == 'Spanish - Spain (Modern)'

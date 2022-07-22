@@ -708,6 +708,8 @@ class UtilsTests(TestCase):
 
 
 class TestConvertSvgToPngFromUrl(TestCase):
+    """Test Convert SVG to PNG"""
     @mock.patch('course_discovery.apps.course_metadata.utils.svg2png')
     def test_convert_svg_to_png_from_url(self, _svg2png_mock):
+        """Verify that convert_svg_to_png_from_url will return a valid value"""
         assert convert_svg_to_png_from_url('https://www.svgimageurl.com') is not None

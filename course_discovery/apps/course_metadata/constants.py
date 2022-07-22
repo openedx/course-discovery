@@ -11,7 +11,7 @@ MASTERS_PROGRAM_TYPE_SLUG = 'masters'
 IMAGE_TYPES = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
-    'image/svg+xml': 'svg'
+    'image/svg+xml': 'svg'  # SVG image will be converted into PNG, not stored as SVG
 }
 
 
