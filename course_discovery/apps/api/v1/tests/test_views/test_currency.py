@@ -3,14 +3,16 @@ from unittest import mock
 import pytest
 from django.core.cache import cache
 from django.urls import reverse
+from testfixtures import LogCapture
 
-from course_discovery.apps.api.v1.views.currency import CurrencyView
+from course_discovery.apps.api.v1.views.currency import CurrencyView, exchange_rate_cache_key
 
 
 @pytest.mark.usefixtures('django_cache')
 @pytest.mark.django_db
 class TestCurrencyCurrencyView:
     list_path = reverse('api:v1:currency')
+    CURRENCY_LOGGER = 'course_discovery.apps.api.v1.views.currency'
 
     def test_authentication_required(self, client):
         response = client.get(self.list_path)
@@ -18,6 +20,7 @@ class TestCurrencyCurrencyView:
 
     def test_get(self, admin_client, django_cache, responses, settings):  # pylint: disable=unused-argument
         settings.OPENEXCHANGERATES_API_KEY = 'test'
+        cache_key = exchange_rate_cache_key()
 
         rates = {
             'GBP': 0.766609,
@@ -34,23 +37,32 @@ class TestCurrencyCurrencyView:
 
         responses.add(responses.GET, CurrencyView.EXTERNAL_API_URL, json={'rates': rates})
 
-        response = admin_client.get(self.list_path)
+        assert cache.get(cache_key) is None
+        with LogCapture(self.CURRENCY_LOGGER) as log_capture:
+            response = admin_client.get(self.list_path)
+            assert all(item in response.json().items() for item in expected.items())
+            assert len(responses.calls) == 1
+            # verify the exchange rate API response is cached
+            assert cache.get(cache_key) is not None
+            assert all(item in cache.get(cache_key).items() for item in rates.items())
 
-        assert all(item in response.json().items() for item in expected.items())
-        assert len(responses.calls) == 1
+            # Subsequent requests should hit the cache
+            response = admin_client.get(self.list_path)
+            assert all(item in response.json().items() for item in expected.items())
+            assert len(responses.calls) == 1
+            log_capture.check(
+                (
+                    self.CURRENCY_LOGGER,
+                    'INFO',
+                    'Using cached exchange rates data and skipping API call',
+                )
+            )
 
-        # Subsequent requests should hit the cache
-        # FIXME: this block is flaky in CI. It is reliable locally, but occasionally in our CI environment,
-        #        this call won't be cached. I couldn't figure it out. But if you can, please re-enable this check.
-        # response = admin_client.get(self.list_path)
-        # assert all(item in response.json().items() for item in expected.items())
-        # assert len(responses.calls) == 1
-
-        # Clearing the cache should result in the external service being called again
-        cache.clear()
-        response = admin_client.get(self.list_path)
-        assert all(item in response.json().items() for item in expected.items())
-        assert len(responses.calls) == 2
+            # Clearing the cache should result in the external service being called again
+            cache.clear()
+            response = admin_client.get(self.list_path)
+            assert all(item in response.json().items() for item in expected.items())
+            assert len(responses.calls) == 2
 
     def test_get_without_api_key(self, admin_client, settings):
         settings.OPENEXCHANGERATES_API_KEY = None
