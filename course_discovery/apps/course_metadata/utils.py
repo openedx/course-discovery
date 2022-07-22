@@ -3,6 +3,7 @@ import logging
 import random
 import string
 import uuid
+from tempfile import NamedTemporaryFile
 from urllib.parse import urljoin, urlparse
 
 import html2text
@@ -17,7 +18,6 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext as _
 from dynamic_filenames import FilePattern
 from stdimage.models import StdImageFieldFile
-from tempfile import NamedTemporaryFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
@@ -422,7 +422,6 @@ def serialize_seat_for_ecommerce_api(seat, mode):
 
 
 def serialize_entitlement_for_ecommerce_api(entitlement):
-
     attribute_values_list = [
         {
             'name': 'certificate_type',
@@ -707,7 +706,11 @@ def download_and_save_course_image(course, image_url, data_field='image', header
                     if extension == 'svg':
                         filename = '{uuid}.png'.format(uuid=str(course.uuid))
                         image_file = convert_svg_to_png_from_url(image_url)
-                    course.organization_logo_override.save(filename, image_file)
+                    if image_file:
+                        course.organization_logo_override.save(filename, image_file)
+                    else:
+                        logger.error('Update organization logo override failed for course [%s]', course.key)
+                        return False
                 logger.info('Image for course [%s] successfully updated.', course.key)
                 return True
             else:
@@ -728,9 +731,14 @@ def convert_svg_to_png_from_url(image_url):
     Given an image file url of svg, it will convert that svg image to png
     and save in temporary file
     """
-    temp_file = NamedTemporaryFile()
-    svg2png(url=image_url, write_to=temp_file.name)
-    return temp_file
+    try:
+        temp_file = NamedTemporaryFile()  # lint-amnesty, pylint: disable=consider-using-with
+        svg2png(url=image_url, write_to=temp_file.name)
+        temp_file.seek(0)
+        return temp_file
+    except Exception:  # pylint: disable=broad-except
+        logger.exception('An unknown exception occurred while converting image [%s]', image_url)
+        return None
 
 
 def get_downloadable_url_from_drive_link(file_path):
