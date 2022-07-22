@@ -2,6 +2,7 @@ import logging
 
 import requests
 from django.conf import settings
+from django.core.cache import cache
 from rest_framework import views
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -19,16 +20,26 @@ class CurrencyView(views.APIView):
 
     def get_rates(self):
         app_id = settings.OPENEXCHANGERATES_API_KEY
+        cache_key = exchange_rate_cache_key()
 
         if not app_id:
             logger.warning('Unable to retrieve exchange rate data. No API key is set.')
             return {}
+
+        # Return cached response instead of making API call
+        cached_rates = cache.get(cache_key)
+        if cached_rates:
+            logger.info("Using cached exchange rates data and skipping API call")
+            return cached_rates
 
         try:
             response = requests.get(self.EXTERNAL_API_URL, params={'app_id': app_id}, timeout=2)
 
             if response.status_code == requests.codes.ok:  # pylint: disable=no-member
                 response_json = response.json()
+                rates = response_json['rates']
+                # cache exchange rate API response for one day
+                cache.set(exchange_rate_cache_key(), rates, timeout=60 * 60 * 24)
                 return response_json['rates']
             else:
                 logger.error(
@@ -59,9 +70,6 @@ class CurrencyView(views.APIView):
         ]
         return [rates, currencies, eurozone_countries]
 
-    # temp disbale cache to unblock prospectus build
-    # Cache exchange rates for 1 day
-    # @cache_response(60 * 60 * 24, key_func=exchange_rate_cache_key)
     def get(self, request, *_args, **_kwargs):
         rates, currencies, eurozone_countries = self.get_data()
         if not rates:
