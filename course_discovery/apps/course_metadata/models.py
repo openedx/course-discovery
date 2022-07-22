@@ -966,8 +966,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         null=True,
         help_text=_('This field signifies if this course is in the enterprise subscription catalog'),
     )
-    value_per_click_usa = models.IntegerField(null=True, blank=True)
-    value_per_click_international = models.IntegerField(null=True, blank=True)
+    value_per_click_usa = models.IntegerField(null=True, blank=True, default=0)
+    value_per_click_international = models.IntegerField(null=True, blank=True, default=0)
 
     class Meta:
         unique_together = (
@@ -2426,8 +2426,8 @@ class Program(PkSearchableMixin, TimeStampedModel):
     objects = ProgramQuerySet.as_manager()
 
     history = HistoricalRecords()
-    value_per_click_usa = models.IntegerField(null=True, blank=True)
-    value_per_click_international = models.IntegerField(null=True, blank=True)
+    value_per_click_usa = models.IntegerField(null=True, blank=True, default=0)
+    value_per_click_international = models.IntegerField(null=True, blank=True, default=0)
 
     class Meta:
         ordering = ['created']
