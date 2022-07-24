@@ -420,7 +420,7 @@ msgstr "Editar vínculo"
 #: apps/course_metadata/admin.py:719
 #, python-format
 msgid "Successfully %(status)s %(count)d %(items)s."
-msgstr ""
+msgstr "Con éxito %(status)s %(count)d %(items)s."
 
 #: apps/course_metadata/algolia_models.py:80
 #: apps/course_metadata/algolia_models.py:436
@@ -512,11 +512,11 @@ msgstr "Educación ejecutiva no remunerada"
 
 #: apps/course_metadata/choices.py:53
 msgid "Paid Bootcamp"
-msgstr ""
+msgstr "Bootcamp pagado"
 
 #: apps/course_metadata/choices.py:54
 msgid "Unpaid Bootcamp"
-msgstr ""
+msgstr "Bootcamp no remunerado"
 
 #: apps/course_metadata/choices.py:58
 msgid "Platform"
@@ -973,15 +973,15 @@ msgstr "La URL de la página de destino paga en el sitio externo"
 
 #: apps/course_metadata/models.py:646
 msgid "The URL of the organic landing page on external site"
-msgstr ""
+msgstr "La URL de la página de destino orgánica en el sitio externo"
 
 #: apps/course_metadata/models.py:657
 msgid "The start date of the external course offering for marketing purpose"
-msgstr ""
+msgstr "La fecha de inicio de la oferta de cursos externos con fines de marketing."
 
 #: apps/course_metadata/models.py:661
 msgid "The suggested deadline for enrollment for marketing purpose"
-msgstr ""
+msgstr "La fecha límite sugerida para la inscripción con fines de marketing."
 
 #: apps/course_metadata/models.py:710
 msgid "A list of major works by this person. Must be valid HTML."
@@ -998,7 +998,7 @@ msgstr "Agregar la imagen del colaborador, por favor asegúrese que las dimensio
 
 #: apps/course_metadata/models.py:845
 msgid "Allowlist"
-msgstr ""
+msgstr "Lista de permitidos"
 
 #: apps/course_metadata/models.py:846
 msgid "Blocklist"
@@ -1847,7 +1847,7 @@ msgstr "Actualice las recomendaciones del curso en función de las habilidades."
 msgid ""
 "Use arguments from the UpdateCourseRecommendationsConfig model instead of "
 "the command line."
-msgstr ""
+msgstr "Utilice argumentos del modelo UpdateCourseRecommendationsConfig en lugar de la línea de comandos."
 
 #: apps/taxonomy_support/models.py:24
 msgid "The original course, whose recommendation is stored here."
