@@ -23,26 +23,29 @@ class BackfillEnterpriseInclusion(TestCase):
             self.course_3.key,
             self.course_4.key]
 
-        def test_normal_run(self):
-            with patch('course_discovery.apps.course_metadata.management.commands.backfill_enterprise_inclusion.org_uuids', self.org_test_data):
-                with patch('course_discovery.apps.course_metadata.management.commands.backfill_enterprise_inclusion.course_keys', self.course_test_data):
-                    Command().handle()
+    def test_normal_run(self):
+        uuid_path = 'course_discovery.apps.course_metadata.management.commands.backfill_enterprise_inclusion.org_uuids'
+        key_path = 'course_discovery.apps.course_metadata.management.commands.backfill_enterprise_inclusion.course_keys'
 
-            org_1 = Organization.objects.filter(uuid=self.org_1.uuid).first()
-            org_2 = Organization.objects.filter(uuid=self.org_2.uuid).first()
-            assert (org_1.enterprise_subscription_inclusion is True)
-            assert (org_2.enterprise_subscription_inclusion is False)
+        with patch(uuid_path, self.org_test_data):
+            with patch(key_path, self.course_test_data):
+                Command().handle()
 
-            course_1 = Course.objects.filter(uuid=self.course_1.uuid).first()
-            course_2 = Course.objects.filter(uuid=self.course_2.uuid).first()
-            course_3 = Course.objects.filter(uuid=self.course_3.uuid).first()
-            course_4 = Course.objects.filter(uuid=self.course_4.uuid).first()
+        org_1 = Organization.objects.filter(uuid=self.org_1.uuid).first()
+        org_2 = Organization.objects.filter(uuid=self.org_2.uuid).first()
+        assert org_1.enterprise_subscription_inclusion is True
+        assert org_2.enterprise_subscription_inclusion is False
 
-            # org and course both true
-            assert (course_1.enterprise_subscription_inclusion is True)
-            # org true but course false
-            assert (course_2.enterprise_subscription_inclusion is False)
-            # org false but course true
-            assert (course_3.enterprise_subscription_inclusion is False)
-            # one org true, but one org not, course true
-            assert (course_4.enterprise_subscription_inclusion is False)
+        course_1 = Course.objects.filter(uuid=self.course_1.uuid).first()
+        course_2 = Course.objects.filter(uuid=self.course_2.uuid).first()
+        course_3 = Course.objects.filter(uuid=self.course_3.uuid).first()
+        course_4 = Course.objects.filter(uuid=self.course_4.uuid).first()
+
+        # org and course both true
+        assert course_1.enterprise_subscription_inclusion is True
+        # org true but course false
+        assert course_2.enterprise_subscription_inclusion is False
+        # org false but course true
+        assert course_3.enterprise_subscription_inclusion is True
+        # one org true, but one org not, course true
+        assert course_4.enterprise_subscription_inclusion is False
