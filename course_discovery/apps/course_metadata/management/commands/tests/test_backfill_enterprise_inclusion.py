@@ -46,6 +46,6 @@ class BackfillEnterpriseInclusion(TestCase):
         # org true but course false
         assert course_2.enterprise_subscription_inclusion is False
         # org false but course true
-        assert course_3.enterprise_subscription_inclusion is True
+        assert course_3.enterprise_subscription_inclusion is False
         # one org true, but one org not, course true
         assert course_4.enterprise_subscription_inclusion is False
