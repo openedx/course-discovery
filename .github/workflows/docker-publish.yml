@@ -1,23 +1,51 @@
-name: Push Docker Images
+name: Build and Push Docker Images
 
 on:
   push:
     branches:
       - master
-
+    tags:
+      - open-release/*
 jobs:
-  # Push image to GitHub Packages.
-  # See also https://docs.docker.com/docker-hub/builds/
   push:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Build and Push docker image
-        env:
-          DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        run : make docker_push
+      # Use the release name as the image tag if we're building an open release tag.
+      # Examples: if we're building 'open-release/maple.1', tag the image as 'maple.1'.
+      # Otherwise, we must be building from a push to master, so use 'latest'.
+      - name: Get tag name
+        id: get-tag-name
+        uses: actions/github-script@v5
+        with:
+          script: |
+            const releasePrefix = 'refs/tags/open-release/';
+            const tagName = context.ref.split(releasePrefix)[1] || 'latest';
+            console.log('Will use tag: ' + tagName);
+            return tagName;
+          result-encoding: string
+
+      - name: Build and push Dev Docker image
+        uses: docker/build-push-action@v1
+        with:
+          push: true
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          target: dev
+          repository: edxops/discovery-dev
+          tags: ${{ steps.get-tag-name.outputs.result }},${{ github.sha }}
+
+      # The current priority is to get the devstack off of Ansible based Images. Once that is done, we can come back to this part to get
+      # suitable images for smaller prod environments.
+      # - name: Build and push prod Docker image
+      #   uses: docker/build-push-action@v1
+      #   with:
+      #     push: true
+      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
+      #     password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      #     target: prod
+      #     repository: edxops/discovery-prod
+      #     tags: ${{ steps.get-tag-name.outputs.result }},${{ github.sha }}
