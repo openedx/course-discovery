@@ -768,10 +768,9 @@ class DegreeAdmin(admin.ModelAdmin):
         'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title',
         'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
         'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
-        'hubspot_lead_capture_form_id', 'internal_2u_lead_capture_form_id', 'micromasters_long_title',
-        'micromasters_long_description', 'micromasters_url',
-        'micromasters_background_image', 'micromasters_org_name_override', 'faq', 'costs_fine_print',
-        'deadlines_fine_print', 'specializations'
+        'hubspot_lead_capture_form_id', 'taxi_form_id', 'taxi_form_grouping', 'micromasters_long_title',
+        'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
+        'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations',
     )
     actions = [publish_degrees, unpublish_degrees]
 
