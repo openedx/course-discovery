@@ -979,7 +979,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         if self.enterprise_subscription_inclusion is False:
             return False
         for org in self.authoring_organizations.all():
-            if org.enterprise_subscription_inclusion is False:
+            if not org.enterprise_subscription_inclusion:
                 return False
         return True
 
@@ -2008,7 +2008,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             email_method(self)
 
     def _check_enterprise_subscription_inclusion(self):
-        if self.course.enterprise_subscription_inclusion is False:
+        if not self.course.enterprise_subscription_inclusion:
             return False
         if self.pacing_type == 'instructor_paced':
             return False
@@ -2734,7 +2734,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
         if self.type == 'micromasters':
             return False
         for course in self.courses.all():
-            if course.enterprise_subscription_inclusion is False:
+            if not course.enterprise_subscription_inclusion:
                 return False
         return True
 
