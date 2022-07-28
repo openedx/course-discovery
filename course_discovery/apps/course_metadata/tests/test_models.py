@@ -636,6 +636,11 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         course_run2.save()
         assert course_run2.enterprise_subscription_inclusion is True
 
+        course3 = factories.CourseFactory(enterprise_subscription_inclusion=True)
+        course_run3 = factories.CourseRunFactory(course=course3, pacing_type='instructor_paced')
+        course_run3.save()
+        assert course_run3.enterprise_subscription_inclusion is False
+
     @ddt.data(
         # Case 1: Return False when there are no paid Seats.
         ([('audit', 0)], False),
