@@ -16,6 +16,7 @@
 # kikeramirz <danart474@gmail.com>, 2020
 # Diego Rojas <diego.rojas@edunext.co>, 2017
 # Poxtic <erandelle@outlook.com>, 2017
+# Jesica Greco, 2022
 # d708d71c59e877c881227089ff727163, 2017
 # Juan Camilo Montoya Franco <juan.montoya@edunext.co>, 2016-2018,2020-2021
 # Karen Ríos, 2022
@@ -36,7 +37,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-07-03 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: Karen Ríos, 2022\n"
+"Last-Translator: Jesica Greco, 2022\n"
 "Language-Team: Spanish (Latin America) (http://www.transifex.com/open-edx/edx-platform/language/es_419/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1002,7 +1003,7 @@ msgstr "Lista de permitidos"
 
 #: apps/course_metadata/models.py:846
 msgid "Blocklist"
-msgstr ""
+msgstr "Lista de bloqueos"
 
 #: apps/course_metadata/models.py:878
 msgid ""
@@ -1125,7 +1126,7 @@ msgstr "Adicione texto de restricción OFAC a la sección preguntas frecuentes e
 msgid ""
 "This calculated field signifies if this course run is in the enterprise "
 "subscription catalog"
-msgstr ""
+msgstr "Este campo calculado indica si la ejecución de este curso está en el catálogo de suscripciones empresariales."
 
 #: apps/course_metadata/models.py:1844
 msgid "Current"
@@ -1227,29 +1228,29 @@ msgstr "Este campo calculado indica si todos los cursos de este programa están 
 #: apps/course_metadata/models.py:2392
 msgid ""
 "A field to override Organization short code alias specific for this program."
-msgstr ""
+msgstr "Campo para anular el alias de código corto de la organización específico para este programa."
 
 #: apps/course_metadata/models.py:2399
 msgid "A field to override Organization logo specific for this program."
-msgstr ""
+msgstr "Campo para anular el logotipo de la organización específico para este programa."
 
 #: apps/course_metadata/models.py:2403
 msgid ""
 "Primary subject field specific for this program. Useful field in case there "
 "are no courses associated with this program."
-msgstr ""
+msgstr "Campo temático principal específico para este programa. Campo útil en caso de que no existan cursos asociados a este programa."
 
 #: apps/course_metadata/models.py:2408
 msgid ""
 "Level type specific for this program. Useful field in case there are no "
 "courses associated with this program."
-msgstr ""
+msgstr "Tipo de nivel específico para este programa. Campo útil en caso de que no existan cursos asociados a este programa."
 
 #: apps/course_metadata/models.py:2413
 msgid ""
 "Language code specific for this program. Useful field in case there are no "
 "courses associated with this program."
-msgstr ""
+msgstr "Código de idioma específico para este programa. Campo útil en caso de que no existan cursos asociados a este programa."
 
 #: apps/course_metadata/models.py:2769
 msgid "The actual rank number"
@@ -1341,11 +1342,11 @@ msgstr "Número de cursos para la tarjeta de búsqueda (por ejemplo, \"11 cursos
 
 #: apps/course_metadata/models.py:2920
 msgid "The redirect URL of the degree on external site"
-msgstr ""
+msgstr "La URL de redirección del título en un sitio externo"
 
 #: apps/course_metadata/models.py:2925
 msgid "The URL of the landing page on external site"
-msgstr ""
+msgstr "La URL de la página de inicio en el sitio externo"
 
 #: apps/course_metadata/models.py:2960
 msgid "Bell"
