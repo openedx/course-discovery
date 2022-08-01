@@ -979,7 +979,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         if self.enterprise_subscription_inclusion is False:
             return False
         for org in self.authoring_organizations.all():
-            if org.enterprise_subscription_inclusion is False:
+            if not org.enterprise_subscription_inclusion:
                 return False
         return True
 
@@ -1015,6 +1015,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         if self.organization_logo_override:
             return self.organization_logo_override.url
         return None
+
+    @property
+    def is_external_course(self):
+        """
+        Property to check if the course is an external product type.
+        """
+        return self.type.slug in [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]
 
     @property
     def original_image_url(self):
@@ -2001,7 +2008,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             email_method(self)
 
     def _check_enterprise_subscription_inclusion(self):
-        if self.course.enterprise_subscription_inclusion is False:
+        if not self.course.enterprise_subscription_inclusion:
             return False
         if self.pacing_type == 'instructor_paced':
             return False
@@ -2727,7 +2734,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
         if self.type == 'micromasters':
             return False
         for course in self.courses.all():
-            if course.enterprise_subscription_inclusion is False:
+            if not course.enterprise_subscription_inclusion:
                 return False
         return True
 
@@ -2760,6 +2767,12 @@ class Program(PkSearchableMixin, TimeStampedModel):
             kwargs['force_insert'] = False
             kwargs['force_update'] = True
             super().save(**kwargs)
+
+    @property
+    def is_2u_degree_program(self):
+        # this is a temporary field used by prospectus to easily and semantically
+        # determine if a program is a 2u degree
+        return hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata')
 
 
 class Ranking(TimeStampedModel):
@@ -2846,7 +2859,17 @@ class Degree(Program):
         blank=True,
         max_length=128,
     )
-
+    taxi_form_id = models.URLField(
+        help_text=_('The ID of the 2u Taxi form that would be rendered in place of the hubspot capture form.'),
+        null=True,
+        blank=True,
+    )
+    taxi_form_grouping = models.CharField(
+        help_text=_('The grouping of the 2u taxi form that would be rendered in place of the hubspot capture form.'),
+        max_length=50,
+        null=True,
+        blank=True,
+    )
     micromasters_url = models.URLField(
         help_text=_('URL to micromasters landing page'),
         max_length=255,
@@ -3274,6 +3297,19 @@ class ProgramLocationRestriction(AbstractLocationRestrictionModel):
 class CSVDataLoaderConfiguration(ConfigurationModel):
     """
     Configuration to store a csv file that will be used in import_course_metadata.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers.")
+    )
+
+
+class DegreeDataLoaderConfiguration(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in import_degree_data.
     """
     # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
     cache_timeout = 0

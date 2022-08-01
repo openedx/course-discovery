@@ -248,7 +248,9 @@ class CourseRunAdmin(admin.ModelAdmin):
     )
     ordering = ('key',)
     raw_id_fields = ('course', 'draft_version',)
-    readonly_fields = ('enrollment_count', 'recent_enrollment_count', 'hidden', 'key')
+    readonly_fields = (
+        'enrollment_count', 'recent_enrollment_count', 'hidden', 'key', 'enterprise_subscription_inclusion'
+    )
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key')
     save_error = False
     form = CourseRunAdminForm
@@ -319,10 +321,12 @@ class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
 class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
-    list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden',)
+    list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden')
     ordering = ('uuid', 'title', 'status')
-    readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count',
-                       'recent_enrollment_count',)
+    readonly_fields = (
+        'uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count', 'recent_enrollment_count',
+        'enterprise_subscription_inclusion'
+    )
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
     exclude = ('card_image_url',)
@@ -337,6 +341,7 @@ class ProgramAdmin(admin.ModelAdmin):
         'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         'enrollment_count', 'recent_enrollment_count', 'credit_value', 'organization_short_code_override',
         'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
+        'enterprise_subscription_inclusion',
     )
 
     save_error = False
@@ -763,9 +768,9 @@ class DegreeAdmin(admin.ModelAdmin):
         'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title',
         'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
         'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
-        'hubspot_lead_capture_form_id', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url',
-        'micromasters_background_image', 'micromasters_org_name_override', 'faq', 'costs_fine_print',
-        'deadlines_fine_print', 'specializations'
+        'hubspot_lead_capture_form_id', 'taxi_form_id', 'taxi_form_grouping', 'micromasters_long_title',
+        'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
+        'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations',
     )
     actions = [publish_degrees, unpublish_degrees]
 
@@ -819,5 +824,13 @@ class CourseUrlSlugAdmin(admin.ModelAdmin):
 class CSVDataLoaderConfigurationAdmin(admin.ModelAdmin):
     """
     Admin for CSVDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(DegreeDataLoaderConfiguration)
+class DegreeDataLoaderConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for DegreeDataLoaderConfiguration model.
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')

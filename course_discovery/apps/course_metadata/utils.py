@@ -677,6 +677,7 @@ def download_and_save_course_image(course, image_url, data_field='image', header
     in the data field mentioned, defaulting to course card image.
     """
     try:
+        image_url = get_downloadable_url_from_drive_link(image_url)
         response = requests.get(image_url, headers=headers)
 
         if response.status_code == requests.codes.ok:  # pylint: disable=no-member

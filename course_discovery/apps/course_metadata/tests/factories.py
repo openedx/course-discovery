@@ -796,6 +796,11 @@ class CSVDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
         model = CSVDataLoaderConfiguration
 
 
+class DegreeDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = DegreeDataLoaderConfiguration
+
+
 class ProfileImageDownloadConfigFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ProfileImageDownloadConfig

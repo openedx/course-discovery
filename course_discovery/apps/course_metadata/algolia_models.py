@@ -322,6 +322,8 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def product_type(self):
+        if self.is_2u_degree_program:
+            return '2U Degree'
         return 'Program'
 
     @property
@@ -471,6 +473,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def should_index_spanish(self):
         return self.should_index
+
+    @property
+    def is_2u_degree_program(self):
+        return hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata')
 
 
 class SearchDefaultResultsConfiguration(models.Model):
