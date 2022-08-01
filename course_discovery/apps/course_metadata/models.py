@@ -2867,7 +2867,6 @@ class Degree(Program):
     taxi_form_grouping = models.CharField(
         help_text=_('The grouping of the 2u taxi form that would be rendered in place of the hubspot capture form.'),
         max_length=50,
-        null=True,
         blank=True,
     )
     micromasters_url = models.URLField(
