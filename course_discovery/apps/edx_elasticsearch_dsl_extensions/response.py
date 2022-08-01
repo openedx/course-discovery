@@ -69,7 +69,7 @@ class DSLResponse(OriginResponse):
         if not hasattr(self, '_facets'):
             facets = self.facet_response_class(self._search.aggs, self._search, self._d_.get('aggregations', {}))
             # avoid assigning _facets into self._d_
-            super(AttrDict, self).__setattr__('_facets', facets)  # pylint: disable=bad-super-call
+            super(AttrDict, self).__setattr__('_facets', facets)
 
         return self._facets
 

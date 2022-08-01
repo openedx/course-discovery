@@ -16,13 +16,16 @@ from course_discovery.apps.api.v1.exceptions import EditableAndQUnsupported
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin, SerializationMixin
 from course_discovery.apps.api.v1.views.courses import logger as course_logger
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
+from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
-    Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Seat
+    AbstractLocationRestrictionModel, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType,
+    Fact, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, LevelTypeFactory,
-    OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
+    CourseTypeFactory, LevelTypeFactory, OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory,
+    SubjectFactory
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -262,7 +265,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # Known to be flaky prior to the addition of tearDown()
         # and logout() code which is the same number of additional queries
-        with self.assertNumQueries(57):
+        with self.assertNumQueries(60, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -272,7 +275,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?{params}'.format(root=reverse('api:v1:course-list'), params=urlencode({'keys': keys}))
 
-        with self.assertNumQueries(57):
+        with self.assertNumQueries(60, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -282,7 +285,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(57):
+        with self.assertNumQueries(60, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -1009,6 +1012,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             # The API is expecting the image to be base64 encoded. We are simulating that here.
             'image': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY'
                      '42YAAAAASUVORK5CYII=',
+            'organization_logo_override': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0l'
+                                          'EQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
             'video': {'src': 'https://link.to.video.for.testing/watch?t_s=5'},
         }
 
@@ -1018,6 +1023,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         course = Course.everything.get(uuid=self.course.uuid, draft=True)
         assert course.title == 'Course title'
         assert course.active_url_slug == 'manual'
+        assert course.organization_logo_override.url is not None
         self.assertDictEqual(response.data, self.serialize_course(course))
 
     @responses.activate
@@ -1068,9 +1074,13 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertDictEqual(response.data, serialized_course_data)
         assert serialized_course_data['organization_logo_override_url'] is not None
 
+    @ddt.data(CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U)
     @responses.activate
-    def test_update_with_additional_metadata(self):
-        course = CourseFactory(additional_metadata=None)
+    def test_update_with_additional_metadata_if_type_2U(self, type_slug):
+        type_2U = CourseTypeFactory(slug=type_slug)
+        course = CourseFactory(additional_metadata=None, type=type_2U)
+        current = datetime.datetime.now(pytz.UTC)
+        future = current + datetime.timedelta(days=10)
 
         additional_metadata = {
             'external_url': 'https://example.com/',
@@ -1086,7 +1096,9 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                     'heading': 'Fact heading',
                     'blurb': '<p>Fact blurb</p>',
                 }
-            ]
+            ],
+            'start_date': serialize_datetime(future),
+            'registration_deadline': serialize_datetime(current),
         }
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         course_data = {
@@ -1129,6 +1141,114 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         additional_metadata['certificate_info'] = new_cert
         self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
 
+    @ddt.data(CourseType.VERIFIED_AUDIT, CourseType.PROFESSIONAL)
+    @responses.activate
+    def test_no_update_with_additional_metadata_if_type_not_2U(self, type_slug):
+        non_2U = CourseType.objects.get(slug=type_slug)
+        course = CourseFactory(additional_metadata=None, type=non_2U)
+
+        additional_metadata = {
+            'external_url': 'https://example.com/',
+            'external_identifier': '12345',
+        }
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        course_data = {
+            'additional_metadata': additional_metadata
+        }
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        assert self.serialize_course(course)['additional_metadata'] is None
+
+    @responses.activate
+    def test_update_facts_with_additional_metadata(self):
+        current = datetime.datetime.now(pytz.UTC)
+
+        EE_type_2U = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course_1 = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        course_2 = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        course_3 = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        fact_1 = {'heading': 'Fact1 heading', 'blurb': '<p>Fact1 blurb</p>'}
+        fact_2 = {'heading': 'Fact2 heading', 'blurb': '<p>Fact2 blurb</p>'}
+        fact_3 = {'heading': 'Fact3 heading', 'blurb': '<p>Fact3 blurb</p>'}
+        fact_4 = {'heading': 'Fact4 heading', 'blurb': '<p>Fact4 blurb</p>'}
+
+        additional_metadata = {
+            'lead_capture_form_url': 'https://example.com/lead-capture',
+            'organic_url': 'https://example.com/organic',
+            'certificate_info': {
+                'heading': 'Certificate heading',
+                'blurb': '<p>Certificate blurb</p>',
+            },
+            'start_date': serialize_datetime(current),
+            'registration_deadline': serialize_datetime(current),
+        }
+        additional_metadata_1 = {
+            **additional_metadata,
+            'external_url': 'https://example.com/123',
+            'external_identifier': '123',
+            'facts': [fact_1, fact_2],
+        }
+        additional_metadata_2 = {
+            **additional_metadata,
+            'external_url': 'https://example.com/456',
+            'external_identifier': '456',
+            'facts': [fact_2],
+        }
+        additional_metadata_3 = {
+            **additional_metadata,
+            'external_url': 'https://example.com/789',
+            'external_identifier': '789',
+            'facts': [fact_2, fact_4],
+        }
+        url_1 = reverse('api:v1:course-detail', kwargs={'key': course_1.uuid})
+        url_2 = reverse('api:v1:course-detail', kwargs={'key': course_2.uuid})
+        url_3 = reverse('api:v1:course-detail', kwargs={'key': course_3.uuid})
+
+        response_1 = self.client.patch(url_1, {'additional_metadata': additional_metadata_1}, format='json')
+        assert response_1.status_code == 200
+        assert Fact.objects.count() == 2    # created two new objects
+
+        response_2 = self.client.patch(url_2, {'additional_metadata': additional_metadata_2}, format='json')
+        assert response_2.status_code == 200
+        assert Fact.objects.count() == 3    # created 1 new object even fact wih same data existed
+
+        response_3 = self.client.patch(url_3, {'additional_metadata': additional_metadata_3}, format='json')
+        assert response_3.status_code == 200
+        assert Fact.objects.count() == 5    # created two new objects
+
+        course_1 = Course.everything.get(uuid=course_1.uuid, draft=True)
+        course_2 = Course.everything.get(uuid=course_2.uuid, draft=True)
+        course_3 = Course.everything.get(uuid=course_3.uuid, draft=True)
+
+        self.assertDictEqual(self.serialize_course(course_1)['additional_metadata'], additional_metadata_1)
+        self.assertDictEqual(self.serialize_course(course_2)['additional_metadata'], additional_metadata_2)
+        self.assertDictEqual(self.serialize_course(course_3)['additional_metadata'], additional_metadata_3)
+
+        response_1 = self.client.patch(url_1, {'additional_metadata': {'facts': [fact_3]}}, format='json')
+        assert response_1.status_code == 200
+        assert Fact.objects.count() == 6    # orphaned fact 1, and just removed 2 from relation, created 3
+
+        response_2 = self.client.patch(url_2, {'additional_metadata': {'facts': [fact_1]}}, format='json')
+        assert response_2.status_code == 200
+        assert Fact.objects.count() == 6    # fact 1 was already orphaned, it just used it
+
+        response_3 = self.client.patch(url_3, {'additional_metadata': {'facts': [fact_1, fact_3]}}, format='json')
+        assert response_2.status_code == 200
+        assert Fact.objects.count() == 6    # no new fact created, just updated/overwrite self facts as count is same
+
+        course_1 = Course.everything.get(uuid=course_1.uuid, draft=True)
+        course_2 = Course.everything.get(uuid=course_2.uuid, draft=True)
+        course_3 = Course.everything.get(uuid=course_3.uuid, draft=True)
+
+        additional_metadata_1['facts'] = [fact_3]
+        additional_metadata_2['facts'] = [fact_1]
+        additional_metadata_3['facts'] = [fact_1, fact_3]
+
+        self.assertDictEqual(self.serialize_course(course_1)['additional_metadata'], additional_metadata_1)
+        self.assertDictEqual(self.serialize_course(course_2)['additional_metadata'], additional_metadata_2)
+        self.assertDictEqual(self.serialize_course(course_3)['additional_metadata'], additional_metadata_3)
+
     @responses.activate
     def test_update_success_with_course_type_verified(self):
         verified_mode = SeatTypeFactory.verified()
@@ -1167,6 +1287,60 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertDictEqual(response.data, self.serialize_course(course))
         assert course.title == 'Course title'
         assert 0 == course.entitlements.count()
+
+    @ddt.data(False, True)
+    @responses.activate
+    def test_update_location_restriction(self, existing_location_restriction):
+        """
+        Location restriction can be updated whether or not there is existing data.
+        """
+        location_restriction = None
+        if existing_location_restriction:
+            location_restriction = CourseLocationRestrictionFactory(
+                restriction_type=AbstractLocationRestrictionModel.ALLOWLIST,
+                countries=['US'], states=['MA']
+            )
+        course = CourseFactory(location_restriction=location_restriction)
+
+        location_restriction_data = {
+            'restriction_type': AbstractLocationRestrictionModel.BLOCKLIST,
+            'countries': ['US', 'CA'],
+            'states': []
+        }
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        course_data = {'location_restriction': location_restriction_data}
+
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['location_restriction'], location_restriction_data)
+
+    @responses.activate
+    def test_update_location_restriction_no_countries_or_states(self):
+        """
+        If countries and/or states fields are not included in the request, then existing data for those fields
+        should not be affected.
+        """
+        location_restriction_data = {
+            'restriction_type': AbstractLocationRestrictionModel.ALLOWLIST,
+            'countries': ['US'],
+            'states': ['MA']
+        }
+        location_restriction = CourseLocationRestrictionFactory(**location_restriction_data)
+        course = CourseFactory(location_restriction=location_restriction)
+
+        location_restriction_data['restriction_type'] = AbstractLocationRestrictionModel.BLOCKLIST
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        course_data = {
+            'location_restriction': {'restriction_type': location_restriction_data['restriction_type']}
+        }
+
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['location_restriction'], location_restriction_data)
 
     @responses.activate
     def test_check_course_type_slug_exists_in_response(self):

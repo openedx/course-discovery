@@ -5,6 +5,7 @@ creating and updating related objects in Studio, and ecommerce, provided a csv c
 import csv
 import logging
 
+import unicodecsv
 from django.conf import settings
 from django.db.models import Q
 from django.urls import reverse
@@ -38,23 +39,30 @@ class CSVDataLoader(AbstractDataLoader):
     # list of data fields (present as CSV columns) that should be present in each row
     BASE_REQUIRED_DATA_FIELDS = [
         'title', 'number', 'image', 'short_description', 'long_description', 'what_will_you_learn', 'course_level',
-        'primary_subject', 'verified_price', 'syllabus', 'frequently_asked_questions', 'publish_date', 'start_date',
-        'start_time', 'end_date', 'end_time', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
+        'primary_subject', 'verified_price', 'syllabus', 'publish_date', 'start_date', 'start_time', 'end_date',
+        'end_time', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
         'content_language', 'transcript_language'
     ]
 
     EXECUTIVE_EDUCATION_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
         'redirect_url', 'organic_url', 'external_identifier', 'lead_capture_form_url', 'certificate_header',
-        'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text',
+        'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'frequently_asked_questions',
+        'reg_close_date', 'reg_close_time'
     ]
 
-    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None):
+    BOOTCAMP_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
+        'redirect_url', 'organic_url', 'external_identifier',
+    ]
+
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, csv_file=None):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         self.messages_list = []  # to show failure/skipped ingestion message at the end
         self.course_uuids = {}  # to show the discovery course ids for each processed course
         try:
-            self.reader = csv.DictReader(open(csv_path, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
+            # Read file from the path if given. Otherwise, read from the file received from CSVDataLoaderConfiguration.
+            self.reader = csv.DictReader(open(csv_path, 'r')) if csv_path \
+                else list(unicodecsv.DictReader(csv_file))  # lint-amnesty, pylint: disable=consider-using-with
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))  # lint-amnesty, pylint: disable=logging-format-interpolation
             raise  # re-raising exception to avoid moving the code flow
@@ -194,6 +202,8 @@ class CSVDataLoader(AbstractDataLoader):
         required_fields = self.BASE_REQUIRED_DATA_FIELDS
         if course_type.slug == CourseType.EXECUTIVE_EDUCATION_2U:
             required_fields = self.EXECUTIVE_EDUCATION_REQUIRED_FIELDS
+        elif course_type.slug == CourseType.BOOTCAMP_2U:
+            required_fields = self.BOOTCAMP_REQUIRED_FIELDS
 
         for field in required_fields:
             if not (field in data and data[field]):
@@ -266,7 +276,7 @@ class CSVDataLoader(AbstractDataLoader):
             'prerequisites_raw': data.get('prerequisites', ''),
             'full_description': data['long_description'],
             'short_description': data['short_description'],
-            'additional_metadata': self.get_additional_metadata_dict(data),
+            'additional_metadata': self.get_additional_metadata_dict(data, course.type.slug),
             'learner_testimonials': data.get('learner_testimonials', ''),
             'additional_information': data.get('additional_information', ''),
             'organization_short_code_override': data.get('organization_short_code_override', ''),
@@ -535,14 +545,18 @@ class CSVDataLoader(AbstractDataLoader):
             stats.append(stat2_dict)
         return stats
 
-    def get_additional_metadata_dict(self, data):
+    def get_additional_metadata_dict(self, data, type_slug):
         """
         Return the appropriate additional metadata dict representation, skipping the keys that are not
         present in the input data dict.
         """
+        if type_slug not in [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]:
+            return {}
+
         additional_metadata = {
             'external_url': data['redirect_url'],
             'external_identifier': data['external_identifier'],
+            'start_date': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
         }
         lead_capture_url = data.get('lead_capture_form_url', '')
         organic_url = data.get('organic_url', '')
@@ -556,6 +570,7 @@ class CSVDataLoader(AbstractDataLoader):
             data.get('stat2', ''),
             data.get('stat2_text', ''),
         )
+        registration_deadline = data.get('reg_close_date', '')
         if lead_capture_url:
             additional_metadata.update({'lead_capture_form_url': lead_capture_url})
         if organic_url:
@@ -564,4 +579,8 @@ class CSVDataLoader(AbstractDataLoader):
             additional_metadata.update({'certificate_info': certificate_info})
         if facts:
             additional_metadata.update({'facts': facts})
+        if registration_deadline:
+            additional_metadata.update({'registration_deadline': self.get_formatted_datetime_string(
+                f"{data['reg_close_date']} {data['reg_close_time']}"
+            )})
         return additional_metadata

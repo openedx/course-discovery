@@ -13,6 +13,7 @@ from stdimage.models import StdImageField
 from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.core.models import Partner
+from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.models import Course, Program
 from course_discovery.apps.course_metadata.utils import UploadToFieldNamePath
 from course_discovery.apps.learner_pathway import constants
@@ -295,6 +296,16 @@ class LearnerPathwayProgram(LearnerPathwayNode):
             program_skills += get_whitelisted_serialized_skills(program_course.key)
 
         return program_skills
+
+    def get_linked_courses_and_course_runs(self) -> [dict]:
+        """
+        Returns list of dict where each dict contains a course key linked with program and all its course runs
+        """
+        courses = []
+        for course in self.program.courses.all():
+            course_runs = list(course.course_runs.filter(status=CourseRunStatus.Published).values('key'))
+            courses.append({"key": course.key, "course_runs": course_runs})
+        return courses
 
     def __str__(self):
         """

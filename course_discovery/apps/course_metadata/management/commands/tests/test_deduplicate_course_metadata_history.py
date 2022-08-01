@@ -48,10 +48,10 @@ class DeduplicateCourseMetadataHistoryCommandTests(TestCase):
 
         # Ensure that there are multiple history records for each course run.  For each
         # course run, there should be 2 (baseline) + the amount we added at the
-        # beginning of this test.
-        assert courserun1_count_initial == (2 + 2)
-        assert courserun2_count_initial == (2 + 0)
-        assert courserun3_count_initial == (2 + 3)
+        # beginning of this test * 2 for the double save for enterprise inclusion boolean
+        assert courserun1_count_initial == ((2 + 2) * 2)
+        assert courserun2_count_initial == ((2 + 0) * 2)
+        assert courserun3_count_initial == ((2 + 3) * 2)
 
         self.run_command('course_metadata.CourseRun')
 

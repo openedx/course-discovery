@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-03 17:22+0000\n"
+"POT-Creation-Date: 2022-07-03 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -484,6 +484,13 @@ msgstr ""
 #: apps/course_metadata/admin.py
 msgid "Edit link"
 msgstr "Édït lïnk Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/admin.py
+#, python-format
+msgid "Successfully %(status)s %(count)d %(items)s."
+msgstr ""
+"Süççéssfüllý %(status)s %(count)d %(items)s. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕ#"
 
 #: apps/course_metadata/algolia_models.py
 #: apps/course_metadata/algolia_models.py
@@ -1046,6 +1053,14 @@ msgstr ""
 
 #: apps/course_metadata/models.py
 msgid ""
+"This field signifies if any of this org's courses are in the enterprise "
+"subscription catalog"
+msgstr ""
+"Thïs fïéld sïgnïfïés ïf äný öf thïs örg's çöürsés äré ïn thé éntérprïsé "
+"süßsçrïptïön çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/models.py
+msgid ""
 "Please do not use any spaces or special characters other than period, "
 "underscore or hyphen in the key field."
 msgstr ""
@@ -1151,6 +1166,18 @@ msgstr ""
 "αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
+msgid "The start date of the external course offering for marketing purpose"
+msgstr ""
+"Thé stärt däté öf thé éxtérnäl çöürsé öfférïng för märkétïng pürpösé Ⱡ'σяєм "
+"ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "The suggested deadline for enrollment for marketing purpose"
+msgstr ""
+"Thé süggéstéd déädlïné för énröllmént för märkétïng pürpösé Ⱡ'σяєм ιρѕυм "
+"∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
 msgid "A list of major works by this person. Must be valid HTML."
 msgstr ""
 "À lïst öf mäjör wörks ßý thïs pérsön. Müst ßé välïd HTML. Ⱡ'σяєм ιρѕυм ∂σłσя"
@@ -1166,6 +1193,14 @@ msgid ""
 msgstr ""
 "Àdd thé çölläßörätör ïmägé, pléäsé mäké süré ïts dïménsïöns äré 200x100px "
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
+
+#: apps/course_metadata/models.py
+msgid "Allowlist"
+msgstr "Àllöwlïst Ⱡ'σяєм ιρѕυм ∂σł#"
+
+#: apps/course_metadata/models.py
+msgid "Blocklist"
+msgstr "Blöçklïst Ⱡ'σяєм ιρѕυм ∂σł#"
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -1206,6 +1241,14 @@ msgstr ""
 #: apps/course_metadata/models.py
 msgid "Additional Information"
 msgstr "Àddïtïönäl Ìnförmätïön Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This field signifies if this course is in the enterprise subscription "
+"catalog"
+msgstr ""
+"Thïs fïéld sïgnïfïés ïf thïs çöürsé ïs ïn thé éntérprïsé süßsçrïptïön "
+"çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
 
 #: apps/course_metadata/models.py
 msgid "Future"
@@ -1333,6 +1376,14 @@ msgid "Add OFAC restriction text to the FAQ section of the Marketing site"
 msgstr ""
 "Àdd ÖFÀÇ réstrïçtïön téxt tö thé FÀQ séçtïön öf thé Märkétïng sïté Ⱡ'σяєм "
 "ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This calculated field signifies if this course run is in the enterprise "
+"subscription catalog"
+msgstr ""
+"Thïs çälçülätéd fïéld sïgnïfïés ïf thïs çöürsé rün ïs ïn thé éntérprïsé "
+"süßsçrïptïön çätälög Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
 
 #: apps/course_metadata/models.py
 msgid "Current"
@@ -1468,6 +1519,14 @@ msgid ""
 msgstr ""
 "Nümßér öf çrédïts ä léärnér wïll éärn üpön süççéssfül çömplétïön öf thé "
 "prögräm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєт#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"This calculated field signifies if all the courses in this program are "
+"included in the enterprise subscription catalog "
+msgstr ""
+"Thïs çälçülätéd fïéld sïgnïfïés ïf äll thé çöürsés ïn thïs prögräm äré "
+"ïnçlüdéd ïn thé éntérprïsé süßsçrïptïön çätälög  Ⱡ'σяєм ιρѕυм#"
 
 #: apps/course_metadata/models.py
 msgid ""
@@ -1795,6 +1854,14 @@ msgstr ""
 "Pärtnér {partner_key} änd çöürsé pärtnér {course_partner_key} dö nöt mätçh "
 "whén ättémptïng tö sävé ürl rédïréçt {url_path} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"It expects the data will be provided in a csv file format with first row "
+"containing all the headers."
+msgstr ""
+"Ìt éxpéçts thé dätä wïll ßé prövïdéd ïn ä çsv fïlé förmät wïth fïrst röw "
+"çöntäïnïng äll thé héädérs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт#"
 
 #: apps/course_metadata/models.py
 msgid "Course Run IDs"

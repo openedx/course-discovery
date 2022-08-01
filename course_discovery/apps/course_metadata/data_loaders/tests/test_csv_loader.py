@@ -13,7 +13,7 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
-from course_discovery.apps.course_metadata.models import Course, CourseRun
+from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory
 )
@@ -486,7 +486,6 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self._setup_prerequisites(self.partner)
         self.mock_studio_calls(self.partner)
         self.mock_image_response()
-
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(
                 csv, [mock_data.VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT], self.MINIMAL_CSV_DATA_KEYS_ORDER
@@ -531,11 +530,6 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     )
                     assert course.syllabus_raw == '<p>Introduction to Algorithms</p>'
                     assert course.subjects.first().slug == "computer-science"
-                    assert course.additional_metadata.external_url == 'http://www.example.com'
-                    assert course.additional_metadata.external_identifier == '123456789'
-                    assert course.additional_metadata.lead_capture_form_url == ''
-                    assert course.additional_metadata.certificate_info is None
-                    assert course.additional_metadata.facts.exists() is False
                     assert course_run.staff.exists() is False
 
     @data(
@@ -546,6 +540,14 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         (['publish_date', 'organic_url', 'stat1_text'],
          ('Executive Education(2U)', 'executive-education-2u'),
          '[DATA VALIDATION ERROR] Course CSV Course. Missing data: publish_date, organic_url, stat1_text',
+         ),
+        (['primary_subject', 'image', 'long_description'],
+         ('Bootcamp(2U)', 'bootcamp-2u'),
+         '[DATA VALIDATION ERROR] Course CSV Course. Missing data: image, long_description, primary_subject',
+         ),
+        (['redirect_url', 'organic_url'],
+         ('Bootcamp(2U)', 'bootcamp-2u'),
+         '[DATA VALIDATION ERROR] Course CSV Course. Missing data: redirect_url, organic_url',
          ),
         (['publish_date', 'organic_url', 'stat1_text'],  # ExEd data fields are not considered for other types
          ('Professional', 'prof-ed'),
@@ -560,7 +562,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         Verify that if any of the required field is missing in data, the ingestion is not done.
         """
         self._setup_prerequisites(self.partner)
-        _ = CourseTypeFactory(name=course_type[0], slug=course_type[1])
+        if not CourseType.objects.filter(name=course_type[0], slug=course_type[1]).exists():
+            _ = CourseTypeFactory(name=course_type[0], slug=course_type[1])
 
         csv_data = {
             **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,

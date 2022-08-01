@@ -67,7 +67,8 @@ class EnglishProductIndex(BaseProductIndex):
                      'primary_description', 'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
-                    ('staff_slugs', 'staff'))
+                    ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
+                    ('product_blocked_in', 'blocked_in'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
                      ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
@@ -89,7 +90,7 @@ class EnglishProductIndex(BaseProductIndex):
             'unordered(tertiary_description)',
         ],
         'attributesForFaceting': ['partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
-                                  'filterOnly(staff)'],
+                                  'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)'],
         'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'product'
@@ -103,7 +104,8 @@ class SpanishProductIndex(BaseProductIndex):
                      'primary_description', 'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
-                    ('staff_slugs', 'staff'))
+                    ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
+                    ('product_blocked_in', 'blocked_in'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
                       'promoted_in_spanish_index')
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
@@ -127,7 +129,7 @@ class SpanishProductIndex(BaseProductIndex):
             'unordered(tertiary_description)',
         ],
         'attributesForFaceting': ['partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
-                                  'filterOnly(staff)'],
+                                  'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)'],
         'customRanking': ['desc(promoted_in_spanish_index)', 'asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'spanish_product'

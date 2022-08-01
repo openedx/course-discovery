@@ -1,7 +1,7 @@
 """
 API Views for learner_pathway app.
 """
-
+from django.db.models import Q
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -36,14 +36,12 @@ class LearnerPathwayViewSet(ReadOnlyModelViewSet):
     @action(detail=False)
     def uuids(self, request):
         """
-        Return uuids of all paythways having course run key or program uuid
+        Return uuids of all pathways having course/courserun key or program uuid
         """
         course_keys = request.GET.getlist('course_keys', [])
         program_uuids = request.GET.getlist('program_uuids', [])
-
-        pathway_courses = models.LearnerPathwayCourse.objects.filter(
-            course__key__in=course_keys
-        ).values_list(
+        query = Q(course__key__in=course_keys) | Q(course__course_runs__key__in=course_keys)
+        pathway_courses = models.LearnerPathwayCourse.objects.filter(query).values_list(
             'step__pathway__uuid',
             flat=True
         )

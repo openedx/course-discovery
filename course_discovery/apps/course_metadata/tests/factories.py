@@ -1,8 +1,11 @@
 from datetime import datetime
+from random import randint
 
 import factory
 from django.db.models.signals import post_save
+from django_countries import countries as COUNTRIES
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
+from localflavor.us.us_states import CONTIGUOUS_STATES
 from pytz import UTC
 from taxonomy.models import CourseSkills, Skill
 
@@ -89,6 +92,8 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     lead_capture_form_url = FuzzyURL()
     organic_url = FuzzyURL()
     certificate_info = factory.SubFactory(CertificateInfoFactory)
+    start_date = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC), force_microsecond=0)
+    registration_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC), force_microsecond=0)
 
     @factory.post_generation
     def facts(self, create, extracted, **kwargs):
@@ -228,6 +233,35 @@ class CourseTypeFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.course_run_types, extracted)
 
 
+class AbstractLocationRestrictionModelFactory(factory.django.DjangoModelFactory):
+    restriction_type = factory.fuzzy.FuzzyChoice(
+        AbstractLocationRestrictionModel.RESTRICTION_TYPE_CHOICES, getter=lambda c: c[0]
+    )
+    countries = factory.List([
+        factory.fuzzy.FuzzyChoice(COUNTRIES, getter=lambda c: c[0]) for _ in range(randint(0, 3))
+    ])
+    states = factory.List([
+        factory.fuzzy.FuzzyChoice(CONTIGUOUS_STATES, getter=lambda c: c[0]) for _ in range(randint(0, 3))
+    ])
+
+
+class CourseLocationRestrictionFactory(AbstractLocationRestrictionModelFactory):
+    class Meta:
+        model = CourseLocationRestriction
+
+
+class ProgramLocationRestrictionFactory(AbstractLocationRestrictionModelFactory):
+    # We pass in location_restriction=None to prevent ProgramFactory from creating
+    # another location_restriction (this disables the RelatedFactory)
+    program = factory.SubFactory(
+        'course_discovery.apps.course_metadata.tests.factories.ProgramFactory',
+        location_restriction=None
+    )
+
+    class Meta:
+        model = ProgramLocationRestriction
+
+
 class CourseFactory(SalesforceRecordFactory):
     uuid = factory.LazyFunction(uuid4)
     key = FuzzyText(prefix='course-id+')
@@ -252,6 +286,8 @@ class CourseFactory(SalesforceRecordFactory):
     faq = FuzzyText()
     learner_testimonials = FuzzyText()
     type = factory.SubFactory(CourseTypeFactory)
+    enterprise_subscription_inclusion = False
+    location_restriction = factory.SubFactory(CourseLocationRestrictionFactory)
 
     class Meta:
         model = Course
@@ -337,6 +373,7 @@ class CourseRunFactory(SalesforceRecordFactory):
     weeks_to_complete = FuzzyInteger(1)
     license = 'all-rights-reserved'
     has_ofac_restrictions = True
+    enterprise_subscription_inclusion = False
     type = factory.SubFactory(CourseRunTypeFactory)
 
     @factory.post_generation
@@ -398,6 +435,7 @@ class OrganizationFactory(SalesforceRecordFactory):
     banner_image = FuzzyText()
     certificate_logo_image = FuzzyText()
     partner = factory.SubFactory(PartnerFactory)
+    enterprise_subscription_inclusion = False
 
     class Meta:
         model = Organization
@@ -500,7 +538,7 @@ class RankingFactory(factory.django.DjangoModelFactory):
     source = FuzzyText(length=99)
 
 
-class ProgramFactory(factory.django.DjangoModelFactory):
+class ProgramBaseFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Program
 
@@ -509,7 +547,6 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     subtitle = FuzzyText()
     marketing_hook = FuzzyText()
     type = factory.SubFactory(ProgramTypeFactory)
-    status = ProgramStatus.Active
     marketing_slug = factory.Sequence(lambda n: f'test-slug-{n}')
     card_image_url = FuzzyText(prefix='https://example.com/program/card')
     partner = factory.SubFactory(PartnerFactory)
@@ -521,12 +558,16 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     max_hours_effort_per_week = FuzzyInteger(4)
     credit_redemption_overview = FuzzyText()
     order_courses_by_start_date = True
+    enterprise_subscription_inclusion = False
     hidden = False
     organization_short_code_override = FuzzyText()
     organization_logo_override = FuzzyText(suffix=".png")
     primary_subject_override = factory.SubFactory(SubjectFactory)
     level_type_override = factory.SubFactory(LevelTypeFactory)
     language_override = factory.Iterator(LanguageTag.objects.all())
+    location_restriction = factory.RelatedFactory(
+        ProgramLocationRestrictionFactory, factory_related_name='program'
+    )
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):
@@ -582,6 +623,10 @@ class ProgramFactory(factory.django.DjangoModelFactory):
     def curricula(self, create, extracted, **kwargs):
         if create:  # pragma: no cover
             add_m2m_data(self.curricula, extracted)
+
+
+class ProgramFactory(ProgramBaseFactory):
+    status = ProgramStatus.Active
 
 
 class SpecializationFactory(factory.django.DjangoModelFactory):
@@ -744,6 +789,16 @@ class SyllabusItemFactory(factory.django.DjangoModelFactory):
 class DrupalPublishUuidConfigFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = DrupalPublishUuidConfig
+
+
+class CSVDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = CSVDataLoaderConfiguration
+
+
+class DegreeDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = DegreeDataLoaderConfiguration
 
 
 class ProfileImageDownloadConfigFactory(factory.django.DjangoModelFactory):

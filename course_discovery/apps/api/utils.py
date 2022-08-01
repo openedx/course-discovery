@@ -1,14 +1,17 @@
+import base64
 import functools
 import logging
 import math
 from urllib.parse import parse_qsl, urlencode, urljoin
 
+from django.core.files.base import ContentFile
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import gettext as _
 from opaque_keys.edx.keys import CourseKey
 from requests.exceptions import HTTPError
 from sortedm2m.fields import SortedManyToManyField
 
+from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.models import CourseRun
 
@@ -131,6 +134,71 @@ def conditional_decorator(condition, decorator):
     return decorator if condition else lambda x: x
 
 
+def decode_image_data(image_data):
+    """
+    Given a encoded base64 image, it will decode encoded image and
+    return image name and decoded image_data
+    """
+    file_format, img_str = image_data.split(';base64,')  # format ~= data:image/X;base64,/xxxyyyzzz/
+    ext = file_format.split('/')[-1]  # guess file extension
+    image_data = ContentFile(base64.b64decode(img_str), name=f'tmp.{ext}')
+    return image_data.name, image_data
+
+
+def check_catalog_api_access(partner, user):
+    """
+    Uses LMSAPIClient to check the catalog api access for a
+    given user
+
+    Arguments:
+        user (User): Django User.
+
+    Returns:
+        (dict): ApiAccessRequests for the given user.
+
+    Example:
+        {
+            "id": 1,
+            "created": "2017-09-25T08:37:05.872566Z",
+            "modified": "2017-09-25T08:37:47.412496Z",
+            "user": 5,
+            "status": "approved",
+            "website": "https://example.com/",
+            "reason": "Example Reason",
+            "company_name": "Example Inc",
+            "company_address": "Example Address",
+            "site": 1,
+            "contacted": True
+        }
+    """
+    lms_client = LMSAPIClient(partner)
+    api_access_response = lms_client.get_api_access_request(user)
+    return api_access_response
+
+
+def increment_str(input_str):
+    """
+    Given a string, it will return its next combination by incrementing the last alphabet and handle all boundary cases
+    ref link: https://gist.github.com/jlp78/f306afc919dc06c8ce156475fc9320bf
+    example:
+    1. given a string 'a' and it will return 'b'
+    2. given a string 'z' and it will return 'aa'
+    3. given a string 'az' and it will return 'ba'
+    """
+    lpart = input_str.rstrip('z')
+    num_replacements = len(input_str) - len(lpart)
+    new_str = lpart[:-1] + increment_character(lpart[-1]) if lpart else 'a'
+    new_str += 'a' * num_replacements
+    return new_str
+
+
+def increment_character(character):
+    """
+    Given a character and it will return its next character using ASCII code
+    """
+    return chr(ord(character) + 1) if character != 'z' else 'a'
+
+
 class StudioAPI:
     """
     A convenience class for talking to the Studio API - designed to allow subclassing by the publisher django app,
@@ -150,7 +218,7 @@ class StudioAPI:
         if candidate in existing_runs:
             # If our candidate is an existing run, use the next letter in the alphabet as the
             # run suffix (e.g. 1T2017, 1T2017a, 1T2017b, ...).
-            suffix = chr(ord(suffix) + 1) if suffix else 'a'
+            suffix = increment_str(suffix)
             return cls._get_next_run(root, suffix, existing_runs)
 
         return candidate

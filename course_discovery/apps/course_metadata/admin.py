@@ -1,6 +1,7 @@
 from adminsortable2.admin import SortableAdminMixin
 from dal import autocomplete
 from django.contrib import admin, messages
+from django.contrib.admin.utils import model_ngettext
 from django.db.utils import IntegrityError
 from django.forms import CheckboxSelectMultiple, ModelForm
 from django.http import HttpResponseRedirect
@@ -14,6 +15,7 @@ from waffle import get_waffle_flag_model  # lint-amnesty, pylint: disable=invali
 
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
+from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME, REFRESH_COURSE_SKILLS_URL_NAME
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
@@ -107,7 +109,7 @@ class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     ordering = ('key', 'title',)
     readonly_fields = ('enrollment_count', 'recent_enrollment_count', 'active_url_slug', 'key', 'number')
     search_fields = ('uuid', 'key', 'key_for_reruns', 'title',)
-    raw_id_fields = ('canonical_course_run', 'draft_version',)
+    raw_id_fields = ('canonical_course_run', 'draft_version', 'location_restriction')
     autocomplete_fields = ['canonical_course_run']
     change_actions = ('course_skills', 'refresh_course_skills')
 
@@ -246,7 +248,9 @@ class CourseRunAdmin(admin.ModelAdmin):
     )
     ordering = ('key',)
     raw_id_fields = ('course', 'draft_version',)
-    readonly_fields = ('enrollment_count', 'recent_enrollment_count', 'hidden', 'key')
+    readonly_fields = (
+        'enrollment_count', 'recent_enrollment_count', 'hidden', 'key', 'enterprise_subscription_inclusion'
+    )
     search_fields = ('uuid', 'key', 'title_override', 'course__title', 'slug', 'external_key')
     save_error = False
     form = CourseRunAdminForm
@@ -281,14 +285,48 @@ class CourseRunAdmin(admin.ModelAdmin):
             messages.add_message(request, messages.ERROR, msg)
 
 
+class CourseInline(admin.TabularInline):
+    model = Course
+    fields = ('key', 'title', 'draft')
+    show_change_link = True
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(CourseLocationRestriction)
+class CourseLocationRestrictionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'restriction_type')
+    fields = ('restriction_type', 'countries', 'states', 'created', 'modified')
+    readonly_fields = ('created', 'modified')
+    inlines = (CourseInline,)
+
+
+@admin.register(ProgramLocationRestriction)
+class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
+    list_display = ('program', 'restriction_type',)
+    fields = ('program', 'restriction_type', 'countries', 'states', 'created', 'modified')
+    readonly_fields = ('created', 'modified')
+    raw_id_fields = ('program',)
+    search_fields = ('program__name', 'program__marketing_slug')
+
+
 @admin.register(Program)
 class ProgramAdmin(admin.ModelAdmin):
     form = ProgramAdminForm
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
-    list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden',)
+    list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden')
     ordering = ('uuid', 'title', 'status')
-    readonly_fields = ('uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count',
-                       'recent_enrollment_count',)
+    readonly_fields = (
+        'uuid', 'custom_course_runs_display', 'excluded_course_runs', 'enrollment_count', 'recent_enrollment_count',
+        'enterprise_subscription_inclusion'
+    )
     raw_id_fields = ('video',)
     search_fields = ('uuid', 'title', 'marketing_slug')
     exclude = ('card_image_url',)
@@ -303,6 +341,7 @@ class ProgramAdmin(admin.ModelAdmin):
         'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         'enrollment_count', 'recent_enrollment_count', 'credit_value', 'organization_short_code_override',
         'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
+        'enterprise_subscription_inclusion',
     )
 
     save_error = False
@@ -488,6 +527,10 @@ class OrganizationAdmin(admin.ModelAdmin):
         Ensure that 'key' cannot be edited after creation.
         """
         if obj:
+            flag_name = f'{obj._meta.app_label}.{obj.__class__.__name__}.make_uuid_editable'
+            flag = get_waffle_flag_model().get(flag_name)
+            if flag.is_active(request):
+                return ['key', ]
             return ['uuid', 'key', ]
         else:
             return ['uuid', ]
@@ -668,16 +711,50 @@ class SpecializationAdmin(admin.ModelAdmin):
     list_display = ('value', )
 
 
+def change_degree_status(modeladmin, request, queryset, status):
+    """
+    Changes the status of a degree.
+    """
+    count = queryset.count()
+    if count:
+        for obj in queryset:
+            obj.status = status
+            obj.save()
+
+        modeladmin.message_user(request, _("Successfully %(status)s %(count)d %(items)s.") % {
+            "status": "published" if status == ProgramStatus.Active else "unpublished",
+            "count": count,
+            "items": model_ngettext(modeladmin.opts, count),
+        }, messages.SUCCESS)
+
+
+@admin.action(permissions=['change'], description='Publish selected Degrees')
+def publish_degrees(modeladmin, request, queryset):
+    """
+    Django admin action to bulk publish degrees.
+    """
+    change_degree_status(modeladmin, request, queryset, ProgramStatus.Active)
+
+
+@admin.action(permissions=['change'], description='Unpublish selected Degrees')
+def unpublish_degrees(modeladmin, request, queryset):
+    """
+    Django admin action to bulk unpublish degrees.
+    """
+    change_degree_status(modeladmin, request, queryset, ProgramStatus.Unpublished)
+
+
 @admin.register(Degree)
 class DegreeAdmin(admin.ModelAdmin):
     """
     This is an inheritance model from Program
 
     """
-    list_display = ('title', 'partner', 'status', 'hidden')
+    list_display = ('uuid', 'title', 'marketing_slug', 'status', 'hidden')
     ordering = ('title', 'status')
     readonly_fields = ('uuid', )
-    search_fields = ('title', 'partner', 'marketing_slug')
+    list_filter = ('partner', 'status',)
+    search_fields = ('uuid', 'title', 'marketing_slug',)
     inlines = (
         CurriculumAdminInline,
         DegreeDeadlineInlineAdmin,
@@ -691,10 +768,11 @@ class DegreeAdmin(admin.ModelAdmin):
         'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title',
         'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
         'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
-        'hubspot_lead_capture_form_id', 'micromasters_long_title', 'micromasters_long_description', 'micromasters_url',
-        'micromasters_background_image', 'micromasters_org_name_override', 'faq', 'costs_fine_print',
-        'deadlines_fine_print', 'specializations'
+        'hubspot_lead_capture_form_id', 'taxi_form_id', 'taxi_form_grouping', 'micromasters_long_title',
+        'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
+        'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations',
     )
+    actions = [publish_degrees, unpublish_degrees]
 
 
 @admin.register(SearchDefaultResultsConfiguration)
@@ -740,3 +818,19 @@ class CollaboratorAdmin(admin.ModelAdmin):
 class CourseUrlSlugAdmin(admin.ModelAdmin):
     list_display = ('course', 'url_slug', 'is_active')
     search_fields = ('url_slug', 'course__title', 'course__key',)
+
+
+@admin.register(CSVDataLoaderConfiguration)
+class CSVDataLoaderConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for CSVDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(DegreeDataLoaderConfiguration)
+class DegreeDataLoaderConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for DegreeDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')

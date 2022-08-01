@@ -53,6 +53,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                     "endDate": "2022-05-06",
                     "finalPrice": "1998",
                     "startDate": "2022-03-06",
+                    "regCloseDate": "2022-02-06",
                 },
                 "curriculum": {
                     "heading": "Course curriculum",

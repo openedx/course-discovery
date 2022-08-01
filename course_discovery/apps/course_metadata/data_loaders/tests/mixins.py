@@ -7,7 +7,8 @@ from course_discovery.apps.course_metadata.models import (
     CourseEntitlement, CourseRunStatus, CourseRunType, CourseType, ProgramType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    LevelTypeFactory, OrganizationFactory, PartnerFactory, SubjectFactory
+    CourseRunTypeFactory, CourseTypeFactory, LevelTypeFactory, ModeFactory, OrganizationFactory, PartnerFactory,
+    SeatTypeFactory, SubjectFactory, TrackFactory
 )
 
 
@@ -183,20 +184,20 @@ class CSVLoaderMixin:
         'syllabus', 'prerequisites', 'learner_testimonials', 'frequently_asked_questions', 'additional_information',
         'about_video_link', 'secondary_subject', 'tertiary_subject',
         'course_embargo_(ofac)_restriction_text_added_to_the_faq_section', 'publish_date',
-        'start_date', 'start_time', 'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing', 'staff',
-        'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language',
-        'expected_program_type', 'expected_program_name', 'upgrade_deadline_override_date',
-        'upgrade_deadline_override_time', 'redirect_url', 'external_identifier', 'lead_capture_form_url', 'organic_url',
-        'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text',
-        'organization_logo_override', 'organization_short_code_override'
+        'start_date', 'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time',
+        'course_run_enrollment_track', 'course_pacing', 'staff', 'minimum_effort', 'maximum_effort',
+        'length', 'content_language', 'transcript_language', 'expected_program_type', 'expected_program_name',
+        'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
+        'lead_capture_form_url', 'organic_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text',
+        'stat2', 'stat2_text', 'organization_logo_override', 'organization_short_code_override',
     ]
     # The list of minimal data headers
     MINIMAL_CSV_DATA_KEYS_ORDER = [
         'organization', 'title', 'number', 'course_enrollment_track', 'image', 'short_description',
         'long_description', 'what_will_you_learn', 'course_level', 'primary_subject', 'verified_price', 'publish_date',
-        'start_date', 'start_time', 'end_date', 'end_time', 'course_run_enrollment_track', 'course_pacing',
-        'minimum_effort', 'maximum_effort', 'length', 'content_language', 'transcript_language', 'redirect_url',
-        'external_identifier', 'syllabus', 'frequently_asked_questions'
+        'start_date', 'start_time', 'end_date', 'end_time', 'reg_close_date', 'reg_close_time',
+        'course_run_enrollment_track', 'course_pacing', 'minimum_effort', 'maximum_effort', 'length',
+        'content_language', 'transcript_language', 'syllabus', 'frequently_asked_questions',
     ]
     BASE_EXPECTED_COURSE_DATA = {
         # Loader does not publish newly created course or a course that has not reached published status.
@@ -226,7 +227,9 @@ class CSVLoaderMixin:
             'heading': 'About the certificate',
             'blurb': 'For special people'
         },
-        'facts_data': ['90 million', '<p>Bacterias cottage cost</p>', 'Diamond mine', '<p>Worth it</p>']
+        'facts_data': ['90 million', '<p>Bacterias cottage cost</p>', 'Diamond mine', '<p>Worth it</p>'],
+        'start_date': '2020-01-25T00:00:00+00:00',
+        'registration_deadline': '2020-01-25T00:00:00+00:00'
     }
 
     BASE_EXPECTED_COURSE_RUN_DATA = {
@@ -248,10 +251,20 @@ class CSVLoaderMixin:
 
     def setUp(self):
         super().setUp()
-        self.course_type = CourseType.objects.get(
-            slug=CourseType.VERIFIED_AUDIT)
-        self.course_run_type = CourseRunType.objects.get(
-            slug=CourseRunType.VERIFIED_AUDIT)
+        paid_exec_ed_name = 'Paid Executive Education'
+        self.paid_exec_ed_slug = CourseRunType.PAID_EXECUTIVE_EDUCATION
+
+        seat_type = SeatTypeFactory(name=paid_exec_ed_name)
+        mode = ModeFactory(name=paid_exec_ed_name, slug=self.paid_exec_ed_slug)
+        track = TrackFactory(mode=mode, seat_type=seat_type)
+        self.course_run_type = CourseRunTypeFactory(
+            name=paid_exec_ed_name, slug=self.paid_exec_ed_slug, tracks=[track]
+        )
+        self.course_type = CourseTypeFactory(
+            name='Executive Education(2U)', slug=CourseType.EXECUTIVE_EDUCATION_2U,
+            course_run_types=[self.course_run_type],
+            entitlement_types=[seat_type]
+        )
 
     def _write_csv(self, csv, lines_dict_list, headers=None):
         """
@@ -335,7 +348,7 @@ class CSVLoaderMixin:
         Verify the course's data fields have same values as the expected data dict.
         """
         course_entitlement = CourseEntitlement.everything.get(
-            draft=expected_data['draft'], mode__slug='verified', course=course
+            draft=expected_data['draft'], mode__slug=self.paid_exec_ed_slug, course=course
         )
 
         assert course.draft is expected_data['draft']
@@ -356,6 +369,8 @@ class CSVLoaderMixin:
         assert course.additional_metadata.external_identifier == expected_data['external_identifier']
         assert course.additional_metadata.lead_capture_form_url == expected_data['lead_capture_form_url']
         assert course.additional_metadata.organic_url == expected_data['organic_url']
+        assert course.additional_metadata.start_date.isoformat() == expected_data['start_date']
+        assert course.additional_metadata.registration_deadline.isoformat() == expected_data['registration_deadline']
         assert course.additional_metadata.certificate_info.heading == expected_data['certificate_info']['heading']
         assert expected_data['certificate_info']['blurb'] in course.additional_metadata.certificate_info.blurb
         assert sorted([subject.slug for subject in course.subjects.all()]) == sorted(expected_data['subjects'])
@@ -373,7 +388,7 @@ class CSVLoaderMixin:
         """
         # No need to add draft in the filter here. Based on the draft status of the course run,
         # the appropriate Seat object is returned.
-        course_run_seat = Seat.everything.get(type__slug='verified', course_run=course_run)
+        course_run_seat = Seat.everything.get(type__slug=self.paid_exec_ed_slug, course_run=course_run)
 
         assert course_run.draft is expected_data['draft']
         assert course_run_seat.draft is expected_data['draft']

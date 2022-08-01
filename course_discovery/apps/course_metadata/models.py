@@ -8,6 +8,7 @@ from uuid import uuid4
 import pytz
 import requests
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
+from config_models.models import ConfigurationModel
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -16,11 +17,14 @@ from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
+from django_countries import countries as COUNTRIES
 from django_elasticsearch_dsl.registries import registry
 from django_extensions.db.fields import AutoSlugField
 from django_extensions.db.models import TimeStampedModel
 from elasticsearch.exceptions import RequestError
 from elasticsearch_dsl.query import Q as ESDSLQ
+from localflavor.us.us_states import CONTIGUOUS_STATES
+from multiselectfield import MultiSelectField
 from opaque_keys.edx.keys import CourseKey
 from parler.models import TranslatableModel, TranslatedFieldsModel
 from simple_history.models import HistoricalRecords
@@ -174,7 +178,7 @@ class AbstractHeadingBlurbModel(TimeStampedModel):
 class Organization(CachedMixin, TimeStampedModel):
     """ Organization model. """
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
-    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=False, verbose_name=_('UUID'))
+    uuid = models.UUIDField(blank=False, null=False, default=uuid4, editable=True, verbose_name=_('UUID'))
     key = models.CharField(max_length=255, help_text=_('Please do not use any spaces or special characters other '
                                                        'than period, underscore or hyphen. This key will be used '
                                                        'in the course\'s course key.'))
@@ -220,6 +224,10 @@ class Organization(CachedMixin, TimeStampedModel):
             "When this flag is enabled, the key of a new course run will be auto"
             " generated.  When this flag is disabled, the key can be manually set."
         )
+    )
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This field signifies if any of this org\'s courses are in the enterprise subscription catalog'),
     )
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
@@ -476,6 +484,10 @@ class CourseRunType(TimeStampedModel):
     VERIFIED_HONOR = 'verified-honor'
     VERIFIED_AUDIT_HONOR = 'verified-audit-honor'
     EMPTY = 'empty'
+    PAID_EXECUTIVE_EDUCATION = 'paid-executive-education'
+    UNPAID_EXECUTIVE_EDUCATION = 'unpaid-executive-education'
+    PAID_BOOTCAMP = 'paid-bootcamp'
+    UNPAID_BOOTCAMP = 'unpaid-bootcamp'
 
     uuid = models.UUIDField(default=uuid4, editable=False, verbose_name=_('UUID'), unique=True)
     name = models.CharField(max_length=64)
@@ -639,6 +651,14 @@ class AdditionalMetadata(TimeStampedModel):
     certificate_info = models.ForeignKey(
         CertificateInfo, models.CASCADE, default=None, null=True, blank=True,
         related_name='related_course_additional_metadata',
+    )
+    start_date = models.DateTimeField(
+        default=None, blank=True, null=True,
+        help_text=_('The start date of the external course offering for marketing purpose')
+    )
+    registration_deadline = models.DateTimeField(
+        default=None, blank=True, null=True,
+        help_text=_('The suggested deadline for enrollment for marketing purpose')
     )
 
     def __str__(self):
@@ -818,6 +838,32 @@ class Collaborator(TimeStampedModel):
         return f'{self.name}'
 
 
+class AbstractLocationRestrictionModel(TimeStampedModel):
+    ALLOWLIST = 'allowlist'
+    BLOCKLIST = 'blocklist'
+    RESTRICTION_TYPE_CHOICES = (
+        (ALLOWLIST, _('Allowlist')),
+        (BLOCKLIST, _('Blocklist'))
+    )
+
+    countries = MultiSelectField(choices=COUNTRIES, null=True, blank=True)
+    states = MultiSelectField(choices=CONTIGUOUS_STATES, null=True, blank=True)
+    restriction_type = models.CharField(
+        max_length=255, choices=RESTRICTION_TYPE_CHOICES, default=ALLOWLIST
+    )
+
+    class Meta:
+        abstract = True
+
+
+class CourseLocationRestriction(AbstractLocationRestrictionModel):
+    """
+    Course location restriction model.
+
+    We have to set this as a foreign key field on course rather than a one to one relationship, due to draft courses.
+    """
+
+
 class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     """ Course model. """
     partner = models.ForeignKey(Partner, models.CASCADE)
@@ -910,8 +956,16 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         validators=[FileExtensionValidator(['png'])]
     )
 
+    location_restriction = models.ForeignKey(
+        CourseLocationRestriction, models.SET_NULL, related_name='courses', default=None, null=True, blank=True
+    )
+
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
+    enterprise_subscription_inclusion = models.BooleanField(
+        null=True,
+        help_text=_('This field signifies if this course is in the enterprise subscription catalog'),
+    )
 
     class Meta:
         unique_together = (
@@ -919,6 +973,25 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
             ('partner', 'key', 'draft'),
         )
         ordering = ['id']
+
+    def _check_enterprise_subscription_inclusion(self):
+        # if false has been passed in, or it's already been set to false
+        if self.enterprise_subscription_inclusion is False:
+            return False
+        for org in self.authoring_organizations.all():
+            if not org.enterprise_subscription_inclusion:
+                return False
+        return True
+
+    # there have to be two saves because in order to check for if this is included in the
+    # subscription catalog, we need the id that is created on save to access the many-to-many fields
+    # and then need to update the boolean in the record based on conditional logic
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+        kwargs['force_insert'] = False
+        kwargs['force_update'] = True
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.key}: {self.title}'
@@ -942,6 +1015,13 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         if self.organization_logo_override:
             return self.organization_logo_override.url
         return None
+
+    @property
+    def is_external_course(self):
+        """
+        Property to check if the course is an external product type.
+        """
+        return self.type.slug in [CourseType.EXECUTIVE_EDUCATION_2U, CourseType.BOOTCAMP_2U]
 
     @property
     def original_image_url(self):
@@ -1456,6 +1536,11 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
 
     salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Course_Run__c in Salesforce
 
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This calculated field signifies if this course run is in the enterprise subscription catalog'),
+    )
+
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',
         'end',
@@ -1922,6 +2007,16 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         if send_emails and email_method:
             email_method(self)
 
+    def _check_enterprise_subscription_inclusion(self):
+        if not self.course.enterprise_subscription_inclusion:
+            return False
+        if self.pacing_type == 'instructor_paced':
+            return False
+        return True
+
+    # there have to be two saves because in order to check for if this is included in the
+    # subscription catalog, we need the id that is created on save to access the many-to-many fields
+    # and then need to update the boolean in the record based on conditional logic
     def save(self, suppress_publication=False, send_emails=True, **kwargs):
         """
         Arguments:
@@ -1937,6 +2032,10 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             if push_to_marketing:
                 previous_obj = CourseRun.objects.get(id=self.id) if self.id else None
 
+            super().save(**kwargs)
+            self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+            kwargs['force_insert'] = False
+            kwargs['force_update'] = True
             super().save(**kwargs)
             self.handle_status_change(send_emails)
 
@@ -2200,7 +2299,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     type = models.ForeignKey(ProgramType, models.CASCADE, null=True, blank=True)
     status = models.CharField(
         help_text=_('The lifecycle status of this Program.'), max_length=24, null=False, blank=False, db_index=True,
-        choices=ProgramStatus.choices, validators=[ProgramStatus.validator]
+        choices=ProgramStatus.choices, validators=[ProgramStatus.validator], default=ProgramStatus.Unpublished
     )
     marketing_slug = models.CharField(
         help_text=_('Slug used to generate links to the marketing site'), unique=True, max_length=255, db_index=True)
@@ -2290,6 +2389,11 @@ class Program(PkSearchableMixin, TimeStampedModel):
     credit_value = models.PositiveSmallIntegerField(
         blank=True, default=0, help_text=_(
             'Number of credits a learner will earn upon successful completion of the program')
+    )
+    enterprise_subscription_inclusion = models.BooleanField(
+        default=False,
+        help_text=_('This calculated field signifies if all the courses in '
+                    'this program are included in the enterprise subscription catalog '),
     )
     organization_short_code_override = models.CharField(max_length=255, blank=True, help_text=_(
         'A field to override Organization short code alias specific for this program.')
@@ -2626,6 +2730,14 @@ class Program(PkSearchableMixin, TimeStampedModel):
     def is_active(self):
         return self.status == ProgramStatus.Active
 
+    def _check_enterprise_subscription_inclusion(self):
+        if self.type == 'micromasters':
+            return False
+        for course in self.courses.all():
+            if not course.enterprise_subscription_inclusion:
+                return False
+        return True
+
     def save(self, *args, **kwargs):
         suppress_publication = kwargs.pop('suppress_publication', False)
         is_publishable = (
@@ -2639,11 +2751,28 @@ class Program(PkSearchableMixin, TimeStampedModel):
             publisher = ProgramMarketingSitePublisher(self.partner)
             previous_obj = Program.objects.get(id=self.id) if self.id else None
 
+            # there have to be two saves because in order to check for if this is included in the
+            # subscription catalog, we need the id that is created on save to access the many-to-many fields
+            # and then need to update the boolean in the record based on conditional logic
             with transaction.atomic():
                 super().save(*args, **kwargs)
+                self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+                kwargs['force_insert'] = False
+                kwargs['force_update'] = True
+                super().save(**kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
         else:
             super().save(*args, **kwargs)
+            self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
+            kwargs['force_insert'] = False
+            kwargs['force_update'] = True
+            super().save(**kwargs)
+
+    @property
+    def is_2u_degree_program(self):
+        # this is a temporary field used by prospectus to easily and semantically
+        # determine if a program is a 2u degree
+        return hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata')
 
 
 class Ranking(TimeStampedModel):
@@ -2730,7 +2859,17 @@ class Degree(Program):
         blank=True,
         max_length=128,
     )
-
+    taxi_form_id = models.URLField(
+        help_text=_('The ID of the 2u Taxi form that would be rendered in place of the hubspot capture form.'),
+        null=True,
+        blank=True,
+    )
+    taxi_form_grouping = models.CharField(
+        help_text=_('The grouping of the 2u taxi form that would be rendered in place of the hubspot capture form.'),
+        max_length=50,
+        null=True,
+        blank=True,
+    )
     micromasters_url = models.URLField(
         help_text=_('URL to micromasters landing page'),
         max_length=255,
@@ -3146,6 +3285,39 @@ class CourseUrlRedirect(AbstractValueModel):
         unique_together = (
             ('partner', 'value')
         )
+
+
+class ProgramLocationRestriction(AbstractLocationRestrictionModel):
+    """ Program location restriction """
+    program = models.OneToOneField(
+        Program, on_delete=models.CASCADE, null=True, blank=True, related_name='location_restriction'
+    )
+
+
+class CSVDataLoaderConfiguration(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in import_course_metadata.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers.")
+    )
+
+
+class DegreeDataLoaderConfiguration(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in import_degree_data.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers.")
+    )
 
 
 class BackpopulateCourseTypeConfig(SingletonModel):

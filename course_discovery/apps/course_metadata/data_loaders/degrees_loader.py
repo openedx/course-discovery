@@ -4,7 +4,8 @@ Data loader responsible for creating degree entries in discovery Database,
 import csv
 import logging
 
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+import unicodecsv
+
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
     Curriculum, Degree, DegreeAdditionalMetadata, LanguageTag, LevelType, Organization, Program, ProgramType,
@@ -21,17 +22,19 @@ class DegreeCSVDataLoader(AbstractDataLoader):
     DEGREE_REQUIRED_DATA_FIELDS = [
         'title', 'card_image_url', 'product_type', 'organization_key', 'organization_short_code_override',
         'slug', 'primary_subject', 'content_language', 'course_level', 'paid_landing_page_url', 'organic_url',
-        'identifier',
-        'overview', 'courses',
+        'identifier', 'overview', 'courses',
     ]
 
-    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None):
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, csv_file=None):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         self.messages_list = []  # to show failure/skipped ingestion message at the end
         self.degree_uuids = {}  # to show the discovery degrees/program ids for each processed degree
         try:
-            self.reader = csv.DictReader(open(csv_path, 'r'))  # lint-amnesty, pylint: disable=consider-using-with
+            # Read file from the path if given. Otherwise,
+            # read from the file received from DegreeDataLoaderConfiguration.
+            self.reader = csv.DictReader(open(csv_path, 'r')) if csv_path \
+                else list(unicodecsv.DictReader(csv_file))  # lint-amnesty, pylint: disable=consider-using-with
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))    # lint-amnesty, pylint: disable=logging-format-interpolation
             raise  # re-raising exception to avoid moving the code flow
@@ -164,7 +167,6 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         """
         data_dict = {
             "type": program_type,
-            "status": ProgramStatus.Unpublished,
             "primary_subject_override": primary_subject_override,
             "level_type_override": level_type_override,
             "language_override": language_override,
@@ -202,6 +204,11 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         program = Program.objects.get(degree=degree, partner=self.partner)
         is_downloaded = download_and_save_program_image(
             program, data['card_image_url'],
+            # TODO: Temporary addition of User agent to allow access to data CDNs
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+                              '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
+            }
         )
         if not is_downloaded:
             logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -213,12 +220,17 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             is_downloaded = download_and_save_program_image(
                 program, data['organization_logo_override'],
                 'organization_logo_override',
+                # TODO: Temporary addition of User agent to allow access to data CDNs
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+                                  '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
+                }
             )
             if not is_downloaded:
                 logger.error("Unexpected error happened while downloading org logo image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
                     degree.marketing_slug
                 ))
-                self.messages_list.append('[ORG LOGO OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(  # lint-amnesty, pylint: disable=logging-format-interpolation
+                self.messages_list.append('[ORG LOGO OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(
                     degree.marketing_slug
                 ))
 

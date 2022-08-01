@@ -31,7 +31,12 @@ LEARNER_PATHWAY_DATA = {
                     'key': 'AA+AA101',
                     'title': 'intro to basics',
                     'short_description': 'comic basics',
-                    'content_type': 'course'
+                    'content_type': 'course',
+                    'course_runs': [
+                        {
+                            'key': 'course-v1:AA+AA101+1T2022',
+                        }
+                    ]
                 }
             ],
             'programs': [
@@ -47,6 +52,7 @@ LEARNER_PATHWAY_DATA = {
 }
 LEARNER_PATHWAY_UUID = LEARNER_PATHWAY_DATA['uuid']
 LEARNER_PATHWAY_COURSE_KEY = LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['key']
+LEARNER_PATHWAY_COURSE_RUN_KEY = LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['course_runs'][0]['key']
 LEARNER_PATHWAY_PROGRAM_UUID = LEARNER_PATHWAY_DATA['steps'][0]['programs'][0]['uuid']
 
 LEARNER_PATHWAY_SNAPSHOT_DATA = {
@@ -112,7 +118,7 @@ class TestLearnerPathwayViewSet(TestCase):
         )
         __ = CourseRunFactory(
             course=self.learner_pathway_course.course,
-            key='course-v1:AA+AA101+1T2022',
+            key=LEARNER_PATHWAY_DATA['steps'][0]['courses'][0]['course_runs'][0]['key'],
             status='published',
         )
         LearnerPathwayProgramFactory(
@@ -199,6 +205,12 @@ class TestLearnerPathwayViewSet(TestCase):
         {
             'query_params': {
                 'course_keys': LEARNER_PATHWAY_COURSE_KEY,
+            },
+            'response': [LEARNER_PATHWAY_UUID],
+        },
+        {
+            'query_params': {
+                'course_keys': LEARNER_PATHWAY_COURSE_RUN_KEY,
             },
             'response': [LEARNER_PATHWAY_UUID],
         },

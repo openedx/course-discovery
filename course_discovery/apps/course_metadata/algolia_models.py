@@ -8,7 +8,12 @@ from django.utils.translation import override
 from sortedm2m.fields import SortedManyToManyField
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
-from course_discovery.apps.course_metadata.models import Course, CourseType, Program, ProgramType
+from course_discovery.apps.course_metadata.models import (
+    AbstractLocationRestrictionModel, Course, CourseType, Program, ProgramType
+)
+
+# Algolia can't filter on an empty list, provide a value we can still filter on
+EMPTY_LOCATION_RESTRICTION_LIST = ['null']
 
 
 # Utility methods used by both courses and programs
@@ -50,7 +55,8 @@ def delegate_attributes(cls):
     product_type_fields = ['product_type']
     search_fields = ['partner_names', 'partner_keys', 'product_title', 'primary_description', 'secondary_description',
                      'tertiary_description']
-    facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs']
+    facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
+                    'product_allowed_in', 'product_blocked_in']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index']
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'product_weeks_to_complete',
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
@@ -84,6 +90,15 @@ def get_course_availability(course):
 
 # Proxies Program model in order to trick Algolia into thinking this is a single model so it doesn't error.
 # No model-specific attributes or methods are actually used.
+
+
+def get_location_restriction(location_restriction):
+    if (len(location_restriction.countries) == 0 and len(location_restriction.states) == 0):
+        return EMPTY_LOCATION_RESTRICTION_LIST
+
+    # Combine list of country and state codes in order to make filtering in Algolia easier
+    states = ['US-' + state for state in location_restriction.states]
+    return location_restriction.countries + states
 
 
 @delegate_attributes
@@ -251,6 +266,24 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return list(self.topics.names())
 
     @property
+    def product_allowed_in(self):
+        if (
+            self.location_restriction and
+            self.location_restriction.restriction_type == AbstractLocationRestrictionModel.ALLOWLIST
+        ):
+            return get_location_restriction(self.location_restriction)
+        return EMPTY_LOCATION_RESTRICTION_LIST
+
+    @property
+    def product_blocked_in(self):
+        if (
+            self.location_restriction and
+            self.location_restriction.restriction_type == AbstractLocationRestrictionModel.BLOCKLIST
+        ):
+            return get_location_restriction(self.location_restriction)
+        return EMPTY_LOCATION_RESTRICTION_LIST
+
+    @property
     def should_index(self):
         """Only index courses in the edX catalog with a non-hidden advertiseable course run, at least one owner, and
         a marketing url slug"""
@@ -289,6 +322,8 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def product_type(self):
+        if self.is_2u_degree_program:
+            return '2U Degree'
         return 'Program'
 
     @property
@@ -378,6 +413,24 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         return [topic.name for topic in self.topics]
 
     @property
+    def product_allowed_in(self):
+        if (
+            hasattr(self, 'location_restriction') and
+            self.location_restriction.restriction_type == AbstractLocationRestrictionModel.ALLOWLIST
+        ):
+            return get_location_restriction(self.location_restriction)
+        return EMPTY_LOCATION_RESTRICTION_LIST
+
+    @property
+    def product_blocked_in(self):
+        if (
+            hasattr(self, 'location_restriction') and
+            self.location_restriction.restriction_type == AbstractLocationRestrictionModel.BLOCKLIST
+        ):
+            return get_location_restriction(self.location_restriction)
+        return EMPTY_LOCATION_RESTRICTION_LIST
+
+    @property
     def availability_level(self):
         # Master's and 2U programs don't have courses in the same way that our other programs do.
         # We got confirmation from masters POs that we should make masters Programs always
@@ -420,6 +473,10 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def should_index_spanish(self):
         return self.should_index
+
+    @property
+    def is_2u_degree_program(self):
+        return hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata')
 
 
 class SearchDefaultResultsConfiguration(models.Model):

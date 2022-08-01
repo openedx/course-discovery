@@ -32,7 +32,7 @@ from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractHeadingBlurbModel, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel,
     AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, Curriculum, CurriculumCourseMembership,
     CurriculumCourseRunExclusion, CurriculumProgramMembership, DegreeCost, DegreeDeadline, Endorsement, Organization,
-    Program, Ranking, Seat, SeatType, Subject, Topic
+    Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -202,6 +202,21 @@ class TestCourse(TestCase):
         self.assertEqual(course.additional_metadata.organic_url, additional_metadata.organic_url)
         self.assertEqual(course.additional_metadata.certificate_info, additional_metadata.certificate_info)
         self.assertEqual(course.additional_metadata.facts, additional_metadata.facts)
+        self.assertEqual(course.additional_metadata.start_date, additional_metadata.start_date)
+        self.assertEqual(course.additional_metadata.registration_deadline, additional_metadata.registration_deadline)
+
+    def test_enterprise_subscription_inclusion(self):
+        """ Verify the enterprise inclusion boolean is calculated as expected. """
+        org1 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
+        org2 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
+        org_list = [org1, org2]
+        course = factories.CourseFactory(authoring_organizations=org_list, enterprise_subscription_inclusion=None)
+        assert course.enterprise_subscription_inclusion is True
+
+        org3 = factories.OrganizationFactory(enterprise_subscription_inclusion=False)
+        org_list = [org2, org3]
+        course1 = factories.CourseFactory(authoring_organizations=org_list, enterprise_subscription_inclusion=None)
+        assert course1.enterprise_subscription_inclusion is False
 
 
 class TestCourseUpdateMarketingUnpublish(MarketingSitePublisherTestMixin, TestCase):
@@ -608,6 +623,23 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         new_course_run.save()
         assert program.excluded_course_runs.count() == 1
         assert len(list(program.course_runs)) == 1
+
+    def test_enterprise_subscription_inclusion(self):
+        """ Verify the enterprise inclusion boolean is calculated as expected. """
+        course1 = factories.CourseFactory(enterprise_subscription_inclusion=False)
+        course_run1 = factories.CourseRunFactory(course=course1, pacing_type='self_paced')
+        course_run1.save()
+        assert course_run1.enterprise_subscription_inclusion is False
+
+        course2 = factories.CourseFactory(enterprise_subscription_inclusion=True)
+        course_run2 = factories.CourseRunFactory(course=course2, pacing_type='self_paced')
+        course_run2.save()
+        assert course_run2.enterprise_subscription_inclusion is True
+
+        course3 = factories.CourseFactory(enterprise_subscription_inclusion=True)
+        course_run3 = factories.CourseRunFactory(course=course3, pacing_type='instructor_paced')
+        course_run3.save()
+        assert course_run3.enterprise_subscription_inclusion is False
 
     @ddt.data(
         # Case 1: Return False when there are no paid Seats.
@@ -1841,7 +1873,7 @@ class ProgramTests(TestCase):
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
         program's courses. """
-        expected_start = min([course_run.start for course_run in self.course_runs])
+        expected_start = min(course_run.start for course_run in self.course_runs)
         assert self.program.start == expected_start
 
         # Verify start is None for programs with no courses.
@@ -1999,6 +2031,22 @@ class ProgramTests(TestCase):
 
         assert self.program.staff == set()
 
+    def test_enterprise_subscription_inclusion(self):
+        """ Verify the enterprise inclusion boolean is calculated as expected. """
+
+        course1 = factories.CourseFactory(enterprise_subscription_inclusion=False)
+        course2 = factories.CourseFactory(enterprise_subscription_inclusion=True)
+        course_list = [course1, course2]
+        type1 = ProgramType.objects.get(translations__name_t='XSeries')
+        program1 = factories.ProgramFactory(type=type1, courses=course_list)
+        assert program1.enterprise_subscription_inclusion is False
+
+        course3 = factories.CourseFactory(enterprise_subscription_inclusion=True)
+        course4 = factories.CourseFactory(enterprise_subscription_inclusion=True)
+        course_list2 = [course3, course4]
+        program2 = factories.ProgramFactory(type=type1, courses=course_list2)
+        assert program2.enterprise_subscription_inclusion is True
+
     def test_banner_image(self):
         self.program.banner_image = make_image_file('test_banner.jpg')
         self.program.save()
@@ -2133,6 +2181,28 @@ class ProgramTests(TestCase):
                     overview='This is another Test Program with marketing slug test-program-1',
                     weeks_to_complete=15
                 )
+
+    def test_program_default_status(self):
+        """Verify that program default status is Unpublished"""
+        program = factories.ProgramBaseFactory()
+        assert program.status == ProgramStatus.Unpublished
+
+    def test_program_is_2u_degree_program(self):
+        program = factories.ProgramBaseFactory()
+        degree = factories.DegreeFactory()
+        degree.additional_metadata = factories.DegreeAdditionalMetadataFactory()
+        program.degree = degree
+        assert program.is_2u_degree_program
+
+    def test_program_without_degree_is_not_2u_degree(self):
+        program = factories.ProgramBaseFactory()
+        assert not program.is_2u_degree_program
+
+    def test_program_with_degree_without_metadata_is_not_2u_degree(self):
+        program = factories.ProgramBaseFactory()
+        degree = factories.DegreeFactory()
+        program.degree = degree
+        assert not program.is_2u_degree_program
 
 
 class PathwayTests(TestCase):
@@ -2471,7 +2541,7 @@ class TopicTests(SiteMixin, TestCase):
     def test_str(self):
         name = "name"
         topic = Topic.objects.create(name=name, partner_id=self.partner.id)
-        assert topic.__str__() == name
+        assert str(topic) == name
 
 
 class DegreeTests(TestCase):
@@ -2491,6 +2561,8 @@ class DegreeTests(TestCase):
         assert self.curriculum.marketing_text is not None
         assert self.degree.lead_capture_list_name is not None
         assert self.degree.lead_capture_image is not None
+        assert self.degree.taxi_form_id is not None
+        assert self.degree.taxi_form_grouping is not ""
         assert self.degree.campus_image is not None
         assert self.degree.banner_border_color is not None
         assert self.degree.title_background_image is not None

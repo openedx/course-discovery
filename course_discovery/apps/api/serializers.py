@@ -14,6 +14,8 @@ from django.contrib.auth import get_user_model
 from django.db.models.query import Prefetch
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from django_countries.serializer_fields import CountryField
+from localflavor.us.us_states import CONTIGUOUS_STATES
 from opaque_keys.edx.locator import CourseLocator
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
@@ -32,11 +34,12 @@ from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.fields import HtmlField as MetadataHtmlField
 from course_discovery.apps.course_metadata.models import (
-    FAQ, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator, CorporateEndorsement, Course,
-    CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType, Curriculum, CurriculumCourseMembership,
-    CurriculumProgramMembership, Degree, DegreeAdditionalMetadata, DegreeCost, DegreeDeadline, Endorsement, Fact,
-    IconTextPairing, Image, LevelType, Mode, Organization, Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork,
-    Position, Prerequisite, Program, ProgramType, Ranking, Seat, SeatType, Specialization, Subject, Topic, Track, Video
+    FAQ, AbstractLocationRestrictionModel, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator,
+    CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun, CourseRunType,
+    CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata,
+    DegreeCost, DegreeDeadline, Endorsement, Fact, IconTextPairing, Image, LevelType, Mode, Organization, Pathway,
+    Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program, ProgramLocationRestriction,
+    ProgramType, Ranking, Seat, SeatType, Specialization, Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -395,6 +398,7 @@ class OrganizationSerializer(TaggitSerializer, MinimalOrganizationSerializer):
             'marketing_url',
             'slug',
             'banner_image_url',
+            'enterprise_subscription_inclusion',
         )
         read_only_fields = ('slug',)
 
@@ -624,6 +628,8 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
 
     facts = FactSerializer(many=True)
     certificate_info = CertificateInfoSerializer()
+    start_date = serializers.DateTimeField()
+    registration_deadline = serializers.DateTimeField()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -633,7 +639,8 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
         model = AdditionalMetadata
         fields = (
             'external_identifier', 'external_url', 'lead_capture_form_url',
-            'facts', 'certificate_info', 'organic_url'
+            'facts', 'certificate_info', 'organic_url', 'start_date',
+            'registration_deadline'
         )
 
 
@@ -918,6 +925,7 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
         queryset=ProgramType.objects.all()
     )
     estimated_hours = serializers.SerializerMethodField()
+    enterprise_subscription_inclusion = serializers.BooleanField(required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -937,9 +945,10 @@ class CourseRunSerializer(MinimalCourseRunSerializer):
             'level_type', 'mobile_available', 'hidden', 'reporting_type', 'eligible_for_financial_aid',
             'first_enrollable_paid_seat_price', 'has_ofac_restrictions', 'ofac_comment',
             'enrollment_count', 'recent_enrollment_count', 'expected_program_type', 'expected_program_name',
-            'course_uuid', 'estimated_hours', 'content_language_search_facet_name',
+            'course_uuid', 'estimated_hours', 'content_language_search_facet_name', 'enterprise_subscription_inclusion'
         )
-        read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',)
+        read_only_fields = ('enrollment_count', 'recent_enrollment_count', 'content_language_search_facet_name',
+                            'enterprise_subscription_inclusion')
 
     def get_instructors(self, obj):  # pylint: disable=unused-argument
         # This field is deprecated. Use the staff field.
@@ -1103,6 +1112,30 @@ class CourseEditorSerializer(serializers.ModelSerializer):
         return course_editor
 
 
+class AbstractLocationRestrictionSerializer(BaseModelSerializer):
+    restriction_type = serializers.ChoiceField(choices=AbstractLocationRestrictionModel.RESTRICTION_TYPE_CHOICES)
+    countries = serializers.ListField(
+        child=CountryField(), allow_empty=True, required=False
+    )
+    states = serializers.ListField(
+        child=serializers.ChoiceField(choices=CONTIGUOUS_STATES), allow_empty=True, required=False
+    )
+
+    class Meta:
+        model = AbstractLocationRestrictionModel
+        fields = ('restriction_type', 'countries', 'states')
+
+
+class CourseLocationRestrictionSerializer(AbstractLocationRestrictionSerializer):
+    class Meta(AbstractLocationRestrictionSerializer.Meta):
+        model = CourseLocationRestriction
+
+
+class ProgramLocationRestrictionSerializer(AbstractLocationRestrictionSerializer):
+    class Meta(AbstractLocationRestrictionSerializer.Meta):
+        model = ProgramLocationRestriction
+
+
 class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     """Serializer for the ``Course`` model."""
     level_type = SlugRelatedTranslatableField(required=False, allow_null=True, slug_field='name_t',
@@ -1134,6 +1167,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     organization_logo_override_url = serializers.SerializerMethodField()
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
+    enterprise_subscription_inclusion = serializers.BooleanField(required=False)
+    location_restriction = CourseLocationRestrictionSerializer(required=False)
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1185,7 +1220,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'extra_description', 'additional_information', 'additional_metadata', 'faq', 'learner_testimonials',
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
-            'skills', 'organization_short_code_override', 'organization_logo_override_url'
+            'skills', 'organization_short_code_override', 'organization_logo_override_url',
+            'enterprise_subscription_inclusion', 'location_restriction'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1218,10 +1254,24 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
     def update_facts(self, instance, facts_data):
 
-        instance.facts.all().delete()
-        for fact in facts_data:
-            fact_obj = Fact.objects.create(**fact)
-            instance.facts.add(fact_obj)
+        existing_facts = instance.facts.all()
+        if len(existing_facts) == len(facts_data):
+            for i, fact in enumerate(existing_facts):
+                Fact.objects.filter(id=fact.id).update(**facts_data[i])
+        else:
+            instance.facts.clear()
+            for fact in facts_data:
+                # we can query all orphan facts and use one of them but that is more computation
+                # therefore, just checking if a fact with same data exists
+                facts_queryset = Fact.objects.filter(**fact)
+                fact_obj = facts_queryset.first() if facts_queryset.exists() else None
+
+                # create a new fact object if (a) it does not exist or (b) it exists but it is not orphan
+                # related object count > 0 means it is not orphan and updating it will cause an unwanted update
+                if not fact_obj or fact_obj.related_course_additional_metadata.count():
+                    fact_obj = Fact.objects.create(**fact)
+
+                instance.facts.add(fact_obj)
 
     def update_certificate_info(self, instance, certificate_info_data):
 
@@ -1249,10 +1299,21 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
         # save() will be called by main update()
 
+    def update_location_restriction(self, instance, location_restriction):
+        if instance.location_restriction:
+            CourseLocationRestriction.objects.filter(id=instance.location_restriction.id).update(**location_restriction)
+        else:
+            instance.location_restriction = CourseLocationRestriction.objects.create(**location_restriction)
+
     def update(self, instance, validated_data):
-        # Handle writing nested additional_metadata separately
+        # Handle writing nested additional_metadata and location_restriction separately
         if 'additional_metadata' in validated_data:
-            self.update_additional_metadata(instance, validated_data.pop('additional_metadata'))
+            # Handle additional metadata only for 2U courses else just pop
+            additional_metadata_data = validated_data.pop('additional_metadata')
+            if instance.is_external_course:
+                self.update_additional_metadata(instance, additional_metadata_data)
+        if 'location_restriction' in validated_data:
+            self.update_location_restriction(instance, validated_data.pop('location_restriction'))
         return super().update(instance, validated_data)
 
 
@@ -1601,7 +1662,8 @@ class DegreeSerializer(BaseModelSerializer):
             'lead_capture_image', 'micromasters_path', 'micromasters_url',
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
-            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'additional_metadata', 'specializations'
+            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'taxi_form_id', 'taxi_form_grouping',
+            'additional_metadata', 'specializations'
         )
 
     def get_micromasters_path(self, degree):
@@ -1831,6 +1893,9 @@ class ProgramSerializer(MinimalProgramSerializer):
     instructor_ordering = MinimalPersonSerializer(many=True)
     applicable_seat_types = serializers.SerializerMethodField()
     topics = serializers.SerializerMethodField()
+    enterprise_subscription_inclusion = serializers.BooleanField()
+    location_restriction = ProgramLocationRestrictionSerializer(read_only=True)
+    is_2u_degree_program = serializers.BooleanField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -1876,8 +1941,10 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
-            'enrollment_count', 'topics', 'credit_value',
+            'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion',
+            'location_restriction', 'is_2u_degree_program'
         )
+        read_only_fields = ('enterprise_subscription_inclusion',)
 
 
 class PathwaySerializer(BaseModelSerializer):
@@ -2204,6 +2271,7 @@ class TypeaheadCourseRunSearchSerializer(TypeaheadBaseSearchSerializer):
 class TypeaheadProgramSearchSerializer(TypeaheadBaseSearchSerializer):
     uuid = serializers.CharField()
     type = serializers.CharField()
+    is_2u_degree_program = serializers.BooleanField()
 
 
 class TypeaheadSearchSerializer(serializers.Serializer):

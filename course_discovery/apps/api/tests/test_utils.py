@@ -5,13 +5,16 @@ from unittest import mock
 import ddt
 import pytest
 import responses
+from django.core.files.base import ContentFile
 from django.test import TestCase
 from opaque_keys.edx.keys import CourseKey
 from rest_framework.request import Request
 from rest_framework.test import APIRequestFactory
 from rest_framework.views import APIView
 
-from course_discovery.apps.api.utils import StudioAPI, cast2int, get_query_param
+from course_discovery.apps.api.utils import (
+    StudioAPI, cast2int, decode_image_data, get_query_param, increment_character, increment_str
+)
 from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OAuth2Mixin
 from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.core.utils import serialize_datetime
@@ -58,6 +61,16 @@ class Cast2IntTests(TestCase):
                 cast2int(value, self.name)
 
         assert mock_logger.called
+
+
+class TestDecodeImageData(TestCase):
+    def test_decode_image_data(self):
+        test_image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk' \
+                     '+A8AAQUBAScY42YAAAAASUVORK5CYII='
+        img_name, img_data = decode_image_data(test_image)
+        assert img_name == 'tmp.png'
+        assert img_data is not None
+        assert isinstance(img_data, ContentFile)
 
 
 class TestGetQueryParam:
@@ -181,6 +194,18 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
         CourseRunFactory(key='course-v1:TestX+Testing101x+1T2017a')
         assert StudioAPI.calculate_course_run_key_run_value('TestX', start) == '1T2017b'
 
+    @ddt.data(
+        (['1T2022'], '', '1T2022a'),
+        (['1T2022b'], 'b', '1T2022c'),
+        (['1T2022z'], 'z', '1T2022aa'),
+        (['1T2022zc'], 'zc', '1T2022zd'),
+        (['1T2022zz'], 'zz', '1T2022aaa'),
+    )
+    @ddt.unpack
+    def test_get_next_run(self, existing_runs, suffix, expected):
+        root = '1T2022'
+        assert StudioAPI._get_next_run(root, suffix, existing_runs) == expected  # pylint: disable=W0212
+
     def test_update_course_run_image_in_studio_without_course_image(self):
         run = CourseRunFactory(course__image=None)
         with mock.patch('course_discovery.apps.api.utils.logger') as mock_logger:
@@ -190,3 +215,26 @@ class StudioAPITests(OAuth2Mixin, APITestCase):
                 run.id,
                 run.course.id
             )
+
+
+@ddt.ddt
+class IncrementStringTests:
+    @ddt.data(
+        ('a', 'b'),
+        ('z', 'a'),
+        ('', 'a'),
+    )
+    @ddt.unpack
+    def test_increment_character(self, value, expected):
+        assert increment_character(value) == expected
+
+    @ddt.data(
+        ('a', 'b'),
+        ('zz', 'aaa'),
+        ('az', 'ba'),
+        ('azz', 'baa'),
+        ('azzaz', 'azzba'),
+    )
+    @ddt.unpack
+    def test_increment_str(self, value, expected):
+        assert increment_str(value) == expected
