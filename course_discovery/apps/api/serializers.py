@@ -637,6 +637,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
     certificate_info = CertificateInfoSerializer()
     start_date = serializers.DateTimeField()
     registration_deadline = serializers.DateTimeField()
+    variant_id = serializers.UUIDField()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -647,7 +648,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
         fields = (
             'external_identifier', 'external_url', 'lead_capture_form_url',
             'facts', 'certificate_info', 'organic_url', 'start_date',
-            'registration_deadline'
+            'registration_deadline', 'variant_id',
         )
 
 

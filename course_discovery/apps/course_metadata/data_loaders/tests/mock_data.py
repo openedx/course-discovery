@@ -3157,7 +3157,8 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'stat2': 'Diamond mine',
     'stat2_text': 'Worth it',
     'organization_short_code_override': 'Org Override',
-    'organization_logo_override': 'https://example.com/image.jpg'
+    'organization_logo_override': 'https://example.com/image.jpg',
+    'variant_id': "00000000-0000-0000-0000-000000000000",
 }
 
 VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT = {

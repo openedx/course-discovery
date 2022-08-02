@@ -1962,6 +1962,7 @@ class AdditionalMetadataSerializerTests(TestCase):
             'organic_url': additional_metadata.organic_url,
             'start_date': serialize_datetime(additional_metadata.start_date),
             'registration_deadline': serialize_datetime(additional_metadata.registration_deadline),
+            'variant_id': str(additional_metadata.variant_id),
         }
         assert serializer.data == expected
 

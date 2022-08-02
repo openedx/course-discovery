@@ -673,6 +673,10 @@ class AdditionalMetadata(TimeStampedModel):
         default=None, blank=True, null=True,
         help_text=_('The suggested deadline for enrollment for marketing purpose')
     )
+    variant_id = models.UUIDField(
+        blank=False, null=True, editable=False,
+        help_text=_('The identifier for a product variant.')
+    )
 
     def __str__(self):
         return f"{self.external_url} - {self.external_identifier}"
