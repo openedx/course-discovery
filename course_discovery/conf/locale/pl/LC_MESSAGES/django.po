@@ -110,7 +110,7 @@ msgstr ""
 
 #: apps/api/v1/views/comments.py:60 apps/api/v1/views/courses.py:199
 msgid "Incorrect data sent. "
-msgstr ""
+msgstr "Wysłano błędne dane."
 
 #: apps/api/v1/views/course_runs.py:45
 msgid "Failed to set course run data: {}"
@@ -399,7 +399,7 @@ msgstr ""
 
 #: apps/course_metadata/admin.py:623
 msgid "Edit link"
-msgstr ""
+msgstr "Edytuj link"
 
 #: apps/course_metadata/admin.py:719
 #, python-format
@@ -599,7 +599,7 @@ msgstr ""
 #: apps/course_metadata/emails.py:255
 #, python-brace-format
 msgid "Published: {key} - {title}"
-msgstr ""
+msgstr "Opublikowano: {key} - {title}"
 
 #: apps/course_metadata/emails.py:270
 #, python-brace-format
@@ -659,7 +659,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:27
 msgid "KEY"
-msgstr ""
+msgstr "KLUCZ"
 
 #: apps/course_metadata/management/commands/backpopulate_course_type.py:29
 msgid "Organization to backpopulate."
@@ -713,7 +713,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:26
 msgid "PERSON"
-msgstr ""
+msgstr "OSOBA"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:28
 msgid "People to delete, in UUID:TARGET_UUID form."
@@ -755,7 +755,7 @@ msgstr ""
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:88
 msgid "Programs"
-msgstr ""
+msgstr "Programy"
 
 #: apps/course_metadata/management/commands/delete_person_dups.py:89
 msgid "Course Runs"
@@ -1349,7 +1349,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2964
 msgid "Desktop"
-msgstr ""
+msgstr "Pulpit"
 
 #: apps/course_metadata/models.py:2965
 msgid "Info"
@@ -1361,7 +1361,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2967
 msgid "User"
-msgstr ""
+msgstr "Użytkownik"
 
 #: apps/course_metadata/models.py:2968
 msgid "Dollar"
@@ -1377,7 +1377,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:2971
 msgid "Star"
-msgstr ""
+msgstr "Gwiazda"
 
 #: apps/course_metadata/models.py:2972
 msgid "Trophy"
@@ -1428,7 +1428,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3145
 msgid "Organization name"
-msgstr ""
+msgstr "Nazwa organizacji"
 
 #: apps/course_metadata/models.py:3167
 msgid "These programs are for a different partner than the pathway itself: {}"
@@ -1480,7 +1480,7 @@ msgstr ""
 
 #: apps/course_metadata/models.py:3355
 msgid "Tag"
-msgstr ""
+msgstr "Tag"
 
 #: apps/course_metadata/models.py:3356
 msgid "Course UUIDs"
