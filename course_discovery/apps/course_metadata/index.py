@@ -79,7 +79,8 @@ class EnglishProductIndex(BaseProductIndex):
                      ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'),
                      ('product_organization_short_code_override', 'organization_short_code_override'),
                      ('product_organization_logo_override', 'organization_logo_override'),
-                     'active_run_key', 'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags')
+                     'active_run_key', 'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags',
+                     'skills')
 
     # Algolia needs this
     object_id_field = (('custom_object_id', 'objectID'), )
@@ -121,7 +122,7 @@ class SpanishProductIndex(BaseProductIndex):
                      ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'), 'active_run_key',
                      ('product_organization_short_code_override', 'organization_short_code_override'),
                      ('product_organization_logo_override', 'organization_logo_override'),
-                     'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags')
+                     'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags', 'skills')
 
     # Algolia uses objectID as unique identifier. Can't use straight uuids because a program and a course could
     # have the same one, so we add 'course' or 'program' as a prefix

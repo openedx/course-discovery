@@ -26,7 +26,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, create_missing_entitlement, ensure_draft_world,
-    serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api
+    serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api, transform_skills_data
 )
 
 
@@ -571,7 +571,7 @@ class TestCreateMissingEntitlement(TestCase):
 
 
 @ddt.ddt
-class CleanHtmlTests(TestCase):
+class UtilsTests(TestCase):
     @ddt.data(
         # Make sure we leave certain things alone
         ('', '',),
@@ -636,3 +636,44 @@ class CleanHtmlTests(TestCase):
         """ Verify the method removes unnecessary HTML attributes. """
         self.maxDiff = None
         assert clean_html(content) == expected
+
+    def test_skill_data_transformation(self):
+        category_data = {
+            'category': {
+                'name': 'Category 1'
+            },
+            'subcategory': {
+                'name': 'Subcategory 1',
+                'category': {
+                    'name': 'Category 1'
+                },
+            }}
+        input_data = [
+            {
+                'name': 'Skill 1',
+                'description': 'Skill 1',
+                **category_data
+            },
+            {
+                'name': 'Skill 2',
+                'description': 'Skill 2',
+                **category_data,
+                'category': None,
+            }
+        ]
+
+        expected_data = [
+            {
+                'skill': 'Skill 1',
+                'category': 'Category 1',
+                'subcategory': 'Subcategory 1'
+            },
+            {
+                'skill': 'Skill 2',
+                'category': '',
+                'subcategory': 'Subcategory 1'
+            }
+        ]
+
+        output = transform_skills_data(input_data)
+        assert output == expected_data
