@@ -24,11 +24,11 @@ from course_discovery.apps.api.serializers import (
     CourseRunWithProgramsSerializer, CourseSerializer, CourseWithProgramsSerializer,
     CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeAdditionalMetadataSerializer, DegreeCostSerializer,
     DegreeDeadlineSerializer, EndorsementSerializer, FactSerializer, FAQSerializer,
-    FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, LevelTypeSerializer,
-    MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer,
-    MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer,
-    PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProductValueSerializer,
-    ProgramLocationRestrictionSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
+    FlattenedCourseRunWithCourseSerializer, GeoLocationSerializer, IconTextPairingSerializer, ImageSerializer,
+    LevelTypeSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
+    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
+    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    ProductValueSerializer, ProgramLocationRestrictionSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
     ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer,
     TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
     get_lms_course_url_for_archived, get_utm_source_for_user
@@ -215,6 +215,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'organization_short_code_override': course.organization_short_code_override,
             'organization_logo_override_url': course.organization_logo_override_url,
             'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
+            'geolocation': GeoLocationSerializer(course.geolocation).data,
             'location_restriction': CourseLocationRestrictionSerializer(
                 course.location_restriction
             ).data,
@@ -1136,6 +1137,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
             'is_2u_degree_program': program.is_2u_degree_program,
+            'geolocation': GeoLocationSerializer(program.geolocation).data,
             'location_restriction': ProgramLocationRestrictionSerializer(
                 program.location_restriction, read_only=True
             ).data,
