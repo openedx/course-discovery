@@ -4,6 +4,7 @@ import uuid
 from decimal import Decimal
 from functools import partial
 from unittest import mock
+from unittest.mock import patch
 
 import ddt
 import pytest
@@ -15,7 +16,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from freezegun import freeze_time
 from slugify import slugify
 from taggit.models import Tag
@@ -2100,6 +2101,25 @@ class ProgramTests(TestCase):
         with mock.patch.object(ProgramMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
             program.save()
             assert mock_publish_obj.called
+
+        with mock.patch.object(ProgramMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
+            program.delete()
+            assert mock_delete_obj.called
+
+    @override_switch('publish_program_to_marketing_site', True)
+    @override_settings(FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL=True)
+    @patch('course_discovery.apps.course_metadata.models.UPDATE_PROGRAM_SKILLS.send')
+    def test_send_program_skills_signal(self, mock_signal_send):
+        """
+        Verify that publishing the program fires UPDATE_PROGRAM_SKILLS signal.
+        """
+        program = factories.ProgramFactory(status=ProgramStatus.Unpublished)
+        program.status = ProgramStatus.Active
+        with mock.patch.object(ProgramMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
+            program.save()
+            assert mock_publish_obj.called
+            assert mock_signal_send.called
+            assert mock_signal_send.call_count == 1
 
         with mock.patch.object(ProgramMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
             program.delete()
