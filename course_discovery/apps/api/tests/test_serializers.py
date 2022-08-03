@@ -204,7 +204,14 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'editors': CourseEditorSerializer(course.editors, many=True, read_only=True).data,
             'collaborators': [],
             'skill_names': [course_skill.skill.name],
-            'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'skills': [
+                {
+                    'name': course_skill.skill.name,
+                    'description': course_skill.skill.description,
+                    'category': None,
+                    'subcategory': None,
+                }
+            ],
             'organization_short_code_override': course.organization_short_code_override,
             'organization_logo_override_url': course.organization_logo_override_url,
             'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
@@ -2141,7 +2148,14 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
-            'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'skills': [
+                {
+                    'name': course_skill.skill.name,
+                    'description': course_skill.skill.description,
+                    'category': None,
+                    'subcategory': None,
+                }
+            ],
             'course_ends': course.course_ends,
             'end_date': serialize_datetime(course.end_date),
             'organizations': [
@@ -2217,7 +2231,14 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
-            'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'skills': [
+                {
+                    'name': course_skill.skill.name,
+                    'description': course_skill.skill.description,
+                    'category': None,
+                    'subcategory': None,
+                }
+            ],
             'course_ends': course.course_ends,
             'end_date': serialize_datetime(course.end_date),
             'organizations': [
@@ -2273,7 +2294,14 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             ],
             'seat_types': [seat.type.slug],
             'skill_names': [course_skill.skill.name],
-            'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'skills': [
+                {
+                    'name': course_skill.skill.name,
+                    'description': course_skill.skill.description,
+                    'category': None,
+                    'subcategory': None,
+                }
+            ],
             'course_ends': course.course_ends,
             'end_date': serialize_datetime(course.end_date),
             'organizations': [
@@ -2360,7 +2388,14 @@ class CourseRunSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase):
             'number': CourseKey.from_string(course_run.key).course,
             'seat_types': [seat.slug for seat in course_run.seat_types],
             'skill_names': [course_skill.skill.name],
-            'skills': [{'name': course_skill.skill.name, 'description': course_skill.skill.description}],
+            'skills': [
+                {
+                    'name': course_skill.skill.name,
+                    'description': course_skill.skill.description,
+                    'category': None,
+                    'subcategory': None,
+                }
+            ],
             'image_url': course_run.image_url,
             'type': course_run.type_legacy,
             'level_type': course_run.level_type.name,
