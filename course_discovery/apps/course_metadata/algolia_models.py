@@ -6,14 +6,16 @@ from django.db import models
 from django.utils.translation import gettext as _
 from django.utils.translation import override
 from sortedm2m.fields import SortedManyToManyField
+from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AbstractLocationRestrictionModel, Course, CourseType, Program, ProgramType
 )
+from course_discovery.apps.course_metadata.utils import transform_skills_data
 
 # Algolia can't filter on an empty list, provide a value we can still filter on
-EMPTY_LOCATION_RESTRICTION_LIST = ['null']
+ALGOLIA_EMPTY_LIST = ['null']
 
 
 # Utility methods used by both courses and programs
@@ -61,7 +63,7 @@ def delegate_attributes(cls):
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'product_weeks_to_complete',
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
-                     'product_organization_short_code_override', 'product_organization_logo_override']
+                     'product_organization_short_code_override', 'product_organization_logo_override', 'skills']
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -94,7 +96,7 @@ def get_course_availability(course):
 
 def get_location_restriction(location_restriction):
     if (len(location_restriction.countries) == 0 and len(location_restriction.states) == 0):
-        return EMPTY_LOCATION_RESTRICTION_LIST
+        return ALGOLIA_EMPTY_LIST
 
     # Combine list of country and state codes in order to make filtering in Algolia easier
     states = ['US-' + state for state in location_restriction.states]
@@ -272,7 +274,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
             self.location_restriction.restriction_type == AbstractLocationRestrictionModel.ALLOWLIST
         ):
             return get_location_restriction(self.location_restriction)
-        return EMPTY_LOCATION_RESTRICTION_LIST
+        return ALGOLIA_EMPTY_LIST
 
     @property
     def product_blocked_in(self):
@@ -281,7 +283,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
             self.location_restriction.restriction_type == AbstractLocationRestrictionModel.BLOCKLIST
         ):
             return get_location_restriction(self.location_restriction)
-        return EMPTY_LOCATION_RESTRICTION_LIST
+        return ALGOLIA_EMPTY_LIST
 
     @property
     def should_index(self):
@@ -299,6 +301,13 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return (self.should_index and
                 self.type.slug != CourseType.EXECUTIVE_EDUCATION_2U and
                 self.type.slug != CourseType.BOOTCAMP_2U)
+
+    @property
+    def skills(self):
+        skills_data = get_whitelisted_serialized_skills(self.key)
+        if not skills_data:
+            return ALGOLIA_EMPTY_LIST
+        return transform_skills_data(skills_data)
 
     @property
     def availability_rank(self):
@@ -419,7 +428,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             self.location_restriction.restriction_type == AbstractLocationRestrictionModel.ALLOWLIST
         ):
             return get_location_restriction(self.location_restriction)
-        return EMPTY_LOCATION_RESTRICTION_LIST
+        return ALGOLIA_EMPTY_LIST
 
     @property
     def product_blocked_in(self):
@@ -428,7 +437,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             self.location_restriction.restriction_type == AbstractLocationRestrictionModel.BLOCKLIST
         ):
             return get_location_restriction(self.location_restriction)
-        return EMPTY_LOCATION_RESTRICTION_LIST
+        return ALGOLIA_EMPTY_LIST
 
     @property
     def availability_level(self):
