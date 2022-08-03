@@ -176,6 +176,23 @@ class TestLearnerPathwayViewSet(TestCase):
         api_response = self.client.get(self.view_url)
         self._verify_learner_pathway_data(api_response, LEARNER_PATHWAY_DATA)
 
+    def test_learner_pathway_api_filtering(self):
+        """
+        Verify that comma-delimited filtering on pathway uuids is enabled for learner pathway api .
+        """
+        another_learner_pathway = LearnerPathwayFactory(
+            uuid='aaa7c03d-d2cf-420c-b109-aa227f770655',
+            title='Test Pathway 2',
+            status=PathwayStatus.Active,
+            overview='Test overview for Test Pathway 2',
+        )
+        url = f'/api/v1/learner-pathway/?uuid={self.learner_pathway.uuid},{another_learner_pathway.uuid}'
+        api_response = self.client.get(url)
+        data = api_response.json()
+        assert data['count'] == 2
+        assert data['results'][0]['uuid'] == self.learner_pathway.uuid
+        assert data['results'][1]['uuid'] == another_learner_pathway.uuid
+
     def test_learner_pathway_api_returns_active_pathway_only(self):
         """
         Verify that learner pathway api returns active pathway only.
