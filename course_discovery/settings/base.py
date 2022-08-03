@@ -590,6 +590,7 @@ MEDIA_STORAGE_BACKEND = {
 
 # Settings related to the taxonomy_support
 TAXONOMY_COURSE_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryCourseMetadataProvider'
+TAXONOMY_PROGRAM_METADATA_PROVIDER = 'course_discovery.apps.taxonomy_support.providers.DiscoveryProgramMetadataProvider'
 
 # Settings related to the EMSI client
 EMSI_API_ACCESS_TOKEN_URL = 'https://auth.emsicloud.com/connect/token'
