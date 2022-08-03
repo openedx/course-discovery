@@ -754,3 +754,62 @@ def download_and_save_program_image(program, image_url, data_field='image', head
     except Exception:  # pylint: disable=broad-except
         logger.exception('An unknown exception occurred while downloading image for program [%s]', program.title)
     return False
+
+
+def transform_skills_data(skills_data):
+    """
+    Utility method to transform the representation of skills data coming-in from Taxonomy-connector.
+
+    * FROM:
+         [
+            {
+                'name': 'Skill 1',
+                'description': 'Skill 1',
+                'category': {
+                'name': 'Category 1'
+                },
+                'subcategory': {
+                    'name': 'Subcategory 1',
+                    'category': {
+                        'name': 'Category 1'
+                    },
+                }
+            },
+            {
+                'name': 'Skill 2',
+                'description': 'Skill 2',
+                'category': {
+                'name': 'Category 1'
+                    },
+                'subcategory': {
+                    'name': 'Subcategory 1',
+                    'category': {
+                        'name': 'Category 1'
+                    },
+                }
+            }
+        ]
+
+    * TO:
+        [
+            {
+            'skill': 'Skill 1',
+            'category': 'Category 1',
+            'subcategory': 'Subcategory 1',
+            },
+            {
+            'skill': 'Skill 2',
+            'category': 'Category 1',
+            'subcategory': 'Subcategory 1',
+            }
+        ]
+    """
+    skills = []
+    for skill in skills_data:
+        skill_dict = {
+            'skill': skill['name'],
+            'category': skill['category']['name'] if skill['category'] is not None else '',
+            'subcategory': skill['subcategory']['name'] if skill['subcategory'] is not None else ''
+        }
+        skills.append(skill_dict)
+    return skills

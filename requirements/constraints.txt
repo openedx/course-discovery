@@ -30,3 +30,6 @@ django-admin-sortable2<2.0.0
 # Remove this pin after fixing them.
 django-simple-history<=3.0.0
 django-stdimage<=5.3.0
+
+# The latest versions are causing jsonschema version conflicts with docker-compose
+semgrep==0.102.0
