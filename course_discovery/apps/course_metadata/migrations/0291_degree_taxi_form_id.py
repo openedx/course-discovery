@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('course_metadata', '0289_degree_loader_configuration'),
+        ('course_metadata', '0290_in_year_value'),
     ]
 
     operations = [
