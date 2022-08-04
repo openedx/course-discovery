@@ -13,11 +13,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='degree',
             name='taxi_form_id',
-            field=models.URLField(blank=True, help_text='The ID of the 2u Taxi form that would be rendered in place of the hubspot capture form.', null=True),
+            field=models.CharField(blank=True, help_text='The ID of the Taxi Form (by 2U) that would be rendered in place of the hubspot capture form.', null=True, max_length=75),
         ),
         migrations.AddField(
             model_name='degree',
             name='taxi_form_grouping',
-            field=models.CharField(blank=True, help_text='The grouping of the 2u taxi form that would be rendered in place of the hubspot capture form.', null=True, max_length=50),
+            field=models.CharField(blank=True, help_text='The grouping of the Taxi Form (by 2U) that would be rendered in place of the hubspot capture form.', null=True, max_length=50),
         ),
     ]

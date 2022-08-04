@@ -2859,13 +2859,13 @@ class Degree(Program):
         blank=True,
         max_length=128,
     )
-    taxi_form_id = models.URLField(
-        help_text=_('The ID of the 2u Taxi form that would be rendered in place of the hubspot capture form.'),
-        null=True,
+    taxi_form_id = models.CharField(
+        help_text=_('The ID of the Taxi Form (by 2U) that would be rendered in place of the hubspot capture form.'),
+        max_length=75,
         blank=True,
     )
     taxi_form_grouping = models.CharField(
-        help_text=_('The grouping of the 2u taxi form that would be rendered in place of the hubspot capture form.'),
+        help_text=_('The grouping of the Taxi Form (by 2U) that would be rendered in place of the hubspot capture form.'),
         max_length=50,
         blank=True,
     )
