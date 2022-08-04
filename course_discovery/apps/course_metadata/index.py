@@ -69,13 +69,18 @@ class EnglishProductIndex(BaseProductIndex):
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
                     ('product_blocked_in', 'blocked_in'))
-    ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
+    ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
+                      ('product_value_per_click_usa', 'value_per_click_usa'),
+                      ('product_value_per_click_international', 'value_per_click_international'),
+                      ('product_value_per_lead_usa', 'value_per_lead_usa'),
+                      ('product_value_per_lead_international', 'value_per_lead_international'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
                      ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
                      ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'),
                      ('product_organization_short_code_override', 'organization_short_code_override'),
                      ('product_organization_logo_override', 'organization_logo_override'),
-                     'active_run_key', 'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags')
+                     'active_run_key', 'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags',
+                     'skills')
 
     # Algolia needs this
     object_id_field = (('custom_object_id', 'objectID'), )
@@ -107,13 +112,17 @@ class SpanishProductIndex(BaseProductIndex):
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
                     ('product_blocked_in', 'blocked_in'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
+                      ('product_value_per_click_usa', 'value_per_click_usa'),
+                      ('product_value_per_click_international', 'value_per_click_international'),
+                      ('product_value_per_lead_usa', 'value_per_lead_usa'),
+                      ('product_value_per_lead_international', 'value_per_lead_international'),
                       'promoted_in_spanish_index')
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
                      ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
                      ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'), 'active_run_key',
                      ('product_organization_short_code_override', 'organization_short_code_override'),
                      ('product_organization_logo_override', 'organization_logo_override'),
-                     'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags')
+                     'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags', 'skills')
 
     # Algolia uses objectID as unique identifier. Can't use straight uuids because a program and a course could
     # have the same one, so we add 'course' or 'program' as a prefix
