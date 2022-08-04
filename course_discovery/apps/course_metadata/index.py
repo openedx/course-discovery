@@ -69,7 +69,11 @@ class EnglishProductIndex(BaseProductIndex):
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
                     ('product_blocked_in', 'blocked_in'))
-    ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'))
+    ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
+                      ('product_value_per_click_usa', 'value_per_click_usa'),
+                      ('product_value_per_click_international', 'value_per_click_international'),
+                      ('product_value_per_lead_usa', 'value_per_lead_usa'),
+                      ('product_value_per_lead_international', 'value_per_lead_international'))
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
                      ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
                      ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'),
@@ -108,6 +112,10 @@ class SpanishProductIndex(BaseProductIndex):
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
                     ('product_blocked_in', 'blocked_in'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
+                      ('product_value_per_click_usa', 'value_per_click_usa'),
+                      ('product_value_per_click_international', 'value_per_click_international'),
+                      ('product_value_per_lead_usa', 'value_per_lead_usa'),
+                      ('product_value_per_lead_international', 'value_per_lead_international'),
                       'promoted_in_spanish_index')
     result_fields = (('product_marketing_url', 'marketing_url'), ('product_card_image_url', 'card_image_url'),
                      ('product_uuid', 'uuid'), ('product_weeks_to_complete', 'weeks_to_complete'),
