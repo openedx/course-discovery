@@ -101,6 +101,13 @@ class AdditionalMetadataInline(admin.TabularInline):
     extra = 0
 
 
+@admin.register(ProductValue)
+class ProductValueAdmin(admin.ModelAdmin):
+    list_display = [
+        'id', 'per_click_usa', 'per_click_international', 'per_lead_usa', 'per_lead_international'
+    ]
+
+
 @admin.register(Course)
 class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = CourseAdminForm
@@ -341,7 +348,7 @@ class ProgramAdmin(admin.ModelAdmin):
         'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         'enrollment_count', 'recent_enrollment_count', 'credit_value', 'organization_short_code_override',
         'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
-        'enterprise_subscription_inclusion',
+        'enterprise_subscription_inclusion', 'in_year_value'
     )
 
     save_error = False
