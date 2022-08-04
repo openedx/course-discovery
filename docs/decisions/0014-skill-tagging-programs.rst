@@ -22,7 +22,7 @@ A new model called ProgramSkill will be added in `taxonomy-connector`_, using th
 This model will be responsible for containing the information of skills associated with a Program. The tagging process
 for new programs will work as follows:
 
-1. When a program is published in Discovery, emit a signal indicating the program skills must be updated.
+1. In discovery, when a program publishes for the first time or the contents of "overview" field change, emit a signal indicating the program skills must be updated.
 2. In taxonomy-connector, add a `signal handler`_ that is listening to the event published by course-discovery.
 3. Upon receiving the signal, get Program information from Discovery and send "overview" data field to EMSI using EMSI API.
 4. With a successful EMSI API call, create or update the skill information for Program in taxonomy app.
