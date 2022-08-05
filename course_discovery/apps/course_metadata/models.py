@@ -2903,11 +2903,13 @@ class Degree(Program):
         help_text=_('The ID of the Taxi Form (by 2U) that would be rendered in place of the hubspot capture form'),
         max_length=75,
         blank=True,
+        default='',
     )
     taxi_form_grouping = models.CharField(
         help_text=_('The grouping of the Taxi Form (by 2U) that would be rendered instead of the hubspot capture form'),
         max_length=50,
         blank=True,
+        default='',
     )
     micromasters_url = models.URLField(
         help_text=_('URL to micromasters landing page'),
