@@ -1696,7 +1696,7 @@ class DegreeSerializer(BaseModelSerializer):
         return list(degree.specializations.values_list('value', flat=True))
 
 
-class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
+class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, BaseModelSerializer):
     """
     Basic program serializer
 
@@ -1719,6 +1719,7 @@ class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
     primary_subject_override = SubjectSerializer()
     level_type_override = LevelTypeSerializer()
     language_override = serializers.SlugRelatedField(slug_field='code', read_only=True)
+    labels = TagListSerializerField()
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1752,6 +1753,7 @@ class MinimalProgramSerializer(FlexFieldsSerializerMixin, BaseModelSerializer):
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
+            'labels',
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 

@@ -2477,6 +2477,12 @@ class Program(PkSearchableMixin, TimeStampedModel):
     in_year_value = models.ForeignKey(
         ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
     )
+    # nosemgrep
+    labels = TaggableManager(
+        blank=True,
+        related_name='program_tags',
+        help_text=_('Pick a tag/label from the suggestions. To make a new tag, add a comma after the tag name.'),
+    )
 
     objects = ProgramQuerySet.as_manager()
 
