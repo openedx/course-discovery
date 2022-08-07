@@ -982,11 +982,11 @@ msgstr ""
 
 #: apps/course_metadata/models.py:845
 msgid "Allowlist"
-msgstr ""
+msgstr "Lista dozwolonych"
 
 #: apps/course_metadata/models.py:846
 msgid "Blocklist"
-msgstr ""
+msgstr "Lista zablokowanych"
 
 #: apps/course_metadata/models.py:878
 msgid ""
