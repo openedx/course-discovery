@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-03 20:35+0000\n"
+"POT-Creation-Date: 2022-08-07 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -1195,6 +1195,46 @@ msgstr ""
 "Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя#"
 
 #: apps/course_metadata/models.py
+msgid "U.S. Value Per Lead"
+msgstr "Û.S. Välüé Pér Léäd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,#"
+
+#: apps/course_metadata/models.py
+msgid "U.S. value per lead in U.S. dollars."
+msgstr ""
+"Û.S. välüé pér léäd ïn Û.S. döllärs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "International Value Per Lead"
+msgstr "Ìntérnätïönäl Välüé Pér Léäd Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid "International value per lead in U.S. dollars."
+msgstr ""
+"Ìntérnätïönäl välüé pér léäd ïn Û.S. döllärs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя #"
+
+#: apps/course_metadata/models.py
+msgid "U.S. Value Per Click"
+msgstr "Û.S. Välüé Pér Çlïçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
+msgid "U.S. value per click in U.S. dollars."
+msgstr ""
+"Û.S. välüé pér çlïçk ïn Û.S. döllärs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
+msgid "International Value Per Click"
+msgstr "Ìntérnätïönäl Välüé Pér Çlïçk Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢#"
+
+#: apps/course_metadata/models.py
+msgid "International value per click in U.S. dollars."
+msgstr ""
+"Ìntérnätïönäl välüé pér çlïçk ïn Û.S. döllärs. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυя α#"
+
+#: apps/course_metadata/models.py
 msgid "Allowlist"
 msgstr "Àllöwlïst Ⱡ'σяєм ιρѕυм ∂σł#"
 
@@ -1640,6 +1680,22 @@ msgstr ""
 "¢σηѕє¢тєтυя #"
 
 #: apps/course_metadata/models.py
+msgid ""
+"The ID of the Taxi Form (by 2U) that would be rendered in place of the "
+"hubspot capture form"
+msgstr ""
+"Thé ÌD öf thé Täxï Förm (ßý 2Û) thät wöüld ßé réndéréd ïn pläçé öf thé "
+"hüßspöt çäptüré förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢ση#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"The grouping of the Taxi Form (by 2U) that would be rendered instead of the "
+"hubspot capture form"
+msgstr ""
+"Thé gröüpïng öf thé Täxï Förm (ßý 2Û) thät wöüld ßé réndéréd ïnstéäd öf thé "
+"hüßspöt çäptüré förm Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, #"
+
+#: apps/course_metadata/models.py
 msgid "URL to micromasters landing page"
 msgstr ""
 "ÛRL tö mïçrömästérs ländïng pägé Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
@@ -1855,7 +1911,7 @@ msgstr ""
 "whén ättémptïng tö sävé ürl rédïréçt {url_path} Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт,"
 " ¢σηѕє#"
 
-#: apps/course_metadata/models.py
+#: apps/course_metadata/models.py apps/course_metadata/models.py
 msgid ""
 "It expects the data will be provided in a csv file format with first row "
 "containing all the headers."
