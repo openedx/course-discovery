@@ -2075,6 +2075,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
         course.save()
+        course.refresh_from_db()
+        course_run.refresh_from_db()
         seat = SeatFactory(course_run=course_run)
         course_skill = CourseSkillsFactory(
             course_key=course.key
@@ -2105,6 +2107,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         )
         course.course_runs.add(course_run, course_run_expired)
         course.save()
+        course.refresh_from_db()
+        course_run.refresh_from_db()
         seat = SeatFactory(course_run=course_run)
         course_skill = CourseSkillsFactory(
             course_key=course.key
@@ -2186,6 +2190,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
         course.save()
+        course.refresh_from_db()
+        course_run.refresh_from_db()
         seat = SeatFactory(course_run=course_run)
         course_skill = CourseSkillsFactory(
             course_key=course.key
@@ -2333,6 +2339,7 @@ class CourseSearchModelSerializerTests(ElasticsearchTestMixin, TestCase, CourseS
 
     @classmethod
     def get_expected_data(cls, course, course_skill, request):
+        course.refresh_from_db()
         expected_data = CourseWithProgramsSerializerTests.get_expected_data(course, course_skill, request)
         expected_data.update({'content_type': 'course'})
         return expected_data
