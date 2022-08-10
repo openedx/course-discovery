@@ -49,7 +49,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 "videoURL": "",
                 "lcfURL": "www.example.com/lead-capture?id=123",
                 "variant": {
-                    "id": "test_id",
+                    "id": "00000000-0000-0000-0000-000000000000",
                     "endDate": "2022-05-06",
                     "finalPrice": "1998",
                     "startDate": "2022-03-06",
@@ -320,3 +320,4 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['Learner Testimonials'] == '<div><p><i>" This is a good course"</i></p><p>-Lorem ' \
                                                    'Ipsum (Gibberish)</p></div>'
         assert str(date.today().year) in data_row['Publish Date']
+        assert data_row['Variant Id'] == '00000000-0000-0000-0000-000000000000'
