@@ -2,7 +2,8 @@
 Validate taxonomy integration.
 
 This file validates the following
-    1. Make sure the provider specified by `TAXONOMY_COURSE_METADATA_PROVIDER` implements all the abstract methods
+    1. Make sure the provider specified by `TAXONOMY_COURSE_METADATA_PROVIDER` and `TAXONOMY_PROGRAM_METADATA_PROVIDER`
+     implements all the abstract methods
     2. Make sure the signature of all the methods match with the interfaces of the abstract class
     3. Make sure the data returned and the structure of the data matches with the definitions inside the interface.
 
@@ -13,7 +14,9 @@ method.
 
 `validate` method will raise `AssertError` if any of the assertions do not pass.
 
-Note: Validator will use the provider pointed by the `TAXONOMY_COURSE_METADATA_PROVIDER` django setting.
+Note: Course Metadata validator will use the provider pointed by the `TAXONOMY_COURSE_METADATA_PROVIDER` django setting.
+Note: Program Metadata validator will use the provider pointed by the `TAXONOMY_PROGRAM_METADATA_PROVIDER` django
+setting.
 
 Reason behind keeping the validator a part of taxonomy-connector is to keep the provider and its validation logic in the
 same repository, so whenever a new dependency (e.g. a new method or a new field in the returned data) is added in the
@@ -22,9 +25,9 @@ discovery and its interface in taxonomy are always in sync.
 """
 
 from django.test import TestCase
-from taxonomy.validators import CourseMetadataProviderValidator
+from taxonomy.validators import CourseMetadataProviderValidator, ProgramMetadataProviderValidator
 
-from course_discovery.apps.course_metadata.tests.factories import CourseFactory
+from course_discovery.apps.course_metadata.tests.factories import CourseFactory, ProgramFactory
 
 
 class TaxonomyIntegrationTests(TestCase):
@@ -32,7 +35,7 @@ class TaxonomyIntegrationTests(TestCase):
     Validate integration of taxonomy_support and metadata providers.
     """
 
-    def test_validate(self):
+    def test_validate_course_metadata(self):
         """
         Validate that there are no integration issues.
         """
@@ -43,3 +46,15 @@ class TaxonomyIntegrationTests(TestCase):
 
         # Run all the validations, note that an assertion error will be raised if any of the validation fail.
         course_metadata_validator.validate()
+
+    def test_validate_program_metadata(self):
+        """
+        Validate that there are no integration issues.
+        """
+        programs = ProgramFactory.create_batch(3)
+        program_metadata_validator = ProgramMetadataProviderValidator(
+            [str(program.uuid) for program in programs]
+        )
+
+        # Run all the validations, note that an assertion error will be raised if any of the validation fail.
+        program_metadata_validator.validate()
