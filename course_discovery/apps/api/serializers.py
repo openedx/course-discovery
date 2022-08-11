@@ -38,8 +38,8 @@ from course_discovery.apps.course_metadata.models import (
     CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun, CourseRunType,
     CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata,
     DegreeCost, DegreeDeadline, Endorsement, Fact, IconTextPairing, Image, LevelType, Mode, Organization, Pathway,
-    Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, Program, ProgramLocationRestriction,
-    ProgramType, Ranking, Seat, SeatType, Specialization, Subject, Topic, Track, Video
+    Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductValue, Program,
+    ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Specialization, Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -623,6 +623,13 @@ class TrackSerializer(BaseModelSerializer):
         fields = ('seat_type', 'mode')
 
 
+class ProductValueSerializer(BaseModelSerializer):
+    """Serializer for the ``Value`` model."""
+    class Meta:
+        model = ProductValue
+        fields = ('per_click_international', 'per_click_usa', 'per_lead_international', 'per_lead_usa')
+
+
 class AdditionalMetadataSerializer(BaseModelSerializer):
     """Serializer for the ``AdditionalMetadata`` model."""
 
@@ -630,6 +637,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
     certificate_info = CertificateInfoSerializer()
     start_date = serializers.DateTimeField()
     registration_deadline = serializers.DateTimeField()
+    variant_id = serializers.UUIDField()
 
     @classmethod
     def prefetch_queryset(cls):
@@ -640,7 +648,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
         fields = (
             'external_identifier', 'external_url', 'lead_capture_form_url',
             'facts', 'certificate_info', 'organic_url', 'start_date',
-            'registration_deadline'
+            'registration_deadline', 'variant_id',
         )
 
 
@@ -1169,6 +1177,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     skills = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField(required=False)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
+    in_year_value = ProductValueSerializer(required=False)
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1192,6 +1201,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             '_official_version',
             'canonical_course_run',
             'type',
+            'in_year_value',
         ).prefetch_related(
             'expected_learning_items',
             'prerequisites',
@@ -1221,7 +1231,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
-            'enterprise_subscription_inclusion', 'location_restriction'
+            'enterprise_subscription_inclusion', 'location_restriction', 'in_year_value'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1305,8 +1315,14 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         else:
             instance.location_restriction = CourseLocationRestriction.objects.create(**location_restriction)
 
+    def update_in_year_value(self, instance, in_year_value):
+        if instance.in_year_value:
+            ProductValue.objects.filter(id=instance.in_year_value.id).update(**in_year_value)
+        else:
+            instance.in_year_value = ProductValue.objects.create(**in_year_value)
+
     def update(self, instance, validated_data):
-        # Handle writing nested additional_metadata and location_restriction separately
+        # Handle writing nested additional_metadata, location_restriction, and in_year_value separately
         if 'additional_metadata' in validated_data:
             # Handle additional metadata only for 2U courses else just pop
             additional_metadata_data = validated_data.pop('additional_metadata')
@@ -1314,6 +1330,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
                 self.update_additional_metadata(instance, additional_metadata_data)
         if 'location_restriction' in validated_data:
             self.update_location_restriction(instance, validated_data.pop('location_restriction'))
+        if 'in_year_value' in validated_data:
+            self.update_in_year_value(instance, validated_data.pop('in_year_value'))
         return super().update(instance, validated_data)
 
 
@@ -1339,6 +1357,7 @@ class CourseWithProgramsSerializer(CourseSerializer):
             'partner',
             'canonical_course_run',
             'type',
+            'in_year_value',
         ).prefetch_related(
             '_official_version',
             'expected_learning_items',
@@ -1662,7 +1681,8 @@ class DegreeSerializer(BaseModelSerializer):
             'lead_capture_image', 'micromasters_path', 'micromasters_url',
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
-            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'additional_metadata', 'specializations'
+            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'taxi_form_id', 'taxi_form_grouping',
+            'additional_metadata', 'specializations'
         )
 
     def get_micromasters_path(self, degree):
@@ -1895,6 +1915,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     enterprise_subscription_inclusion = serializers.BooleanField()
     location_restriction = ProgramLocationRestrictionSerializer(read_only=True)
     is_2u_degree_program = serializers.BooleanField()
+    in_year_value = ProductValueSerializer(required=False)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -1941,7 +1962,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion',
-            'location_restriction', 'is_2u_degree_program'
+            'location_restriction', 'is_2u_degree_program', 'in_year_value'
         )
         read_only_fields = ('enterprise_subscription_inclusion',)
 

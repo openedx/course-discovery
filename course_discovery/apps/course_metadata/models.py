@@ -33,6 +33,7 @@ from solo.models import SingletonModel
 from sortedm2m.fields import SortedManyToManyField
 from stdimage.models import StdImageField
 from taggit_autosuggest.managers import TaggableManager
+from taxonomy.signals.signals import UPDATE_PROGRAM_SKILLS
 
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata import emails
@@ -397,6 +398,12 @@ class ProgramType(TranslatableModel, TimeStampedModel):
             program_type = program_model.objects.get(slug=slug)
         return program_type, name
 
+    @classmethod
+    def is_enterprise_catalog_program_type(cls, program_type):
+        return program_type.slug in [
+            cls.XSERIES, cls.MICROMASTERS, cls.PROFESSIONAL_CERTIFICATE, cls.PROFESSIONAL_PROGRAM_WL, cls.MICROBACHELORS
+        ]
+
 
 class ProgramTypeTranslation(TranslatedFieldsModel):
     master = models.ForeignKey(ProgramType, models.CASCADE, related_name='translations', null=True)
@@ -543,6 +550,12 @@ class CourseType(TimeStampedModel):
         """ Empty types are special - they are the default type used when we don't know a real type """
         return self.slug == self.EMPTY
 
+    @classmethod
+    def is_enterprise_catalog_course_type(cls, course_type):
+        return course_type.slug in [
+            cls.AUDIT, cls.VERIFIED_AUDIT, cls.PROFESSIONAL, cls.CREDIT_VERIFIED_AUDIT, cls.EMPTY
+        ]
+
 
 class Subject(TranslatableModel, TimeStampedModel):
     """ Subject model. """
@@ -659,6 +672,10 @@ class AdditionalMetadata(TimeStampedModel):
     registration_deadline = models.DateTimeField(
         default=None, blank=True, null=True,
         help_text=_('The suggested deadline for enrollment for marketing purpose')
+    )
+    variant_id = models.UUIDField(
+        blank=False, null=True, editable=False,
+        help_text=_('The identifier for a product variant.')
     )
 
     def __str__(self):
@@ -838,6 +855,32 @@ class Collaborator(TimeStampedModel):
         return f'{self.name}'
 
 
+class ProductValue(TimeStampedModel):
+    """
+    ProductValue model, with fields related to projected value for a product.
+    """
+    per_lead_usa = models.IntegerField(
+        null=True, blank=True, default=0, verbose_name=_('U.S. Value Per Lead'), help_text=_(
+            'U.S. value per lead in U.S. dollars.'
+        )
+    )
+    per_lead_international = models.IntegerField(
+        null=True, blank=True, default=0, verbose_name=_('International Value Per Lead'), help_text=_(
+            'International value per lead in U.S. dollars.'
+        )
+    )
+    per_click_usa = models.IntegerField(
+        null=True, blank=True, default=0, verbose_name=_('U.S. Value Per Click'), help_text=_(
+            'U.S. value per click in U.S. dollars.'
+        )
+    )
+    per_click_international = models.IntegerField(
+        null=True, blank=True, default=0, verbose_name=_('International Value Per Click'), help_text=_(
+            'International value per click in U.S. dollars.'
+        )
+    )
+
+
 class AbstractLocationRestrictionModel(TimeStampedModel):
     ALLOWLIST = 'allowlist'
     BLOCKLIST = 'blocklist'
@@ -960,6 +1003,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         CourseLocationRestriction, models.SET_NULL, related_name='courses', default=None, null=True, blank=True
     )
 
+    in_year_value = models.ForeignKey(
+        ProductValue, models.SET_NULL, related_name='courses', default=None, null=True, blank=True
+    )
+
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
     enterprise_subscription_inclusion = models.BooleanField(
@@ -976,7 +1023,8 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
     def _check_enterprise_subscription_inclusion(self):
         # if false has been passed in, or it's already been set to false
-        if self.enterprise_subscription_inclusion is False:
+        if not CourseType.is_enterprise_catalog_course_type(self.type) or \
+                self.enterprise_subscription_inclusion is False:
             return False
         for org in self.authoring_organizations.all():
             if not org.enterprise_subscription_inclusion:
@@ -992,6 +1040,12 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         kwargs['force_insert'] = False
         kwargs['force_update'] = True
         super().save(*args, **kwargs)
+
+        # Course runs calculate enterprise subscription inclusion based off of their parent's status, so we need to
+        # force a recalculation
+        course_runs = CourseRun.objects.filter(course=self)
+        for course_run in course_runs:
+            course_run.save()
 
     def __str__(self):
         return f'{self.key}: {self.title}'
@@ -2420,6 +2474,9 @@ class Program(PkSearchableMixin, TimeStampedModel):
             'Language code specific for this program. '
             'Useful field in case there are no courses associated with this program.')
     )
+    in_year_value = models.ForeignKey(
+        ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
+    )
 
     objects = ProgramQuerySet.as_manager()
 
@@ -2731,8 +2788,10 @@ class Program(PkSearchableMixin, TimeStampedModel):
         return self.status == ProgramStatus.Active
 
     def _check_enterprise_subscription_inclusion(self):
-        if self.type == 'micromasters':
+        # We exclude Bachelors, Masters, and Doctorate programs as the cost per user would be too high
+        if not ProgramType.is_enterprise_catalog_program_type(self.type):
             return False
+
         for course in self.courses.all():
             if not course.enterprise_subscription_inclusion:
                 return False
@@ -2761,6 +2820,12 @@ class Program(PkSearchableMixin, TimeStampedModel):
                 kwargs['force_update'] = True
                 super().save(**kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
+            if settings.FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL and self.is_active and \
+                    previous_obj and not previous_obj.is_active:
+                # If a Program is published then fire signal
+                # so that a background task in taxonomy update the program skills.
+                logger.info('Signal fired to update program skills. Program: [%s]', self.uuid)
+                UPDATE_PROGRAM_SKILLS.send(self.__class__, program_uuid=self.uuid)
         else:
             super().save(*args, **kwargs)
             self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
@@ -2859,7 +2924,18 @@ class Degree(Program):
         blank=True,
         max_length=128,
     )
-
+    taxi_form_id = models.CharField(
+        help_text=_('The ID of the Taxi Form (by 2U) that would be rendered in place of the hubspot capture form'),
+        max_length=75,
+        blank=True,
+        default='',
+    )
+    taxi_form_grouping = models.CharField(
+        help_text=_('The grouping of the Taxi Form (by 2U) that would be rendered instead of the hubspot capture form'),
+        max_length=50,
+        blank=True,
+        default='',
+    )
     micromasters_url = models.URLField(
         help_text=_('URL to micromasters landing page'),
         max_length=255,

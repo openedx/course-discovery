@@ -2,6 +2,7 @@
 API Views for learner_pathway app.
 """
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
@@ -11,6 +12,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from course_discovery.apps.api.pagination import ProxiedPagination
 from course_discovery.apps.learner_pathway import models
 from course_discovery.apps.learner_pathway.api import serializers
+from course_discovery.apps.learner_pathway.api.filters import PathwayUUIDFilter
 from course_discovery.apps.learner_pathway.choices import PathwayStatus
 
 
@@ -21,7 +23,9 @@ class LearnerPathwayViewSet(ReadOnlyModelViewSet):
 
     lookup_field = 'uuid'
     serializer_class = serializers.LearnerPathwaySerializer
+    filter_backends = (DjangoFilterBackend,)
     queryset = models.LearnerPathway.objects.prefetch_related('steps').filter(status=PathwayStatus.Active)
+    filterset_class = PathwayUUIDFilter
 
     # Explicitly support PageNumberPagination and LimitOffsetPagination. Future
     # versions of this API should only support the system default, PageNumberPagination.

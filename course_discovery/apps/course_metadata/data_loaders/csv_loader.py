@@ -47,7 +47,7 @@ class CSVDataLoader(AbstractDataLoader):
     EXECUTIVE_EDUCATION_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
         'redirect_url', 'organic_url', 'external_identifier', 'lead_capture_form_url', 'certificate_header',
         'certificate_text', 'stat1', 'stat1_text', 'stat2', 'stat2_text', 'frequently_asked_questions',
-        'reg_close_date', 'reg_close_time'
+        'reg_close_date', 'reg_close_time', 'variant_id',
     ]
 
     BOOTCAMP_REQUIRED_FIELDS = BASE_REQUIRED_DATA_FIELDS + [
@@ -571,6 +571,7 @@ class CSVDataLoader(AbstractDataLoader):
             data.get('stat2_text', ''),
         )
         registration_deadline = data.get('reg_close_date', '')
+        variant_id = data.get('variant_id', '')
         if lead_capture_url:
             additional_metadata.update({'lead_capture_form_url': lead_capture_url})
         if organic_url:
@@ -583,4 +584,6 @@ class CSVDataLoader(AbstractDataLoader):
             additional_metadata.update({'registration_deadline': self.get_formatted_datetime_string(
                 f"{data['reg_close_date']} {data['reg_close_time']}"
             )})
+        if variant_id:
+            additional_metadata.update({'variant_id': variant_id})
         return additional_metadata

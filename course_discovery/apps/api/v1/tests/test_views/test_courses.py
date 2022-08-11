@@ -1,6 +1,7 @@
 import datetime
 from unittest import mock
 from urllib.parse import urlencode
+from uuid import uuid4
 
 import ddt
 import pytest
@@ -24,8 +25,8 @@ from course_discovery.apps.course_metadata.models import (
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
-    CourseTypeFactory, LevelTypeFactory, OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory,
-    SubjectFactory
+    CourseTypeFactory, LevelTypeFactory, OrganizationFactory, ProductValueFactory, ProgramFactory, SeatFactory,
+    SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
 from course_discovery.apps.publisher.tests.factories import OrganizationExtensionFactory
@@ -1099,6 +1100,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             ],
             'start_date': serialize_datetime(future),
             'registration_deadline': serialize_datetime(current),
+            'variant_id': str(uuid4()),
         }
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         course_data = {
@@ -1182,6 +1184,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             },
             'start_date': serialize_datetime(current),
             'registration_deadline': serialize_datetime(current),
+            'variant_id': str(uuid4()),
         }
         additional_metadata_1 = {
             **additional_metadata,
@@ -1341,6 +1344,65 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         assert response.status_code == 200
         course = Course.everything.get(uuid=course.uuid, draft=True)
         self.assertDictEqual(self.serialize_course(course)['location_restriction'], location_restriction_data)
+
+    @ddt.data(False, True)
+    @responses.activate
+    def test_update_in_year_value(self, existing_in_year_value):
+        """
+        In-year value can be updated whether or not there is existing data.
+        """
+        in_year_value = None
+        if existing_in_year_value:
+            in_year_value = ProductValueFactory(
+                per_click_usa=100, per_click_international=80, per_lead_usa=100, per_lead_international=80
+            )
+        course = CourseFactory(in_year_value=in_year_value)
+
+        in_year_value_data = {
+            'per_click_usa': 150,
+            'per_click_international': 125,
+            'per_lead_usa': 150,
+            'per_lead_international': 125
+        }
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        course_data = {'in_year_value': in_year_value_data}
+
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['in_year_value'], in_year_value_data)
+
+    @responses.activate
+    def test_update_in_year_value_missing_fields(self):
+        """
+        If certain fields are not included in the request to update in-year value, those fields should not
+        be affected.
+        """
+        in_year_value_data = {
+            'per_click_usa': 150,
+            'per_click_international': 125,
+            'per_lead_usa': 150,
+            'per_lead_international': 125
+        }
+        in_year_value = ProductValueFactory(**in_year_value_data)
+        course = CourseFactory(in_year_value=in_year_value)
+
+        in_year_value_data['per_click_usa'] = 175
+        in_year_value_data['per_lead_usa'] = 175
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+        course_data = {
+            'in_year_value': {
+                'per_click_usa': in_year_value_data['per_click_usa'],
+                'per_lead_usa': in_year_value_data['per_lead_usa']
+            }
+        }
+
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 200
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+        self.assertDictEqual(self.serialize_course(course)['in_year_value'], in_year_value_data)
 
     @responses.activate
     def test_check_course_type_slug_exists_in_response(self):

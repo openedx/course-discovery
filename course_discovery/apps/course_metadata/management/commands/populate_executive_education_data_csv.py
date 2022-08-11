@@ -37,7 +37,7 @@ class Command(BaseCommand):
         'content_language', 'transcript_language', 'expected_program_type', 'expected_program_name',
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
         'lead_capture_form_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2',
-        'stat2_text', 'organic_url', 'organization_short_code_override',
+        'stat2_text', 'organic_url', 'organization_short_code_override', 'variant_id',
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -281,6 +281,7 @@ class Command(BaseCommand):
             'learner_testimonials': utils.format_testimonials(product_dict['testimonials']),
             'frequently_asked_questions': utils.format_faqs(product_dict['faqs']),
             'about_video_link': utils.format_base64_strings(product_dict['videoURL']),
+            'variant_id': product_dict['variant']['id'],
             'end_date': product_dict['variant']['endDate'],
             'length': product_dict['durationWeeks'],
             'redirect_url': utils.format_base64_strings(product_dict.get('edxPlpUrl', '')),

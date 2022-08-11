@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.test import TestCase
 
 from course_discovery.apps.course_metadata.management.commands.backfill_enterprise_inclusion import Command
-from course_discovery.apps.course_metadata.models import Course, Organization
+from course_discovery.apps.course_metadata.models import Course, CourseType, Organization
 from course_discovery.apps.course_metadata.tests.factories import CourseFactory, OrganizationFactory
 
 
@@ -11,17 +11,13 @@ class BackfillEnterpriseInclusion(TestCase):
     def setUp(self):
         super().setUp()
         self.org_1, self.org_2 = OrganizationFactory.create_batch(2)
-        self.course_1 = CourseFactory(authoring_organizations=[self.org_1])
-        self.course_2 = CourseFactory(authoring_organizations=[self.org_1])
-        self.course_3 = CourseFactory(authoring_organizations=[self.org_2])
-        self.course_4 = CourseFactory(
-            authoring_organizations=[
-                self.org_1, self.org_2])
+        course_type = CourseType.objects.filter(slug=CourseType.VERIFIED_AUDIT).first()
+        self.course_1 = CourseFactory(authoring_organizations=[self.org_1], type=course_type)
+        self.course_2 = CourseFactory(authoring_organizations=[self.org_1], type=course_type)
+        self.course_3 = CourseFactory(authoring_organizations=[self.org_2], type=course_type)
+        self.course_4 = CourseFactory(authoring_organizations=[self.org_1, self.org_2], type=course_type)
         self.org_test_data = [str(self.org_1.uuid)]
-        self.course_test_data = [
-            self.course_1.key,
-            self.course_3.key,
-            self.course_4.key]
+        self.course_test_data = [self.course_1.key, self.course_3.key, self.course_4.key]
 
     def test_normal_run(self):
         uuid_path = 'course_discovery.apps.course_metadata.management.commands.backfill_enterprise_inclusion.org_uuids'

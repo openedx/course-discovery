@@ -94,6 +94,7 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     certificate_info = factory.SubFactory(CertificateInfoFactory)
     start_date = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC), force_microsecond=0)
     registration_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC), force_microsecond=0)
+    variant_id = factory.LazyFunction(uuid4)
 
     @factory.post_generation
     def facts(self, create, extracted, **kwargs):
@@ -233,6 +234,16 @@ class CourseTypeFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.course_run_types, extracted)
 
 
+class ProductValueFactory(factory.django.DjangoModelFactory):
+    per_click_usa = FuzzyInteger(100)
+    per_click_international = FuzzyInteger(100)
+    per_lead_usa = FuzzyInteger(100)
+    per_lead_international = FuzzyInteger(100)
+
+    class Meta:
+        model = ProductValue
+
+
 class AbstractLocationRestrictionModelFactory(factory.django.DjangoModelFactory):
     restriction_type = factory.fuzzy.FuzzyChoice(
         AbstractLocationRestrictionModel.RESTRICTION_TYPE_CHOICES, getter=lambda c: c[0]
@@ -288,6 +299,7 @@ class CourseFactory(SalesforceRecordFactory):
     type = factory.SubFactory(CourseTypeFactory)
     enterprise_subscription_inclusion = False
     location_restriction = factory.SubFactory(CourseLocationRestrictionFactory)
+    in_year_value = factory.SubFactory(ProductValueFactory)
 
     class Meta:
         model = Course
@@ -568,6 +580,7 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
     location_restriction = factory.RelatedFactory(
         ProgramLocationRestrictionFactory, factory_related_name='program'
     )
+    in_year_value = factory.SubFactory(ProductValueFactory)
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):

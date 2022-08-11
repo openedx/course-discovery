@@ -4,6 +4,7 @@ import uuid
 from decimal import Decimal
 from functools import partial
 from unittest import mock
+from unittest.mock import patch
 
 import ddt
 import pytest
@@ -15,7 +16,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db import IntegrityError, transaction
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from freezegun import freeze_time
 from slugify import slugify
 from taggit.models import Tag
@@ -30,9 +31,9 @@ from course_discovery.apps.core.utils import SearchQuerySetWrapper
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractHeadingBlurbModel, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel,
-    AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, Curriculum, CurriculumCourseMembership,
-    CurriculumCourseRunExclusion, CurriculumProgramMembership, DegreeCost, DegreeDeadline, Endorsement, Organization,
-    Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic
+    AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, CourseType, Curriculum,
+    CurriculumCourseMembership, CurriculumCourseRunExclusion, CurriculumProgramMembership, DegreeCost, DegreeDeadline,
+    Endorsement, Organization, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic
 )
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
@@ -210,12 +211,17 @@ class TestCourse(TestCase):
         org1 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
         org2 = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
         org_list = [org1, org2]
-        course = factories.CourseFactory(authoring_organizations=org_list, enterprise_subscription_inclusion=None)
+        course_type = CourseType.objects.filter(slug=CourseType.VERIFIED_AUDIT).first()
+        course = factories.CourseFactory(
+            authoring_organizations=org_list, enterprise_subscription_inclusion=None, type=course_type,
+        )
         assert course.enterprise_subscription_inclusion is True
 
         org3 = factories.OrganizationFactory(enterprise_subscription_inclusion=False)
         org_list = [org2, org3]
-        course1 = factories.CourseFactory(authoring_organizations=org_list, enterprise_subscription_inclusion=None)
+        course1 = factories.CourseFactory(
+            authoring_organizations=org_list, enterprise_subscription_inclusion=None, type=course_type,
+        )
         assert course1.enterprise_subscription_inclusion is False
 
 
@@ -626,12 +632,13 @@ class CourseRunTests(OAuth2Mixin, TestCase):
 
     def test_enterprise_subscription_inclusion(self):
         """ Verify the enterprise inclusion boolean is calculated as expected. """
-        course1 = factories.CourseFactory(enterprise_subscription_inclusion=False)
+        course_type = CourseType.objects.filter(slug=CourseType.VERIFIED_AUDIT).first()
+        course1 = factories.CourseFactory(enterprise_subscription_inclusion=False, type=course_type)
         course_run1 = factories.CourseRunFactory(course=course1, pacing_type='self_paced')
         course_run1.save()
         assert course_run1.enterprise_subscription_inclusion is False
 
-        course2 = factories.CourseFactory(enterprise_subscription_inclusion=True)
+        course2 = factories.CourseFactory(enterprise_subscription_inclusion=True, type=course_type)
         course_run2 = factories.CourseRunFactory(course=course2, pacing_type='self_paced')
         course_run2.save()
         assert course_run2.enterprise_subscription_inclusion is True
@@ -1177,6 +1184,7 @@ class CourseRunTestsThatNeedSetUp(OAuth2Mixin, TestCase):
 
 
 @ddt.ddt
+@pytest.mark.django_db
 class OrganizationTests(TestCase):
     """ Tests for the `Organization` model. """
 
@@ -1237,6 +1245,91 @@ class OrganizationTests(TestCase):
         user.groups.add(org_ext.group)
 
         assert len(Organization.user_organizations(user)) == 1
+
+    def test_org_enterprise_subscription_inclusion_toggle_course(self):
+        """Test that toggling an org's enterprise_subscription_inclusion value will turn courses in the org on"""
+        org = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
+        course_type = CourseType.objects.filter(slug=CourseType.VERIFIED_AUDIT).first()
+        course = factories.CourseFactory(enterprise_subscription_inclusion=True, type=course_type)
+        course.authoring_organizations.add(org)
+        course.save()
+
+        org.enterprise_subscription_inclusion = False
+        org.save()
+
+        course.refresh_from_db()
+        assert course.enterprise_subscription_inclusion is False
+
+    def test_org_enterprise_subscription_inclusion_toggle_with_multiple_orgs(self):
+        """
+        Test that toggling an org's enterprise_subscription_inclusion value on will not turn the course, course run or
+        program on if there is another org that is still off, with that course, course run and program
+        """
+        org = factories.OrganizationFactory(enterprise_subscription_inclusion=False)
+        org2 = factories.OrganizationFactory(enterprise_subscription_inclusion=False)
+        course = factories.CourseFactory(enterprise_subscription_inclusion=False)
+        course_run = factories.CourseRunFactory(
+            course=course,
+            pacing_type='self_paced',
+            enterprise_subscription_inclusion=False
+        )
+        program = factories.ProgramFactory(enterprise_subscription_inclusion=False)
+        program.courses.add(course)
+        program.save()
+
+        course.authoring_organizations.add(org)
+        course.authoring_organizations.add(org2)
+        course.save()
+
+        # Toggle one of the orgs to true
+        org.enterprise_subscription_inclusion = True
+        org.save()
+
+        # Confirm that the course is still False
+        course.refresh_from_db()
+        assert course.enterprise_subscription_inclusion is False
+        assert course_run.enterprise_subscription_inclusion is False
+        assert program.enterprise_subscription_inclusion is False
+
+    def test_org_enterprise_subscription_inclusion_toggle_courserun(self):
+        """Test that toggling an org's enterprise_subscription_inclusion value will toggle the course run"""
+        org = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
+        course_type = CourseType.objects.filter(slug=CourseType.VERIFIED_AUDIT).first()
+        course = factories.CourseFactory(enterprise_subscription_inclusion=True, type=course_type)
+        course_run = factories.CourseRunFactory(
+            course=course,
+            pacing_type='self_paced',
+            enterprise_subscription_inclusion=True
+        )
+
+        course.authoring_organizations.add(org)
+        course.save()
+
+        org.enterprise_subscription_inclusion = False
+        org.save()
+
+        course_run.refresh_from_db()
+        assert course_run.enterprise_subscription_inclusion is False
+
+    def test_org_enterprise_subscription_inclusion_toggle_program(self):
+        """Test that toggling an org's enterprise_subscription_inclusion value will toggle the program"""
+        org = factories.OrganizationFactory(enterprise_subscription_inclusion=True)
+        course_type = CourseType.objects.filter(slug=CourseType.VERIFIED_AUDIT).first()
+        course = factories.CourseFactory(enterprise_subscription_inclusion=True, type=course_type)
+        course.save()
+        course.authoring_organizations.add(org)
+        course.save()
+
+        program_type = ProgramType.objects.get(translations__name_t='XSeries')
+        program = factories.ProgramFactory(enterprise_subscription_inclusion=True, type=program_type)
+        program.courses.add(course)
+        program.save()
+
+        org.enterprise_subscription_inclusion = False
+        org.save()
+
+        program.refresh_from_db()
+        assert program.enterprise_subscription_inclusion is False
 
 
 @ddt.ddt
@@ -1400,6 +1493,7 @@ class AbstractHeadingBlurbModelTests(TestCase):
 
 
 @ddt.ddt
+@pytest.mark.django_db
 class ProgramTests(TestCase):
     """Tests of the Program model."""
 
@@ -2033,19 +2127,30 @@ class ProgramTests(TestCase):
 
     def test_enterprise_subscription_inclusion(self):
         """ Verify the enterprise inclusion boolean is calculated as expected. """
-
-        course1 = factories.CourseFactory(enterprise_subscription_inclusion=False)
-        course2 = factories.CourseFactory(enterprise_subscription_inclusion=True)
+        course_type = CourseType.objects.filter(slug=CourseType.VERIFIED_AUDIT).first()
+        course1 = factories.CourseFactory(enterprise_subscription_inclusion=False, type=course_type)
+        course2 = factories.CourseFactory(enterprise_subscription_inclusion=True, type=course_type)
         course_list = [course1, course2]
-        type1 = ProgramType.objects.get(translations__name_t='XSeries')
-        program1 = factories.ProgramFactory(type=type1, courses=course_list)
+        program_type = ProgramType.objects.get(translations__name_t='XSeries')
+        program1 = factories.ProgramFactory(type=program_type, courses=course_list)
         assert program1.enterprise_subscription_inclusion is False
-
-        course3 = factories.CourseFactory(enterprise_subscription_inclusion=True)
-        course4 = factories.CourseFactory(enterprise_subscription_inclusion=True)
+        course3 = factories.CourseFactory(enterprise_subscription_inclusion=True, type=course_type)
+        course4 = factories.CourseFactory(enterprise_subscription_inclusion=True, type=course_type)
         course_list2 = [course3, course4]
-        program2 = factories.ProgramFactory(type=type1, courses=course_list2)
+        program2 = factories.ProgramFactory(courses=course_list2, type=program_type)
         assert program2.enterprise_subscription_inclusion is True
+
+    def test_enterprise_subscription_exclusion(self):
+        """
+        Verify the enterprise inclusion boolean will default to false if the program is not included in the
+        is_enterprise_catalog_program_type list.
+        """
+        # Create a program with a program type that is not included in the subscription tagging logic
+        program_type = ProgramType.objects.get(translations__name_t='Masters')
+        # Attempt to set the subscription inclusion to True when generating the program
+        program1 = factories.ProgramFactory(type=program_type, enterprise_subscription_inclusion=True)
+        # Assert that the sub tagging has defaulted to false.
+        assert not program1.enterprise_subscription_inclusion
 
     def test_banner_image(self):
         self.program.banner_image = make_image_file('test_banner.jpg')
@@ -2100,6 +2205,25 @@ class ProgramTests(TestCase):
         with mock.patch.object(ProgramMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
             program.save()
             assert mock_publish_obj.called
+
+        with mock.patch.object(ProgramMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
+            program.delete()
+            assert mock_delete_obj.called
+
+    @override_switch('publish_program_to_marketing_site', True)
+    @override_settings(FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL=True)
+    @patch('course_discovery.apps.course_metadata.models.UPDATE_PROGRAM_SKILLS.send')
+    def test_send_program_skills_signal(self, mock_signal_send):
+        """
+        Verify that publishing the program fires UPDATE_PROGRAM_SKILLS signal.
+        """
+        program = factories.ProgramFactory(status=ProgramStatus.Unpublished)
+        program.status = ProgramStatus.Active
+        with mock.patch.object(ProgramMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
+            program.save()
+            assert mock_publish_obj.called
+            assert mock_signal_send.called
+            assert mock_signal_send.call_count == 1
 
         with mock.patch.object(ProgramMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
             program.delete()

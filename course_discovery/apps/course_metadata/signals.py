@@ -1,6 +1,7 @@
 import logging
 
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
+from celery import shared_task
 from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -17,6 +18,7 @@ from course_discovery.apps.course_metadata.publishers import ProgramMarketingSit
 from course_discovery.apps.course_metadata.salesforce import (
     populate_official_with_existing_draft, requires_salesforce_update
 )
+from course_discovery.apps.course_metadata.tasks import update_org_program_and_courses_ent_sub_inclusion
 from course_discovery.apps.course_metadata.utils import get_salesforce_util
 
 logger = logging.getLogger(__name__)
@@ -178,6 +180,14 @@ def update_or_create_salesforce_organization(instance, created, **kwargs):
             util.create_publisher_organization(instance)
         if not created and requires_salesforce_update('organization', instance):
             util.update_publisher_organization(instance)
+
+
+@shared_task
+@receiver(post_save, sender=Organization)
+def update_enterprise_inclusion_for_courses_and_programs(instance, created, **kwargs):  # pylint: disable=unused-argument
+    update_org_program_and_courses_ent_sub_inclusion.delay(
+        org_pk=instance.pk, org_sub_inclusion=instance.enterprise_subscription_inclusion
+    )
 
 
 @receiver(post_save, sender=Course)
