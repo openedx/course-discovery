@@ -3309,6 +3309,18 @@ class DegreeDataLoaderConfiguration(ConfigurationModel):
                     "with first row containing all the headers.")
     )
 
+class GeotargetingDataLoaderConfiguration(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in import_geotargeting_data.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers.")
+    )
+
 
 class BackpopulateCourseTypeConfig(SingletonModel):
     """
