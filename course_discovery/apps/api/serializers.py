@@ -637,7 +637,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
     certificate_info = CertificateInfoSerializer()
     start_date = serializers.DateTimeField()
     registration_deadline = serializers.DateTimeField()
-    variant_id = serializers.UUIDField()
+    variant_id = serializers.UUIDField(allow_null=True)
 
     @classmethod
     def prefetch_queryset(cls):
