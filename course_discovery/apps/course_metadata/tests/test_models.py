@@ -2212,13 +2212,18 @@ class ProgramTests(TestCase):
 
     @override_switch('publish_program_to_marketing_site', True)
     @override_settings(FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL=True)
+    @ddt.data(
+        {'status': ProgramStatus.Active, 'overview': 'test1'},
+        {'status': ProgramStatus.Unpublished, 'overview': 'test2'}
+    )
     @patch('course_discovery.apps.course_metadata.models.UPDATE_PROGRAM_SKILLS.send')
-    def test_send_program_skills_signal(self, mock_signal_send):
+    def test_send_program_skills_signal(self, test_data, mock_signal_send):
         """
-        Verify that publishing the program fires UPDATE_PROGRAM_SKILLS signal.
+        Verify that publishing the program or updating overview fires UPDATE_PROGRAM_SKILLS signal.
         """
-        program = factories.ProgramFactory(status=ProgramStatus.Unpublished)
-        program.status = ProgramStatus.Active
+        program = factories.ProgramFactory(overview='test1', status=ProgramStatus.Unpublished)
+        program.overview = test_data['overview']
+        program.status = test_data['status']
         with mock.patch.object(ProgramMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
             program.save()
             assert mock_publish_obj.called
