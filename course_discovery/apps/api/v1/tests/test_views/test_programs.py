@@ -6,6 +6,7 @@ import pytest
 import pytz
 from django.test import RequestFactory
 from django.urls import reverse
+from taggit.models import Tag
 
 from course_discovery.apps.api.serializers import MinimalProgramSerializer
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt, SerializationMixin
@@ -58,6 +59,8 @@ class TestProgramViewSet(SerializationMixin):
         if program_type is None:
             program_type = ProgramTypeFactory()
 
+        topic, _ = Tag.objects.get_or_create(name="topic")
+
         program = ProgramFactory(
             courses=courses,
             authoring_organizations=organizations,
@@ -72,6 +75,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner,
             type=program_type,
         )
+        program.labels.add(topic)
         return program
 
     def create_curriculum(self, parent_program):
@@ -90,7 +94,7 @@ class TestProgramViewSet(SerializationMixin):
         return curriculum
 
     def assert_retrieve_success(self, program, querystring=None):
-        """ Verify the retrieve endpoint succesfully returns a serialized program. """
+        """ Verify the retrieve endpoint successfully returns a serialized program. """
         url = reverse('api:v1:program-detail', kwargs={'uuid': program.uuid})
 
         if querystring:
@@ -113,7 +117,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns the details for a single program. """
         program = self.create_program()
 
-        with django_assert_num_queries(FuzzyInt(62, 2)):
+        with django_assert_num_queries(FuzzyInt(65, 2)):
             response = self.assert_retrieve_success(program)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
@@ -146,7 +150,7 @@ class TestProgramViewSet(SerializationMixin):
             curriculum=curriculum
         )
 
-        with django_assert_num_queries(FuzzyInt(77, 2)):
+        with django_assert_num_queries(FuzzyInt(82, 2)):
             response = self.assert_retrieve_success(parent_program)
         assert response.data == self.serialize_program(parent_program)
 
@@ -162,7 +166,7 @@ class TestProgramViewSet(SerializationMixin):
             partner=self.partner)
         # property does not have the right values while being indexed
         del program._course_run_weeks_to_complete
-        with django_assert_num_queries(FuzzyInt(45, 2)):
+        with django_assert_num_queries(FuzzyInt(48, 2)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
         assert course_list == list(program.courses.all())
@@ -184,7 +188,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns data for a program even if the program's courses have no course runs. """
         course = CourseFactory(partner=self.partner)
         program = ProgramFactory(courses=[course], partner=self.partner)
-        with django_assert_num_queries(FuzzyInt(37, 2)):
+        with django_assert_num_queries(FuzzyInt(40, 2)):
             response = self.assert_retrieve_success(program)
         assert response.data == self.serialize_program(program)
 
@@ -210,7 +214,7 @@ class TestProgramViewSet(SerializationMixin):
         """ Verify the endpoint returns a list of all programs. """
         expected = [self.create_program() for __ in range(3)]
 
-        self.assert_list_results(self.list_path, expected, 35)
+        self.assert_list_results(self.list_path, expected, 38)
 
     def test_extended_query_param_fields(self):
         """ Verify that the `extended` query param will result in an extended amount of fields returned. """
@@ -285,7 +289,7 @@ class TestProgramViewSet(SerializationMixin):
         'status,is_marketable,expected_query_count',
         (
             (ProgramStatus.Unpublished, False, 5),
-            (ProgramStatus.Active, True, 28),
+            (ProgramStatus.Active, True, 31),
         )
     )
     def test_filter_by_marketable(self, status, is_marketable, expected_query_count):

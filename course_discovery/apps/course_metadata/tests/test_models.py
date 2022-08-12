@@ -1964,6 +1964,20 @@ class ProgramTests(TestCase):
         program1 = factories.ProgramFactory(courses=[course1, course2, course3])
         assert program1.topics == {topicA, topicB, topicC}
 
+    def test_program_labels(self):
+        """
+        Verify the program labels returns correct topic/tag information.
+        """
+        tag_a = Tag.objects.create(name="tag_a")
+        tag_b = Tag.objects.create(name="tag_b")
+        tag_c = Tag.objects.create(name="tag_c")
+
+        program = factories.ProgramFactory()
+        program.labels.add(tag_a, tag_b, tag_c)
+
+        # Names return a queryset, therefore the conversion to list is necessary
+        assert list(program.labels.names()) == ['tag_a', 'tag_b', 'tag_c']
+
     def test_start(self):
         """ Verify the property returns the minimum start date for the course runs associated with the
         program's courses. """
