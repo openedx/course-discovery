@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-07 20:35+0000\n"
+"POT-Creation-Date: 2022-08-14 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -1178,6 +1178,12 @@ msgstr ""
 "∂σłσя ѕιт αмєт, ¢σηѕє¢тєтυя α#"
 
 #: apps/course_metadata/models.py
+msgid "The identifier for a product variant."
+msgstr ""
+"Thé ïdéntïfïér för ä prödüçt värïänt. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, "
+"¢σηѕє¢тєтυ#"
+
+#: apps/course_metadata/models.py
 msgid "A list of major works by this person. Must be valid HTML."
 msgstr ""
 "À lïst öf mäjör wörks ßý thïs pérsön. Müst ßé välïd HTML. Ⱡ'σяєм ιρѕυм ∂σłσя"
@@ -1604,6 +1610,14 @@ msgid ""
 msgstr ""
 "Längüägé çödé spéçïfïç för thïs prögräm. Ûséfül fïéld ïn çäsé théré äré nö "
 "çöürsés ässöçïätéd wïth thïs prögräm. Ⱡ'σяєм ιρѕυм ∂σłσя#"
+
+#: apps/course_metadata/models.py
+msgid ""
+"Pick a tag/label from the suggestions. To make a new tag, add a comma after "
+"the tag name."
+msgstr ""
+"Pïçk ä täg/läßél fröm thé süggéstïöns. Tö mäké ä néw täg, ädd ä çömmä äftér "
+"thé täg nämé. Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕ#"
 
 #: apps/course_metadata/models.py
 msgid "The actual rank number"
