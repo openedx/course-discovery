@@ -422,11 +422,11 @@ def serialize_seat_for_ecommerce_api(seat, mode):
 def serialize_entitlement_for_ecommerce_api(entitlement):
 
     attribute_values_list = [
-            {
-                'name': 'certificate_type',
-                'value': entitlement.mode if isinstance(entitlement.mode, str) else entitlement.mode.slug,
-            },
-        ]
+        {
+            'name': 'certificate_type',
+            'value': entitlement.mode if isinstance(entitlement.mode, str) else entitlement.mode.slug,
+        },
+    ]
     additional_metadata = entitlement.course.additional_metadata
     if additional_metadata and additional_metadata.variant_id:
         attribute_values_list.append({
