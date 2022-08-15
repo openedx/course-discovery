@@ -20,8 +20,8 @@ from course_discovery.apps.course_metadata.exceptions import (
 )
 from course_discovery.apps.course_metadata.models import Course, CourseEditor, CourseRun, Seat, SeatType, Track
 from course_discovery.apps.course_metadata.tests.factories import (
-    AdditionalMetadataFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory, ModeFactory, OrganizationFactory,
-    ProgramFactory, SeatFactory, SeatTypeFactory
+    AdditionalMetadataFactory, CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseRunFactory,
+    ModeFactory, OrganizationFactory, ProgramFactory, SeatFactory, SeatTypeFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
