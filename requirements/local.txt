@@ -59,9 +59,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.24.46
+boto3==1.24.51
     # via django-ses
-botocore==1.27.46
+botocore==1.27.51
     # via
     #   boto3
     #   s3transfer
@@ -129,7 +129,7 @@ cryptography==37.0.4
     #   pyopenssl
     #   social-auth-core
     #   urllib3
-ddt==1.5.0
+ddt==1.6.0
     # via -r requirements/test.in
 defusedxml==0.7.1
     # via
@@ -370,13 +370,13 @@ face==20.1.1
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==13.15.1
+faker==14.0.0
     # via factory-boy
-filelock==3.7.1
+filelock==3.8.0
     # via
     #   tox
     #   virtualenv
-freezegun==1.2.1
+freezegun==1.2.2
     # via -r requirements/test.in
 future==0.18.2
     # via pyjwkest
@@ -465,7 +465,7 @@ paramiko==2.11.0
     # via docker
 path==16.4.0
     # via edx-i18n-tools
-pbr==5.9.0
+pbr==5.10.0
     # via stevedore
 peewee==3.15.1
     # via semgrep
@@ -585,7 +585,7 @@ python-stdnum==1.17
     # via django-localflavor
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2022.1
+pytz==2022.2.1
     # via
     #   -r requirements/base.in
     #   babel
@@ -649,7 +649,7 @@ ruamel-yaml-clib==0.2.6
     # via ruamel-yaml
 s3transfer==0.6.0
     # via boto3
-selenium==4.3.0
+selenium==4.4.0
     # via -r requirements/test.in
 semantic-version==2.10.0
     # via edx-drf-extensions
@@ -745,7 +745,7 @@ tomli==2.0.1
     #   coverage
     #   pylint
     #   pytest
-tomlkit==0.11.1
+tomlkit==0.11.4
     # via pylint
 tox==3.25.1
     # via -r requirements/test.in
