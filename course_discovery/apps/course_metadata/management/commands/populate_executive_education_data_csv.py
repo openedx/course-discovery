@@ -287,7 +287,7 @@ class Command(BaseCommand):
             'redirect_url': utils.format_base64_strings(product_dict.get('edxPlpUrl', '')),
             'external_identifier': product_dict['id'],
             'long_description': f"{product_dict['introduction']}{product_dict['isThisCourseForYou']}",
-            'lead_capture_form_url': product_dict['lcfURL'],
+            'lead_capture_form_url': utils.format_base64_strings(product_dict['lcfURL']),
             'certificate_header': product_dict['certificate'].get('headline', ''),
             'certificate_text': product_dict['certificate'].get('blurb', ''),
             'stat1': stats['stat1'],

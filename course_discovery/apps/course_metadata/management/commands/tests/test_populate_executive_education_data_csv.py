@@ -47,7 +47,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 'isThisCourseForYou': 'This is supposed to be a long description',
                 'whatWillSetYouApart': "New ways to learn",
                 "videoURL": "",
-                "lcfURL": "www.example.com/lead-capture?id=123",
+                "lcfURL": "d3d3LmV4YW1wbGUuY29tL2xlYWQtY2FwdHVyZT9pZD0xMjM=",
                 "variant": {
                     "id": "00000000-0000-0000-0000-000000000000",
                     "endDate": "2022-05-06",
