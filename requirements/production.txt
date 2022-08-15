@@ -33,9 +33,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.24.46
+boto3==1.24.51
     # via django-ses
-botocore==1.27.46
+botocore==1.27.51
     # via
     #   boto3
     #   s3transfer
@@ -343,7 +343,7 @@ packaging==21.3
     # via
     #   drf-yasg
     #   redis
-pbr==5.9.0
+pbr==5.10.0
     # via stevedore
 pillow==9.2.0
     # via
@@ -392,7 +392,7 @@ python-stdnum==1.17
     # via django-localflavor
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2022.1
+pytz==2022.2.1
     # via
     #   -r requirements/base.in
     #   celery
