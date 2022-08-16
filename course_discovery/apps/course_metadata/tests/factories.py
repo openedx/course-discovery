@@ -814,6 +814,11 @@ class DegreeDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
         model = DegreeDataLoaderConfiguration
 
 
+class GeotargetingDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = GeotargetingDataLoaderConfiguration
+
+
 class ProfileImageDownloadConfigFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ProfileImageDownloadConfig
