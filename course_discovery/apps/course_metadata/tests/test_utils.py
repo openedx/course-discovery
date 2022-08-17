@@ -182,6 +182,10 @@ class TestSerializeSeatForEcommerceApi(TestCase):
 @pytest.mark.django_db
 class TestSerializeEntitlementForEcommerceApi:
     def test_serialize_entitlement_for_ecommerce_api(self):
+        """
+        CourseEntitlement should be able to be serialized as expected for
+        call to ecommerce api.
+        """
         entitlement = CourseEntitlementFactory(course__additional_metadata=None)
         actual = serialize_entitlement_for_ecommerce_api(entitlement)
         expected = {
