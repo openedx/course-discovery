@@ -139,6 +139,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'short_description': course.short_description,
             'type': course.type.uuid,
             'course_type': course.type.slug,
+            'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
             'url_slug': None,
         }
 
@@ -2151,6 +2152,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'full_description': course.full_description,
             'content_type': 'course',
             'course_type': course.type.slug,
+            'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
             'aggregation_key': f'course:{course.key}',
             'card_image_url': course.card_image_url,
             'image_url': course.image_url,
@@ -2214,6 +2216,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'full_description': course.full_description,
             'content_type': 'course',
             'course_type': course.type.slug,
+            'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
             'aggregation_key': f'course:{course.key}',
             'card_image_url': course.card_image_url,
             'image_url': course.image_url,
@@ -2281,6 +2284,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'full_description': course.full_description,
             'content_type': 'course',
             'course_type': course.type.slug,
+            'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
             'aggregation_key': f'course:{course.key}',
             'card_image_url': course.card_image_url,
             'image_url': course.image_url,

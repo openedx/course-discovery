@@ -1058,6 +1058,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
     url_slug = serializers.SerializerMethodField()
     course_type = serializers.SerializerMethodField()
+    enterprise_subscription_inclusion = serializers.BooleanField(required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -1094,7 +1095,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     class Meta:
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
-                  'short_description', 'type', 'url_slug', 'course_type')
+                  'short_description', 'type', 'url_slug', 'course_type', 'enterprise_subscription_inclusion')
 
 
 class CourseEditorSerializer(serializers.ModelSerializer):
@@ -1175,7 +1176,6 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     organization_logo_override_url = serializers.SerializerMethodField()
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
-    enterprise_subscription_inclusion = serializers.BooleanField(required=False)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
     in_year_value = ProductValueSerializer(required=False)
 
@@ -1231,7 +1231,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
-            'enterprise_subscription_inclusion', 'location_restriction', 'in_year_value'
+            'location_restriction', 'in_year_value'
         )
         extra_kwargs = {
             'partner': {'write_only': True}

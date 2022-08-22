@@ -51,6 +51,7 @@ class CourseDocument(BaseCourseDocument):
     status = fields.KeywordField(multi=True)
     start = fields.DateField(multi=True)
     course_type = fields.KeywordField(multi=True)
+    enterprise_subscription_inclusion = fields.BooleanField()
 
     def prepare_aggregation_key(self, obj):
         return 'course:{}'.format(obj.key)
@@ -122,6 +123,9 @@ class CourseDocument(BaseCourseDocument):
 
     def prepare_course_type(self, obj):
         return obj.type.slug
+
+    def prepare_enterprise_subscription_inclusion(self, obj):
+        return obj.enterprise_subscription_inclusion
 
     class Django:
         """
