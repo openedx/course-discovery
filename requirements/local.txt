@@ -59,9 +59,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.24.51
+boto3==1.24.56
     # via django-ses
-botocore==1.27.51
+botocore==1.27.56
     # via
     #   boto3
     #   s3transfer
@@ -77,13 +77,13 @@ certifi==2022.6.15
     # via
     #   elasticsearch
     #   requests
-    #   urllib3
+    #   selenium
 cffi==1.15.1
     # via
     #   bcrypt
     #   cryptography
     #   pynacl
-charset-normalizer==2.1.0
+charset-normalizer==2.1.1
     # via requests
 click==8.1.3
     # via
@@ -117,7 +117,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-coverage[toml]==6.4.3
+coverage[toml]==6.4.4
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -126,9 +126,7 @@ cryptography==37.0.4
     #   authlib
     #   paramiko
     #   pyjwt
-    #   pyopenssl
     #   social-auth-core
-    #   urllib3
 ddt==1.6.0
     # via -r requirements/test.in
 defusedxml==0.7.1
@@ -209,7 +207,7 @@ django-countries==7.3.2
     # via -r requirements/base.in
 django-crum==0.7.9
     # via edx-django-utils
-django-debug-toolbar==3.5.0
+django-debug-toolbar==3.6.0
     # via -r requirements/local.in
 django-dry-rest-permissions==1.2.0
     # via -r requirements/base.in
@@ -227,7 +225,7 @@ django-extensions==3.2.0
     # via -r requirements/base.in
 django-filter==22.1
     # via -r requirements/base.in
-django-fsm==2.8.0
+django-fsm==2.8.1
     # via -r requirements/base.in
 django-guardian==2.4.0
     # via -r requirements/base.in
@@ -247,7 +245,7 @@ django-object-actions==4.0.0
     # via -r requirements/base.in
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==3.1.0
+django-ses==3.1.2
     # via taxonomy-connector
 django-simple-history==3.0.0
     # via
@@ -270,7 +268,7 @@ django-taggit==3.0.0
     # via
     #   -r requirements/base.in
     #   django-taggit-autosuggest
-django-taggit-autosuggest==0.4.0
+django-taggit-autosuggest==0.4.1
     # via -r requirements/base.in
 django-waffle==2.6.0
     # via
@@ -295,7 +293,7 @@ djangorestframework-csv==2.1.1
     # via -r requirements/base.in
 djangorestframework-xml==2.0.0
     # via -r requirements/base.in
-docker[ssh]==5.0.3
+docker[ssh]==6.0.0
     # via docker-compose
 docker-compose==1.29.2
     # via -r requirements/local.in
@@ -370,7 +368,7 @@ face==20.1.1
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==14.0.0
+faker==14.1.0
     # via factory-boy
 filelock==3.8.0
     # via
@@ -390,7 +388,6 @@ idna==3.3
     # via
     #   requests
     #   trio
-    #   urllib3
 imagesize==1.4.1
     # via sphinx
 importlib-metadata==4.12.0
@@ -445,7 +442,7 @@ mock==4.0.3
     # via -r requirements/test.in
 mysqlclient==2.1.1
     # via -r requirements/test.in
-newrelic==7.16.0.178
+newrelic==8.0.0.179
     # via edx-django-utils
 oauthlib==3.2.0
     # via
@@ -455,6 +452,7 @@ outcome==1.2.0
     # via trio
 packaging==21.3
     # via
+    #   docker
     #   drf-yasg
     #   pytest
     #   redis
@@ -501,7 +499,7 @@ pycparser==2.21
     # via cffi
 pycryptodomex==3.15.0
     # via pyjwkest
-pygments==2.12.0
+pygments==2.13.0
     # via sphinx
 pyjwkest==1.4.2
     # via edx-drf-extensions
@@ -532,8 +530,6 @@ pynacl==1.5.0
     # via
     #   edx-django-utils
     #   paramiko
-pyopenssl==22.0.0
-    # via urllib3
 pyparsing==3.0.9
     # via packaging
 pyrsistent==0.18.1
@@ -649,7 +645,7 @@ ruamel-yaml-clib==0.2.6
     # via ruamel-yaml
 s3transfer==0.6.0
     # via boto3
-selenium==4.4.0
+selenium==4.4.3
     # via -r requirements/test.in
 semantic-version==2.10.0
     # via edx-drf-extensions
@@ -771,9 +767,10 @@ uritemplate==4.1.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3[secure,socks]==1.26.11
+urllib3[socks]==1.26.11
     # via
     #   botocore
+    #   docker
     #   elasticsearch
     #   requests
     #   responses
