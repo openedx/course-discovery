@@ -252,6 +252,19 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 '--auth_token', self.AUTH_TOKEN
             )
 
+    def test_missing_json_and_auth_token(self):
+        """
+        Test that the command raises CommandError if both auth token and input JSON are missing.
+        """
+        with self.assertRaisesMessage(
+                CommandError, 'auth_token or dev_input_json should be provided to perform data transformation.'
+        ):
+            output_csv = NamedTemporaryFile()  # lint-amnesty, pylint: disable=consider-using-with
+            call_command(
+                'populate_executive_education_data_csv',
+                '--output_csv', output_csv.name,
+            )
+
     @responses.activate
     def test_product_api_call_failure(self):
         """
