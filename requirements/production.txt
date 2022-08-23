@@ -20,7 +20,9 @@ asgiref==3.5.2
 async-timeout==4.0.2
     # via redis
 attrs==22.1.0
-    # via zeep
+    # via
+    #   openedx-events
+    #   zeep
 authlib==1.0.0rc1
     # via
     #   -c requirements/constraints.txt
@@ -62,6 +64,7 @@ click==8.1.3
     #   click-didyoumean
     #   click-plugins
     #   click-repl
+    #   code-annotations
     #   edx-django-utils
 click-didyoumean==0.3.0
     # via celery
@@ -69,6 +72,8 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
+code-annotations==1.3.0
+    # via edx-toggles
 coreapi==2.3.3
     # via drf-yasg
 coreschema==0.0.4
@@ -123,7 +128,10 @@ django==3.2.15
     #   edx-django-sites-extensions
     #   edx-django-utils
     #   edx-drf-extensions
+    #   edx-event-bus-kafka
+    #   edx-toggles
     #   jsonfield
+    #   openedx-events
     #   taxonomy-connector
     #   xss-utils
 django-admin-sortable2==1.0.4
@@ -149,7 +157,9 @@ django-cors-headers==3.13.0
 django-countries==7.3.2
     # via -r requirements/base.in
 django-crum==0.7.9
-    # via edx-django-utils
+    # via
+    #   edx-django-utils
+    #   edx-toggles
 django-dry-rest-permissions==1.2.0
     # via -r requirements/base.in
 django-dynamic-filenames==1.3.0
@@ -216,6 +226,7 @@ django-waffle==2.6.0
     #   -r requirements/base.in
     #   edx-django-utils
     #   edx-drf-extensions
+    #   edx-toggles
 django-webpack-loader==1.6.0
     # via -r requirements/base.in
 djangorestframework==3.13.1
@@ -261,19 +272,26 @@ edx-django-utils==5.0.0
     #   -r requirements/base.in
     #   django-config-models
     #   edx-drf-extensions
+    #   edx-event-bus-kafka
     #   edx-rest-api-client
+    #   edx-toggles
     #   taxonomy-connector
 edx-drf-extensions==8.0.1
     # via -r requirements/base.in
-edx-opaque-keys==2.3.0
+edx-event-bus-kafka==0.4.1
+    # via -r requirements/base.in
+edx-opaque-keys[django]==2.3.0
     # via
     #   -r requirements/base.in
     #   edx-ccx-keys
     #   edx-drf-extensions
+    #   openedx-events
 edx-rest-api-client==5.5.0
     # via
     #   -r requirements/base.in
     #   taxonomy-connector
+edx-toggles==5.0.0
+    # via edx-event-bus-kafka
 elasticsearch==7.13.4
     # via
     #   -c requirements/common_constraints.txt
@@ -287,6 +305,8 @@ elasticsearch-dsl==7.4.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
+fastavro==1.6.0
+    # via openedx-events
 future==0.18.2
     # via pyjwkest
 gevent==21.12.0
@@ -310,7 +330,9 @@ isodate==0.6.1
 itypes==1.2.0
     # via coreapi
 jinja2==3.1.2
-    # via coreschema
+    # via
+    #   code-annotations
+    #   coreschema
 jmespath==1.0.1
     # via
     #   boto3
@@ -339,6 +361,8 @@ oauthlib==3.2.0
     # via
     #   requests-oauthlib
     #   social-auth-core
+openedx-events==0.12.0
+    # via edx-event-bus-kafka
 packaging==21.3
     # via
     #   drf-yasg
@@ -387,7 +411,9 @@ python-memcached==1.59
 python-monkey-business==1.0.0
     # via django-nested-admin
 python-slugify==6.1.2
-    # via -r requirements/base.in
+    # via
+    #   -r requirements/base.in
+    #   code-annotations
 python-stdnum==1.17
     # via django-localflavor
 python3-openid==3.2.0
@@ -405,6 +431,7 @@ pytz==2022.2.1
 pyyaml==6.0
     # via
     #   -r requirements/production.in
+    #   code-annotations
     #   edx-django-release-util
 rcssmin==1.1.0
     # via django-compressor
@@ -481,6 +508,7 @@ sqlparse==0.4.2
     # via django
 stevedore==4.0.0
     # via
+    #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
 taxonomy-connector==1.20.0
