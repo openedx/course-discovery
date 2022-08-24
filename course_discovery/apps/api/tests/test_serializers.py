@@ -2631,6 +2631,7 @@ class TestLearnerPathwaySearchDocumentSerializer(TestCase):
                 learner_pathway.steps.all(),
                 many=True
             ).data,
+            'created': serialize_datetime(learner_pathway.created),
         }
 
     def serialize_learner_pathway(self, learner_pathway, request):
