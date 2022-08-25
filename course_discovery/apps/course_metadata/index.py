@@ -95,8 +95,11 @@ class EnglishProductIndex(BaseProductIndex):
             'unordered(secondary_description)',
             'unordered(tertiary_description)',
         ],
-        'attributesForFaceting': ['partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
-                                  'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)'],
+        'attributesForFaceting': [
+            'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
+            'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)', 'skills.skill',
+            'skills.category', 'skills.subcategory',
+        ],
         'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'product'
@@ -139,8 +142,11 @@ class SpanishProductIndex(BaseProductIndex):
             'unordered(secondary_description)',
             'unordered(tertiary_description)',
         ],
-        'attributesForFaceting': ['partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
-                                  'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)'],
+        'attributesForFaceting': [
+            'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
+            'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)',
+            'skills.skill', 'skills.category', 'skills.subcategory'
+        ],
         'customRanking': ['desc(promoted_in_spanish_index)', 'asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
     index_name = 'spanish_product'
