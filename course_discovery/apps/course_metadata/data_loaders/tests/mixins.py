@@ -7,8 +7,8 @@ from course_discovery.apps.course_metadata.models import (
     CourseEntitlement, CourseRunStatus, CourseRunType, CourseType, ProgramType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunTypeFactory, CourseTypeFactory, LevelTypeFactory, ModeFactory, OrganizationFactory, PartnerFactory,
-    SeatTypeFactory, SubjectFactory, TrackFactory
+    CourseFactory, CourseRunTypeFactory, CourseTypeFactory, LevelTypeFactory, ModeFactory, OrganizationFactory,
+    PartnerFactory, ProgramFactory, SeatTypeFactory, SubjectFactory, TrackFactory
 )
 
 
@@ -168,6 +168,133 @@ class DegreeCSVLoaderMixin:
             content_type=content_type
         )
         return image_url, body
+
+
+class GeotargetingCSVLoaderMixin:
+    """
+    Mixin to contain various variables and methods used for GeotargetingCSVDataLoader testing.
+    """
+    def _setup_course(self, course_uuid):
+        """
+        setup test-only course.
+        """
+        CourseFactory(uuid=course_uuid, location_restriction=None)
+
+    def _setup_program(self, program_uuid):
+        """
+        setup test-only course.
+        """
+        ProgramFactory(uuid=program_uuid, location_restriction=None)
+
+    # DEGREE_TITLE = 'Test Degree'
+    # DEGREE_SLUG = 'test-degree'
+
+    CSV_DATA_KEYS_ORDER = [
+        'UUID',
+        'PRODUCT TYPE',
+        'INCLUDE OR EXCLUDE',
+        'Countries',
+    ]
+
+    # # TODO: update it
+    # MINIMAL_CSV_DATA_KEYS_ORDER = CSV_DATA_KEYS_ORDER
+
+    # BASE_EXPECTED_DEGREE_DATA = {
+    #     'external_identifier': '123456',
+    #     'title': 'Test Degree',
+    #     'type': 'masters',
+    #     'organization_key': 'edx',
+    #     'marketing_slug': 'test-degree',
+    #     'paid_landing_page_url': 'http://example.com/landing-page.html',
+    #     'organic_url': 'http://example.com/organic-page.html',
+    #     'overview': 'Test Degree Overview',
+    #     'level_type_override': 'Intermediate',
+    #     'primary_subject_override': 'computer-science',
+    #     'language_override': 'English - United States',
+    #     'organization_short_code_override': 'Org Override',
+    # }
+
+    # def setUp(self):
+    #     super().setUp()
+    #     self.program_type = ProgramType.objects.get(slug=ProgramType.MASTERS)
+    #     self.marketing_text = "<ul><li>ABC</li><li>D&E</li><li>Harvard CS50</li></ul>"
+
+    def _write_csv(self, csv, lines_dict_list, headers=None):
+        """
+        Helper method to write given list of data dictionaries to csv, including the csv header.
+        """
+        if headers is None:
+            headers = self.CSV_DATA_KEYS_ORDER
+        header = ''
+        lines = ''
+        for key in headers:
+            title_case_key = key.replace('_', ' ').title()
+            header = '{}{},'.format(header, title_case_key)
+        header = f"{header[:-1]}\n"
+
+        for line_dict in lines_dict_list:
+            for key in headers:
+                lines = '{}"{}",'.format(lines, line_dict[key])
+            lines = f"{lines[:-1]}\n"
+
+        csv.write(header.encode())
+        csv.write(lines.encode())
+        csv.seek(0)
+        return csv
+
+    # def _setup_organization(self, partner):
+    #     """
+    #     setup test-only organization.
+    #     """
+    #     OrganizationFactory(name='edx', key='edx', partner=partner)
+
+    # def _setup_prerequisites(self, partner):
+    #     """
+    #     Setup pre-reqs for Degree Program.
+    #     """
+    #     self._setup_organization(partner)
+
+    #     intermediate = LevelTypeFactory(name='Intermediate')
+    #     intermediate.set_current_language('en')
+    #     intermediate.name_t = 'Intermediate'
+    #     intermediate.save()
+
+    #     SubjectFactory(name='Computer Science')
+
+    # def _assert_degree_data(self, degree, expected_data):
+    #     """
+    #     Verify the degree's data fields have same values as the expected data dict.
+    #     """
+
+    #     assert degree.title == expected_data['title']
+    #     assert degree.overview == expected_data['overview']
+    #     assert degree.type == self.program_type
+    #     assert degree.marketing_slug == expected_data['marketing_slug']
+    #     assert degree.additional_metadata.external_url == expected_data['paid_landing_page_url']
+    #     assert degree.additional_metadata.external_identifier == expected_data['external_identifier']
+    #     assert degree.additional_metadata.organic_url == expected_data['organic_url']
+    #     assert degree.level_type_override.name == expected_data['level_type_override']
+    #     assert degree.primary_subject_override.slug == expected_data['primary_subject_override']
+    #     assert degree.language_override.name == expected_data['language_override']
+    #     assert degree.organization_short_code_override == expected_data['organization_short_code_override']
+
+    # def mock_image_response(self, status=200, body=None, content_type='image/jpeg'):
+    #     """
+    #     Mock the image download call to return a pre-defined image.
+    #     """
+    #     # PNG. Single black pixel
+    #     body = body or b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00' \
+    #                    b'\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc```\x00\x00\x00\x04\x00\x01\xf6\x178U\x00\x00\x00\x00' \
+    #                    b'IEND\xaeB`\x82'
+    #     image_url = 'https://example.com/image.jpg'
+    #     responses.add(
+    #         responses.GET,
+    #         image_url,
+    #         body=body,
+    #         status=status,
+    #         content_type=content_type
+    #     )
+    #     return image_url, body
 
 
 class CSVLoaderMixin:

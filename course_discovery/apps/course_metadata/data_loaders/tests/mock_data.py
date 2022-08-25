@@ -3267,3 +3267,10 @@ EFFORT_FORMATS = [
 ]
 
 BASE64_STRING = 'aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS8='
+
+VALID_GEOTARGETING_CSV_DICT = {
+    'UUID': '3f10df65fd0641df9b42ad2cbaeb7fee',
+    'PRODUCT TYPE': 'Course',
+    'INCLUDE OR EXCLUDE': 'INCLUDE',
+    'Countries': 'US;PL',
+}
