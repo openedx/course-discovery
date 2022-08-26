@@ -8,6 +8,7 @@ from uuid import uuid4
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django_extensions.db.models import TimeStampedModel
 from opaque_keys.edx.django.models import UsageKeyField
 from stdimage.models import StdImageField
 from taxonomy.utils import get_whitelisted_serialized_skills
@@ -75,7 +76,7 @@ class LearnerPathwayNode(models.Model, metaclass=AbstractModelMeta):
         return None
 
 
-class LearnerPathway(models.Model):
+class LearnerPathway(TimeStampedModel):
     """
     Top level model for learner pathway.
     """
