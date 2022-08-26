@@ -257,6 +257,14 @@ class ProductValueFactory(factory.django.DjangoModelFactory):
         model = ProductValue
 
 
+class GeoLocationFactory(factory.django.DjangoModelFactory):
+    lat = FuzzyDecimal(-90, 90, GeoLocation.DECIMAL_PLACES)
+    lng = FuzzyDecimal(-180, 180, GeoLocation.DECIMAL_PLACES)
+
+    class Meta:
+        model = GeoLocation
+
+
 class AbstractLocationRestrictionModelFactory(factory.django.DjangoModelFactory):
     restriction_type = factory.fuzzy.FuzzyChoice(
         AbstractLocationRestrictionModel.RESTRICTION_TYPE_CHOICES, getter=lambda c: c[0]
@@ -311,6 +319,7 @@ class CourseFactory(SalesforceRecordFactory):
     learner_testimonials = FuzzyText()
     type = factory.SubFactory(CourseTypeFactory)
     enterprise_subscription_inclusion = False
+    geolocation = factory.SubFactory(GeoLocationFactory)
     location_restriction = factory.SubFactory(CourseLocationRestrictionFactory)
     in_year_value = factory.SubFactory(ProductValueFactory)
 
@@ -590,6 +599,7 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
     primary_subject_override = factory.SubFactory(SubjectFactory)
     level_type_override = factory.SubFactory(LevelTypeFactory)
     language_override = factory.Iterator(LanguageTag.objects.all())
+    geolocation = factory.SubFactory(GeoLocationFactory)
     location_restriction = factory.RelatedFactory(
         ProgramLocationRestrictionFactory, factory_related_name='program'
     )

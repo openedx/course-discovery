@@ -115,6 +115,13 @@ class AlgoliaProxyProduct(Program):
         self.product = product
         self.product.language = language
 
+    @property
+    def coordinates(self):
+        geolocation = getattr(self.product, 'geolocation', None)
+        if geolocation:
+            return getattr(geolocation, 'coordinates', None)
+        return None
+
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
         return getattr(self.product, 'should_index', True)
