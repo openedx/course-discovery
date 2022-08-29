@@ -85,6 +85,7 @@ class EnglishProductIndex(BaseProductIndex):
     # Algolia needs this
     object_id_field = (('custom_object_id', 'objectID'), )
     fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
+    geo_field = 'coordinates'
     settings = {
         'searchableAttributes': [
             'unordered(title)',  # AG best practice: position of the search term in plain text fields doesn't matter
@@ -131,6 +132,7 @@ class SpanishProductIndex(BaseProductIndex):
     # have the same one, so we add 'course' or 'program' as a prefix
     object_id_field = (('custom_object_id', 'objectID'), )
     fields = search_fields + facet_fields + ranking_fields + result_fields + object_id_field
+    geo_field = 'coordinates'
     settings = {
         'searchableAttributes': [
             'unordered(title)',  # Algolia best practice: position of the term in plain text fields doesn't matter

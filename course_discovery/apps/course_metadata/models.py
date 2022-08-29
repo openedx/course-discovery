@@ -12,7 +12,7 @@ from config_models.models import ConfigurationModel
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator
 from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
@@ -881,6 +881,35 @@ class ProductValue(TimeStampedModel):
     )
 
 
+class GeoLocation(TimeStampedModel):
+    DECIMAL_PLACES = 6
+    LAT_MAX_DIGITS = 9
+    LNG_MAX_DIGITS = 10
+
+    lat = models.DecimalField(
+        max_digits=LAT_MAX_DIGITS,
+        decimal_places=DECIMAL_PLACES,
+        validators=[MaxValueValidator(90), MinValueValidator(-90)],
+        verbose_name=_('Latitude')
+    )
+    lng = models.DecimalField(
+        max_digits=LNG_MAX_DIGITS,
+        decimal_places=DECIMAL_PLACES,
+        validators=[MaxValueValidator(180), MinValueValidator(-180)],
+        verbose_name=_('Longitude')
+    )
+
+    class Meta:
+        unique_together = (('lat', 'lng'),)
+
+    def __str__(self):
+        return f'{self.lat}, {self.lng}'
+
+    @property
+    def coordinates(self):
+        return (self.lat, self.lng)
+
+
 class AbstractLocationRestrictionModel(TimeStampedModel):
     ALLOWLIST = 'allowlist'
     BLOCKLIST = 'blocklist'
@@ -997,6 +1026,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         blank=True,
         null=True,
         validators=[FileExtensionValidator(['png'])]
+    )
+
+    geolocation = models.ForeignKey(
+        GeoLocation, models.SET_NULL, related_name='courses', default=None, null=True, blank=True
     )
 
     location_restriction = models.ForeignKey(
@@ -2473,6 +2506,9 @@ class Program(PkSearchableMixin, TimeStampedModel):
         LanguageTag, models.SET_NULL, default=None, null=True, blank=True, help_text=_(
             'Language code specific for this program. '
             'Useful field in case there are no courses associated with this program.')
+    )
+    geolocation = models.ForeignKey(
+        GeoLocation, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
     )
     in_year_value = models.ForeignKey(
         ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True

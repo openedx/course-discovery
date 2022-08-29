@@ -266,7 +266,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # Known to be flaky prior to the addition of tearDown()
         # and logout() code which is the same number of additional queries
-        with self.assertNumQueries(60, threshold=3):
+        with self.assertNumQueries(56, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -276,7 +276,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?{params}'.format(root=reverse('api:v1:course-list'), params=urlencode({'keys': keys}))
 
-        with self.assertNumQueries(60, threshold=3):
+        with self.assertNumQueries(56, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -286,7 +286,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(60, threshold=3):
+        with self.assertNumQueries(56, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -1901,6 +1901,20 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                      "uuid=00000000-0000-0000-0000-000000000000 does not exist.', code='does_not_exist')]}"),
                 )
             )
+
+    @ddt.data(
+        (-90, None),
+        (None, 180),
+        (-90.1, -180),
+        (90, 180.1),
+    )
+    @ddt.unpack
+    def test_update_with_invalid_coordinates(self, lat, lng):
+        self.create_course()
+        course_data = {'geolocation': {'lat': lat, 'lng': lng}}
+        url = reverse('api:v1:course-detail', kwargs={'key': self.course.key})
+        response = self.client.patch(url, course_data, format='json')
+        assert response.status_code == 400
 
     @responses.activate
     def test_options(self):
