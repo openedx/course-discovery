@@ -1319,32 +1319,6 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         course = Course.everything.get(uuid=course.uuid, draft=True)
         self.assertDictEqual(self.serialize_course(course)['location_restriction'], location_restriction_data)
 
-    @responses.activate
-    def test_update_location_restriction_no_countries_or_states(self):
-        """
-        If countries and/or states fields are not included in the request, then existing data for those fields
-        should not be affected.
-        """
-        location_restriction_data = {
-            'restriction_type': AbstractLocationRestrictionModel.ALLOWLIST,
-            'countries': ['US'],
-            'states': ['MA']
-        }
-        location_restriction = CourseLocationRestrictionFactory(**location_restriction_data)
-        course = CourseFactory(location_restriction=location_restriction)
-
-        location_restriction_data['restriction_type'] = AbstractLocationRestrictionModel.BLOCKLIST
-
-        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
-        course_data = {
-            'location_restriction': {'restriction_type': location_restriction_data['restriction_type']}
-        }
-
-        response = self.client.patch(url, course_data, format='json')
-        assert response.status_code == 200
-        course = Course.everything.get(uuid=course.uuid, draft=True)
-        self.assertDictEqual(self.serialize_course(course)['location_restriction'], location_restriction_data)
-
     @ddt.data(False, True)
     @responses.activate
     def test_update_in_year_value(self, existing_in_year_value):

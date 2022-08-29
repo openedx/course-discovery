@@ -1145,13 +1145,33 @@ class CourseEditorSerializer(serializers.ModelSerializer):
 
 
 class AbstractLocationRestrictionSerializer(BaseModelSerializer):
-    restriction_type = serializers.ChoiceField(choices=AbstractLocationRestrictionModel.RESTRICTION_TYPE_CHOICES)
+    restriction_type = serializers.ChoiceField(
+        choices=AbstractLocationRestrictionModel.RESTRICTION_TYPE_CHOICES,
+        allow_null=True,
+        required=False
+    )
     countries = serializers.ListField(
-        child=CountryField(), allow_empty=True, required=False
+        child=CountryField(), allow_empty=True, allow_null=True, required=False
     )
     states = serializers.ListField(
-        child=serializers.ChoiceField(choices=CONTIGUOUS_STATES), allow_empty=True, required=False
+        child=serializers.ChoiceField(choices=CONTIGUOUS_STATES), allow_empty=True, allow_null=True, required=False
     )
+
+    def check_has_data(self, key, attrs):
+        return key in attrs and bool(attrs[key])
+
+    def validate(self, attrs):
+        has_restriction_type = self.check_has_data('restriction_type', attrs)
+        has_countries = self.check_has_data('countries', attrs)
+        has_states = self.check_has_data('states', attrs)
+
+        if (has_countries or has_states) and not has_restriction_type:
+            raise serializers.ValidationError({'Restriction Type': _('Restriction Type cannot be empty')})
+
+        countries = attrs.get('countries', [])
+        states = attrs.get('states', [])
+        attrs.update({'countries': countries, 'states': states})
+        return attrs
 
     class Meta:
         model = AbstractLocationRestrictionModel
@@ -1365,7 +1385,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         if 'geolocation' in validated_data:
             self.update_geolocation(instance, validated_data.pop('geolocation'))
         if 'location_restriction' in validated_data:
-            self.update_location_restriction(instance, validated_data.pop('location_restriction'))
+            location_restriction_data = validated_data.pop('location_restriction')
+            if not all(bool(value) is False for value in location_restriction_data.values()):
+                self.update_location_restriction(instance, location_restriction_data)
         if 'in_year_value' in validated_data:
             self.update_in_year_value(instance, validated_data.pop('in_year_value'))
         return super().update(instance, validated_data)
