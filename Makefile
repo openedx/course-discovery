@@ -63,6 +63,8 @@ upgrade: $(COMMON_CONSTRAINTS_TXT)
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	sed 's/Django<2.3//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
 	mv requirements/common_constraints.tmp requirements/common_constraints.txt
+	sed 's/django-simple-history==3.0.0//g' requirements/common_constraints.txt > requirements/common_constraints.tmp
+	mv requirements/common_constraints.tmp requirements/common_constraints.txt
 	pip install -q -r requirements/pip_tools.txt
 	pip-compile --allow-unsafe --upgrade -o requirements/pip.txt requirements/pip.in
 	pip-compile --upgrade -o requirements/pip_tools.txt requirements/pip_tools.in
