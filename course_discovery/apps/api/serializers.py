@@ -1081,6 +1081,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
     url_slug = serializers.SerializerMethodField()
     course_type = serializers.SerializerMethodField()
+    enterprise_subscription_inclusion = serializers.BooleanField(required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -1117,7 +1118,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     class Meta:
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
-                  'short_description', 'type', 'url_slug', 'course_type')
+                  'short_description', 'type', 'url_slug', 'course_type', 'enterprise_subscription_inclusion')
 
 
 class CourseEditorSerializer(serializers.ModelSerializer):
