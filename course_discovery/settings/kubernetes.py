@@ -1,5 +1,5 @@
 """
-Specific overrides to the base prod settings for a docker production deployment.
+Specific overrides to the base prod settings for a kubernetes production deployment.
 """
 
 import platform
