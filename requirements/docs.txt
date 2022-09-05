@@ -75,7 +75,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-urllib3==1.26.11
+urllib3==1.26.12
     # via
     #   elasticsearch
     #   requests
