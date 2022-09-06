@@ -103,31 +103,40 @@ class CoursesApiDataLoader(AbstractDataLoader):
         logger.info('Retrieved %d course runs...', len(results))
 
         for body in results:
-            course_run_id = body['id']
+            self.process_single_course_run(body)
 
-            try:
-                body = self.clean_strings(body)
-                official_run, draft_run = self.get_course_run(body)
-                if official_run or draft_run:
-                    self.update_course_run(official_run, draft_run, body)
-                    if not self.partner.uses_publisher:
-                        # Without publisher, we'll use Studio as the source of truth for course data
-                        official_course = getattr(official_run, 'canonical_for_course', None)
-                        draft_course = getattr(draft_run, 'canonical_for_course', None)
-                        if official_course or draft_course:
-                            self.update_course(official_course, draft_course, body)
-                else:
-                    course, created = self.get_or_create_course(body)
-                    course_run = self.create_course_run(course, body)
-                    if created:
-                        course.canonical_course_run = course_run
-                        course.save()
-            except Exception:  # pylint: disable=broad-except
+    def process_single_course_run(self, body):
+        course_run_id = body['id']
+
+        try:
+            body = self.clean_strings(body)
+            official_run, draft_run = self.get_course_run(body)
+            if official_run or draft_run:
+                self.update_course_run(official_run, draft_run, body)
+                if not self.partner.uses_publisher:
+                    # Without publisher, we'll use Studio as the source of truth for course data
+                    official_course = getattr(official_run, 'canonical_for_course', None)
+                    draft_course = getattr(draft_run, 'canonical_for_course', None)
+                    if official_course or draft_course:
+                        self.update_course(official_course, draft_course, body)
+            else:
+                course, created = self.get_or_create_course(body)
+                course_run = self.create_course_run(course, body)
+                if created:
+                    course.canonical_course_run = course_run
+                    course.save()
+        except Exception:  # pylint: disable=broad-except
+            if self.enable_api:
                 msg = 'An error occurred while updating {course_run} from {api_url}'.format(
                     course_run=course_run_id,
                     api_url=self.partner.courses_api_url
                 )
-                logger.exception(msg)
+            else:
+                msg = 'An error occurred while updating {course_run}'.format(
+                    course_run=course_run_id,
+                )
+
+            logger.exception(msg)
 
     def get_course_run(self, body):
         """
