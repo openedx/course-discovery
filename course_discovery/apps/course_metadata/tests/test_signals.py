@@ -5,12 +5,16 @@ from unittest import mock
 import ddt
 import pytest
 from django.apps import apps
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from factory.django import DjangoModelFactory
+from opaque_keys.edx.keys import CourseKey
+from openedx_events.content_authoring.data import CourseCatalogData, CourseScheduleData
 from pytz import UTC
 
 from course_discovery.apps.api.v1.tests.test_views.mixins import FuzzyInt
+from course_discovery.apps.core.tests.factories import PartnerFactory
 from course_discovery.apps.course_metadata.algolia_models import (
     AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram, SearchDefaultResultsConfiguration
 )
@@ -22,7 +26,7 @@ from course_discovery.apps.course_metadata.models import (
     ProfileImageDownloadConfig, Program, ProgramTypeTranslation, RemoveRedirectsConfig, SubjectTranslation,
     TagCourseUuidsConfig, TopicTranslation
 )
-from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message
+from course_discovery.apps.course_metadata.signals import _duplicate_external_key_message, update_course_data_from_event
 from course_discovery.apps.course_metadata.tests import factories
 
 LOGGER_NAME = 'course_discovery.apps.course_metadata.signals'
@@ -717,3 +721,139 @@ class SalesforceTests(TestCase):
 
             course.authoring_organizations.add(organization)
             mock_salesforce_util().create_course.assert_called()
+
+
+class TestCourseDataUpdateSignal(TestCase):
+    def setUp(self):
+        self.course_key = CourseKey.from_string('course-v1:SC+BreadX+3T2015')
+        self.scheduling_data = CourseScheduleData(
+            start=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+            end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+            enrollment_start=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+            enrollment_end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+            pacing='self',
+        )
+        self.catalog_data = CourseCatalogData(
+            course_key=self.course_key,
+            name='Test Course',
+            schedule_data=self.scheduling_data,
+            short_description='A test course',
+            effort='a lot',
+            hidden=False,
+        )
+        self.partner = PartnerFactory(id=settings.DEFAULT_PARTNER_ID)
+
+    def test_event_creates_new_course(self):
+        update_course_data_from_event(catalog_info=self.catalog_data)
+        course_run = CourseRun.objects.get(key=self.course_key)
+
+        assert course_run.title == self.catalog_data.name
+        assert course_run.hidden == self.catalog_data.hidden
+        assert course_run.start == self.catalog_data.schedule_data.start
+        assert course_run.end == self.catalog_data.schedule_data.end
+        assert course_run.enrollment_start == self.catalog_data.schedule_data.enrollment_start
+        assert course_run.enrollment_end == self.catalog_data.schedule_data.enrollment_end
+        # What the api expects and what the data is saved as are slightly different.
+        assert course_run.pacing_type == 'self_paced'
+
+        course = course_run.course
+        assert course.title == self.catalog_data.name
+
+    def test_event_idempotent(self):
+        update_course_data_from_event(catalog_info=self.catalog_data)
+        course_run = CourseRun.objects.get(key=self.course_key)
+        assert course_run.title == self.catalog_data.name
+        assert course_run.hidden == self.catalog_data.hidden
+        assert course_run.start == self.catalog_data.schedule_data.start
+        assert course_run.end == self.catalog_data.schedule_data.end
+        assert course_run.enrollment_start == self.catalog_data.schedule_data.enrollment_start
+        assert course_run.enrollment_end == self.catalog_data.schedule_data.enrollment_end
+        # What the api expects and what the data is saved as are slightly different.
+        assert course_run.pacing_type == 'self_paced'
+
+        # Run twice.
+        update_course_data_from_event(catalog_info=self.catalog_data)
+        course_run = CourseRun.objects.get(key=self.course_key)
+        assert course_run.title == self.catalog_data.name
+        assert course_run.hidden == self.catalog_data.hidden
+        assert course_run.start == self.catalog_data.schedule_data.start
+        assert course_run.end == self.catalog_data.schedule_data.end
+        assert course_run.enrollment_start == self.catalog_data.schedule_data.enrollment_start
+        assert course_run.enrollment_end == self.catalog_data.schedule_data.enrollment_end
+        # What the api expects and what the data is saved as are slightly different.
+        assert course_run.pacing_type == 'self_paced'
+
+    def test_optional_data(self):
+        scheduling_data = CourseScheduleData(
+            start=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+            pacing='self',
+        )
+        catalog_data = CourseCatalogData(
+            course_key=self.course_key,
+            name='Test Course',
+            schedule_data=scheduling_data,
+        )
+        update_course_data_from_event(catalog_info=catalog_data)
+        course_run = CourseRun.objects.get(key=self.course_key)
+
+        assert course_run.title == self.catalog_data.name
+        assert course_run.start == self.catalog_data.schedule_data.start
+        assert course_run.pacing_type == 'self_paced'
+
+    def test_update_existing_course(self):
+        factories.CourseRunFactory(key=str(self.course_key))
+        course_run = CourseRun.objects.get(key=self.course_key)
+
+        assert course_run.title != self.catalog_data.name
+        assert course_run.start != self.catalog_data.schedule_data.start
+
+        update_course_data_from_event(catalog_info=self.catalog_data)
+        course_run = CourseRun.objects.get(key=self.course_key)
+
+        assert course_run.title == self.catalog_data.name
+        assert course_run.start == self.catalog_data.schedule_data.start
+
+    def test_clear_existing_course_option_data(self):
+        # Check that missing fields in the signal will
+        # clear the field in the course.
+        factories.CourseRunFactory(key=str(self.course_key))
+        course_run = CourseRun.objects.get(key=self.course_key)
+
+        scheduling_data = CourseScheduleData(
+            start=datetime.datetime(2014, 1, 1, tzinfo=UTC),
+            pacing='self',
+        )
+        catalog_data = CourseCatalogData(
+            course_key=self.course_key,
+            name='Test Course',
+            schedule_data=scheduling_data,
+        )
+
+        assert course_run.title != catalog_data.name
+        assert course_run.start != catalog_data.schedule_data.start
+        assert course_run.end is not None
+        assert course_run.enrollment_end is not None
+        assert course_run.enrollment_start is not None
+
+        update_course_data_from_event(catalog_info=catalog_data)
+        course_run = CourseRun.objects.get(key=self.course_key)
+
+        assert course_run.title == self.catalog_data.name
+        assert course_run.start == self.catalog_data.schedule_data.start
+        assert course_run.end is None
+        assert course_run.enrollment_end is None
+        assert course_run.enrollment_start is None
+
+    def test_error_cases(self):
+        with self.assertLogs() as captured_logs:
+            update_course_data_from_event(catalog_info=None)
+            assert 'Received null or incorrect data from COURSE_CATALOG_INFO_CHANGED.' in captured_logs.output[0]
+
+        catalog_data = CourseCatalogData(
+            course_key='invalid course key',
+            name='a name',
+            schedule_data=self.scheduling_data,
+        )
+        with self.assertLogs('course_discovery.apps.course_metadata.data_loaders.api') as captured_logs:
+            update_course_data_from_event(catalog_info=catalog_data)
+            assert 'An error occurred while updating' in captured_logs.output[0]

@@ -3,14 +3,18 @@ import logging
 import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from celery import shared_task
 from django.apps import apps
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.models.signals import m2m_changed, post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
+from openedx_events.content_authoring.data import CourseCatalogData
+from openedx_events.content_authoring.signals import COURSE_CATALOG_INFO_CHANGED
 
 from course_discovery.apps.api.cache import api_change_receiver
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.constants import MASTERS_PROGRAM_TYPE_SLUG
+from course_discovery.apps.course_metadata.data_loaders.api import CoursesApiDataLoader
 from course_discovery.apps.course_metadata.models import (
     Course, CourseRun, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Organization, Program
 )
@@ -327,12 +331,48 @@ def check_course_runs_within_course_for_duplicate_external_key(course, specific_
             raise ValidationError(message)
 
 
+@receiver(COURSE_CATALOG_INFO_CHANGED)
+def update_course_data_from_event(**kwargs):
+    """
+    When we get a signal indicating that the course catalog was updated, make sure to update the
+    data on course-discovery, too.
+
+    Args:
+        kwargs: event data sent to signal
+    """
+    course_data = kwargs.get('catalog_info', None)
+    if not course_data or not isinstance(course_data, CourseCatalogData):
+        logger.error('Received null or incorrect data from COURSE_CATALOG_INFO_CHANGED.')
+        return
+
+    # Handle optional fields.
+    schedule_data = course_data.schedule_data
+    end = str(schedule_data.end) if schedule_data.end else None
+    enrollment_end = str(schedule_data.enrollment_end) if schedule_data.enrollment_end else None
+    enrollment_start = str(schedule_data.enrollment_start) if schedule_data.enrollment_start else None
+    body = {
+        'id': str(course_data.course_key),
+        'start': str(course_data.schedule_data.start),
+        'end': end,
+        'name': course_data.name,
+        'enrollment_start': enrollment_start,
+        'enrollment_end': enrollment_end,
+        'hidden': course_data.hidden,
+        'license': '',  # license cannot be None
+        'pacing': course_data.schedule_data.pacing,
+    }
+
+    # Currently, we are not passing along partner information as part of the event.
+    # Because of this, we are assuming that all events are going to the default id for now.
+    partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
+    data_loader = CoursesApiDataLoader(partner, enable_api=False)
+    data_loader.process_single_course_run(body)
+
+
 # This is code to handle signals emitted from the event bus. This is currently test code and not to be used
 # for production use cases.
 try:  # pragma: no cover
     from edx_toggles.toggles import SettingToggle
-    from openedx_events.content_authoring.data import CourseCatalogData
-    from openedx_events.content_authoring.signals import COURSE_CATALOG_INFO_CHANGED
 
     # .. toggle_name: LOG_KAFKA_EVENTS
     # .. toggle_implementation: SettingToggle
