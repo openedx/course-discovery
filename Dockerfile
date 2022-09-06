@@ -16,7 +16,8 @@ RUN apt-get install --yes \
 	libxml2-dev \
 	libxslt1-dev \
 	libjpeg-dev \
-	libssl-dev
+	libssl-dev \
+	libcairo2-dev
 
 RUN rm -rf /var/lib/apt/lists/*
 
