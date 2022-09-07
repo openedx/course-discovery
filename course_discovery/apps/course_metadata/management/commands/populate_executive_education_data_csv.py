@@ -85,7 +85,7 @@ class Command(BaseCommand):
         dev_input_json = options.get('dev_input_json')
 
         if not (dev_input_json or auth_token):
-            raise CommandError(  # pylint: disable=raise-missing-from
+            raise CommandError(
                 "auth_token or dev_input_json should be provided to perform data transformation."
             )
 
@@ -182,7 +182,7 @@ class Command(BaseCommand):
         }
 
         try:
-            response = requests.get(url, headers=headers, params=params)
+            response = requests.get(url, headers=headers, params=params)  # pylint: disable=missing-timeout
             response.raise_for_status()
 
             response = response.json()
