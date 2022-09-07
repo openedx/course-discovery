@@ -35,9 +35,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.24.66
+boto3==1.24.67
     # via django-ses
-botocore==1.27.66
+botocore==1.27.67
     # via
     #   boto3
     #   s3transfer
@@ -80,7 +80,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==37.0.4
+cryptography==38.0.0
     # via
     #   authlib
     #   pyjwt
@@ -282,7 +282,7 @@ edx-django-utils==5.0.0
     #   taxonomy-connector
 edx-drf-extensions==8.2.0
     # via -r requirements/base.in
-edx-event-bus-kafka==0.6.0
+edx-event-bus-kafka==0.6.1
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.3.0
     # via
@@ -515,7 +515,7 @@ stevedore==4.0.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.22.1
+taxonomy-connector==1.22.2
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
