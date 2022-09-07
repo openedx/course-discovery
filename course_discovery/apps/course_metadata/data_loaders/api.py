@@ -879,7 +879,7 @@ class ProgramsApiDataLoader(AbstractDataLoader):
             logger.warning('There are no banner image url for program %s', program.title)
             return
 
-        r = requests.get(image_url)
+        r = requests.get(image_url)  # pylint: disable=missing-timeout
         if r.status_code == 200:
             banner_downloaded = File(BytesIO(r.content))
             program.banner_image.save(

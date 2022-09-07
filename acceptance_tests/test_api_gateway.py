@@ -28,7 +28,7 @@ class ApiGatewayTests(TestCase):
             headers (dict) -- Headers to pass with the request.
         """
         url = self.get_discovery_api_gateway_url(path)
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers)  # pylint: disable=missing-timeout
         assert response.status_code == expected_status_code
 
     @ddt.data(*PATHS)

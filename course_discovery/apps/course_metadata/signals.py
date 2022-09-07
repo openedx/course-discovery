@@ -330,10 +330,9 @@ def check_course_runs_within_course_for_duplicate_external_key(course, specific_
 # This is code to handle signals emitted from the event bus. This is currently test code and not to be used
 # for production use cases.
 try:  # pragma: no cover
-    from edx_toggles.toggles import SettingToggle  # pylint: disable=import-outside-toplevel
-    from openedx_events.content_authoring.data import CourseCatalogData  # pylint: disable=import-outside-toplevel
-    from openedx_events.content_authoring.signals import \
-        COURSE_CATALOG_INFO_CHANGED  # pylint: disable=import-outside-toplevel
+    from edx_toggles.toggles import SettingToggle
+    from openedx_events.content_authoring.data import CourseCatalogData
+    from openedx_events.content_authoring.signals import COURSE_CATALOG_INFO_CHANGED
 
     # .. toggle_name: LOG_KAFKA_EVENTS
     # .. toggle_implementation: SettingToggle

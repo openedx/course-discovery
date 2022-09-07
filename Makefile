@@ -84,7 +84,7 @@ test: clean ## Run tests and generate coverage report
 quality: ## Run pycodestyle and pylint
 	isort --check-only --diff --recursive acceptance_tests/ course_discovery/
 	pycodestyle --config=.pycodestyle acceptance_tests course_discovery *.py
-	PYTHONPATH=./course_discovery/apps pylint --rcfile=pylintrc acceptance_tests course_discovery *.py
+	PYTHONPATH=. pylint --rcfile=pylintrc acceptance_tests course_discovery *.py
 
 validate: quality test ## Run tests and quality checks
 

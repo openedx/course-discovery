@@ -688,7 +688,7 @@ def download_and_save_course_image(course, image_url, data_field='image', header
     """
     try:
         image_url = get_downloadable_url_from_drive_link(image_url)
-        response = requests.get(image_url, headers=headers)
+        response = requests.get(image_url, headers=headers)  # pylint: disable=missing-timeout
 
         if response.status_code == requests.codes.ok:  # pylint: disable=no-member
             content_type = response.headers['Content-Type'].lower()
@@ -737,7 +737,7 @@ def download_and_save_program_image(program, image_url, data_field='image', head
     # TODO: refactor and merge program image download to use the same code as course image download
     try:
         image_url = get_downloadable_url_from_drive_link(image_url)
-        response = requests.get(image_url, headers=headers)
+        response = requests.get(image_url, headers=headers)  # pylint: disable=missing-timeout
 
         if response.status_code == requests.codes.ok:  # pylint: disable=no-member
             content_type = response.headers['Content-Type'].lower()
