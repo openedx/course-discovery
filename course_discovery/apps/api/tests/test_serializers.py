@@ -2915,6 +2915,82 @@ class LocationRestrictionSerializerTests(TestCase):
         }
         assert serializer.data['location_restriction'] == expected
 
+    def test_null_fields(self):
+        request = make_request()
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        data = {
+            'location_restriction': {
+                'restriction_type': None,
+                'countries': None,
+                'states': None,
+            },
+        }
+        serializer = CourseSerializer(course, context={'request': request}, data=data)
+        serializer.is_valid()
+        assert 'location_restriction' not in serializer.errors
+
+    def test_no_restriction_type(self):
+        request = make_request()
+        data = {
+            'location_restriction': {
+                'restriction_type': None,
+                'countries': ['CA'],
+                'states': ['MI'],
+            }
+        }
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        serializer = CourseSerializer(course, context={'request': request}, data=data)
+        serializer.is_valid()
+        assert 'location_restriction' in serializer.errors
+        assert 'Restriction Type' in serializer.errors['location_restriction']
+
+    def test_no_countries(self):
+        request = make_request()
+        data = {
+            'location_restriction': {
+                'restriction_type': 'allowlist',
+                'countries': None,
+                'states': ['MI'],
+            }
+        }
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        serializer = CourseSerializer(course, context={'request': request}, data=data)
+        serializer.is_valid()
+        assert 'location_restriction' not in serializer.errors
+
+    def test_no_states(self):
+        request = make_request()
+        data = {
+            'location_restriction': {
+                'restriction_type': 'allowlist',
+                'countries': ['CA'],
+                'states': None,
+            }
+        }
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        serializer = CourseSerializer(course, context={'request': request}, data=data)
+        serializer.is_valid()
+        assert 'location_restriction' not in serializer.errors
+
+    def test_no_countries_or_states(self):
+        request = make_request()
+        data = {
+            'location_restriction': {
+                'restriction_type': 'allowlist',
+                'countries': None,
+                'states': None,
+            }
+        }
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        serializer = CourseSerializer(course, context={'request': request}, data=data)
+        serializer.is_valid()
+        assert 'location_restriction' not in serializer.errors
+
     def test_invalid_codes(self):
         request = make_request()
         course = CourseFactory()
