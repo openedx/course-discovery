@@ -52,6 +52,7 @@ edx-opaque-keys
 edx-rest-api-client
 elasticsearch
 elasticsearch-dsl
+gspread
 html2text
 lxml
 jsonfield
