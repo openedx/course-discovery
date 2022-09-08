@@ -259,7 +259,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def program_types(self):
-        return [program.type.name for program in self.programs.all()]
+        return [program.type.name_t for program in self.programs.all()]
 
     @property
     def product_card_image_url(self):
@@ -453,7 +453,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def program_types(self):
         if self.type:
-            return [self.type.name]
+            return [self.type.name_t]
         return None
 
     @property
