@@ -1076,7 +1076,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
 
         # Course runs calculate enterprise subscription inclusion based off of their parent's status, so we need to
         # force a recalculation
-        course_runs = CourseRun.objects.filter(course=self)
+        course_runs = self.course_runs.all()
         for course_run in course_runs:
             course_run.save()
 

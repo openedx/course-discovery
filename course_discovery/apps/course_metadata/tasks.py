@@ -19,7 +19,7 @@ def update_org_program_and_courses_ent_sub_inclusion(org_pk, org_sub_inclusion):
         org_pk (int): primary key of the organization
         org_sub_inclusion (bool): whether or not the org is included in enterprise subscriptions
     """
-    courses = Course.objects.filter(
+    courses = Course.everything.filter(
         authoring_organizations__pk=org_pk,
         enterprise_subscription_inclusion__in=[None, True],
         type__slug__in=[
@@ -30,6 +30,8 @@ def update_org_program_and_courses_ent_sub_inclusion(org_pk, org_sub_inclusion):
             CourseType.EMPTY
         ]
     )
+    sub_tag_log = "Org: %s has been saved. Updating enterprise sub tagging logic for %s %s"
+    LOGGER.info(sub_tag_log, org_pk, len(courses), 'courses')
     course_ids = []
     for course in courses:
         course.enterprise_subscription_inclusion = org_sub_inclusion
@@ -45,5 +47,6 @@ def update_org_program_and_courses_ent_sub_inclusion(org_pk, org_sub_inclusion):
             ProgramType.MICROBACHELORS
         ]
     )
+    LOGGER.info(sub_tag_log, org_pk, len(programs), 'programs')
     for program in programs:
         program.save()
