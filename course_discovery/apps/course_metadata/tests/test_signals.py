@@ -289,7 +289,7 @@ class ExternalCourseKeySingleCollisionTests(ExternalCourseKeyTestDataMixin, Test
         copied_course_run = CourseRun.objects.get(key=copy_key)
         message = _duplicate_external_key_message([copied_course_run])
         # This number may seem high but only 2 are select statements caused by the external key signal
-        with self.assertNumQueries(12, threshold=0):
+        with self.assertNumQueries(12):
             with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=self.course_2,
@@ -447,7 +447,7 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
         course.partner.save()
         course_run = course.course_runs.first()
         message = _duplicate_external_key_message([course_run])
-        with self.assertNumQueries(11, threshold=0):
+        with self.assertNumQueries(11):
             with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=course,
@@ -472,7 +472,7 @@ class ExternalCourseKeyIncompleteStructureTests(TestCase, ExternalCourseKeyTestM
         course.partner.marketing_site_url_root = ''
         course.partner.save()
         message = _duplicate_external_key_message([course_run])
-        with self.assertNumQueries(11, threshold=0):
+        with self.assertNumQueries(11):
             with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=course,
@@ -543,7 +543,7 @@ class ExternalCourseKeyDBTests(TestCase, ExternalCourseKeyTestMixin):
                 course_run.external_key = course_run_ca.external_key
                 course_run.save()
 
-        with self.assertNumQueries(FuzzyInt(67, 1)):
+        with self.assertNumQueries(FuzzyInt(65, 10)):
             course_run.external_key = 'some-safe-key'
             course_run.save()
 
@@ -566,7 +566,7 @@ class ExternalCourseKeyDBTests(TestCase, ExternalCourseKeyTestMixin):
                 course_run.external_key = course_run_ba.external_key
                 course_run.save()
 
-        with self.assertNumQueries(FuzzyInt(67, 1)):
+        with self.assertNumQueries(FuzzyInt(65, 10)):
             course_run.external_key = 'some-safe-key'
             course_run.save()
 
@@ -592,7 +592,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
         )
 
     def test_draft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(FuzzyInt(28, 1)):
+        with self.assertNumQueries(FuzzyInt(28, 10)):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=True,
@@ -604,7 +604,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
     def test_draft_collides_with_nondraft(self):
         course_run_1a = self.course_1.course_runs.get(external_key='ext-key-course-1a')
         message = _duplicate_external_key_message([course_run_1a])
-        with self.assertNumQueries(12, threshold=0):
+        with self.assertNumQueries(12):
             with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=self.course_1,
@@ -613,7 +613,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                 )
 
     def test_nondraft_does_not_collide_with_draft(self):
-        with self.assertNumQueries(FuzzyInt(136, 1)):
+        with self.assertNumQueries(FuzzyInt(133, 10)):
             factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
@@ -623,7 +623,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
             )
 
     def test_collision_does_not_include_drafts(self):
-        with self.assertNumQueries(FuzzyInt(136, 1)):
+        with self.assertNumQueries(FuzzyInt(132, 10)):
             course_run = factories.CourseRunFactory(
                 course=self.course_1,
                 draft=False,
@@ -632,7 +632,7 @@ class ExternalCourseKeyDraftTests(ExternalCourseKeyTestDataMixin, TestCase):
                 enrollment_end=datetime.datetime(2014, 1, 1, tzinfo=UTC),
             )
         message = _duplicate_external_key_message([course_run])  # Not draft_course_run_1
-        with self.assertNumQueries(FuzzyInt(11, 1)):
+        with self.assertNumQueries(FuzzyInt(11, 5)):
             with self.assertRaisesRegex(ValidationError, escape(message)):
                 factories.CourseRunFactory(
                     course=self.course_1,

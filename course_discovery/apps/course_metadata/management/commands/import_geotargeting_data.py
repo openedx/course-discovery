@@ -3,8 +3,8 @@ Management command to import, create, and/or update degrees' data.
 """
 import logging
 
-from django.apps import apps
 from django.core.management import BaseCommand, CommandError
+
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.geotargeting_loader import GeotargetingCSVDataLoader
 from course_discovery.apps.course_metadata.models import GeotargetingDataLoaderConfiguration
@@ -36,7 +36,6 @@ class Command(BaseCommand):
         geotargeting_loader_config = GeotargetingDataLoaderConfiguration.current()
         csv_path = options.get('csv_path', None)
         csv_file = geotargeting_loader_config.csv_file if geotargeting_loader_config.is_enabled() else None
-        
         try:
             partner = Partner.objects.get(short_code=partner_short_code)
         except Partner.DoesNotExist:
@@ -54,5 +53,3 @@ class Command(BaseCommand):
             )
         else:
             logger.info("CSV loader import flow completed.")
-
-

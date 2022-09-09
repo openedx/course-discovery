@@ -59,14 +59,14 @@ class Command(BaseCommand):
             logger.info("Cannot consume events because the events libraries are not available.")
             return
 
-        # .. toggle_name: KAFKA_CONSUMERS_ENABLED
+        # .. toggle_name: EVENT_BUS_KAFKA_CONSUMERS_ENABLED
         # .. toggle_implementation: SettingToggle
         # .. toggle_default: False
         # .. toggle_description: Enables the ability to listen and process events from the Kafka event bus
         # .. toggle_use_cases: opt_in
         # .. toggle_creation_date: 2022-01-31
         # .. toggle_tickets: https://openedx.atlassian.net/browse/ARCHBOM-1992
-        KAFKA_CONSUMERS_ENABLED = SettingToggle('KAFKA_CONSUMERS_ENABLED', default=False)
+        KAFKA_CONSUMERS_ENABLED = SettingToggle('EVENT_BUS_KAFKA_CONSUMERS_ENABLED', default=False)
 
         if not KAFKA_CONSUMERS_ENABLED.is_enabled():
             logger.info("Kafka consumers not enabled")

@@ -325,3 +325,45 @@ def check_course_runs_within_course_for_duplicate_external_key(course, specific_
         if external_key == specific_course_run.external_key and course_run != specific_course_run:
             message = _duplicate_external_key_message([course_run])
             raise ValidationError(message)
+
+
+# This is code to handle signals emitted from the event bus. This is currently test code and not to be used
+# for production use cases.
+try:  # pragma: no cover
+    from edx_toggles.toggles import SettingToggle  # pylint: disable=import-outside-toplevel
+    from openedx_events.content_authoring.data import CourseCatalogData  # pylint: disable=import-outside-toplevel
+    from openedx_events.content_authoring.signals import \
+        COURSE_CATALOG_INFO_CHANGED  # pylint: disable=import-outside-toplevel
+
+    # .. toggle_name: LOG_KAFKA_EVENTS
+    # .. toggle_implementation: SettingToggle
+    # .. toggle_default: False
+    # .. toggle_description: Enables the logging of events from the Kafka event bus
+    # .. toggle_use_cases: opt_in
+    # .. toggle_creation_date: 2022-08-11
+    # .. toggle_tickets: https://github.com/edx/edx-arch-experiments/issues/48
+    LOG_KAFKA_EVENTS = SettingToggle('LOG_KAFKA_EVENTS', default=False)
+
+    @receiver(COURSE_CATALOG_INFO_CHANGED)
+    def log_event_from_event_bus(**kwargs):
+        """
+        Logs information in signals we should receive from the event bus.
+
+        This is test code and should be removed eventually.
+
+        Args:
+            kwargs: event data sent to signal
+        """
+        if LOG_KAFKA_EVENTS.is_enabled():
+            try:
+                course_data = kwargs.get('catalog_info', None)
+                if not course_data or not isinstance(course_data, CourseCatalogData):
+                    logger.error('Received null or incorrect data from COURSE_CATALOG_INFO_CHANGED.')
+                    return
+                logger.info(f"Received COURSE_CATALOG_INFO_CHANGED signal with catalog_info"
+                            f" with CourseCatalogData {course_data}")
+            except Exception:  # pylint: disable=broad-except
+                logger.exception("Error receiving signals from Kafka events.")
+except ImportError:
+    # If we do not have the openedx_events library installed, do nothing.
+    pass

@@ -47,7 +47,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 'isThisCourseForYou': 'This is supposed to be a long description',
                 'whatWillSetYouApart': "New ways to learn",
                 "videoURL": "",
-                "lcfURL": "www.example.com/lead-capture?id=123",
+                "lcfURL": "d3d3LmV4YW1wbGUuY29tL2xlYWQtY2FwdHVyZT9pZD0xMjM=",
                 "variant": {
                     "id": "00000000-0000-0000-0000-000000000000",
                     "endDate": "2022-05-06",
@@ -250,6 +250,19 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 '--input_csv', '/tmp/invalid_csv.csv',
                 '--output_csv', output_csv.name,
                 '--auth_token', self.AUTH_TOKEN
+            )
+
+    def test_missing_json_and_auth_token(self):
+        """
+        Test that the command raises CommandError if both auth token and input JSON are missing.
+        """
+        with self.assertRaisesMessage(
+                CommandError, 'auth_token or dev_input_json should be provided to perform data transformation.'
+        ):
+            output_csv = NamedTemporaryFile()  # lint-amnesty, pylint: disable=consider-using-with
+            call_command(
+                'populate_executive_education_data_csv',
+                '--output_csv', output_csv.name,
             )
 
     @responses.activate

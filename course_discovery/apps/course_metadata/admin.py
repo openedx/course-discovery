@@ -348,7 +348,7 @@ class ProgramAdmin(admin.ModelAdmin):
         'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         'enrollment_count', 'recent_enrollment_count', 'credit_value', 'organization_short_code_override',
         'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
-        'enterprise_subscription_inclusion', 'in_year_value'
+        'enterprise_subscription_inclusion', 'in_year_value', 'labels'
     )
 
     save_error = False

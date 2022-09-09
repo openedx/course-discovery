@@ -182,6 +182,30 @@ class TestSerializeSeatForEcommerceApi(TestCase):
 @pytest.mark.django_db
 class TestSerializeEntitlementForEcommerceApi:
     def test_serialize_entitlement_for_ecommerce_api(self):
+        """
+        CourseEntitlement should be able to be serialized as expected for
+        call to ecommerce api.
+        """
+        entitlement = CourseEntitlementFactory(course__additional_metadata=None)
+        actual = serialize_entitlement_for_ecommerce_api(entitlement)
+        expected = {
+            'price': str(entitlement.price),
+            'product_class': 'Course Entitlement',
+            'attribute_values': [
+                {
+                    'name': 'certificate_type',
+                    'value': entitlement.mode.slug,
+                },
+            ]
+        }
+
+        assert actual == expected
+
+    def test_serialize_entitlement_for_ecommerce_api_additional_metadata(self):
+        """
+        Additional metadata should be included in attribute values sent to Ecommerce
+        if they are present on a course object.
+        """
         entitlement = CourseEntitlementFactory()
         actual = serialize_entitlement_for_ecommerce_api(entitlement)
         expected = {
@@ -191,6 +215,10 @@ class TestSerializeEntitlementForEcommerceApi:
                 {
                     'name': 'certificate_type',
                     'value': entitlement.mode.slug,
+                },
+                {
+                    'name': 'variant_id',
+                    'value': str(entitlement.course.additional_metadata.variant_id),
                 },
             ]
         }

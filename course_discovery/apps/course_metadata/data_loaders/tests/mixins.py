@@ -7,8 +7,8 @@ from course_discovery.apps.course_metadata.models import (
     CourseEntitlement, CourseRunStatus, CourseRunType, CourseType, ProgramType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunTypeFactory, CourseTypeFactory, LevelTypeFactory, ModeFactory, OrganizationFactory, PartnerFactory,
-    SeatTypeFactory, SubjectFactory, TrackFactory
+    CourseFactory, CourseRunTypeFactory, CourseTypeFactory, LevelTypeFactory, ModeFactory, OrganizationFactory,
+    PartnerFactory, ProgramFactory, SeatTypeFactory, SubjectFactory, TrackFactory
 )
 
 
@@ -180,27 +180,21 @@ class GeotargetingCSVLoaderMixin:
         """
         CourseFactory(uuid=course_uuid, location_restriction=None)
 
+    def _setup_program(self, program_uuid):
+        """
+        setup test-only course.
+        """
+        ProgramFactory(uuid=program_uuid, location_restriction=None)
+
     # DEGREE_TITLE = 'Test Degree'
     # DEGREE_SLUG = 'test-degree'
 
-    # CSV_DATA_KEYS_ORDER = [
-    #     'identifier',
-    #     'title',
-    #     'card_image_url',
-    #     'product_type',
-    #     'organization_key',
-    #     'slug',
-    #     'paid_landing_page_url',
-    #     'organic_url',
-    #     'overview',
-    #     'specializations',
-    #     'courses',
-    #     'course_level',
-    #     'primary_subject',
-    #     'content_language',
-    #     'organization_logo_override',
-    #     'organization_short_code_override',
-    # ]
+    CSV_DATA_KEYS_ORDER = [
+        'UUID',
+        'PRODUCT TYPE',
+        'INCLUDE OR EXCLUDE',
+        'Countries',
+    ]
 
     # # TODO: update it
     # MINIMAL_CSV_DATA_KEYS_ORDER = CSV_DATA_KEYS_ORDER
@@ -225,28 +219,28 @@ class GeotargetingCSVLoaderMixin:
     #     self.program_type = ProgramType.objects.get(slug=ProgramType.MASTERS)
     #     self.marketing_text = "<ul><li>ABC</li><li>D&E</li><li>Harvard CS50</li></ul>"
 
-    # def _write_csv(self, csv, lines_dict_list, headers=None):
-    #     """
-    #     Helper method to write given list of data dictionaries to csv, including the csv header.
-    #     """
-    #     if headers is None:
-    #         headers = self.CSV_DATA_KEYS_ORDER
-    #     header = ''
-    #     lines = ''
-    #     for key in headers:
-    #         title_case_key = key.replace('_', ' ').title()
-    #         header = '{}{},'.format(header, title_case_key)
-    #     header = f"{header[:-1]}\n"
+    def _write_csv(self, csv, lines_dict_list, headers=None):
+        """
+        Helper method to write given list of data dictionaries to csv, including the csv header.
+        """
+        if headers is None:
+            headers = self.CSV_DATA_KEYS_ORDER
+        header = ''
+        lines = ''
+        for key in headers:
+            title_case_key = key.replace('_', ' ').title()
+            header = '{}{},'.format(header, title_case_key)
+        header = f"{header[:-1]}\n"
 
-    #     for line_dict in lines_dict_list:
-    #         for key in headers:
-    #             lines = '{}"{}",'.format(lines, line_dict[key])
-    #         lines = f"{lines[:-1]}\n"
+        for line_dict in lines_dict_list:
+            for key in headers:
+                lines = '{}"{}",'.format(lines, line_dict[key])
+            lines = f"{lines[:-1]}\n"
 
-    #     csv.write(header.encode())
-    #     csv.write(lines.encode())
-    #     csv.seek(0)
-    #     return csv
+        csv.write(header.encode())
+        csv.write(lines.encode())
+        csv.seek(0)
+        return csv
 
     # def _setup_organization(self, partner):
     #     """
@@ -301,7 +295,6 @@ class GeotargetingCSVLoaderMixin:
     #         content_type=content_type
     #     )
     #     return image_url, body
-
 
 
 class CSVLoaderMixin:

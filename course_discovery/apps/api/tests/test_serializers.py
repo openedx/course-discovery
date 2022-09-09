@@ -1023,7 +1023,7 @@ class MinimalProgramSerializerTests(TestCase):
             CourseRunFactory.create_batch(2, course=course, staff=[person], start=datetime.datetime.now(UTC))
             course.topics.set([topic])
 
-        return ProgramFactory(
+        program = ProgramFactory(
             courses=courses,
             authoring_organizations=organizations,
             credit_backing_organizations=organizations,
@@ -1035,9 +1035,11 @@ class MinimalProgramSerializerTests(TestCase):
             video=VideoFactory(),
             order_courses_by_start_date=False,
         )
+        program.labels.add(topic)
+        return program
 
     @classmethod
-    def get_expected_data(cls, program, request):
+    def get_expected_data(cls, program, request, include_labels=True):
         image_field = StdImageSerializerField()
         image_field._context = {'request': request}  # pylint: disable=protected-access
 
@@ -1073,6 +1075,7 @@ class MinimalProgramSerializerTests(TestCase):
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
+            'labels': ['topic'] if include_labels else []
         }
 
     def test_data(self):
@@ -1087,8 +1090,8 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
     serializer_class = ProgramSerializer
 
     @classmethod
-    def get_expected_data(cls, program, request):
-        expected = super().get_expected_data(program, request)
+    def get_expected_data(cls, program, request, include_labels=True):
+        expected = super().get_expected_data(program, request, include_labels)
         expected.update({
             'authoring_organizations': OrganizationSerializer(program.authoring_organizations, many=True).data,
             'video': VideoSerializer(program.video).data,
@@ -1353,6 +1356,9 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         degree.deadline = DegreeDeadlineFactory.create_batch(size=3, degree=degree)
         degree.cost = DegreeCostFactory.create_batch(size=3, degree=degree)
         degree.additional_metadata = DegreeAdditionalMetadataFactory.create(degree=degree)
+        topic = Tag.objects.create(name="topic")
+
+        degree.labels.add(topic)
 
         serializer = self.serializer_class(degree, context={'request': request})
         expected = self.get_expected_data(degree, request)
@@ -2588,7 +2594,7 @@ class ProgramSearchModelSerializerTest(TestProgramSearchDocumentSerializer):
 
     @classmethod
     def get_expected_data(cls, program, request):
-        expected = ProgramSerializerTests.get_expected_data(program, request)
+        expected = ProgramSerializerTests.get_expected_data(program, request, include_labels=False)
         expected.update({'content_type': 'program'})
         expected.update({'marketing_hook': program.marketing_hook})
         return expected

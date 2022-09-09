@@ -4,6 +4,7 @@ from random import randint
 import factory
 from django.db.models.signals import post_save
 from django_countries import countries as COUNTRIES
+from edx_django_utils.cache import TieredCache, get_cache_key
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from localflavor.us.us_states import CONTIGUOUS_STATES
 from pytz import UTC
@@ -213,6 +214,18 @@ class CourseSkillsFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = CourseSkills
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        # Clear any cached skills data before serialization, so
+        # that empty skills data that was prepared during Course factory instance creation
+        # is invalidated.
+        if course_key := kwargs.get('course_key'):
+            cache_key = get_cache_key(domain='taxonomy', subdomain='course_skills', course_key=course_key)
+            TieredCache.delete_all_tiers(cache_key)
+        else:
+            TieredCache.dangerous_clear_all_tiers()
+        return super()._create(model_class, *args, **kwargs)
 
 
 class CourseTypeFactory(factory.django.DjangoModelFactory):

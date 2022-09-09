@@ -2477,6 +2477,12 @@ class Program(PkSearchableMixin, TimeStampedModel):
     in_year_value = models.ForeignKey(
         ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
     )
+    # nosemgrep
+    labels = TaggableManager(
+        blank=True,
+        related_name='program_tags',
+        help_text=_('Pick a tag/label from the suggestions. To make a new tag, add a comma after the tag name.'),
+    )
 
     objects = ProgramQuerySet.as_manager()
 
@@ -2820,9 +2826,9 @@ class Program(PkSearchableMixin, TimeStampedModel):
                 kwargs['force_update'] = True
                 super().save(**kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
-            if settings.FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL and self.is_active and \
-                    previous_obj and not previous_obj.is_active:
-                # If a Program is published then fire signal
+            if settings.FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL and previous_obj and \
+                    ((not previous_obj.is_active and self.is_active) or self.overview != previous_obj.overview):
+                # If a Program is published or overview field is changed then fire signal
                 # so that a background task in taxonomy update the program skills.
                 logger.info('Signal fired to update program skills. Program: [%s]', self.uuid)
                 UPDATE_PROGRAM_SKILLS.send(self.__class__, program_uuid=self.uuid)
@@ -3384,6 +3390,19 @@ class DegreeDataLoaderConfiguration(ConfigurationModel):
         help_text=_("It expects the data will be provided in a csv file format "
                     "with first row containing all the headers.")
     )
+
+class GeotargetingDataLoaderConfiguration(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in import_geotargeting_data.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers.")
+    )
+
 
 class GeotargetingDataLoaderConfiguration(ConfigurationModel):
     """

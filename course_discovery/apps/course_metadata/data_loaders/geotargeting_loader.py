@@ -2,14 +2,15 @@
 Data loader responsible for creating degree entries in discovery Database,
 """
 import csv
-import uuid
 import logging
-import unicodecsv
+import uuid
 
+import unicodecsv
 from django_countries import countries
+
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.models import (
-    AbstractLocationRestrictionModel, Course, Program, ProgramLocationRestriction, CourseLocationRestriction,
+    AbstractLocationRestrictionModel, Course, CourseLocationRestriction, Program, ProgramLocationRestriction
 )
 
 logger = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
             logger.exception("Error opening csv file at path {}".format(csv_path))    # lint-amnesty, pylint: disable=logging-format-interpolation
             raise  # re-raising exception to avoid moving the code flow
 
-    def ingest(self):
+    def ingest(self):  # pylint: disable=too-many-statements
         logger.info("Initiating Geotargeting CSV data loader flow.")
         for row in self.reader:
             row = self.transform_dict_keys(row)
@@ -46,21 +47,30 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
 
             message = self.validate_geotargeting_data(row)
             if message:
-                logger.error("Data validation issue for {} with UUID: {}. Skipping ingestion for this item.".format(product_type, row_uuid))    # lint-amnesty, pylint: disable=logging-format-interpolation
-                logger.error("Details: {}\n".format(message))
+                logger.error(
+                    "Data validation issue for product with UUID: %s. Skipping ingestion for this item.", row_uuid
+                )
+                logger.error("Details: %s\n", message)
                 self.skipped_items.append("Skipped {} with UUID {}. Errors: {}".format(product_type, row_uuid, message))
                 continue
-            
-            logger.info('Starting data import flow for {}:{}'.format(product_type, row_uuid)) # lint-amnesty, pylint: disable=logging-format-interpolation
+
+            logger.info('Starting data import flow for {}: {}'.format(product_type, row_uuid))  # lint-amnesty, pylint: disable=logging-format-interpolation
+
+            restriction_type = None
+
+            if row['include_or_exclude'] == 'include':
+                restriction_type = AbstractLocationRestrictionModel.ALLOWLIST
+            else:
+                restriction_type = AbstractLocationRestrictionModel.BLOCKLIST
 
             loc_res = {
-                'restriction_type': AbstractLocationRestrictionModel.ALLOWLIST if row['include_or_exclude'] == 'include' else AbstractLocationRestrictionModel.BLOCKLIST,
+                'restriction_type': restriction_type,
                 'countries': row['countries'] if row['countries'] else None
             }
 
             if product_type == 'course':
                 # we need to find this course obj and then create or update related CourseLocationRestriction object
-                course_obj = Course.everything.filter(uuid=row_uuid).first()     
+                course_obj = Course.everything.filter(uuid=row_uuid).first()
                 if course_obj.location_restriction:
                     # update existing restriction data for this course
                     course_obj.location_restriction.restriction_type = loc_res['restriction_type']
@@ -68,22 +78,23 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
                     course_obj.location_restriction.save()
                     msg = "Updated geotargeting data for course with UUID: {}".format(row_uuid)
                     logger.info(msg)
-                    self.processed_courses.append(msg)                    
+                    self.processed_courses.append(msg)
                 else:
-                    #create new course loc restriction
+                    # create new course loc restriction
                     new_course_loc_restriction = CourseLocationRestriction.objects.create(**loc_res)
-                    #update both draft and published course obj to point to the new course loc restriction
+                    # update both draft and published course obj to point to the new course loc restriction
                     for item in Course.everything.filter(uuid=row_uuid):
                         item.location_restriction = new_course_loc_restriction
-                        item.save()    
+                        item.save()
                     msg = "Created geotargeting data for course with UUID: {}".format(row_uuid)
                     logger.info(msg)
                     self.processed_courses.append(msg)
             else:
-                # we need to check if there already exists a ProgramLocationRestriction for this program and update it if yes or create a new one if needed
+                # we need to check if there already exists a ProgramLocationRestriction
+                # for this program and update it if yes or create a new one if needed
                 program_loc_restriction = ProgramLocationRestriction.objects.filter(program__uuid=row['uuid']).first()
                 if program_loc_restriction:
-                    #update existing                 
+                    # update existing
                     program_loc_restriction.restriction_type = loc_res['restriction_type']
                     program_loc_restriction.countries = loc_res['countries']
                     program_loc_restriction.save()
@@ -91,7 +102,7 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
                     logger.info(msg)
                     self.processed_programs.append(msg)
                 else:
-                    #create new
+                    # create new
                     program_obj = Program.objects.filter(uuid=row['uuid']).first()
                     ProgramLocationRestriction.objects.create(
                         program=program_obj,
@@ -114,14 +125,13 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
         if self.processed_courses:
             logger.info("Successfully updated courses: ")
             for msg in self.processed_courses:
-                logger.info(msg)    
+                logger.info(msg)
 
         # log the processed program location restriction
         if self.processed_programs:
             logger.info("Successfully updated programs: ")
             for msg in self.processed_programs:
-                logger.info(msg)    
-
+                logger.info(msg)
 
     def transform_dict_keys(self, data):
         """
@@ -172,11 +182,11 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
         if not valid_countries_list:
             error_msgs.append('Error in the countries list for UUID: {}'.format(data['uuid']))
 
-        if is_valid_uuid: #only check if item exists if the provided uuid is valid
+        if is_valid_uuid:  # only check if item exists if the provided uuid is valid
             item_found = self.validate_course_or_program(data)
             if not item_found:
                 error_msgs.append('Course or Program with UUID {} was not found'.format(data['uuid']))
-        
+
         if error_msgs:
             return ', '.join(error_msgs)
         return ''
@@ -195,7 +205,6 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
         """
         if not data['countries'] or data['countries'] == '':
             return True
-        
         country_codes = data['countries'].upper().split(',')
         for country_code in country_codes:
             if country_code not in self.VALID_COUNTRY_CODES:
@@ -222,10 +231,9 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
         """
         Get an object from the database by its key and value
         """
-        model_name = model._meta.object_name
         kwrags = {key: value}
         try:
-            obj = model.objects.get(**kwrags)
+            model.objects.get(**kwrags)
             return True
         except model.DoesNotExist:
             return False
