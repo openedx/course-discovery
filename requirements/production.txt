@@ -282,7 +282,7 @@ edx-django-utils==5.0.0
     #   taxonomy-connector
 edx-drf-extensions==8.2.0
     # via -r requirements/base.in
-edx-event-bus-kafka==0.6.1
+edx-event-bus-kafka==0.7.0
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.3.0
     # via
