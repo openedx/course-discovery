@@ -9,6 +9,7 @@ import pytz
 import responses
 from django.contrib.auth.models import Group
 from django.db.models.functions import Lower
+from freezegun import freeze_time
 from rest_framework.reverse import reverse
 from rest_framework.test import APIRequestFactory
 
@@ -130,6 +131,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert response.data == \
             self.serialize_course_run(self.course_run, extra_context={'include_unpublished_programs': True})
 
+    @freeze_time("2022-01-14 12:00:01")
     @responses.activate
     def test_create_minimum(self):
         """ Verify the endpoint supports creating a course_run with the least info. """
@@ -267,6 +269,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert new_course_run.language == self.draft_course_run.language
         assert list(new_course_run.transcript_languages.all()) == list(self.draft_course_run.transcript_languages.all())
 
+    @freeze_time("2022-01-14 12:00:01")
     @ddt.data(True, False, "bogus")
     @responses.activate
     def test_create_draft_ignored(self, draft):
@@ -290,6 +293,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         self.assertDictEqual(response.data, self.serialize_course_run(new_course_run))
         assert new_course_run.draft
 
+    @freeze_time("2022-01-14 12:00:01")
     @responses.activate
     def test_create_using_type_with_price(self):
         """ Verify the endpoint supports creating a course_run and sets the seats price to the given price """
@@ -316,6 +320,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
         assert float(new_seat.price) == 77.32
         assert new_seat.draft
 
+    @freeze_time("2022-01-14 12:00:01")
     @responses.activate
     def test_create_using_type_with_no_track_seat_types(self):
         """
@@ -342,6 +347,7 @@ class CourseRunViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mi
 
         assert Seat.everything.filter(course_run=new_course_run).count() == 0
 
+    @freeze_time("2022-01-14 12:00:01")
     @responses.activate
     def test_create_with_term(self):
         """ Verify the endpoint supports creating a course_run when specifying a key (if allowed). """
