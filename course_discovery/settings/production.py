@@ -1,5 +1,3 @@
-import json
-import logging
 import warnings
 from copy import deepcopy
 from os import environ
@@ -10,8 +8,6 @@ import MySQLdb
 import yaml
 
 from course_discovery.settings.base import *
-
-logger = logging.getLogger(__name__)
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -88,15 +84,3 @@ COMPRESS_OFFLINE = True
 
 # Have images and such that we upload be publicly readable
 AWS_DEFAULT_ACL = 'public-read'
-
-# Special handling for GOOGLE_SERVICE_ACCOUNT_CREDENTIALS. Although they are stored as json in vault,
-# the value that gets passed to us is a string.
-try:
-    if GOOGLE_SERVICE_ACCOUNT_CREDENTIALS[0] == '[':
-        GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = GOOGLE_SERVICE_ACCOUNT_CREDENTIALS[1:]
-    if GOOGLE_SERVICE_ACCOUNT_CREDENTIALS[-1] == ']':
-        GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = GOOGLE_SERVICE_ACCOUNT_CREDENTIALS[:-1]
-    GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = GOOGLE_SERVICE_ACCOUNT_CREDENTIALS.strip()
-    GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = json.loads(GOOGLE_SERVICE_ACCOUNT_CREDENTIALS)
-except json.decoder.JSONDecodeError:
-    logger.warning("GOOGLE_SERVICE_ACCOUNT_CREDENTIALS were not in expected format")
