@@ -1,6 +1,6 @@
 {
   "name": "course-discovery",
-  "homepage": "https://github.com/edx/course-discovery",
+  "homepage": "https://github.com/openedx/course-discovery",
   "private": true,
   "ignore": [
     "**/.*",

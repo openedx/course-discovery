@@ -231,7 +231,7 @@ class Organization(CachedMixin, TimeStampedModel):
         help_text=_('This field signifies if any of this org\'s courses are in the enterprise subscription catalog'),
     )
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
-    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
+    # django-simple-history.  Background: https://github.com/openedx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
 
     def clean(self):
@@ -373,7 +373,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
     coaching_supported = models.BooleanField(default=False)
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
-    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
+    # django-simple-history.  Background: https://github.com/openedx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
 
     def __str__(self):
@@ -999,7 +999,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     type = models.ForeignKey(CourseType, models.CASCADE, null=True)  # while null IS True, it should always be set
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
-    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
+    # django-simple-history.  Background: https://github.com/openedx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug', 'url_slug'])
 
     # TODO Remove this field.
@@ -1618,7 +1618,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     objects = DraftManager.from_queryset(CourseRunQuerySet)()
 
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
-    # django-simple-history.  Background: https://github.com/edx/course-discovery/pull/332
+    # django-simple-history.  Background: https://github.com/openedx/course-discovery/pull/332
     history = HistoricalRecords(excluded_fields=['slug'])
 
     salesforce_id = models.CharField(max_length=255, null=True, blank=True)  # Course_Run__c in Salesforce

@@ -42,7 +42,7 @@ with open(CONFIG_FILE, encoding='utf-8') as f:
     vars().update(config_from_yaml)
 
     # Unpack media storage settings.
-    # It's important we unpack here because of https://github.com/edx/configuration/pull/3307
+    # It's important we unpack here because of https://github.com/openedx/configuration/pull/3307
     vars().update(MEDIA_STORAGE_BACKEND)
 
 # Reset our cache when memcache versions change

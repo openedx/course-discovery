@@ -38,7 +38,7 @@ jobs:
         make upgrade
 
     - name: Clone testeng-ci
-      run: git clone https://github.com/edx/testeng-ci.git
+      run: git clone https://github.com/openedx/testeng-ci.git
 
     - name: setup testeng-ci
       run: |
