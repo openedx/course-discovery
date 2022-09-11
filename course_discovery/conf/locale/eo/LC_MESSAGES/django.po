@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: edx-platform\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-28 20:35+0000\n"
+"POT-Creation-Date: 2022-09-11 20:35+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
 "Last-Translator: Muhammad Ayub khan <ayubkhan@edx.org>\n"
 "Language-Team: English (http://www.transifex.com/open-edx/edx-platform/language/en/)\n"
@@ -84,6 +84,11 @@ msgid "Dictionary mapping course run IDs to boolean values"
 msgstr ""
 "Dïçtïönärý mäppïng çöürsé rün ÌDs tö ßööléän välüés Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт "
 "αмєт, ¢σηѕє¢тєтυя α#"
+
+#: apps/api/serializers.py
+msgid "Restriction Type cannot be empty"
+msgstr ""
+"Réstrïçtïön Týpé çännöt ßé émptý Ⱡ'σяєм ιρѕυм ∂σłσя ѕιт αмєт, ¢σηѕє¢тє#"
 
 #: apps/api/serializers.py
 msgid "Dictionary mapping course IDs to boolean values"
