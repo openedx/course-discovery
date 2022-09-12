@@ -9,7 +9,7 @@ import django_extensions.db.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('course_metadata', '0294_add_tag_manager_to_programs'),
+        ('course_metadata', '0294_merge_20220811_1832'),
     ]
 
     operations = [
