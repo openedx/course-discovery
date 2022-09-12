@@ -1,6 +1,9 @@
 import logging
 
 from django.core.management.base import BaseCommand
+from edx_event_bus_kafka import KafkaEventConsumer
+from edx_toggles.toggles import SettingToggle
+from openedx_events.tooling import OpenEdxPublicSignal
 
 logger = logging.getLogger(__name__)
 
@@ -48,15 +51,9 @@ class Command(BaseCommand):
     # consumer API. (https://github.com/openedx/event-bus-kafka/issues/19)
     def handle(self, *args, **options):  # pragma: no cover
         try:
-            # FIXME: This needs to be replaced with a configurable loading
-            # mechanism built into openedx-events.
-            # See https://github.com/openedx/openedx-events/pull/85)
-            from edx_event_bus_kafka.consumer.event_consumer import \
-                KafkaEventConsumer  # pylint: disable=import-outside-toplevel
-            from edx_toggles.toggles import SettingToggle  # pylint: disable=import-outside-toplevel
-            from openedx_events.tooling import OpenEdxPublicSignal  # pylint: disable=import-outside-toplevel
+            import confluent_kafka  # pylint: disable=import-outside-toplevel,unused-import
         except ImportError:
-            logger.info("Cannot consume events because the events libraries are not available.")
+            logger.info("Cannot consume events because confluent-kafka is are not available.")
             return
 
         # .. toggle_name: EVENT_BUS_KAFKA_CONSUMERS_ENABLED
