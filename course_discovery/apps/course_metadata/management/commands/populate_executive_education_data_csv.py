@@ -54,6 +54,7 @@ class Command(BaseCommand):
             '--auth_token',
             dest='auth_token',
             type=str,
+            required=True,
             help='Bearer token for making API calls to Product API'
         )
         parser.add_argument(
@@ -83,11 +84,6 @@ class Command(BaseCommand):
         output_csv = options.get('output_csv')
         auth_token = options.get('auth_token')
         dev_input_json = options.get('dev_input_json')
-
-        if not (dev_input_json or auth_token):
-            raise CommandError(  # pylint: disable=raise-missing-from
-                "auth_token or dev_input_json should be provided to perform data transformation."
-            )
 
         # Error/Warning messages to be displayed at the end of population
         self.messages_list = []  # pylint: disable=attribute-defined-outside-init
@@ -171,11 +167,8 @@ class Command(BaseCommand):
         Method to get all products from provided product API.
         """
         url = settings.PRODUCT_API_URL
-        # TODO: Remove User-agent once product API's 403 error is resolved.
         headers = {
-            "Authorization": f"Bearer {auth_token}",
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
-                          '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
+            "Authorization": f"Bearer {auth_token}"
         }
         params = {
             "detail": 1
@@ -294,7 +287,7 @@ class Command(BaseCommand):
             'redirect_url': utils.format_base64_strings(product_dict.get('edxPlpUrl', '')),
             'external_identifier': product_dict['id'],
             'long_description': f"{product_dict['introduction']}{product_dict['isThisCourseForYou']}",
-            'lead_capture_form_url': utils.format_base64_strings(product_dict['lcfURL']),
+            'lead_capture_form_url': product_dict['lcfURL'],
             'certificate_header': product_dict['certificate'].get('headline', ''),
             'certificate_text': product_dict['certificate'].get('blurb', ''),
             'stat1': stats['stat1'],
