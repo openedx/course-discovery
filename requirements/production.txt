@@ -33,9 +33,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.24.46
+boto3==1.24.70
     # via django-ses
-botocore==1.27.46
+botocore==1.27.70
     # via
     #   boto3
     #   s3transfer
@@ -45,7 +45,7 @@ celery==5.2.7
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-certifi==2022.6.15
+certifi==2022.6.15.1
     # via
     #   -r requirements/production.in
     #   elasticsearch
@@ -75,7 +75,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==37.0.4
+cryptography==38.0.1
     # via
     #   authlib
     #   pyjwt
@@ -135,7 +135,9 @@ django-appconf==1.0.5
 django-autocomplete-light==3.9.0rc1
     # via -r requirements/base.in
 django-choices==1.7.2
-    # via -r requirements/base.in
+    # via
+    #   -r requirements/base.in
+    #   taxonomy-connector
 django-compressor==4.1
     # via
     #   -r requirements/base.in
@@ -160,11 +162,13 @@ django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch
     #   django-elasticsearch-dsl-drf
 django-elasticsearch-dsl-drf==0.22.5
     # via -r requirements/base.in
-django-extensions==3.2.0
+django-extensions==3.2.1
     # via -r requirements/base.in
 django-filter==22.1
-    # via -r requirements/base.in
-django-fsm==2.8.0
+    # via
+    #   -r requirements/base.in
+    #   taxonomy-connector
+django-fsm==2.8.1
     # via -r requirements/base.in
 django-guardian==2.4.0
     # via -r requirements/base.in
@@ -211,7 +215,7 @@ django-taggit==3.0.0
     #   django-taggit-autosuggest
 django-taggit-autosuggest==0.4.0
     # via -r requirements/base.in
-django-waffle==2.6.0
+django-waffle==3.0.0
     # via
     #   -r requirements/base.in
     #   edx-django-utils
@@ -236,7 +240,7 @@ djangorestframework-xml==2.0.0
     # via -r requirements/base.in
 drf-extensions==0.7.1
     # via -r requirements/base.in
-drf-flex-fields==0.9.8
+drf-flex-fields==1.0.0
     # via -r requirements/base.in
 drf-jwt==1.19.2
     # via edx-drf-extensions
@@ -256,16 +260,20 @@ edx-django-release-util==1.2.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.0.0
     # via -r requirements/base.in
-edx-django-utils==5.0.0
+edx-django-utils==5.0.1
     # via
     #   -r requirements/base.in
     #   django-config-models
     #   edx-drf-extensions
     #   edx-rest-api-client
     #   taxonomy-connector
-edx-drf-extensions==8.0.1
+edx-drf-extensions==8.2.0
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/base.in
+edx-event-bus-kafka==0.7.0
     # via -r requirements/base.in
-edx-opaque-keys==2.3.0
+edx-opaque-keys[django]==2.3.0
     # via
     #   -r requirements/base.in
     #   edx-ccx-keys
@@ -287,11 +295,13 @@ elasticsearch-dsl==7.4.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
+fastavro==1.6.1
+    # via openedx-events
 future==0.18.2
     # via pyjwkest
 gevent==21.12.0
     # via -r requirements/production.in
-greenlet==1.1.2
+greenlet==1.1.3
     # via gevent
 gunicorn==20.1.0
     # via -r requirements/production.in
@@ -335,7 +345,7 @@ newrelic==7.16.0.178
     # via
     #   -r requirements/production.in
     #   edx-django-utils
-oauthlib==3.2.0
+oauthlib==3.2.1
     # via
     #   requests-oauthlib
     #   social-auth-core
@@ -351,9 +361,9 @@ pillow==9.2.0
     #   django-stdimage
 platformdirs==2.5.2
     # via zeep
-prompt-toolkit==3.0.30
+prompt-toolkit==3.0.31
     # via click-repl
-psutil==5.9.1
+psutil==5.9.2
     # via edx-django-utils
 pycountry==22.3.5
     # via -r requirements/base.in
@@ -483,7 +493,7 @@ stevedore==4.0.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.19.0
+taxonomy-connector==1.22.3
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
@@ -495,7 +505,7 @@ uritemplate==4.1.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.11
+urllib3==1.26.12
     # via
     #   botocore
     #   elasticsearch

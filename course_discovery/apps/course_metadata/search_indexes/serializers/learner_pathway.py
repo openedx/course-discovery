@@ -1,4 +1,5 @@
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
+from rest_framework import serializers
 
 from course_discovery.apps.api.fields import StdImageSerializerField
 from course_discovery.apps.api.serializers import ContentTypeSerializer
@@ -6,12 +7,16 @@ from course_discovery.apps.learner_pathway.api.serializers import LearnerPathway
 
 from ..constants import BASE_SEARCH_INDEX_FIELDS, COMMON_IGNORED_FIELDS
 from ..documents import LearnerPathwayDocument
-from .common import DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
+from .common import DateTimeSerializerMixin, DocumentDSLSerializerMixin, ModelObjectDocumentSerializerMixin
 
 __all__ = ('LearnerPathwaySearchDocumentSerializer',)
 
 
-class LearnerPathwaySearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DocumentSerializer):
+class LearnerPathwaySearchDocumentSerializer(
+    ModelObjectDocumentSerializerMixin,
+    DocumentSerializer,
+    DateTimeSerializerMixin
+):
     """
     Serializer for LearnerPathway elasticsearch document.
     """
@@ -19,6 +24,10 @@ class LearnerPathwaySearchDocumentSerializer(ModelObjectDocumentSerializerMixin,
     steps = LearnerPathwayStepSerializer(many=True, source='object.steps')
     banner_image = StdImageSerializerField(source='object.banner_image')
     card_image = StdImageSerializerField(source='object.card_image')
+    created = serializers.SerializerMethodField()
+
+    def get_created(self, obj):
+        return self.handle_datetime_field(obj.created)
 
     class Meta:
         """
@@ -30,7 +39,7 @@ class LearnerPathwaySearchDocumentSerializer(ModelObjectDocumentSerializerMixin,
         fields = (
             BASE_SEARCH_INDEX_FIELDS + (
                 'uuid', 'title', 'status', 'banner_image', 'card_image', 'overview', 'published', 'skills',
-                'skill_names', 'partner', 'steps', 'visible_via_association',
+                'skill_names', 'partner', 'steps', 'visible_via_association', 'created',
             )
         )
 

@@ -81,7 +81,7 @@ class Command(BaseCommand):
         # - CourseRun staff (sortedm2m)
         # - Publisher CourseRun staff (sortedm2m)
 
-        logger.info(  # pylint: disable=logging-not-lazy
+        logger.info(
             '{} {}:\n'.format(_('Deleting') if commit else _('Would delete'), pinfo.person.uuid) +
             ' {}: {}\n'.format(_('Name'), pinfo.person.full_name) +
             ' {}: {}\n'.format(_('Endorsements'), pinfo.person.endorsement_set.count()) +

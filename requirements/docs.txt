@@ -8,7 +8,7 @@ alabaster==0.7.12
     # via sphinx
 babel==2.10.3
     # via sphinx
-certifi==2022.6.15
+certifi==2022.6.15.1
     # via
     #   elasticsearch
     #   requests
@@ -75,7 +75,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-urllib3==1.26.11
+urllib3==1.26.12
     # via
     #   elasticsearch
     #   requests

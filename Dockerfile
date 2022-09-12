@@ -16,7 +16,8 @@ RUN apt-get install --yes \
 	libxml2-dev \
 	libxslt1-dev \
 	libjpeg-dev \
-	libssl-dev
+	libssl-dev \
+	libcairo2-dev
 
 RUN rm -rf /var/lib/apt/lists/*
 
@@ -66,3 +67,9 @@ CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_disco
 FROM app as newrelic
 RUN pip install newrelic
 CMD newrelic-admin run-program gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
+
+###########################################################
+# Define k8s target
+FROM app as kubernetes
+ENV DISCOVERY_SETTINGS='kubernetes'
+ENV DJANGO_SETTINGS_MODULE="course_discovery.settings.$DISCOVERY_SETTINGS"

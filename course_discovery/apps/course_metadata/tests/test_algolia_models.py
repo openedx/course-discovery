@@ -15,8 +15,8 @@ from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCou
 from course_discovery.apps.course_metadata.choices import ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRunStatus
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, DegreeAdditionalMetadataFactory, DegreeFactory, OrganizationFactory,
-    ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory
+    CourseFactory, CourseRunFactory, DegreeAdditionalMetadataFactory, DegreeFactory, LevelTypeFactory,
+    OrganizationFactory, ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -478,3 +478,50 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     def test_is_not_2u_degree_program(self):
         program = AlgoliaProxyProgramFactory()
         assert not program.is_2u_degree_program
+
+    @ddt.data(True, False)
+    def test_program_overrides(self, has_overrides):
+        # default
+        american_english = LanguageTag.objects.get(code='en-us')
+        introductory = LevelTypeFactory(name_t='Introductory')
+        computer_science = SubjectFactory(name='Computer Science', partner=self.__class__.edxPartner)
+        # overrides
+        colombian_spanish = LanguageTag.objects.get(code='es-co')
+        intermediate = LevelTypeFactory(name_t='Intermediate')
+        business = SubjectFactory(name='Business', partner=self.__class__.edxPartner)
+
+        program_data = {
+            'partner': self.__class__.edxPartner,
+            'language_override': None,
+            'level_type_override': None,
+            'primary_subject_override': None
+        }
+        if has_overrides:
+            program_data['language_override'] = colombian_spanish
+            program_data['level_type_override'] = intermediate
+            program_data['primary_subject_override'] = business
+
+        program = AlgoliaProxyProgramFactory(**program_data)
+        course = AlgoliaProxyCourseFactory(partner=self.__class__.edxPartner, level_type=introductory)
+        course.subjects.add(computer_science)
+        course_run = CourseRunFactory(
+            course=course,
+            start=self.ONE_MONTH_AGO,
+            end=self.IN_FIFTEEN_DAYS,
+            status=CourseRunStatus.Published,
+            language=american_english
+        )
+        SeatFactory(
+            course_run=course_run,
+            type=SeatTypeFactory.audit(),
+        )
+        program.courses.add(course)
+
+        if has_overrides:
+            assert program.active_languages == ['Spanish']
+            assert program.levels == ['Intermediate']
+            assert program.subject_names == ['Business']
+        else:
+            assert program.active_languages == ['English']
+            assert program.levels == ['Introductory']
+            assert program.subject_names == ['Computer Science']

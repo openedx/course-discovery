@@ -18,18 +18,22 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
     LOADER_MAX_RETRY = 3
     PAGE_SIZE = 50
 
-    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False):
+    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, enable_api=True):
         """
         Arguments:
             partner (Partner): Partner which owns the APIs and data being loaded
             api_url (str): URL of the API from which data is loaded
             max_workers (int): Number of worker threads to use when traversing paginated responses.
             is_threadsafe (bool): True if multiple threads can be used to write data.
+            enable_api (bool): True if we want to use the api functionalities and clients with the dataloader.
+                This will most likely only be turned off for event bus use cases.
         """
         self.partner = partner
-        self.api_url = api_url.strip('/') if api_url else api_url
-        self.api_client = self.partner.oauth_api_client
-        self.username = self.get_username_from_client(self.api_client)
+        self.enable_api = enable_api
+        if self.enable_api:
+            self.api_url = api_url.strip('/') if api_url else api_url
+            self.api_client = self.partner.oauth_api_client
+            self.username = self.get_username_from_client(self.api_client)
 
         self.max_workers = max_workers
         self.is_threadsafe = is_threadsafe

@@ -19,7 +19,7 @@ class LearnerPathwayDocument(BaseDocument, OrganizationsMixin):
     """
     LearnerPathway Elasticsearch document.
     """
-
+    created = fields.DateField()
     title = fields.TextField(
         analyzer=synonym_text,
         fields={

@@ -4,6 +4,7 @@ import json
 import logging
 import re
 from collections import OrderedDict
+from decimal import ROUND_HALF_UP
 from operator import attrgetter
 from urllib.parse import urlencode
 from uuid import uuid4
@@ -37,8 +38,8 @@ from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractLocationRestrictionModel, AdditionalMetadata, AdditionalPromoArea, CertificateInfo, Collaborator,
     CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun, CourseRunType,
     CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata,
-    DegreeCost, DegreeDeadline, Endorsement, Fact, IconTextPairing, Image, LevelType, Mode, Organization, Pathway,
-    Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductValue, Program,
+    DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing, Image, LevelType, Mode, Organization,
+    Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductValue, Program,
     ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Specialization, Subject, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
@@ -311,6 +312,28 @@ class VideoSerializer(MediaSerializer):
     class Meta:
         model = Video
         fields = ('src', 'description', 'image',)
+
+
+class GeoLocationSerializer(BaseModelSerializer):
+    """Serializer for the ``GeoLocation`` model."""
+    lat = serializers.DecimalField(
+        max_digits=GeoLocation.LAT_MAX_DIGITS,
+        decimal_places=GeoLocation.DECIMAL_PLACES,
+        min_value=-90,
+        max_value=90,
+        rounding=ROUND_HALF_UP
+    )
+    lng = serializers.DecimalField(
+        max_digits=GeoLocation.LNG_MAX_DIGITS,
+        decimal_places=GeoLocation.DECIMAL_PLACES,
+        min_value=-180,
+        max_value=180,
+        rounding=ROUND_HALF_UP
+    )
+
+    class Meta:
+        model = GeoLocation
+        fields = ('lat', 'lng')
 
 
 class PositionSerializer(BaseModelSerializer):
@@ -1058,6 +1081,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     uuid = UUIDField(read_only=True, default=CreateOnlyDefault(uuid4))
     url_slug = serializers.SerializerMethodField()
     course_type = serializers.SerializerMethodField()
+    enterprise_subscription_inclusion = serializers.BooleanField(required=False)
 
     @classmethod
     def prefetch_queryset(cls, queryset=None, course_runs=None):
@@ -1094,7 +1118,7 @@ class MinimalCourseSerializer(FlexFieldsSerializerMixin, TimestampModelSerialize
     class Meta:
         model = Course
         fields = ('key', 'uuid', 'title', 'course_runs', 'entitlements', 'owners', 'image',
-                  'short_description', 'type', 'url_slug', 'course_type')
+                  'short_description', 'type', 'url_slug', 'course_type', 'enterprise_subscription_inclusion')
 
 
 class CourseEditorSerializer(serializers.ModelSerializer):
@@ -1121,13 +1145,33 @@ class CourseEditorSerializer(serializers.ModelSerializer):
 
 
 class AbstractLocationRestrictionSerializer(BaseModelSerializer):
-    restriction_type = serializers.ChoiceField(choices=AbstractLocationRestrictionModel.RESTRICTION_TYPE_CHOICES)
+    restriction_type = serializers.ChoiceField(
+        choices=AbstractLocationRestrictionModel.RESTRICTION_TYPE_CHOICES,
+        allow_null=True,
+        required=False
+    )
     countries = serializers.ListField(
-        child=CountryField(), allow_empty=True, required=False
+        child=CountryField(), allow_empty=True, allow_null=True, required=False
     )
     states = serializers.ListField(
-        child=serializers.ChoiceField(choices=CONTIGUOUS_STATES), allow_empty=True, required=False
+        child=serializers.ChoiceField(choices=CONTIGUOUS_STATES), allow_empty=True, allow_null=True, required=False
     )
+
+    def check_has_data(self, key, attrs):
+        return key in attrs and bool(attrs[key])
+
+    def validate(self, attrs):
+        has_restriction_type = self.check_has_data('restriction_type', attrs)
+        has_countries = self.check_has_data('countries', attrs)
+        has_states = self.check_has_data('states', attrs)
+
+        if (has_countries or has_states) and not has_restriction_type:
+            raise serializers.ValidationError({'Restriction Type': _('Restriction Type cannot be empty')})
+
+        countries = attrs.get('countries', [])
+        states = attrs.get('states', [])
+        attrs.update({'countries': countries, 'states': states})
+        return attrs
 
     class Meta:
         model = AbstractLocationRestrictionModel
@@ -1176,6 +1220,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField(required=False)
+    geolocation = GeoLocationSerializer(required=False, allow_null=True)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
     in_year_value = ProductValueSerializer(required=False)
 
@@ -1201,7 +1246,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             '_official_version',
             'canonical_course_run',
             'type',
+            'geolocation',
             'in_year_value',
+            'location_restriction'
         ).prefetch_related(
             'expected_learning_items',
             'prerequisites',
@@ -1231,7 +1278,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
-            'enterprise_subscription_inclusion', 'location_restriction', 'in_year_value'
+            'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1309,6 +1356,13 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
         # save() will be called by main update()
 
+    def update_geolocation(self, instance, geolocation):
+        existing_geolocation = GeoLocation.objects.filter(**geolocation).first()
+        if existing_geolocation:
+            instance.geolocation = existing_geolocation
+        else:
+            instance.geolocation = GeoLocation.objects.create(**geolocation)
+
     def update_location_restriction(self, instance, location_restriction):
         if instance.location_restriction:
             CourseLocationRestriction.objects.filter(id=instance.location_restriction.id).update(**location_restriction)
@@ -1322,14 +1376,18 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             instance.in_year_value = ProductValue.objects.create(**in_year_value)
 
     def update(self, instance, validated_data):
-        # Handle writing nested additional_metadata, location_restriction, and in_year_value separately
+        # Handle writing nested fields separately
         if 'additional_metadata' in validated_data:
             # Handle additional metadata only for 2U courses else just pop
             additional_metadata_data = validated_data.pop('additional_metadata')
             if instance.is_external_course:
                 self.update_additional_metadata(instance, additional_metadata_data)
+        if 'geolocation' in validated_data:
+            self.update_geolocation(instance, validated_data.pop('geolocation'))
         if 'location_restriction' in validated_data:
-            self.update_location_restriction(instance, validated_data.pop('location_restriction'))
+            location_restriction_data = validated_data.pop('location_restriction')
+            if not all(bool(value) is False for value in location_restriction_data.values()):
+                self.update_location_restriction(instance, location_restriction_data)
         if 'in_year_value' in validated_data:
             self.update_in_year_value(instance, validated_data.pop('in_year_value'))
         return super().update(instance, validated_data)
@@ -1357,7 +1415,9 @@ class CourseWithProgramsSerializer(CourseSerializer):
             'partner',
             'canonical_course_run',
             'type',
+            'geolocation',
             'in_year_value',
+            'location_restriction'
         ).prefetch_related(
             '_official_version',
             'expected_learning_items',
@@ -1913,6 +1973,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     applicable_seat_types = serializers.SerializerMethodField()
     topics = serializers.SerializerMethodField()
     enterprise_subscription_inclusion = serializers.BooleanField()
+    geolocation = GeoLocationSerializer(required=False, allow_null=True)
     location_restriction = ProgramLocationRestrictionSerializer(read_only=True)
     is_2u_degree_program = serializers.BooleanField()
     in_year_value = ProductValueSerializer(required=False)
@@ -1928,7 +1989,14 @@ class ProgramSerializer(MinimalProgramSerializer):
         """
         queryset = queryset if queryset is not None else Program.objects.filter(partner=partner)
 
-        return queryset.select_related('type', 'video', 'partner').prefetch_related(
+        return queryset.select_related(
+            'type',
+            'video',
+            'partner',
+            'geolocation',
+            'in_year_value',
+            'location_restriction'
+        ).prefetch_related(
             'excluded_course_runs',
             'expected_learning_items',
             'faq',
@@ -1961,7 +2029,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'faq', 'credit_backing_organizations', 'corporate_endorsements', 'job_outlook_items',
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
-            'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion',
+            'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'geolocation',
             'location_restriction', 'is_2u_degree_program', 'in_year_value'
         )
         read_only_fields = ('enterprise_subscription_inclusion',)

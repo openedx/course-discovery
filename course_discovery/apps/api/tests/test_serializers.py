@@ -24,11 +24,11 @@ from course_discovery.apps.api.serializers import (
     CourseRunWithProgramsSerializer, CourseSerializer, CourseWithProgramsSerializer,
     CourseWithRecommendationsSerializer, CurriculumSerializer, DegreeAdditionalMetadataSerializer, DegreeCostSerializer,
     DegreeDeadlineSerializer, EndorsementSerializer, FactSerializer, FAQSerializer,
-    FlattenedCourseRunWithCourseSerializer, IconTextPairingSerializer, ImageSerializer, LevelTypeSerializer,
-    MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer, MinimalPersonSerializer,
-    MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer, OrganizationSerializer,
-    PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer, ProductValueSerializer,
-    ProgramLocationRestrictionSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
+    FlattenedCourseRunWithCourseSerializer, GeoLocationSerializer, IconTextPairingSerializer, ImageSerializer,
+    LevelTypeSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
+    MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
+    OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
+    ProductValueSerializer, ProgramLocationRestrictionSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
     ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer,
     TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
     get_lms_course_url_for_archived, get_utm_source_for_user
@@ -139,6 +139,7 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'short_description': course.short_description,
             'type': course.type.uuid,
             'course_type': course.type.slug,
+            'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
             'url_slug': None,
         }
 
@@ -215,6 +216,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'organization_short_code_override': course.organization_short_code_override,
             'organization_logo_override_url': course.organization_logo_override_url,
             'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
+            'geolocation': GeoLocationSerializer(course.geolocation).data,
             'location_restriction': CourseLocationRestrictionSerializer(
                 course.location_restriction
             ).data,
@@ -1133,6 +1135,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
             'is_2u_degree_program': program.is_2u_degree_program,
+            'geolocation': GeoLocationSerializer(program.geolocation).data,
             'location_restriction': ProgramLocationRestrictionSerializer(
                 program.location_restriction, read_only=True
             ).data,
@@ -2145,6 +2148,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'full_description': course.full_description,
             'content_type': 'course',
             'course_type': course.type.slug,
+            'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
             'aggregation_key': f'course:{course.key}',
             'card_image_url': course.card_image_url,
             'image_url': course.image_url,
@@ -2208,6 +2212,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'full_description': course.full_description,
             'content_type': 'course',
             'course_type': course.type.slug,
+            'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
             'aggregation_key': f'course:{course.key}',
             'card_image_url': course.card_image_url,
             'image_url': course.image_url,
@@ -2275,6 +2280,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'full_description': course.full_description,
             'content_type': 'course',
             'course_type': course.type.slug,
+            'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
             'aggregation_key': f'course:{course.key}',
             'card_image_url': course.card_image_url,
             'image_url': course.image_url,
@@ -2625,6 +2631,7 @@ class TestLearnerPathwaySearchDocumentSerializer(TestCase):
                 learner_pathway.steps.all(),
                 many=True
             ).data,
+            'created': serialize_datetime(learner_pathway.created),
         }
 
     def serialize_learner_pathway(self, learner_pathway, request):
@@ -2901,6 +2908,82 @@ class LocationRestrictionSerializerTests(TestCase):
             'states': location_restriction.states
         }
         assert serializer.data['location_restriction'] == expected
+
+    def test_null_fields(self):
+        request = make_request()
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        data = {
+            'location_restriction': {
+                'restriction_type': None,
+                'countries': None,
+                'states': None,
+            },
+        }
+        serializer = CourseSerializer(course, context={'request': request}, data=data)
+        serializer.is_valid()
+        assert 'location_restriction' not in serializer.errors
+
+    def test_no_restriction_type(self):
+        request = make_request()
+        data = {
+            'location_restriction': {
+                'restriction_type': None,
+                'countries': ['CA'],
+                'states': ['MI'],
+            }
+        }
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        serializer = CourseSerializer(course, context={'request': request}, data=data)
+        serializer.is_valid()
+        assert 'location_restriction' in serializer.errors
+        assert 'Restriction Type' in serializer.errors['location_restriction']
+
+    def test_no_countries(self):
+        request = make_request()
+        data = {
+            'location_restriction': {
+                'restriction_type': 'allowlist',
+                'countries': None,
+                'states': ['MI'],
+            }
+        }
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        serializer = CourseSerializer(course, context={'request': request}, data=data)
+        serializer.is_valid()
+        assert 'location_restriction' not in serializer.errors
+
+    def test_no_states(self):
+        request = make_request()
+        data = {
+            'location_restriction': {
+                'restriction_type': 'allowlist',
+                'countries': ['CA'],
+                'states': None,
+            }
+        }
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        serializer = CourseSerializer(course, context={'request': request}, data=data)
+        serializer.is_valid()
+        assert 'location_restriction' not in serializer.errors
+
+    def test_no_countries_or_states(self):
+        request = make_request()
+        data = {
+            'location_restriction': {
+                'restriction_type': 'allowlist',
+                'countries': None,
+                'states': None,
+            }
+        }
+        location_restriction = CourseLocationRestrictionFactory()
+        course = CourseFactory(location_restriction=location_restriction)
+        serializer = CourseSerializer(course, context={'request': request}, data=data)
+        serializer.is_valid()
+        assert 'location_restriction' not in serializer.errors
 
     def test_invalid_codes(self):
         request = make_request()

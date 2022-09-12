@@ -115,6 +115,13 @@ class AlgoliaProxyProduct(Program):
         self.product = product
         self.product.language = language
 
+    @property
+    def coordinates(self):
+        geolocation = getattr(self.product, 'geolocation', None)
+        if geolocation:
+            return getattr(geolocation, 'coordinates', None)
+        return None
+
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
         return getattr(self.product, 'should_index', True)
@@ -166,6 +173,16 @@ class AlgoliaBasicModelFieldsMixin(models.Model):
     def product_value_per_lead_international(self):
         if self.in_year_value:
             return self.in_year_value.per_lead_international
+        return None
+
+    @property
+    def product_organization_short_code_override(self):
+        return self.organization_short_code_override
+
+    @property
+    def product_organization_logo_override(self):
+        if self.organization_logo_override:
+            return getattr(self.organization_logo_override, 'url', None)
         return None
 
 
@@ -242,7 +259,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def program_types(self):
-        return [program.type.name for program in self.programs.all()]
+        return [program.type.name_t for program in self.programs.all()]
 
     @property
     def product_card_image_url(self):
@@ -261,16 +278,6 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     @property
     def product_max_effort(self):
         return getattr(self.advertised_course_run, 'max_effort', None)
-
-    @property
-    def product_organization_short_code_override(self):
-        return self.organization_short_code_override
-
-    @property
-    def product_organization_logo_override(self):
-        if self.organization_logo_override:
-            return getattr(self.organization_logo_override, 'url', None)
-        return None
 
     @property
     def owners(self):
@@ -403,6 +410,8 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def subject_names(self):
+        if self.primary_subject_override:
+            return [self.primary_subject_override.name]
         return [subject.name for subject in self.subjects]
 
     @property
@@ -415,10 +424,14 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def levels(self):
+        if self.level_type_override:
+            return [getattr(self.level_type_override, 'name_t', None)]
         return list(dict.fromkeys([getattr(course.level_type, 'name_t', None) for course in self.courses.all()]))
 
     @property
     def active_languages(self):
+        if self.language_override:
+            return [self.language_override.get_search_facet_display(translate=True)]
         return list(dict.fromkeys([get_active_language(course) for course in self.courses.all()]))
 
     @property
@@ -440,7 +453,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def program_types(self):
         if self.type:
-            return [self.type.name]
+            return [self.type.name_t]
         return None
 
     @property
@@ -490,6 +503,8 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def promoted_in_spanish_index(self):
+        if self.language_override and self.language_override.code.startswith('es'):
+            return True
         all_course_languages = [get_active_language_tag(course) for course in self.courses.all()]
         all_course_languages = [tag for tag in all_course_languages if tag is not None]
         return any(tag.code.startswith('es') for tag in all_course_languages)

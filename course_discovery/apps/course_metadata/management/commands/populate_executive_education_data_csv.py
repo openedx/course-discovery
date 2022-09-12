@@ -85,6 +85,11 @@ class Command(BaseCommand):
         auth_token = options.get('auth_token')
         dev_input_json = options.get('dev_input_json')
 
+        if not (dev_input_json or auth_token):
+            raise CommandError(
+                "auth_token or dev_input_json should be provided to perform data transformation."
+            )
+
         # Error/Warning messages to be displayed at the end of population
         self.messages_list = []  # pylint: disable=attribute-defined-outside-init
 
@@ -175,7 +180,7 @@ class Command(BaseCommand):
         }
 
         try:
-            response = requests.get(url, headers=headers, params=params)
+            response = requests.get(url, headers=headers, params=params)  # pylint: disable=missing-timeout
             response.raise_for_status()
 
             response = response.json()
