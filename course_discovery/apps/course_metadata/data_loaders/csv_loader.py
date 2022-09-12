@@ -13,6 +13,7 @@ from django.urls import reverse
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
+from course_discovery.apps.course_metadata.data_loaders.constants import CSVIngestionErrorMessages, CSVIngestionErrors
 from course_discovery.apps.course_metadata.models import (
     Collaborator, Course, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization, Person, ProgramType,
     Subject
@@ -36,6 +37,14 @@ class CSVDataLoader(AbstractDataLoader):
         ProgramType.PROFESSIONAL_PROGRAM_WL,
         ProgramType.PROFESSIONAL_CERTIFICATE
     ]
+
+    ERROR_LOG_SEQUENCE = [
+        CSVIngestionErrors.MISSING_ORGANIZATION, CSVIngestionErrors.MISSING_COURSE_TYPE,
+        CSVIngestionErrors.MISSING_COURSE_RUN_TYPE, CSVIngestionErrors.MISSING_REQUIRED_DATA,
+        CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, CSVIngestionErrors.COURSE_CREATE_ERROR,
+        CSVIngestionErrors.COURSE_UPDATE_ERROR, CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR
+    ]
+
     # list of data fields (present as CSV columns) that should be present in each row
     BASE_REQUIRED_DATA_FIELDS = [
         'title', 'number', 'image', 'short_description', 'long_description', 'what_will_you_learn', 'course_level',
@@ -57,8 +66,12 @@ class CSVDataLoader(AbstractDataLoader):
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, csv_file=None):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
-        self.messages_list = []  # to show failure/skipped ingestion message at the end
+        self.error_logs = {}
         self.course_uuids = {}  # to show the discovery course ids for each processed course
+
+        for error_log_key in self.ERROR_LOG_SEQUENCE:
+            self.error_logs.setdefault(error_log_key, [])
+
         try:
             # Read file from the path if given. Otherwise, read from the file received from CSVDataLoaderConfiguration.
             self.reader = csv.DictReader(open(csv_path, 'r')) if csv_path \
@@ -70,45 +83,52 @@ class CSVDataLoader(AbstractDataLoader):
     def ingest(self):  # pylint: disable=too-many-statements
         logger.info("Initiating CSV data loader flow.")
         for row in self.reader:
-
             row = self.transform_dict_keys(row)
             course_title = row['title']
             org_key = row['organization']
 
             logger.info('Starting data import flow for {}'.format(course_title))  # lint-amnesty, pylint: disable=logging-format-interpolation
             if not Organization.objects.filter(key=org_key).exists():
-                logger.error("Organization {} does not exist in database. Skipping CSV loader for course {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                    org_key,
-                    course_title
-                ))
-                self.messages_list.append('[MISSING ORGANIZATION] org: {}, course: {}'.format(org_key, course_title))
+                error_message = CSVIngestionErrorMessages.MISSING_ORGANIZATION.format(
+                    org_key=org_key,
+                    course_title=course_title,
+                )
+                logger.error(error_message)
+                self.error_logs[CSVIngestionErrors.MISSING_ORGANIZATION].append(error_message)
                 continue
 
             try:
                 course_type = CourseType.objects.get(name=row['course_enrollment_track'])
                 course_run_type = CourseRunType.objects.get(name=row['course_run_enrollment_track'])
             except CourseType.DoesNotExist:
-                logger.exception("CourseType {} does not exist in the database.".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                    row['course_enrollment_track']
-                ))
+                error_message = CSVIngestionErrorMessages.MISSING_COURSE_TYPE.format(
+                    course_title=course_title, course_type=row['course_enrollment_track']
+                )
+                logger.exception(error_message)
+                self.error_logs[CSVIngestionErrors.MISSING_COURSE_TYPE].append(error_message)
                 continue
             except CourseRunType.DoesNotExist:
-                logger.exception("CourseRunType {} does not exist in the database.".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                    row['course_run_enrollment_track']
-                ))
+                error_message = CSVIngestionErrorMessages.MISSING_COURSE_RUN_TYPE.format(
+                    course_title=course_title, course_run_type=row['course_run_enrollment_track']
+                )
+                logger.exception(error_message)
+                self.error_logs[CSVIngestionErrors.MISSING_COURSE_RUN_TYPE].append(error_message)
                 continue
 
-            message = self.validate_course_data(course_type, row)
-            if message:
-                logger.error("Data validation issue for course {}, skipping ingestion".format(course_title))  # lint-amnesty, pylint: disable=logging-format-interpolation
-                self.messages_list.append("[DATA VALIDATION ERROR] Course {}. Missing data: {}".format(
-                    course_title, message
-                ))
+            missing_fields = self.validate_course_data(course_type, row)
+            if missing_fields:
+                error_message = CSVIngestionErrorMessages.MISSING_REQUIRED_DATA.format(
+                    course_title=course_title, missing_data=missing_fields
+                )
+                logger.error(error_message)
+                self.error_logs[CSVIngestionErrors.MISSING_REQUIRED_DATA].append(
+                    error_message
+                )
                 continue
 
             course_key = self.get_course_key(org_key, row['number'])
-
             course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
+
             if course:
                 course_run = CourseRun.objects.filter_drafts(course=course).first()
                 logger.info("Course {} is located in the database.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -116,12 +136,15 @@ class CSVDataLoader(AbstractDataLoader):
                 logger.info("Course key {} could not be found in database, creating the course.".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
                 try:
                     _ = self._create_course(row, course_type, course_run_type.uuid)
-                except Exception:  # pylint: disable=broad-except
-                    logger.exception("Error occurred when attempting to create a new course against key {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                        course_key
-                    ))
-                    self.messages_list.append('[COURSE CREATION ERROR] course {}'.format(course_title))
+                except Exception as exc:  # pylint: disable=broad-except
+                    error_message = CSVIngestionErrorMessages.COURSE_CREATE_ERROR.format(
+                        course_title=course_title,
+                        exception_message=exc
+                    )
+                    logger.exception(error_message)
+                    self.error_logs[CSVIngestionErrors.COURSE_CREATE_ERROR].append(error_message)
                     continue
+
                 course = Course.everything.get(key=course_key, partner=self.partner)
                 course_run = CourseRun.everything.filter(course=course).first()
 
@@ -134,10 +157,9 @@ class CSVDataLoader(AbstractDataLoader):
                                   '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
                 })
             if not is_downloaded:
-                logger.error("Unexpected error happened while downloading image for course {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                    course_key
-                ))
-                self.messages_list.append('[IMAGE DOWNLOAD FAILURE] course {}'.format(course_title))
+                error_message = CSVIngestionErrorMessages.IMAGE_DOWNLOAD_FAILURE.format(course_title=course_title)
+                logger.error(error_message)
+                self.error_logs[CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE].append(error_message)
                 continue
 
             is_draft = self.get_draft_flag(course_run)
@@ -145,9 +167,13 @@ class CSVDataLoader(AbstractDataLoader):
 
             try:
                 self._update_course(row, course, is_draft)
-            except Exception:  # pylint: disable=broad-except
-                logger.exception("An unknown error occurred while updating course information")
-                self.messages_list.append('[COURSE UPDATE ERROR] course {}'.format(course_title))
+            except Exception as exc:  # pylint: disable=broad-except
+                error_message = CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
+                    course_title=course_title,
+                    exception_message=exc
+                )
+                logger.exception(error_message)
+                self.error_logs[CSVIngestionErrors.COURSE_UPDATE_ERROR].append(error_message)
                 continue
 
             if row.get('organization_logo_override'):
@@ -163,35 +189,31 @@ class CSVDataLoader(AbstractDataLoader):
                     }
                 )
                 if not is_logo_downloaded:
-                    logger.error("Unexpected error happened while downloading override logo image for course {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                        course_key
-                    ))
-                    self.messages_list.append('[OVERRIDE IMAGE DOWNLOAD FAILURE] course {}'.format(course_title))
+                    error_message = CSVIngestionErrorMessages.LOGO_IMAGE_DOWNLOAD_FAILURE.format(
+                        course_title=course_title
+                    )
+                    logger.error(error_message)
+                    self.error_logs[CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE].append(error_message)
 
             # No need to update the course run if the run is already in the review
             if not course_run.in_review:
                 try:
                     self._update_course_run(row, course_run, course_type, is_draft)
-                except Exception:  # pylint: disable=broad-except
-                    logger.exception("An unknown error occurred while updating course run information")
-                    self.messages_list.append('[COURSE RUN UPDATE ERROR] course {}'.format(course_title))
+                except Exception as exc:  # pylint: disable=broad-except
+                    error_message = CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
+                        course_title=course_title,
+                        exception_message=exc
+                    )
+                    logger.exception(error_message)
+                    self.error_logs[CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR].append(error_message)
                     continue
 
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
         logger.info("CSV loader ingest pipeline has completed.")
 
-        # Log the summarized errors at the end for easy filtering of the courses whose ingestion failed
-        if self.messages_list:
-            logger.info("Summarized errors:")
-            for msg in self.messages_list:
-                logger.error(msg)
-
-        # log the processed course uuids and their titles
-        if self.course_uuids:
-            logger.info("Course UUIDs:")
-            for course_uuid, title in self.course_uuids.items():
-                logger.info("{}:{}".format(course_uuid, title))  # lint-amnesty, pylint: disable=logging-format-interpolation
+        self._render_error_logs()
+        self._render_course_uuids()
 
     def validate_course_data(self, course_type, data):
         """
@@ -212,6 +234,19 @@ class CSVDataLoader(AbstractDataLoader):
         if missing_fields:
             return ', '.join(missing_fields)
         return ''
+
+    def _render_error_logs(self):
+        logger.info("Summarized errors:")
+        for error_key in self.ERROR_LOG_SEQUENCE:
+            for msg in self.error_logs[error_key]:
+                logger.error(msg)
+
+    def _render_course_uuids(self):
+        if self.course_uuids:
+            logger.info("Course UUIDs:")
+            for course_uuid, title in self.course_uuids.items():
+                logger.info(
+                    "{}:{}".format(course_uuid, title))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
     def _create_course_api_request_data(self, data, course_type, course_run_type_uuid):
         """
