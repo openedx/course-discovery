@@ -35,9 +35,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.24.69
+boto3==1.24.70
     # via django-ses
-botocore==1.27.69
+botocore==1.27.70
     # via
     #   boto3
     #   s3transfer
@@ -311,7 +311,7 @@ elasticsearch-dsl==7.4.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-fastavro==1.6.0
+fastavro==1.6.1
     # via openedx-events
 future==0.18.2
     # via pyjwkest
@@ -363,7 +363,7 @@ newrelic==8.0.0.179
     # via
     #   -r requirements/production.in
     #   edx-django-utils
-oauthlib==3.2.0
+oauthlib==3.2.1
     # via
     #   requests-oauthlib
     #   social-auth-core
