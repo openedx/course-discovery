@@ -340,6 +340,14 @@ def update_course_data_from_event(**kwargs):
     Args:
         kwargs: event data sent to signal
     """
+    partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
+
+    if not partner.uses_publisher:
+        # COURSE_CATALOG_INFO_CHANGED is only for setups where publisher is enabled. See
+        # https://github.com/openedx/openedx-events/blob/main/docs/decisions/0009-course-catalog-info-changed-design.rst
+        logger.warning("Publisher is not enabled. Skipping COURSE_CATALOG_INFO_CHANGED update.")
+        return
+
     course_data = kwargs.get('catalog_info', None)
     if not course_data or not isinstance(course_data, CourseCatalogData):
         logger.error('Received null or incorrect data from COURSE_CATALOG_INFO_CHANGED.')
@@ -360,11 +368,11 @@ def update_course_data_from_event(**kwargs):
         'hidden': course_data.hidden,
         'license': '',  # license cannot be None
         'pacing': course_data.schedule_data.pacing,
+        'short_description': course_data.short_description if course_data.short_description else None
     }
 
     # Currently, we are not passing along partner information as part of the event.
     # Because of this, we are assuming that all events are going to the default id for now.
-    partner = Partner.objects.get(id=settings.DEFAULT_PARTNER_ID)
     data_loader = CoursesApiDataLoader(partner, enable_api=False)
     data_loader.process_single_course_run(body)
 

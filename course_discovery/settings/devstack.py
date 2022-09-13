@@ -76,11 +76,14 @@ SOCIAL_AUTH_EDX_OAUTH2_LOGOUT_URL = "http://localhost:18000/logout"
 
 BACKEND_SERVICE_EDX_OAUTH2_PROVIDER_URL = "http://edx.devstack.lms:18000/oauth2"
 
-ENABLE_PUBLISHER = True
 
 ORG_BASE_LOGO_URL = "http://discovery:18381/media/"
 
 CELERY_TASK_ALWAYS_EAGER = False
+
+EVENT_BUS_KAFKA_SCHEMA_REGISTRY_URL = 'http://edx.devstack.schema-registry:8081'
+EVENT_BUS_KAFKA_BOOTSTRAP_SERVERS = 'edx.devstack.kafka:29092'
+
 
 #####################################################################
 # Lastly, see if the developer has any local overrides.

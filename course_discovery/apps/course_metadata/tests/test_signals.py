@@ -7,7 +7,7 @@ import pytest
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from factory.django import DjangoModelFactory
 from opaque_keys.edx.keys import CourseKey
 from openedx_events.content_authoring.data import CourseCatalogData, CourseScheduleData
@@ -857,3 +857,20 @@ class TestCourseDataUpdateSignal(TestCase):
         with self.assertLogs('course_discovery.apps.course_metadata.data_loaders.api') as captured_logs:
             update_course_data_from_event(catalog_info=catalog_data)
             assert 'An error occurred while updating' in captured_logs.output[0]
+
+    @override_settings(ENABLE_PUBLISHER=False)
+    def test_event_not_processed_if_no_publisher(self):
+        factories.CourseRunFactory(key=str(self.course_key))
+        course_run = CourseRun.objects.get(key=self.course_key)
+
+        title_pre_update = course_run.title
+        start_pre_update = course_run.start
+
+        assert course_run.title != self.catalog_data.name
+        assert course_run.start != self.catalog_data.schedule_data.start
+
+        update_course_data_from_event(catalog_info=self.catalog_data)
+        course_run = CourseRun.objects.get(key=self.course_key)
+
+        assert course_run.title == title_pre_update
+        assert course_run.start == start_pre_update
