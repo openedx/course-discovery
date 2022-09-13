@@ -14,12 +14,6 @@ from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import GeotargetingCSVLoaderMixin
 from course_discovery.apps.course_metadata.models import CourseLocationRestriction, ProgramLocationRestriction
 
-LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.geotargeting_loader'
-INITIATED_LOG_MESSAGE = (LOGGER_PATH, 'INFO', 'Initiating Geotargeting CSV data loader flow.')
-COMPLETED_LOG_MESSAGE = (LOGGER_PATH, 'INFO', 'Geotargeting CSV loader ingest pipeline has completed.')
-SKIPPED_ITEMS_LOG_MESSAGE = (LOGGER_PATH, 'INFO', 'Skipped items:')
-
-
 @ddt.ddt
 @mock.patch(
     'course_discovery.apps.course_metadata.data_loaders.configured_jwt_decode_handler',
@@ -29,6 +23,11 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
     """
     Test Suite for DegreeCSVLoader.
     """
+
+    LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.geotargeting_loader'
+    INITIATED_LOG_MESSAGE = (LOGGER_PATH, 'INFO', 'Initiating Geotargeting CSV data loader flow.')
+    COMPLETED_LOG_MESSAGE = (LOGGER_PATH, 'INFO', 'Geotargeting CSV loader ingest pipeline has completed.')
+    SKIPPED_ITEMS_LOG_MESSAGE = (LOGGER_PATH, 'INFO', 'Skipped items:')
 
     def setUp(self) -> None:
         super().setUp()
@@ -45,8 +44,8 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
             COMPLETED_LOG_MESSAGE
         )
 
-    @ddt.data('PRODUCT TYPE', 'INCLUDE OR EXCLUDE')
-    def test_data_validation_failure(self, field_name, jwt_decode_patch):  # pylint: disable=unused-argument
+    @ddt.data(('PRODUCT TYPE', 'product_type'), ('INCLUDE OR EXCLUDE', 'include/exclude'))
+    def test_data_validation_failure(self, field_name, field_error_name, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that data validation fails given an invalid data.
         """
@@ -54,13 +53,6 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
             **mock_data.VALID_GEOTARGETING_CSV_DICT,
             field_name: 'ABC123'
         }
-
-        field_error_name = ''
-
-        if field_name == 'PRODUCT TYPE':
-            field_error_name = 'product_type'
-        elif field_name == 'INCLUDE OR EXCLUDE':
-            field_error_name = 'include/exclude'
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [INVALID_GEOTARGETING_CSV_DICT])

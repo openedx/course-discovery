@@ -1,5 +1,5 @@
 """
-Data loader responsible for creating degree entries in discovery Database,
+Data loader responsible for creating location restriction entries in discovery Database,
 """
 import csv
 import uuid
