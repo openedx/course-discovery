@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 class GeotargetingCSVDataLoader(AbstractDataLoader):
     """ Loads the geotargeting (location restriction) data from the csv file """
 
+    # Below are the minimum required fields needed for successful data upload
+    # Additional column names (for info purposes only) may be Product Name, Partner, Notes
     GEOTARGETING_REQUIRED_DATA_FIELDS = [
         'uuid', 'product_type', 'include_or_exclude',
     ]
@@ -28,6 +30,7 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
         self.skipped_items = []
         self.processed_courses = []
         self.processed_programs = []
+        self.updated_course_location_restrictions = []
         try:
             # Read file from the path if given. Otherwise,
             # read from the file received from GeotargetingDataLoaderConfiguration.
@@ -36,6 +39,10 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))    # lint-amnesty, pylint: disable=logging-format-interpolation
             raise  # re-raising exception to avoid moving the code flow
+
+    def log_info(message, list_to_add):
+        logger.info(message)
+        list_to_add.append(message)    
 
     def ingest(self):
         logger.info("Initiating Geotargeting CSV data loader flow.")
@@ -60,25 +67,18 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
 
             if product_type == 'course':
                 # we need to find this course obj and then create or update related CourseLocationRestriction object
-                course_obj = Course.everything.filter(uuid=row_uuid).first()     
-                if course_obj.location_restriction:
-                    # update existing restriction data for this course
-                    course_obj.location_restriction.restriction_type = loc_res['restriction_type']
-                    course_obj.location_restriction.countries = loc_res['countries']
-                    course_obj.location_restriction.save()
-                    msg = "Updated geotargeting data for course with UUID: {}".format(row_uuid)
-                    logger.info(msg)
-                    self.processed_courses.append(msg)                    
-                else:
-                    #create new course loc restriction
-                    new_course_loc_restriction = CourseLocationRestriction.objects.create(**loc_res)
-                    #update both draft and published course obj to point to the new course loc restriction
-                    for item in Course.everything.filter(uuid=row_uuid):
-                        item.location_restriction = new_course_loc_restriction
-                        item.save()    
-                    msg = "Created geotargeting data for course with UUID: {}".format(row_uuid)
-                    logger.info(msg)
-                    self.processed_courses.append(msg)
+                for course_obj in Course.everything.filter(uuid=row_uuid):
+                    action_taken = 'Created'
+                    existing_loc_restriction_id = course_obj.location_restriction.id if course_obj.location_restriction else None
+                    course_obj.location_restriction = CourseLocationRestriction.objects.create(**loc_res)
+                    course_obj.save()    
+                    if existing_loc_restriction_id:
+                        self.updated_course_location_restrictions.append(existing_loc_restriction_id)
+                        action_taken = 'Updated'
+                    self.log_info(
+                        "{} geotargeting data for course with UUID: {}".format(action_taken, row_uuid),
+                        self.processed_courses
+                    )
             else:
                 # we need to check if there already exists a ProgramLocationRestriction for this program and update it if yes or create a new one if needed
                 program_loc_restriction = ProgramLocationRestriction.objects.filter(program__uuid=row['uuid']).first()
@@ -87,9 +87,10 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
                     program_loc_restriction.restriction_type = loc_res['restriction_type']
                     program_loc_restriction.countries = loc_res['countries']
                     program_loc_restriction.save()
-                    msg = "Updated geotargeting data for program with UUID: {}".format(row_uuid)
-                    logger.info(msg)
-                    self.processed_programs.append(msg)
+                    self.log_info(
+                        "Updated geotargeting data for program with UUID: {}".format(row_uuid),
+                        self.processed_programs
+                    )
                 else:
                     #create new
                     program_obj = Program.objects.filter(uuid=row['uuid']).first()
@@ -98,9 +99,17 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
                         restriction_type=loc_res['restriction_type'],
                         countries=loc_res['countries']
                     )
-                    msg = "Created geotargeting data for program with UUID: {}".format(row_uuid)
-                    logger.info(msg)
-                    self.processed_programs.append(msg)
+                    self.log_info(
+                        "Created geotargeting data for program with UUID: {}".format(row_uuid),
+                        self.processed_programs
+                    )
+
+        # Check for potential orphans
+        for loc_res_id in self.updated_course_location_restrictions:
+            related_course = Course.everything.filter(location_restriction__id=loc_res_id).first()
+            if not related_course:
+                CourseLocationRestriction.objects.filter(id=loc_res_id).delete()
+                logger.info("Removed orphaned course location restriction with id: {}".format(loc_res_id))
 
         logger.info("Geotargeting CSV loader ingest pipeline has completed.")
 
@@ -225,7 +234,7 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
         model_name = model._meta.object_name
         kwrags = {key: value}
         try:
-            obj = model.objects.get(**kwrags)
+            obj = model.everything.get(**kwrags) if model_name == 'Course' else model.objects.get(**kwrags)
             return True
         except model.DoesNotExist:
             return False

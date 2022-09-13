@@ -28,7 +28,6 @@ class TestImportGeotargetingData(GeotargetingCSVLoaderMixin, APITestCase):
         csv_file_content = ','.join(list(mock_data.VALID_GEOTARGETING_CSV_DICT)) + '\n'
         csv_file_content += ','.join(f'"{key}"' for key in list(
             mock_data.VALID_GEOTARGETING_CSV_DICT.values()))
-        # print("csv_file_content: {}".format(csv_file_content))
         self.csv_file = SimpleUploadedFile(
             name='test.csv',
             content=csv_file_content.encode('utf-8'),
