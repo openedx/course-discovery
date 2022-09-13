@@ -7,8 +7,8 @@ from course_discovery.apps.course_metadata.models import (
     CourseEntitlement, CourseRunStatus, CourseRunType, CourseType, ProgramType, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseRunTypeFactory, CourseTypeFactory, LevelTypeFactory, ModeFactory, OrganizationFactory, PartnerFactory,
-    SeatTypeFactory, SubjectFactory, TrackFactory
+    CourseFactory, CourseRunTypeFactory, CourseTypeFactory, LevelTypeFactory, ModeFactory, OrganizationFactory,
+    PartnerFactory, ProgramFactory, SeatTypeFactory, SubjectFactory, TrackFactory
 )
 
 
@@ -168,6 +168,53 @@ class DegreeCSVLoaderMixin:
             content_type=content_type
         )
         return image_url, body
+
+
+class GeotargetingCSVLoaderMixin:
+    """
+    Mixin to contain various variables and methods used for GeotargetingCSVDataLoader testing.
+    """
+    def _setup_course(self, course_uuid):
+        """
+        setup test-only course.
+        """
+        CourseFactory(uuid=course_uuid, location_restriction=None)
+
+    def _setup_program(self, program_uuid):
+        """
+        setup test-only course.
+        """
+        ProgramFactory(uuid=program_uuid, location_restriction=None)
+
+    CSV_DATA_KEYS_ORDER = [
+        'UUID',
+        'PRODUCT TYPE',
+        'INCLUDE OR EXCLUDE',
+        'Countries',
+    ]
+
+    def _write_csv(self, csv, lines_dict_list, headers=None):
+        """
+        Helper method to write given list of data dictionaries to csv, including the csv header.
+        """
+        if headers is None:
+            headers = self.CSV_DATA_KEYS_ORDER
+        header = ''
+        lines = ''
+        for key in headers:
+            title_case_key = key.replace('_', ' ').title()
+            header = '{}{},'.format(header, title_case_key)
+        header = f"{header[:-1]}\n"
+
+        for line_dict in lines_dict_list:
+            for key in headers:
+                lines = '{}"{}",'.format(lines, line_dict[key])
+            lines = f"{lines[:-1]}\n"
+
+        csv.write(header.encode())
+        csv.write(lines.encode())
+        csv.seek(0)
+        return csv
 
 
 class CSVLoaderMixin:
