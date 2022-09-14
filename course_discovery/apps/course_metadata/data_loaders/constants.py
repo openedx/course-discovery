@@ -48,3 +48,11 @@ class CSVIngestionErrorMessages:
 
     LOGO_IMAGE_DOWNLOAD_FAILURE = '[LOGO_IMAGE_DOWNLOAD_FAILURE] The logo image download failed for the course ' \
                                   '{course_title}.'
+
+
+CSV_LOADER_ERROR_LOG_SEQUENCE = [
+    CSVIngestionErrors.MISSING_ORGANIZATION, CSVIngestionErrors.MISSING_COURSE_TYPE,
+    CSVIngestionErrors.MISSING_COURSE_RUN_TYPE, CSVIngestionErrors.MISSING_REQUIRED_DATA,
+    CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, CSVIngestionErrors.COURSE_CREATE_ERROR,
+    CSVIngestionErrors.COURSE_UPDATE_ERROR, CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR
+]

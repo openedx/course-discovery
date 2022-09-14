@@ -13,7 +13,9 @@ from django.urls import reverse
 from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
-from course_discovery.apps.course_metadata.data_loaders.constants import CSVIngestionErrorMessages, CSVIngestionErrors
+from course_discovery.apps.course_metadata.data_loaders.constants import (
+    CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
+)
 from course_discovery.apps.course_metadata.models import (
     Collaborator, Course, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization, Person, ProgramType,
     Subject
@@ -36,13 +38,6 @@ class CSVDataLoader(AbstractDataLoader):
         ProgramType.MICROBACHELORS,
         ProgramType.PROFESSIONAL_PROGRAM_WL,
         ProgramType.PROFESSIONAL_CERTIFICATE
-    ]
-
-    ERROR_LOG_SEQUENCE = [
-        CSVIngestionErrors.MISSING_ORGANIZATION, CSVIngestionErrors.MISSING_COURSE_TYPE,
-        CSVIngestionErrors.MISSING_COURSE_RUN_TYPE, CSVIngestionErrors.MISSING_REQUIRED_DATA,
-        CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, CSVIngestionErrors.COURSE_CREATE_ERROR,
-        CSVIngestionErrors.COURSE_UPDATE_ERROR, CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR
     ]
 
     # list of data fields (present as CSV columns) that should be present in each row
@@ -69,7 +64,7 @@ class CSVDataLoader(AbstractDataLoader):
         self.error_logs = {}
         self.course_uuids = {}  # to show the discovery course ids for each processed course
 
-        for error_log_key in self.ERROR_LOG_SEQUENCE:
+        for error_log_key in CSV_LOADER_ERROR_LOG_SEQUENCE:
             self.error_logs.setdefault(error_log_key, [])
 
         try:
@@ -236,10 +231,13 @@ class CSVDataLoader(AbstractDataLoader):
         return ''
 
     def _render_error_logs(self):
-        logger.info("Summarized errors:")
-        for error_key in self.ERROR_LOG_SEQUENCE:
-            for msg in self.error_logs[error_key]:
-                logger.error(msg)
+        if any(list(self.error_logs.values())):
+            logger.info("Summarized errors:")
+            for error_key in CSV_LOADER_ERROR_LOG_SEQUENCE:
+                for msg in self.error_logs[error_key]:
+                    logger.error(msg)
+        else:
+            logger.info("No errors reported in the ingestion")
 
     def _render_course_uuids(self):
         if self.course_uuids:
