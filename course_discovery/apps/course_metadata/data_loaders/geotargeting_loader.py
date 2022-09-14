@@ -44,7 +44,7 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
     def log_info(self, message, list_to_add):
         logger.info(message)
         list_to_add.append(message)
-    
+
     def ingest(self):  # pylint: disable=too-many-statements
         logger.info("Initiating Geotargeting CSV data loader flow.")
         for row in self.reader:
