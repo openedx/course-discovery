@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 
 class GeotargetingCSVDataLoader(AbstractDataLoader):
     """ Loads the geotargeting (location restriction) data from the csv file """
-    
     # Below are the minimum required fields needed for successful data upload
     # Additional column names (for info purposes only) may be Product Name, Partner, Notes
     GEOTARGETING_REQUIRED_DATA_FIELDS = [
@@ -44,8 +43,8 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
 
     def log_info(self, message, list_to_add):
         logger.info(message)
-        list_to_add.append(message)  
-
+        list_to_add.append(message)
+    
     def ingest(self):  # pylint: disable=too-many-statements
         logger.info("Initiating Geotargeting CSV data loader flow.")
         for row in self.reader:
@@ -82,7 +81,7 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
                     action_taken = 'Created'
                     existing_loc_restriction_id = course_obj.location_restriction.id if course_obj.location_restriction else None
                     course_obj.location_restriction = CourseLocationRestriction.objects.create(**loc_res)
-                    course_obj.save()    
+                    course_obj.save()
                     if existing_loc_restriction_id:
                         self.updated_course_location_restrictions.append(existing_loc_restriction_id)
                         action_taken = 'Updated'

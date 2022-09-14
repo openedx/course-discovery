@@ -3394,6 +3394,7 @@ class CourseUrlRedirect(AbstractValueModel):
             ('partner', 'value')
         )
 
+
 class GeotargetingDataLoaderConfiguration(ConfigurationModel):
     """
     Configuration to store a csv file that will be used in import_geotargeting_data.
