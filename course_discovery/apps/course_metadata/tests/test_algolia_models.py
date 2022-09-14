@@ -525,3 +525,17 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
             assert program.active_languages == ['English']
             assert program.levels == ['Introductory']
             assert program.subject_names == ['Computer Science']
+
+    def test_program_tags(self):
+        program = AlgoliaProxyProgramFactory()
+        course1 = AlgoliaProxyCourseFactory()
+        course2 = AlgoliaProxyCourseFactory()
+        course1.topics.add('course1_topic1', 'course1_topic2', 'generic')
+        course2.topics.add('course2_topic1', 'course2_topic2', 'generic')
+        program.labels.add('program_label1', 'program_label2', 'generic')
+        program.courses.add(course1, course2)
+        expected_tags = [
+            'generic', 'course1_topic1', 'program_label2', 'course1_topic2',
+            'course2_topic1', 'course2_topic2', 'program_label1'
+        ]
+        assert sorted(program.tags) == sorted(expected_tags)

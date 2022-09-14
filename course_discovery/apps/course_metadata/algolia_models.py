@@ -458,7 +458,9 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
 
     @property
     def tags(self):
-        return [topic.name for topic in self.topics]
+        topics = [topic.name for topic in self.topics]
+        labels = [label.name for label in self.labels.all()]
+        return list(set(topics + labels))
 
     @property
     def product_allowed_in(self):
