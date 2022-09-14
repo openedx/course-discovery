@@ -638,3 +638,6 @@ FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL = False
 DISCOVERY_BASE_URL = "http://localhost:18381"
 
 PRODUCT_API_URL = ''
+
+# Required for communicating with Google Service Account
+GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = '{"key":"value"}'
