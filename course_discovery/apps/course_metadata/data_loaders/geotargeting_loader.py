@@ -79,7 +79,7 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
                 # we need to find this course obj and then create or update related CourseLocationRestriction object
                 for course_obj in Course.everything.filter(uuid=row_uuid):
                     action_taken = 'Created'
-                    existing_loc_restriction_id = course_obj.location_restriction.id if course_obj.location_restriction else None # lint-amnesty, pylint: disable=line-too-long
+                    existing_loc_restriction_id = course_obj.location_restriction.id if course_obj.location_restriction else None  # lint-amnesty, pylint: disable=line-too-long
                     course_obj.location_restriction = CourseLocationRestriction.objects.create(**loc_res)
                     course_obj.save()
                     if existing_loc_restriction_id:
@@ -120,7 +120,7 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
             related_course = Course.everything.filter(location_restriction__id=loc_res_id).first()
             if not related_course:
                 CourseLocationRestriction.objects.filter(id=loc_res_id).delete()
-                logger.info("Removed orphaned course location restriction with id: {}".format(loc_res_id)) # lint-amnesty, pylint: disable=logging-format-interpolation
+                logger.info("Removed orphaned course location restriction with id: {}".format(loc_res_id))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
         logger.info("Geotargeting CSV loader ingest pipeline has completed.")
 
