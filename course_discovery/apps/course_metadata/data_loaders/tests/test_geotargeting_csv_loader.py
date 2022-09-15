@@ -121,7 +121,7 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
                         'ERROR',
                         'Data validation issue for product with UUID: {}.'
                         'Skipping ingestion for this item.'
-                        'Details: Error in the countries list for UUID: {}, Course or Program with UUID {} was not found'
+                        'Details: Error in the countries list for UUID: {}, Course or Program with UUID {} was not found'  # lint-amnesty, pylint: disable=line-too-long
                         .format(
                             INVALID_GEOTARGETING_CSV_DICT['UUID'],
                             INVALID_GEOTARGETING_CSV_DICT['UUID'],
@@ -207,10 +207,10 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Data validation issue for product with UUID: {}.'
+                        'Data validation issue for product with UUID: {0}.'
                         'Skipping ingestion for this item.'
-                        'Details: Invalid UUID: {}'
-                        .format(invalid_uuid, invalid_uuid)
+                        'Details: Invalid UUID: {0}'
+                        .format(invalid_uuid)
                     ),
                     COMPLETED_LOG_MESSAGE,
                     SKIPPED_ITEMS_LOG_MESSAGE,
