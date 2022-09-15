@@ -124,8 +124,8 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
                         'Details: Error in the countries list for UUID: {}, Course or Program with UUID {} was not found'
                         .format(
                             INVALID_GEOTARGETING_CSV_DICT['UUID'],
-                            INVALID_GEOTARGETING_CSV_DICT['UUID'], 
-                            INVALID_GEOTARGETING_CSV_DICT['UUID']                            
+                            INVALID_GEOTARGETING_CSV_DICT['UUID'],
+                            INVALID_GEOTARGETING_CSV_DICT['UUID']
                         )
                     ),
                     COMPLETED_LOG_MESSAGE,
