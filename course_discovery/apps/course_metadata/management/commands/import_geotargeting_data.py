@@ -51,7 +51,7 @@ class Command(BaseCommand):
             loader.ingest()
         except Exception as exc:
             raise CommandError(  # pylint: disable=raise-missing-from
-                "CSV loader import could not be completed due to unexpected errors.\n{}".format(exc)
+                "Geotargeting CSV loader import could not be completed due to unexpected errors.\n{}".format(exc)
             )
         else:
             logger.info("CSV loader import flow completed.")

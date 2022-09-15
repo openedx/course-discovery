@@ -45,22 +45,16 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
             COMPLETED_LOG_MESSAGE
         )
 
-    @ddt.data('PRODUCT TYPE', 'INCLUDE OR EXCLUDE')
-    def test_data_validation_failure(self, field_name, jwt_decode_patch):  # pylint: disable=unused-argument
+    @ddt.data(('PRODUCT TYPE', 'product_type'), ('INCLUDE OR EXCLUDE', 'include/exclude'))
+    def test_data_validation_failure(self, field, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that data validation fails given an invalid data.
         """
+        field_name, field_error_name = field
         INVALID_GEOTARGETING_CSV_DICT = {
             **mock_data.VALID_GEOTARGETING_CSV_DICT,
             field_name: 'ABC123'
         }
-
-        field_error_name = ''
-
-        if field_name == 'PRODUCT TYPE':
-            field_error_name = 'product_type'
-        elif field_name == 'INCLUDE OR EXCLUDE':
-            field_error_name = 'include/exclude'
 
         with NamedTemporaryFile() as csv:
             csv = self._write_csv(csv, [INVALID_GEOTARGETING_CSV_DICT])
@@ -74,14 +68,11 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Data validation issue for product with UUID: {}. Skipping ingestion for this item.'
-                        .format(INVALID_GEOTARGETING_CSV_DICT['UUID'])
-                    ),
-                    (
-                        LOGGER_PATH,
-                        'ERROR',
-                        'Details: Wrong {} value for UUID: {}, Course or Program with UUID {} was not found\n'
+                        'Data validation issue for product with UUID: {}.'
+                        'Skipping ingestion for this item.'
+                        'Details: Wrong {} value for UUID: {}, Course or Program with UUID {} was not found'
                         .format(
+                            INVALID_GEOTARGETING_CSV_DICT['UUID'],
                             field_error_name,
                             INVALID_GEOTARGETING_CSV_DICT['UUID'],
                             INVALID_GEOTARGETING_CSV_DICT['UUID']
@@ -128,15 +119,14 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Data validation issue for product with UUID: {}. Skipping ingestion for this item.'
-                        .format(INVALID_GEOTARGETING_CSV_DICT['UUID'])
-                    ),
-                    (
-                        LOGGER_PATH,
-                        'ERROR',
-                        'Details: Error in the countries list for UUID: {}, '
-                        'Course or Program with UUID {} was not found\n'
-                        .format(INVALID_GEOTARGETING_CSV_DICT['UUID'], INVALID_GEOTARGETING_CSV_DICT['UUID'])
+                        'Data validation issue for product with UUID: {}.'
+                        'Skipping ingestion for this item.'
+                        'Details: Error in the countries list for UUID: {}, Course or Program with UUID {} was not found'
+                        .format(
+                            INVALID_GEOTARGETING_CSV_DICT['UUID'],
+                            INVALID_GEOTARGETING_CSV_DICT['UUID'], 
+                            INVALID_GEOTARGETING_CSV_DICT['UUID']                            
+                        )
                     ),
                     COMPLETED_LOG_MESSAGE,
                     SKIPPED_ITEMS_LOG_MESSAGE,
@@ -175,14 +165,13 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Data validation issue for product with UUID: {}. Skipping ingestion for this item.'
-                        .format(INVALID_GEOTARGETING_CSV_DICT['UUID'])
-                    ),
-                    (
-                        LOGGER_PATH,
-                        'ERROR',
-                        'Details: Course or Program with UUID {} was not found\n'
-                        .format(INVALID_GEOTARGETING_CSV_DICT['UUID'])
+                        'Data validation issue for product with UUID: {}.'
+                        'Skipping ingestion for this item.'
+                        'Details: Course or Program with UUID {} was not found'
+                        .format(
+                            INVALID_GEOTARGETING_CSV_DICT['UUID'],
+                            INVALID_GEOTARGETING_CSV_DICT['UUID']
+                        )
                     ),
                     COMPLETED_LOG_MESSAGE,
                     SKIPPED_ITEMS_LOG_MESSAGE,
@@ -218,13 +207,10 @@ class TestGeotargetingCSVDataLoader(GeotargetingCSVLoaderMixin, OAuth2Mixin, API
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Data validation issue for product with UUID: {}. Skipping ingestion for this item.'
-                        .format(invalid_uuid)
-                    ),
-                    (
-                        LOGGER_PATH,
-                        'ERROR',
-                        'Details: Invalid UUID: {}\n'.format(invalid_uuid)
+                        'Data validation issue for product with UUID: {}.'
+                        'Skipping ingestion for this item.'
+                        'Details: Invalid UUID: {}'
+                        .format(invalid_uuid, invalid_uuid)
                     ),
                     COMPLETED_LOG_MESSAGE,
                     SKIPPED_ITEMS_LOG_MESSAGE,

@@ -846,3 +846,11 @@ class DegreeDataLoaderConfigurationAdmin(admin.ModelAdmin):
     Admin for DegreeDataLoaderConfiguration model.
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(GeotargetingDataLoaderConfiguration)
+class GeotargetingDataLoaderConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for GeotargetingDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')

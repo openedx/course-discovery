@@ -1,5 +1,5 @@
 """
-Data loader responsible for creating location restriction entries in discovery Database,
+Data loader responsible for creating location restriction entries in discovery database,
 """
 import csv
 import logging
@@ -55,9 +55,11 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
             message = self.validate_geotargeting_data(row)
             if message:
                 logger.error(
-                    "Data validation issue for product with UUID: %s. Skipping ingestion for this item.", row_uuid
+                    'Data validation issue for product with UUID: {}.'
+                    'Skipping ingestion for this item.'
+                    'Details: {}'
+                    .format(row_uuid, message)
                 )
-                logger.error("Details: %s\n", message)
                 self.skipped_items.append("Skipped {} with UUID {}. Errors: {}".format(product_type, row_uuid, message))
                 continue
 
@@ -244,7 +246,9 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
         model_name = model._meta.object_name
         kwrags = {key: value}
         try:
-            obj = model.everything.get(**kwrags) if model_name == 'Course' else model.objects.get(**kwrags)
-            return obj
+            return (
+                model.everything.filter(**kwrags).exists() if model_name == 'Course'
+                else model.objects.filter(**kwrags).exists()
+            )
         except model.DoesNotExist:
             return False

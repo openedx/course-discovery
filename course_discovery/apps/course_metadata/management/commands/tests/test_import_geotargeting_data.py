@@ -53,7 +53,7 @@ class TestImportGeotargetingData(GeotargetingCSVLoaderMixin, OAuth2Mixin, APITes
         Test that the command raises CommandError if an invalid csv path is provided.
         """
         with self.assertRaisesMessage(
-                CommandError, 'CSV loader import could not be completed due to unexpected errors.'
+                CommandError, 'Geotargeting CSV loader import could not be completed due to unexpected errors.'
         ):
             call_command(
                 'import_geotargeting_data', '--partner_code', self.partner.short_code, '--csv_path', 'no-path',
