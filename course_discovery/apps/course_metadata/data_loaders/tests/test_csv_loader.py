@@ -87,13 +87,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Organization invalid-organization does not exist in database. Skipping CSV '
-                        'loader for course CSV Course'
-                    ),
-                    (
-                        LOGGER_PATH,
-                        'ERROR',
-                        '[MISSING ORGANIZATION] org: invalid-organization, course: CSV Course'
+                        '[MISSING_ORGANIZATION] Unable to locate partner organization with key invalid-organization '
+                        'for the course titled CSV Course.'
                     )
                 )
                 assert Course.objects.count() == 0
@@ -114,7 +109,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'CourseType invalid track does not exist in the database.'
+                        '[MISSING_COURSE_TYPE] Unable to find the course enrollment track "invalid track"'
+                        ' for the course CSV Course'
                     )
                 )
                 assert Course.objects.count() == 0
@@ -135,7 +131,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'CourseRunType invalid track does not exist in the database.'
+                        '[MISSING_COURSE_RUN_TYPE] Unable to find the course run enrollment track "invalid track"'
+                        ' for the course CSV Course'
                     )
                 )
                 assert Course.objects.count() == 0
@@ -186,12 +183,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         (
                             LOGGER_PATH,
                             'ERROR',
-                            'Unexpected error happened while downloading image for course edx+csv_123'
-                        ),
-                        (
-                            LOGGER_PATH,
-                            'ERROR',
-                            '[IMAGE DOWNLOAD FAILURE] course CSV Course'
+                            '[IMAGE_DOWNLOAD_FAILURE] The course image download failed for the course CSV Course.'
                         )
                     )
 
@@ -342,12 +334,10 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         (
                             LOGGER_PATH,
                             'ERROR',
-                            'An unknown error occurred while updating course run information'
-                        ),
-                        (
-                            LOGGER_PATH,
-                            'ERROR',
-                            '[COURSE RUN UPDATE ERROR] course CSV Course'
+                            '[COURSE_RUN_UPDATE_ERROR] Unable to update course run of the course CSV Course '
+                            'in the system. The update failed with the exception: '
+                            'Language gibberish-language from provided string gibberish-language'
+                            ' is either missing or an invalid ietf language'
                         )
                     )
 
@@ -535,23 +525,28 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
     @data(
         (['primary_subject', 'image', 'long_description'],
          ('Executive Education(2U)', 'executive-education-2u'),
-         '[DATA VALIDATION ERROR] Course CSV Course. Missing data: image, long_description, primary_subject',
+         '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
+         'The missing data elements are "image, long_description, primary_subject"'
          ),
         (['publish_date', 'organic_url', 'stat1_text'],
          ('Executive Education(2U)', 'executive-education-2u'),
-         '[DATA VALIDATION ERROR] Course CSV Course. Missing data: publish_date, organic_url, stat1_text',
+         '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
+         'The missing data elements are "publish_date, organic_url, stat1_text"'
          ),
         (['primary_subject', 'image', 'long_description'],
          ('Bootcamp(2U)', 'bootcamp-2u'),
-         '[DATA VALIDATION ERROR] Course CSV Course. Missing data: image, long_description, primary_subject',
+         '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
+         'The missing data elements are "image, long_description, primary_subject"'
          ),
         (['redirect_url', 'organic_url'],
          ('Bootcamp(2U)', 'bootcamp-2u'),
-         '[DATA VALIDATION ERROR] Course CSV Course. Missing data: redirect_url, organic_url',
+         '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
+         'The missing data elements are "redirect_url, organic_url"'
          ),
         (['publish_date', 'organic_url', 'stat1_text'],  # ExEd data fields are not considered for other types
          ('Professional', 'prof-ed'),
-         '[DATA VALIDATION ERROR] Course CSV Course. Missing data: publish_date',
+         '[MISSING_REQUIRED_DATA] Course CSV Course is missing the required data for ingestion. '
+         'The missing data elements are "publish_date"'
          ),
     )
     @unpack
@@ -583,11 +578,6 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 self._assert_default_logs(log_capture)
 
                 log_capture.check_present(
-                    (
-                        LOGGER_PATH,
-                        'ERROR',
-                        'Data validation issue for course CSV Course, skipping ingestion'
-                    ),
                     (
                         LOGGER_PATH,
                         'ERROR',
