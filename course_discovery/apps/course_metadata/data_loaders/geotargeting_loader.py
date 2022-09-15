@@ -55,7 +55,7 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
             message = self.validate_geotargeting_data(row)
             if message:
                 logger.error(
-                    'Data validation issue for product with UUID: {}.'
+                    'Data validation issue for product with UUID: {}.'  # lint-amnesty, pylint: disable=logging-format-interpolation
                     'Skipping ingestion for this item.'
                     'Details: {}'
                     .format(row_uuid, message)
