@@ -2,6 +2,8 @@ import json
 
 from django_elasticsearch_dsl_drf.serializers import DocumentSerializer
 from rest_framework import serializers
+from taxonomy.choices import ProductTypes
+from taxonomy.utils import get_whitelisted_product_skills, get_whitelisted_serialized_skills
 
 from course_discovery.apps.api.serializers import ContentTypeSerializer, ProgramSerializer
 from course_discovery.apps.edx_elasticsearch_dsl_extensions.serializers import BaseDjangoESDSLFacetSerializer
@@ -19,10 +21,19 @@ class ProgramSearchDocumentSerializer(DocumentSerializer):
     """
 
     authoring_organizations = serializers.SerializerMethodField()
+    skill_names = serializers.SerializerMethodField()
+    skills = serializers.SerializerMethodField()
 
     def get_authoring_organizations(self, program):
         organizations = program.authoring_organization_bodies
         return [json.loads(organization) for organization in organizations] if organizations else []
+
+    def get_skill_names(self, program):
+        program_skills = get_whitelisted_product_skills(program.uuid, product_type=ProductTypes.Program)
+        return list(set(program_skill.skill.name for program_skill in program_skills))
+
+    def get_skills(self, program):
+        return get_whitelisted_serialized_skills(program.uuid, product_type=ProductTypes.Program)
 
     class Meta:
         """
@@ -43,6 +54,8 @@ class ProgramSearchDocumentSerializer(DocumentSerializer):
                 'min_hours_effort_per_week',
                 'staff_uuids',
                 'subject_uuids',
+                'skill_names',
+                'skills',
                 'weeks_to_complete_max',
                 'weeks_to_complete_min',
                 'search_card_display',
