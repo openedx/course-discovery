@@ -8,19 +8,19 @@ Service providing access to consolidated course and program metadata.
 Documentation
 -------------
 
-`Documentation <https://edx-discovery.readthedocs.io/en/latest/>`_ is hosted on Read the Docs. The source is hosted in this repo's `docs <https://github.com/edx/course-discovery/tree/master/docs>`_ directory. The docs are automatically rebuilt and redeployed when commits are merged to master. To contribute, please open a PR against this repo.
+`Documentation <https://edx-discovery.readthedocs.io/en/latest/>`_ is hosted on Read the Docs. The source is hosted in this repo's `docs <https://github.com/openedx/course-discovery/tree/master/docs>`_ directory. The docs are automatically rebuilt and redeployed when commits are merged to master. To contribute, please open a PR against this repo.
 
 License
 -------
 
 The code in this repository is licensed under version 3 of the AGPL unless otherwise noted. Please see the LICENSE_ file for details.
 
-.. _LICENSE: https://github.com/edx/course-discovery/blob/master/LICENSE
+.. _LICENSE: https://github.com/openedx/course-discovery/blob/master/LICENSE
 
 How To Contribute
 -----------------
 
-Contributions are welcome. Please read `How To Contribute <https://github.com/edx/edx-platform/blob/master/CONTRIBUTING.rst>`_ for details. Even though it was written with ``edx-platform`` in mind, these guidelines should be followed for Open edX code in general.
+Contributions are welcome. Please read `How To Contribute <https://github.com/openedx/edx-platform/blob/master/CONTRIBUTING.rst>`_ for details. Even though it was written with ``edx-platform`` in mind, these guidelines should be followed for Open edX code in general.
 
 Development
 -----------
@@ -116,9 +116,9 @@ For example,
 
    pytest -c pytest-no-xdist.ini --ds=course_discovery.settings.test --durations=25 course_discovery/apps/publisher/tests/test_views.py::CourseRunDetailTests::test_detail_page_with_comments
 
-.. _pytest.ini file: https://github.com/edx/course-discovery/blob/master/pytest.ini
+.. _pytest.ini file: https://github.com/openedx/course-discovery/blob/master/pytest.ini
 .. _pytest-xdist does not support pdb.set_trace(): https://github.com/pytest-dev/pytest/issues/390#issuecomment-112203885
-.. _pytest-no-xdist.ini file: https://github.com/edx/course-discovery/blob/master/pytest=no-xdist.ini
+.. _pytest-no-xdist.ini file: https://github.com/openedx/course-discovery/blob/master/pytest=no-xdist.ini
 
 Reporting Security Issues
 -------------------------

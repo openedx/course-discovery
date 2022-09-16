@@ -89,7 +89,7 @@ The Discovery service uses the OAuth 2.0 protocol for authentication. The LMS cu
 
 If you're using `devstack`_, OAuth2 should be configured for you. If you need to configure OAuth2 manually, you need to register a new client with the OAuth2 provider (the LMS) and update Discovery's Django settings with the newly created credentials.
 
-.. _devstack: https://github.com/edx/devstack
+.. _devstack: https://github.com/openedx/devstack
 
 A new OAuth 2.0 client can be created at ``http://localhost:18000/admin/oauth2_provider/application/``.
 

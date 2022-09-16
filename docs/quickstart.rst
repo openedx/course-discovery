@@ -6,9 +6,9 @@ This section covers information you need to know to run and develop for the Disc
 Devstack
 --------
 
-Discovery is part of edX's Docker-based "devstack." To run the service locally, follow along with the instructions in the https://github.com/edx/devstack repo's `README`_.
+Discovery is part of edX's Docker-based "devstack." To run the service locally, follow along with the instructions in the https://github.com/openedx/devstack repo's `README`_.
 
-.. _README: https://github.com/edx/devstack/blob/master/README.rst
+.. _README: https://github.com/openedx/devstack/blob/master/README.rst
 
 Devstack will allow you to run all edX services together. If you only need Discovery, you can run just the services it requires:
 

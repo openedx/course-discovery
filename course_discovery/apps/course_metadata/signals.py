@@ -380,7 +380,7 @@ try:  # pragma: no cover
     # .. toggle_description: Enables the logging of events from the Kafka event bus
     # .. toggle_use_cases: opt_in
     # .. toggle_creation_date: 2022-08-11
-    # .. toggle_tickets: https://github.com/edx/edx-arch-experiments/issues/48
+    # .. toggle_tickets: https://github.com/openedx/edx-arch-experiments/issues/48
     LOG_KAFKA_EVENTS = SettingToggle('LOG_KAFKA_EVENTS', default=False)
 
     @receiver(COURSE_CATALOG_INFO_CHANGED)
