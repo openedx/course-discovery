@@ -74,13 +74,10 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Data validation issue for degree {}, skipping ingestion'.format(self.DEGREE_SLUG)
-                    ),
-                    (
-                        LOGGER_PATH,
-                        'ERROR',
-                        '[DATA VALIDATION ERROR] Degree {}. Missing data: {}'.format(
-                            self.DEGREE_SLUG, missing_key
+                        '[MISSING_REQUIRED_DATA] Degree {degree_slug} is missing the required data for '
+                        'ingestion. The missing data elements are "{missing_data}"'.format(
+                            degree_slug=self.DEGREE_SLUG,
+                            missing_data=missing_key
                         )
                     )
                 )
@@ -100,16 +97,9 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Organization invalid-organization does not exist. Skipping CSV '
-                        'loader for degree {}'.format(self.DEGREE_SLUG)
+                        '[MISSING_ORGANIZATION] Unable to locate partner organization with key invalid-organization '
+                        'for the degree {degree_slug}.'.format(degree_slug=self.DEGREE_SLUG)
                     ),
-                    (
-                        LOGGER_PATH,
-                        'ERROR',
-                        '[MISSING ORGANIZATION] Organization: invalid-organization, degree: {}'.format(
-                            self.DEGREE_SLUG
-                        )
-                    )
                 )
                 assert Degree.objects.count() == 0
 
@@ -128,8 +118,8 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'ProgramType invalid-program-type does not exist. Skipping CSV '
-                        'loader for degree {}'.format(self.DEGREE_SLUG)
+                        '[MISSING_PROGRAM_TYPE] Unable to find the program type "invalid-program-type" '
+                        'for the degree {degree_slug}'.format(degree_slug=self.DEGREE_SLUG)
                     )
                 )
                 assert Degree.objects.count() == 0
@@ -298,11 +288,7 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                     (
                         LOGGER_PATH,
                         'ERROR',
-                        'Unexpected error happened while downloading image for degree {}'.format(self.DEGREE_SLUG)
-                    ),
-                    (
-                        LOGGER_PATH,
-                        'ERROR',
-                        '[DEGREE IMAGE DOWNLOAD FAILURE] degree {}'.format(self.DEGREE_SLUG)
+                        '[IMAGE_DOWNLOAD_FAILURE] The degree image download failed for the degree'
+                        ' {degree_slug}.'.format(degree_slug=self.DEGREE_SLUG)
                     )
                 )

@@ -7,6 +7,9 @@ import logging
 import unicodecsv
 
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
+from course_discovery.apps.course_metadata.data_loaders.constants import (
+    DEGREE_LOADER_ERROR_LOG_SEQUENCE, DegreeCSVIngestionErrorMessages, DegreeCSVIngestionErrors
+)
 from course_discovery.apps.course_metadata.models import (
     Curriculum, Degree, DegreeAdditionalMetadata, LanguageTag, LevelType, Organization, Program, ProgramType,
     Specialization, Subject
@@ -25,11 +28,39 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         'identifier', 'overview', 'courses',
     ]
 
+    # Define the error type and error messages for various required data models for Degree ingestion
+    MODEL_ERROR_MAPPING = {
+        Organization: {
+            'error_type': DegreeCSVIngestionErrors.MISSING_ORGANIZATION,
+            'error_message': DegreeCSVIngestionErrorMessages.MISSING_ORGANIZATION,
+        },
+        ProgramType: {
+            'error_type': DegreeCSVIngestionErrors.MISSING_PROGRAM_TYPE,
+            'error_message': DegreeCSVIngestionErrorMessages.MISSING_PROGRAM_TYPE,
+        },
+        Subject: {
+            'error_type': DegreeCSVIngestionErrors.MISSING_SUBJECT_DATA,
+            'error_message': DegreeCSVIngestionErrorMessages.MISSING_SUBJECT_DATA,
+        },
+        LevelType: {
+            'error_type': DegreeCSVIngestionErrors.MISSING_LEVEL_TYPE_DATA,
+            'error_message': DegreeCSVIngestionErrorMessages.MISSING_LEVEL_TYPE_DATA,
+        },
+        LanguageTag: {
+            'error_type': DegreeCSVIngestionErrors.MISSING_LANGUAGE_TAG_DATA,
+            'error_message': DegreeCSVIngestionErrorMessages.MISSING_LANGUAGE_TAG_DATA,
+        }
+    }
+
     def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, csv_file=None):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
-        self.messages_list = []  # to show failure/skipped ingestion message at the end
+        self.error_logs = {}
         self.degree_uuids = {}  # to show the discovery degrees/program ids for each processed degree
+
+        for error_log_key in DEGREE_LOADER_ERROR_LOG_SEQUENCE:
+            self.error_logs.setdefault(error_log_key, [])
+
         try:
             # Read file from the path if given. Otherwise,
             # read from the file received from DegreeDataLoaderConfiguration.
@@ -47,12 +78,14 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             degree_slug = row['slug']
             program_type = row['product_type'].replace('\'', '').lower()
 
-            message = self.validate_degree_data(row)
-            if message:
-                logger.error("Data validation issue for degree {}, skipping ingestion".format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
-                self.messages_list.append("[DATA VALIDATION ERROR] Degree {}. Missing data: {}".format(
-                    degree_slug, message
-                ))
+            missing_data = self.validate_degree_data(row)
+            if missing_data:
+                error_message = DegreeCSVIngestionErrorMessages.MISSING_REQUIRED_DATA.format(
+                    degree_slug=degree_slug,
+                    missing_data=missing_data
+                )
+                logger.error(error_message)
+                self.error_logs[DegreeCSVIngestionErrors.MISSING_REQUIRED_DATA].append(error_message)
                 continue
 
             logger.info('Starting data import flow for {}'.format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -94,14 +127,17 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 )
             # we can get the IntegrityError if the degree already exists in the database
             # or any related error while updating or creating degree object
-            except Exception:   # pylint: disable=broad-except
-                logger.exception("An unknown error occurred while {} degree information".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                    "updating" if degree else "creating"
-                ))
-                self.messages_list.append('[DEGREE {} ERROR] degree {}'.format(
-                    "UPDATE" if degree else "CREATE",
-                    degree_slug
-                ))
+            except Exception as exc:   # pylint: disable=broad-except
+                error_type = DegreeCSVIngestionErrors.DEGREE_UPDATE_ERROR if degree else \
+                    DegreeCSVIngestionErrors.DEGREE_CREATE_ERROR
+                error_message = DegreeCSVIngestionErrorMessages.DEGREE_UPDATE_ERROR if degree else \
+                    DegreeCSVIngestionErrorMessages.DEGREE_CREATE_ERROR
+                error_message = error_message.format(
+                    degree_slug=degree_slug,
+                    exception_message=exc
+                )
+                logger.exception(error_message)
+                self.error_logs[error_type].append(error_message)
                 continue
 
             self._handle_organization_data(org, degree)
@@ -115,17 +151,8 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
         logger.info("Degree CSV loader ingest pipeline has completed.")
 
-        # Log the summarized errors at the end for easy filtering of the degrees whose ingestion failed
-        if self.messages_list:
-            logger.info("Summarized errors:")
-            for msg in self.messages_list:
-                logger.error(msg)
-
-        # log the processed degree uuids and their marketing_slugs
-        if self.degree_uuids:
-            logger.info("Degree UUIDs:")
-            for degree_uuid, marketing_slug in self.degree_uuids.items():
-                logger.info("{}:{}".format(degree_uuid, marketing_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
+        self._render_error_logs()
+        self._render_degree_uuids()
 
     def validate_degree_data(self, data):
         """
@@ -141,6 +168,23 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         if missing_fields:
             return ', '.join(missing_fields)
         return ''
+
+    def _render_error_logs(self):
+        if any(list(self.error_logs.values())):
+            logger.info("Summarized errors:")
+            for error_key in DEGREE_LOADER_ERROR_LOG_SEQUENCE:
+                for msg in self.error_logs[error_key]:
+                    logger.error(msg)
+        else:
+            logger.info("No errors reported in the ingestion")
+
+    def _render_degree_uuids(self):
+        # log the processed degree uuids and their marketing_slugs
+        if self.degree_uuids:
+            logger.info("Degree UUIDs:")
+            for degree_uuid, marketing_slug in self.degree_uuids.items():
+                logger.info("{}:{}".format(degree_uuid,
+                                           marketing_slug))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
     def transform_dict_keys(self, data):
         """
@@ -211,10 +255,11 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             }
         )
         if not is_downloaded:
-            logger.error("Unexpected error happened while downloading image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                degree.marketing_slug
-            ))
-            self.messages_list.append('[DEGREE IMAGE DOWNLOAD FAILURE] degree {}'.format(degree.marketing_slug))
+            error_message = DegreeCSVIngestionErrorMessages.IMAGE_DOWNLOAD_FAILURE.format(
+                degree_slug=degree.marketing_slug
+            )
+            logger.error(error_message)
+            self.error_logs[DegreeCSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE].append(error_message)
 
         if data.get('organization_logo_override'):
             is_downloaded = download_and_save_program_image(
@@ -227,12 +272,11 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 }
             )
             if not is_downloaded:
-                logger.error("Unexpected error happened while downloading org logo image for degree {}".format(  # lint-amnesty, pylint: disable=logging-format-interpolation
-                    degree.marketing_slug
-                ))
-                self.messages_list.append('[ORG LOGO OVERRIDE IMAGE DOWNLOAD FAILURE] degree {}'.format(
-                    degree.marketing_slug
-                ))
+                error_message = DegreeCSVIngestionErrorMessages.LOGO_IMAGE_DOWNLOAD_FAILURE.format(
+                    degree_slug=degree.marketing_slug
+                )
+                logger.error(error_message)
+                self.error_logs[DegreeCSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE].append(error_message)
 
     def _handle_courses(self, data, degree):
         """
@@ -286,14 +330,15 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             obj = model.objects.get(**kwrags)
             return obj
         except model.DoesNotExist:
-            logger.exception("{} {} does not exist. Skipping CSV loader for degree {}".format(   # lint-amnesty, pylint: disable=logging-format-interpolation
-                model_name,
+            error_dict = self.MODEL_ERROR_MAPPING[model]
+            error_message = error_dict['error_message'].format(
                 value,
-                degree_slug
-            ))
-            self.messages_list.append('[MISSING {}] {}: {}, degree: {}'.format(
-                model_name.upper(), model_name, value, degree_slug
-            ))
+                degree_slug=degree_slug,
+            )
+            error_type = error_dict['error_type']
+
+            logger.exception(error_message)
+            self.error_logs[error_type].append(error_message)
             return None
 
     def _handle_additional_metadata(self, data, degree):
