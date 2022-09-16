@@ -183,8 +183,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         if self.degree_uuids:
             logger.info("Degree UUIDs:")
             for degree_uuid, marketing_slug in self.degree_uuids.items():
-                logger.info("{}:{}".format(degree_uuid,
-                                           marketing_slug))  # lint-amnesty, pylint: disable=logging-format-interpolation
+                logger.info("{}:{}".format(degree_uuid, marketing_slug))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
     def transform_dict_keys(self, data):
         """
