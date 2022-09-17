@@ -101,6 +101,6 @@ except json.decoder.JSONDecodeError:
     logger.warning("GOOGLE_SERVICE_ACCOUNT_CREDENTIALS were not in expected format")
 except Exception: # pylint: disable=broad-except
     logger.warning(
-        "Cannot decode GOOGLE_SERVICE_ACCOUNT_CREDENTIALS value of type",
+        "Cannot decode GOOGLE_SERVICE_ACCOUNT_CREDENTIALS value of type: %s",
         type(GOOGLE_SERVICE_ACCOUNT_CREDENTIALS),
     )
