@@ -10,6 +10,7 @@ from django.db.models.signals import post_delete, post_save
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.degrees_loader import DegreeCSVDataLoader
+from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import DegreeDataLoaderConfiguration
 from course_discovery.apps.course_metadata.signals import connect_api_change_receiver
 
@@ -29,6 +30,12 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '--csv_path',
+            help='Path to the CSV file',
+            type=str,
+        )
+
+        parser.add_argument(
+            '--google_link',
             help='Path to the CSV file',
             type=str,
         )
@@ -58,6 +65,12 @@ class Command(BaseCommand):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
 
         try:
+            # Temporary code to check Gspread client connection in Jenkins job
+            google_link = options.get('google_link')
+            if google_link:
+                gspread_client = GspreadClient()
+                gspread_client.get_spread_sheet_by_url(google_link)
+
             loader = DegreeCSVDataLoader(partner, csv_path=csv_path, csv_file=csv_file)
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             loader.ingest()
