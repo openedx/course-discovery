@@ -827,6 +827,11 @@ class DrupalPublishUuidConfigFactory(factory.django.DjangoModelFactory):
         model = DrupalPublishUuidConfig
 
 
+class GeotargetingDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = GeotargetingDataLoaderConfiguration
+
+
 class CSVDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = CSVDataLoaderConfiguration
