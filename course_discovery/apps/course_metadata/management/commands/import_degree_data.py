@@ -4,6 +4,7 @@ Management command to import, create, and/or update degrees' data.
 import logging
 
 from django.apps import apps
+from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from django.db.models.signals import post_delete, post_save
 
@@ -34,12 +35,6 @@ class Command(BaseCommand):
             type=str,
         )
 
-        parser.add_argument(
-            '--google_link',
-            help='Path to the CSV file',
-            type=str,
-        )
-
     def handle(self, *args, **options):
         """
         Example usage: ./manage.py import_degree_data --partner_code=edx --csv_path=test.csv
@@ -66,7 +61,7 @@ class Command(BaseCommand):
 
         try:
             # Temporary code to check Gspread client connection in Jenkins job
-            google_link = options.get('google_link')
+            google_link = settings.EXTERNAL_DEGREE_SHEET_LINK
             if google_link:
                 gspread_client = GspreadClient()
                 gspread_client.get_spread_sheet_by_url(google_link)

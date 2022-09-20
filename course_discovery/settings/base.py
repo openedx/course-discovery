@@ -641,3 +641,4 @@ PRODUCT_API_URL = ''
 
 # Required for communicating with Google Service Account
 GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {"key":"value"}
+EXTERNAL_DEGREE_SHEET_LINK = "https://docs.google.com/spreadsheets/random-key"
