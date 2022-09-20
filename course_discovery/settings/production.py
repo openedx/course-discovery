@@ -89,6 +89,9 @@ COMPRESS_OFFLINE = True
 # Have images and such that we upload be publicly readable
 AWS_DEFAULT_ACL = 'public-read'
 
+# TEST SPREADSHEET
+EXTERNAL_DEGREE_SHEET_LINK = environ.get("EXTERNAL_DEGREE_SHEET_LINK", EXTERNAL_DEGREE_SHEET_LINK)
+
 # Special handling for GOOGLE_SERVICE_ACCOUNT_CREDENTIALS. Although they are stored as json in vault,
 # the value that gets passed to us is a string.
 try:
