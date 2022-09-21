@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from opaque_keys.edx.django.models import UsageKeyField
 from stdimage.models import StdImageField
+from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.core.models import Partner
@@ -250,7 +251,7 @@ class LearnerPathwayCourse(LearnerPathwayNode):
         """
         Return list of dicts where each dict contain skill name and skill description.
         """
-        return get_whitelisted_serialized_skills(self.course.key)
+        return get_whitelisted_serialized_skills(self.course.key, product_type=ProductTypes.Course)
 
     def __str__(self):
         """
@@ -294,7 +295,7 @@ class LearnerPathwayProgram(LearnerPathwayNode):
         """
         program_skills = []
         for program_course in self.program.courses.all():
-            program_skills += get_whitelisted_serialized_skills(program_course.key)
+            program_skills += get_whitelisted_serialized_skills(program_course.key, product_type=ProductTypes.Course)
 
         return program_skills
 
@@ -340,7 +341,7 @@ class LearnerPathwayBlock(LearnerPathwayNode):
         """
         Return list of dicts where each dict contain skill name and skill description.
         """
-        return get_whitelisted_serialized_skills(self.course.key)
+        return get_whitelisted_serialized_skills(self.course.key, product_type=ProductTypes.Course)
 
     def __str__(self):
         """

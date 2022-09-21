@@ -12,7 +12,7 @@ from config_models.models import ConfigurationModel
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator
+from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
@@ -229,6 +229,19 @@ class Organization(CachedMixin, TimeStampedModel):
     enterprise_subscription_inclusion = models.BooleanField(
         default=False,
         help_text=_('This field signifies if any of this org\'s courses are in the enterprise subscription catalog'),
+    )
+    organization_hex_color = models.CharField(
+        help_text=_("""The 6 character-hex-value of the orgnization theme color,
+            all related course under same organizationwill use this color as theme color.
+            (e.g. "#ff0000" which equals red) No need to provide the `#`"""),
+        validators=[RegexValidator(
+            regex=r'^(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$',
+            message='Hex color must be 3 or 6 A-F or numeric form',
+            code='invalid_hex_color'
+        )],
+        blank=True,
+        null=True,
+        max_length=6,
     )
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/openedx/course-discovery/pull/332
@@ -2847,6 +2860,12 @@ class Program(PkSearchableMixin, TimeStampedModel):
             # Pop to clean the kwargs for the base class save call below
             not suppress_publication
         )
+        if self.is_active:
+            # only call the trigger flow for published programs to avoid
+            # unnecessary fetch calls in the method every time a program is saved.
+            # Calling this here before save is needed to compare unsaved data
+            # with persisted data
+            self.trigger_program_skills_update_flow()
 
         if is_publishable:
             publisher = ProgramMarketingSitePublisher(self.partner)
@@ -2862,12 +2881,6 @@ class Program(PkSearchableMixin, TimeStampedModel):
                 kwargs['force_update'] = True
                 super().save(**kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
-            if settings.FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL and previous_obj and \
-                    ((not previous_obj.is_active and self.is_active) or self.overview != previous_obj.overview):
-                # If a Program is published or overview field is changed then fire signal
-                # so that a background task in taxonomy update the program skills.
-                logger.info('Signal fired to update program skills. Program: [%s]', self.uuid)
-                UPDATE_PROGRAM_SKILLS.send(self.__class__, program_uuid=self.uuid)
         else:
             super().save(*args, **kwargs)
             self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
@@ -2880,6 +2893,18 @@ class Program(PkSearchableMixin, TimeStampedModel):
         # this is a temporary field used by prospectus to easily and semantically
         # determine if a program is a 2u degree
         return hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata')
+
+    def trigger_program_skills_update_flow(self):
+        """
+        Utility to trigger the program skills update flow if applicable.
+        """
+        previous_obj = Program.objects.get(id=self.id) if self.id else None
+        if settings.FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL and previous_obj and \
+                ((not previous_obj.is_active and self.is_active) or (self.overview != previous_obj.overview)):
+            # If a Program is published or overview field is changed then fire signal
+            # so that a background task in taxonomy update the program skills.
+            logger.info('Signal fired to update program skills. Program: [%s]', self.uuid)
+            UPDATE_PROGRAM_SKILLS.send(self.__class__, program_uuid=self.uuid)
 
 
 class Ranking(TimeStampedModel):
