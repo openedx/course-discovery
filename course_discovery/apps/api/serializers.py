@@ -24,7 +24,8 @@ from rest_framework.fields import CreateOnlyDefault, UUIDField
 from rest_framework.metadata import SimpleMetadata
 from rest_framework.relations import ManyRelatedField
 from taggit.serializers import TaggitSerializer, TagListSerializerField
-from taxonomy.utils import get_whitelisted_course_skills, get_whitelisted_serialized_skills
+from taxonomy.choices import ProductTypes
+from taxonomy.utils import get_whitelisted_product_skills, get_whitelisted_serialized_skills
 
 from course_discovery.apps.api.fields import (
     HtmlField, ImageField, SlugRelatedFieldWithReadSerializer, SlugRelatedTranslatableField, StdImageSerializerField
@@ -1300,11 +1301,11 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
         return None
 
     def get_skill_names(self, obj):
-        course_skills = get_whitelisted_course_skills(obj.key)
+        course_skills = get_whitelisted_product_skills(obj.key, product_type=ProductTypes.Course)
         return list({course_skill.skill.name for course_skill in course_skills})
 
     def get_skills(self, obj):
-        return get_whitelisted_serialized_skills(obj.key)
+        return get_whitelisted_serialized_skills(obj.key, product_type=ProductTypes.Course)
 
     def create(self, validated_data):
         return Course.objects.create(**validated_data)
@@ -1979,6 +1980,8 @@ class ProgramSerializer(MinimalProgramSerializer):
     location_restriction = ProgramLocationRestrictionSerializer(read_only=True)
     is_2u_degree_program = serializers.BooleanField()
     in_year_value = ProductValueSerializer(required=False)
+    skill_names = serializers.SerializerMethodField()
+    skills = serializers.SerializerMethodField()
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -2023,6 +2026,13 @@ class ProgramSerializer(MinimalProgramSerializer):
     def get_topics(self, obj):
         return [topic.name for topic in obj.topics]
 
+    def get_skill_names(self, obj):
+        program_skills = get_whitelisted_product_skills(obj.uuid, product_type=ProductTypes.Program)
+        return list({program_skill.skill.name for program_skill in program_skills})
+
+    def get_skills(self, obj):
+        return get_whitelisted_serialized_skills(obj.uuid, product_type=ProductTypes.Program)
+
     class Meta(MinimalProgramSerializer.Meta):
         model = Program
         fields = MinimalProgramSerializer.Meta.fields + (
@@ -2032,7 +2042,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'geolocation',
-            'location_restriction', 'is_2u_degree_program', 'in_year_value'
+            'location_restriction', 'is_2u_degree_program', 'in_year_value', 'skill_names', 'skills',
         )
         read_only_fields = ('enterprise_subscription_inclusion',)
 

@@ -60,8 +60,8 @@ from course_discovery.apps.course_metadata.tests.factories import (
     DegreeDeadlineFactory, DegreeFactory, EndorsementFactory, ExpectedLearningItemFactory, FactFactory,
     IconTextPairingFactory, ImageFactory, JobOutlookItemFactory, OrganizationFactory, PathwayFactory,
     PersonAreaOfExpertiseFactory, PersonFactory, PersonSocialNetworkFactory, PositionFactory, PrerequisiteFactory,
-    ProgramFactory, ProgramLocationRestrictionFactory, ProgramTypeFactory, RankingFactory, SeatFactory, SeatTypeFactory,
-    SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
+    ProgramFactory, ProgramLocationRestrictionFactory, ProgramSkillFactory, ProgramTypeFactory, RankingFactory,
+    SeatFactory, SeatTypeFactory, SpecializationFactory, SubjectFactory, TopicFactory, VideoFactory
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -1142,7 +1142,9 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'location_restriction': ProgramLocationRestrictionSerializer(
                 program.location_restriction, read_only=True
             ).data,
-            'in_year_value': ProductValueSerializer(program.in_year_value).data
+            'in_year_value': ProductValueSerializer(program.in_year_value).data,
+            'skill_names': [],
+            'skills': []
         })
         return expected
 
@@ -1157,6 +1159,30 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
         program.excluded_course_runs.add(excluded_course_run)
 
         expected = self.get_expected_data(program, request)
+        serializer = self.serializer_class(program, context={'request': request})
+        self.assertDictEqual(serializer.data, expected)
+
+    def test_data_with_skills(self):
+        """
+        Verify we can specify program excluded_course_runs and the serializers will
+        render the course_runs with exclusions
+        """
+        request = make_request()
+        program = self.create_program()
+        program_skill = ProgramSkillFactory(
+            program_uuid=program.uuid
+        )
+
+        expected = self.get_expected_data(program, request)
+        expected['skill_names'] = [program_skill.skill.name]
+        expected['skills'] = [
+            {
+                'name': program_skill.skill.name,
+                'description': program_skill.skill.description,
+                'category': None,
+                'subcategory': None,
+            }
+        ]
         serializer = self.serializer_class(program, context={'request': request})
         self.assertDictEqual(serializer.data, expected)
 
@@ -2553,7 +2579,9 @@ class TestProgramSearchDocumentSerializer(TestCase):
             'hidden': program.hidden,
             'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
             'search_card_display': [],
-            'is_2u_degree_program': program.is_2u_degree_program
+            'is_2u_degree_program': program.is_2u_degree_program,
+            'skill_names': [],
+            'skills': []
         }
 
     def serialize_program(self, program, request):
