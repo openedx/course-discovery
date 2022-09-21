@@ -1039,12 +1039,6 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     in_year_value = models.ForeignKey(
         ProductValue, models.SET_NULL, related_name='courses', default=None, null=True, blank=True
     )
-    course_title_override = models.CharField(
-        max_length=20,
-        verbose_name=_('Course override'),
-        help_text=_('This field allows for override the default course to program/programme or other term you need'),
-        blank=True,
-    )
 
     everything = CourseQuerySet.as_manager()
     objects = DraftManager.from_queryset(CourseQuerySet)()
