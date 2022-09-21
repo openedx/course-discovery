@@ -5,9 +5,10 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, UpdateView, View
+from taxonomy.choices import ProductTypes
 from taxonomy.signals.signals import UPDATE_COURSE_SKILLS
 from taxonomy.utils import (
-    blacklist_course_skill, get_blacklisted_course_skills, get_whitelisted_course_skills,
+    blacklist_course_skill, get_blacklisted_course_skills, get_whitelisted_product_skills,
     remove_course_skill_from_blacklist
 )
 
@@ -161,7 +162,7 @@ class CourseSkillsView(View):
         Return the default context parameters.
         """
         course = get_object_or_404(Course, id=course_pk)
-        course_skills = get_whitelisted_course_skills(course.key)
+        course_skills = get_whitelisted_product_skills(course.key, product_type=ProductTypes.Course)
         excluded_skills = get_blacklisted_course_skills(course.key)
         return {
             self.ContextParameters.COURSE: course,
@@ -209,7 +210,7 @@ class CourseSkillsView(View):
             django.http.response.HttpResponse: HttpResponse
         """
         course = Course.objects.get(id=course_pk)
-        course_skills = get_whitelisted_course_skills(course.key)
+        course_skills = get_whitelisted_product_skills(course.key, product_type=ProductTypes.Course)
         excluded_skills = get_blacklisted_course_skills(course.key)
 
         form = self.form(course_skills, excluded_skills, data=request.POST)

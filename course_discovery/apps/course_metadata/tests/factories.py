@@ -1,5 +1,6 @@
 from datetime import datetime
 from random import randint
+from uuid import uuid4
 
 import factory
 from django.db.models.signals import post_save
@@ -8,7 +9,7 @@ from edx_django_utils.cache import TieredCache, get_cache_key
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
 from localflavor.us.us_states import CONTIGUOUS_STATES
 from pytz import UTC
-from taxonomy.models import CourseSkills, Skill
+from taxonomy.models import CourseSkills, ProgramSkill, Skill
 
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory, add_m2m_data
 from course_discovery.apps.core.tests.utils import FuzzyURL
@@ -222,6 +223,28 @@ class CourseSkillsFactory(factory.django.DjangoModelFactory):
         # is invalidated.
         if course_key := kwargs.get('course_key'):
             cache_key = get_cache_key(domain='taxonomy', subdomain='course_skills', course_key=course_key)
+            TieredCache.delete_all_tiers(cache_key)
+        else:
+            TieredCache.dangerous_clear_all_tiers()
+        return super()._create(model_class, *args, **kwargs)
+
+
+class ProgramSkillFactory(factory.django.DjangoModelFactory):
+    program_uuid = factory.LazyFunction(uuid4)
+    skill = factory.SubFactory(SkillFactory)
+    confidence = FuzzyDecimal(0.0, 1.0)
+    is_blacklisted = False
+
+    class Meta:
+        model = ProgramSkill
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        # Clear any cached skills data before serialization, so
+        # that empty skills data that was prepared during Program factory instance creation
+        # is invalidated.
+        if program_uuid := kwargs.get('program_uuid'):
+            cache_key = get_cache_key(domain='taxonomy', subdomain='program_skills', program_uuid=program_uuid)
             TieredCache.delete_all_tiers(cache_key)
         else:
             TieredCache.dangerous_clear_all_tiers()

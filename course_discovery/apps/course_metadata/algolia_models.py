@@ -6,6 +6,7 @@ from django.db import models
 from django.utils.translation import gettext as _
 from django.utils.translation import override
 from sortedm2m.fields import SortedManyToManyField
+from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
@@ -336,7 +337,7 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
 
     @property
     def skills(self):
-        skills_data = get_whitelisted_serialized_skills(self.key)
+        skills_data = get_whitelisted_serialized_skills(self.key, ProductTypes.Course)
         if not skills_data:
             return ALGOLIA_EMPTY_LIST
         return transform_skills_data(skills_data)
@@ -520,6 +521,13 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
                 self.availability_level and
                 self.partner.name == 'edX' and
                 not self.hidden)
+
+    @property
+    def skills(self):
+        skills_data = get_whitelisted_serialized_skills(self.uuid, ProductTypes.Program)
+        if not skills_data:
+            return ALGOLIA_EMPTY_LIST
+        return transform_skills_data(skills_data)
 
     @property
     def should_index_spanish(self):
