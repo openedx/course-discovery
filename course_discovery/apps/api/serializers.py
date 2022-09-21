@@ -850,7 +850,8 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
     run_type = serializers.SlugRelatedField(required=True, slug_field='uuid', source='type',
                                             queryset=CourseRunType.objects.all())
     term = serializers.CharField(required=False, write_only=True)
-
+    course_title_override = serializers.CharField(required=False, allow_blank=True)
+    
     @classmethod
     def prefetch_queryset(cls, queryset=None):
         # Explicitly check for None to avoid returning all CourseRuns when the
@@ -1278,7 +1279,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
-            'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value'
+            'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value',
+            'course_title_override'
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1780,7 +1782,6 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
     level_type_override = LevelTypeSerializer()
     language_override = serializers.SlugRelatedField(slug_field='code', read_only=True)
     labels = TagListSerializerField()
-    course_title_override = serializers.CharField(required=False, allow_blank=True)
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1814,7 +1815,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
-            'labels', 'course_title_override'
+            'labels'
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
