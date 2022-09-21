@@ -332,7 +332,6 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
     @property
     def should_index_spanish(self):
         return (self.should_index and
-                self.type.slug != CourseType.EXECUTIVE_EDUCATION_2U and
                 self.type.slug != CourseType.BOOTCAMP_2U)
 
     @property
