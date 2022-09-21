@@ -90,4 +90,4 @@ COMPRESS_OFFLINE = True
 AWS_DEFAULT_ACL = 'public-read'
 
 # Convert dict keys to lowercase
-GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {k.lower(): v for k, v in GOOGLE_SERVICE_ACCOUNT_CREDENTIALS.iteritems()}
+GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {k.lower(): v for k, v in GOOGLE_SERVICE_ACCOUNT_CREDENTIALS.items()}
