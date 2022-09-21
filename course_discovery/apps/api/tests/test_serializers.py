@@ -1077,7 +1077,8 @@ class MinimalProgramSerializerTests(TestCase):
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
-            'labels': ['topic'] if include_labels else []
+            'labels': ['topic'] if include_labels else [],
+            'course_title_override': program.course_title_override,
         }
 
     def test_data(self):
@@ -1142,8 +1143,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'location_restriction': ProgramLocationRestrictionSerializer(
                 program.location_restriction, read_only=True
             ).data,
-            'in_year_value': ProductValueSerializer(program.in_year_value).data,
-            'course_title_override': program.course_title_override,
+            'in_year_value': ProductValueSerializer(program.in_year_value).data
         })
         return expected
 

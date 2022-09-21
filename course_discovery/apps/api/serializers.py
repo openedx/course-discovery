@@ -1731,7 +1731,6 @@ class DegreeSerializer(BaseModelSerializer):
     micromasters_path = serializers.SerializerMethodField()
     additional_metadata = DegreeAdditionalMetadataSerializer(required=False)
     specializations = serializers.SerializerMethodField()
-    course_title_override = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = Degree
@@ -1743,7 +1742,7 @@ class DegreeSerializer(BaseModelSerializer):
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
             'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'taxi_form_id', 'taxi_form_grouping',
-            'additional_metadata', 'specializations', 'course_title_override'
+            'additional_metadata', 'specializations'
         )
 
     def get_micromasters_path(self, degree):
@@ -1781,6 +1780,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
     level_type_override = LevelTypeSerializer()
     language_override = serializers.SlugRelatedField(slug_field='code', read_only=True)
     labels = TagListSerializerField()
+    course_title_override = serializers.CharField(required=False, allow_blank=True)
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1814,7 +1814,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
-            'labels'
+            'labels', 'course_title_override'
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 
@@ -1980,7 +1980,6 @@ class ProgramSerializer(MinimalProgramSerializer):
     location_restriction = ProgramLocationRestrictionSerializer(read_only=True)
     is_2u_degree_program = serializers.BooleanField()
     in_year_value = ProductValueSerializer(required=False)
-    course_title_override = serializers.CharField(required=False, allow_blank=True)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -2034,7 +2033,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'individual_endorsements', 'languages', 'transcript_languages', 'subjects', 'price_ranges',
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'geolocation',
-            'location_restriction', 'is_2u_degree_program', 'in_year_value', 'course_title_override'
+            'location_restriction', 'is_2u_degree_program', 'in_year_value', 
         )
         read_only_fields = ('enterprise_subscription_inclusion',)
 

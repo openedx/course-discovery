@@ -322,7 +322,6 @@ class CourseFactory(SalesforceRecordFactory):
     geolocation = factory.SubFactory(GeoLocationFactory)
     location_restriction = factory.SubFactory(CourseLocationRestrictionFactory)
     in_year_value = factory.SubFactory(ProductValueFactory)
-    course_title_override = FuzzyText()
 
     class Meta:
         model = Course
@@ -605,6 +604,7 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
         ProgramLocationRestrictionFactory, factory_related_name='program'
     )
     in_year_value = factory.SubFactory(ProductValueFactory)
+    course_title_override = FuzzyText()
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):
