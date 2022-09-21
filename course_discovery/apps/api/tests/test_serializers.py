@@ -141,7 +141,6 @@ class MinimalCourseSerializerTests(SiteMixin, TestCase):
             'course_type': course.type.slug,
             'enterprise_subscription_inclusion': course.enterprise_subscription_inclusion,
             'url_slug': None,
-            'course_title_override': course.course_title_override,
         }
 
     def test_data(self):
@@ -221,7 +220,8 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'location_restriction': CourseLocationRestrictionSerializer(
                 course.location_restriction
             ).data,
-            'in_year_value': ProductValueSerializer(course.in_year_value).data
+            'in_year_value': ProductValueSerializer(course.in_year_value).data,
+            'course_title_override': course.course_title_override,
         })
 
         return expected
