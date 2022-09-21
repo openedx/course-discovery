@@ -640,5 +640,16 @@ DISCOVERY_BASE_URL = "http://localhost:18381"
 PRODUCT_API_URL = ''
 
 # Required for communicating with Google Service Account
-GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {"key":"value"}
+GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {
+  'TYPE': '',
+  'PROJECT_ID': '',
+  'PRIVATE_KEY_ID': '',
+  'PRIVATE_KEY': '',
+  'CLIENT_EMAIL': '',
+  'CLIENT_ID': '',
+  'AUTH_URI': '',
+  'TOKEN_URI': '',
+  'AUTH_PROVIDER_X509_CERT_URL': '',
+  'CLIENT_X509_CERT_URL': ''
+}
 EXTERNAL_DEGREE_SHEET_LINK = "https://docs.google.com/spreadsheets/random-key"
