@@ -1077,8 +1077,7 @@ class MinimalProgramSerializerTests(TestCase):
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
-            'labels': ['topic'] if include_labels else [],
-            'course_title_override': program.course_title_override,
+            'labels': ['topic'] if include_labels else []
         }
 
     def test_data(self):
