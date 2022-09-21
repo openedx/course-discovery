@@ -604,6 +604,7 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
         ProgramLocationRestrictionFactory, factory_related_name='program'
     )
     in_year_value = factory.SubFactory(ProductValueFactory)
+    course_title_override = FuzzyText()
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):
@@ -825,11 +826,6 @@ class SyllabusItemFactory(factory.django.DjangoModelFactory):
 class DrupalPublishUuidConfigFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = DrupalPublishUuidConfig
-
-
-class GeotargetingDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = GeotargetingDataLoaderConfiguration
 
 
 class CSVDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):

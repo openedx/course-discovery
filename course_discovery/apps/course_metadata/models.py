@@ -2513,6 +2513,12 @@ class Program(PkSearchableMixin, TimeStampedModel):
     in_year_value = models.ForeignKey(
         ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
     )
+    course_title_override = models.CharField(
+        max_length=20,
+        verbose_name=_('Course override'),
+        help_text=_('This field allows for override the default course to program/programme or other term you need'),
+        blank=True,
+    )
     # nosemgrep
     labels = TaggableManager(
         blank=True,
@@ -3393,19 +3399,6 @@ class CourseUrlRedirect(AbstractValueModel):
         unique_together = (
             ('partner', 'value')
         )
-
-
-class GeotargetingDataLoaderConfiguration(ConfigurationModel):
-    """
-    Configuration to store a csv file that will be used in import_geotargeting_data.
-    """
-    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
-    cache_timeout = 0
-    csv_file = models.FileField(
-        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
-        help_text=_("It expects the data will be provided in a csv file format "
-                    "with first row containing all the headers.")
-    )
 
 
 class ProgramLocationRestriction(AbstractLocationRestrictionModel):
