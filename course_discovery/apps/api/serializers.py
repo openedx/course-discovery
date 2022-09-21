@@ -851,7 +851,6 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
     run_type = serializers.SlugRelatedField(required=True, slug_field='uuid', source='type',
                                             queryset=CourseRunType.objects.all())
     term = serializers.CharField(required=False, write_only=True)
-    course_title_override = serializers.CharField(required=False, allow_blank=True)
     
     @classmethod
     def prefetch_queryset(cls, queryset=None):
@@ -869,8 +868,7 @@ class MinimalCourseRunSerializer(FlexFieldsSerializerMixin, TimestampModelSerial
         model = CourseRun
         fields = ('key', 'uuid', 'title', 'external_key', 'image', 'short_description', 'marketing_url',
                   'seats', 'start', 'end', 'go_live_date', 'enrollment_start', 'enrollment_end',
-                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability',
-                  'course_title_override')
+                  'pacing_type', 'type', 'run_type', 'status', 'is_enrollable', 'is_marketable', 'term', 'availability')
 
     def get_marketing_url(self, obj):
         include_archived = self.context.get('include_archived')
@@ -1226,6 +1224,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     geolocation = GeoLocationSerializer(required=False, allow_null=True)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
     in_year_value = ProductValueSerializer(required=False)
+    course_title_override = serializers.CharField(required=False, allow_blank=True)
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
