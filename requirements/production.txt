@@ -35,9 +35,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.24.74
+boto3==1.24.78
     # via django-ses
-botocore==1.27.74
+botocore==1.27.78
     # via
     #   boto3
     #   s3transfer
@@ -92,7 +92,7 @@ cryptography==38.0.1
     #   authlib
     #   pyjwt
     #   social-auth-core
-cssselect2==0.6.0
+cssselect2==0.7.0
     # via cairosvg
 defusedxml==0.7.1
     # via
@@ -243,7 +243,7 @@ django-waffle==3.0.0
     #   edx-toggles
 django-webpack-loader==1.6.0
     # via -r requirements/base.in
-djangorestframework==3.13.1
+djangorestframework==3.14.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -281,7 +281,7 @@ edx-django-release-util==1.2.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.0.0
     # via -r requirements/base.in
-edx-django-utils==5.0.1
+edx-django-utils==5.1.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -327,7 +327,7 @@ future==0.18.2
     # via pyjwkest
 gevent==21.12.0
     # via -r requirements/production.in
-google-auth==2.11.0
+google-auth==2.11.1
     # via
     #   google-auth-oauthlib
     #   gspread
@@ -385,7 +385,7 @@ oauthlib==3.2.1
     # via
     #   requests-oauthlib
     #   social-auth-core
-openedx-events==0.12.0
+openedx-events==0.14.0
     # via edx-event-bus-kafka
 packaging==21.3
     # via
@@ -418,7 +418,7 @@ pycryptodomex==3.15.0
     # via pyjwkest
 pyjwkest==1.4.2
     # via edx-drf-extensions
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via
     #   drf-jwt
     #   edx-auth-backends
@@ -555,6 +555,8 @@ tinycss2==1.1.1
     # via
     #   cairosvg
     #   cssselect2
+types-cryptography==3.3.23
+    # via pyjwt
 typing-extensions==4.3.0
     # via django-countries
 unicodecsv==0.14.1
