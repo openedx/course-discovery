@@ -1497,6 +1497,8 @@ class AbstractHeadingBlurbModelTests(TestCase):
 class ProgramTests(TestCase):
     """Tests of the Program model."""
 
+    LOGGER_PATH = 'course_discovery.apps.course_metadata.models'
+
     @classmethod
     def setUpClass(cls):
         """
@@ -2224,29 +2226,30 @@ class ProgramTests(TestCase):
             program.delete()
             assert mock_delete_obj.called
 
-    @override_switch('publish_program_to_marketing_site', True)
     @override_settings(FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL=True)
     @ddt.data(
-        {'status': ProgramStatus.Active, 'overview': 'test1'},
-        {'status': ProgramStatus.Unpublished, 'overview': 'test2'}
+        {'old_status': ProgramStatus.Unpublished, 'new_status': ProgramStatus.Active, 'overview': 'test1'},
+        {'old_status': ProgramStatus.Active, 'new_status': ProgramStatus.Active, 'overview': 'test2'},
     )
     @patch('course_discovery.apps.course_metadata.models.UPDATE_PROGRAM_SKILLS.send')
     def test_send_program_skills_signal(self, test_data, mock_signal_send):
         """
         Verify that publishing the program or updating overview fires UPDATE_PROGRAM_SKILLS signal.
         """
-        program = factories.ProgramFactory(overview='test1', status=ProgramStatus.Unpublished)
+        program = factories.ProgramFactory(overview='test1', status=test_data['old_status'])
         program.overview = test_data['overview']
-        program.status = test_data['status']
-        with mock.patch.object(ProgramMarketingSitePublisher, 'publish_obj', return_value=None) as mock_publish_obj:
+        program.status = test_data['new_status']
+        with LogCapture(self.LOGGER_PATH) as mock_logger:
             program.save()
-            assert mock_publish_obj.called
-            assert mock_signal_send.called
-            assert mock_signal_send.call_count == 1
-
-        with mock.patch.object(ProgramMarketingSitePublisher, 'delete_obj', return_value=None) as mock_delete_obj:
-            program.delete()
-            assert mock_delete_obj.called
+            mock_logger.check_present(
+                (
+                    self.LOGGER_PATH,
+                    'INFO',
+                    'Signal fired to update program skills. Program: [{}]'.format(program.uuid)
+                )
+            )
+        assert mock_signal_send.called
+        assert mock_signal_send.call_count == 1
 
     def test_credit_value(self):
         """

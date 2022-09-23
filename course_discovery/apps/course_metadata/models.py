@@ -2847,6 +2847,12 @@ class Program(PkSearchableMixin, TimeStampedModel):
             # Pop to clean the kwargs for the base class save call below
             not suppress_publication
         )
+        if self.is_active:
+            # only call the trigger flow for published programs to avoid
+            # unnecessary fetch calls in the method every time a program is saved.
+            # Calling this here before save is needed to compare unsaved data
+            # with persisted data
+            self.trigger_program_skills_update_flow()
 
         if is_publishable:
             publisher = ProgramMarketingSitePublisher(self.partner)
@@ -2862,12 +2868,6 @@ class Program(PkSearchableMixin, TimeStampedModel):
                 kwargs['force_update'] = True
                 super().save(**kwargs)
                 publisher.publish_obj(self, previous_obj=previous_obj)
-            if settings.FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL and previous_obj and \
-                    ((not previous_obj.is_active and self.is_active) or self.overview != previous_obj.overview):
-                # If a Program is published or overview field is changed then fire signal
-                # so that a background task in taxonomy update the program skills.
-                logger.info('Signal fired to update program skills. Program: [%s]', self.uuid)
-                UPDATE_PROGRAM_SKILLS.send(self.__class__, program_uuid=self.uuid)
         else:
             super().save(*args, **kwargs)
             self.enterprise_subscription_inclusion = self._check_enterprise_subscription_inclusion()
@@ -2880,6 +2880,18 @@ class Program(PkSearchableMixin, TimeStampedModel):
         # this is a temporary field used by prospectus to easily and semantically
         # determine if a program is a 2u degree
         return hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata')
+
+    def trigger_program_skills_update_flow(self):
+        """
+        Utility to trigger the program skills update flow if applicable.
+        """
+        previous_obj = Program.objects.get(id=self.id) if self.id else None
+        if settings.FIRE_UPDATE_PROGRAM_SKILLS_SIGNAL and previous_obj and \
+                ((not previous_obj.is_active and self.is_active) or (self.overview != previous_obj.overview)):
+            # If a Program is published or overview field is changed then fire signal
+            # so that a background task in taxonomy update the program skills.
+            logger.info('Signal fired to update program skills. Program: [%s]', self.uuid)
+            UPDATE_PROGRAM_SKILLS.send(self.__class__, program_uuid=self.uuid)
 
 
 class Ranking(TimeStampedModel):
