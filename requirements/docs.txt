@@ -8,7 +8,7 @@ alabaster==0.7.12
     # via sphinx
 babel==2.10.3
     # via sphinx
-certifi==2022.9.14
+certifi==2022.9.24
     # via
     #   elasticsearch
     #   requests
@@ -59,7 +59,7 @@ six==1.16.0
     #   python-dateutil
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==5.1.1
+sphinx==5.2.1
     # via
     #   -r requirements/docs.in
     #   edx-sphinx-theme
