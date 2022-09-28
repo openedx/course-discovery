@@ -99,7 +99,7 @@ class EnglishProductIndex(BaseProductIndex):
         'attributesForFaceting': [
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
             'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)', 'skills.skill',
-            'skills.category', 'skills.subcategory',
+            'skills.category', 'skills.subcategory', 'tags',
         ],
         'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
@@ -147,7 +147,7 @@ class SpanishProductIndex(BaseProductIndex):
         'attributesForFaceting': [
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
             'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)',
-            'skills.skill', 'skills.category', 'skills.subcategory'
+            'skills.skill', 'skills.category', 'skills.subcategory', 'tags'
         ],
         'customRanking': ['desc(promoted_in_spanish_index)', 'asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
