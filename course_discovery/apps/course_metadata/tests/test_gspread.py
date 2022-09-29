@@ -16,9 +16,9 @@ class GspreadClientTests(TestCase):
 
     @mock.patch('course_discovery.apps.course_metadata.gspread_client.logger')
     @mock.patch('course_discovery.apps.course_metadata.gspread_client.gspread.service_account_from_dict')
-    def test_get_spread_sheet_by_url(self, _mock_gspread_connection, mock_logger):
+    def test_get_spread_sheet_by_key(self, _mock_gspread_connection, mock_logger):
         client = GspreadClient()
-        client.get_spread_sheet_by_url('https://www.testsheet.com')
+        client.get_spread_sheet_by_key('abc123Id')
         mock_logger.info.assert_called_with('[Spread Sheet Found]: Opening google sheet')
 
     @mock.patch('course_discovery.apps.course_metadata.gspread_client.logger')
