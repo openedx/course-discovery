@@ -34,7 +34,7 @@ from course_discovery.apps.api.serializers import (
     get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
-from course_discovery.apps.api.tests.test_utils import make_request
+from course_discovery.apps.api.tests.test_utils import make_post_request, make_request
 from course_discovery.apps.catalogs.tests.factories import CatalogFactory
 from course_discovery.apps.core.models import User
 from course_discovery.apps.core.tests.factories import PartnerFactory, UserFactory
@@ -2096,6 +2096,7 @@ class CourseSearchSerializerMixin:
         return self.serializer_class(result, context={'request': request})  # pylint: disable=not-callable
 
 
+@ddt.ddt
 class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, CourseSearchSerializerMixin):
     serializer_class = CourseSearchDocumentSerializer
 
@@ -2125,8 +2126,12 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         serializer = self.serialize_course(course, request)
         assert serializer.data == self.get_expected_data(course, course_run, course_skill, seat)
 
-    def test_exclude_expired_and_keep_current_course_run(self):
-        request = make_request({'exclude_expired_course_run': True})
+    @ddt.data(True, False)
+    def test_exclude_expired_and_keep_current_course_run(self, is_post_request):
+        if is_post_request:
+            request = make_post_request({'exclude_expired_course_run': True})
+        else:
+            request = make_request({'exclude_expired_course_run': True})
         organization = OrganizationFactory()
         course = CourseFactory(
             subjects=SubjectFactory.create_batch(3),
@@ -2155,8 +2160,12 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             course, course_run, course_skill, seat
         )["course_runs"]
 
-    def test_exclude_expired_course_run(self):
-        request = make_request({'exclude_expired_course_run': True})
+    @ddt.data(True, False)
+    def test_exclude_expired_course_run(self, is_post_request):
+        if is_post_request:
+            request = make_post_request({'exclude_expired_course_run': True})
+        else:
+            request = make_request({'exclude_expired_course_run': True})
         organization = OrganizationFactory()
         course = CourseFactory(
             subjects=SubjectFactory.create_batch(3),
@@ -2215,8 +2224,12 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
         serializer = self.serialize_course(course, request)
         self.assertDictEqual(serializer.data, expected)
 
-    def test_detail_fields_in_response(self):
-        request = make_request({'detail_fields': True})
+    @ddt.data(True, False)
+    def test_detail_fields_in_response(self, is_post_request):
+        if is_post_request:
+            request = make_post_request({'detail_fields': True})
+        else:
+            request = make_request({'detail_fields': True})
         organization = OrganizationFactory()
         # 'organizations' in serialized data should not return duplicate organization names
         # Add the same organization twice to the course and make sure only one is in the serialized data
@@ -2300,7 +2313,10 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'level_type': course.level_type.name,
             'modified': course.modified,
         }
-
+        if is_post_request:
+            del expected['outcome']
+            del expected['level_type']
+            del expected['modified']
         serializer = self.serialize_course(course, request)
         self.assertDictEqual(serializer.data, expected)
 
