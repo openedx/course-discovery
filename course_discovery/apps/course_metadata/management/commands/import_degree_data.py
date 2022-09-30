@@ -4,14 +4,12 @@ Management command to import, create, and/or update degrees' data.
 import logging
 
 from django.apps import apps
-from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from django.db.models.signals import post_delete, post_save
 
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.degrees_loader import DegreeCSVDataLoader
-from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import DegreeDataLoaderConfiguration
 from course_discovery.apps.course_metadata.signals import connect_api_change_receiver
 
@@ -34,6 +32,18 @@ class Command(BaseCommand):
             help='Path to the CSV file',
             type=str,
         )
+        parser.add_argument(
+            '--product_type',
+            help='Product Type to ingest',
+            type=str,
+            default='DEGREES',
+            choices=['DEGREES']
+        )
+        parser.add_argument(
+            '--args_from_env',
+            help='Link to the Data Spreadsheet',
+            type=bool,
+        )
 
     def handle(self, *args, **options):
         """
@@ -43,6 +53,9 @@ class Command(BaseCommand):
         degree_loader_config = DegreeDataLoaderConfiguration.current()
         csv_path = options.get('csv_path', None)
         csv_file = degree_loader_config.csv_file if degree_loader_config.is_enabled() else None
+        product_type = options.get('product_type', None)
+        args_from_env = options.get('args_from_env', None)
+
         try:
             partner = Partner.objects.get(short_code=partner_short_code)
         except Partner.DoesNotExist:
@@ -60,13 +73,10 @@ class Command(BaseCommand):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
 
         try:
-            # Temporary code to check Gspread client connection in Jenkins job
-            google_link = settings.EXTERNAL_DEGREE_SHEET_LINK
-            if google_link:
-                gspread_client = GspreadClient()
-                gspread_client.get_spread_sheet_by_url(google_link)
-
-            loader = DegreeCSVDataLoader(partner, csv_path=csv_path, csv_file=csv_file)
+            loader = DegreeCSVDataLoader(
+                partner, csv_path=csv_path, csv_file=csv_file,
+                args_from_env=args_from_env, product_type=product_type
+            )
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             loader.ingest()
         except Exception as exc:

@@ -652,4 +652,21 @@ GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {
   'AUTH_PROVIDER_X509_CERT_URL': '',
   'CLIENT_X509_CERT_URL': ''
 }
-EXTERNAL_DEGREE_SHEET_LINK = "https://docs.google.com/spreadsheets/random-key"
+
+PRODUCT_EXTERNAL_SHEET_MAPPING = {
+    'EXECUTIVE_EDUCATION': {
+        'SHEET_ID': '',
+        'INPUT_TAB_ID': '',
+        'ERROR_TAB_ID': ''
+    },
+    'BOOTCAMPS': {
+        'SHEET_ID': '',
+        'INPUT_TAB_ID': '',
+        'ERROR_TAB_ID': ''
+    },
+    'DEGREES': {
+        'SHEET_ID': '',
+        'INPUT_TAB_ID': '',
+        'ERROR_TAB_ID': ''
+    },
+}
