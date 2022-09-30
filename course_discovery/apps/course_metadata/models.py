@@ -28,7 +28,11 @@ from stdimage.utils import UploadToAutoSlug
 from taggit_autosuggest.managers import TaggableManager
 
 from course_discovery.apps.core.models import Currency, Partner
-from course_discovery.apps.course_metadata.choices import CourseRunPacing, CourseRunStatus, ProgramStatus, ReportingType
+from course_discovery.apps.course_metadata.choices import (
+    CourseRunPacing, CourseRunStatus,
+    ProgramStatus, ProgramVisibility,
+    ReportingType
+)
 from course_discovery.apps.course_metadata.publishers import (
     CourseRunMarketingSitePublisher, ProgramMarketingSitePublisher
 )
@@ -1047,6 +1051,11 @@ class Program(TimeStampedModel):
         help_text=_(
             "Description specific for this program. It would be displayed on the Program's details page."))
     duration = models.IntegerField(null=False, blank=False, default=0, help_text=_('Time spend of program'))
+    visibility = models.IntegerField(
+        null=False, blank=False, default=0,
+        choices=ProgramVisibility.choices, validators=[ProgramVisibility.validator],
+        help_text=_('Visibility of program')
+    )
     language = LanguageField(default='en', null=True, blank=True, db_index=True)
     creator_id = models.IntegerField(
         null=True, blank=False,

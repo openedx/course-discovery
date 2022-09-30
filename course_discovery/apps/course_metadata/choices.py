@@ -22,6 +22,12 @@ class ProgramStatus(DjangoChoices):
     Deleted = ChoiceItem('deleted', _('Deleted'))
 
 
+class ProgramVisibility(DjangoChoices):
+    Public = ChoiceItem(0, _('Full public'))
+    Accessible = ChoiceItem(1, _('Accessible by URL'))
+    Private = ChoiceItem(2, _('Private'))
+
+
 class ReportingType(DjangoChoices):
     mooc = ChoiceItem('mooc', 'mooc')
     spoc = ChoiceItem('spoc', 'spoc')
