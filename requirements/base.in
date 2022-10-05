@@ -69,3 +69,4 @@ python-slugify
 xss-utils
 taxonomy-connector
 importlib-metadata
+snowflake-connector-python

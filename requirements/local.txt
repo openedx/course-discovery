@@ -19,7 +19,11 @@ amqp==5.1.1
     # via kombu
 asgiref==3.5.2
     # via django
-astroid==2.12.9
+asn1crypto==1.5.1
+    # via
+    #   oscrypto
+    #   snowflake-connector-python
+astroid==2.12.10
     # via
     #   pylint
     #   pylint-celery
@@ -60,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.24.74
+boto3==1.24.84
     # via django-ses
-botocore==1.27.74
+botocore==1.27.84
     # via
     #   boto3
     #   s3transfer
@@ -72,7 +76,7 @@ cached-property==1.5.2
     # via zeep
 cachetools==5.2.0
     # via google-auth
-cairocffi==1.3.0
+cairocffi==1.4.0
     # via cairosvg
 cairosvg==2.5.2
     # via -r requirements/base.in
@@ -80,18 +84,22 @@ celery==5.2.7
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-certifi==2022.9.14
+certifi==2022.9.24
     # via
     #   elasticsearch
     #   requests
     #   selenium
+    #   snowflake-connector-python
 cffi==1.15.1
     # via
     #   cairocffi
     #   cryptography
     #   pynacl
+    #   snowflake-connector-python
 charset-normalizer==2.1.1
-    # via requests
+    # via
+    #   requests
+    #   snowflake-connector-python
 click==8.1.3
     # via
     #   celery
@@ -126,17 +134,19 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-coverage[toml]==6.4.4
+coverage[toml]==6.5.0
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==38.0.1
+cryptography==36.0.2
     # via
     #   authlib
     #   paramiko
     #   pyjwt
+    #   pyopenssl
+    #   snowflake-connector-python
     #   social-auth-core
-cssselect2==0.6.0
+cssselect2==0.7.0
     # via cairosvg
 ddt==1.6.0
     # via -r requirements/test.in
@@ -226,7 +236,7 @@ django-crum==0.7.9
     # via
     #   edx-django-utils
     #   edx-toggles
-django-debug-toolbar==3.6.0
+django-debug-toolbar==3.7.0
     # via -r requirements/local.in
 django-dry-rest-permissions==1.2.0
     # via -r requirements/base.in
@@ -266,7 +276,7 @@ django-object-actions==4.0.0
     # via -r requirements/base.in
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==3.1.2
+django-ses==3.2.0
     # via taxonomy-connector
 django-simple-history==3.0.0
     # via
@@ -299,7 +309,7 @@ django-waffle==3.0.0
     #   edx-toggles
 django-webpack-loader==1.6.0
     # via -r requirements/base.in
-djangorestframework==3.13.1
+djangorestframework==3.14.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -331,7 +341,7 @@ drf-flex-fields==1.0.0
     # via -r requirements/base.in
 drf-jwt==1.19.2
     # via edx-drf-extensions
-drf-yasg==1.21.3
+drf-yasg==1.21.4
     # via
     #   -r requirements/base.in
     #   edx-api-doc-tools
@@ -347,7 +357,7 @@ edx-django-release-util==1.2.0
     # via -r requirements/base.in
 edx-django-sites-extensions==4.0.0
     # via -r requirements/base.in
-edx-django-utils==5.0.1
+edx-django-utils==5.1.0
     # via
     #   -r requirements/base.in
     #   django-config-models
@@ -393,18 +403,21 @@ elasticsearch-dsl==7.4.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
+exceptiongroup==1.0.0rc9
+    # via trio
 execnet==1.9.0
     # via pytest-xdist
 face==20.1.1
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==14.2.0
+faker==15.0.0
     # via factory-boy
 fastavro==1.6.1
     # via openedx-events
 filelock==3.8.0
     # via
+    #   snowflake-connector-python
     #   tox
     #   virtualenv
 freezegun==1.2.2
@@ -413,7 +426,7 @@ future==0.18.2
     # via pyjwkest
 glom==22.1.0
     # via semgrep
-google-auth==2.11.0
+google-auth==2.12.0
     # via
     #   google-auth-oauthlib
     #   gspread
@@ -421,17 +434,18 @@ google-auth-oauthlib==0.5.3
     # via gspread
 gspread==5.5.0
     # via -r requirements/base.in
-h11==0.13.0
+h11==0.14.0
     # via wsproto
 html2text==2020.1.16
     # via -r requirements/base.in
 idna==3.4
     # via
     #   requests
+    #   snowflake-connector-python
     #   trio
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==4.12.0
+importlib-metadata==5.0.0
     # via
     #   -r requirements/base.in
     #   markdown
@@ -483,14 +497,16 @@ mock==4.0.3
     # via -r requirements/test.in
 mysqlclient==2.1.1
     # via -r requirements/test.in
-newrelic==8.1.0.180
+newrelic==8.2.0.181
     # via edx-django-utils
 oauthlib==3.2.1
     # via
     #   requests-oauthlib
     #   social-auth-core
-openedx-events==0.12.0
+openedx-events==1.0.0
     # via edx-event-bus-kafka
+oscrypto==1.3.0
+    # via snowflake-connector-python
 outcome==1.2.0
     # via trio
 packaging==21.3
@@ -504,11 +520,11 @@ packaging==21.3
     #   tox
 paramiko==2.11.0
     # via docker
-path==16.4.0
+path==16.5.0
     # via edx-i18n-tools
 pbr==5.10.0
     # via stevedore
-peewee==3.15.2
+peewee==3.15.3
     # via semgrep
 pillow==9.2.0
     # via
@@ -548,19 +564,22 @@ pycountry==22.3.5
 pycparser==2.21
     # via cffi
 pycryptodomex==3.15.0
-    # via pyjwkest
+    # via
+    #   pyjwkest
+    #   snowflake-connector-python
 pygments==2.13.0
     # via sphinx
 pyjwkest==1.4.2
     # via edx-drf-extensions
-pyjwt[crypto]==2.4.0
+pyjwt[crypto]==2.5.0
     # via
     #   drf-jwt
     #   edx-auth-backends
     #   edx-drf-extensions
     #   edx-rest-api-client
+    #   snowflake-connector-python
     #   social-auth-core
-pylint==2.15.2
+pylint==2.15.3
     # via
     #   edx-lint
     #   pylint-celery
@@ -580,6 +599,10 @@ pynacl==1.5.0
     # via
     #   edx-django-utils
     #   paramiko
+pyopenssl==22.0.0
+    # via
+    #   -c requirements/constraints.txt
+    #   snowflake-connector-python
 pyparsing==3.0.9
     # via packaging
 pyrsistent==0.18.1
@@ -595,7 +618,7 @@ pytest==7.1.3
     #   pytest-responses
     #   pytest-split
     #   pytest-xdist
-pytest-cov==3.0.0
+pytest-cov==4.0.0
     # via -r requirements/test.in
 pytest-django==4.5.2
     # via -r requirements/test.in
@@ -631,7 +654,7 @@ python-stdnum==1.17
     # via django-localflavor
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2022.2.1
+pytz==2022.4
     # via
     #   -r requirements/base.in
     #   babel
@@ -640,6 +663,7 @@ pytz==2022.2.1
     #   django-ses
     #   djangorestframework
     #   drf-yasg
+    #   snowflake-connector-python
     #   taxonomy-connector
     #   zeep
 pywatchman==1.4.1
@@ -672,6 +696,7 @@ requests==2.28.1
     #   semgrep
     #   simple-salesforce
     #   slumber
+    #   snowflake-connector-python
     #   social-auth-core
     #   sphinx
     #   zeep
@@ -699,7 +724,7 @@ ruamel-yaml-clib==0.2.6
     # via ruamel-yaml
 s3transfer==0.6.0
     # via boto3
-selenium==4.4.3
+selenium==4.5.0
     # via -r requirements/test.in
 semantic-version==2.10.0
     # via edx-drf-extensions
@@ -744,6 +769,8 @@ sniffio==1.3.0
     # via trio
 snowballstemmer==2.2.0
     # via sphinx
+snowflake-connector-python==2.8.0
+    # via -r requirements/base.in
 social-auth-app-django==5.0.0
     # via
     #   -r requirements/base.in
@@ -756,7 +783,7 @@ sortedcontainers==2.4.0
     # via trio
 soupsieve==2.3.2.post1
     # via beautifulsoup4
-sphinx==5.1.1
+sphinx==5.2.3
     # via
     #   -r requirements/docs.in
     #   edx-sphinx-theme
@@ -772,7 +799,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-sqlparse==0.4.2
+sqlparse==0.4.3
     # via
     #   django
     #   django-debug-toolbar
@@ -799,24 +826,27 @@ tomli==2.0.1
     #   pylint
     #   pytest
     #   tox
-tomlkit==0.11.4
+tomlkit==0.11.5
     # via pylint
 tox==3.26.0
     # via -r requirements/test.in
 tqdm==4.64.1
     # via semgrep
-trio==0.21.0
+trio==0.22.0
     # via
     #   selenium
     #   trio-websocket
 trio-websocket==0.9.2
     # via selenium
+types-cryptography==3.3.23
+    # via pyjwt
 typing-extensions==4.3.0
     # via
     #   astroid
     #   django-countries
     #   pylint
     #   semgrep
+    #   snowflake-connector-python
 ujson==5.5.0
     # via python-lsp-jsonrpc
 unicodecsv==0.14.1
@@ -834,6 +864,7 @@ urllib3[socks]==1.26.12
     #   responses
     #   selenium
     #   semgrep
+    #   snowflake-connector-python
 vine==5.0.0
     # via
     #   amqp
@@ -841,7 +872,7 @@ vine==5.0.0
     #   kombu
 virtualenv==20.16.5
     # via tox
-wcmatch==8.4
+wcmatch==8.4.1
     # via semgrep
 wcwidth==0.2.5
     # via prompt-toolkit
