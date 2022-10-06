@@ -12,7 +12,7 @@ from config_models.models import ConfigurationModel
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator
+from django.core.validators import FileExtensionValidator, MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import IntegrityError, models, transaction
 from django.db.models import F, Q
 from django.utils.functional import cached_property
@@ -229,6 +229,19 @@ class Organization(CachedMixin, TimeStampedModel):
     enterprise_subscription_inclusion = models.BooleanField(
         default=False,
         help_text=_('This field signifies if any of this org\'s courses are in the enterprise subscription catalog'),
+    )
+    organization_hex_color = models.CharField(
+        help_text=_("""The 6 character-hex-value of the orgnization theme color,
+            all related course under same organization will use this color as theme color.
+            (e.g. "#ff0000" which equals red) No need to provide the `#`"""),
+        validators=[RegexValidator(
+            regex=r'^(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$',
+            message='Hex color must be 3 or 6 A-F or numeric form',
+            code='invalid_hex_color'
+        )],
+        blank=True,
+        null=True,
+        max_length=6,
     )
     # Do not record the slug field in the history table because AutoSlugField is not compatible with
     # django-simple-history.  Background: https://github.com/openedx/course-discovery/pull/332
