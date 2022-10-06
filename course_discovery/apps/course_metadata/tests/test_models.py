@@ -1243,6 +1243,10 @@ class OrganizationTests(TestCase):
         regx_result = re.search(r'^(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$', org.organization_hex_color.upper())
         assert regx_result is not None
 
+        org2 = factories.OrganizationFactory(organization_hex_color='asioauejb')
+        regx_result2 = re.search(r'^(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$', org2.organization_hex_color.upper())
+        assert regx_result2 is None
+
     def test_user_organizations(self):
         """Verify that the user_organizations method returns organizations for a given user"""
         user = factories.UserFactory()
