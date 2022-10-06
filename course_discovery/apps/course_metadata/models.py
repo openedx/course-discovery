@@ -232,7 +232,7 @@ class Organization(CachedMixin, TimeStampedModel):
     )
     organization_hex_color = models.CharField(
         help_text=_("""The 6 character-hex-value of the orgnization theme color,
-            all related course under same organizationwill use this color as theme color.
+            all related course under same organization will use this color as theme color.
             (e.g. "#ff0000" which equals red) No need to provide the `#`"""),
         validators=[RegexValidator(
             regex=r'^(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$',
