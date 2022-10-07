@@ -4,7 +4,6 @@ Django management command to populate course_length in Course model by fetching 
 import logging
 
 import snowflake.connector
-
 from django.conf import settings
 from django.core.management import BaseCommand
 
@@ -13,13 +12,13 @@ from course_discovery.apps.course_metadata.models import Course
 LOGGER = logging.getLogger(__name__)
 QUERY = '''
     WITH completions as (
-    
+
     /* Get all completions, all time.
     */
-    
+
     SELECT
         ccu.user_id,
-        dc.course_key,
+        dc.course_uuid,
         ccu.courserun_key,
         DATE(ccu.passed_timestamp) as passed_date
     FROM
@@ -38,18 +37,18 @@ QUERY = '''
         ccu.user_id = bee.lms_user_id AND ccu.courserun_key = bee.lms_courserun_key
     WHERE
         passed_timestamp IS NOT NULL
-    
+
     ),
-    
+
     time_to_pass as (
-    
+
     /* Calculate the amount of time it took
        to pass the course for each completion.
     */
-    
-    
+
+
     SELECT
-        completions.course_key,
+        completions.course_uuid,
         lt.user_id,
         SUM(lt.learning_time_seconds/60/60) as hours_of_learning
     FROM
@@ -75,15 +74,15 @@ QUERY = '''
     GROUP BY
         1,2
     ),
-    
+
     courses as (
-    
+
     /* Calculate the average amount
        of time it takes to pass a course.
         */
-    
+
     SELECT
-        course_key,
+        course_uuid,
         round(AVG(hours_of_learning),1) as avg_pass_time,
         COUNT(*) as n_passed_learners
     FROM
@@ -91,9 +90,9 @@ QUERY = '''
     GROUP BY
         1
     )
-    
+
     select
-        course_key,
+        course_uuid,
         avg_pass_time,
         case when avg_pass_time <= 6.5 then 'short'
         when avg_pass_time < 13 then 'medium'
@@ -106,11 +105,11 @@ QUERY = '''
 
 class Command(BaseCommand):
     """
-    Django management command to populate course duration field in Course model by fetching data from snowflake.
+    Django management command to populate course length field in Course model by fetching data from snowflake.
 
     Example usage:
-    ./manage.py populate_actual_course_duration.py
-    ./manage.py populate_actual_course_duration.py --no-commit
+    ./manage.py populate_actual_course_length
+    ./manage.py populate_actual_course_length --no-commit
     """
 
     def add_arguments(self, parser):
@@ -145,17 +144,17 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         should_commit = not options['no_commit']
 
-        LOGGER.info('[Populate Course Duration]  Process started.')
+        LOGGER.info('[Populate Course Length]  Process started.')
         for next_row in self.get_query_results_from_snowflake():
-            course_key= next_row[0]
-            course_duration = next_row[1]
-            LOGGER.info(f'[Populate Course Duration] adding \'{course_duration}\' as duration to course with key {course_key}')
-            course = Course.objects.filter(course_key=course_key)
+            course_uuid = next_row[0]
+            course_length = next_row[2]
+            LOGGER.info(f'[Populate Course Length] adding \'{course_length}\' as length to course with UUID {course_uuid}')
+            course = Course.objects.filter(uuid=course_uuid)
             if should_commit:
                 if course:
-                    course.course_length = course_duration
+                    course.course_length = course_length
                     course.save()
                 else:
-                    LOGGER.info(f'[Populate Course Duration] No course found with key {course_key}')
+                    LOGGER.info(f'[Populate Course Length] No course found with key {course_uuid}')
 
-        LOGGER.info('[Populate Course Duration] Execution completed.')
+        LOGGER.info('[Populate Course Length] Execution completed.')
