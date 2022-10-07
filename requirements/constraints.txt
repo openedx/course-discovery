@@ -35,3 +35,6 @@ semgrep==0.102.0
 
 # Version 8.3.0 introduced changes that caused users to see User Disabled error
 edx-drf-extensions < 8.3.0
+
+# pinning because of 'cryptography' dependency conflict while installing snowflake-connector-python
+pyopenssl==22.0.0
