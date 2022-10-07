@@ -1688,6 +1688,7 @@ class MinimalOrganizationSerializerTests(TestCase):
             'auto_generate_course_run_keys': organization.auto_generate_course_run_keys,
             'certificate_logo_image_url': certificate_logo_image_url,
             'logo_image_url': logo_image_url,
+            'organization_hex_color': organization.organization_hex_color,
         }
 
     def test_data(self):

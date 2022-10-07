@@ -493,6 +493,7 @@ class OrganizationFactory(SalesforceRecordFactory):
     certificate_logo_image = FuzzyText()
     partner = factory.SubFactory(PartnerFactory)
     enterprise_subscription_inclusion = False
+    organization_hex_color = 'AAAAAA'
 
     class Meta:
         model = Organization

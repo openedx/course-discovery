@@ -1,5 +1,6 @@
 import datetime
 import itertools
+import re
 import uuid
 from decimal import Decimal
 from functools import partial
@@ -1234,6 +1235,17 @@ class OrganizationTests(TestCase):
         """ Verify the property returns None if the Organization has no slug set. """
         self.organization.slug = ''
         assert self.organization.marketing_url is None
+
+    def test_org_hex_theme_color(self):
+        org = factories.OrganizationFactory()
+        assert len(org.organization_hex_color) == 6
+
+        regx_result = re.search(r'^(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$', org.organization_hex_color.upper())
+        assert regx_result is not None
+
+        org2 = factories.OrganizationFactory(organization_hex_color='asiob')
+        regx_result2 = re.search(r'^(([0-9a-fA-F]{2}){3}|([0-9a-fA-F]){3})$', org2.organization_hex_color.upper())
+        assert regx_result2 is None
 
     def test_user_organizations(self):
         """Verify that the user_organizations method returns organizations for a given user"""

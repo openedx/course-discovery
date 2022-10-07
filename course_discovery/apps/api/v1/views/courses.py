@@ -40,7 +40,7 @@ from course_discovery.apps.publisher.utils import is_publisher_user
 
 logger = logging.getLogger(__name__)
 
-COURSE_FIELDS_FOR_SKILLS = ['full_description']
+COURSE_FIELDS_FOR_SKILLS = ['title', 'short_description', 'full_description']
 
 
 def writable_request_wrapper(method):
