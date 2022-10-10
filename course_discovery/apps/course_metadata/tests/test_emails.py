@@ -1,5 +1,6 @@
 import datetime
 import re
+from uuid import uuid4
 
 import ddt
 from django.conf import settings
@@ -13,7 +14,7 @@ from course_discovery.apps.core.tests.factories import UserFactory
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.models import CourseEditor, CourseRunStatus, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseEditorFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory
+    CourseEditorFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory, PartnerFactory
 )
 from course_discovery.apps.publisher.choices import InternalUserRole
 from course_discovery.apps.publisher.constants import LEGAL_TEAM_GROUP_NAME
@@ -396,4 +397,150 @@ class EmailTests(TestCase):
                     type_slug
                 )
             )
+        )
+
+
+@ddt.ddt
+class TestIngestionEmail(TestCase):
+    """
+    Test suite for send_ingestion_email.
+    """
+    EMAIL_SUBJECT = 'Executive Education Ingestion'
+    USER_EMAILS = ['edx@example.com']
+    EXEC_ED_PRODUCT = 'EXECUTIVE_EDUCATION'
+    BOOTCAMP_PRODUCT = 'BOOTCAMPS'
+
+    def setUp(self):
+        super().setUp()
+        self.partner = PartnerFactory()
+
+    def _get_base_ingestion_stats(self):
+        return {
+            'total_products_count': 0,
+            'success_count': 0,
+            'failure_count': 0,
+            'updated_products_count': 0,
+            'created_products_count': 0,
+            'created_products': [],
+            'errors': {}
+        }
+
+    def _assert_email_content(self, subject, html_contents):
+        email = mail.outbox[0]
+
+        assert email.to == self.USER_EMAILS
+        assert str(email.subject) == subject
+        assert len(mail.outbox) == 1
+        assert len(email.alternatives) == 1
+        assert email.alternatives[0][1] == 'text/html'
+
+        html = email.alternatives[0][0]
+        for html_content in html_contents:
+            self.assertInHTML(html_content, html)
+
+    @ddt.data(
+        (BOOTCAMP_PRODUCT, "Bootcamp Ingestion"),
+        (EXEC_ED_PRODUCT, "Executive Education Ingestion")
+    )
+    @ddt.unpack
+    def test_product_types(self, product_type, email_subject):
+        """
+        Verify the email content correctly displays the correct product type.
+        """
+        emails.send_ingestion_email(
+            self.partner, email_subject, self.USER_EMAILS, product_type,
+            {
+                **self._get_base_ingestion_stats(),
+                'total_products_count': 1,
+                'success_count': 1,
+                'updated_products_count': 1,
+            }
+        )
+        self._assert_email_content(
+            email_subject,
+            [
+                "<tr><th>Successful Ingestion</th><td>1</td></tr>",
+                "<tr><th>Ingestion with Errors </th><td>0</td></tr>",
+                "<tr><th>Total data rows</th><td>1</td></tr>",
+                f"<p>The data ingestion has been run for product type <strong>{product_type}</strong>. "
+                f"See below for the ingestion stats.</p>",
+            ]
+        )
+
+    def test_email_no_ingestion_failure(self):
+        """
+        Verify the email content for no ingestion failure.
+        """
+        emails.send_ingestion_email(
+            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
+            {
+                **self._get_base_ingestion_stats(),
+                'total_products_count': 1,
+                'success_count': 1,
+                'updated_products_count': 1,
+            }
+        )
+
+        self._assert_email_content(
+            self.EMAIL_SUBJECT,
+            ["<tr><th>Successful Ingestion</th><td>1</td></tr>",
+             "<tr><th>Ingestion with Errors </th><td>0</td></tr>",
+             "<tr><th>Total data rows</th><td>1</td></tr>"]
+        )
+
+    def test_email_new_products(self):
+        """
+        Verify the email content for new products.
+        """
+        uuid = str(uuid4())
+        emails.send_ingestion_email(
+            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
+            {
+                **self._get_base_ingestion_stats(),
+                'total_products_count': 1,
+                'success_count': 1,
+                'created_products_count': 1,
+                'created_products': [uuid],
+            }
+        )
+
+        self._assert_email_content(
+            self.EMAIL_SUBJECT,
+            [
+                "<tr><th>Successful Ingestion</th><td> 1 </td></tr>",
+                "<tr><th>Total data rows</th><td> 1 </td></tr>",
+                "<tr><th>New Products</th><td> 1 </td></tr>",
+                "<tr><th>Updated Products</th><td> 0 </td></tr>",
+                "<h3>New Products</h3>",
+                f"<li><a href='{self.partner.publisher_url}courses/{uuid}'>{uuid}</a></li>"
+            ]
+        )
+
+    def test_email_ingestion_failures(self):
+        """
+        Verify the email content for the ingestion failures.
+        """
+        emails.send_ingestion_email(
+            self.partner, self.EMAIL_SUBJECT, self.USER_EMAILS, self.EXEC_ED_PRODUCT,
+            {
+                **self._get_base_ingestion_stats(),
+                'total_products_count': 1,
+                'failure_count': 1,
+                'errors': {
+                    'MISSING_ORGANIZATION': [
+                        '[MISSING_ORGANIZATION] Unable to find organization with key edx1'
+                    ]
+                }
+            }
+        )
+
+        self._assert_email_content(
+            self.EMAIL_SUBJECT,
+            [
+                "<tr><th>Total data rows</th><td> 1 </td></tr>",
+                "<tr><th>Successful Ingestion</th><td> 0 </td></tr>",
+                "<tr><th>Ingestion with Errors</th><td> 1 </td></tr>",
+                "<h3>Ingestion Failures</h3>",
+                "<li>[MISSING_ORGANIZATION] Unable to find organization with key edx1</li>"
+            ]
         )
