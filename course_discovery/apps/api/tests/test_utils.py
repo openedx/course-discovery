@@ -41,6 +41,16 @@ def make_request(query_param=None):
     return APIView().initialize_request(request)
 
 
+def make_post_request(data=None):
+    user = UserFactory()
+    if data:
+        request = APIRequestFactory().post('/', data=data)
+    else:
+        request = APIRequestFactory().post('/')
+    request.user = user
+    return APIView().initialize_request(request)
+
+
 @ddt.ddt
 class Cast2IntTests(TestCase):
     name = 'foo'
