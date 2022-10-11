@@ -68,6 +68,9 @@ class CourseSearchDocumentSerializer(ModelObjectDocumentSerializerMixin, DateTim
         exclude_expired = request.GET.get('exclude_expired_course_run')
         detail_fields = request.GET.get('detail_fields')
         query_params = dict(request.query_params)
+        if request.method == 'POST':
+            exclude_expired = request.POST.get('exclude_expired_course_run') or exclude_expired
+            detail_fields = request.POST.get('detail_fields') or detail_fields
 
         def should_include_course_run(course_run, params, exclude_expired):
             matches_parameter = False

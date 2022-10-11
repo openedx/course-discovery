@@ -5,11 +5,13 @@ import csv
 import logging
 
 import unicodecsv
+from django.conf import settings
 
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.data_loaders.constants import (
     DEGREE_LOADER_ERROR_LOG_SEQUENCE, DegreeCSVIngestionErrorMessages, DegreeCSVIngestionErrors
 )
+from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
     Curriculum, Degree, DegreeAdditionalMetadata, LanguageTag, LevelType, Organization, Program, ProgramType,
     Specialization, Subject
@@ -52,7 +54,10 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         }
     }
 
-    def __init__(self, partner, api_url=None, max_workers=None, is_threadsafe=False, csv_path=None, csv_file=None):
+    def __init__(
+        self, partner, api_url=None, max_workers=None, is_threadsafe=False,
+        csv_path=None, csv_file=None, args_from_env=None, product_type=None
+    ):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         self.error_logs = {}
@@ -62,12 +67,21 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             self.error_logs.setdefault(error_log_key, [])
 
         try:
-            # Read file from the path if given. Otherwise,
-            # read from the file received from DegreeDataLoaderConfiguration.
-            self.reader = csv.DictReader(open(csv_path, 'r')) if csv_path \
-                else list(unicodecsv.DictReader(csv_file))  # lint-amnesty, pylint: disable=consider-using-with
+            if args_from_env:
+                # TODO: add unit tests
+                product_type_config = settings.PRODUCT_EXTERNAL_SHEET_MAPPING[product_type]
+                gspread_client = GspreadClient()
+                self.reader = gspread_client.read_data(product_type_config)
+            else:
+                # Read file from the path if given. Otherwise,
+                # read from the file received from DegreeDataLoaderConfiguration.
+                self.reader = csv.DictReader(open(csv_path, 'r')) if csv_path \
+                    else list(unicodecsv.DictReader(csv_file))  # lint-amnesty, pylint: disable=consider-using-with
         except FileNotFoundError:
             logger.exception("Error opening csv file at path {}".format(csv_path))    # lint-amnesty, pylint: disable=logging-format-interpolation
+            raise  # re-raising exception to avoid moving the code flow
+        except Exception:
+            logger.exception("Error reading the input data source")
             raise  # re-raising exception to avoid moving the code flow
 
     def ingest(self):

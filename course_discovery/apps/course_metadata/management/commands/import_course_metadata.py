@@ -33,6 +33,17 @@ class Command(BaseCommand):
             help='Path to the CSV file',
             type=str,
         )
+        parser.add_argument(
+            '--product_type',
+            help='Product Type to ingest',
+            type=str,
+            choices=['EXECUTIVE_EDUCATION', 'BOOTCAMPS']
+        )
+        parser.add_argument(
+            '--args_from_env',
+            help='Link to the Data Spreadsheet',
+            type=bool,
+        )
 
     def handle(self, *args, **options):
         """
@@ -42,6 +53,9 @@ class Command(BaseCommand):
         csv_loader_config = CSVDataLoaderConfiguration.current()
         csv_path = options.get('csv_path', None)
         csv_file = csv_loader_config.csv_file if csv_loader_config.is_enabled() else None
+        product_type = options.get('product_type', None)
+        args_from_env = options.get('args_from_env', None)
+
         try:
             partner = Partner.objects.get(short_code=partner_short_code)
         except Partner.DoesNotExist:
@@ -59,7 +73,10 @@ class Command(BaseCommand):
                 signal.disconnect(receiver=api_change_receiver, sender=model)
 
         try:
-            loader = CSVDataLoader(partner, csv_path=csv_path, csv_file=csv_file)
+            loader = CSVDataLoader(
+                partner, csv_path=csv_path, csv_file=csv_file,
+                args_from_env=args_from_env, product_type=product_type
+            )
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
             loader.ingest()
         except Exception as exc:
