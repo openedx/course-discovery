@@ -57,3 +57,9 @@ class CertificateType(DjangoChoices):
 class PayeeType(DjangoChoices):
     Platform = ChoiceItem('platform', _('Platform'))
     Organization = ChoiceItem('organization', _('Organization'))
+
+
+class CourseLength(DjangoChoices):
+    Short = ChoiceItem('short', _('Short'))
+    Medium = ChoiceItem('medium', _('Medium'))
+    Long = ChoiceItem('long', _('Long'))

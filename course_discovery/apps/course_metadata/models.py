@@ -38,7 +38,7 @@ from taxonomy.signals.signals import UPDATE_PROGRAM_SKILLS
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
-    CertificateType, CourseRunPacing, CourseRunStatus, PayeeType, ProgramStatus, ReportingType
+    CertificateType, CourseLength, CourseRunPacing, CourseRunStatus, PayeeType, ProgramStatus, ReportingType
 )
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
@@ -974,6 +974,10 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
         AdditionalMetadata, models.CASCADE,
         related_name='related_courses',
         default=None, null=True, blank=True
+    )
+    course_length = models.CharField(
+        max_length=64, choices=CourseLength, blank=True,
+        help_text=_('The actual duration of this course as experienced by learners who complete it.'),
     )
     authoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='authored_courses')
     sponsoring_organizations = SortedManyToManyField(Organization, blank=True, related_name='sponsored_courses')
