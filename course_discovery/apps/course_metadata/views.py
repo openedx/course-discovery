@@ -6,13 +6,15 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, UpdateView, View
 from taxonomy.choices import ProductTypes
-from taxonomy.signals.signals import UPDATE_COURSE_SKILLS
+from taxonomy.signals.signals import UPDATE_COURSE_SKILLS, UPDATE_PROGRAM_SKILLS
 from taxonomy.utils import (
     blacklist_course_skill, get_blacklisted_course_skills, get_whitelisted_product_skills,
     remove_course_skill_from_blacklist
 )
 
-from course_discovery.apps.course_metadata.constants import REFRESH_COURSE_SKILLS_URL_NAME
+from course_discovery.apps.course_metadata.constants import (
+    REFRESH_COURSE_SKILLS_URL_NAME, REFRESH_PROGRAM_SKILLS_URL_NAME
+)
 from course_discovery.apps.course_metadata.forms import CourseRunSelectionForm, ExcludeSkillsForm
 from course_discovery.apps.course_metadata.models import Course, Program
 
@@ -46,6 +48,86 @@ class CourseRunSelectionAdmin(UpdateView):
 
     def get_success_url(self):
         return reverse('admin:course_metadata_program_change', args=(self.object.id,))
+
+
+class RefreshProgramSkillsView(View):
+    """
+    Fire single to refresh Program Skills.
+    """
+    template = 'admin/course_metadata/refresh_program_skills.html'
+
+    class ContextParameters:
+        """
+        Namespace-style class for custom context parameters.
+        """
+        PROGRAM = 'program'
+
+    @staticmethod
+    def _get_admin_context(request, program):
+        """
+        Build admin context.
+        """
+        opts = program._meta
+        codename = get_permission_codename('change', opts)
+        has_change_permission = request.user.has_perm('%s.%s' % (opts.app_label, codename))
+        return {
+            'has_change_permission': has_change_permission,
+            'opts': opts
+        }
+
+    def _get_view_context(self, program_pk):
+        """
+        Return the default context parameters.
+        """
+        program = get_object_or_404(Program, id=program_pk)
+        return {
+            self.ContextParameters.PROGRAM: program,
+        }
+
+    def _build_context(self, request, program_pk):
+        """
+        Build admin and view context used by the template.
+        """
+        context = self._get_view_context(program_pk)
+        context.update(admin.site.each_context(request))
+        context.update(self._get_admin_context(request, context['program']))
+        return context
+
+    def get(self, request, program_pk):
+        """
+        Handle GET request - renders the template.
+
+        Arguments:
+            request (django.http.request.HttpRequest): Request instance
+            program_pk (str): Primary key of the program
+
+        Returns:
+            django.http.response.HttpResponse: HttpResponse
+        """
+        context = self._build_context(request, program_pk)
+        return render(request, self.template, context)
+
+    def post(self, _request, program_pk):
+        """
+        Process the post request by creating an instance of program skills after cleaning and validating post data.
+        """
+        program = Program.objects.get(id=program_pk)
+        self._update_program_skills(program.uuid)
+        response = HttpResponseRedirect(
+            reverse(f'admin:{REFRESH_PROGRAM_SKILLS_URL_NAME}', args=(program_pk,))
+        )
+        return response
+
+    def _update_program_skills(self, program_uuid):
+        """
+        Fire signal to refresh data.
+        """
+        try:
+            UPDATE_PROGRAM_SKILLS.send(self.__class__, program_uuid=program_uuid)
+            message = _('The refresh program skills task triggered successfully.')
+            messages.add_message(self.request, messages.SUCCESS, message)
+        except Exception as error:  # pylint: disable=broad-except
+            messages.add_message(self.request, messages.ERROR, error)
 
 
 class RefreshCourseSkillsView(View):
@@ -117,7 +199,7 @@ class RefreshCourseSkillsView(View):
 
     def _update_course_skills(self, course_uuid):
         """
-        Fire sigle to refresh data.
+        Fire signal to refresh data.
         """
         try:
             UPDATE_COURSE_SKILLS.send(self.__class__, course_uuid=course_uuid)

@@ -69,7 +69,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         try:
             if args_from_env:
                 # TODO: add unit tests
-                product_type_config = settings.PRODUCT_EXTERNAL_SHEET_MAPPING[product_type]
+                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type]
                 gspread_client = GspreadClient()
                 self.reader = gspread_client.read_data(product_type_config)
             else:

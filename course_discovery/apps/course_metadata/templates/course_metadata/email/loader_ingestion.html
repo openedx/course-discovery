@@ -1,0 +1,73 @@
+{% extends "course_metadata/email/email_base.html" %}
+{% load django_markup %}
+{% block body %}
+
+<p>
+    The data ingestion has been run for product type <strong>{{ product_type }}</strong>. See below for the ingestion stats.
+</p>
+<div>
+    <table border="2" width="50%" style="padding: 5px;">
+        <tr>
+            <th colspan="2">
+                Ingestion Statistics
+            </th>
+        </tr>
+        <tr>
+            <th>Ingestion Time</th>
+            <td>{{ ingestion_run_time | date:"m/d/Y P" }}</td>
+        </tr>
+        <tr>
+            <th>Total data rows</th>
+            <td>{{ total_products_count }}</td>
+        </tr>
+        <tr>
+            <th>Successful Ingestion</th>
+            <td>{{ success_count }}</td>
+        </tr>
+        <tr>
+            <th>Ingestion with Errors </th>
+            <td>{{ failure_count }}</td>
+        </tr>
+        <tr>
+            <th>New Products</th>
+            <td>{{ created_products_count }}</td>
+        </tr>
+        <tr>
+            <th>Updated Products</th>
+            <td>{{ updated_products_count }}</td>
+        </tr>
+    </table>
+</div>
+
+{% if created_products_count > 0 %}
+<div>
+    <h3>New Products</h3>
+        <ul>
+            {% for new_product in created_products %}
+                {% if product_type != "DEGREES" %}
+                    <li><a href="{{publisher_url}}courses/{{new_product}}">{{ new_product }}</a></li>
+                {% else %}
+                    <li>{{ new_product }}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+</div>
+{% endif %}
+
+{% if failure_count > 0 %}
+<div>
+    <h3>Ingestion Failures</h3>
+        <ul>
+            {% for error_type, error_list in errors.items %}
+                {% for error_message in error_list %}
+                    <li> {{ error_message }} </li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+</div>
+{% endif %}
+
+<p>
+    Note: This email address is unable to receive replies. For questions or comments, please contact the relevant team.
+</p>
+{% endblock body %}

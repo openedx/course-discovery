@@ -653,20 +653,24 @@ GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {
   'CLIENT_X509_CERT_URL': ''
 }
 
-PRODUCT_EXTERNAL_SHEET_MAPPING = {
+PRODUCT_METADATA_MAPPING = {
     'EXECUTIVE_EDUCATION': {
         'SHEET_ID': '',
         'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': ''
+        'ERROR_TAB_ID': '',
+        'EMAIL_NOTIFICATION_LIST': []
     },
     'BOOTCAMPS': {
         'SHEET_ID': '',
         'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': ''
+        'ERROR_TAB_ID': '',
+        'EMAIL_NOTIFICATION_LIST': []
     },
     'DEGREES': {
         'SHEET_ID': '',
         'INPUT_TAB_ID': '',
-        'ERROR_TAB_ID': ''
+        'ERROR_TAB_ID': '',
+        'EMAIL_NOTIFICATION_LIST': []
     },
 }
+
