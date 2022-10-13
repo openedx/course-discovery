@@ -66,6 +66,13 @@ class CSVDataLoader(AbstractDataLoader):
         super().__init__(partner, api_url, max_workers, is_threadsafe)
 
         self.error_logs = {}
+        self.ingestion_summary = {
+            'total_products_count': 0,
+            'success_count': 0,
+            'failure_count': 0,
+            'updated_products_count': 0,
+            'created_products': [],
+        }
         self.course_uuids = {}  # to show the discovery course ids for each processed course
 
         for error_log_key in CSV_LOADER_ERROR_LOG_SEQUENCE:
@@ -74,7 +81,7 @@ class CSVDataLoader(AbstractDataLoader):
         try:
             if args_from_env:
                 # TODO: add unit tests
-                product_type_config = settings.PRODUCT_EXTERNAL_SHEET_MAPPING[product_type]
+                product_type_config = settings.PRODUCT_METADATA_MAPPING[product_type]
                 gspread_client = GspreadClient()
                 self.reader = gspread_client.read_data(product_type_config)
             else:
@@ -88,9 +95,13 @@ class CSVDataLoader(AbstractDataLoader):
         except Exception:
             logger.exception("Error reading the input data source")
             raise  # re-raising exception to avoid moving the code flow
+        else:
+            self.reader = list(self.reader)
+            self.ingestion_summary['total_products_count'] = len(self.reader)
 
     def ingest(self):  # pylint: disable=too-many-statements
         logger.info("Initiating CSV data loader flow.")
+
         for row in self.reader:
             row = self.transform_dict_keys(row)
             course_title = row['title']
@@ -103,7 +114,7 @@ class CSVDataLoader(AbstractDataLoader):
                     course_title=course_title,
                 )
                 logger.error(error_message)
-                self.error_logs[CSVIngestionErrors.MISSING_ORGANIZATION].append(error_message)
+                self._register_ingestion_error(CSVIngestionErrors.MISSING_ORGANIZATION, error_message)
                 continue
 
             try:
@@ -114,14 +125,14 @@ class CSVDataLoader(AbstractDataLoader):
                     course_title=course_title, course_type=row['course_enrollment_track']
                 )
                 logger.exception(error_message)
-                self.error_logs[CSVIngestionErrors.MISSING_COURSE_TYPE].append(error_message)
+                self._register_ingestion_error(CSVIngestionErrors.MISSING_COURSE_TYPE, error_message)
                 continue
             except CourseRunType.DoesNotExist:
                 error_message = CSVIngestionErrorMessages.MISSING_COURSE_RUN_TYPE.format(
                     course_title=course_title, course_run_type=row['course_run_enrollment_track']
                 )
                 logger.exception(error_message)
-                self.error_logs[CSVIngestionErrors.MISSING_COURSE_RUN_TYPE].append(error_message)
+                self._register_ingestion_error(CSVIngestionErrors.MISSING_COURSE_RUN_TYPE, error_message)
                 continue
 
             missing_fields = self.validate_course_data(course_type, row)
@@ -130,13 +141,12 @@ class CSVDataLoader(AbstractDataLoader):
                     course_title=course_title, missing_data=missing_fields
                 )
                 logger.error(error_message)
-                self.error_logs[CSVIngestionErrors.MISSING_REQUIRED_DATA].append(
-                    error_message
-                )
+                self._register_ingestion_error(CSVIngestionErrors.MISSING_REQUIRED_DATA, error_message)
                 continue
 
             course_key = self.get_course_key(org_key, row['number'])
             course = Course.objects.filter_drafts(key=course_key, partner=self.partner).first()
+            is_course_created = False
 
             if course:
                 course_run = CourseRun.objects.filter_drafts(course=course).first()
@@ -151,11 +161,12 @@ class CSVDataLoader(AbstractDataLoader):
                         exception_message=exc
                     )
                     logger.exception(error_message)
-                    self.error_logs[CSVIngestionErrors.COURSE_CREATE_ERROR].append(error_message)
+                    self._register_ingestion_error(CSVIngestionErrors.COURSE_CREATE_ERROR, error_message)
                     continue
 
                 course = Course.everything.get(key=course_key, partner=self.partner)
                 course_run = CourseRun.everything.filter(course=course).first()
+                is_course_created = True
 
             is_downloaded = download_and_save_course_image(
                 course,
@@ -168,7 +179,7 @@ class CSVDataLoader(AbstractDataLoader):
             if not is_downloaded:
                 error_message = CSVIngestionErrorMessages.IMAGE_DOWNLOAD_FAILURE.format(course_title=course_title)
                 logger.error(error_message)
-                self.error_logs[CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE].append(error_message)
+                self._register_ingestion_error(CSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, error_message)
                 continue
 
             is_draft = self.get_draft_flag(course_run)
@@ -182,7 +193,7 @@ class CSVDataLoader(AbstractDataLoader):
                     exception_message=exc
                 )
                 logger.exception(error_message)
-                self.error_logs[CSVIngestionErrors.COURSE_UPDATE_ERROR].append(error_message)
+                self._register_ingestion_error(CSVIngestionErrors.COURSE_UPDATE_ERROR, error_message)
                 continue
 
             if row.get('organization_logo_override'):
@@ -202,7 +213,7 @@ class CSVDataLoader(AbstractDataLoader):
                         course_title=course_title
                     )
                     logger.error(error_message)
-                    self.error_logs[CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE].append(error_message)
+                    self._register_ingestion_error(CSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE, error_message)
 
             # No need to update the course run if the run is already in the review
             if not course_run.in_review:
@@ -214,11 +225,12 @@ class CSVDataLoader(AbstractDataLoader):
                         exception_message=exc
                     )
                     logger.exception(error_message)
-                    self.error_logs[CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR].append(error_message)
+                    self._register_ingestion_error(CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR, error_message)
                     continue
 
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
+            self._register_successful_ingestion(str(course.uuid), is_course_created)
         logger.info("CSV loader ingest pipeline has completed.")
 
         self._render_error_logs()
@@ -259,6 +271,30 @@ class CSVDataLoader(AbstractDataLoader):
             for course_uuid, title in self.course_uuids.items():
                 logger.info(
                     "{}:{}".format(course_uuid, title))  # lint-amnesty, pylint: disable=logging-format-interpolation
+
+    def _register_ingestion_error(self, error_key, error_message):
+        """
+        Helper method to register error log and increase count of ingestion errors.
+        """
+        self.ingestion_summary['failure_count'] += 1
+        self.error_logs[error_key].append(error_message)
+
+    def get_ingestion_stats(self):
+        return {
+            **self.ingestion_summary,
+            'created_products_count': len(self.ingestion_summary['created_products']),
+            'errors': self.error_logs
+        }
+
+    def _register_successful_ingestion(self, course_uuid, created):
+        """
+        Register the summary of a successful ingestion.
+        """
+        self.ingestion_summary['success_count'] += 1
+        if created:
+            self.ingestion_summary['created_products'].append(course_uuid)
+        else:
+            self.ingestion_summary['updated_products_count'] += 1
 
     def _create_course_api_request_data(self, data, course_type, course_run_type_uuid):
         """

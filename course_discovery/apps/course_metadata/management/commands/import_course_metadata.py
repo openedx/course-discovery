@@ -3,14 +3,17 @@ Management command to import, create, and/or update course and course run inform
 executive education courses.
 """
 import logging
+from datetime import datetime
 
 from django.apps import apps
+from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from django.db.models.signals import post_delete, post_save
 
 from course_discovery.apps.api.cache import api_change_receiver, set_api_timestamp
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
+from course_discovery.apps.course_metadata.emails import send_ingestion_email
 from course_discovery.apps.course_metadata.models import CSVDataLoaderConfiguration
 from course_discovery.apps.course_metadata.signals import connect_api_change_receiver
 
@@ -78,6 +81,7 @@ class Command(BaseCommand):
                 args_from_env=args_from_env, product_type=product_type
             )
             logger.info("Starting CSV loader import flow for partner {}".format(partner_short_code))  # lint-amnesty, pylint: disable=logging-format-interpolation
+            ingestion_time = datetime.now()
             loader.ingest()
         except Exception as exc:
             raise CommandError(  # pylint: disable=raise-missing-from
@@ -89,3 +93,14 @@ class Command(BaseCommand):
         finally:
             # Re-connect back the api_change_receiver receiver to post_save and post_delete signals
             connect_api_change_receiver()
+
+        if product_type:
+            email_subject = f"{product_type.replace('_', ' ').title()} Data Ingestion"
+            to_users = settings.PRODUCT_METADATA_MAPPING[product_type]['EMAIL_NOTIFICATION_LIST']
+            ingestion_details = {
+                'ingestion_run_time': ingestion_time,
+                **loader.get_ingestion_stats()
+            }
+            send_ingestion_email(
+                partner, email_subject, to_users, product_type, ingestion_details,
+            )

@@ -1,0 +1,23 @@
+The data ingestion has been run for product type <strong>{{ product_type }}</strong>. See below for the ingestion stats.
+
+Ingestion Statistics
+
+Ingestion Time: {{ ingestion_run_time | date:"m/d/Y P" }}
+Total data rows:  {{ total_products_count }}
+Successful Ingestion:{{ success_count }}
+Ingestion with Errors: {{ failure_count }}
+New Products: {{ created_products_count }}
+Updated Products: {{ updated_products_count }}
+{% if created_products_count > 0 %}
+New Products
+{% for new_product in created_products %}
+{{ new_product }}
+{% endfor %}
+{% endif %}
+{% if failure_count > 0 %}
+Ingestion Failures
+{% for error_type, error_list in errors.items %}{% for error_message in error_list %}
+{{ error_message }}
+{% endfor %}{% endfor %}
+{% endif %}
+Note: This email address is unable to receive replies. For questions or comments, please contact the relevant team.

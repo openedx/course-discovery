@@ -230,6 +230,16 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
                     self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
 
+                    assert loader.get_ingestion_stats() == {
+                        'total_products_count': 1,
+                        'success_count': 1,
+                        'failure_count': 0,
+                        'updated_products_count': 0,
+                        'created_products_count': 1,
+                        'created_products': [str(course.uuid)],
+                        'errors': loader.error_logs
+                    }
+
     @responses.activate
     def test_ingest_flow_for_preexisting_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
@@ -293,6 +303,16 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
 
                     self._assert_course_data(course, expected_course_data)
                     self._assert_course_run_data(course_run, expected_course_run_data)
+
+                    assert loader.get_ingestion_stats() == {
+                        'total_products_count': 1,
+                        'success_count': 1,
+                        'failure_count': 0,
+                        'updated_products_count': 1,
+                        'created_products_count': 0,
+                        'created_products': [],
+                        'errors': loader.error_logs
+                    }
 
     @responses.activate
     def test_invalid_language(self, jwt_decode_patch):  # pylint: disable=unused-argument

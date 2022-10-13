@@ -93,7 +93,8 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
             )
 
     @responses.activate
-    def test_success_flow(self, jwt_decode_patch):  # pylint: disable=unused-argument
+    @mock.patch('course_discovery.apps.course_metadata.management.commands.import_course_metadata.send_ingestion_email')
+    def test_success_flow(self, email_patch, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that for a single row of valid data, the command completes CSV loader ingestion flow successfully.
         """
@@ -111,7 +112,9 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     self.mock_call_course_api
             ):
                 call_command(
-                    'import_course_metadata', '--partner_code', self.partner.short_code
+                    'import_course_metadata',
+                    '--partner_code', self.partner.short_code,
+                    '--product_type', 'EXECUTIVE_EDUCATION'
                 )
                 log_capture.check_present(
                     (
@@ -133,3 +136,4 @@ class TestImportCourseMetadata(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert course.image.read() == image_content
                 self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
                 self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
+                email_patch.assert_called_once()
