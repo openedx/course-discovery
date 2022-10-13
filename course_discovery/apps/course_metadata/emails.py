@@ -302,3 +302,41 @@ def send_email_for_comment(comment, course, author):
                    course=course, context=context, project_coordinator=project_coordinator)
     except Exception:  # pylint: disable=broad-except
         logger.exception('Failed to send email notifications for comment on course %s', course.uuid)
+
+
+def send_ingestion_email(partner, subject, to_users, product_type, ingestion_details):
+    """ Send an overall report of a product's ingestion.
+
+        Arguments:
+            partner (Object): Partner model object
+            subject (str): subject line for email
+            to_users (list(str)): a list of email addresses to whom the email should be sent to
+            product_type (str): the product whose ingestion has been run
+            ingestion_details (dict): Stats of ingestion, along with reported errors
+    """
+    context = {
+        **ingestion_details,
+        'product_type': product_type,
+        'publisher_url': partner.publisher_url,
+    }
+    txt_template = 'course_metadata/email/loader_ingestion.txt'
+    html_template = 'course_metadata/email/loader_ingestion.html'
+    template = get_template(txt_template)
+    plain_content = template.render(context)
+    template = get_template(html_template)
+    html_content = template.render(context)
+
+    email_msg = EmailMultiAlternatives(
+        subject, plain_content, settings.PUBLISHER_FROM_EMAIL, to_users
+    )
+    email_msg.attach_alternative(html_content, 'text/html')
+
+    try:
+        email_msg.send()
+    except Exception:  # pylint: disable=broad-except
+        logger.exception(
+            'Failure to send ingestion notification for product type %s, with subject "%s" and context "%s"',
+            product_type,
+            subject,
+            context
+        )

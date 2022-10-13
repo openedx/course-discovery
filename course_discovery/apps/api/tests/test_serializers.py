@@ -1999,6 +1999,7 @@ class AdditionalMetadataSerializerTests(TestCase):
             'start_date': serialize_datetime(additional_metadata.start_date),
             'registration_deadline': serialize_datetime(additional_metadata.registration_deadline),
             'variant_id': str(additional_metadata.variant_id),
+            'course_term_override': additional_metadata.course_term_override,
         }
         assert serializer.data == expected
 

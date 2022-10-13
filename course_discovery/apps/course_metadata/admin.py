@@ -16,7 +16,9 @@ from waffle import get_waffle_flag_model  # lint-amnesty, pylint: disable=invali
 from course_discovery.apps.course_metadata.algolia_forms import SearchDefaultResultsConfigurationForm
 from course_discovery.apps.course_metadata.algolia_models import SearchDefaultResultsConfiguration
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.constants import COURSE_SKILLS_URL_NAME, REFRESH_COURSE_SKILLS_URL_NAME
+from course_discovery.apps.course_metadata.constants import (
+    COURSE_SKILLS_URL_NAME, REFRESH_COURSE_SKILLS_URL_NAME, REFRESH_PROGRAM_SKILLS_URL_NAME
+)
 from course_discovery.apps.course_metadata.exceptions import (
     MarketingSiteAPIClientException, MarketingSitePublisherException
 )
@@ -24,7 +26,9 @@ from course_discovery.apps.course_metadata.forms import (
     CourseAdminForm, CourseRunAdminForm, PathwayAdminForm, ProgramAdminForm
 )
 from course_discovery.apps.course_metadata.models import *  # pylint: disable=wildcard-import
-from course_discovery.apps.course_metadata.views import CourseSkillsView, RefreshCourseSkillsView
+from course_discovery.apps.course_metadata.views import (
+    CourseSkillsView, RefreshCourseSkillsView, RefreshProgramSkillsView
+)
 from course_discovery.apps.learner_pathway.api.urls import app_name as learner_pathway_app_name
 
 PUBLICATION_FAILURE_MSG_TPL = _(
@@ -330,7 +334,7 @@ class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
 
 
 @admin.register(Program)
-class ProgramAdmin(admin.ModelAdmin):
+class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = ProgramAdminForm
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
     list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden')
@@ -355,8 +359,32 @@ class ProgramAdmin(admin.ModelAdmin):
         'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
         'enterprise_subscription_inclusion', 'in_year_value', 'labels', 'geolocation'
     )
+    change_actions = ('refresh_program_skills', )
 
     save_error = False
+
+    def get_urls(self):
+        """
+        Returns the additional urls used by the custom object tools.
+        """
+        additional_urls = [
+            re_path(
+                r"^([^/]+)/refresh_program_skills$",
+                self.admin_site.admin_view(RefreshProgramSkillsView.as_view()),
+                name=REFRESH_PROGRAM_SKILLS_URL_NAME
+            ),
+        ]
+        return additional_urls + super().get_urls()
+
+    def get_change_actions(self, request, object_id, form_url):
+        actions = super().get_change_actions(request, object_id, form_url)
+        actions = list(actions)
+
+        obj = self.model.objects.get(pk=object_id)
+        if obj.status != ProgramStatus.Active:
+            actions.remove('refresh_program_skills')
+
+        return actions
 
     def custom_course_runs_display(self, obj):
         return mark_safe('<br>'.join([str(run) for run in obj.course_runs]))
@@ -371,6 +399,13 @@ class ProgramAdmin(admin.ModelAdmin):
             HttpResponseRedirect
         """
         return HttpResponseRedirect(reverse('admin_metadata:update_course_runs', kwargs={'pk': obj.pk}))
+
+    def refresh_program_skills(self, request, obj):
+        """
+        Object tool handler method - redirects to "Refresh Course Skills" view
+        """
+        refresh_program_skills_url = reverse(f"admin:{REFRESH_PROGRAM_SKILLS_URL_NAME}", args=(obj.pk,))
+        return HttpResponseRedirect(refresh_program_skills_url)
 
     def response_add(self, request, obj, post_url_continue=None):
         if self.save_error:
