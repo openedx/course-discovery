@@ -62,6 +62,13 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
         self.error_logs = {}
         self.degree_uuids = {}  # to show the discovery degrees/program ids for each processed degree
+        self.ingestion_summary = {
+            'total_products_count': 0,
+            'success_count': 0,
+            'failure_count': 0,
+            'updated_products_count': 0,
+            'created_products': [],
+        }
 
         for error_log_key in DEGREE_LOADER_ERROR_LOG_SEQUENCE:
             self.error_logs.setdefault(error_log_key, [])
@@ -83,6 +90,9 @@ class DegreeCSVDataLoader(AbstractDataLoader):
         except Exception:
             logger.exception("Error reading the input data source")
             raise  # re-raising exception to avoid moving the code flow
+        else:
+            self.reader = list(self.reader)
+            self.ingestion_summary['total_products_count'] = len(self.reader)
 
     def ingest(self):
         logger.info("Initiating Degree CSV data loader flow.")
@@ -99,7 +109,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                     missing_data=missing_data
                 )
                 logger.error(error_message)
-                self.error_logs[DegreeCSVIngestionErrors.MISSING_REQUIRED_DATA].append(error_message)
+                self._register_ingestion_error(DegreeCSVIngestionErrors.MISSING_REQUIRED_DATA, error_message)
                 continue
 
             logger.info('Starting data import flow for {}'.format(degree_slug))    # lint-amnesty, pylint: disable=logging-format-interpolation
@@ -135,7 +145,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             ))
 
             try:
-                degree = self._update_or_create_degree(
+                degree, is_degree_created = self._update_or_create_degree(
                     row, program_type, primary_subject_override,
                     level_type_override, language_override
                 )
@@ -151,7 +161,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                     exception_message=exc
                 )
                 logger.exception(error_message)
-                self.error_logs[error_type].append(error_message)
+                self._register_ingestion_error(error_type, error_message)
                 continue
 
             self._handle_organization_data(org, degree)
@@ -162,6 +172,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
 
             logger.info("Degree updated successfully for degree key {}".format(degree.uuid))    # lint-amnesty, pylint: disable=logging-format-interpolation
             self.degree_uuids[str(degree.uuid)] = degree.marketing_slug
+            self._register_successful_ingestion(str(degree.uuid), is_degree_created)
 
         logger.info("Degree CSV loader ingest pipeline has completed.")
 
@@ -198,6 +209,30 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             logger.info("Degree UUIDs:")
             for degree_uuid, marketing_slug in self.degree_uuids.items():
                 logger.info("{}:{}".format(degree_uuid, marketing_slug))  # lint-amnesty, pylint: disable=logging-format-interpolation
+
+    def _register_ingestion_error(self, error_key, error_message):
+        """
+        Helper method to register error log and increase count of ingestion errors.
+        """
+        self.ingestion_summary['failure_count'] += 1
+        self.error_logs[error_key].append(error_message)
+
+    def get_ingestion_stats(self):
+        return {
+            **self.ingestion_summary,
+            'created_products_count': len(self.ingestion_summary['created_products']),
+            'errors': self.error_logs
+        }
+
+    def _register_successful_ingestion(self, program_uuid, created):
+        """
+        Register the summary of a successful ingestion.
+        """
+        self.ingestion_summary['success_count'] += 1
+        if created:
+            self.ingestion_summary['created_products'].append(program_uuid)
+        else:
+            self.ingestion_summary['updated_products_count'] += 1
 
     def transform_dict_keys(self, data):
         """
@@ -244,7 +279,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             "created" if created else "updated",
         ))
 
-        return degree
+        return degree, created
 
     def _handle_organization_data(self, org, degree):
         """
@@ -272,7 +307,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                 degree_slug=degree.marketing_slug
             )
             logger.error(error_message)
-            self.error_logs[DegreeCSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE].append(error_message)
+            self._register_ingestion_error(DegreeCSVIngestionErrors.IMAGE_DOWNLOAD_FAILURE, error_message)
 
         if data.get('organization_logo_override'):
             is_downloaded = download_and_save_program_image(
@@ -289,7 +324,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
                     degree_slug=degree.marketing_slug
                 )
                 logger.error(error_message)
-                self.error_logs[DegreeCSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE].append(error_message)
+                self._register_ingestion_error(DegreeCSVIngestionErrors.LOGO_IMAGE_DOWNLOAD_FAILURE, error_message)
 
     def _handle_courses(self, data, degree):
         """
@@ -351,7 +386,7 @@ class DegreeCSVDataLoader(AbstractDataLoader):
             error_type = error_dict['error_type']
 
             logger.exception(error_message)
-            self.error_logs[error_type].append(error_message)
+            self._register_ingestion_error(error_type, error_message)
             return None
 
     def _handle_additional_metadata(self, data, degree):

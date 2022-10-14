@@ -74,7 +74,8 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             )
 
     @responses.activate
-    def test_success_flow(self, jwt_decode_patch):  # pylint: disable=unused-argument
+    @mock.patch('course_discovery.apps.course_metadata.management.commands.import_degree_data.send_ingestion_email')
+    def test_success_flow(self, email_patch, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that for a single row of valid data, the command completes CSV loader ingestion flow successfully.
         """
@@ -85,7 +86,9 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
 
         with LogCapture(LOGGER_PATH) as log_capture:
             call_command(
-                'import_degree_data', '--partner_code', self.partner.short_code,
+                'import_degree_data',
+                '--partner_code', self.partner.short_code,
+                '--product_type', 'DEGREES'
             )
             log_capture.check_present(
                 (
@@ -95,7 +98,8 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 )
             )
             log_capture.check_present(
-                (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.')
+                (LOGGER_PATH, 'INFO', 'CSV loader import flow completed.'),
+                (LOGGER_PATH, 'INFO', 'Sending Ingestion stats email for product type DEGREES'),
             )
 
             assert Degree.objects.count() == 1
@@ -110,3 +114,4 @@ class TestImportDegreeData(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
             assert curriculam.marketing_text == self.marketing_text
             assert degree.card_image.read() == image_content
             self._assert_degree_data(degree, self.BASE_EXPECTED_DEGREE_DATA)
+            email_patch.assert_called_once()
