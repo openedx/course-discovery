@@ -160,6 +160,15 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert degree.specializations.count() == 2
                 assert curriculam.marketing_text == self.marketing_text
                 self._assert_degree_data(degree, self.BASE_EXPECTED_DEGREE_DATA)
+                assert loader.get_ingestion_stats() == {
+                    'total_products_count': 1,
+                    'success_count': 1,
+                    'failure_count': 0,
+                    'updated_products_count': 0,
+                    'created_products_count': 1,
+                    'created_products': [str(degree.uuid)],
+                    'errors': loader.error_logs
+                }
 
     def test_ingest_flow_for_preexisting_degree(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
@@ -202,6 +211,15 @@ class TestDegreeCSVDataLoader(DegreeCSVLoaderMixin, OAuth2Mixin, APITestCase):
                 assert curriculam.marketing_text == self.marketing_text
                 assert degree.card_image.read() == image_content
                 self._assert_degree_data(degree, self.BASE_EXPECTED_DEGREE_DATA)
+                assert loader.get_ingestion_stats() == {
+                    'total_products_count': 1,
+                    'success_count': 1,
+                    'failure_count': 0,
+                    'updated_products_count': 1,
+                    'created_products_count': 0,
+                    'created_products': [],
+                    'errors': loader.error_logs
+                }
 
     def test_ingest_flow_for_minimal_degree_data(self, jwt_decode_patch):  # pylint: disable=unused-argument
         """
