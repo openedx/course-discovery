@@ -690,6 +690,12 @@ class AdditionalMetadata(TimeStampedModel):
         blank=False, null=True, editable=False,
         help_text=_('The identifier for a product variant.')
     )
+    course_term_override = models.CharField(
+        max_length=20,
+        verbose_name=_('Course override'),
+        help_text=_('This field allows for override the default course term'),
+        blank=True,
+    )
 
     def __str__(self):
         return f"{self.external_url} - {self.external_identifier}"
