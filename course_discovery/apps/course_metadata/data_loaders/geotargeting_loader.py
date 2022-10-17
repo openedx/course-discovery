@@ -158,7 +158,7 @@ class GeotargetingCSVDataLoader(AbstractDataLoader):
         for key, value in data.items():
             updated_key = key.strip().lower().replace(' ', '_')
             if updated_key == 'countries':
-                transformed_dict[updated_key] = value.strip().lower().replace(";", ",") if value else ''
+                transformed_dict[updated_key] = value.strip().upper().replace(";", ",") if value else ''
             else:
                 transformed_dict[updated_key] = value.strip().lower()
         return transformed_dict
