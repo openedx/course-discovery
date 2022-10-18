@@ -80,3 +80,7 @@ CELERY_BROKER_URL = 'memory://localhost/'
 ################################### END CELERY ###################################
 
 PRODUCT_API_URL = 'http://www.example.com'
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.MD5PasswordHasher',
+]
