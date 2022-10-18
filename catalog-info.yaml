@@ -1,0 +1,27 @@
+# This file records information about this repo. Its use is described in OEP-55:
+# https://open-edx-proposals.readthedocs.io/en/latest/processes/oep-0055-proc-project-maintainers.html
+
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: 'course-discovery'
+  description: "Course Discovery Service which powers the metadata for all products marketed at edX"
+  links:
+    - url: "https://discovery.edx.org/"
+      title: "Deployed Site"
+      icon: "Web"
+  annotations:
+    # (Optional) Annotation keys and values can be whatever you want.
+    # We use it in Open edX repos to have a comma-separated list of GitHub user
+    # names that might be interested in changes to the architecture of this
+    # component.
+    openedx.org/arch-interest-groups: ""
+spec:
+  owner: group:course-discovery-admins
+  type: 'service'
+  lifecycle: 'production'
+  dependsOn:
+  - studio
+  - lms
+  - taxonomy-connector
+  - ecommerce
