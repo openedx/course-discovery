@@ -490,6 +490,7 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
             ProgramType.BACHELORS,
             ProgramType.DOCTORATE,
             ProgramType.LICENSE,
+            ProgramType.CERTIFICATE,
         ]:
             return _('Available now')
 

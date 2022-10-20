@@ -73,15 +73,17 @@ class ProgramsAffiliateWindowViewSet(viewsets.ViewSet):
         if not catalog.has_object_read_permission(request):
             raise PermissionDenied
 
-        try:
-            exclude_types = [
-                ProgramType.objects.get(slug=ProgramType.MASTERS),
-                ProgramType.objects.get(slug=ProgramType.BACHELORS),
-                ProgramType.objects.get(slug=ProgramType.DOCTORATE),
-                ProgramType.objects.get(slug=ProgramType.LICENSE),
-            ]
-        except ProgramType.DoesNotExist:
-            exclude_types = []
+        exclude_types = []
+
+        for program_type_slug in [
+            ProgramType.MASTERS, ProgramType.BACHELORS, ProgramType.DOCTORATE,
+            ProgramType.LICENSE, ProgramType.CERTIFICATE
+        ]:
+            try:
+                program_type = ProgramType.objects.get(slug=program_type_slug)
+                exclude_types.append(program_type)
+            except ProgramType.DoesNotExist:
+                continue
         programs = catalog.programs().marketable().exclude(type__in=exclude_types).select_related(
             'type',
             'partner',
