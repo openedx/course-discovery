@@ -737,7 +737,6 @@ class TestCourseDataUpdateSignal(TestCase):
             course_key=self.course_key,
             name='Test Course',
             schedule_data=self.scheduling_data,
-            effort='a lot',
             hidden=False,
         )
         self.partner = PartnerFactory(id=settings.DEFAULT_PARTNER_ID)
