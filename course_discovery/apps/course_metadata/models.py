@@ -941,6 +941,12 @@ class GeoLocation(TimeStampedModel):
     LAT_MAX_DIGITS = 9
     LNG_MAX_DIGITS = 10
 
+    location_name = models.CharField(
+        max_length=128,
+        blank=False,
+        null=True,
+    )
+
     lat = models.DecimalField(
         max_digits=LAT_MAX_DIGITS,
         decimal_places=DECIMAL_PLACES,
@@ -958,7 +964,7 @@ class GeoLocation(TimeStampedModel):
         unique_together = (('lat', 'lng'),)
 
     def __str__(self):
-        return f'{self.lat}, {self.lng}'
+        return f'{self.location_name}'
 
     @property
     def coordinates(self):
@@ -3486,6 +3492,19 @@ class CourseUrlRedirect(AbstractValueModel):
 class GeotargetingDataLoaderConfiguration(ConfigurationModel):
     """
     Configuration to store a csv file that will be used in import_geotargeting_data.
+    """
+    # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
+    cache_timeout = 0
+    csv_file = models.FileField(
+        validators=[FileExtensionValidator(allowed_extensions=['csv'])],
+        help_text=_("It expects the data will be provided in a csv file format "
+                    "with first row containing all the headers.")
+    )
+
+
+class GeolocationDataLoaderConfiguration(ConfigurationModel):
+    """
+    Configuration to store a csv file that will be used in import_geolocation_data.
     """
     # Timeout set to 0 so that the model does not read from cached config in case the config entry is deleted.
     cache_timeout = 0
