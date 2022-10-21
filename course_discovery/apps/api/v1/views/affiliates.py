@@ -77,7 +77,7 @@ class ProgramsAffiliateWindowViewSet(viewsets.ViewSet):
             ProgramType.MASTERS, ProgramType.BACHELORS, ProgramType.DOCTORATE,
             ProgramType.LICENSE, ProgramType.CERTIFICATE
         ]
-        exclude_types = ProgramType.object.filter(slug__in=exclude_type_slugs)
+        exclude_types = ProgramType.objects.filter(slug__in=exclude_type_slugs)
 
         programs = catalog.programs().marketable().exclude(type__in=exclude_types).select_related(
             'type',
