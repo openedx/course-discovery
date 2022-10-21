@@ -217,6 +217,19 @@ class GeotargetingCSVLoaderMixin:
         return csv
 
 
+class GeolocationCSVLoaderMixin(GeotargetingCSVLoaderMixin):
+    """
+    Mixin to contain various variables and methods used for GeolocationCSVDataLoader testing.
+    """
+    CSV_DATA_KEYS_ORDER = [
+        'UUID',
+        'PRODUCT TYPE',
+        'LOCATION NAME',
+        'LATITUDE',
+        'LONGTITUDE',
+    ]
+
+
 class CSVLoaderMixin:
     """
     Mixin to contain various variables and methods used for CSVDataLoader testing.
