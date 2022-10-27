@@ -360,6 +360,7 @@ class ProgramType(TranslatableModel, TimeStampedModel):
     BACHELORS = 'bachelors'
     DOCTORATE = 'doctorate'
     LICENSE = 'license'
+    CERTIFICATE = 'certificate'
     MICROBACHELORS = 'microbachelors'
 
     name = models.CharField(max_length=32, blank=False)

@@ -384,7 +384,7 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         assert 'Upcoming' in program.availability_level
         assert 'Archived' in program.availability_level
 
-    @ddt.data('masters', 'bachelors', 'doctorate', 'license')
+    @ddt.data('masters', 'bachelors', 'doctorate', 'license', 'certificate')
     def test_program_available_now(self, program_type_slug):
         program_type = ProgramTypeFactory()
         program_type.slug = program_type_slug

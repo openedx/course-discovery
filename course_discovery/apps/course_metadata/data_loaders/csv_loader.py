@@ -35,6 +35,7 @@ class CSVDataLoader(AbstractDataLoader):
         ProgramType.BACHELORS,
         ProgramType.DOCTORATE,
         ProgramType.LICENSE,
+        ProgramType.CERTIFICATE,
         ProgramType.MICROMASTERS,
         ProgramType.MICROBACHELORS,
         ProgramType.PROFESSIONAL_PROGRAM_WL,
