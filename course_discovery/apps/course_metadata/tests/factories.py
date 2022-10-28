@@ -1,13 +1,9 @@
-from datetime import datetime
 from random import randint
-from uuid import uuid4
 
 import factory
 from django.db.models.signals import post_save
-from django_countries import countries as COUNTRIES
 from edx_django_utils.cache import TieredCache, get_cache_key
 from factory.fuzzy import FuzzyChoice, FuzzyDateTime, FuzzyDecimal, FuzzyInteger, FuzzyText
-from localflavor.us.us_states import CONTIGUOUS_STATES
 from pytz import UTC
 from taxonomy.models import CourseSkills, ProgramSkill, Skill
 
@@ -83,6 +79,19 @@ class FactFactory(AbstractHeadingBlurbModelFactory):
 class CertificateInfoFactory(AbstractHeadingBlurbModelFactory):
     class Meta:
         model = CertificateInfo
+
+
+class ProductMetaFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProductMeta
+
+    title = FuzzyText()
+    description = FuzzyText()
+
+    @factory.post_generation
+    def keywords(self, create, extracted, **kwargs):
+        if create:
+            add_m2m_data(self.keywords, extracted)
 
 
 class AdditionalMetadataFactory(factory.django.DjangoModelFactory):

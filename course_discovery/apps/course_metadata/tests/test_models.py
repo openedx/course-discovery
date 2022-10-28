@@ -191,6 +191,18 @@ class TestCourse(TestCase):
         factories.CourseRunFactory(course=course, end=end)
         self.assertEqual(course.course_ends, expected)
 
+    def test_product_meta(self):
+        """
+        Verify the ProductMeta has expected fields' data.
+        """
+        keywords_list = ['keyword_1', 'keyword_2', 'keyword_3']
+        product_meta = factories.ProductMetaFactory(
+            keywords=keywords_list
+        )
+        assert product_meta.title is not None
+        assert product_meta.description is not None
+        assert set(product_meta.keywords.all().values_list('name', flat=True)) == set(keywords_list)
+
     def test_additional_metadata(self):
         """ Verify the property returns valid additional metadata fields. """
 
@@ -206,6 +218,7 @@ class TestCourse(TestCase):
         self.assertEqual(course.additional_metadata.facts, additional_metadata.facts)
         self.assertEqual(course.additional_metadata.start_date, additional_metadata.start_date)
         self.assertEqual(course.additional_metadata.registration_deadline, additional_metadata.registration_deadline)
+        self.assertEqual(course.additional_metadata.product_meta, additional_metadata.product_meta)
 
     def test_enterprise_subscription_inclusion(self):
         """ Verify the enterprise inclusion boolean is calculated as expected. """

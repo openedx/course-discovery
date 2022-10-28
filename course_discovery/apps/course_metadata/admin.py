@@ -552,6 +552,12 @@ class AdditionalMetadataAdmin(admin.ModelAdmin):
         ])
 
 
+@admin.register(ProductMeta)
+class ProductMetaAdmin(admin.ModelAdmin):
+    list_display = ['title', 'description']
+    search_fields = ['title']
+
+
 class OrganizationUserRoleInline(admin.TabularInline):
     # course-meta-data models are importing in publisher app. So just for safe side
     # to avoid any circular issue importing the publisher model here.
