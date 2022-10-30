@@ -11,7 +11,7 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import APITestCase, OA
 from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactory
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import GeolocationCSVLoaderMixin
-from course_discovery.apps.course_metadata.models import Course, GeoLocation
+from course_discovery.apps.course_metadata.models import Course
 from course_discovery.apps.course_metadata.tests.factories import GeolocationDataLoaderConfigurationFactory
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.management.commands.import_geolocation_data'
@@ -30,10 +30,10 @@ class TestImportGeolocationData(GeolocationCSVLoaderMixin, OAuth2Mixin, APITestC
         self.mock_access_token()
         self.user = UserFactory.create(username="test_user", password=USER_PASSWORD, is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        geolocationSample = {**mock_data.VALID_GEOLOCATION_CSV_DICT, 'LOCATION NAME': 'MIT'}
-        csv_file_content = ','.join(list(geolocationSample)) + '\n'
+        self.geolocationSample = {**mock_data.VALID_GEOLOCATION_CSV_DICT, 'LOCATION NAME': 'MIT'}
+        csv_file_content = ','.join(list(self.geolocationSample)) + '\n'
         csv_file_content += ','.join(f'"{key}"' for key in list(
-            geolocationSample.values()))
+            self.geolocationSample.values()))
         self.csv_file = SimpleUploadedFile(
             name='test.csv',
             content=csv_file_content.encode('utf-8'),
@@ -78,17 +78,14 @@ class TestImportGeolocationData(GeolocationCSVLoaderMixin, OAuth2Mixin, APITestC
         """
         self._setup_course('3f10df65fd0641df9b42ad2cbaeb7fee')
         course_obj = Course.everything.first()
-        current_geolocation_count = GeoLocation.objects.all().count()
 
         assert Course.everything.count() == 1
         assert course_obj.uuid == UUID('3f10df65fd0641df9b42ad2cbaeb7fee')
-        # assert not isinstance(course_obj.geolocation, GeoLocation)
-        # assert course_obj.geolocation is None
 
         _ = GeolocationDataLoaderConfigurationFactory.create(enabled=True, csv_file=self.csv_file)
 
         call_command('import_geolocation_data', '--partner_code', self.partner.short_code)
 
-        assert GeoLocation.objects.all().count() == current_geolocation_count + 1
         course_obj_updated = Course.everything.first()
         assert course_obj_updated.geolocation is not None
+        assert course_obj_updated.geolocation['location_name'] == self.geolocationSample['LOCATION NAME']
