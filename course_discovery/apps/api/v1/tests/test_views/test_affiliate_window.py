@@ -51,6 +51,7 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         self.bachelors_program_type = ProgramTypeFactory(name_t=ProgramType.BACHELORS)
         self.doctorate_program_type = ProgramTypeFactory(name_t=ProgramType.DOCTORATE)
         self.license_program_type = ProgramTypeFactory(name_t=ProgramType.LICENSE)
+        self.certificate_program_type = ProgramTypeFactory(name_t=ProgramType.CERTIFICATE)
         self.microbachelors_program_type = ProgramType.objects.get(slug=ProgramType.MICROBACHELORS)
         self.ms_program = ProgramFactory(
             type=self.masters_program_type,
@@ -72,6 +73,11 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
             courses=[self.course],
             banner_image=self.test_image,
         )
+        self.certificate_program = ProgramFactory(
+            type=self.certificate_program_type,
+            courses=[self.course],
+            banner_image=self.test_image,
+        )
         self.program = ProgramFactory(
             type=self.microbachelors_program_type,
             courses=[self.course],
@@ -89,13 +95,13 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
     def test_affiliate_with_approved_programs(self):
         """
         Verify that only the expected Program types are returned,
-        No Masters, Bachelors, Doctorate, License programs
+        No Masters, Bachelors, Doctorate, License, and Certificate programs are present.
         """
         response = self.client.get(self.affiliate_url)
         assert response.status_code == status.HTTP_200_OK
         root = ET.fromstring(response.content)
 
-        # Assert that there is only one Program in the returned data even though 5
+        # Assert that there is only one Program in the returned data even though 6
         # are created in setup
         assert len(root.findall('product')) == 1
         self._assert_product_xml(
@@ -111,7 +117,7 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         assert response.status_code == status.HTTP_200_OK
         root = ET.fromstring(response.content)
 
-        # Assert that there are two Programs in the returned data even though 6
+        # Assert that there are two Programs in the returned data even though 7
         # are created in setup
         assert len(root.findall('product')) == 2
         self._assert_product_xml(
@@ -132,6 +138,8 @@ class ProgramsAffiliateWindowViewSetTests(SerializationMixin, APITestCase):
         assert not root.findall(f'product/[pid="{self.doc_program.uuid}"]')
         # Verify that the License program is not in the data
         assert not root.findall(f'product/[pid="{self.lic_program.uuid}"]')
+        # Verify that the Certificate program is not in the data
+        assert not root.findall(f'product/[pid="{self.certificate_program.uuid}"]')
 
 
 @ddt.ddt
