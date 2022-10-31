@@ -657,9 +657,31 @@ class CertificateInfo(AbstractHeadingBlurbModel):
     """ Certificate Information Model """
 
 
+class ProductMeta(TimeStampedModel):
+    """
+    Model to contain SEO/Meta information for a product.
+    """
+    title = models.CharField(
+        max_length=100, default='', null=True, blank=True,
+        help_text="Product title that will appear in meta tag for search engine ranking"
+    )
+    description = models.CharField(
+        max_length=255, default='', null=True, blank=True,
+        help_text="Product description that will appear in meta tag for search engine ranking"
+    )
+    keywords = TaggableManager(
+        blank=True,
+        related_name='product_metas',
+        help_text=_('SEO Meta tags for Products'),
+    )
+
+    def __str__(self):
+        return self.title
+
+
 class AdditionalMetadata(TimeStampedModel):
     """
-    This model holds 2U related additional fields
+    This model holds 2U related additional fields.
     """
 
     external_url = models.URLField(
@@ -696,6 +718,14 @@ class AdditionalMetadata(TimeStampedModel):
         verbose_name=_('Course override'),
         help_text=_('This field allows for override the default course term'),
         blank=True,
+    )
+    product_meta = models.OneToOneField(
+        ProductMeta,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
+        default=None,
+        related_name="product_additional_metadata"
     )
 
     def __str__(self):

@@ -621,6 +621,7 @@ class MinimalCourseRunBaseTestSerializer(TestCase):
             'go_live_date': json_date_format(course_run.go_live_date),
             'enrollment_start': json_date_format(course_run.enrollment_start),
             'enrollment_end': json_date_format(course_run.enrollment_end),
+            'weeks_to_complete': course_run.weeks_to_complete,
             'pacing_type': course_run.pacing_type,
             'type': course_run.type_legacy,
             'run_type': course_run.type.uuid,
