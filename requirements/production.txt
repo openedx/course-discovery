@@ -39,9 +39,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.24.96
+boto3==1.25.4
     # via django-ses
-botocore==1.27.96
+botocore==1.28.4
     # via
     #   boto3
     #   s3transfer
@@ -218,7 +218,7 @@ django-object-actions==4.0.0
     # via -r requirements/base.in
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==3.2.0
+django-ses==3.2.1
     # via
     #   -r requirements/production.in
     #   taxonomy-connector
@@ -304,7 +304,7 @@ edx-drf-extensions==8.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-edx-event-bus-kafka==1.3.0
+edx-event-bus-kafka==1.4.1
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.3.0
     # via
@@ -331,7 +331,7 @@ elasticsearch-dsl==7.4.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-fastavro==1.6.1
+fastavro==1.7.0
     # via openedx-events
 filelock==3.8.0
     # via snowflake-connector-python
@@ -343,7 +343,7 @@ google-auth==2.13.0
     # via
     #   google-auth-oauthlib
     #   gspread
-google-auth-oauthlib==0.5.3
+google-auth-oauthlib==0.7.0
     # via gspread
 greenlet==1.1.3.post0
     # via gevent
@@ -391,7 +391,7 @@ markupsafe==2.1.1
     # via jinja2
 mysqlclient==2.1.1
     # via -r requirements/production.in
-newrelic==8.2.1
+newrelic==8.4.0
     # via
     #   -r requirements/production.in
     #   edx-django-utils
@@ -409,7 +409,7 @@ packaging==21.3
     #   redis
 pbr==5.11.0
     # via stevedore
-pillow==9.2.0
+pillow==9.3.0
     # via
     #   -r requirements/base.in
     #   cairosvg
@@ -515,7 +515,7 @@ requests-oauthlib==1.3.1
     # via
     #   google-auth-oauthlib
     #   social-auth-core
-requests-toolbelt==0.10.0
+requests-toolbelt==0.10.1
     # via zeep
 rjsmin==1.2.0
     # via django-compressor
@@ -573,7 +573,7 @@ stevedore==4.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.24.0
+taxonomy-connector==1.25.0
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
