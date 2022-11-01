@@ -341,4 +341,4 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['Variant Id'] == '00000000-0000-0000-0000-000000000000'
         assert data_row['Meta Title'] == 'SEO Title'
         assert data_row['Meta Description'] == 'SEO Description'
-        assert data_row['Meta Keywords'] =='Keyword 1, Keyword 2'
+        assert data_row['Meta Keywords'] == 'Keyword 1, Keyword 2'
