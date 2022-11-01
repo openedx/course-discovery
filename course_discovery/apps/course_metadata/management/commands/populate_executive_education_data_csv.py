@@ -38,6 +38,7 @@ class Command(BaseCommand):
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
         'lead_capture_form_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text', 'stat2',
         'stat2_text', 'organic_url', 'organization_short_code_override', 'organization_logo_override', 'variant_id',
+        'meta_title', 'meta_description', 'meta_keywords',
     ]
 
     # Mapping English and Spanish languages to IETF equivalent variants
@@ -178,7 +179,7 @@ class Command(BaseCommand):
                           '(KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36'
         }
         params = {
-            "detail": 1
+            "detail": 2
         }
 
         try:
@@ -302,6 +303,9 @@ class Command(BaseCommand):
             'stat2': stats['stat2'],
             'stat2_text': stats['stat2Blurb'],
             'organic_url': utils.format_base64_strings(product_dict.get('edxRedirectUrl', '')),
+            'meta_title': product_dict.get('metaTitle', ''),
+            'meta_description': product_dict.get('metaDescription', ''),
+            'meta_keywords': product_dict.get('metaKeywords', ''),
 
             'title': partially_filled_csv_dict.get('title') or product_dict['altName'] or product_dict['name'],
             '2u_title': product_dict['name'],

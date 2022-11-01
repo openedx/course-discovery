@@ -49,6 +49,9 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 "videoURL": "",
                 "lcfURL": "d3d3LmV4YW1wbGUuY29tL2xlYWQtY2FwdHVyZT9pZD0xMjM=",
                 "logoUrl": "aHR0cHM6Ly9leGFtcGxlLmNvbS9pbWFnZS5qcGc=g",
+                "metaTitle": "SEO Title",
+                "metaDescription": "SEO Description",
+                "metaKeywords": "Keyword 1, Keyword 2",
                 "variant": {
                     "id": "00000000-0000-0000-0000-000000000000",
                     "endDate": "2022-05-06",
@@ -105,7 +108,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         """
         responses.add(
             responses.GET,
-            settings.PRODUCT_API_URL + '/?detail=1',
+            settings.PRODUCT_API_URL + '/?detail=2',
             body=json.dumps(self.SUCCESS_API_RESPONSE),
             status=200,
         )
@@ -274,7 +277,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         """
         responses.add(
             responses.GET,
-            settings.PRODUCT_API_URL + '/?detail=1',
+            settings.PRODUCT_API_URL + '/?detail=2',
             status=400,
         )
         with self.assertRaisesMessage(
@@ -336,3 +339,6 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                                                    'Ipsum (Gibberish)</p></div>'
         assert str(date.today().year) in data_row['Publish Date']
         assert data_row['Variant Id'] == '00000000-0000-0000-0000-000000000000'
+        assert data_row['Meta Title'] == 'SEO Title'
+        assert data_row['Meta Description'] == 'SEO Description'
+        assert data_row['Meta Keywords'] =='Keyword 1, Keyword 2'
