@@ -30,8 +30,7 @@ class TestImportGeolocationData(GeolocationCSVLoaderMixin, OAuth2Mixin, APITestC
         self.mock_access_token()
         self.user = UserFactory.create(username="test_user", password=USER_PASSWORD, is_staff=True)
         self.client.login(username=self.user.username, password=USER_PASSWORD)
-        self.location_name = 'MIT'
-        self.geolocation_sample = {**mock_data.VALID_GEOLOCATION_CSV_DICT, 'LOCATION NAME': self.location_name}
+        self.geolocation_sample = {**mock_data.VALID_GEOLOCATION_CSV_DICT, 'LOCATION NAME': 'mit'}
         csv_file_content = ','.join(list(self.geolocation_sample)) + '\n'
         csv_file_content += ','.join(f'"{key}"' for key in list(
             self.geolocation_sample.values()))
@@ -89,4 +88,4 @@ class TestImportGeolocationData(GeolocationCSVLoaderMixin, OAuth2Mixin, APITestC
 
         course_obj_updated = Course.everything.first()
         assert course_obj_updated.geolocation is not None
-        assert course_obj_updated.geolocation['location_name'] == self.location_name
+        assert course_obj_updated.geolocation.location_name == self.geolocation_sample['LOCATION NAME']
