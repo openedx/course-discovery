@@ -2111,6 +2111,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             subjects=SubjectFactory.create_batch(3),
             authoring_organizations=[organization],
             sponsoring_organizations=[organization],
+            course_length='medium',
         )
         course_run = CourseRunFactory(course=course)
         course.course_runs.add(course_run)
@@ -2220,7 +2221,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                     key=course.sponsoring_organizations.first().key,
                     name=course.sponsoring_organizations.first().name,
                 )
-            ]
+            ],
+            'course_length': course.course_length,
         }
 
         serializer = self.serialize_course(course, request)
@@ -2314,6 +2316,7 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
             'outcome': course.outcome,
             'level_type': course.level_type.name,
             'modified': course.modified,
+            'course_length': course.course_length,
         }
         if is_post_request:
             del expected['outcome']
@@ -2377,7 +2380,8 @@ class CourseSearchDocumentSerializerTests(ElasticsearchTestMixin, TestCase, Cour
                     key=course.sponsoring_organizations.first().key,
                     name=course.sponsoring_organizations.first().name,
                 )
-            ]
+            ],
+            'course_length': course.course_length,
         }
 
 
