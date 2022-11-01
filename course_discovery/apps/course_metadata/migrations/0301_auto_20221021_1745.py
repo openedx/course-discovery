@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('course_metadata', '0299_course_title_override'),
+        ('course_metadata', '0300_product_seo_model'),
     ]
 
     operations = [
