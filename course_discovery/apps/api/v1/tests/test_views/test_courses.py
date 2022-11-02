@@ -1102,6 +1102,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             'registration_deadline': serialize_datetime(current),
             'variant_id': str(uuid4()),
             'course_term_override': 'Example Program',
+            'product_status': 'published'
         }
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         course_data = {
@@ -1187,6 +1188,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             'registration_deadline': serialize_datetime(current),
             'variant_id': str(uuid4()),
             'course_term_override': 'Example Program',
+            'product_status': 'published'
         }
         additional_metadata_1 = {
             **additional_metadata,

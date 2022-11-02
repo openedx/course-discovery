@@ -2001,6 +2001,7 @@ class AdditionalMetadataSerializerTests(TestCase):
             'registration_deadline': serialize_datetime(additional_metadata.registration_deadline),
             'variant_id': str(additional_metadata.variant_id),
             'course_term_override': additional_metadata.course_term_override,
+            'product_status': additional_metadata.product_status
         }
         assert serializer.data == expected
 

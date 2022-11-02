@@ -1992,7 +1992,10 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         upcoming_cutoff = now + datetime.timedelta(days=60)
 
         # Use external course availability for ExecEd course run types
-        if self.type.slug in [CourseRunType.UNPAID_EXECUTIVE_EDUCATION, CourseRunType.PAID_EXECUTIVE_EDUCATION]:
+        # Check additional_metadata existence as a fail safe for some unit tests
+        # where this flow is triggered via signals before AdditionalMetadata object can be persisted
+        if self.type.slug in [CourseRunType.UNPAID_EXECUTIVE_EDUCATION, CourseRunType.PAID_EXECUTIVE_EDUCATION] and \
+                self.course.additional_metadata:
             return self.external_course_availability
 
         if self.has_ended(now):
@@ -2007,7 +2010,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     @property
     def external_course_availability(self):
         """
-        Property to get course availability for external courses using produt status.
+        Property to get course availability for external courses using product status.
         """
         additional_metadata = self.course.additional_metadata
         if additional_metadata.product_status == ExternalProductStatus.Published:
