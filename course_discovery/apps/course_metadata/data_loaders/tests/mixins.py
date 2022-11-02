@@ -250,6 +250,7 @@ class CSVLoaderMixin:
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
         'lead_capture_form_url', 'organic_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text',
         'stat2', 'stat2_text', 'organization_logo_override', 'organization_short_code_override', 'variant_id',
+        'meta_title', 'meta_description', 'meta_keywords',
     ]
     # The list of minimal data headers
     MINIMAL_CSV_DATA_KEYS_ORDER = [
@@ -291,6 +292,9 @@ class CSVLoaderMixin:
         'start_date': '2020-01-25T00:00:00+00:00',
         'registration_deadline': '2020-01-25T00:00:00+00:00',
         'variant_id': "00000000-0000-0000-0000-000000000000",
+        "meta_title": "SEO Title",
+        "meta_description": "SEO Description",
+        "meta_keywords": "Keyword 1, Keyword 2",
     }
 
     BASE_EXPECTED_COURSE_RUN_DATA = {

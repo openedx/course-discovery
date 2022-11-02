@@ -3159,6 +3159,9 @@ VALID_COURSE_AND_COURSE_RUN_CSV_DICT = {
     'organization_short_code_override': 'Org Override',
     'organization_logo_override': 'https://example.com/image.jpg',
     'variant_id': "00000000-0000-0000-0000-000000000000",
+    "meta_title": "SEO Title",
+    "meta_description": "SEO Description",
+    "meta_keywords": "Keyword 1, Keyword 2",
 }
 
 VALID_MINIMAL_COURSE_AND_COURSE_RUN_CSV_DICT = {
