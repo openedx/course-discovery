@@ -673,7 +673,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
         fields = (
             'external_identifier', 'external_url', 'lead_capture_form_url',
             'facts', 'certificate_info', 'organic_url', 'start_date',
-            'registration_deadline', 'variant_id', 'course_term_override'
+            'registration_deadline', 'variant_id', 'course_term_override', 'product_status',
         )
 
 
