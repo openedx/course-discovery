@@ -108,7 +108,7 @@ class EnglishProductIndex(BaseProductIndex):
     language = 'en'
 
     search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys',
-                     'primary_description', 'secondary_description', 'tertiary_description')
+                     'primary_description', 'secondary_description', 'tertiary_description', 'tags')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
@@ -138,11 +138,12 @@ class EnglishProductIndex(BaseProductIndex):
             'unordered(primary_description)',
             'unordered(secondary_description)',
             'unordered(tertiary_description)',
+            'tags'
         ],
         'attributesForFaceting': [
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
             'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)', 'skills.skill',
-            'skills.category', 'skills.subcategory',
+            'skills.category', 'skills.subcategory', 'tags',
         ],
         'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
@@ -154,7 +155,7 @@ class SpanishProductIndex(BaseProductIndex):
     language = 'es_419'
 
     search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys',
-                     'primary_description', 'secondary_description', 'tertiary_description')
+                     'primary_description', 'secondary_description', 'tertiary_description', 'tags')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
@@ -185,11 +186,12 @@ class SpanishProductIndex(BaseProductIndex):
             'unordered(primary_description)',
             'unordered(secondary_description)',
             'unordered(tertiary_description)',
+            'tags'
         ],
         'attributesForFaceting': [
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
             'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)',
-            'skills.skill', 'skills.category', 'skills.subcategory'
+            'skills.skill', 'skills.category', 'skills.subcategory', 'tags'
         ],
         'customRanking': ['desc(promoted_in_spanish_index)', 'asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
