@@ -5,6 +5,7 @@
 -r test.in
 -r docs.in
 
+contentful
 django-debug-toolbar
 django-elasticsearch-debug-toolbar
 docker-compose

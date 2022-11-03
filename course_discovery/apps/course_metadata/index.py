@@ -1,3 +1,4 @@
+from contentful import Client
 from algoliasearch_django import AlgoliaIndex, register
 
 from course_discovery.apps.course_metadata.algolia_models import (
@@ -8,6 +9,40 @@ from course_discovery.apps.course_metadata.algolia_models import (
 class BaseProductIndex(AlgoliaIndex):
     language = None
 
+    def get_contentful_data(self): 
+        # Example with mock data returned to test locally on algolia staging:
+        # mock_data = {
+        #     '3f10df65-fd06-41df-9b42-ad2cbaeb7fee': {
+        #         'taxi_form_title': 'some testing value'
+        #     },
+        #     'd1ca3a84-e51c-4246-aff6-e1e26cf6d587': {
+        #         'taxi_form_title': 'some other testing value'
+        #     }
+        # }
+        # print('GETTING DATA FROM CONTENTFUL')
+        # return mock_data
+
+        ###################################
+        #Example with real data from contentful:
+        client = Client(
+            '',
+            ''
+        )
+        degree_page_entries = client.entries({'content_type': 'degreeDetailPage', 'include': 10, 'limit': 1000})
+        contentful_data_dict = {}
+        for degree_entry in degree_page_entries:
+            uuid = degree_entry.uuid
+            taxi_form_title = degree_entry.taxi_form.title
+            for module in degree_entry.modules:
+                if module.content_type.id == 'aboutTheProgramModule':
+                    superscript = module.superscript
+            contentful_data_dict[uuid] = {
+                'taxi_form_title': taxi_form_title,
+                'superscript': superscript
+            }
+        return contentful_data_dict
+
+
     # Bit of a hack: Override get_queryset to return all wrapped versions of all courses and programs rather than an
     # actual queryset to get around the fact that courses and programs have different fields and therefore cannot be
     # combined in a union of querysets. AlgoliaIndex only uses get_queryset as an iterable, so an array works as well.
@@ -16,8 +51,10 @@ class BaseProductIndex(AlgoliaIndex):
         if not self.language:
             raise Exception('Cannot update Algolia index \'{index_name}\'. No language set'.format(
                 index_name=self.index_name))
-        qs1 = [AlgoliaProxyProduct(course, self.language) for course in AlgoliaProxyCourse.objects.all()]
-        qs2 = [AlgoliaProxyProduct(program, self.language) for program in AlgoliaProxyProgram.objects.all()]
+
+        contentful_data = self.get_contentful_data()
+        qs1 = [AlgoliaProxyProduct(course, self.language, contentful_data) for course in AlgoliaProxyCourse.objects.all()]
+        qs2 = [AlgoliaProxyProduct(program, self.language, contentful_data) for program in AlgoliaProxyProgram.objects.all()]
         return qs1 + qs2
 
     def generate_empty_query_rule(self, rule_object_id, product_type, results):
@@ -56,7 +93,9 @@ class BaseProductIndex(AlgoliaIndex):
             if rule['objectID'] not in rules_to_create_ids
         ]
         final_rules = rules_to_create + existing_rules_to_keep
+        print("reindexing now")
         super().reindex_all(batch_size)
+        print("done reindexing")
         self._AlgoliaIndex__index.replace_all_rules(final_rules)
 
 
@@ -68,7 +107,7 @@ class EnglishProductIndex(BaseProductIndex):
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
-                    ('product_blocked_in', 'blocked_in'))
+                    ('product_blocked_in', 'blocked_in'), ('product_taxi_form_title', 'taxi_form_title'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
                       ('product_value_per_click_usa', 'value_per_click_usa'),
                       ('product_value_per_click_international', 'value_per_click_international'),
@@ -115,7 +154,7 @@ class SpanishProductIndex(BaseProductIndex):
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
-                    ('product_blocked_in', 'blocked_in'))
+                    ('product_blocked_in', 'blocked_in'), ('product_taxi_form_title', 'taxi_form_title'))
     ranking_fields = ('availability_rank', ('product_recent_enrollment_count', 'recent_enrollment_count'),
                       ('product_value_per_click_usa', 'value_per_click_usa'),
                       ('product_value_per_click_international', 'value_per_click_international'),

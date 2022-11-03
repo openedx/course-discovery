@@ -59,7 +59,7 @@ def delegate_attributes(cls):
     search_fields = ['partner_names', 'partner_keys', 'product_title', 'primary_description', 'secondary_description',
                      'tertiary_description']
     facet_fields = ['availability_level', 'subject_names', 'levels', 'active_languages', 'staff_slugs',
-                    'product_allowed_in', 'product_blocked_in']
+                    'product_allowed_in', 'product_blocked_in', 'product_taxi_form_title']
     ranking_fields = ['availability_rank', 'product_recent_enrollment_count', 'promoted_in_spanish_index',
                       'product_value_per_click_usa', 'product_value_per_click_international',
                       'product_value_per_lead_usa', 'product_value_per_lead_international']
@@ -111,10 +111,15 @@ class AlgoliaProxyProduct(Program):
     class Meta:
         proxy = True
 
-    def __init__(self, product, language='en'):
+    def __init__(self, product, language='en', contentful_data=None):
         super().__init__()
         self.product = product
         self.product.language = language
+        product_uuid = str(product.uuid)
+        contentful_product = contentful_data[product_uuid] if contentful_data else None
+        if not contentful_product:
+            return
+        self.product.product_taxi_form_title = contentful_product['taxi_form_title'] if 'taxi_form_title' in contentful_product else None;
 
     @property
     def coordinates(self):
@@ -125,10 +130,12 @@ class AlgoliaProxyProduct(Program):
 
     # should_index is called differently from algoliasearch_django, can't use the delegate_attributes trick
     def should_index(self):
-        return getattr(self.product, 'should_index', True)
+        return True
+        #return getattr(self.product, 'should_index', True)
 
     def should_index_spanish(self):
-        return getattr(self.product, 'should_index_spanish', True)
+        return True
+        #return getattr(self.product, 'should_index_spanish', True)
 
 
 class AlgoliaBasicModelFieldsMixin(models.Model):
