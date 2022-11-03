@@ -522,6 +522,8 @@ SOLO_CACHE_TIMEOUT = 3600
 ENABLE_PUBLISHER = False  # either old (publisher djangoapp) or new (frontend-app-publisher)
 PUBLISHER_FROM_EMAIL = None
 
+LOADER_INGESTION_CONTACT_EMAIL = None
+
 USERNAME_REPLACEMENT_WORKER = "REPLACE WITH VALID USERNAME"
 
 # If no upgrade deadline is specified for a course run seat, when the course is published the deadline will default to
