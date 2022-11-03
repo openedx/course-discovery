@@ -54,7 +54,15 @@ def timestamped_object_key_constructor(*args, **kwargs):
 
 def set_api_timestamp():
     timestamp = time.time()
+    # 2022-11: Temporary logging to help debug a caching issue related to the new event bus event.
+    #   If this code hasn't been cleaned up by 2023, feel free to remove it.
+    #   This code uses/exposes a toggle that was only intended for the consumer code in:
+    #      course_discovery/apps/course_metadata/management/commands/consume_events.py
+    KAFKA_CONSUMERS_ENABLED = SettingToggle('EVENT_BUS_KAFKA_CONSUMERS_ENABLED', default=False)
     cache.set(API_TIMESTAMP_KEY, timestamp, None)
+    if KAFKA_CONSUMERS_ENABLED.is_enabled():
+        logger.info(f"Set api timestamp in set_api_timestamp to {timestamp}. "
+                    f"Api timestamp in cache is now set to {cache.get(API_TIMESTAMP_KEY)}.")
 
 
 def api_change_receiver(sender, **kwargs):  # pylint: disable=unused-argument
@@ -63,14 +71,6 @@ def api_change_receiver(sender, **kwargs):  # pylint: disable=unused-argument
     course_metadata models.
     """
     set_api_timestamp()
-
-    # 2022-11: Temporary logging to help debug a caching issue related to the new event bus event.
-    #   If this code hasn't been cleaned up by 2023, feel free to remove it.
-    #   This code uses/exposes a toggle that was only intended for the consumer code in:
-    #      course_discovery/apps/course_metadata/management/commands/consume_events.py
-    KAFKA_CONSUMERS_ENABLED = SettingToggle('EVENT_BUS_KAFKA_CONSUMERS_ENABLED', default=False)
-    if KAFKA_CONSUMERS_ENABLED.is_enabled():
-        logger.info("Updating api timestamp in api_change_receiver.")
 
 
 class CompressedCacheResponse(CacheResponse):
@@ -98,6 +98,8 @@ class CompressedCacheResponse(CacheResponse):
                 kwargs=kwargs
             )
             response_triple = self.cache.get(key)
+            api_timestamp = self.cache.get(API_TIMESTAMP_KEY)
+            set_custom_attribute('api_cache_timestamp', api_timestamp)
             set_custom_attribute('api_cache_key', key)
             set_custom_attribute('api_cache_hit', bool(response_triple))
         else:
