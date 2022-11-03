@@ -10,7 +10,7 @@ class BaseProductIndex(AlgoliaIndex):
     language = None
 
     def get_contentful_data(self): 
-        # Example with mock data returned to test locally on algolia staging:
+        # Example 1: using mock data returned to test locally:
         # mock_data = {
         #     '3f10df65-fd06-41df-9b42-ad2cbaeb7fee': {
         #         'taxi_form_title': 'some testing value'
@@ -23,15 +23,20 @@ class BaseProductIndex(AlgoliaIndex):
         # return mock_data
 
         ###################################
-        #Example with real data from contentful:
+        #Example 2: using real data fetched from contentful:
         client = Client(
-            '',
-            ''
+            '<space_id>',
+            '<content_delivery_api_key>'
         )
         degree_page_entries = client.entries({'content_type': 'degreeDetailPage', 'include': 10, 'limit': 1000})
         contentful_data_dict = {}
         for degree_entry in degree_page_entries:
             uuid = degree_entry.uuid
+            print("real degree uuid from contentful was: ", uuid)
+            uuid = 'd1ca3a84-e51c-4246-aff6-e1e26cf6d587' #my local program uuid
+            # currently the contentful degree UUID is different than my local program
+            # we can either change one of them to match, or just overwrite here for testing locally
+            print("overwrite with uuid: ", uuid)
             taxi_form_title = degree_entry.taxi_form.title
             for module in degree_entry.modules:
                 if module.content_type.id == 'aboutTheProgramModule':
@@ -103,7 +108,7 @@ class EnglishProductIndex(BaseProductIndex):
     language = 'en'
 
     search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys',
-                     'primary_description', 'secondary_description', 'tertiary_description', 'tags')
+                     'primary_description', 'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
@@ -133,12 +138,11 @@ class EnglishProductIndex(BaseProductIndex):
             'unordered(primary_description)',
             'unordered(secondary_description)',
             'unordered(tertiary_description)',
-            'tags'
         ],
         'attributesForFaceting': [
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
             'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)', 'skills.skill',
-            'skills.category', 'skills.subcategory', 'tags',
+            'skills.category', 'skills.subcategory',
         ],
         'customRanking': ['asc(availability_rank)', 'desc(recent_enrollment_count)']
     }
@@ -150,7 +154,7 @@ class SpanishProductIndex(BaseProductIndex):
     language = 'es_419'
 
     search_fields = (('product_title', 'title'), ('partner_names', 'partner'), 'partner_keys',
-                     'primary_description', 'secondary_description', 'tertiary_description', 'tags')
+                     'primary_description', 'secondary_description', 'tertiary_description')
     facet_fields = (('availability_level', 'availability'), ('subject_names', 'subject'), ('levels', 'level'),
                     ('active_languages', 'language'), ('product_type', 'product'), ('program_types', 'program_type'),
                     ('staff_slugs', 'staff'), ('product_allowed_in', 'allowed_in'),
@@ -181,12 +185,11 @@ class SpanishProductIndex(BaseProductIndex):
             'unordered(primary_description)',
             'unordered(secondary_description)',
             'unordered(tertiary_description)',
-            'tags'
         ],
         'attributesForFaceting': [
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
             'filterOnly(staff)', 'filterOnly(allowed_in)', 'filterOnly(blocked_in)',
-            'skills.skill', 'skills.category', 'skills.subcategory', 'tags'
+            'skills.skill', 'skills.category', 'skills.subcategory'
         ],
         'customRanking': ['desc(promoted_in_spanish_index)', 'asc(availability_rank)', 'desc(recent_enrollment_count)']
     }

@@ -116,9 +116,9 @@ class AlgoliaProxyProduct(Program):
         self.product = product
         self.product.language = language
         product_uuid = str(product.uuid)
-        contentful_product = contentful_data[product_uuid] if contentful_data else None
-        if not contentful_product:
+        if not contentful_data or product_uuid not in contentful_data:
             return
+        contentful_product = contentful_data[product_uuid]
         self.product.product_taxi_form_title = contentful_product['taxi_form_title'] if 'taxi_form_title' in contentful_product else None;
 
     @property
