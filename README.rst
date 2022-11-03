@@ -3,6 +3,8 @@ Course Discovery Service
 
 | |status-badge| |license-badge| |CI| |Codecov|
 
+TESTING TEXT ONLY CHANGE
+
 Service providing access to consolidated course and program metadata.
 
 Getting Started with Development
