@@ -29,10 +29,10 @@ from course_discovery.apps.api.v1.tests.test_views.mixins import OAuth2Mixin
 from course_discovery.apps.core.models import Currency
 from course_discovery.apps.core.tests.helpers import make_image_file
 from course_discovery.apps.core.utils import SearchQuerySetWrapper
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     FAQ, AbstractHeadingBlurbModel, AbstractMediaModel, AbstractNamedModel, AbstractTitleDescriptionModel,
-    AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, CourseType, Curriculum,
+    AbstractValueModel, CorporateEndorsement, Course, CourseEditor, CourseRun, CourseRunType, CourseType, Curriculum,
     CurriculumCourseMembership, CurriculumCourseRunExclusion, CurriculumProgramMembership, DegreeCost, DegreeDeadline,
     Endorsement, Organization, Program, ProgramType, Ranking, Seat, SeatType, Subject, Topic
 )
@@ -41,7 +41,8 @@ from course_discovery.apps.course_metadata.publishers import (
 )
 from course_discovery.apps.course_metadata.tests import factories
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, ImageFactory, ProgramFactory, SeatFactory, SeatTypeFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, ImageFactory, ProgramFactory, SeatFactory,
+    SeatTypeFactory
 )
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSitePublisherTestMixin
 from course_discovery.apps.course_metadata.utils import ensure_draft_world
@@ -219,6 +220,7 @@ class TestCourse(TestCase):
         self.assertEqual(course.additional_metadata.start_date, additional_metadata.start_date)
         self.assertEqual(course.additional_metadata.registration_deadline, additional_metadata.registration_deadline)
         self.assertEqual(course.additional_metadata.product_meta, additional_metadata.product_meta)
+        assert course.additional_metadata.product_status == ExternalProductStatus.Published
 
     def test_enterprise_subscription_inclusion(self):
         """ Verify the enterprise inclusion boolean is calculated as expected. """
@@ -583,6 +585,25 @@ class CourseRunTests(OAuth2Mixin, TestCase):
         if end:
             end = parse(end)
         course_run = factories.CourseRunFactory(start=start, end=end)
+        assert course_run.availability == expected_availability
+
+    @ddt.data(
+        (ExternalProductStatus.Archived, 'Archived'),
+        (ExternalProductStatus.Published, 'Current'),
+    )
+    @ddt.unpack
+    def test_external_course_availability(self, product_status, expected_availability):
+        """ Verify the property returns the appropriate availability string based on external product status """
+        course_run = factories.CourseRunFactory(
+            type=factories.CourseRunTypeFactory(
+                slug=CourseRunType.UNPAID_EXECUTIVE_EDUCATION
+            ),
+            course=CourseFactory(
+                additional_metadata=AdditionalMetadataFactory(
+                    product_status=product_status
+                )
+            )
+        )
         assert course_run.availability == expected_availability
 
     def test_marketing_url(self):

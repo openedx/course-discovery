@@ -63,3 +63,11 @@ class CourseLength(DjangoChoices):
     Short = ChoiceItem('short', _('Short'))
     Medium = ChoiceItem('medium', _('Medium'))
     Long = ChoiceItem('long', _('Long'))
+
+
+class ExternalProductStatus(DjangoChoices):
+    """
+    The statuses for external product lines.
+    """
+    Archived = ChoiceItem('archived', _('Archived'))
+    Published = ChoiceItem('published', _('Published'))

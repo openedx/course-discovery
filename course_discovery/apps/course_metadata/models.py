@@ -38,7 +38,8 @@ from taxonomy.signals.signals import UPDATE_PROGRAM_SKILLS
 from course_discovery.apps.core.models import Currency, Partner
 from course_discovery.apps.course_metadata import emails
 from course_discovery.apps.course_metadata.choices import (
-    CertificateType, CourseLength, CourseRunPacing, CourseRunStatus, PayeeType, ProgramStatus, ReportingType
+    CertificateType, CourseLength, CourseRunPacing, CourseRunStatus, ExternalProductStatus, PayeeType, ProgramStatus,
+    ReportingType
 )
 from course_discovery.apps.course_metadata.constants import PathwayType
 from course_discovery.apps.course_metadata.fields import HtmlField, NullHtmlField
@@ -726,6 +727,10 @@ class AdditionalMetadata(TimeStampedModel):
         null=True,
         default=None,
         related_name="product_additional_metadata"
+    )
+    product_status = models.CharField(
+        default=ExternalProductStatus.Published, max_length=50, null=False, blank=False,
+        choices=ExternalProductStatus.choices, validators=[ExternalProductStatus.validator]
     )
 
     def __str__(self):
@@ -1992,6 +1997,13 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
         now = datetime.datetime.now(pytz.UTC)
         upcoming_cutoff = now + datetime.timedelta(days=60)
 
+        # Use external course availability for ExecEd course run types
+        # Check additional_metadata existence as a fail safe for some unit tests
+        # where this flow is triggered via signals before AdditionalMetadata object can be persisted
+        if self.type.slug in [CourseRunType.UNPAID_EXECUTIVE_EDUCATION, CourseRunType.PAID_EXECUTIVE_EDUCATION] and \
+                self.course.additional_metadata:
+            return self.external_course_availability
+
         if self.has_ended(now):
             return _('Archived')
         elif self.start and (self.start <= now):
@@ -2000,6 +2012,16 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
             return _('Starting Soon')
         else:
             return _('Upcoming')
+
+    @property
+    def external_course_availability(self):
+        """
+        Property to get course availability for external courses using product status.
+        """
+        additional_metadata = self.course.additional_metadata
+        if additional_metadata.product_status == ExternalProductStatus.Published:
+            return _('Current')
+        return _('Archived')
 
     @property
     def get_video(self):
