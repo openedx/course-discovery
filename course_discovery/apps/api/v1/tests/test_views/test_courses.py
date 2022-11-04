@@ -21,7 +21,7 @@ from course_discovery.apps.core.utils import serialize_datetime
 from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AbstractLocationRestrictionModel, Course, CourseEditor, CourseEntitlement, CourseRun, CourseRunType, CourseType,
-    Fact, Seat
+    Fact, ProductMeta, Seat
 )
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEditorFactory, CourseEntitlementFactory, CourseFactory, CourseLocationRestrictionFactory, CourseRunFactory,
@@ -266,7 +266,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
 
         # Known to be flaky prior to the addition of tearDown()
         # and logout() code which is the same number of additional queries
-        with self.assertNumQueries(56, threshold=3):
+        with self.assertNumQueries(62, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -276,7 +276,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         keys = ','.join([course.key for course in courses])
         url = '{root}?{params}'.format(root=reverse('api:v1:course-list'), params=urlencode({'keys': keys}))
 
-        with self.assertNumQueries(56, threshold=3):
+        with self.assertNumQueries(62, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -286,7 +286,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         uuids = ','.join([str(course.uuid) for course in courses])
         url = '{root}?uuids={uuids}'.format(root=reverse('api:v1:course-list'), uuids=uuids)
 
-        with self.assertNumQueries(56, threshold=3):
+        with self.assertNumQueries(60, threshold=3):
             response = self.client.get(url)
         self.assertListEqual(response.data['results'], self.serialize_course(courses, many=True))
 
@@ -1102,7 +1102,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             'registration_deadline': serialize_datetime(current),
             'variant_id': str(uuid4()),
             'course_term_override': 'Example Program',
-            'product_status': 'published'
+            'product_status': 'published',
+            'product_meta': None
         }
         url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
         course_data = {
@@ -1188,7 +1189,8 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
             'registration_deadline': serialize_datetime(current),
             'variant_id': str(uuid4()),
             'course_term_override': 'Example Program',
-            'product_status': 'published'
+            'product_status': 'published',
+            'product_meta': None
         }
         additional_metadata_1 = {
             **additional_metadata,
@@ -1255,6 +1257,58 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
         self.assertDictEqual(self.serialize_course(course_1)['additional_metadata'], additional_metadata_1)
         self.assertDictEqual(self.serialize_course(course_2)['additional_metadata'], additional_metadata_2)
         self.assertDictEqual(self.serialize_course(course_3)['additional_metadata'], additional_metadata_3)
+
+    @responses.activate
+    def test_update_product_meta_with_additional_metadata(self):
+        """ Verify that the product_meta is updated when additional_metadata is updated. """
+
+        current = datetime.datetime.now(pytz.UTC)
+
+        EE_type_2U = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course = CourseFactory(additional_metadata=None, type=EE_type_2U)
+        product_meta = {
+            "title": "Test",
+            "description": "Test Description",
+            "keywords": [
+                "test2",
+                "test1"
+            ]
+        }
+
+        additional_metadata = {
+            'external_url': 'https://example.com/456',
+            'external_identifier': '456',
+            'lead_capture_form_url': 'https://example.com/lead-capture',
+            'organic_url': 'https://example.com/organic',
+            'facts': [{'heading': 'Fact1 heading', 'blurb': '<p>Fact1 blurb</p>'}],
+            'certificate_info': {
+                'heading': 'Certificate heading',
+                'blurb': '<p>Certificate blurb</p>',
+            },
+            'start_date': serialize_datetime(current),
+            'registration_deadline': serialize_datetime(current),
+            'variant_id': str(uuid4()),
+            'course_term_override': 'Example Program',
+            'product_status': 'published',
+            'product_meta': product_meta
+        }
+
+        url = reverse('api:v1:course-detail', kwargs={'key': course.uuid})
+
+        response = self.client.patch(url, {'additional_metadata': additional_metadata}, format='json')
+
+        assert response.status_code == 200
+
+        # The ProductMeta objects are being created 2 times.
+        # Once when the CourseViewSetTests create a Factory Course
+        # and once while running this testcase.
+        assert ProductMeta.objects.count() == 2    # created two new objects
+
+        course = Course.everything.get(uuid=course.uuid, draft=True)
+
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata'], additional_metadata)
+
+        self.assertDictEqual(self.serialize_course(course)['additional_metadata']['product_meta'], product_meta)
 
     @responses.activate
     def test_update_success_with_course_type_verified(self):

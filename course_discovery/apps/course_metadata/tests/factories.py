@@ -107,6 +107,7 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
     registration_deadline = FuzzyDateTime(datetime.datetime(2014, 1, 1, tzinfo=UTC), force_microsecond=0)
     variant_id = factory.LazyFunction(uuid4)
     course_term_override = FuzzyText()
+    product_meta = factory.SubFactory(ProductMetaFactory, keywords=['test', 'test2'])
 
     @factory.post_generation
     def facts(self, create, extracted, **kwargs):
