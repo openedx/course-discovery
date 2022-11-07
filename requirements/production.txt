@@ -39,14 +39,12 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.25.4
+boto3==1.26.3
     # via django-ses
-botocore==1.28.4
+botocore==1.29.3
     # via
     #   boto3
     #   s3transfer
-cached-property==1.5.2
-    # via zeep
 cachetools==5.2.0
     # via google-auth
 cairocffi==1.4.0
@@ -95,7 +93,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-cryptography==36.0.2
+cryptography==38.0.3
     # via
     #   authlib
     #   pyjwt
@@ -218,7 +216,7 @@ django-object-actions==4.0.0
     # via -r requirements/base.in
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==3.2.1
+django-ses==3.2.2
     # via
     #   -r requirements/production.in
     #   taxonomy-connector
@@ -337,15 +335,15 @@ filelock==3.8.0
     # via snowflake-connector-python
 future==0.18.2
     # via pyjwkest
-gevent==22.10.1
+gevent==22.10.2
     # via -r requirements/production.in
-google-auth==2.13.0
+google-auth==2.14.0
     # via
     #   google-auth-oauthlib
     #   gspread
-google-auth-oauthlib==0.7.0
+google-auth-oauthlib==0.7.1
     # via gspread
-greenlet==1.1.3.post0
+greenlet==2.0.0.post0
     # via gevent
 gspread==5.6.2
     # via -r requirements/base.in
@@ -414,9 +412,9 @@ pillow==9.3.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==2.5.2
+platformdirs==2.5.3
     # via zeep
-prompt-toolkit==3.0.31
+prompt-toolkit==3.0.32
     # via click-repl
 psutil==5.9.3
     # via edx-django-utils
@@ -444,7 +442,7 @@ pyjwt[crypto]==2.6.0
     #   edx-rest-api-client
     #   snowflake-connector-python
     #   social-auth-core
-pymongo==3.12.3
+pymongo==3.13.0
     # via edx-opaque-keys
 pynacl==1.5.0
     # via edx-django-utils
@@ -472,7 +470,7 @@ python-stdnum==1.17
     # via django-localflavor
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2022.5
+pytz==2022.6
     # via
     #   -r requirements/base.in
     #   celery
@@ -554,7 +552,7 @@ six==1.16.0
     #   requests-file
 slumber==0.7.1
     # via edx-rest-api-client
-snowflake-connector-python==2.8.0
+snowflake-connector-python==2.8.1
     # via -r requirements/base.in
 social-auth-app-django==5.0.0
     # via
@@ -573,7 +571,7 @@ stevedore==4.1.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.25.0
+taxonomy-connector==1.26.0
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
@@ -612,13 +610,13 @@ wrapt==1.14.1
     # via deprecated
 xss-utils==0.4.0
     # via -r requirements/base.in
-zeep==4.1.0
+zeep==4.2.0
     # via simple-salesforce
 zipp==3.10.0
     # via importlib-metadata
 zope-event==4.5.0
     # via gevent
-zope-interface==5.5.0
+zope-interface==5.5.1
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
