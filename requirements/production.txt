@@ -304,7 +304,7 @@ edx-drf-extensions==8.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-edx-event-bus-kafka==1.4.3
+edx-event-bus-kafka==1.6.0
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.3.0
     # via
