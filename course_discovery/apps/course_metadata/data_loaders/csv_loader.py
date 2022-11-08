@@ -345,7 +345,7 @@ class CSVDataLoader(AbstractDataLoader):
             'draft': is_draft,
             'key': course.key,
             'uuid': str(course.uuid),
-            'url_slug': course.active_url_slug,
+            'url_slug': data.get('slug') or course.active_url_slug,
             'type': str(course.type.uuid),
             'subjects': subjects,
             'collaborators': collaborator_uuids,
