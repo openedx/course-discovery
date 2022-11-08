@@ -187,8 +187,14 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         )
                     )
 
+    @data(
+        ('csv-course-custom-slug', 'csv-course-custom-slug'),
+        ('custom-slug-2', 'custom-slug-2'),
+        ('', 'csv-course')  # No slug in CSV corresponds to default slug mechanism
+    )
+    @unpack
     @responses.activate
-    def test_single_valid_row(self, jwt_decode_patch):  # pylint: disable=unused-argument
+    def test_single_valid_row(self, csv_slug, expected_slug, jwt_decode_patch):  # pylint: disable=unused-argument
         """
         Verify that for a single row of valid data for a non-existent course, the draft unpublished
         entries are created.
@@ -198,8 +204,13 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
         self.mock_ecommerce_publication(self.partner)
         _, image_content = self.mock_image_response()
 
+        csv_data = {
+            **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            'slug': csv_slug
+        }
+
         with NamedTemporaryFile() as csv:
-            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+            csv = self._write_csv(csv, [csv_data])
 
             with LogCapture(LOGGER_PATH) as log_capture:
                 with mock.patch.object(
@@ -230,6 +241,7 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     self._assert_course_data(course, self.BASE_EXPECTED_COURSE_DATA)
                     self._assert_course_run_data(course_run, self.BASE_EXPECTED_COURSE_RUN_DATA)
 
+                    assert course.active_url_slug == expected_slug
                     assert loader.get_ingestion_stats() == {
                         'total_products_count': 1,
                         'success_count': 1,
