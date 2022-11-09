@@ -157,9 +157,12 @@ class CSVDataLoader(AbstractDataLoader):
                 try:
                     _ = self._create_course(row, course_type, course_run_type.uuid)
                 except Exception as exc:  # pylint: disable=broad-except
+                    exception_message = exc
+                    if hasattr(exc, 'response'):
+                        exception_message = exc.response.content.decode('utf-8')
                     error_message = CSVIngestionErrorMessages.COURSE_CREATE_ERROR.format(
                         course_title=course_title,
-                        exception_message=exc
+                        exception_message=exception_message
                     )
                     logger.exception(error_message)
                     self._register_ingestion_error(CSVIngestionErrors.COURSE_CREATE_ERROR, error_message)
@@ -189,9 +192,12 @@ class CSVDataLoader(AbstractDataLoader):
             try:
                 self._update_course(row, course, is_draft)
             except Exception as exc:  # pylint: disable=broad-except
+                exception_message = exc
+                if hasattr(exc, 'response'):
+                    exception_message = exc.response.content.decode('utf-8')
                 error_message = CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
                     course_title=course_title,
-                    exception_message=exc
+                    exception_message=exception_message
                 )
                 logger.exception(error_message)
                 self._register_ingestion_error(CSVIngestionErrors.COURSE_UPDATE_ERROR, error_message)
@@ -221,9 +227,12 @@ class CSVDataLoader(AbstractDataLoader):
                 try:
                     self._update_course_run(row, course_run, course_type, is_draft)
                 except Exception as exc:  # pylint: disable=broad-except
+                    exception_message = exc
+                    if hasattr(exc, 'response'):
+                        exception_message = exc.response.content.decode('utf-8')
                     error_message = CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
                         course_title=course_title,
-                        exception_message=exc
+                        exception_message=exception_message
                     )
                     logger.exception(error_message)
                     self._register_ingestion_error(CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR, error_message)
