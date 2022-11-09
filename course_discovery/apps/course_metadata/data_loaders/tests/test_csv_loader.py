@@ -13,9 +13,9 @@ from course_discovery.apps.core.tests.factories import USER_PASSWORD, UserFactor
 from course_discovery.apps.course_metadata.data_loaders.csv_loader import CSVDataLoader
 from course_discovery.apps.course_metadata.data_loaders.tests import mock_data
 from course_discovery.apps.course_metadata.data_loaders.tests.mixins import CSVLoaderMixin
-from course_discovery.apps.course_metadata.models import Course, CourseRun, CourseType
+from course_discovery.apps.course_metadata.models import AdditionalMetadata, Course, CourseRun, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, OrganizationFactory
 )
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.csv_loader'
@@ -249,8 +249,77 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'updated_products_count': 0,
                         'created_products_count': 1,
                         'created_products': [str(course.uuid)],
+                        'archived_products_count': 0,
+                        'archived_products': [],
                         'errors': loader.error_logs
                     }
+
+    @responses.activate
+    def test_archived_flow_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the loader archives courses not in input data.
+        """
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_ecommerce_publication(self.partner)
+        self.mock_image_response()
+
+        additional_metadata_one = AdditionalMetadataFactory(product_status="Published")
+        _ = CourseFactory(
+            key='test+123', partner=self.partner, type=self.course_type,
+            draft=False, additional_metadata=additional_metadata_one
+        )
+
+        additional_metadata_two = AdditionalMetadataFactory(product_status="Published")
+        _ = CourseFactory(
+            key='test+124', partner=self.partner, type=self.course_type,
+            draft=False, additional_metadata=additional_metadata_two
+        )
+
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT])
+
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name, product_type='EXECUTIVE_EDUCATION')
+                    loader.ingest()
+
+                    self._assert_default_logs(log_capture)
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Archived 2 products in discovery.'
+                        ),
+                    )
+
+                    # Verify the existence of both draft and non-draft versions
+                    assert Course.everything.count() == 3
+                    assert AdditionalMetadata.objects.count() == 3
+
+                    course = Course.everything.get(key=self.COURSE_KEY)
+                    stats = loader.get_ingestion_stats()
+                    archived_products = stats.pop('archived_products')
+                    assert stats == {
+                        'total_products_count': 1,
+                        'success_count': 1,
+                        'failure_count': 0,
+                        'updated_products_count': 0,
+                        'created_products_count': 1,
+                        'created_products': [str(course.uuid)],
+                        'archived_products_count': 2,
+                        'errors': loader.error_logs
+                    }
+
+                    # asserting separately due to random sort order
+                    assert set(archived_products) == set([
+                        additional_metadata_one.external_identifier,
+                        additional_metadata_two.external_identifier
+                    ])
 
     @responses.activate
     def test_ingest_flow_for_preexisting_published_course(self, jwt_decode_patch):  # pylint: disable=unused-argument
@@ -323,6 +392,8 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                         'updated_products_count': 1,
                         'created_products_count': 0,
                         'created_products': [],
+                        'archived_products_count': 0,
+                        'archived_products': [],
                         'errors': loader.error_logs
                     }
 
