@@ -486,7 +486,7 @@ ELASTICSEARCH_DSL_INDEX_RETENTION_LIMIT = 3
 
 # Update Index Settings
 # Make sure the size of the new index does not change by more than this percentage
-INDEX_SIZE_CHANGE_THRESHOLD = .1
+INDEX_SIZE_CHANGE_THRESHOLD = .1  # 10%
 
 # Elasticsearch search query facet "size" option to increase from the default value of "100"
 # See  https://www.elastic.co/guide/en/elasticsearch/reference/7.8/search-aggregations-metrics-percentile-aggregation.html
