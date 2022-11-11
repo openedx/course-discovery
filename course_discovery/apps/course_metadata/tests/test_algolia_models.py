@@ -341,7 +341,7 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         )
         if expected_title:
             course.additional_metadata.product_meta = ProductMetaFactory(
-                    title="Meta Product Title"
+                title="Meta Product Title"
             )
 
         assert course.product_meta_title == expected_title
