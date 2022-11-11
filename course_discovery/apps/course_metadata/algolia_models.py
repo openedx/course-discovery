@@ -66,7 +66,9 @@ def delegate_attributes(cls):
     result_fields = ['product_marketing_url', 'product_card_image_url', 'product_uuid', 'product_weeks_to_complete',
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
-                     'product_organization_short_code_override', 'product_organization_logo_override', 'skills']
+                     'product_organization_short_code_override', 'product_organization_logo_override', 'skills',
+                     'product_meta_title',
+                     ]
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -199,6 +201,15 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         if self.type.slug == CourseType.BOOTCAMP_2U:
             return 'Boot Camp'
         return 'Course'
+
+    @property
+    def product_meta_title(self):
+        """
+        Meta title will only be present for ExecEd courses.
+        """
+        if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U and self.additional_metadata.product_meta:
+            return self.additional_metadata.product_meta.title
+        return None
 
     @property
     def custom_object_id(self):
@@ -537,6 +548,14 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
     @property
     def is_2u_degree_program(self):
         return hasattr(self, 'degree') and hasattr(self.degree, 'additional_metadata')
+
+    @property
+    def product_meta_title(self):
+        """
+        Programs currently do not have any meta title. Returning an explicit None here to avoid
+        any Algolia indexing issues.
+        """
+        return None
 
 
 class SearchDefaultResultsConfiguration(models.Model):
