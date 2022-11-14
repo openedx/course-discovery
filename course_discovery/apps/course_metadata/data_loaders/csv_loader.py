@@ -18,8 +18,8 @@ from course_discovery.apps.course_metadata.data_loaders.constants import (
 )
 from course_discovery.apps.course_metadata.gspread_client import GspreadClient
 from course_discovery.apps.course_metadata.models import (
-    Collaborator, Course, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization, Person, ProgramType,
-    Subject
+    AdditionalMetadata, Collaborator, Course, CourseRun, CourseRunPacing, CourseRunType, CourseType, Organization,
+    Person, ProgramType, Subject
 )
 from course_discovery.apps.course_metadata.utils import download_and_save_course_image
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -73,8 +73,10 @@ class CSVDataLoader(AbstractDataLoader):
             'failure_count': 0,
             'updated_products_count': 0,
             'created_products': [],
+            'archived_products': []
         }
         self.course_uuids = {}  # to show the discovery course ids for each processed course
+        self.product_type = product_type
 
         for error_log_key in CSV_LOADER_ERROR_LOG_SEQUENCE:
             self.error_logs.setdefault(error_log_key, [])
@@ -102,11 +104,16 @@ class CSVDataLoader(AbstractDataLoader):
 
     def ingest(self):  # pylint: disable=too-many-statements
         logger.info("Initiating CSV data loader flow.")
+        course_external_identifiers = set()  # store external course ids for each course present in sheet
 
         for row in self.reader:
             row = self.transform_dict_keys(row)
             course_title = row['title']
             org_key = row['organization']
+
+            # store all external identifiers present in sheet, irrespective of ingestion status
+            if 'external_identifier' in row:
+                course_external_identifiers.add(row['external_identifier'])
 
             logger.info('Starting data import flow for {}'.format(course_title))  # lint-amnesty, pylint: disable=logging-format-interpolation
             if not Organization.objects.filter(key=org_key).exists():
@@ -157,9 +164,12 @@ class CSVDataLoader(AbstractDataLoader):
                 try:
                     _ = self._create_course(row, course_type, course_run_type.uuid)
                 except Exception as exc:  # pylint: disable=broad-except
+                    exception_message = exc
+                    if hasattr(exc, 'response'):
+                        exception_message = exc.response.content.decode('utf-8')
                     error_message = CSVIngestionErrorMessages.COURSE_CREATE_ERROR.format(
                         course_title=course_title,
-                        exception_message=exc
+                        exception_message=exception_message
                     )
                     logger.exception(error_message)
                     self._register_ingestion_error(CSVIngestionErrors.COURSE_CREATE_ERROR, error_message)
@@ -189,9 +199,12 @@ class CSVDataLoader(AbstractDataLoader):
             try:
                 self._update_course(row, course, is_draft)
             except Exception as exc:  # pylint: disable=broad-except
+                exception_message = exc
+                if hasattr(exc, 'response'):
+                    exception_message = exc.response.content.decode('utf-8')
                 error_message = CSVIngestionErrorMessages.COURSE_UPDATE_ERROR.format(
                     course_title=course_title,
-                    exception_message=exc
+                    exception_message=exception_message
                 )
                 logger.exception(error_message)
                 self._register_ingestion_error(CSVIngestionErrors.COURSE_UPDATE_ERROR, error_message)
@@ -221,9 +234,12 @@ class CSVDataLoader(AbstractDataLoader):
                 try:
                     self._update_course_run(row, course_run, course_type, is_draft)
                 except Exception as exc:  # pylint: disable=broad-except
+                    exception_message = exc
+                    if hasattr(exc, 'response'):
+                        exception_message = exc.response.content.decode('utf-8')
                     error_message = CSVIngestionErrorMessages.COURSE_RUN_UPDATE_ERROR.format(
                         course_title=course_title,
-                        exception_message=exc
+                        exception_message=exception_message
                     )
                     logger.exception(error_message)
                     self._register_ingestion_error(CSVIngestionErrors.COURSE_RUN_UPDATE_ERROR, error_message)
@@ -232,6 +248,8 @@ class CSVDataLoader(AbstractDataLoader):
             logger.info("Course and course run updated successfully for course key {}".format(course_key))  # lint-amnesty, pylint: disable=logging-format-interpolation
             self.course_uuids[str(course.uuid)] = course_title
             self._register_successful_ingestion(str(course.uuid), is_course_created)
+
+        self._archive_stale_products(course_external_identifiers)
         logger.info("CSV loader ingest pipeline has completed.")
 
         self._render_error_logs()
@@ -284,6 +302,7 @@ class CSVDataLoader(AbstractDataLoader):
         return {
             **self.ingestion_summary,
             'created_products_count': len(self.ingestion_summary['created_products']),
+            'archived_products_count': len(self.ingestion_summary['archived_products']),
             'errors': self.error_logs
         }
 
@@ -330,6 +349,33 @@ class CSVDataLoader(AbstractDataLoader):
         """
         return not course_run.status == CourseRunStatus.Published
 
+    def _archive_stale_products(self, course_external_identifiers):
+        """
+        This method checks diff between products in discovery vs 2U sheets
+        and archive the ones which are not incoming anymore.
+        """
+        if self.product_type is None:
+            return
+
+        product_type_slug_map = {
+            'EXECUTIVE_EDUCATION': CourseType.EXECUTIVE_EDUCATION_2U,
+            'BOOTCAMPS': CourseType.BOOTCAMP_2U
+        }
+        all_product_additional_metadatas = AdditionalMetadata.objects.filter(
+            related_courses__type__slug=product_type_slug_map[self.product_type],
+            product_status='Published'
+        ).values_list('external_identifier', flat=True)
+
+        archived_products = set(all_product_additional_metadatas).difference(course_external_identifiers)
+        archived_products_queryset = AdditionalMetadata.objects.filter(external_identifier__in=archived_products)
+        archived_products_queryset.update(product_status="Archived")
+        self.ingestion_summary['archived_products'] = list(archived_products)
+
+        logger.info("Archived {} products in discovery.".format(len(archived_products)))  # lint-amnesty, pylint: disable=logging-format-interpolation
+        logger.info("Archived Courses External Identifiers:")
+        for archived_product in archived_products:
+            logger.info(archived_product)
+
     def _update_course_api_request_data(self, data, course, is_draft):
         """
         Create and return the request data for making a patch call to update the course.
@@ -345,7 +391,7 @@ class CSVDataLoader(AbstractDataLoader):
             'draft': is_draft,
             'key': course.key,
             'uuid': str(course.uuid),
-            'url_slug': course.active_url_slug,
+            'url_slug': data.get('slug') or course.active_url_slug,
             'type': str(course.type.uuid),
             'subjects': subjects,
             'collaborators': collaborator_uuids,

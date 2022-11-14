@@ -13,10 +13,11 @@ from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCourse, AlgoliaProxyProgram
 from course_discovery.apps.course_metadata.choices import ProgramStatus
-from course_discovery.apps.course_metadata.models import CourseRunStatus
+from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
-    CourseFactory, CourseRunFactory, DegreeAdditionalMetadataFactory, DegreeFactory, LevelTypeFactory,
-    OrganizationFactory, ProgramFactory, ProgramTypeFactory, SeatFactory, SeatTypeFactory, SubjectFactory
+    AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
+    DegreeFactory, LevelTypeFactory, OrganizationFactory, ProductMetaFactory, ProgramFactory, ProgramTypeFactory,
+    SeatFactory, SeatTypeFactory, SubjectFactory
 )
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
 
@@ -184,6 +185,7 @@ class TestAlgoliaProxyWithEdxPartner(TestCase, TestAlgoliaDataMixin):
         cls.edxPartner.name = 'edX'
 
 
+@ddt.ddt
 @pytest.mark.django_db
 class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
 
@@ -319,6 +321,30 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         english_course = self.create_course_with_basic_active_course_run(language=american_english)
         assert spanish_course.promoted_in_spanish_index
         assert not english_course.promoted_in_spanish_index
+
+    @ddt.data(
+        (CourseType.EXECUTIVE_EDUCATION_2U, 'Meta Product Title'),
+        (CourseType.EXECUTIVE_EDUCATION_2U, None),
+        (CourseType.BOOTCAMP_2U, None),
+    )
+    @ddt.unpack
+    def test_product_meta_title(self, type_slug, expected_title):
+        """
+        Verify the meta title is returned only for ExecEd course type if product meta info is present.
+        """
+        course = AlgoliaProxyCourseFactory(
+            partner=self.__class__.edxPartner,
+            type=CourseTypeFactory(
+                slug=type_slug
+            ),
+            additional_metadata=AdditionalMetadataFactory(product_meta=None)
+        )
+        if expected_title:
+            course.additional_metadata.product_meta = ProductMetaFactory(
+                title="Meta Product Title"
+            )
+
+        assert course.product_meta_title == expected_title
 
 
 @ddt.ddt
@@ -539,3 +565,10 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
             'course2_topic1', 'course2_topic2', 'program_label1'
         ]
         assert sorted(program.tags) == sorted(expected_tags)
+
+    def test_product_meta_title(self):
+        """
+        Verify the meta title for programs is None.
+        """
+        program = AlgoliaProxyProgramFactory()
+        assert program.product_meta_title is None

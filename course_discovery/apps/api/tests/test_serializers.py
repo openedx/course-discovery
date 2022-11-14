@@ -28,10 +28,10 @@ from course_discovery.apps.api.serializers import (
     LevelTypeSerializer, MinimalCourseRunSerializer, MinimalCourseSerializer, MinimalOrganizationSerializer,
     MinimalPersonSerializer, MinimalProgramCourseSerializer, MinimalProgramSerializer, NestedProgramSerializer,
     OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
-    ProductValueSerializer, ProgramLocationRestrictionSerializer, ProgramsAffiliateWindowSerializer, ProgramSerializer,
-    ProgramTypeAttrsSerializer, ProgramTypeSerializer, RankingSerializer, SeatSerializer, SubjectSerializer,
-    TopicSerializer, TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
-    get_lms_course_url_for_archived, get_utm_source_for_user
+    ProductMetaSerializer, ProductValueSerializer, ProgramLocationRestrictionSerializer,
+    ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
+    RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
+    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.tests.test_utils import make_post_request, make_request
@@ -1996,6 +1996,7 @@ class AdditionalMetadataSerializerTests(TestCase):
             'lead_capture_form_url': additional_metadata.lead_capture_form_url,
             'certificate_info': CertificateInfoSerializer(additional_metadata.certificate_info).data,
             'facts': FactSerializer(additional_metadata.facts, many=True).data,
+            'product_meta': ProductMetaSerializer(additional_metadata.product_meta).data,
             'organic_url': additional_metadata.organic_url,
             'start_date': serialize_datetime(additional_metadata.start_date),
             'registration_deadline': serialize_datetime(additional_metadata.registration_deadline),

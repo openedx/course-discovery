@@ -8,10 +8,17 @@ Successful Ingestion:{{ success_count }}
 Ingestion with Errors: {{ failure_count }}
 New Products: {{ created_products_count }}
 Updated Products: {{ updated_products_count }}
+Archived Products: {{ archived_products_count }}
 {% if created_products_count > 0 %}
 New Products
 {% for new_product in created_products %}
 {{ new_product }}
+{% endfor %}
+{% endif %}
+{% if created_products_count > 0 %}
+Archived Products External Identifiers
+{% for archived_product in archived_products %}
+{{ archived_product }}
 {% endfor %}
 {% endif %}
 {% if failure_count > 0 %}

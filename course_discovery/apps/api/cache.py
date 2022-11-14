@@ -5,8 +5,6 @@ import zlib
 from django.conf import settings
 from django.core.cache import cache
 from django.http.response import HttpResponse
-from edx_django_utils.monitoring import set_custom_attribute
-from edx_toggles.toggles import SettingToggle
 from rest_framework.renderers import JSONRenderer
 from rest_framework_extensions.cache.decorators import CacheResponse
 from rest_framework_extensions.key_constructor.bits import KeyBitBase, QueryParamsKeyBit
@@ -54,15 +52,7 @@ def timestamped_object_key_constructor(*args, **kwargs):
 
 def set_api_timestamp():
     timestamp = time.time()
-    # 2022-11: Temporary logging to help debug a caching issue related to the new event bus event.
-    #   If this code hasn't been cleaned up by 2023, feel free to remove it.
-    #   This code uses/exposes a toggle that was only intended for the consumer code in:
-    #      course_discovery/apps/course_metadata/management/commands/consume_events.py
-    KAFKA_CONSUMERS_ENABLED = SettingToggle('EVENT_BUS_KAFKA_CONSUMERS_ENABLED', default=False)
     cache.set(API_TIMESTAMP_KEY, timestamp, None)
-    if KAFKA_CONSUMERS_ENABLED.is_enabled():
-        logger.info(f"Set api timestamp in set_api_timestamp to {timestamp}. "
-                    f"Api timestamp in cache is now set to {cache.get(API_TIMESTAMP_KEY)}.")
 
 
 def api_change_receiver(sender, **kwargs):  # pylint: disable=unused-argument
@@ -98,10 +88,6 @@ class CompressedCacheResponse(CacheResponse):
                 kwargs=kwargs
             )
             response_triple = self.cache.get(key)
-            api_timestamp = self.cache.get(API_TIMESTAMP_KEY)
-            set_custom_attribute('api_cache_timestamp', api_timestamp)
-            set_custom_attribute('api_cache_key', key)
-            set_custom_attribute('api_cache_hit', bool(response_triple))
         else:
             logger.info("Skipping page caching for %s", flag_name)
             response_triple = None
@@ -130,7 +116,6 @@ class CompressedCacheResponse(CacheResponse):
                     headers
                 )
                 self.cache.set(key, response_triple, self.timeout)
-                set_custom_attribute('api_cache_set', True)
         else:
             # If we get data from the cache, we reassemble the data to build a response
             # We reassemble the pieces from the cache because we can't actually set rendered_content
