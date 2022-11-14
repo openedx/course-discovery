@@ -124,3 +124,91 @@ class LMSAPIClientMixin:
             content_type='application/json',
             status=status,
         )
+
+    def mock_blocks_data_request(self, lms_url, override_blocks=None, status=200):
+        """
+        Mock the blocks data requests endpoint response of the LMS.
+        """
+        data = {
+            'root': 'block-v1:edX+DemoX+Demo_Course+type@course+block@course',
+            'blocks': {
+                'block-v1:edX+DemoX+Demo_Course+type@html+block@030e35c4756a4ddc8d40b95fbbfff4d4': {
+                    'id': 'block-v1:edX+DemoX+Demo_Course+type@html+block@030e35c4756a4ddc8d40b95fbbfff4d4',
+                    'block_id': '030e35c4756a4ddc8d40b95fbbfff4d4',
+                    'type': 'html',
+                    'display_name': 'Blank HTML Page',
+                },
+                'block-v1:edX+DemoX+Demo_Course+type@video+block@0b9e39477cf34507a7a48f74be381fdd': {
+                    'id': 'block-v1:edX+DemoX+Demo_Course+type@video+block@0b9e39477cf34507a7a48f74be381fdd',
+                    'block_id': '0b9e39477cf34507a7a48f74be381fdd',
+                    'type': 'video',
+                    'display_name': 'Welcome!',
+                },
+                'block-v1:edX+DemoX+Demo_Course+type@vertical+block@vertical_0270f6de40fc': {
+                    'id': 'block-v1:edX+DemoX+Demo_Course+type@vertical+block@vertical_0270f6de40fc',
+                    'block_id': 'vertical_0270f6de40fc',
+                    'type': 'vertical',
+                    'display_name': 'Introduction: Video and Sequences',
+                    'children': [
+                        'block-v1:edX+DemoX+Demo_Course+type@html+block@030e35c4756a4ddc8d40b95fbbfff4d4',
+                        'block-v1:edX+DemoX+Demo_Course+type@video+block@0b9e39477cf34507a7a48f74be381fdd'
+                    ]
+                },
+            }
+        }
+        if override_blocks is not None:
+            data['blocks'] = override_blocks
+
+        responses.add(
+            responses.GET,
+            lms_url,
+            body=json.dumps(data),
+            content_type='application/json',
+            status=status,
+        )
+        return data
+
+    def mock_block_metadata_request(self, base_url, status=200):
+        data = {
+            'block-v1:edX+DemoX+Demo_Course+type@html+block@030e35c4756a4ddc8d40b95fbbfff4d4': {
+                'id': 'block-v1:edX+DemoX+Demo_Course+type@html+block@030e35c4756a4ddc8d40b95fbbfff4d4',
+                'type': 'html',
+                'index_dictionary': {
+                    'content': {
+                        'display_name': 'Blank HTML Page',
+                        'html_content': 'Welcome to the Open edX Demo Course Introduction.'
+                    },
+                    'content_type': 'Text'
+                }
+            },
+            'block-v1:edX+DemoX+Demo_Course+type@video+block@0b9e39477cf34507a7a48f74be381fdd': {
+                'id': 'block-v1:edX+DemoX+Demo_Course+type@video+block@0b9e39477cf34507a7a48f74be381fdd',
+                'type': 'video',
+                'index_dictionary': {
+                    'content': {
+                        'display_name': 'Welcome!',
+                        'transcript_en': ' ERIC: Hi, and welcome to the edX demonstration course.'
+                    },
+                    'content_type': 'Video'
+                }
+            },
+            'block-v1:edX+DemoX+Demo_Course+type@vertical+block@vertical_0270f6de40fc': {
+                'id': 'block-v1:edX+DemoX+Demo_Course+type@vertical+block@vertical_0270f6de40fc',
+                'type': 'vertical',
+                'index_dictionary': {
+                    'content': {
+                        'display_name': 'Introduction: Video and Sequences'
+                    },
+                    'content_type': 'Sequence'
+                },
+            }
+        }
+        for block_id, block_body in data.items():
+            responses.add(
+                responses.GET,
+                base_url + block_id,
+                body=json.dumps(block_body),
+                content_type='application/json',
+                status=status,
+            )
+        return data
