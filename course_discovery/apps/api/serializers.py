@@ -40,8 +40,9 @@ from course_discovery.apps.course_metadata.models import (
     CorporateEndorsement, Course, CourseEditor, CourseEntitlement, CourseLocationRestriction, CourseRun, CourseRunType,
     CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata,
     DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing, Image, LevelType, Mode, Organization,
-    Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductValue, Program,
-    ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Specialization, Subject, Topic, Track, Video
+    Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductMeta, ProductValue,
+    Program, ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Specialization, Subject, Topic, Track,
+    Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -655,18 +656,32 @@ class ProductValueSerializer(BaseModelSerializer):
         fields = ('per_click_international', 'per_click_usa', 'per_lead_international', 'per_lead_usa')
 
 
+class ProductMetaSerializer(TaggitSerializer, BaseModelSerializer):
+    """Serializer for the ``ProductMeta`` model."""
+    keywords = TagListSerializerField(required=False)
+
+    @classmethod
+    def prefetch_queryset(cls):
+        return ProductMeta.objects.all().select_related('keywords')
+
+    class Meta:
+        model = ProductMeta
+        fields = ('title', 'description', 'keywords')
+
+
 class AdditionalMetadataSerializer(BaseModelSerializer):
     """Serializer for the ``AdditionalMetadata`` model."""
 
     facts = FactSerializer(many=True)
     certificate_info = CertificateInfoSerializer()
+    product_meta = ProductMetaSerializer(required=False, allow_null=True)
     start_date = serializers.DateTimeField()
     registration_deadline = serializers.DateTimeField()
     variant_id = serializers.UUIDField(allow_null=True)
 
     @classmethod
     def prefetch_queryset(cls):
-        return AdditionalMetadata.objects.select_related('facts', 'certificate_info')
+        return AdditionalMetadata.objects.select_related('facts', 'certificate_info', 'product_meta')
 
     class Meta:
         model = AdditionalMetadata
@@ -674,7 +689,27 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
             'external_identifier', 'external_url', 'lead_capture_form_url',
             'facts', 'certificate_info', 'organic_url', 'start_date',
             'registration_deadline', 'variant_id', 'course_term_override', 'product_status',
+            'product_meta',
         )
+
+    def _update_product_meta(self, instance, product_meta):
+        if instance.product_meta:
+            ProductMeta.objects.filter(
+                id=instance.product_meta.id).update(**product_meta)
+        else:
+            instance.product_meta = ProductMeta.objects.create(
+                **product_meta)
+
+    def update(self, instance, validated_data):
+        # Handle writing nested fields separately
+        if 'product_meta' in validated_data:
+            # Handle product metadata only for 2U Executive Education courses else just pop
+            product_meta_data = validated_data.pop(
+                'product_meta')
+            if instance:
+                self._update_product_meta(
+                    instance, product_meta_data)
+        return super().update(instance, validated_data)
 
 
 class DegreeAdditionalMetadataSerializer(BaseModelSerializer):
@@ -1340,10 +1375,25 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             instance.certificate_info = CertificateInfo.objects.create(**certificate_info_data)
             instance.save()
 
+    def update_product_meta(self, instance, product_meta_data):
+        """ Updates product metadata (inside additional metadata) for a course. """
+        keywords = product_meta_data.pop('keywords', None)
+
+        if instance.product_meta:
+            ProductMeta.objects.filter(id=instance.product_meta.id).update(**product_meta_data)
+        else:
+            instance.product_meta = ProductMeta.objects.create(**product_meta_data)
+            instance.save()
+
+        if keywords and instance.product_meta:
+            instance.product_meta.keywords.set(keywords, clear=True)
+            instance.product_meta.save()
+
     def update_additional_metadata(self, instance, additional_metadata):
 
         facts = additional_metadata.pop('facts', None)
         certificate_info = additional_metadata.pop('certificate_info', None)
+        product_meta = additional_metadata.pop('product_meta', None)
 
         if instance.additional_metadata:
             AdditionalMetadata.objects.filter(id=instance.additional_metadata.id).update(**additional_metadata)
@@ -1352,6 +1402,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
         if facts:
             self.update_facts(instance.additional_metadata, facts)
+
+        if product_meta:
+            self.update_product_meta(instance.additional_metadata, product_meta)
 
         if certificate_info:
             self.update_certificate_info(instance.additional_metadata, certificate_info)

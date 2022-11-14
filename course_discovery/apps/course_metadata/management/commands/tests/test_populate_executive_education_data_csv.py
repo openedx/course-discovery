@@ -52,6 +52,7 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
                 "metaTitle": "SEO Title",
                 "metaDescription": "SEO Description",
                 "metaKeywords": "Keyword 1, Keyword 2",
+                "slug": "csv-course-slug",
                 "variant": {
                     "id": "00000000-0000-0000-0000-000000000000",
                     "endDate": "2022-05-06",
@@ -342,3 +343,4 @@ class TestPopulateExecutiveEducationDataCsv(CSVLoaderMixin, TestCase):
         assert data_row['Meta Title'] == 'SEO Title'
         assert data_row['Meta Description'] == 'SEO Description'
         assert data_row['Meta Keywords'] == 'Keyword 1, Keyword 2'
+        assert data_row['Slug'] == 'csv-course-slug'

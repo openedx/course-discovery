@@ -36,6 +36,10 @@
             <th>Updated Products</th>
             <td>{{ updated_products_count }}</td>
         </tr>
+        <tr>
+            <th>Archived Products</th>
+            <td>{{ archived_products_count }}</td>
+        </tr>
     </table>
 </div>
 
@@ -49,6 +53,17 @@
                 {% else %}
                     <li>{{ new_product }}</li>
                 {% endif %}
+            {% endfor %}
+        </ul>
+</div>
+{% endif %}
+
+{% if archived_products_count > 0 %}
+<div>
+    <h3>Archived Products External Identifiers</h3>
+        <ul>
+            {% for archived_product in archived_products %}
+                <li>{{ archived_product }}</li>
             {% endfor %}
         </ul>
 </div>

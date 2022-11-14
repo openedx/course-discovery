@@ -250,7 +250,7 @@ class CSVLoaderMixin:
         'upgrade_deadline_override_date', 'upgrade_deadline_override_time', 'redirect_url', 'external_identifier',
         'lead_capture_form_url', 'organic_url', 'certificate_header', 'certificate_text', 'stat1', 'stat1_text',
         'stat2', 'stat2_text', 'organization_logo_override', 'organization_short_code_override', 'variant_id',
-        'meta_title', 'meta_description', 'meta_keywords',
+        'meta_title', 'meta_description', 'meta_keywords', 'slug'
     ]
     # The list of minimal data headers
     MINIMAL_CSV_DATA_KEYS_ORDER = [
