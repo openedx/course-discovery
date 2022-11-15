@@ -47,6 +47,10 @@ class GeolocationCSVDataLoader(AbstractDataLoader):
             row_uuid = row['uuid']
             product_type = row['product_type']
             model = Course if product_type == 'course' else Program
+            processed_products = {
+                'course': self.processed_courses,
+                'program': self.processed_programs,
+            }
 
             geolocation = {
                 'location_name': row['location_name'],
@@ -67,12 +71,9 @@ class GeolocationCSVDataLoader(AbstractDataLoader):
 
             logger.info('Starting data import flow for {}: {}'.format(product_type, row_uuid))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
-            if product_type == 'course':
-                self.injest_entry(model, row_uuid, geolocation, self.processed_courses)
-            else:  # product_type == 'progarm'
-                self.injest_entry(model, row_uuid, geolocation, self.processed_programs)
+            self.injest_entry(model, row_uuid, geolocation, processed_products[product_type])
 
-        self.check_for_potential_orphans(model)
+        self.check_for_potential_orphans_in_courses()
 
         logger.info("Geolocation CSV loader ingest pipeline has completed.")
 
@@ -80,8 +81,10 @@ class GeolocationCSVDataLoader(AbstractDataLoader):
 
         self.log_processed_products()
 
-    def injest_entry(self, model, row_uuid, geolocation, processed_entries):
-        for product_obj in model.objects.filter(uuid=row_uuid):
+    def ingest_entry(self, model, row_uuid, geolocation, processed_products):
+        products = model.everything.filter(uuid=row_uuid) if model is Course else model.objects.filter(uuid=row_uuid)
+
+        for product_obj in products:
             action_taken = 'Created'
             existing_geolocation_id = product_obj.geolocation.id if product_obj.geolocation else None  # lint-amnesty
 
@@ -94,7 +97,7 @@ class GeolocationCSVDataLoader(AbstractDataLoader):
 
             self.log_info(
                 "{} geolocation data for product with UUID: {}".format(action_taken, row_uuid),
-                processed_entries
+                processed_products
             )
 
     def transform_dict_keys(self, data):
@@ -183,10 +186,10 @@ class GeolocationCSVDataLoader(AbstractDataLoader):
             else model.objects.filter(**kwrags).exists()
         )
 
-    def check_for_potential_orphans(self, model):
+    def check_for_potential_orphans_in_courses(self):
         for geolocation_id in self.updated_geolocations:
-            related_product = model.objects.filter(geolocation__id=geolocation_id).first()
-            if not related_product:
+            related_course = Course.everything.filter(geolocation__id=geolocation_id).first()
+            if not related_course:
                 GeoLocation.objects.filter(id=geolocation_id).delete()
                 logger.info("Removed orphaned geolocation objects with id: {}".format(geolocation_id))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
