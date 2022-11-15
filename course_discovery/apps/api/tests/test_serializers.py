@@ -30,8 +30,9 @@ from course_discovery.apps.api.serializers import (
     OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
     ProductMetaSerializer, ProductValueSerializer, ProgramLocationRestrictionSerializer,
     ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
-    RankingSerializer, SeatSerializer, SubjectSerializer, TopicSerializer, TypeaheadCourseRunSearchSerializer,
-    TypeaheadProgramSearchSerializer, VideoSerializer, get_lms_course_url_for_archived, get_utm_source_for_user
+    RankingSerializer, SeatSerializer, SubjectSerializer, TaxiFormSerializer, TopicSerializer,
+    TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
+    get_lms_course_url_for_archived, get_utm_source_for_user
 )
 from course_discovery.apps.api.tests.mixins import SiteMixin
 from course_discovery.apps.api.tests.test_utils import make_post_request, make_request
@@ -1069,6 +1070,7 @@ class MinimalProgramSerializerTests(TestCase):
             'card_image_url': program.card_image_url,
             'is_program_eligible_for_one_click_purchase': program.is_program_eligible_for_one_click_purchase,
             'degree': None,
+            'taxi_form': TaxiFormSerializer(program.taxi_form).data,
             'curricula': [],
             'marketing_hook': program.marketing_hook,
             'total_hours_of_effort': program.total_hours_of_effort,
@@ -1419,8 +1421,6 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'lead_capture_list_name': degree.lead_capture_list_name,
             'lead_capture_image': lead_capture_image_field.to_representation(degree.lead_capture_image),
             'hubspot_lead_capture_form_id': degree.hubspot_lead_capture_form_id,
-            'taxi_form_id': degree.taxi_form_id,
-            'taxi_form_grouping': degree.taxi_form_grouping,
             'micromasters_path': expected_micromasters_path,
             'micromasters_url': degree.micromasters_url,
             'micromasters_long_title': degree.micromasters_long_title,
