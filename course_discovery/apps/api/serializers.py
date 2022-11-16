@@ -1381,6 +1381,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
         if instance.product_meta:
             ProductMeta.objects.filter(id=instance.product_meta.id).update(**product_meta_data)
+            # This is needed to get the latest value for Product Meta from DB.
+            # Otherwise, the previous values re-appear when keywords are handled and product_meta is saved.
+            instance.product_meta.refresh_from_db()
         else:
             instance.product_meta = ProductMeta.objects.create(**product_meta_data)
             instance.save()

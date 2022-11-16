@@ -540,6 +540,7 @@ class AdditionalMetadataAdmin(admin.ModelAdmin):
         'courses', 'facts_list', 'certificate_info', 'organic_url'
     )
     search_fields = ('external_identifier', 'external_url')
+    list_filter = ('product_status', )
 
     def courses(self, obj):
         return ', '.join([
@@ -556,6 +557,10 @@ class AdditionalMetadataAdmin(admin.ModelAdmin):
 class ProductMetaAdmin(admin.ModelAdmin):
     list_display = ['title', 'description']
     search_fields = ['title']
+
+    inlines = (
+        AdditionalMetadataInline,
+    )
 
 
 class OrganizationUserRoleInline(admin.TabularInline):

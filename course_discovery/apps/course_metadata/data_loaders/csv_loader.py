@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.urls import reverse
 
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.choices import CourseRunStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus
 from course_discovery.apps.course_metadata.data_loaders import AbstractDataLoader
 from course_discovery.apps.course_metadata.data_loaders.constants import (
     CSV_LOADER_ERROR_LOG_SEQUENCE, CSVIngestionErrorMessages, CSVIngestionErrors
@@ -675,6 +675,19 @@ class CSVDataLoader(AbstractDataLoader):
             stats.append(stat2_dict)
         return stats
 
+    def process_meta_information(self, meta_title, meta_description, meta_keywords):
+        """
+        Return a dict containing processed product meta information.
+        """
+        if not any([meta_title, meta_description, meta_keywords]):
+            return {}
+
+        return {
+            'title': meta_title,
+            'description': meta_description,
+            'keywords': [keyword.strip() for keyword in meta_keywords.split(',')] if meta_keywords else []
+        }
+
     def get_additional_metadata_dict(self, data, type_slug):
         """
         Return the appropriate additional metadata dict representation, skipping the keys that are not
@@ -687,6 +700,7 @@ class CSVDataLoader(AbstractDataLoader):
             'external_url': data['redirect_url'],
             'external_identifier': data['external_identifier'],
             'start_date': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
+            'product_status': ExternalProductStatus.Published,  # By-default, the product status is set to published.
         }
         lead_capture_url = data.get('lead_capture_form_url', '')
         organic_url = data.get('organic_url', '')
@@ -716,4 +730,10 @@ class CSVDataLoader(AbstractDataLoader):
             )})
         if variant_id:
             additional_metadata.update({'variant_id': variant_id})
+        if type_slug == CourseType.EXECUTIVE_EDUCATION_2U:
+            additional_metadata.update({'product_meta': self.process_meta_information(
+                data['meta_title'],
+                data['meta_description'],
+                data['meta_keywords']
+            )})
         return additional_metadata

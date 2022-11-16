@@ -281,7 +281,7 @@ class CSVLoaderMixin:
         'variant_id': "00000000-0000-0000-0000-000000000000",
         "meta_title": "SEO Title",
         "meta_description": "SEO Description",
-        "meta_keywords": "Keyword 1, Keyword 2",
+        "meta_keywords": ["Keyword 1", "Keyword 2"],
     }
 
     BASE_EXPECTED_COURSE_RUN_DATA = {
@@ -422,6 +422,11 @@ class CSVLoaderMixin:
         assert course.additional_metadata.lead_capture_form_url == expected_data['lead_capture_form_url']
         assert course.additional_metadata.organic_url == expected_data['organic_url']
         assert course.additional_metadata.start_date.isoformat() == expected_data['start_date']
+        assert course.additional_metadata.product_meta.title == expected_data['meta_title']
+        assert course.additional_metadata.product_meta.description == expected_data['meta_description']
+        assert set(
+            keyword.name for keyword in course.additional_metadata.product_meta.keywords.all()
+        ) == set(expected_data['meta_keywords'])
         assert course.additional_metadata.registration_deadline.isoformat() == expected_data['registration_deadline']
         assert course.additional_metadata.certificate_info.heading == expected_data['certificate_info']['heading']
         assert expected_data['certificate_info']['blurb'] in course.additional_metadata.certificate_info.blurb
