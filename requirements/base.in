@@ -2,6 +2,7 @@ algoliasearch_django
 backoff
 beautifulsoup4
 cairosvg
+contentful
 django
 django-admin-sortable2
 django-autocomplete-light==3.9.0rc1
