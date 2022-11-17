@@ -324,6 +324,13 @@ class CourseLocationRestrictionAdmin(admin.ModelAdmin):
     inlines = (CourseInline,)
 
 
+@admin.register(TaxiForm)
+class TaxiFormAdmin(admin.ModelAdmin):
+    list_display = ('id', 'grouping', 'title')
+    fields = ('form_id', 'grouping', 'title', 'subtitle', 'post_submit_url')
+    readonly_fields = ('created', 'modified')
+
+
 @admin.register(ProgramLocationRestriction)
 class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
     list_display = ('program', 'restriction_type',)
@@ -826,7 +833,7 @@ class DegreeAdmin(admin.ModelAdmin):
         'search_card_ranking', 'search_card_cost', 'search_card_courses', 'overall_ranking', 'campus_image', 'title',
         'subtitle', 'title_background_image', 'banner_border_color', 'apply_url', 'overview', 'rankings',
         'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
-        'hubspot_lead_capture_form_id', 'taxi_form_id', 'taxi_form_grouping', 'micromasters_long_title',
+        'hubspot_lead_capture_form_id', 'taxi_form', 'micromasters_long_title',
         'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
         'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations',
     )

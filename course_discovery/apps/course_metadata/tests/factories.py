@@ -115,6 +115,17 @@ class AdditionalMetadataFactory(factory.django.DjangoModelFactory):
             add_m2m_data(self.facts, extracted)
 
 
+class TaxiFormFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = TaxiForm
+
+    form_id = FuzzyInteger(1, 10)
+    grouping = FuzzyText()
+    title = FuzzyText()
+    subtitle = FuzzyText()
+    post_submit_url = FuzzyURL()
+
+
 class LevelTypeFactory(AbstractNamedModelFactory):
     name_t = FuzzyText()
 
@@ -634,6 +645,7 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
     primary_subject_override = factory.SubFactory(SubjectFactory)
     level_type_override = factory.SubFactory(LevelTypeFactory)
     language_override = factory.Iterator(LanguageTag.objects.all())
+    taxi_form = factory.SubFactory(TaxiFormFactory)
     geolocation = factory.SubFactory(GeoLocationFactory)
     location_restriction = factory.RelatedFactory(
         ProgramLocationRestrictionFactory, factory_related_name='program'
