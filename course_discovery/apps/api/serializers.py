@@ -41,8 +41,8 @@ from course_discovery.apps.course_metadata.models import (
     CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata,
     DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing, Image, LevelType, Mode, Organization,
     Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductMeta, ProductValue,
-    Program, ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Specialization, Subject, Topic, Track,
-    Video
+    Program, ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Specialization, Subject, TaxiForm, Topic,
+    Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -710,6 +710,13 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
                 self._update_product_meta(
                     instance, product_meta_data)
         return super().update(instance, validated_data)
+
+
+class TaxiFormSerializer(BaseModelSerializer):
+    """Serializer for the ``TaxiForm`` model."""
+    class Meta:
+        model = TaxiForm
+        fields = ('form_id', 'grouping', 'title', 'subtitle', 'post_submit_url')
 
 
 class DegreeAdditionalMetadataSerializer(BaseModelSerializer):
@@ -1381,6 +1388,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
 
         if instance.product_meta:
             ProductMeta.objects.filter(id=instance.product_meta.id).update(**product_meta_data)
+            # This is needed to get the latest value for Product Meta from DB.
+            # Otherwise, the previous values re-appear when keywords are handled and product_meta is saved.
+            instance.product_meta.refresh_from_db()
         else:
             instance.product_meta = ProductMeta.objects.create(**product_meta_data)
             instance.save()
@@ -1796,8 +1806,8 @@ class DegreeSerializer(BaseModelSerializer):
             'lead_capture_image', 'micromasters_path', 'micromasters_url',
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
-            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'taxi_form_id', 'taxi_form_grouping',
-            'additional_metadata', 'specializations'
+            'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'additional_metadata',
+            'specializations'
         )
 
     def get_micromasters_path(self, degree):
@@ -1835,6 +1845,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
     level_type_override = LevelTypeSerializer()
     language_override = serializers.SlugRelatedField(slug_field='code', read_only=True)
     labels = TagListSerializerField()
+    taxi_form = TaxiFormSerializer()
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1868,7 +1879,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
-            'labels',
+            'labels', 'taxi_form'
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 

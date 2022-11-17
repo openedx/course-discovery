@@ -1539,6 +1539,31 @@ class AbstractHeadingBlurbModelTests(TestCase):
 
 
 @ddt.ddt
+class TaxiFormTests(TestCase):
+    """ Tests for the `TaxiForm` model. """
+
+    def setUp(self):
+        super().setUp()
+        self.taxi_form = factories.TaxiFormFactory()
+
+    def test_form_id(self):
+        """ Verify the Taxi Form returns a form ID """
+        expected = int(self.taxi_form.form_id)
+        assert self.taxi_form.form_id == expected
+
+    def test_title(self):
+        """ Verify the Taxi Form has valid title """
+        self.taxi_form = factories.TaxiFormFactory(title='Get More Information!')
+        expected = 'Get More Information!'
+        assert self.taxi_form.title == expected
+
+    def test_no_subtitle(self):
+        """ Verify Taxi Form can have an empty subtitle """
+        self.taxi_form = factories.TaxiFormFactory(subtitle=None)
+        assert self.taxi_form.subtitle is None
+
+
+@ddt.ddt
 @pytest.mark.django_db
 class ProgramTests(TestCase):
     """Tests of the Program model."""

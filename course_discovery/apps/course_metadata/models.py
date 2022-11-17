@@ -663,7 +663,7 @@ class ProductMeta(TimeStampedModel):
     Model to contain SEO/Meta information for a product.
     """
     title = models.CharField(
-        max_length=100, default='', null=True, blank=True,
+        max_length=200, default='', null=True, blank=True,
         help_text="Product title that will appear in meta tag for search engine ranking"
     )
     description = models.CharField(
@@ -678,6 +678,27 @@ class ProductMeta(TimeStampedModel):
 
     def __str__(self):
         return self.title
+
+
+class TaxiForm(TimeStampedModel):
+    """
+    Represents the data needed for a single Taxi (2U form library) lead capture form.
+    """
+    form_id = models.CharField(
+        help_text=_('The ID of the Taxi Form (by 2U) that would be rendered in place of the hubspot capture form'),
+        max_length=75,
+        blank=True,
+        default='',
+    )
+    grouping = models.CharField(
+        help_text=_('The grouping of the Taxi Form (by 2U) that would be rendered instead of the hubspot capture form'),
+        max_length=50,
+        blank=True,
+        default='',
+    )
+    title = models.CharField(max_length=255, default=None, null=True, blank=True)
+    subtitle = models.CharField(max_length=255, default=None, null=True, blank=True)
+    post_submit_url = models.URLField(null=True, blank=True)
 
 
 class AdditionalMetadata(TimeStampedModel):
@@ -2595,6 +2616,14 @@ class Program(PkSearchableMixin, TimeStampedModel):
     in_year_value = models.ForeignKey(
         ProductValue, models.SET_NULL, related_name='programs', default=None, null=True, blank=True
     )
+    taxi_form = models.OneToOneField(
+        TaxiForm,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        default=None,
+        related_name='taxi_form',
+    )
     # nosemgrep
     labels = TaggableManager(
         blank=True,
@@ -3059,18 +3088,6 @@ class Degree(Program):
         null=True,
         blank=True,
         max_length=128,
-    )
-    taxi_form_id = models.CharField(
-        help_text=_('The ID of the Taxi Form (by 2U) that would be rendered in place of the hubspot capture form'),
-        max_length=75,
-        blank=True,
-        default='',
-    )
-    taxi_form_grouping = models.CharField(
-        help_text=_('The grouping of the Taxi Form (by 2U) that would be rendered instead of the hubspot capture form'),
-        max_length=50,
-        blank=True,
-        default='',
     )
     micromasters_url = models.URLField(
         help_text=_('URL to micromasters landing page'),
