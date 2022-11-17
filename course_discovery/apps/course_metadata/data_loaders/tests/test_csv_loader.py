@@ -625,6 +625,61 @@ class TestCSVDataLoader(CSVLoaderMixin, OAuth2Mixin, APITestCase):
                     assert course.subjects.first().slug == "computer-science"
                     assert course_run.staff.exists() is False
 
+    @responses.activate
+    def test_ingest_product_metadata_flow_for_non_exec_ed(self, jwt_decode_patch):  # pylint: disable=unused-argument
+        """
+        Verify that the loader does not ingest product meta information for non-exec ed course type.
+        """
+        CourseTypeFactory(name='Bootcamp(2U)', slug='bootcamp-2u')
+        csv_data = {
+            **mock_data.VALID_COURSE_AND_COURSE_RUN_CSV_DICT,
+            'course_enrollment_track': 'Bootcamp(2U)',  # Additional metadata can exist only for ExecEd and Bootcamp
+        }
+        self._setup_prerequisites(self.partner)
+        self.mock_studio_calls(self.partner)
+        self.mock_image_response()
+        with NamedTemporaryFile() as csv:
+            csv = self._write_csv(csv, [csv_data], self.CSV_DATA_KEYS_ORDER)
+            with LogCapture(LOGGER_PATH) as log_capture:
+                with mock.patch.object(
+                        CSVDataLoader,
+                        '_call_course_api',
+                        self.mock_call_course_api
+                ):
+                    loader = CSVDataLoader(self.partner, csv_path=csv.name)
+                    loader.ingest()
+
+                    self._assert_default_logs(log_capture)
+                    log_capture.check_present(
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Course key edx+csv_123 could not be found in database, creating the course.'
+                        ),
+                        (
+                            LOGGER_PATH,
+                            'INFO',
+                            'Draft flag is set to True for the course CSV Course'
+                        )
+                    )
+
+                    assert Course.everything.count() == 1
+                    assert CourseRun.everything.count() == 1
+
+                    course = Course.everything.get(key=self.COURSE_KEY, partner=self.partner)
+
+                    # Asserting some required and optional values to verify the correctness
+                    assert course.title == 'CSV Course'
+                    assert course.short_description == '<p>Very short description</p>'
+                    assert course.full_description == (
+                        '<p>Organization,Title,Number,Course Enrollment track,Image,Short Description,Long Description,'
+                        'Organization,Title,Number,Course Enrollment track,Image,'
+                        'Short Description,Long Description,</p>'
+                    )
+                    assert course.syllabus_raw == '<p>Introduction to Algorithms</p>'
+                    assert course.subjects.first().slug == "computer-science"
+                    assert course.additional_metadata.product_meta is None
+
     @data(
         (['primary_subject', 'image', 'long_description'],
          ('Executive Education(2U)', 'executive-education-2u'),

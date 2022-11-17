@@ -663,7 +663,7 @@ class ProductMeta(TimeStampedModel):
     Model to contain SEO/Meta information for a product.
     """
     title = models.CharField(
-        max_length=100, default='', null=True, blank=True,
+        max_length=200, default='', null=True, blank=True,
         help_text="Product title that will appear in meta tag for search engine ranking"
     )
     description = models.CharField(
