@@ -42,15 +42,16 @@ class GeolocationCSVDataLoader(AbstractDataLoader):
 
     def ingest(self):
         logger.info("Initiating Geolocation CSV data loader flow.")
+        processed_products = {
+            'course': self.processed_courses,
+            'program': self.processed_programs,
+        }
+
         for row in self.reader:
             row = self.transform_dict_keys(row)
             row_uuid = row['uuid']
             product_type = row['product_type']
             model = Course if product_type == 'course' else Program
-            processed_products = {
-                'course': self.processed_courses,
-                'program': self.processed_programs,
-            }
 
             geolocation = {
                 'location_name': row['location_name'],
@@ -71,7 +72,7 @@ class GeolocationCSVDataLoader(AbstractDataLoader):
 
             logger.info('Starting data import flow for {}: {}'.format(product_type, row_uuid))  # lint-amnesty, pylint: disable=logging-format-interpolation
 
-            self.injest_entry(model, row_uuid, geolocation, processed_products[product_type])
+            self.ingest_entry(model, row_uuid, geolocation, processed_products[product_type])
 
         self.check_for_potential_orphans_in_courses()
 
