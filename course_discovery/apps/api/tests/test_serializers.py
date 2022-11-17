@@ -1434,7 +1434,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'title_background_image': degree.title_background_image,
             'additional_metadata': expected_degree_additional_metadata,
             'specializations': expected_specializations,
-            'custom_program_duration': degree.custom_program_duration,
+            'program_duration_override': degree.program_duration_override,
         }
         self.assertDictEqual(serializer.data, expected)
 
