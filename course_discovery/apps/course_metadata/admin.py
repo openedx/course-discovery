@@ -835,7 +835,8 @@ class DegreeAdmin(admin.ModelAdmin):
         'application_requirements', 'prerequisite_coursework', 'lead_capture_image', 'lead_capture_list_name',
         'hubspot_lead_capture_form_id', 'taxi_form', 'micromasters_long_title',
         'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
-        'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations', 'program_duration_override',
+        'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations',
+        'program_duration_override',
     )
     actions = [publish_degrees, unpublish_degrees]
 
