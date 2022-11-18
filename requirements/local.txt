@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.8
+boto3==1.26.10
     # via django-ses
-botocore==1.29.8
+botocore==1.29.10
     # via
     #   boto3
     #   s3transfer
@@ -126,6 +126,8 @@ code-annotations==1.3.0
     #   edx-toggles
 colorama==0.4.6
     # via semgrep
+contentful==1.13.1
+    # via -r requirements/base.in
 coreapi==2.3.3
     # via drf-yasg
 coreschema==0.0.4
@@ -262,15 +264,15 @@ django-libsass==0.9
     # via -r requirements/base.in
 django-localflavor==3.1
     # via -r requirements/base.in
-django-model-utils==4.2.0
+django-model-utils==4.3.1
     # via taxonomy-connector
 django-multiselectfield==0.1.12
     # via -r requirements/base.in
-django-nested-admin==4.0.0
+django-nested-admin==4.0.2
     # via -r requirements/base.in
 django-nine==0.2.5
     # via django-elasticsearch-dsl-drf
-django-object-actions==4.0.0
+django-object-actions==4.1.0
     # via -r requirements/base.in
 django-parler==2.3
     # via -r requirements/base.in
@@ -305,7 +307,7 @@ django-waffle==3.0.0
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-toggles
-django-webpack-loader==1.6.0
+django-webpack-loader==1.7.0
     # via -r requirements/base.in
 djangorestframework==3.14.0
     # via
@@ -401,7 +403,7 @@ elasticsearch-dsl==7.4.0
     #   -r requirements/base.in
     #   django-elasticsearch-dsl
     #   django-elasticsearch-dsl-drf
-exceptiongroup==1.0.2
+exceptiongroup==1.0.4
     # via
     #   pytest
     #   trio
@@ -411,7 +413,7 @@ face==22.0.0
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==15.3.1
+faker==15.3.2
     # via factory-boy
 fastavro==1.7.0
     # via openedx-events
@@ -628,6 +630,7 @@ python-dateutil==2.8.2
     # via
     #   -r requirements/base.in
     #   botocore
+    #   contentful
     #   edx-drf-extensions
     #   elasticsearch-dsl
     #   faker
@@ -676,6 +679,7 @@ requests==2.28.1
     # via
     #   -r requirements/base.in
     #   algoliasearch
+    #   contentful
     #   coreapi
     #   docker
     #   docker-compose
@@ -822,7 +826,7 @@ tomli==2.0.1
     #   tox
 tomlkit==0.11.6
     # via pylint
-tox==3.27.0
+tox==3.27.1
     # via -r requirements/test.in
 tqdm==4.64.1
     # via semgrep
