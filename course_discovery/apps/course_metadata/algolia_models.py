@@ -67,8 +67,7 @@ def delegate_attributes(cls):
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
                      'product_organization_short_code_override', 'product_organization_logo_override', 'skills',
-                     'product_meta_title',
-                     ]
+                     'product_meta_title', 'subheading', ]
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
     for field in fields:
@@ -113,10 +112,15 @@ class AlgoliaProxyProduct(Program):
     class Meta:
         proxy = True
 
-    def __init__(self, product, language='en'):
+    def __init__(self, product, language='en', contentful_data=None):
         super().__init__()
         self.product = product
         self.product.language = language
+        product_uuid = str(product.uuid)
+        if not contentful_data or product_uuid not in contentful_data:
+            return
+        contentful_product = contentful_data[product_uuid]
+        self.product.heading = contentful_product['subheading'] if 'subheading' in contentful_product else None
 
     @property
     def coordinates(self):
