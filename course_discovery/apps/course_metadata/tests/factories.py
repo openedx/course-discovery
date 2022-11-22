@@ -736,6 +736,7 @@ class DegreeFactory(ProgramFactory):
     search_card_cost = FuzzyText()
     search_card_courses = FuzzyText()
     banner_border_color = FuzzyText(length=6)
+    program_duration_override = FuzzyText()
 
     @factory.post_generation
     def rankings(self, create, extracted, **kwargs):
