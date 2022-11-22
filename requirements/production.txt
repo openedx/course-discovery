@@ -39,13 +39,13 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.10
+boto3==1.26.14
     # via django-ses
-botocore==1.29.10
+botocore==1.29.14
     # via
     #   boto3
     #   s3transfer
-cachetools==4.2.4
+cachetools==5.2.0
     # via google-auth
 cairocffi==1.4.0
     # via cairosvg
@@ -110,8 +110,6 @@ defusedxml==0.7.1
     #   djangorestframework-xml
     #   python3-openid
     #   social-auth-core
-deprecated==1.2.13
-    # via redis
 django==3.2.16
     # via
     #   -c requirements/common_constraints.txt
@@ -239,7 +237,7 @@ django-stdimage==5.3.0
     #   -r requirements/base.in
 django-storages==1.13.1
     # via -r requirements/base.in
-django-taggit==3.0.0
+django-taggit==3.1.0
     # via
     #   -r requirements/base.in
     #   django-taggit-autosuggest
@@ -304,7 +302,7 @@ edx-drf-extensions==8.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-edx-event-bus-kafka==1.9.0
+edx-event-bus-kafka==1.10.0
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.3.0
     # via
@@ -339,15 +337,15 @@ future==0.18.2
     # via pyjwkest
 gevent==22.10.2
     # via -r requirements/production.in
-google-auth==1.12.0
+google-auth==2.14.1
     # via
     #   google-auth-oauthlib
     #   gspread
-google-auth-oauthlib==0.5.3
+google-auth-oauthlib==0.7.1
     # via gspread
 greenlet==2.0.1
     # via gevent
-gspread==5.7.0
+gspread==5.7.1
     # via -r requirements/base.in
 gunicorn==20.1.0
     # via -r requirements/production.in
@@ -416,7 +414,7 @@ pillow==9.3.0
     #   django-stdimage
 platformdirs==2.5.4
     # via zeep
-prompt-toolkit==3.0.32
+prompt-toolkit==3.0.33
     # via click-repl
 psutil==5.9.4
     # via edx-django-utils
@@ -465,7 +463,7 @@ python-memcached==1.59
     # via -r requirements/production.in
 python-monkey-business==1.0.0
     # via django-nested-admin
-python-slugify==6.1.2
+python-slugify==7.0.0
     # via
     #   -r requirements/base.in
     #   code-annotations
@@ -491,7 +489,7 @@ pyyaml==6.0
     #   edx-django-release-util
 rcssmin==1.1.0
     # via django-compressor
-redis==4.3.4
+redis==4.3.5
     # via -r requirements/base.in
 requests==2.28.1
     # via
@@ -521,7 +519,7 @@ requests-toolbelt==0.10.1
     # via zeep
 rjsmin==1.2.0
     # via django-compressor
-rsa==4.0
+rsa==4.9
     # via google-auth
 ruamel-yaml==0.17.21
     # via drf-yasg
@@ -555,7 +553,7 @@ six==1.16.0
     #   requests-file
 slumber==0.7.1
     # via edx-rest-api-client
-snowflake-connector-python==2.8.1
+snowflake-connector-python==2.8.2
     # via -r requirements/base.in
 social-auth-app-django==5.0.0
     # via
@@ -574,7 +572,7 @@ stevedore==4.1.1
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.26.0
+taxonomy-connector==1.28.1
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify
@@ -609,17 +607,15 @@ webencodings==0.5.1
     # via
     #   cssselect2
     #   tinycss2
-wrapt==1.14.1
-    # via deprecated
 xss-utils==0.4.0
     # via -r requirements/base.in
-zeep==4.2.0
+zeep==4.2.1
     # via simple-salesforce
 zipp==3.10.0
     # via importlib-metadata
 zope-event==4.5.0
     # via gevent
-zope-interface==5.5.1
+zope-interface==5.5.2
     # via gevent
 
 # The following packages are considered to be unsafe in a requirements file:
