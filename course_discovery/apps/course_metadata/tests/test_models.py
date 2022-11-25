@@ -2787,6 +2787,7 @@ class DegreeTests(TestCase):
         assert self.degree.banner_border_color is not None
         assert self.degree.title_background_image is not None
         assert self.degree.micromasters_background_image is not None
+        assert self.degree.program_duration_override is not None
 
     def test_degree_additional_metadata(self):
         """ Verify the property returns valid  degree additional metadata fields. """
