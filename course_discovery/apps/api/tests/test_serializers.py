@@ -1081,7 +1081,7 @@ class MinimalProgramSerializerTests(TestCase):
             'level_type_override': LevelTypeSerializer(program.level_type_override).data,
             'language_override': program.language_override.code,
             'labels': ['topic'] if include_labels else [],
-            'program_duration_override': program.program_duration_override
+            'program_duration_override': program.program_duration_override,
         }
 
     def test_data(self):
@@ -1435,6 +1435,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'title_background_image': degree.title_background_image,
             'additional_metadata': expected_degree_additional_metadata,
             'specializations': expected_specializations,
+            'program_duration_override': degree.program_duration_override,
         }
         self.assertDictEqual(serializer.data, expected)
 
