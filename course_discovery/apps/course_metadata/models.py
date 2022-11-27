@@ -897,12 +897,23 @@ class PkSearchableMixin:
         dsl_query = ESDSLQ('query_string', query=query, analyze_wildcard=True)
         try:
             results = es_document.search().query(dsl_query).execute()
+
+            # to be removed after testing
+            logger.info(f'dsl_query generated from query "{query}": {dsl_query}')
+            logger.info(f'Elasticsearch data extracted from query "{query}": {results}')
+
         except RequestError as exp:
             logger.warning('Elasticsearch request is failed. Got exception: %r', exp)
             results = []
         ids = {result.pk for result in results}
+        org_and_ids = {(result.pk, result.org) for result in results if hasattr(result, 'org')}
 
-        return queryset.filter(pk__in=ids)
+        # to be removed after testing
+        logger.info(f'Elasticsearch data ids and orgs from query "{query}": {org_and_ids}')
+        filtered_queryset = queryset.filter(pk__in=ids)
+        logger.info(f'Queryset extracted from Elasticsearch ids from query "{query}": {filtered_queryset}')
+
+        return filtered_queryset
 
 
 class Collaborator(TimeStampedModel):

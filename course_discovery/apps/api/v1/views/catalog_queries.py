@@ -46,9 +46,11 @@ class CatalogQueryContainsViewSet(ValidElasticSearchQueryRequiredMixin, GenericA
             if course_uuids:
                 course_uuids = [UUID(course_uuid) for course_uuid in course_uuids.split(',')]
                 specified_course_ids += course_uuids
+                log.info("Specified course ids: %s", specified_course_ids)
                 identified_course_ids.update(
                     Course.search(query).filter(partner=partner, uuid__in=course_uuids).values_list('uuid', flat=True)
                 )
+                log.info("Identified course ids: %s", identified_course_ids)
 
             contains = {str(identifier): identifier in identified_course_ids for identifier in specified_course_ids}
             return Response(contains)
