@@ -9,7 +9,7 @@ from sortedm2m.fields import SortedManyToManyField
 from taxonomy.choices import ProductTypes
 from taxonomy.utils import get_whitelisted_serialized_skills
 
-from course_discovery.apps.course_metadata.choices import CourseRunStatus, ProgramStatus
+from course_discovery.apps.course_metadata.choices import CourseRunStatus, ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import (
     AbstractLocationRestrictionModel, Course, CourseType, Program, ProgramType
 )
@@ -331,9 +331,20 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return ALGOLIA_EMPTY_LIST
 
     @property
+    def product_external_status(self):
+        if self.additional_metadata:
+            return getattr(self.additional_metadata, 'product_status', None)
+        return None
+
+    @property
     def should_index(self):
         """Only index courses in the edX catalog with a non-hidden advertiseable course run, at least one owner, and
         a marketing url slug"""
+        # Archived Executive Education courses should not be indexed
+        if self.type.slug == CourseType.EXECUTIVE_EDUCATION_2U and \
+                self.product_external_status == ExternalProductStatus.Archived:
+            return False
+
         return (len(self.owners) > 0 and
                 self.active_url_slug and
                 self.partner.name == 'edX' and

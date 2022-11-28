@@ -12,7 +12,7 @@ from conftest import TEST_DOMAIN
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.core.tests.factories import PartnerFactory, SiteFactory
 from course_discovery.apps.course_metadata.algolia_models import AlgoliaProxyCourse, AlgoliaProxyProgram
-from course_discovery.apps.course_metadata.choices import ProgramStatus
+from course_discovery.apps.course_metadata.choices import ExternalProductStatus, ProgramStatus
 from course_discovery.apps.course_metadata.models import CourseRunStatus, CourseType
 from course_discovery.apps.course_metadata.tests.factories import (
     AdditionalMetadataFactory, CourseFactory, CourseRunFactory, CourseTypeFactory, DegreeAdditionalMetadataFactory,
@@ -345,6 +345,21 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
             )
 
         assert course.product_meta_title == expected_title
+
+    @ddt.data(
+        (ExternalProductStatus.Published, True),
+        (ExternalProductStatus.Archived, False)
+    )
+    @ddt.unpack
+    def test_product_external_status(self, external_status, should_index):
+        """
+        If an Exec Ed course has an external product status of "Archived", it should not be indexed
+        """
+        course = self.create_course_with_basic_active_course_run()
+        course.type = CourseTypeFactory(slug=CourseType.EXECUTIVE_EDUCATION_2U)
+        course.authoring_organizations.add(OrganizationFactory())
+        course.additional_metadata = AdditionalMetadataFactory(product_status=external_status)
+        assert course.should_index == should_index
 
 
 @ddt.ddt
