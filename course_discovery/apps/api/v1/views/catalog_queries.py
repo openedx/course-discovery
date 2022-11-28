@@ -46,6 +46,16 @@ class CatalogQueryContainsViewSet(ValidElasticSearchQueryRequiredMixin, GenericA
             if course_uuids:
                 course_uuids = [UUID(course_uuid) for course_uuid in course_uuids.split(',')]
                 specified_course_ids += course_uuids
+                # hotfix for Cyber Monday starting (28th Nov 2022)
+                cyber_query_string = 'number: (-CSE6040x AND -ISYE6501x AND -MGT6203x) AND org: (-GTx)'
+                if query == cyber_query_string:
+                    courses_orgs = [
+                        Course.objects.get(uuid=course_uuid).key.split('+')[0] for course_uuid in specified_course_ids
+                    ]
+                    if 'GTx' not in courses_orgs:
+                        contains = {str(course_uuid): bool(course_uuid) for course_uuid in specified_course_ids}
+                        return Response(contains)
+
                 log.info("Specified course ids: %s", specified_course_ids)
                 identified_course_ids.update(
                     Course.search(query).filter(partner=partner, uuid__in=course_uuids).values_list('uuid', flat=True)
