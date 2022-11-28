@@ -138,7 +138,7 @@ coverage[toml]==6.5.0
     # via
     #   -r requirements/test.in
     #   pytest-cov
-cryptography==38.0.3
+cryptography==38.0.4
     # via
     #   authlib
     #   paramiko
@@ -445,7 +445,7 @@ idna==3.4
     #   trio
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==5.0.0
+importlib-metadata==5.1.0
     # via
     #   -r requirements/base.in
     #   markdown
@@ -560,7 +560,7 @@ pycountry==22.3.5
     # via -r requirements/base.in
 pycparser==2.21
     # via cffi
-pycryptodomex==3.15.0
+pycryptodomex==3.16.0
     # via
     #   pyjwkest
     #   snowflake-connector-python
@@ -720,7 +720,7 @@ ruamel-yaml-clib==0.2.7
     # via ruamel-yaml
 s3transfer==0.6.0
     # via boto3
-selenium==4.6.0
+selenium==4.6.1
     # via -r requirements/test.in
 semantic-version==2.10.0
     # via edx-drf-extensions
@@ -888,7 +888,7 @@ xss-utils==0.4.0
     # via -r requirements/base.in
 zeep==4.2.1
     # via simple-salesforce
-zipp==3.10.0
+zipp==3.11.0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
