@@ -47,8 +47,9 @@ class CatalogQueryContainsViewSet(ValidElasticSearchQueryRequiredMixin, GenericA
                 course_uuids = [UUID(course_uuid) for course_uuid in course_uuids.split(',')]
                 specified_course_ids += course_uuids
                 # hotfix for Cyber Monday starting (28th Nov 2022)
-                cyber_query_string = 'number: (-CSE6040x AND -ISYE6501x AND -MGT6203x) AND org: (-GTx)'
+                cyber_query_string = 'number:(-CSE6040x AND -ISYE6501x AND -MGT6203x) AND org:(-GTx)'
                 if query == cyber_query_string:
+                    log.info("Inside if block(hotfix): Processing query: %s", query)
                     courses_orgs = [
                         Course.objects.get(uuid=course_uuid).key.split('+')[0] for course_uuid in specified_course_ids
                     ]
