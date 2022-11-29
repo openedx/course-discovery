@@ -909,6 +909,8 @@ class PkSearchableMixin:
         org_and_ids = {(result.pk, result.org) for result in results if hasattr(result, 'org')}
 
         # to be removed after testing
+        logger.info(f'Elasticsearch data ids: {ids}')
+        logger.info(f'Elasticsearch data ids count is: {len(ids)}')
         logger.info(f'Elasticsearch data ids and orgs from query "{query}": {org_and_ids}')
         filtered_queryset = queryset.filter(pk__in=ids)
         logger.info(f'Queryset extracted from Elasticsearch ids from query "{query}": {filtered_queryset}')
