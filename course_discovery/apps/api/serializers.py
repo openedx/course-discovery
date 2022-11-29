@@ -1879,7 +1879,7 @@ class MinimalProgramSerializer(TaggitSerializer, FlexFieldsSerializerMixin, Base
             'is_program_eligible_for_one_click_purchase', 'degree', 'curricula', 'marketing_hook',
             'total_hours_of_effort', 'recent_enrollment_count', 'organization_short_code_override',
             'organization_logo_override_url', 'primary_subject_override', 'level_type_override', 'language_override',
-            'labels', 'taxi_form'
+            'labels', 'taxi_form', 'program_duration_override'
         )
         read_only_fields = ('uuid', 'marketing_url', 'banner_image')
 

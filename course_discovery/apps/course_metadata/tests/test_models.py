@@ -2421,6 +2421,11 @@ class ProgramTests(TestCase):
         program.degree = degree
         assert not program.is_2u_degree_program
 
+    def test_program_duration_override(self):
+        """ Verify the property returns None if the Program has no program_duration_override set. """
+        self.program.program_duration_override = ''
+        assert self.program.program_duration_override is not None
+
 
 class PathwayTests(TestCase):
     """ Tests of the Pathway model."""

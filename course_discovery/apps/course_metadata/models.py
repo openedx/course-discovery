@@ -2631,6 +2631,13 @@ class Program(PkSearchableMixin, TimeStampedModel):
         default=None,
         related_name='taxi_form',
     )
+    program_duration_override = models.CharField(
+        help_text=_(
+            'Useful field to overwrite the duration of a program. It can be a text describing a period of time, '
+            'Ex: 6-9 months.'),
+        max_length=20,
+        blank=True,
+        null=True)
     # nosemgrep
     labels = TaggableManager(
         blank=True,
@@ -3096,11 +3103,6 @@ class Degree(Program):
         blank=True,
         max_length=128,
     )
-    program_duration_override = models.CharField(
-        help_text=_('The custom program duration makes it possible to change the duration of the program, in months.'),
-        max_length=20,
-        blank=True,
-        null=True)
     micromasters_url = models.URLField(
         help_text=_('URL to micromasters landing page'),
         max_length=255,
