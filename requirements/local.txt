@@ -802,7 +802,8 @@ stevedore==4.1.1
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.28.2
+taxonomy-connector @ git+https://github.com/open-craft/taxonomy-connector.git@a65e300ffdabcbf0fa9b9df4f7c213456ad85792
+    # FIXME: remove this once a new tag is pushed in taxaonomy-connector
     # via -r requirements/base.in
 testfixtures==7.0.3
     # via -r requirements/test.in
