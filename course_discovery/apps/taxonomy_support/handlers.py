@@ -44,7 +44,7 @@ def handle_xblock_duplicated_event(**kwargs):
         logger.error('Received null or incorrect data from XBLOCK_DUPLICATED.')
         return
 
-    # Send signal to taxonomy-connector to delete related xblock skills.
+    # Send signal to taxonomy-connector to copy XBlock skills for the duplicated block.
     TAXONOMY_XBLOCK_DUPLICATED.send(
         sender="OPENEDX_EVENTS",
         source_xblock_uuid=xblock_data.source_usage_key,
@@ -66,5 +66,5 @@ def handle_xblock_published_event(**kwargs):
         logger.error('Received null or incorrect data from XBLOCK_PUBLISHED.')
         return
 
-    # Send signal to taxonomy-connector to delete related xblock skills.
+    # Send signal to taxonomy-connector to update the skills of the published XBlock.
     UPDATE_XBLOCK_SKILLS.send(sender="OPENEDX_EVENTS", xblock_uuid=xblock_data.usage_key)
