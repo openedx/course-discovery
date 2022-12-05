@@ -1,13 +1,11 @@
 import logging
 
 from django.dispatch import receiver
-from openedx_events.content_authoring.data import XBlockData, DuplicatedXBlockData
+from openedx_events.content_authoring.data import DuplicatedXBlockData, XBlockData
 from openedx_events.content_authoring.signals import XBLOCK_DELETED, XBLOCK_DUPLICATED, XBLOCK_PUBLISHED
-from taxonomy.signals.signals import (
-    UPDATE_XBLOCK_SKILLS,
-    XBLOCK_DELETED as TAXONOMY_XBLOCK_DELETED,
-    XBLOCK_DUPLICATED as TAXONOMY_XBLOCK_DUPLICATED,
-)
+from taxonomy.signals.signals import UPDATE_XBLOCK_SKILLS
+from taxonomy.signals.signals import XBLOCK_DELETED as TAXONOMY_XBLOCK_DELETED
+from taxonomy.signals.signals import XBLOCK_DUPLICATED as TAXONOMY_XBLOCK_DUPLICATED
 
 logger = logging.getLogger(__name__)
 
