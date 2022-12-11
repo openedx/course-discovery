@@ -95,7 +95,7 @@ msgstr "Diccionario con las equivalencias entre IDs de las versiones de curso y 
 
 #: apps/api/serializers.py:1170
 msgid "Restriction Type cannot be empty"
-msgstr ""
+msgstr "El tipo de restricción no puede estar vacío"
 
 #: apps/api/serializers.py:1550
 msgid "Dictionary mapping course IDs to boolean values"
@@ -1040,11 +1040,11 @@ msgstr "Valor internacional por clic en dólares estadounidenses."
 
 #: apps/course_metadata/models.py:893
 msgid "Latitude"
-msgstr ""
+msgstr "Latitud"
 
 #: apps/course_metadata/models.py:899
 msgid "Longitude"
-msgstr ""
+msgstr "Longitud"
 
 #: apps/course_metadata/models.py:917
 msgid "Allowlist"
