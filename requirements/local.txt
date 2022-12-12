@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.23
+boto3==1.26.27
     # via django-ses
-botocore==1.29.23
+botocore==1.29.27
     # via
     #   boto3
     #   s3transfer
@@ -82,7 +82,7 @@ celery==5.2.7
     # via
     #   -c requirements/constraints.txt
     #   taxonomy-connector
-certifi==2022.9.24
+certifi==2022.12.7
     # via
     #   elasticsearch
     #   requests
@@ -228,7 +228,7 @@ django-contrib-comments==2.2.0
     # via -r requirements/base.in
 django-cors-headers==3.13.0
     # via -r requirements/base.in
-django-countries==7.4.2
+django-countries==7.5
     # via -r requirements/base.in
 django-crum==0.7.9
     # via
@@ -305,7 +305,7 @@ django-waffle==3.0.0
     #   edx-django-utils
     #   edx-drf-extensions
     #   edx-toggles
-django-webpack-loader==1.7.0
+django-webpack-loader==1.8.0
     # via -r requirements/base.in
 djangorestframework==3.14.0
     # via
@@ -497,7 +497,7 @@ mock==4.0.3
     # via -r requirements/test.in
 mysqlclient==2.1.1
     # via -r requirements/test.in
-newrelic==8.4.0
+newrelic==8.5.0
     # via edx-django-utils
 oauthlib==3.2.2
     # via
@@ -531,7 +531,7 @@ pillow==9.3.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==2.5.4
+platformdirs==2.6.0
     # via
     #   pylint
     #   virtualenv
@@ -542,7 +542,7 @@ pluggy==1.0.0
     #   tox
 polib==1.1.1
     # via edx-i18n-tools
-prompt-toolkit==3.0.33
+prompt-toolkit==3.0.36
     # via click-repl
 psutil==5.9.4
     # via edx-django-utils
@@ -802,7 +802,7 @@ stevedore==4.1.1
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.30.0
+taxonomy-connector==1.31.0
     # via -r requirements/base.in
 testfixtures==7.0.4
     # via -r requirements/test.in
@@ -825,7 +825,9 @@ tomli==2.0.1
 tomlkit==0.11.6
     # via pylint
 tox==3.27.1
-    # via -r requirements/test.in
+    # via
+    #   -c requirements/common_constraints.txt
+    #   -r requirements/test.in
 tqdm==4.64.1
     # via semgrep
 trio==0.22.0
