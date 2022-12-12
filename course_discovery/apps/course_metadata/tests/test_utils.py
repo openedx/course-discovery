@@ -26,8 +26,7 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
-    ensure_draft_world, get_data_from_contentful, serialize_entitlement_for_ecommerce_api,
-    serialize_seat_for_ecommerce_api, transform_skills_data
+    ensure_draft_world, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api, transform_skills_data
 )
 
 
@@ -714,18 +713,3 @@ class TestConvertSvgToPngFromUrl(TestCase):
     def test_convert_svg_to_png_from_url(self, _svg2png_mock):
         """Verify that convert_svg_to_png_from_url will return a valid value"""
         assert convert_svg_to_png_from_url('https://www.svgimageurl.com') is not None
-
-
-class TestDataFromContentful(TestCase):
-    """
-    Test get_data_from_contentful.
-    """
-
-    @mock.patch('course_discovery.apps.course_metadata.utils.Client')
-    def test_get_data_from_contentful(self, mock_client):
-        """
-        Tests get_data_from_contentful with mock data.
-        """
-        mock_client.return_value.entries.return_value = {'id': 12345}
-        contentful_data = get_data_from_contentful('degreeDetailPage')
-        assert contentful_data.get('id') == 12345

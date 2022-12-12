@@ -11,7 +11,6 @@ import markdown
 import requests
 from bs4 import BeautifulSoup
 from cairosvg import svg2png
-from contentful import Client
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import models, transaction
@@ -848,19 +847,3 @@ def transform_skills_data(skills_data):
         }
         skills.append(skill_dict)
     return skills
-
-
-def get_data_from_contentful(content_type):
-    """
-    Utility function to get data from contentful. Returns contentful entries of the content_type.
-
-    Args:
-        content_type (str): Contentful table-like instance comprised of fields.
-    """
-    client = Client(
-        settings.CONTENTFUL_SPACE_ID,
-        settings.CONTENTFUL_CONTENT_DELIVERY_API_KEY
-    )
-    return client.entries({
-        'content_type': content_type
-    })
