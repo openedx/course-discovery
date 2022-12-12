@@ -65,13 +65,17 @@ class Command(BaseCommand):
             ))
             skills_intersection = course_skills.intersection(course_candidate_skills)
             skills_intersection_length = len(skills_intersection)
-            skills_intersection_ratio = skills_intersection_length / course_skills_count \
-                if course_skills_count != 0 else 0
+            skills_union = course_skills.union(course_candidate_skills)
+            skills_union_length = len(skills_union)
+            skills_intersection_ratio = skills_intersection_length / skills_union_length \
+                if skills_union_length != 0 else 0
             course_candidate_subjects = set(list(course_candidate.subjects.all()))
             subjects_intersection = course_subjects.intersection(course_candidate_subjects)
             subjects_intersection_length = len(subjects_intersection)
-            subjects_intersection_ratio = subjects_intersection_length / course_subjects_count \
-                if course_subjects_count != 0 else 0
+            subjects_union = course_subjects.union(course_candidate_subjects)
+            subjects_union_length = len(subjects_union)
+            subjects_intersection_ratio = subjects_intersection_length / subjects_union_length \
+                if subjects_union_length != 0 else 0
             if skills_intersection_length > 0 or subjects_intersection_length > 0:
                 obj = CourseRecommendation(
                     course=course,

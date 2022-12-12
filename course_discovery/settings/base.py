@@ -459,11 +459,11 @@ SYNONYMS_MODULE = 'course_discovery.settings.synonyms'
 # (by default it uses the database driver's default setting)
 # https://docs.djangoproject.com/en/3.1/ref/models/querysets/#iterator
 # Thus set the 'chunk_size'
-ELASTICSEARCH_DSL_QUERYSET_PAGINATION = 5000
+ELASTICSEARCH_DSL_QUERYSET_PAGINATION = 10000
 
 # Defining default pagination for all requests to ElasticSearch,
 # whose parameters 'size' and 'from' are not explicitly set.
-ELASTICSEARCH_DSL_LOAD_PER_QUERY = 5000
+ELASTICSEARCH_DSL_LOAD_PER_QUERY = 10000
 
 ELASTICSEARCH_DSL = {
     'default': {'hosts': '127.0.0.1:9200'}

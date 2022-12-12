@@ -2421,6 +2421,11 @@ class ProgramTests(TestCase):
         program.degree = degree
         assert not program.is_2u_degree_program
 
+    def test_program_duration_override(self):
+        """ Verify the property returns None if the Program has no program_duration_override set. """
+        self.program.program_duration_override = ''
+        assert self.program.program_duration_override is not None
+
 
 class PathwayTests(TestCase):
     """ Tests of the Pathway model."""
@@ -2782,6 +2787,7 @@ class DegreeTests(TestCase):
         assert self.degree.banner_border_color is not None
         assert self.degree.title_background_image is not None
         assert self.degree.micromasters_background_image is not None
+        assert self.degree.program_duration_override is not None
 
     def test_degree_additional_metadata(self):
         """ Verify the property returns valid  degree additional metadata fields. """

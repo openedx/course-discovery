@@ -364,7 +364,7 @@ class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
         'individual_endorsements', 'job_outlook_items', 'expected_learning_items', 'instructor_ordering',
         'enrollment_count', 'recent_enrollment_count', 'credit_value', 'organization_short_code_override',
         'organization_logo_override', 'primary_subject_override', 'level_type_override', 'language_override',
-        'enterprise_subscription_inclusion', 'in_year_value', 'labels', 'geolocation'
+        'enterprise_subscription_inclusion', 'in_year_value', 'labels', 'geolocation', 'program_duration_override'
     )
     change_actions = ('refresh_program_skills', )
 
@@ -836,6 +836,7 @@ class DegreeAdmin(admin.ModelAdmin):
         'hubspot_lead_capture_form_id', 'taxi_form', 'micromasters_long_title',
         'micromasters_long_description', 'micromasters_url', 'micromasters_background_image',
         'micromasters_org_name_override', 'faq', 'costs_fine_print', 'deadlines_fine_print', 'specializations',
+        'program_duration_override',
     )
     actions = [publish_degrees, unpublish_degrees]
 

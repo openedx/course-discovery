@@ -897,12 +897,25 @@ class PkSearchableMixin:
         dsl_query = ESDSLQ('query_string', query=query, analyze_wildcard=True)
         try:
             results = es_document.search().query(dsl_query).execute()
+
+            # to be removed after testing
+            logger.info(f'dsl_query generated from query "{query}": {dsl_query}')
+            logger.info(f'Elasticsearch data extracted from query "{query}": {results}')
+
         except RequestError as exp:
             logger.warning('Elasticsearch request is failed. Got exception: %r', exp)
             results = []
         ids = {result.pk for result in results}
+        org_and_ids = {(result.pk, result.org) for result in results if hasattr(result, 'org')}
 
-        return queryset.filter(pk__in=ids)
+        # to be removed after testing
+        logger.info(f'Elasticsearch data ids: {ids}')
+        logger.info(f'Elasticsearch data ids count is: {len(ids)}')
+        logger.info(f'Elasticsearch data ids and orgs from query "{query}": {org_and_ids}')
+        filtered_queryset = queryset.filter(pk__in=ids)
+        logger.info(f'Queryset extracted from Elasticsearch ids from query "{query}": {filtered_queryset}')
+
+        return filtered_queryset
 
 
 class Collaborator(TimeStampedModel):
@@ -2624,6 +2637,13 @@ class Program(PkSearchableMixin, TimeStampedModel):
         default=None,
         related_name='taxi_form',
     )
+    program_duration_override = models.CharField(
+        help_text=_(
+            'Useful field to overwrite the duration of a program. It can be a text describing a period of time, '
+            'Ex: 6-9 months.'),
+        max_length=20,
+        blank=True,
+        null=True)
     # nosemgrep
     labels = TaggableManager(
         blank=True,

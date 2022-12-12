@@ -651,6 +651,7 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
         ProgramLocationRestrictionFactory, factory_related_name='program'
     )
     in_year_value = factory.SubFactory(ProductValueFactory)
+    program_duration_override = FuzzyText()
 
     @factory.post_generation
     def courses(self, create, extracted, **kwargs):

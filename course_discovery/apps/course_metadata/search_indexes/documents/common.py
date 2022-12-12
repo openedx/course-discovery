@@ -1,7 +1,9 @@
 import json
 from fnmatch import fnmatch
 
+import waffle  # lint-amnesty, pylint: disable=invalid-django-waffle-import
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
 from django.template import loader
 from django.template.exceptions import TemplateDoesNotExist
 from django_elasticsearch_dsl import Document as OriginDocument
@@ -16,6 +18,8 @@ def filter_visible_runs(course_runs):
     """
     Filter course runs objects so only objects of type `is_marketable` are displayed
     """
+    if waffle.switch_is_active('elasticsearch-course-draft-filter-visible-runs-check'):
+        return course_runs.exclude(type__is_marketable=False).filter(draft=models.Value(0))
     return course_runs.exclude(type__is_marketable=False)
 
 
