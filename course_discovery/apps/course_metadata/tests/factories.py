@@ -880,6 +880,11 @@ class GeotargetingDataLoaderConfigurationFactory(factory.django.DjangoModelFacto
         model = GeotargetingDataLoaderConfiguration
 
 
+class GeolocationDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = GeolocationDataLoaderConfiguration
+
+
 class CSVDataLoaderConfigurationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = CSVDataLoaderConfiguration

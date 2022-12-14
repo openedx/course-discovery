@@ -908,3 +908,11 @@ class GeotargetingDataLoaderConfigurationAdmin(admin.ModelAdmin):
     Admin for GeotargetingDataLoaderConfiguration model.
     """
     list_display = ('id', 'enabled', 'changed_by', 'change_date')
+
+
+@admin.register(GeolocationDataLoaderConfiguration)
+class GeolocationDataLoaderConfigurationAdmin(admin.ModelAdmin):
+    """
+    Admin for GeolocationDataLoaderConfiguration model.
+    """
+    list_display = ('id', 'enabled', 'changed_by', 'change_date')
