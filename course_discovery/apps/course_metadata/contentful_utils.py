@@ -298,3 +298,13 @@ def fetch_and_transform_bootcamp_contentful_data():
             transformed_bootcamp_data[product_uuid].update({'faq_items': faq_items})
 
     return transformed_bootcamp_data
+
+
+def get_aggregated_data_from_contentful_data(data, product_uuid):
+    if (data is None) or (product_uuid not in data):
+        return None
+    faqs = [f"{faq['question']} {faq['answer']}" for faq in data[product_uuid]['faq_items']]
+    aggregated_text = ' '.join(faqs)
+    if 'hero_text_list' in data[product_uuid]:
+        aggregated_text = aggregated_text + ' ' + data[product_uuid]['hero_text_list']
+    return aggregated_text
