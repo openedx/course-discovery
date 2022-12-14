@@ -23,6 +23,7 @@ same repository, so whenever a new dependency (e.g. a new method or a new field 
 provider its validator is also updated in the same pull request. This ensures that the provider implementation in
 discovery and its interface in taxonomy are always in sync.
 """
+from unittest import mock
 
 from django.test import TestCase
 from taxonomy.validators import CourseMetadataProviderValidator, ProgramMetadataProviderValidator
@@ -34,8 +35,9 @@ class TaxonomyIntegrationTests(TestCase):
     """
     Validate integration of taxonomy_support and metadata providers.
     """
-
-    def test_validate_course_metadata(self):
+    @mock.patch('course_discovery.apps.course_metadata.contentful_utils.fetch_and_transform_bootcamp_contentful_data',
+                return_value={})
+    def test_validate_course_metadata(self, _contentful_data):
         """
         Validate that there are no integration issues.
         """

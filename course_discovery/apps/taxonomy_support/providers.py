@@ -16,6 +16,9 @@ https://openedx.atlassian.net/wiki/spaces/SOL/pages/1814922129/Platform+Agnostic
 from edx_django_utils.db import chunked_queryset
 from taxonomy.providers import CourseMetadataProvider, ProgramMetadataProvider
 
+from course_discovery.apps.course_metadata.contentful_utils import (
+    fetch_and_transform_bootcamp_contentful_data, get_aggregated_data_from_contentful_data
+)
 from course_discovery.apps.course_metadata.models import Course, Program
 
 
@@ -30,12 +33,15 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
         Get list of courses matching the given course UUIDs and return then in the form of a dict.
         """
         courses = Course.everything.filter(uuid__in=course_ids).distinct()
+        contentful_data = fetch_and_transform_bootcamp_contentful_data()
         return [{
             'uuid': course.uuid,
             'key': course.key,
             'title': course.title,
             'short_description': course.short_description,
-            'full_description': course.full_description,
+            'full_description': (
+                get_aggregated_data_from_contentful_data(contentful_data, course.uuid) or course.full_description
+            ),
         } for course in courses]
 
     @staticmethod
@@ -44,6 +50,7 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
         Get iterator for all the courses (excluding drafts).
         """
         all_courses = Course.objects.all()
+        contentful_data = fetch_and_transform_bootcamp_contentful_data()
         for chunked_courses in chunked_queryset(all_courses):
             for course in chunked_courses:
                 yield {
@@ -51,7 +58,10 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
                     'key': course.key,
                     'title': course.title,
                     'short_description': course.short_description,
-                    'full_description': course.full_description,
+                    'full_description': (
+                        get_aggregated_data_from_contentful_data(contentful_data, course.uuid) or
+                        course.full_description
+                    ),
                 }
 
 
@@ -66,11 +76,13 @@ class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
         Get list of programs matching the given program UUIDs and return then in the form of a dict.
         """
         programs = Program.objects.filter(uuid__in=program_ids).distinct()
+        # Todo: use transform_degree_contentful_data method to get data from contentful
+        contentful_data = {}
         return [{
             'uuid': program.uuid,
             'title': program.title,
             'subtitle': program.subtitle,
-            'overview': program.overview,
+            'overview': get_aggregated_data_from_contentful_data(contentful_data, program.uuid) or program.overview,
         } for program in programs]
 
     @staticmethod
@@ -79,11 +91,15 @@ class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
         Get iterator for all the programs.
         """
         all_programs = Program.objects.all()
+        # Todo: use transform_degree_contentful_data method to get data from contentful
+        contentful_data = {}
         for chunked_programs in chunked_queryset(all_programs):
             for program in chunked_programs:
                 yield {
                     'uuid': program.uuid,
                     'title': program.title,
                     'subtitle': program.subtitle,
-                    'overview': program.overview,
+                    'overview': (
+                        get_aggregated_data_from_contentful_data(contentful_data, program.uuid) or program.overview
+                    ),
                 }

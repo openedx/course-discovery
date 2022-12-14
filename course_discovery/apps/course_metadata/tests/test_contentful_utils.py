@@ -10,8 +10,8 @@ from django.test import TestCase
 from testfixtures import LogCapture
 
 from course_discovery.apps.course_metadata.contentful_utils import (
-    contentful_cache_key, fetch_and_transform_bootcamp_contentful_data, get_data_from_contentful,
-    rich_text_to_plain_text
+    contentful_cache_key, fetch_and_transform_bootcamp_contentful_data, get_aggregated_data_from_contentful_data,
+    get_data_from_contentful, rich_text_to_plain_text
 )
 from course_discovery.apps.course_metadata.tests.contentful_bootcamp_mock_data import (
     MockContentBootcampResponse, about_the_program_entry, bootcamp_transformed_data, mock_contentful_bootcamp_entry
@@ -79,3 +79,21 @@ class TestContentfulUtils(TestCase):
         """
         transformed_data = fetch_and_transform_bootcamp_contentful_data()
         self.assertDictEqual(transformed_data, bootcamp_transformed_data)
+
+    def test_get_aggregated_data_from_contentful_data(self):
+        expected_data = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, ' \
+                        'consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ' \
+                        'ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur ' \
+                        'adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit ' \
+                        'amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, ' \
+                        'consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ' \
+                        'ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur ' \
+                        'adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum: dolor ' \
+                        'sit amet, consectetur adipiscing elitLorem ipsum: dolor sit amet, consectetur adipiscing ' \
+                        'elitLorem ipsum: dolor sit amet, consectetur adipiscing elitLorem ipsum: dolor sit amet, ' \
+                        'consectetur adipiscing elit'
+
+        assert get_aggregated_data_from_contentful_data({}, 'uuid_123') is None
+        assert get_aggregated_data_from_contentful_data(bootcamp_transformed_data, 'no_uuid') is None
+        assert get_aggregated_data_from_contentful_data(bootcamp_transformed_data, 'test-uuid') == expected_data
