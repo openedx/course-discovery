@@ -39,9 +39,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.27
+boto3==1.26.30
     # via django-ses
-botocore==1.29.27
+botocore==1.29.30
     # via
     #   boto3
     #   s3transfer
@@ -302,7 +302,7 @@ edx-drf-extensions==8.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-edx-event-bus-kafka==3.0.0
+edx-event-bus-kafka==3.3.0
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.3.0
     # via
@@ -341,7 +341,7 @@ google-auth==2.15.0
     # via
     #   google-auth-oauthlib
     #   gspread
-google-auth-oauthlib==0.7.1
+google-auth-oauthlib==0.8.0
     # via gspread
 greenlet==2.0.1
     # via gevent
@@ -379,7 +379,7 @@ kombu==5.2.4
     # via celery
 libsass==0.22.0
     # via django-libsass
-lxml==4.9.1
+lxml==4.9.2
     # via
     #   -r requirements/base.in
     #   zeep
@@ -551,7 +551,7 @@ six==1.16.0
     #   requests-file
 slumber==0.7.1
     # via edx-rest-api-client
-snowflake-connector-python==2.8.3
+snowflake-connector-python==2.9.0
     # via -r requirements/base.in
 social-auth-app-django==5.0.0
     # via
@@ -611,7 +611,7 @@ zeep==4.2.1
     # via simple-salesforce
 zipp==3.11.0
     # via importlib-metadata
-zope-event==4.5.0
+zope-event==4.6
     # via gevent
 zope-interface==5.5.2
     # via gevent
