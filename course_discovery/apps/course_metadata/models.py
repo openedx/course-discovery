@@ -893,28 +893,18 @@ class PkSearchableMixin:
             # want everything, we don't need to actually query elasticsearch at all.
             return queryset
 
+        logger.info(f"Attempting Elasticsearch document search against query: {query}")
         es_document, *_ = registry.get_documents(models=(cls,))
         dsl_query = ESDSLQ('query_string', query=query, analyze_wildcard=True)
         try:
             results = es_document.search().query(dsl_query).execute()
-
-            # to be removed after testing
-            logger.info(f'dsl_query generated from query "{query}": {dsl_query}')
-            logger.info(f'Elasticsearch data extracted from query "{query}": {results}')
-
         except RequestError as exp:
             logger.warning('Elasticsearch request is failed. Got exception: %r', exp)
             results = []
         ids = {result.pk for result in results}
-        org_and_ids = {(result.pk, result.org) for result in results if hasattr(result, 'org')}
-
-        # to be removed after testing
-        logger.info(f'Elasticsearch data ids: {ids}')
-        logger.info(f'Elasticsearch data ids count is: {len(ids)}')
-        logger.info(f'Elasticsearch data ids and orgs from query "{query}": {org_and_ids}')
+        logger.info(f'{len(ids)} records extracted from Elasticsearch query "{query}"')
         filtered_queryset = queryset.filter(pk__in=ids)
-        logger.info(f'Queryset extracted from Elasticsearch ids from query "{query}": {filtered_queryset}')
-
+        logger.info(f'Filtered queryset of length {len(filtered_queryset)} extracted against query "{query}"')
         return filtered_queryset
 
 
