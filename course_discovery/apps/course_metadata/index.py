@@ -3,6 +3,7 @@ from algoliasearch_django import AlgoliaIndex, register
 from course_discovery.apps.course_metadata.algolia_models import (
     AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram, SearchDefaultResultsConfiguration
 )
+from course_discovery.apps.course_metadata.contentful_utils import fetch_and_transform_bootcamp_contentful_data
 
 
 class BaseProductIndex(AlgoliaIndex):
@@ -16,7 +17,9 @@ class BaseProductIndex(AlgoliaIndex):
         if not self.language:
             raise Exception('Cannot update Algolia index \'{index_name}\'. No language set'.format(
                 index_name=self.index_name))
-        qs1 = [AlgoliaProxyProduct(course, self.language) for course in AlgoliaProxyCourse.objects.all()]
+        contentful_data = fetch_and_transform_bootcamp_contentful_data()
+        qs1 = [AlgoliaProxyProduct(course, self.language, contentful_data)
+               for course in AlgoliaProxyCourse.objects.all()]
         qs2 = [AlgoliaProxyProduct(program, self.language) for program in AlgoliaProxyProgram.objects.all()]
         return qs1 + qs2
 
@@ -81,7 +84,7 @@ class EnglishProductIndex(BaseProductIndex):
                      ('product_organization_logo_override', 'organization_logo_override'),
                      ('product_meta_title', 'meta_title'),
                      'active_run_key', 'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags',
-                     'skills', )
+                     'skills', 'contentful_fields',)
 
     # Algolia needs this
     object_id_field = (('custom_object_id', 'objectID'), )
@@ -128,8 +131,8 @@ class SpanishProductIndex(BaseProductIndex):
                      ('product_max_effort', 'max_effort'), ('product_min_effort', 'min_effort'), 'active_run_key',
                      ('product_organization_short_code_override', 'organization_short_code_override'),
                      ('product_organization_logo_override', 'organization_logo_override'),
-                     ('product_meta_title', 'meta_title'),
-                     'active_run_start', 'active_run_type', 'owners', 'course_titles', 'tags', 'skills')
+                     ('product_meta_title', 'meta_title'), 'active_run_start', 'active_run_type',
+                     'owners', 'course_titles', 'tags', 'skills', 'contentful_fields',)
 
     # Algolia uses objectID as unique identifier. Can't use straight uuids because a program and a course could
     # have the same one, so we add 'course' or 'program' as a prefix

@@ -190,7 +190,7 @@ class CourseRunSearchViewSetTests(mixins.SerializationMixin, mixins.LoginMixin, 
         ProgramFactory(courses=[course_run.course], status=program_status)
         self.reindex_courses(active_program)
 
-        with self.assertNumQueries(expected_queries, threshold=1):  # CI sometimes adds a query
+        with self.assertNumQueries(expected_queries, threshold=2):  # CI sometimes adds a bunch of queries
             response = self.get_response('software', path=path)
         assert response.status_code == 200
         response_data = response.data
