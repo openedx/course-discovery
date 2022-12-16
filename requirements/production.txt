@@ -39,9 +39,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.30
+boto3==1.26.31
     # via django-ses
-botocore==1.29.30
+botocore==1.29.31
     # via
     #   boto3
     #   s3transfer
@@ -302,7 +302,7 @@ edx-drf-extensions==8.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-edx-event-bus-kafka==3.3.0
+edx-event-bus-kafka==3.4.0
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.3.0
     # via

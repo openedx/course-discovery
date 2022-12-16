@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.30
+boto3==1.26.31
     # via django-ses
-botocore==1.29.30
+botocore==1.29.31
     # via
     #   boto3
     #   s3transfer
