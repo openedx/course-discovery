@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from django.core.management.base import BaseCommand
 from edx_event_bus_kafka import KafkaEventConsumer
@@ -45,6 +46,14 @@ class Command(BaseCommand):
             required=True,
             help='Type of signal to emit from consumed messages.'
         )
+        parser.add_argument(
+            '-o', '--offset_time',
+            nargs=1,
+            required=False,
+            default=None,
+            help='The timestamp (in ISO format) that we would like to set the consumers to read from on startup.'
+                  'Overrides existing offsets.'
+        )
 
     # We are not testing the current version of this code because it is copied from tested code
     # in event-bus-kafka, and this code will have to change once we have a better idea for the
@@ -70,11 +79,20 @@ class Command(BaseCommand):
             return
         try:
             signal = OpenEdxPublicSignal.get_signal_by_type(options['signal'][0])
+            if options['offset_time'] and options['offset_time'][0] is not None:
+                try:
+                    offset_timestamp = datetime.fromisoformat(options['offset_time'][0])
+                except ValueError:
+                    logger.exception('Could not parse the offset timestamp.')
+                    raise
+            else:
+                offset_timestamp = None
+
             event_consumer = KafkaEventConsumer(
                 topic=options['topic'][0],
                 group_id=options['group_id'][0],
                 signal=signal,
             )
-            event_consumer.consume_indefinitely()
+            event_consumer.consume_indefinitely(offset_timestamp=offset_timestamp)
         except Exception:  # pylint: disable=broad-except
             logger.exception("Error consuming Kafka events")
