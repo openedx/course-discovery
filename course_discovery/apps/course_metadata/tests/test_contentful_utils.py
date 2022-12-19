@@ -10,11 +10,15 @@ from django.test import TestCase
 from testfixtures import LogCapture
 
 from course_discovery.apps.course_metadata.contentful_utils import (
-    contentful_cache_key, fetch_and_transform_bootcamp_contentful_data, get_aggregated_data_from_contentful_data,
-    get_data_from_contentful, rich_text_to_plain_text
+    fetch_and_transform_bootcamp_contentful_data, fetch_and_transform_degree_contentful_data,
+    get_aggregated_data_from_contentful_data, get_contentful_cache_key, get_data_from_contentful,
+    rich_text_to_plain_text
 )
 from course_discovery.apps.course_metadata.tests.contentful_bootcamp_mock_data import (
     MockContentBootcampResponse, about_the_program_entry, bootcamp_transformed_data, mock_contentful_bootcamp_entry
+)
+from course_discovery.apps.course_metadata.tests.contentful_utils.contentful_mock_data import (
+    MockContenfulDegreeResponse
 )
 
 LOGGER_NAME = 'course_discovery.apps.course_metadata.contentful_utils'
@@ -44,7 +48,7 @@ class TestContentfulUtils(TestCase):
         """
         self.maxDiff = None
         mock_client.return_value.entries.return_value = MockContentBootcampResponse
-        cache_key = contentful_cache_key(settings.BOOTCAMP_CONTENTFUL_CONTENT_TYPE)
+        cache_key = get_contentful_cache_key(settings.BOOTCAMP_CONTENTFUL_CONTENT_TYPE)
         assert cache.get(cache_key) is None
         _ = get_data_from_contentful(settings.BOOTCAMP_CONTENTFUL_CONTENT_TYPE)
         assert cache.get(cache_key) is not None
@@ -97,3 +101,14 @@ class TestContentfulUtils(TestCase):
         assert get_aggregated_data_from_contentful_data({}, 'uuid_123') is None
         assert get_aggregated_data_from_contentful_data(bootcamp_transformed_data, 'no_uuid') is None
         assert get_aggregated_data_from_contentful_data(bootcamp_transformed_data, 'test-uuid') == expected_data
+
+    @mock.patch('course_discovery.apps.course_metadata.contentful_utils.get_data_from_contentful',
+                return_value=[MockContenfulDegreeResponse().mock_contentful_degree_entry])
+    def test_transform_degree_contentful_data(self, *args):
+        """
+        Test transform_degree_contentful_data given a mocked entry from contentful.
+        """
+        mock_degree_response = MockContenfulDegreeResponse()
+        transformed_data = fetch_and_transform_degree_contentful_data()
+        self.assertDictEqual(
+            transformed_data, mock_degree_response.degree_transformed_data)

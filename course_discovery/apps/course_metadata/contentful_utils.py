@@ -10,11 +10,16 @@ from django.core.cache import cache
 logger = logging.getLogger(__name__)
 
 
-def contentful_cache_key(content_type):
+def get_contentful_cache_key(content_type):
     """
-    Cache key for bootcamp data from Contentful.
+    Cache key for either bootcamp or degree data from Contentful.
     """
-    return 'contentful_bootcamp_data_key' if content_type == settings.BOOTCAMP_CONTENTFUL_CONTENT_TYPE else None
+    if content_type == settings.BOOTCAMP_CONTENTFUL_CONTENT_TYPE:
+        return 'contentful_bootcamp_data_key'
+    elif content_type == settings.DEGREE_CONTENTFUL_CONTENT_TYPE:
+        return 'contentful_degree_data_key'
+    else:
+        return None
 
 
 def get_data_from_contentful(content_type):
@@ -26,7 +31,8 @@ def get_data_from_contentful(content_type):
     Args:
         content_type (str): Contentful table-like instance comprised of fields.
     """
-    cache_key = contentful_cache_key(content_type)
+
+    cache_key = get_contentful_cache_key(content_type)
     cached_entries = cache.get(cache_key)
     if cached_entries:
         logger.info(f"Using cached Contentful entries data and skipping API call for {content_type}")
@@ -243,6 +249,39 @@ def get_partnership_module(partnership_module):
     }
 
 
+def get_featured_products_module(featured_products_module):
+    """
+        Given a Contentful fetaured products module, extracts related data and returns them in the form of a dict.
+    """
+    featured_products_heading = featured_products_module.heading
+    featured_products_introduction = featured_products_module.introduction
+    featured_products_list = []
+    if featured_products_module.product_list:
+        for item in featured_products_module.product_list.text_list_items:
+            featured_products_list.append({
+                'header': item.header,
+                'description': rich_text_to_plain_text(item.description)
+            })
+    return {
+        'heading': featured_products_heading,
+        'introduction': featured_products_introduction,
+        'product_list': featured_products_list,
+    }
+
+
+def get_placement_about_section_module(placement_about_section_module):
+    """
+        Given a Contentful placement about section module,
+        extracts related data and returns them in the form of a dict.
+    """
+    placement_about_section_heading = placement_about_section_module.heading
+    placement_about_section_body_text = rich_text_to_plain_text(placement_about_section_module.body_text)
+    return {
+        'heading': placement_about_section_heading,
+        'body_text': placement_about_section_body_text
+    }
+
+
 def fetch_and_transform_bootcamp_contentful_data():
     """
     Transforms incoming bootcamp data from contentful to algolia-usable form.
@@ -308,3 +347,49 @@ def get_aggregated_data_from_contentful_data(data, product_uuid):
     if 'hero_text_list' in data[product_uuid]:
         aggregated_text = aggregated_text + ' ' + data[product_uuid]['hero_text_list']
     return aggregated_text
+
+
+def fetch_and_transform_degree_contentful_data():
+    """
+    Transforms incoming degree data from contentful to algolia-usable form.
+
+    Each Contentful entry has seo, hero and modules list.
+    """
+
+    contentful_degree_page_entries = get_data_from_contentful(settings.DEGREE_CONTENTFUL_CONTENT_TYPE)
+
+    transformed_degree_data = {}
+
+    for degree_entry in contentful_degree_page_entries:
+        product_uuid = degree_entry.uuid
+        page_title = degree_entry.seo.page_title
+        subheading = degree_entry.hero.subheading
+
+        transformed_degree_data[product_uuid] = {
+            'page_title': page_title,
+            'subheading': subheading,
+        }
+
+        module_list = get_modules_list(degree_entry)
+
+        if 'aboutTheProgramModule' in module_list:
+            about_the_program = get_about_the_program_module(
+                degree_entry.modules[module_list.index('aboutTheProgramModule')])
+            transformed_degree_data[product_uuid].update(about_the_program)
+
+        if 'featuredProductsModule' in module_list:
+            featured_products = get_featured_products_module(
+                degree_entry.modules[module_list.index('featuredProductsModule')])
+            transformed_degree_data[product_uuid].update({'featured_products': featured_products})
+
+        if 'placementAboutSection' in module_list:
+            placement_about_section = get_placement_about_section_module(
+                degree_entry.modules[module_list.index('placementAboutSection')])
+            transformed_degree_data[product_uuid].update({'placement_about_section': placement_about_section})
+
+        if 'faqModule' in module_list:
+            faq_module = get_faq_module(
+                degree_entry.modules[module_list.index('faqModule')].faqs)
+            transformed_degree_data[product_uuid].update({'faq_items': faq_module})
+
+    return transformed_degree_data
