@@ -3,7 +3,9 @@ from algoliasearch_django import AlgoliaIndex, register
 from course_discovery.apps.course_metadata.algolia_models import (
     AlgoliaProxyCourse, AlgoliaProxyProduct, AlgoliaProxyProgram, SearchDefaultResultsConfiguration
 )
-from course_discovery.apps.course_metadata.contentful_utils import fetch_and_transform_bootcamp_contentful_data
+from course_discovery.apps.course_metadata.contentful_utils import (
+    fetch_and_transform_bootcamp_contentful_data, fetch_and_transform_degree_contentful_data
+)
 
 
 class BaseProductIndex(AlgoliaIndex):
@@ -17,10 +19,15 @@ class BaseProductIndex(AlgoliaIndex):
         if not self.language:
             raise Exception('Cannot update Algolia index \'{index_name}\'. No language set'.format(
                 index_name=self.index_name))
-        contentful_data = fetch_and_transform_bootcamp_contentful_data()
-        qs1 = [AlgoliaProxyProduct(course, self.language, contentful_data)
+
+        bootcamp_contentful_data = fetch_and_transform_bootcamp_contentful_data()
+        qs1 = [AlgoliaProxyProduct(course, self.language, contentful_data=bootcamp_contentful_data)
                for course in AlgoliaProxyCourse.objects.all()]
-        qs2 = [AlgoliaProxyProduct(program, self.language) for program in AlgoliaProxyProgram.objects.all()]
+
+        degree_contentful_data = fetch_and_transform_degree_contentful_data()
+        qs2 = [AlgoliaProxyProduct(program, self.language, contentful_data=degree_contentful_data)
+               for program in AlgoliaProxyProgram.objects.all()]
+
         return qs1 + qs2
 
     def generate_empty_query_rule(self, rule_object_id, product_type, results):

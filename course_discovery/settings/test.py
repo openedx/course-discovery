@@ -84,3 +84,5 @@ CELERY_BROKER_URL = 'memory://localhost/'
 PRODUCT_API_URL = 'http://www.example.com'
 
 BOOTCAMP_CONTENTFUL_CONTENT_TYPE = 'bootCampPage'
+
+DEGREE_CONTENTFUL_CONTENT_TYPE = 'degreeDetailPage'
