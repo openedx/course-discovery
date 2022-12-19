@@ -39,9 +39,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.31
+boto3==1.26.32
     # via django-ses
-botocore==1.29.31
+botocore==1.29.32
     # via
     #   boto3
     #   s3transfer
@@ -216,7 +216,7 @@ django-object-actions==4.1.0
     # via -r requirements/base.in
 django-parler==2.3
     # via -r requirements/base.in
-django-ses==3.2.2
+django-ses==3.3.0
     # via
     #   -r requirements/production.in
     #   taxonomy-connector
@@ -355,7 +355,7 @@ idna==3.4
     # via
     #   requests
     #   snowflake-connector-python
-importlib-metadata==5.1.0
+importlib-metadata==5.2.0
     # via
     #   -r requirements/base.in
     #   markdown
@@ -469,7 +469,7 @@ python-stdnum==1.18
     # via django-localflavor
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2022.6
+pytz==2022.7
     # via
     #   -r requirements/base.in
     #   celery
