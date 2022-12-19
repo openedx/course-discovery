@@ -22,8 +22,8 @@ class CatalogQueryContainsViewSet(ValidElasticSearchQueryRequiredMixin, GenericA
         Determine if a set of courses and/or course runs is found in the query results.
 
         Returns
-            dict:  mapping of course and run indentifiers included in the request to boolean values
-                indicating whether or not the associated course or run is contained in the queryset
+            dict:  mapping of course and run identifiers included in the request to boolean values
+                indicating whether the associated course or run is contained in the queryset
                 described by the query found in the request.
         """
         query = request.GET.get('query')
@@ -32,6 +32,10 @@ class CatalogQueryContainsViewSet(ValidElasticSearchQueryRequiredMixin, GenericA
         partner = self.request.site.partner
 
         if query and (course_run_ids or course_uuids):
+            log.info(
+                f"Attempting search against query {query} with course UUIDs {course_uuids} "
+                f"and course run IDs {course_run_ids}"
+            )
             identified_course_ids = set()
             specified_course_ids = []
             if course_run_ids:
@@ -46,22 +50,12 @@ class CatalogQueryContainsViewSet(ValidElasticSearchQueryRequiredMixin, GenericA
             if course_uuids:
                 course_uuids = [UUID(course_uuid) for course_uuid in course_uuids.split(',')]
                 specified_course_ids += course_uuids
-                # hotfix for Cyber Monday starting (28th Nov 2022)
-                cyber_query_string = 'number:(-CSE6040x AND -ISYE6501x AND -MGT6203x) AND org:(-GTx)'
-                if query == cyber_query_string:
-                    log.info("Inside if block(hotfix): Processing query: %s", query)
-                    courses_orgs = [
-                        Course.objects.get(uuid=course_uuid).key.split('+')[0] for course_uuid in specified_course_ids
-                    ]
-                    if 'GTx' not in courses_orgs:
-                        contains = {str(course_uuid): bool(course_uuid) for course_uuid in specified_course_ids}
-                        return Response(contains)
 
-                log.info("Specified course ids: %s", specified_course_ids)
+                log.info(f"Specified course ids: {specified_course_ids}")
                 identified_course_ids.update(
                     Course.search(query).filter(partner=partner, uuid__in=course_uuids).values_list('uuid', flat=True)
                 )
-                log.info("Identified course ids: %s", identified_course_ids)
+            log.info(f"Identified {len(identified_course_ids)} course ids: {identified_course_ids}")
 
             contains = {str(identifier): identifier in identified_course_ids for identifier in specified_course_ids}
             return Response(contains)
