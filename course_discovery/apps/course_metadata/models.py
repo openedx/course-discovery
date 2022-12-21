@@ -727,6 +727,10 @@ class AdditionalMetadata(TimeStampedModel):
         default=None, blank=True, null=True,
         help_text=_('The start date of the external course offering for marketing purpose')
     )
+    end_date = models.DateTimeField(
+        default=None, blank=True, null=True,
+        help_text=_('The ends date of the external course offering for marketing purpose')
+    )
     registration_deadline = models.DateTimeField(
         default=None, blank=True, null=True,
         help_text=_('The suggested deadline for enrollment for marketing purpose')

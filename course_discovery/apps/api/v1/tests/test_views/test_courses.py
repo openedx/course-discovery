@@ -1099,6 +1099,7 @@ class CourseViewSetTests(OAuth2Mixin, SerializationMixin, APITestCase):
                 }
             ],
             'start_date': serialize_datetime(future),
+            'end_date': serialize_datetime(current + datetime.timedelta(days=20)),
             'registration_deadline': serialize_datetime(current),
             'variant_id': str(uuid4()),
             'course_term_override': 'Example Program',
