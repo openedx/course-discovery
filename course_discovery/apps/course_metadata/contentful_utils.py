@@ -192,9 +192,9 @@ def get_about_the_program_module(about_the_program_module):
         about_program_checkmarked_items.append(rich_text_to_plain_text(checkmarked_item.description))
 
     return {
-        'about_program_heading': about_program_heading,
-        'about_program_content': about_program_content,
-        'about_program_checkmarked_items': about_program_checkmarked_items
+        'heading': about_program_heading,
+        'content': about_program_content,
+        'checkmarked_items': about_program_checkmarked_items
     }
 
 
@@ -206,8 +206,8 @@ def get_blurb_module(blurb_module):
     blurb_1_body = rich_text_to_plain_text(blurb_module.blurb_body)
 
     return {
-        'blurb_1_heading': blurb_1_heading,
-        'blurb_1_body': blurb_1_body
+        'heading': blurb_1_heading,
+        'body': blurb_1_body
     }
 
 
@@ -218,7 +218,7 @@ def get_bootcamp_curriculum_module(bootcamp_curriculum_module):
     bootcamp_curriculum_heading = rich_text_to_plain_text(bootcamp_curriculum_module.subheading)
     bootcamp_curriculum_faqs = get_faq_module(bootcamp_curriculum_module.items)
 
-    return {'bootcamp_curriculum_heading': bootcamp_curriculum_heading}, bootcamp_curriculum_faqs
+    return {'heading': bootcamp_curriculum_heading}, bootcamp_curriculum_faqs
 
 
 def get_faq_module(faq_module):
@@ -244,8 +244,8 @@ def get_partnership_module(partnership_module):
     partnership_body_text = rich_text_to_plain_text(partnership_module.body_text)
 
     return {
-        'partnership_heading_text': partnership_heading_text,
-        'partnership_body_text': partnership_body_text
+        'heading_text': partnership_heading_text,
+        'body_text': partnership_body_text
     }
 
 
@@ -309,15 +309,21 @@ def fetch_and_transform_bootcamp_contentful_data():
             about_the_program = get_about_the_program_module(
                 bootcamp_entry.modules[module_list.index('aboutTheProgramModule')]
             )
-            transformed_bootcamp_data[product_uuid].update(about_the_program)
+            transformed_bootcamp_data[product_uuid].update(
+                {'about_the_program': about_the_program}
+            )
 
         if 'blurbModule' in module_list:
             blurb_indexes = [i for i, x in enumerate(module_list) if x == 'blurbModule']
             blurb_1 = get_blurb_module(bootcamp_entry.modules[blurb_indexes[0]])
-            transformed_bootcamp_data[product_uuid].update(blurb_1)
+            transformed_bootcamp_data[product_uuid].update(
+                {'blurb_1': blurb_1}
+            )
             if len(blurb_indexes) == 2:
                 blurb_2 = get_blurb_module(bootcamp_entry.modules[blurb_indexes[1]])
-                transformed_bootcamp_data[product_uuid].update(blurb_2)
+                transformed_bootcamp_data[product_uuid].update(
+                    {'blurb_2': blurb_2}
+                )
 
         faq_items = []
         if 'bootCampCurriculumModule' in module_list:
@@ -325,16 +331,22 @@ def fetch_and_transform_bootcamp_contentful_data():
                 bootcamp_entry.modules[module_list.index('bootCampCurriculumModule')]
             )
             faq_items += bootcamp_curriculum_faqs
-            transformed_bootcamp_data[product_uuid].update(bootcamp_curriculum_module)
+            transformed_bootcamp_data[product_uuid].update(
+                {'bootcamp_curriculum': bootcamp_curriculum_module}
+            )
 
         if 'partnershipModule' in module_list:
             partnership_module = get_partnership_module(bootcamp_entry.modules[module_list.index('partnershipModule')])
-            transformed_bootcamp_data[product_uuid].update(partnership_module)
+            transformed_bootcamp_data[product_uuid].update(
+                {'partnerships': partnership_module}
+            )
 
         if 'faqModule' in module_list:
             faq_module = get_faq_module(bootcamp_entry.modules[module_list.index('faqModule')].faqs)
             faq_items += faq_module
-            transformed_bootcamp_data[product_uuid].update({'faq_items': faq_items})
+            transformed_bootcamp_data[product_uuid].update(
+                {'faq_items': faq_items}
+            )
 
     return transformed_bootcamp_data
 
@@ -375,7 +387,7 @@ def fetch_and_transform_degree_contentful_data():
         if 'aboutTheProgramModule' in module_list:
             about_the_program = get_about_the_program_module(
                 degree_entry.modules[module_list.index('aboutTheProgramModule')])
-            transformed_degree_data[product_uuid].update(about_the_program)
+            transformed_degree_data[product_uuid].update({'about_the_program': about_the_program})
 
         if 'featuredProductsModule' in module_list:
             featured_products = get_featured_products_module(
