@@ -700,6 +700,7 @@ class CSVDataLoader(AbstractDataLoader):
             'external_url': data['redirect_url'],
             'external_identifier': data['external_identifier'],
             'start_date': self.get_formatted_datetime_string(f"{data['start_date']} {data['start_time']}"),
+            'end_date': self.get_formatted_datetime_string(f"{data['end_date']} {data['end_time']}"),
             'product_status': ExternalProductStatus.Published,  # By-default, the product status is set to published.
         }
         lead_capture_url = data.get('lead_capture_form_url', '')

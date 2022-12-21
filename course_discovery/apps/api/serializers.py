@@ -676,6 +676,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
     certificate_info = CertificateInfoSerializer()
     product_meta = ProductMetaSerializer(required=False, allow_null=True)
     start_date = serializers.DateTimeField()
+    end_date = serializers.DateTimeField()
     registration_deadline = serializers.DateTimeField()
     variant_id = serializers.UUIDField(allow_null=True)
 
@@ -687,7 +688,7 @@ class AdditionalMetadataSerializer(BaseModelSerializer):
         model = AdditionalMetadata
         fields = (
             'external_identifier', 'external_url', 'lead_capture_form_url',
-            'facts', 'certificate_info', 'organic_url', 'start_date',
+            'facts', 'certificate_info', 'organic_url', 'start_date', 'end_date',
             'registration_deadline', 'variant_id', 'course_term_override', 'product_status',
             'product_meta',
         )

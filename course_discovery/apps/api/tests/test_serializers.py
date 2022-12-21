@@ -2001,6 +2001,7 @@ class AdditionalMetadataSerializerTests(TestCase):
             'product_meta': ProductMetaSerializer(additional_metadata.product_meta).data,
             'organic_url': additional_metadata.organic_url,
             'start_date': serialize_datetime(additional_metadata.start_date),
+            'end_date': serialize_datetime(additional_metadata.end_date),
             'registration_deadline': serialize_datetime(additional_metadata.registration_deadline),
             'variant_id': str(additional_metadata.variant_id),
             'course_term_override': additional_metadata.course_term_override,
