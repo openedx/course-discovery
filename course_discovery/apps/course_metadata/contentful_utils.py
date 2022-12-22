@@ -354,10 +354,28 @@ def fetch_and_transform_bootcamp_contentful_data():
 def get_aggregated_data_from_contentful_data(data, product_uuid):
     if (data is None) or (product_uuid not in data):
         return None
-    faqs = [f"{faq['question']} {faq['answer']}" for faq in data[product_uuid]['faq_items']]
-    aggregated_text = ' '.join(faqs)
+
+    aggregated_text = ''
+    if 'faq_items' in data[product_uuid]:
+        faqs = [f"{faq['question']} {faq['answer']}" for faq in data[product_uuid]['faq_items']]
+        aggregated_text = ' '.join(faqs)
+
     if 'hero_text_list' in data[product_uuid]:
-        aggregated_text = aggregated_text + ' ' + data[product_uuid]['hero_text_list']
+        aggregated_text = f"{aggregated_text} {data[product_uuid]['hero_text_list']}"
+
+    if 'placement_about_section' in data[product_uuid]:
+        placement_about = data[product_uuid]['placement_about_section']
+        aggregated_text = f"{aggregated_text} {placement_about['heading']} {placement_about['body_text']}"
+
+    if 'featured_products' in data[product_uuid]:
+        featured_products = data[product_uuid]['featured_products']
+        featured_products_list = [
+            f"{product['header']} {product['description']}" for product in featured_products['product_list']
+        ]
+        featured_products_list = ' '.join(featured_products_list)
+        aggregated_text = f"{aggregated_text} {featured_products['heading']}" \
+                          f" {featured_products['introduction']} {featured_products_list}"
+
     return aggregated_text
 
 
