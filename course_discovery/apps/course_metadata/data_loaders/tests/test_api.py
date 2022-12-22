@@ -142,7 +142,8 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         (False, False),
     )
     @ddt.unpack
-    def test_ingest(self, partner_uses_publisher, on_new_publisher):
+    @mock.patch(LOGGER_PATH)
+    def test_ingest(self, partner_uses_publisher, on_new_publisher, mock_logger):
         """ Verify the method ingests data from the Courses API. """
         TieredCache.dangerous_clear_all_tiers()
         api_data = self.mock_api()
@@ -165,6 +166,8 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         assert CourseRun.objects.count() == expected_num_course_runs
 
         for datum in api_data:
+            course = Course.everything.get(key=f"{datum['org']}+{datum['number']}", draft=False)
+            mock_logger.info.assert_any_call(f"Course created with uuid {str(course.uuid)} and key {course.key}")
             self.assert_course_run_loaded(datum, partner_uses_publisher, new_pub=on_new_publisher)
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.

@@ -108,6 +108,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def process_single_course_run(self, body):
         course_run_id = body['id']
 
+        logger.info(f"Starting course processing for id {course_run_id}")
         try:
             body = self.clean_strings(body)
             official_run, draft_run = self.get_course_run(body)
@@ -123,6 +124,8 @@ class CoursesApiDataLoader(AbstractDataLoader):
                 course, created = self.get_or_create_course(body)
                 course_run = self.create_course_run(course, body)
                 if created:
+                    logger.info(f"Course created with uuid {str(course.uuid)} and key {course.key}")
+                    logger.info(f"Course run created with uuid {str(course_run.uuid)} and key {course_run.key}")
                     course.canonical_course_run = course_run
                     course.save()
         except Exception:  # pylint: disable=broad-except
@@ -166,7 +169,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
             if not has_upgrade_deadline_override and official_run:
                 push_to_ecommerce_for_course_run(official_run)
 
-        logger.info('Processed course run with UUID [%s].', run.uuid)
+        logger.info(f'Processed course run with UUID [{str(run.uuid)}] and key [{run.key}].')
 
     def create_course_run(self, course, body):
         defaults = self.format_course_run_data(body, course=course)
