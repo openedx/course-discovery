@@ -1,3 +1,4 @@
+
 import datetime
 from re import escape
 from unittest import mock
@@ -854,4 +855,4 @@ class TestCourseDataUpdateSignal(TestCase):
         )
         with self.assertLogs('course_discovery.apps.course_metadata.data_loaders.api') as captured_logs:
             update_course_data_from_event(catalog_info=catalog_data)
-            assert 'An error occurred while updating' in captured_logs.output[0]
+            assert 'An error occurred while updating' in captured_logs.output[1]
