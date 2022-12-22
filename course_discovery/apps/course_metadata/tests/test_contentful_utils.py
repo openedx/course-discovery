@@ -124,7 +124,7 @@ class TestContentfulUtils(TestCase):
         self.assertDictEqual(
             transformed_data, mock_bootcamp_response.bootcamp_transformed_data)
 
-    def test_get_aggregated_data_from_contentful_data(self):
+    def test_get_aggregated_data_from_contentful_data__bootcamp(self):
         mock_bootcamp_response = MockContentfulBootcampResponse()
         expected_data = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, ' \
                         'consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ' \
@@ -144,6 +144,24 @@ class TestContentfulUtils(TestCase):
             mock_bootcamp_response.bootcamp_transformed_data, 'no_uuid') is None
         assert get_aggregated_data_from_contentful_data(
             mock_bootcamp_response.bootcamp_transformed_data, 'test-uuid') == expected_data
+
+    def test_get_aggregated_data_from_contentful_data__degree(self):
+        mock_degree_response = MockContenfulDegreeResponse()
+        expected_data = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, ' \
+                        'consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ' \
+                        'ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur ' \
+                        'adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit ' \
+                        'amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit ' \
+                        'Lorem ipsum: dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, ' \
+                        'consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ' \
+                        'ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum: dolor sit amet, consectetur ' \
+                        'adipiscing elit'
+
+        assert get_aggregated_data_from_contentful_data({}, 'uuid_123') is None
+        assert get_aggregated_data_from_contentful_data(
+            mock_degree_response.degree_transformed_data, 'no_uuid') is None
+        assert get_aggregated_data_from_contentful_data(
+            mock_degree_response.degree_transformed_data, 'test-uuid') == expected_data
 
     @mock.patch('course_discovery.apps.course_metadata.contentful_utils.get_data_from_contentful',
                 return_value=[MockContenfulDegreeResponse().mock_contentful_degree_entry])

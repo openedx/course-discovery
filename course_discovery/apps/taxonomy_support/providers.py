@@ -17,7 +17,8 @@ from edx_django_utils.db import chunked_queryset
 from taxonomy.providers import CourseMetadataProvider, ProgramMetadataProvider
 
 from course_discovery.apps.course_metadata.contentful_utils import (
-    fetch_and_transform_bootcamp_contentful_data, get_aggregated_data_from_contentful_data
+    fetch_and_transform_bootcamp_contentful_data, fetch_and_transform_degree_contentful_data,
+    get_aggregated_data_from_contentful_data
 )
 from course_discovery.apps.course_metadata.models import Course, Program
 
@@ -76,8 +77,7 @@ class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
         Get list of programs matching the given program UUIDs and return then in the form of a dict.
         """
         programs = Program.objects.filter(uuid__in=program_ids).distinct()
-        # Todo: use transform_degree_contentful_data method to get data from contentful
-        contentful_data = {}
+        contentful_data = fetch_and_transform_degree_contentful_data()
         return [{
             'uuid': program.uuid,
             'title': program.title,
@@ -91,8 +91,7 @@ class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
         Get iterator for all the programs.
         """
         all_programs = Program.objects.all()
-        # Todo: use transform_degree_contentful_data method to get data from contentful
-        contentful_data = {}
+        contentful_data = fetch_and_transform_degree_contentful_data()
         for chunked_programs in chunked_queryset(all_programs):
             for program in chunked_programs:
                 yield {

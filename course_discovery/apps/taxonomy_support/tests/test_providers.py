@@ -35,7 +35,7 @@ class TaxonomyIntegrationTests(TestCase):
     """
     Validate integration of taxonomy_support and metadata providers.
     """
-    @mock.patch('course_discovery.apps.course_metadata.contentful_utils.fetch_and_transform_bootcamp_contentful_data',
+    @mock.patch('course_discovery.apps.taxonomy_support.providers.fetch_and_transform_bootcamp_contentful_data',
                 return_value={})
     def test_validate_course_metadata(self, _contentful_data):
         """
@@ -49,7 +49,9 @@ class TaxonomyIntegrationTests(TestCase):
         # Run all the validations, note that an assertion error will be raised if any of the validation fail.
         course_metadata_validator.validate()
 
-    def test_validate_program_metadata(self):
+    @mock.patch('course_discovery.apps.taxonomy_support.providers.fetch_and_transform_degree_contentful_data',
+                return_value={})
+    def test_validate_program_metadata(self, _contentful_data):
         """
         Validate that there are no integration issues.
         """
