@@ -362,7 +362,7 @@ class Course(TimeStampedModel):
     outcome = models.TextField(blank=True, null=True)
     prerequisites_raw = models.TextField(blank=True, null=True)
     syllabus_raw = models.TextField(blank=True, null=True)
-    card_image_url = models.URLField(max_length=255, null=True, blank=True)
+    card_image_url = models.URLField(max_length=1024, null=True, blank=True)
     image = StdImageField(
         upload_to=UploadToFieldNamePath(populate_from='uuid', path='media/course/image'),
         blank=True,
@@ -526,7 +526,7 @@ class CourseRun(TimeStampedModel):
     syllabus = models.ForeignKey(SyllabusItem, default=None, null=True, blank=True)
 
     # TODO Ditch this, and fallback to the course
-    card_image_url = models.URLField(max_length=255, null=True, blank=True)
+    card_image_url = models.URLField(max_length=1024, null=True, blank=True)
     video = models.ForeignKey(Video, default=None, null=True, blank=True)
     video_translation_languages = models.ManyToManyField(
         LanguageTag, blank=True, related_name='+')
