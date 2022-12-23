@@ -96,7 +96,7 @@ class CourseRunViewSet(ValidElasticSearchQueryRequiredMixin, viewsets.ModelViewS
             queryset = self.queryset
 
         if q:
-            qs = SearchQuerySetWrapper(CourseRun.search(q).filter('term', partner=partner.short_code))
+            qs = SearchQuerySetWrapper(CourseRun.search(q).filter('match', partner=partner.short_code))
             # This is necessary to avoid issues with the filter backend.
             qs.model = self.queryset.model
             return qs
