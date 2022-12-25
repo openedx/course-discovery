@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Translators:
+# Aleš Fiala <f.ales1@seznam.cz>, 2022
 # Anna Chromá <anicka.chroma@gmail.com>, 2017
 # Jan Chromý <jan.chromy@gmail.com>, 2017
 # trendspotter <jirka.p@volny.cz>, 2022
