@@ -39,9 +39,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.34
+boto3==1.26.37
     # via django-ses
-botocore==1.29.34
+botocore==1.29.37
     # via
     #   boto3
     #   s3transfer
@@ -235,7 +235,7 @@ django-stdimage==5.3.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-django-storages==1.13.1
+django-storages==1.13.2
     # via -r requirements/base.in
 django-taggit==3.1.0
     # via
