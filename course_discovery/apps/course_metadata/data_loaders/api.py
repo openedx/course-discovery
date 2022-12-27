@@ -83,9 +83,23 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def _make_request(self, page):
         logger.info('Requesting course run page %d...', page)
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'username': self.username}
-        response = self.api_client.get(self.api_url + '/courses/', params=params)
+        sub_url = '/courses/'
+        if self.course_id:
+            sub_url += self.course_id
+
+        response = self.api_client.get(self.api_url + sub_url, params=params)
         response.raise_for_status()
-        return response.json()
+        res = response.json()
+        if self.course_id:
+            res = {
+                'pagination': {
+                    'count': 1,
+                    'num_pages': 1,
+                },
+                'results': [res],
+            }
+
+        return res
 
     def _process_response(self, response):
         results = response['results']
@@ -445,14 +459,35 @@ class EcommerceApiDataLoader(AbstractDataLoader):
 
     def _request_course_runs(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'include_products': True}
-        return self.api_client.get(self.api_url + '/courses/', params=params).json()
+        sub_url = '/courses/'
+        if self.course_id:
+            sub_url += self.course_id
+
+        response = self.api_client.get(self.api_url + sub_url, params=params)
+        response.raise_for_status()
+        res = response.json()
+        if self.course_id:
+            res = {
+                'count': 1,
+                'next': None,
+                'previous': None,
+                'results': [res],
+            }
+
+        return res
 
     def _request_entitlements(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Course Entitlement'}
+        if self.course_id:
+            params['course_id'] = self.course_id
+
         return self.api_client.get(self.api_url + '/products/', params=params).json()
 
     def _request_enrollment_codes(self, page):
         params = {'page': page, 'page_size': self.PAGE_SIZE, 'product_class': 'Enrollment Code'}
+        if self.course_id:
+            params['course_id'] = self.course_id
+
         return self.api_client.get(self.api_url + '/products/', params=params).json()
 
     def _process_course_runs(self, response):
@@ -938,6 +973,9 @@ class WordPressApiDataLoader(AbstractDataLoader):
         """
         logger.info('Requesting WordPress course run page %d...', page)
         params = {'page': page, 'page_size': self.PAGE_SIZE}
+        if self.course_id:
+            params['course_id'] = self.course_id
+
         auth = requests.auth.HTTPBasicAuth(
             settings.WORDPRESS_APP_AUTH_USERNAME,
             settings.WORDPRESS_APP_AUTH_PASSWORD

@@ -17,7 +17,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
 
     PAGE_SIZE = 50
 
-    def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False):
+    def __init__(self, partner, api_url, max_workers=None, is_threadsafe=False, course_id=None):
         """
         Arguments:
             partner (Partner): Partner which owns the APIs and data being loaded
@@ -29,6 +29,7 @@ class AbstractDataLoader(metaclass=abc.ABCMeta):
         self.api_url = api_url.strip('/')
         self.api_client = self.partner.lms_api_client
         self.username = self.get_username_from_client(self.api_client)
+        self.course_id = course_id
 
         self.max_workers = max_workers
         self.is_threadsafe = is_threadsafe
