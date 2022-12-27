@@ -290,7 +290,6 @@ def fetch_and_transform_bootcamp_contentful_data():
     Each rich text content field has been transformed into plain text using `rich_text_to_plain_text`.
     """
     contentful_bootcamp_page_entries = get_data_from_contentful(settings.BOOTCAMP_CONTENTFUL_CONTENT_TYPE)
-    logger.info(f"contentful raw data: {contentful_bootcamp_page_entries}")
     transformed_bootcamp_data = {}
     for bootcamp_entry in contentful_bootcamp_page_entries:
         product_uuid = bootcamp_entry.uuid
@@ -348,17 +347,14 @@ def fetch_and_transform_bootcamp_contentful_data():
             transformed_bootcamp_data[product_uuid].update(
                 {'faq_items': faq_items}
             )
-    logger.info(f"transformed_bootcamp_data from contentful data: {transformed_bootcamp_data}")
 
     return transformed_bootcamp_data
 
 
 def get_aggregated_data_from_contentful_data(data, product_uuid):
-    logger.info(f"Started aggregating contentful data for product_uuid: {product_uuid} from data: {data}")
     if (data is None) or (product_uuid not in data):
         return None
 
-    logger.info(f"found raw data from contentful for product_uuid: {product_uuid} data: {data[product_uuid]}")
     aggregated_text = ''
     if 'faq_items' in data[product_uuid]:
         faqs = [f"{faq['question']} {faq['answer']}" for faq in data[product_uuid]['faq_items']]
@@ -380,9 +376,6 @@ def get_aggregated_data_from_contentful_data(data, product_uuid):
         aggregated_text = f"{aggregated_text} {featured_products['heading']}" \
                           f" {featured_products['introduction']} {featured_products_list}"
 
-    logger.info(
-        f"returning aggregated data from contentful for product_uuid: {product_uuid} aggregated_text: {aggregated_text}"
-    )
     return aggregated_text
 
 

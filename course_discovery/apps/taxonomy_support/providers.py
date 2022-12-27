@@ -41,7 +41,7 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
             'title': course.title,
             'short_description': course.short_description,
             'full_description': (
-                get_aggregated_data_from_contentful_data(contentful_data, course.uuid) or course.full_description
+                get_aggregated_data_from_contentful_data(contentful_data, str(course.uuid)) or course.full_description
             ),
         } for course in courses]
 
@@ -60,7 +60,7 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
                     'title': course.title,
                     'short_description': course.short_description,
                     'full_description': (
-                        get_aggregated_data_from_contentful_data(contentful_data, course.uuid) or
+                        get_aggregated_data_from_contentful_data(contentful_data, str(course.uuid)) or
                         course.full_description
                     ),
                 }
@@ -82,7 +82,10 @@ class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
             'uuid': program.uuid,
             'title': program.title,
             'subtitle': program.subtitle,
-            'overview': get_aggregated_data_from_contentful_data(contentful_data, program.uuid) or program.overview,
+            'overview': (
+                get_aggregated_data_from_contentful_data(contentful_data, str(program.uuid)) or
+                program.overview
+            ),
         } for program in programs]
 
     @staticmethod
@@ -99,6 +102,7 @@ class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
                     'title': program.title,
                     'subtitle': program.subtitle,
                     'overview': (
-                        get_aggregated_data_from_contentful_data(contentful_data, program.uuid) or program.overview
+                        get_aggregated_data_from_contentful_data(contentful_data, str(program.uuid)) or
+                        program.overview
                     ),
                 }
