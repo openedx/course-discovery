@@ -1288,6 +1288,7 @@ class CourseRun(DraftModelMixin, CachedMixin, TimeStampedModel):
     is_marketing_price_hidden = models.BooleanField(default=False, verbose_name=_('Hide Price'))
     average_rating = models.DecimalField(default=0.0, max_digits=30, decimal_places=2)
     total_raters = models.IntegerField(default=0)
+    yt_video_url = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Youtube Video URL'))
 
     STATUS_CHANGE_EXEMPT_FIELDS = [
         'start',
