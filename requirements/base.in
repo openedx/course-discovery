@@ -53,9 +53,12 @@ edx-opaque-keys
 edx-rest-api-client
 elasticsearch
 elasticsearch-dsl
+google-api-python-client
+google-auth-httplib2
 gspread
 html2text
 lxml
+oauth2client
 jsonfield
 markdown
 pillow

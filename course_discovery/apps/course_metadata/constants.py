@@ -15,6 +15,11 @@ IMAGE_TYPES = {
     'image/svg+xml': 'svg'  # SVG image will be converted into PNG, not stored as SVG
 }
 
+DRIVE_LINK_PATTERNS = [r"https://docs\.google\.com/uc\?id=\w+",
+                       r"https://drive\.google\.com/file/d/\w+/view?usp=sharing"]
+
+GOOGLE_CLIENT_API_SCOPE = ['https://www.googleapis.com/auth/drive']
+
 
 class PathwayType(Enum):
     """ Allowed values for Pathway.pathway_type """
