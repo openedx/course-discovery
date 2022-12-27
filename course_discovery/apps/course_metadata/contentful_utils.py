@@ -355,6 +355,7 @@ def get_aggregated_data_from_contentful_data(data, product_uuid):
     if (data is None) or (product_uuid not in data):
         return None
 
+    logger.info(f"found raw data from contentful for product_uuid: {product_uuid} data: {data[product_uuid]}")
     aggregated_text = ''
     if 'faq_items' in data[product_uuid]:
         faqs = [f"{faq['question']} {faq['answer']}" for faq in data[product_uuid]['faq_items']]
@@ -376,6 +377,9 @@ def get_aggregated_data_from_contentful_data(data, product_uuid):
         aggregated_text = f"{aggregated_text} {featured_products['heading']}" \
                           f" {featured_products['introduction']} {featured_products_list}"
 
+    logger.info(
+        f"returning aggregated data from contentful for product_uuid: {product_uuid} aggregated_text: {aggregated_text}"
+    )
     return aggregated_text
 
 
