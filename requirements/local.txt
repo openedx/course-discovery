@@ -432,7 +432,10 @@ google-auth==2.16.0
     #   google-auth-oauthlib
     #   gspread
 google-auth-oauthlib==0.8.0
-    # via gspread
+google-api-python-client==2.70.0
+    # via -r requirements/base.in
+google-auth-httplib2==0.1.0
+    # via google-api-python-client
 gspread==5.7.2
     # via -r requirements/base.in
 h11==0.14.0
@@ -510,6 +513,9 @@ openedx-events==4.1.0
     # via
     #   edx-event-bus-kafka
     #   taxonomy-connector
+
+oauth2client==4.1.3
+    # via -r requirements/base.in
 oscrypto==1.3.0
     # via snowflake-connector-python
 outcome==1.2.0
