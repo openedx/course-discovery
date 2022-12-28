@@ -2165,7 +2165,7 @@ class CourseViewSetTests(SerializationMixin, ElasticsearchTestMixin, OAuth2Mixin
         CourseEntitlementFactory(course=self.course, mode=SeatTypeFactory.verified())
 
         url = reverse('api:v1:course-detail', kwargs={'key': self.course.uuid})
-        with self.assertNumQueries(40, threshold=0):
+        with self.assertNumQueries(41, threshold=0):
             response = self.client.options(url)
         assert response.status_code == 200
 
