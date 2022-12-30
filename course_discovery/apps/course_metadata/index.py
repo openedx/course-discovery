@@ -105,7 +105,9 @@ class EnglishProductIndex(BaseProductIndex):
             'unordered(primary_description)',
             'unordered(secondary_description)',
             'unordered(tertiary_description)',
-            'tags'
+            'tags',
+            'contentful_fields.page_title, contentful_fields.subheading, contentful_fields.about_the_program, '
+            'contentful_fields.faq_items, contentful_fields.featured_products'
         ],
         'attributesForFaceting': [
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
@@ -154,7 +156,9 @@ class SpanishProductIndex(BaseProductIndex):
             'unordered(primary_description)',
             'unordered(secondary_description)',
             'unordered(tertiary_description)',
-            'tags'
+            'tags',
+            'contentful_fields.page_title, contentful_fields.subheading, contentful_fields.about_the_program, '
+            'contentful_fields.faq_items, contentful_fields.featured_products'
         ],
         'attributesForFaceting': [
             'partner', 'availability', 'subject', 'level', 'language', 'product', 'program_type',
