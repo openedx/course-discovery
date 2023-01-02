@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.37
+boto3==1.26.41
     # via django-ses
-botocore==1.29.37
+botocore==1.29.41
     # via
     #   boto3
     #   s3transfer
@@ -415,7 +415,7 @@ faker==15.3.4
     # via factory-boy
 fastavro==1.7.0
     # via openedx-events
-filelock==3.8.2
+filelock==3.9.0
     # via
     #   snowflake-connector-python
     #   tox
@@ -445,7 +445,7 @@ idna==3.4
     #   trio
 imagesize==1.4.1
     # via sphinx
-importlib-metadata==5.2.0
+importlib-metadata==6.0.0
     # via
     #   -r requirements/base.in
     #   markdown
@@ -493,7 +493,7 @@ markupsafe==2.1.1
     # via jinja2
 mccabe==0.7.0
     # via pylint
-mock==4.0.3
+mock==5.0.0
     # via -r requirements/test.in
 mysqlclient==2.1.1
     # via -r requirements/test.in
@@ -504,7 +504,9 @@ oauthlib==3.2.2
     #   requests-oauthlib
     #   social-auth-core
 openedx-events==4.0.0
-    # via edx-event-bus-kafka
+    # via
+    #   edx-event-bus-kafka
+    #   taxonomy-connector
 oscrypto==1.3.0
     # via snowflake-connector-python
 outcome==1.2.0
@@ -531,7 +533,7 @@ pillow==9.3.0
     #   -r requirements/base.in
     #   cairosvg
     #   django-stdimage
-platformdirs==2.6.0
+platformdirs==2.6.2
     # via
     #   pylint
     #   virtualenv
@@ -564,7 +566,7 @@ pycryptodomex==3.16.0
     # via
     #   pyjwkest
     #   snowflake-connector-python
-pygments==2.13.0
+pygments==2.14.0
     # via sphinx
 pyjwkest==1.4.2
     # via edx-drf-extensions
@@ -602,7 +604,7 @@ pyopenssl==22.0.0
     #   snowflake-connector-python
 pyparsing==3.0.9
     # via packaging
-pyrsistent==0.19.2
+pyrsistent==0.19.3
     # via jsonschema
 pysocks==1.7.1
     # via urllib3
@@ -777,7 +779,7 @@ sortedcontainers==2.4.0
     # via trio
 soupsieve==2.3.2.post1
     # via beautifulsoup4
-sphinx==5.3.0
+sphinx==6.0.0
     # via
     #   -r requirements/docs.in
     #   edx-sphinx-theme
@@ -802,7 +804,7 @@ stevedore==4.1.1
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.31.0
+taxonomy-connector==1.31.2
     # via -r requirements/base.in
 testfixtures==7.0.4
     # via -r requirements/test.in
