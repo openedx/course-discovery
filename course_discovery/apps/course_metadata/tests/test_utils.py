@@ -776,7 +776,7 @@ class TestDownloadAndSaveImage(TestCase):
         course = CourseFactory(card_image_url=image_url, image=None)
         download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None)
         image_url, content = self.mock_image_response()
-        response = requests.get('https://example.com/image.jpg')
+        response = requests.get('https://example.com/image.jpg', timeout=5)
         assert response.content == content
         assert course.card_image_url == image_url
         assert course.image is not None
@@ -801,7 +801,7 @@ class TestDownloadAndSaveImage(TestCase):
         course = CourseFactory(card_image_url=image_url, image=None)
         download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None)
         image_url, content = self.mock_image_response(status=200, body=b'invalid', content_type='text/plain', url=image_url)  # pylint: disable=line-too-long
-        response = requests.get('https://www.example.com/image.pdf')
+        response = requests.get('https://www.example.com/image.pdf', timeout=5)
         assert response.content == content
         assert not bool(course.image)
 
@@ -823,7 +823,7 @@ class TestDownloadAndSaveImage(TestCase):
         program = ProgramFactory(card_image_url=image_url, card_image=None)
         download_and_save_program_image(program, program.card_image_url, data_field='image', headers=None)
         image_url, content = self.mock_image_response()
-        response = requests.get('https://example.com/image.jpg')
+        response = requests.get('https://example.com/image.jpg', timeout=5)
         assert response.content == content
         assert program.card_image is not None
 
@@ -845,6 +845,6 @@ class TestDownloadAndSaveImage(TestCase):
         program = ProgramFactory(card_image_url=image_url, card_image=None)
         download_and_save_program_image(program, program.card_image_url, data_field='image', headers=None)
         image_url, content = self.mock_image_response(status=200, body=b'invalid', content_type='text/plain', url=image_url)  # pylint: disable=line-too-long
-        response = requests.get('https://www.example.com/image.pdf')
+        response = requests.get('https://www.example.com/image.pdf', timeout=5)
         assert response.content == content
         assert not bool(program.card_image)
