@@ -737,8 +737,7 @@ class TestDownloadAndSaveImage(TestCase):
                   b'\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc```\x00\x00\x00\x04\x00\x01\xf6\x178U\x00\x00\x00\x00' \
                   b'IEND\xaeB`\x82'
 
-    def mock_image_response(self, status=200, body=None, content_type='image/jpeg', url='https://example.com/image.jpg'):  # pylint: disable=invalid-name
-        """ Mock image response """
+    def mock_image_response(self, status=200, body=None, content_type='image/jpeg', url='https://example.com/image.jpg'):  # pylint: disable=line-too-long
         body = body or b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00' \
                        b'\x90wS\xde\x00\x00\x00\x0cIDATx\x9cc```\x00\x00\x00\x04\x00\x01\xf6\x178U\x00\x00\x00\x00' \
                        b'IEND\xaeB`\x82'
