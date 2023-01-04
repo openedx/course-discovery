@@ -361,6 +361,19 @@ class TestAlgoliaProxyCourse(TestAlgoliaProxyWithEdxPartner):
         course.additional_metadata = AdditionalMetadataFactory(product_status=external_status)
         assert course.should_index == should_index
 
+    @ddt.data(
+        (None, True),
+        (CourseType.BOOTCAMP_2U, False),
+        (CourseType.EXECUTIVE_EDUCATION_2U, False)
+    )
+    @ddt.unpack
+    def test_display_on_org_page(self, type_slug, display_on_org_page):
+        course = self.create_course_with_basic_active_course_run()
+        course.authoring_organizations.add(OrganizationFactory())
+        if type_slug:
+            course.type = CourseTypeFactory(slug=type_slug)
+        assert course.product_display_on_org_page == display_on_org_page
+
 
 @ddt.ddt
 @pytest.mark.django_db
@@ -519,6 +532,18 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
     def test_is_not_2u_degree_program(self):
         program = AlgoliaProxyProgramFactory()
         assert not program.is_2u_degree_program
+
+    def test_display_on_org_page(self):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        assert program.product_display_on_org_page
+
+    @ddt.data(True, False)
+    def test_degree_display_on_org_page(self, display_on_org_page):
+        program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        degree = DegreeFactory(display_on_org_page=display_on_org_page)
+        degree.additional_metadata = DegreeAdditionalMetadataFactory()
+        program.degree = degree
+        assert program.product_display_on_org_page == display_on_org_page
 
     @ddt.data(True, False)
     def test_program_overrides(self, has_overrides):
