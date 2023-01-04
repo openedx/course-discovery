@@ -442,9 +442,9 @@ class TestAlgoliaProxyProgram(TestAlgoliaProxyWithEdxPartner):
         assert program.availability_level == []
 
     def test_only_programs_with_spanish_courses_promoted_in_spanish_index(self):
-        all_spanish_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        mixed_language_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
-        all_english_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner)
+        all_spanish_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, language_override=None)
+        mixed_language_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, language_override=None)
+        all_english_program = AlgoliaProxyProgramFactory(partner=self.__class__.edxPartner, language_override=None)
 
         colombian_spanish = LanguageTag.objects.get(code='es-co')
         american_english = LanguageTag.objects.get(code='en-us')
