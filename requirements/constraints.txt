@@ -31,3 +31,7 @@ django-autocomplete-light<3.5
 
 # pip20+ requires for greater version of pip-tools. But installing 19.3.1 in all our containers and VMs.
 pip-tools==4.5.1
+
+# python > 3.5 requires for greater version(s)
+celery==4.4.7
+redis==3.5.3

@@ -9,12 +9,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
-from course_discovery.apps.course_metadata.data_loaders.api import (
-    CoursesApiDataLoader,
-    EcommerceApiDataLoader,
-    WordPressApiDataLoader,
-)
 from course_discovery.apps.core.models import Partner
+from course_discovery.apps.edly_discovery_app.api.v1.tasks import run_dataloader
 
 logger = logging.getLogger(__name__)
 
@@ -54,28 +50,14 @@ class EdlyDataLoaderView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        pipeline = {
-            'lms': (CoursesApiDataLoader, partner.courses_api_url),
-            'ecommerce': (EcommerceApiDataLoader, partner.ecommerce_api_url),
-            'wordpress': (WordPressApiDataLoader, partner.marketing_site_api_url),
-        }
-
-        loader = pipeline.get(service)
-        if not loader:
+        if service not in ['lms', 'ecommerce', 'wordpress']:
             return Response(
                 {'error': 'Data Loader for service: {} is not handled by API'.format(
                     service)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        dataloader, api_url = loader
-        logger.info('Executing Loader [{}]'.format(api_url))
-        dataloader(
-            partner=partner,
-            api_url=api_url,
-            max_workers=1,
-            course_id=course_id
-        ).ingest()
+        run_dataloader.delay(partner.short_code, course_id, service)
 
         return Response(
             {'message': "Course Sync'd with {}".format(service)},

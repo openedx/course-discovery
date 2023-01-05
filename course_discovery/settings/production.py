@@ -92,3 +92,6 @@ COMPRESS_OFFLINE = True
 
 # Have images and such that we upload be publicly readable
 AWS_DEFAULT_ACL = 'public-read'
+
+# Celery Broker
+CELERY_BROKER_URL = config_from_yaml.get('CELERY_BROKER_URL', 'redis://localhost:6379')

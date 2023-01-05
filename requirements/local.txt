@@ -17,6 +17,7 @@ backoff==1.10.0           # via -r requirements/base.in
 bcrypt==3.1.7             # via paramiko
 beautifulsoup4==4.9.0     # via -r requirements/base.in
 cached-property==1.5.1    # via docker-compose
+celery==4.4.7
 certifi==2020.4.5.1       # via requests
 cffi==1.14.0              # via bcrypt, cryptography, pynacl
 chardet==3.0.4            # via requests
@@ -153,6 +154,7 @@ pytz==2020.1              # via -r requirements/base.in, babel, django
 pywatchman==1.4.1         # via -r requirements/local.in
 pyyaml==5.3.1             # via docker-compose, edx-django-release-util, edx-i18n-tools
 rcssmin==1.0.6            # via django-compressor
+redis==3.5.3
 requests-oauthlib==1.3.0  # via social-auth-core
 requests==2.23.0          # via -r requirements/base.in, algoliasearch, coreapi, docker, docker-compose, edx-analytics-data-api-client, edx-drf-extensions, edx-rest-api-client, pyjwkest, requests-oauthlib, responses, simple-salesforce, slumber, social-auth-core, sphinx
 responses==0.10.14        # via -r requirements/test.in, pytest-responses
