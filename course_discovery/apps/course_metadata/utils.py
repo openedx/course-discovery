@@ -646,22 +646,30 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.ignore_links = True
         self.in_lang_span = False
         self.images_with_size = True
 
     def handle_tag(self, tag, attrs, start):
         super().handle_tag(tag, attrs, start)
         if tag == 'span':
-            if attrs:
-                attr_dict = dict(attrs)
-                if start and 'lang' in attr_dict:
-                    lang = attr_dict['lang']
-                    self.outtextf(f'<span lang="{lang}">')
-                    self.in_lang_span = True
-            if not start:
-                if self.in_lang_span:
-                    self.outtextf('</span>')
+            if attrs and start and 'lang' in dict(attrs):
+                self.outtextf(f'<span lang="{dict(attrs)["lang"]}">')
+                self.in_lang_span = True
+            if not start and self.in_lang_span:
+                self.outtextf('</span>')
                 self.in_lang_span = False
+
+        if tag == 'a':
+            # override the default behavior of html2text to include all attributes from attr_dict for <a> tags
+            # because by default it only includes the href and title attributes
+            if attrs and start and 'href' in dict(attrs):
+                self.outtextf('<a')
+                for attr, value in dict(attrs).items():
+                    self.outtextf(f' {attr}="{value}"')
+                self.outtextf('>')
+            if not start:
+                self.outtextf('</a>')
 
 
 def clean_html(content):
