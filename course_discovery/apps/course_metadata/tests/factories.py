@@ -32,6 +32,14 @@ class AbstractHeadingBlurbModelFactory(factory.django.DjangoModelFactory):
     blurb = FuzzyText()
 
 
+class SourceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Source
+
+    name = FuzzyText()
+    description = FuzzyText()
+
+
 class ImageFactory(AbstractMediaModelFactory):
     height = 100
     width = 100
@@ -359,6 +367,7 @@ class CourseFactory(SalesforceRecordFactory):
     organization_short_code_override = FuzzyText()
     canonical_course_run = None
     extra_description = factory.SubFactory(AdditionalPromoAreaFactory)
+    product_source = factory.SubFactory(SourceFactory)
     additional_metadata = factory.SubFactory(AdditionalMetadataFactory)
     additional_information = FuzzyText()
     faq = FuzzyText()
@@ -644,6 +653,7 @@ class ProgramBaseFactory(factory.django.DjangoModelFactory):
     organization_short_code_override = FuzzyText()
     organization_logo_override = FuzzyText(suffix=".png")
     primary_subject_override = factory.SubFactory(SubjectFactory)
+    product_source = factory.SubFactory(SourceFactory)
     level_type_override = factory.SubFactory(LevelTypeFactory)
     language_override = factory.Iterator(LanguageTag.objects.all())
     taxi_form = factory.SubFactory(TaxiFormFactory)

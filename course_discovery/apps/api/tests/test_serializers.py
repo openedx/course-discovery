@@ -30,7 +30,7 @@ from course_discovery.apps.api.serializers import (
     OrganizationSerializer, PathwaySerializer, PersonSerializer, PositionSerializer, PrerequisiteSerializer,
     ProductMetaSerializer, ProductValueSerializer, ProgramLocationRestrictionSerializer,
     ProgramsAffiliateWindowSerializer, ProgramSerializer, ProgramTypeAttrsSerializer, ProgramTypeSerializer,
-    RankingSerializer, SeatSerializer, SubjectSerializer, TaxiFormSerializer, TopicSerializer,
+    RankingSerializer, SeatSerializer, SourceSerializer, SubjectSerializer, TaxiFormSerializer, TopicSerializer,
     TypeaheadCourseRunSearchSerializer, TypeaheadProgramSearchSerializer, VideoSerializer,
     get_lms_course_url_for_archived, get_utm_source_for_user
 )
@@ -169,6 +169,7 @@ class CourseSerializerTests(MinimalCourseSerializerTests):
             'full_description': course.full_description,
             'level_type': course.level_type.name_t,
             'extra_description': AdditionalPromoAreaSerializer(course.extra_description).data,
+            'product_source': SourceSerializer(course.product_source).data,
             'additional_metadata': AdditionalMetadataSerializer(course.additional_metadata).data,
             'subjects': [],
             'prerequisites': [],
@@ -1136,6 +1137,7 @@ class ProgramSerializerTests(MinimalProgramSerializerTests):
             'topics': [topic.name for topic in program.topics],
             'credit_value': program.credit_value,
             'enterprise_subscription_inclusion': program.enterprise_subscription_inclusion,
+            'product_source': SourceSerializer(program.product_source).data,
             'organization_short_code_override': program.organization_short_code_override,
             'organization_logo_override_url': program.organization_logo_override_url,
             'primary_subject_override': SubjectSerializer(program.primary_subject_override).data,

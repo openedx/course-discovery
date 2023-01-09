@@ -96,6 +96,18 @@ class DraftModelMixin(models.Model):
         abstract = True
 
 
+class Source(TimeStampedModel):
+    """
+    Source Model to find where a course or program originated from.
+    """
+    name = models.CharField(max_length=255, help_text=_('Name of the external source.'))
+    slug = AutoSlugField(
+        populate_from='name', editable=True, slugify_function=uslugify, overwrite_on_add=False,
+        help_text=_('Leave this field blank to have the value generated automatically.')
+    )
+    description = models.CharField(max_length=255, blank=True, help_text=_('Description of the external source.'))
+
+
 class CachedMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -1082,6 +1094,7 @@ class Course(DraftModelMixin, PkSearchableMixin, CachedMixin, TimeStampedModel):
     enrollment_count = models.IntegerField(
         null=True, blank=True, default=0, help_text=_('Total number of learners who have enrolled in this course')
     )
+    product_source = models.ForeignKey(Source, models.SET_NULL, null=True, blank=True, related_name='courses')
     recent_enrollment_count = models.IntegerField(
         null=True, blank=True, default=0, help_text=_(
             'Total number of learners who have enrolled in this course in the last 6 months'
@@ -2510,6 +2523,7 @@ class Program(PkSearchableMixin, TimeStampedModel):
     # NOTE (CCB): Editors of this field should validate the values to ensure only CourseRuns associated
     # with related Courses are stored.
     excluded_course_runs = models.ManyToManyField(CourseRun, blank=True)
+    product_source = models.ForeignKey(Source, models.SET_NULL, null=True, blank=True, related_name='programs')
     partner = models.ForeignKey(Partner, models.CASCADE, null=True, blank=False)
     overview = models.TextField(null=True, blank=True)
     total_hours_of_effort = models.PositiveSmallIntegerField(
