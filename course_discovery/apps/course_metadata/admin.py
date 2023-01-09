@@ -90,6 +90,11 @@ class PositionInline(admin.TabularInline):
     extra = 0
 
 
+class SourceInline(admin.TabularInline):
+    model = Source
+    extra = 0
+
+
 class PersonSocialNetworkInline(admin.TabularInline):
     model = PersonSocialNetwork
     extra = 0
@@ -120,6 +125,7 @@ class ProductValueAdmin(admin.ModelAdmin):
 @admin.register(Course)
 class CourseAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = CourseAdminForm
+    inline = (SourceInline,)
     list_display = ('uuid', 'key', 'key_for_reruns', 'title', 'draft',)
     list_filter = ('partner',)
     ordering = ('key', 'title',)
@@ -343,6 +349,7 @@ class ProgramLocationRestrictionAdmin(admin.ModelAdmin):
 @admin.register(Program)
 class ProgramAdmin(DjangoObjectActions, admin.ModelAdmin):
     form = ProgramAdminForm
+    inline = (SourceInline,)
     list_display = ('id', 'uuid', 'title', 'type', 'partner', 'status', 'hidden')
     list_filter = ('partner', 'type', 'status', ProgramEligibilityFilter, 'hidden')
     ordering = ('uuid', 'title', 'status')

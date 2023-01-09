@@ -41,8 +41,8 @@ from course_discovery.apps.course_metadata.models import (
     CourseType, Curriculum, CurriculumCourseMembership, CurriculumProgramMembership, Degree, DegreeAdditionalMetadata,
     DegreeCost, DegreeDeadline, Endorsement, Fact, GeoLocation, IconTextPairing, Image, LevelType, Mode, Organization,
     Pathway, Person, PersonAreaOfExpertise, PersonSocialNetwork, Position, Prerequisite, ProductMeta, ProductValue,
-    Program, ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Specialization, Subject, TaxiForm, Topic,
-    Track, Video
+    Program, ProgramLocationRestriction, ProgramType, Ranking, Seat, SeatType, Source, Specialization, Subject,
+    TaxiForm, Topic, Track, Video
 )
 from course_discovery.apps.course_metadata.utils import get_course_run_estimated_hours, parse_course_key_fragment
 from course_discovery.apps.ietf_language_tags.models import LanguageTag
@@ -223,6 +223,13 @@ class AdditionalPromoAreaSerializer(TitleDescriptionSerializer):
     """Serializer for AdditionalPromoArea """
     class Meta(TitleDescriptionSerializer.Meta):
         model = AdditionalPromoArea
+
+
+class SourceSerializer(BaseModelSerializer):
+    """Serializer for Source"""
+    class Meta:
+        model = Source
+        fields = ('name', 'slug', 'description')
 
 
 class FactSerializer(HeadingBlurbSerializer):
@@ -1268,6 +1275,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
     geolocation = GeoLocationSerializer(required=False, allow_null=True)
     location_restriction = CourseLocationRestrictionSerializer(required=False)
     in_year_value = ProductValueSerializer(required=False)
+    product_source = SourceSerializer(required=False)
 
     def get_organization_logo_override_url(self, obj):
         logo_image_override = getattr(obj, 'organization_logo_override', None)
@@ -1288,6 +1296,7 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'partner',
             'extra_description',
             'additional_metadata',
+            'product_source',
             '_official_version',
             'canonical_course_run',
             'type',
@@ -1323,7 +1332,8 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             'enrollment_count', 'recent_enrollment_count', 'topics', 'partner', 'key_for_reruns', 'url_slug',
             'url_slug_history', 'url_redirects', 'course_run_statuses', 'editors', 'collaborators', 'skill_names',
             'skills', 'organization_short_code_override', 'organization_logo_override_url',
-            'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value'
+            'enterprise_subscription_inclusion', 'geolocation', 'location_restriction', 'in_year_value',
+            'product_source',
         )
         extra_kwargs = {
             'partner': {'write_only': True}
@@ -1400,6 +1410,17 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
             instance.product_meta.keywords.set(keywords, clear=True)
             instance.product_meta.save()
 
+    def update_product_source(self, instance, product_source):
+
+        if instance.product_source:
+            Source.objects.filter(id=instance.product_source.id).update(
+                **product_source)
+        else:
+            instance.product_source = Source.objects.create(
+                **product_source,
+            )
+            instance.save()
+
     def update_additional_metadata(self, instance, additional_metadata):
 
         facts = additional_metadata.pop('facts', None)
@@ -1456,6 +1477,9 @@ class CourseSerializer(TaggitSerializer, MinimalCourseSerializer):
                 self.update_location_restriction(instance, location_restriction_data)
         if 'in_year_value' in validated_data:
             self.update_in_year_value(instance, validated_data.pop('in_year_value'))
+        if 'product_source' in validated_data:
+            self.update_product_source(
+                instance, validated_data.pop('product_source'))
         return super().update(instance, validated_data)
 
 
@@ -2048,6 +2072,7 @@ class ProgramSerializer(MinimalProgramSerializer):
     in_year_value = ProductValueSerializer(required=False)
     skill_names = serializers.SerializerMethodField()
     skills = serializers.SerializerMethodField()
+    product_source = SourceSerializer(required=False)
 
     @classmethod
     def prefetch_queryset(cls, partner, queryset=None):
@@ -2066,6 +2091,7 @@ class ProgramSerializer(MinimalProgramSerializer):
             'partner',
             'geolocation',
             'in_year_value',
+            'product_source',
             'location_restriction'
         ).prefetch_related(
             'excluded_course_runs',
@@ -2109,8 +2135,26 @@ class ProgramSerializer(MinimalProgramSerializer):
             'staff', 'credit_redemption_overview', 'applicable_seat_types', 'instructor_ordering',
             'enrollment_count', 'topics', 'credit_value', 'enterprise_subscription_inclusion', 'geolocation',
             'location_restriction', 'is_2u_degree_program', 'in_year_value', 'skill_names', 'skills',
+            'product_source',
         )
         read_only_fields = ('enterprise_subscription_inclusion',)
+
+    def update_product_source(self, instance, product_source):
+
+        if instance.product_source:
+            Source.objects.filter(
+                id=instance.product_source.id).update(**product_source)
+        else:
+            instance.product_source = Source.objects.create(
+                **product_source,
+            )
+            instance.save()
+
+    def update(self, instance, validated_data):
+        if 'product_source' in validated_data:
+            self.update_product_source(
+                instance, validated_data.pop('product_source'))
+        return super().update(instance, validated_data)
 
 
 class PathwaySerializer(BaseModelSerializer):
