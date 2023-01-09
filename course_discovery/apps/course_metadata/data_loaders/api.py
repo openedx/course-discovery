@@ -79,7 +79,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         response = self._make_request(page)
         self._process_response(response)
 
-    # The courses endpoint has a 40 requests/minute rate limit.
+    # The courses endpoint has 40 requests/minute rate limit.
     # This will back off at a rate of 60/120/240 seconds (from the factor 60 and default value of base 2).
     # This backoff code can still fail because of the concurrent requests all requesting at the same time.
     # So even in the case of entering into the next minute, if we still exceed our limit for that min,
@@ -93,7 +93,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
     )
     def _make_request(self, page):
         logger.info('Requesting course run page %d...', page)
-        params = {'page': page, 'page_size': self.PAGE_SIZE, 'username': self.username}
+        params = {'page': page, 'page_size': self.PAGE_SIZE, 'username': self.username, 'active_only': True}
         response = self.api_client.get(self.api_url + '/courses/', params=params)
         response.raise_for_status()
         return response.json()
