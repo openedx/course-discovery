@@ -39,9 +39,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.45
+boto3==1.26.46
     # via django-ses
-botocore==1.29.45
+botocore==1.29.46
     # via
     #   boto3
     #   s3transfer
@@ -338,7 +338,7 @@ future==0.18.2
     # via pyjwkest
 gevent==22.10.2
     # via -r requirements/production.in
-google-auth==2.15.0
+google-auth==2.16.0
     # via
     #   google-auth-oauthlib
     #   gspread
@@ -394,6 +394,8 @@ newrelic==8.5.0
     # via
     #   -r requirements/production.in
     #   edx-django-utils
+numpy==1.24.1
+    # via pandas
 oauthlib==3.2.2
     # via
     #   requests-oauthlib
@@ -408,6 +410,8 @@ packaging==23.0
     # via
     #   django-nine
     #   drf-yasg
+pandas==1.5.2
+    # via taxonomy-connector
 pbr==5.11.0
     # via stevedore
 pillow==9.4.0
@@ -458,6 +462,7 @@ python-dateutil==2.8.2
     #   contentful
     #   edx-drf-extensions
     #   elasticsearch-dsl
+    #   pandas
 python-memcached==1.59
     # via -r requirements/production.in
 python-monkey-business==1.0.0
@@ -478,6 +483,7 @@ pytz==2022.7
     #   django-ses
     #   djangorestframework
     #   drf-yasg
+    #   pandas
     #   snowflake-connector-python
     #   taxonomy-connector
     #   zeep
@@ -571,7 +577,7 @@ stevedore==4.1.1
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.33.0
+taxonomy-connector==1.34.0
     # via -r requirements/base.in
 text-unidecode==1.3
     # via python-slugify

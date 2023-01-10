@@ -64,9 +64,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.45
+boto3==1.26.46
     # via django-ses
-botocore==1.29.45
+botocore==1.29.46
     # via
     #   boto3
     #   s3transfer
@@ -412,7 +412,7 @@ face==22.0.0
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==15.3.4
+faker==16.1.0
     # via factory-boy
 fastavro==1.7.0
     # via openedx-events
@@ -427,7 +427,7 @@ future==0.18.2
     # via pyjwkest
 glom==22.1.0
     # via semgrep
-google-auth==2.15.0
+google-auth==2.16.0
     # via
     #   google-auth-oauthlib
     #   gspread
@@ -494,12 +494,14 @@ markupsafe==2.1.1
     # via jinja2
 mccabe==0.7.0
     # via pylint
-mock==5.0.0
+mock==5.0.1
     # via -r requirements/test.in
 mysqlclient==2.1.1
     # via -r requirements/test.in
 newrelic==8.5.0
     # via edx-django-utils
+numpy==1.24.1
+    # via pandas
 oauthlib==3.2.2
     # via
     #   requests-oauthlib
@@ -521,6 +523,8 @@ packaging==21.3
     #   semgrep
     #   sphinx
     #   tox
+pandas==1.5.2
+    # via taxonomy-connector
 paramiko==2.12.0
     # via docker
 path==16.6.0
@@ -579,7 +583,7 @@ pyjwt[crypto]==2.6.0
     #   edx-rest-api-client
     #   snowflake-connector-python
     #   social-auth-core
-pylint==2.15.9
+pylint==2.15.10
     # via
     #   edx-lint
     #   pylint-celery
@@ -634,6 +638,7 @@ python-dateutil==2.8.2
     #   elasticsearch-dsl
     #   faker
     #   freezegun
+    #   pandas
 python-dotenv==0.21.0
     # via docker-compose
 python-lsp-jsonrpc==1.0.0
@@ -659,6 +664,7 @@ pytz==2022.7
     #   django-ses
     #   djangorestframework
     #   drf-yasg
+    #   pandas
     #   snowflake-connector-python
     #   taxonomy-connector
     #   zeep
@@ -805,7 +811,7 @@ stevedore==4.1.1
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-taxonomy-connector==1.33.0
+taxonomy-connector==1.34.0
     # via -r requirements/base.in
 testfixtures==7.0.4
     # via -r requirements/test.in
