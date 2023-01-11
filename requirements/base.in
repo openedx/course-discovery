@@ -58,7 +58,6 @@ google-auth-httplib2
 gspread
 html2text
 lxml
-oauth2client
 jsonfield
 markdown
 pillow
