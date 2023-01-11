@@ -686,3 +686,5 @@ LMS_API_URLS = {
     'blocks': 'api/courses/v1/blocks/',
     'block_metadata': 'api/courses/v1/block_metadata/',
 }
+
+GOOGLE_DRIVE_IMPERSONATE_USER_EMAIL = ''

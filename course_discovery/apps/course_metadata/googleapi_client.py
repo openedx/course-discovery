@@ -3,7 +3,7 @@ import re
 
 from django.conf import settings
 from googleapiclient.discovery import build
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 
 from course_discovery.apps.course_metadata.constants import GOOGLE_CLIENT_API_SCOPE
 
@@ -17,8 +17,10 @@ class GoogleAPIClient:
 
     def __init__(self):
         try:
-            credentials = ServiceAccountCredentials.from_json_keyfile_dict(
-                settings.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS, GOOGLE_CLIENT_API_SCOPE)
+            credentials = Credentials.from_service_account_info(
+                settings.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS, scopes=GOOGLE_CLIENT_API_SCOPE
+            )
+            credentials = credentials.with_subject(settings.GOOGLE_DRIVE_IMPERSONATE_USER_EMAIL)
             self.service = build('drive', 'v3', credentials=credentials)
             logger.info('[Connection Successful]: Successful connection with google service account')
         except Exception as ex:  # pylint: disable=broad-except
