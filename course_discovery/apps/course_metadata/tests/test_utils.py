@@ -619,6 +619,12 @@ class UtilsTests(TestCase):
         # Make sure we treat incoming text as HTML, not markdown
         ('Bare Text\nSame Para\n\nNew Para', '<p>Bare Text Same Para New Para</p>'),
 
+        # Make sure to add target attributes to anchor tags if they are in attributes list
+        # pylint: disable=line-too-long
+        ('<p>please visit this <a title="less go" href="https://google.com" target="_blank" rel="noopener">link</a></p>', '<p>please visit this <a href="https://google.com" rel="noopener" target="_blank" title="less go">link</a></p>'),
+        # pylint: disable=line-too-long
+        ('<a href="https://yahoo.com" target="_blank" rel="noopener">link</a>', '<p><a href="https://yahoo.com" rel="noopener" target="_blank">link</a></p>'),
+
         # And make sure we strip what we should
         ('<p class="float">Class</p>', '<p>Class</p>'),
         ('<p style="float">Inline Style</p>', '<p>Inline Style</p>'),
