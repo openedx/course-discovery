@@ -109,29 +109,25 @@ class MockContenfulDegreeResponse:
                     'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
                     'checkmarked_items': ['Lorem ipsum: dolor sit amet, consectetur adipiscing elit']
                 },
-                'faq_items': [
-                    {
-                        'question': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                        'answer': 'Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet,'
-                        ' consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem'
-                        ' ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, '
-                        'consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elit'
-                    },
-                ],
-                "featured_products": {
-                    "heading": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                    "introduction": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                    "product_list": [
-                        {
-                            "header": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                            "description": "Lorem ipsum: dolor sit amet, consectetur adipiscing elit"
-                        },
-                    ],
+                'featured_products': {
+                    'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                    'introduction': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                    'product_list': [{
+                        'header': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                        'description': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elit'
+                    }]
                 },
-                "placement_about_section": {
-                    "heading": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                    "body_text": "Lorem ipsum: dolor sit amet, consectetur adipiscing elit",
-                }
+                'placement_about_section': {
+                    'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                    'body_text': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elit'
+                },
+                'faq_items': [{
+                    'question': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                    'answer': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                              ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                              ' Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                              ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                }]
             }
         }
 
@@ -232,9 +228,9 @@ class MockContentfulBootcampResponse:
             'test-uuid': {
                 'page_title': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
                 'subheading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                'hero_text_list': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elitLorem ipsum: dolor sit amet,'
-                ' consectetur adipiscing elitLorem ipsum: dolor sit amet, consectetur adipiscing elitLorem'
-                ' ipsum: dolor sit amet, consectetur adipiscing elit',
+                'hero_text_list': 'Lorem ipsum: dolor sit amet, consectetur adipiscing elit Lorem ipsum: dolor sit '
+                                  'amet, consectetur adipiscing elit Lorem ipsum: dolor sit amet, consectetur '
+                                  'adipiscing elit Lorem ipsum: dolor sit amet, consectetur adipiscing elit',
                 'about_the_program': {
                     'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
                     'content': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
@@ -242,43 +238,40 @@ class MockContentfulBootcampResponse:
                 },
                 'blurb_1': {
                     'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                    'body': 'Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet,'
-                            ' consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elit'
-                            'Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet,'
-                            ' consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elit'
-                            'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                    'body': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                            ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                            ' Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                            ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                            ' Lorem ipsum dolor sit amet, consectetur adipiscing elit'
                 },
-                "blurb_2": {
-                    "heading": "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                    "body": 'Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur'
-                            ' adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elit'
-                },
-                'bootcamp_curriculum': {
-                    'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit '
-                    'amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur '
-                    'adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem '
-                    'ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet,'
-                    ' consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elit'
-                },
-                'partnerships': {
+                'blurb_2': {
+                    'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+                    'body': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                            ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                }, 'bootcamp_curriculum': {
+                    'heading': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                               ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                               ' Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                               ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                               ' Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                }, 'partnerships': {
                     'heading_text': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                    'body_text': 'Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem, ipsum, or dolorLorem '
-                                    'ipsum dolor sit amet, consectetur adipiscing elit',
-                },
-                'faq_items': [
+                    'body_text': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem , ipsum , or dolor'
+                                 ' Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                }, 'faq_items': [
                     {
                         'question': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                        'answer': 'Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet,'
-                                    ' consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem'
-                                    ' ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, '
-                                    'consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elit'
+                        'answer': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                                  ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                                  ' Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                                  ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
                     },
                     {
                         'question': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-                        'answer': 'Lorem ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, '
-                                    'consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elitLorem'
-                                    ' ipsum dolor sit amet, consectetur adipiscing elitLorem ipsum dolor sit amet, consectetur'
-                                    ' adipiscing elitLorem ipsum dolor sit amet, consectetur adipiscing elit'
+                        'answer': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                                  ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                                  ' Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet,'
+                                  ' consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit'
                     }
                 ]
             }
