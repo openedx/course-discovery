@@ -18,7 +18,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-09-25 20:36+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: Çağan Aydınoğlu <aydinoglucagan@gmail.com>, 2022\n"
+"Last-Translator: Ali Işıngör <ali@artistanbul.io>, 2017-2022\n"
 "Language-Team: Turkish (Turkey) (http://www.transifex.com/open-edx/edx-platform/language/tr_TR/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -79,7 +79,7 @@ msgstr ""
 
 #: apps/api/serializers.py:1550
 msgid "Dictionary mapping course IDs to boolean values"
-msgstr ""
+msgstr "Ders kimliklerini boole değerlerine eşleyen sözlük"
 
 #: apps/api/serializers.py:1967
 msgid "Languages that course runs in this program are offered in."
@@ -95,15 +95,15 @@ msgstr "Bu programdaki derslerin sahip olduğu altyazı dilleri."
 msgid ""
 "An error occurred while setting the course run image for [{key}] in studio. "
 "All other fields were successfully saved in Studio."
-msgstr ""
+msgstr "Studio'da [{key}] için ders yayını görüntüsü ayarlanırken bir hata oluştu. Diğer tüm alanlar Studio'ya başarıyla kaydedildi."
 
 #: apps/api/v1/exceptions.py:13
 msgid "Specifying both editable=1 and a q parameter is not supported."
-msgstr ""
+msgstr "Hem editable=1 hem de aq parametresinin belirtilmesi desteklenmez."
 
 #: apps/api/v1/views/comments.py:34
 msgid "You must include a course_uuid in your query parameters."
-msgstr ""
+msgstr "Sorgu parametrelerinize bir Course_uuid eklemelisiniz."
 
 #: apps/api/v1/views/comments.py:58 apps/api/v1/views/courses.py:192
 #, python-brace-format
@@ -490,19 +490,19 @@ msgstr "Yönetici Eğitimi"
 
 #: apps/course_metadata/choices.py:51
 msgid "Paid Executive Education"
-msgstr ""
+msgstr "Ödenmiş Yönetici Eğitimi"
 
 #: apps/course_metadata/choices.py:52
 msgid "Unpaid Executive Education"
-msgstr ""
+msgstr "Ödenmemiş Yönetici Eğitimi"
 
 #: apps/course_metadata/choices.py:53
 msgid "Paid Bootcamp"
-msgstr ""
+msgstr "Ödenmiş Bootcamp"
 
 #: apps/course_metadata/choices.py:54
 msgid "Unpaid Bootcamp"
-msgstr ""
+msgstr "Ödenmemiş Bootcamp"
 
 #: apps/course_metadata/choices.py:58
 msgid "Platform"
@@ -1854,7 +1854,7 @@ msgstr ""
 
 #: apps/learner_pathway/models.py:120
 msgid "Learner Pathways"
-msgstr ""
+msgstr "Öğrenci Patikaları"
 
 #: apps/learner_pathway/models.py:166
 msgid "Minimum number of nodes to complete this step of the pathway"
