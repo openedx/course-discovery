@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/local.txt requirements/local.in
 #
-alabaster==0.7.12
+alabaster==0.7.13
     # via sphinx
 algoliasearch==1.20.0
     # via
@@ -43,10 +43,6 @@ attrs==21.4.0
     #   semgrep
     #   trio
     #   zeep
-authlib==1.0.0rc1
-    # via
-    #   -c requirements/constraints.txt
-    #   simple-salesforce
 babel==2.11.0
     # via sphinx
 backoff==2.2.1
@@ -64,9 +60,9 @@ boltons==21.0.0
     #   face
     #   glom
     #   semgrep
-boto3==1.26.48
+boto3==1.26.50
     # via django-ses
-botocore==1.29.48
+botocore==1.29.50
     # via
     #   boto3
     #   s3transfer
@@ -76,7 +72,7 @@ cachetools==5.2.1
     # via google-auth
 cairocffi==1.4.0
     # via cairosvg
-cairosvg==2.5.2
+cairosvg==2.6.0
     # via -r requirements/base.in
 celery==5.2.7
     # via
@@ -140,7 +136,6 @@ coverage[toml]==7.0.5
     #   pytest-cov
 cryptography==38.0.4
     # via
-    #   authlib
     #   paramiko
     #   pyjwt
     #   pyopenssl
@@ -412,7 +407,7 @@ face==22.0.0
     # via glom
 factory-boy==3.2.1
     # via -r requirements/test.in
-faker==16.3.0
+faker==16.4.0
     # via factory-boy
 fastavro==1.7.0
     # via openedx-events
@@ -423,7 +418,7 @@ filelock==3.9.0
     #   virtualenv
 freezegun==1.2.2
     # via -r requirements/test.in
-future==0.18.2
+future==0.18.3
     # via pyjwkest
 glom==22.1.0
     # via semgrep
@@ -602,6 +597,7 @@ pyjwt[crypto]==2.6.0
     #   edx-auth-backends
     #   edx-drf-extensions
     #   edx-rest-api-client
+    #   simple-salesforce
     #   snowflake-connector-python
     #   social-auth-core
 pylint==2.15.10
@@ -634,7 +630,7 @@ pyrsistent==0.19.3
     # via jsonschema
 pysocks==1.7.1
     # via urllib3
-pytest==7.2.0
+pytest==7.2.1
     # via
     #   -r requirements/test.in
     #   pytest-cov
@@ -678,7 +674,7 @@ python-stdnum==1.18
     # via django-localflavor
 python3-openid==3.2.0
     # via social-auth-core
-pytz==2022.7
+pytz==2022.7.1
     # via
     #   -r requirements/base.in
     #   babel
@@ -703,7 +699,7 @@ rcssmin==1.1.1
     # via django-compressor
 redis==4.4.2
     # via -r requirements/base.in
-requests==2.28.1
+requests==2.28.2
     # via
     #   -r requirements/base.in
     #   algoliasearch
@@ -759,7 +755,7 @@ semgrep==0.102.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/test.in
-simple-salesforce==1.12.2
+simple-salesforce==1.12.3
     # via -r requirements/base.in
 six==1.16.0
     # via
@@ -907,7 +903,7 @@ virtualenv==20.17.1
     # via tox
 wcmatch==8.4.1
     # via semgrep
-wcwidth==0.2.5
+wcwidth==0.2.6
     # via prompt-toolkit
 webencodings==0.5.1
     # via
