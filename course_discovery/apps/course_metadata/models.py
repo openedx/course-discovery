@@ -756,6 +756,8 @@ class AdditionalMetadata(TimeStampedModel):
         verbose_name=_('Course override'),
         help_text=_('This field allows for override the default course term'),
         blank=True,
+        null=True,
+        default=None,
     )
     product_meta = models.OneToOneField(
         ProductMeta,
