@@ -726,7 +726,7 @@ class TestConvertSvgToPngFromUrl(TestCase):
 class TestIsGoogleDriveUrl(TestCase):
     """Test is google drive url"""
     @ddt.data(
-        ('https://docs.google.com/uc?id=abcd123id', True),
+        ('https://drive.google.com/file/d/abcd12345/view?usp=sharing', True),
         ('https://example.com/image.jpg', False),
     )
     @ddt.unpack
@@ -758,9 +758,9 @@ class TestDownloadAndSaveImage(TestCase):
         return image_url, body
 
     @mock.patch('course_discovery.apps.course_metadata.utils.get_file_from_drive_link')
-    def test_download_and_save_course_image_using_drive_link(self, mock_get_file_from_drive_link):
+    def test_download_and_save_course_image__using_drive_link(self, mock_get_file_from_drive_link):
         """ Verify that download_and_save_course_image will save image in course model using drive link """
-        image_url = 'https://docs.google.com/uc?id=abcd123id'
+        image_url = 'https://drive.google.com/file/d/abcd12345/view?usp=sharing'
         course = CourseFactory(card_image_url=image_url, image=None)
         download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None)
         mock_get_file_from_drive_link.assert_called_once_with(course.card_image_url)
@@ -770,7 +770,7 @@ class TestDownloadAndSaveImage(TestCase):
         assert course.image is not None
 
     @responses.activate
-    def test_download_and_save_course_image_using_request_library(self):
+    def test_download_and_save_course_image__using_request_library(self):
         """ Verify that download_and_save_course_image will save image in course model using request response """
         image_url = 'https://example.com/image.jpg'
         course = CourseFactory(card_image_url=image_url, image=None)
@@ -783,9 +783,9 @@ class TestDownloadAndSaveImage(TestCase):
 
     @mock.patch('course_discovery.apps.course_metadata.utils.get_file_from_drive_link')
     @responses.activate
-    def test_download_and_save_course_image_with_invalid_content_type_using_drive_link(self, mock_get_file_from_drive_link):  # pylint: disable=line-too-long
+    def test_download_and_save_course_image__with_invalid_content_type_using_drive_link(self, mock_get_file_from_drive_link):  # pylint: disable=line-too-long
         """ Verify that download_and_save_course_image will not save image in course model """
-        image_url = 'https://docs.google.com/uc?id=abcd123id'
+        image_url = 'https://drive.google.com/file/d/abcd12345/view?usp=sharing'
         course = CourseFactory(card_image_url=image_url, image=None)
         download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None)
         mock_get_file_from_drive_link.assert_called_once_with(course.card_image_url)
@@ -795,7 +795,7 @@ class TestDownloadAndSaveImage(TestCase):
         assert not bool(course.image)
 
     @responses.activate
-    def test_download_and_save_course_image_with_invalid_content_type_using_request_library(self):
+    def test_download_and_save_course_image__with_invalid_content_type_using_request_library(self):
         """ Verify that download_and_save_course_image will not save image in course model """
         image_url = 'https://www.example.com/image.pdf'
         course = CourseFactory(card_image_url=image_url, image=None)
@@ -806,9 +806,9 @@ class TestDownloadAndSaveImage(TestCase):
         assert not bool(course.image)
 
     @mock.patch('course_discovery.apps.course_metadata.utils.get_file_from_drive_link')
-    def test_download_and_save_program_image_using_drive_link(self, mock_get_file_from_drive_link):
+    def test_download_and_save_program_image__using_drive_link(self, mock_get_file_from_drive_link):
         """ Verify that download_and_save_program_image will save image in program model """
-        image_url = 'https://docs.google.com/uc?id=abcd123id'
+        image_url = 'https://drive.google.com/file/d/abcd12345/view?usp=sharing'
         program = ProgramFactory(card_image_url=image_url, card_image=None)
         download_and_save_program_image(program, program.card_image_url, data_field='image', headers=None)
         mock_get_file_from_drive_link.assert_called_once_with(program.card_image_url)
@@ -817,7 +817,7 @@ class TestDownloadAndSaveImage(TestCase):
         assert program.card_image is not None
 
     @responses.activate
-    def test_download_and_save_program_image_using_request_library(self):
+    def test_download_and_save_program_image__using_request_library(self):
         """ Verify that download_and_save_program_image will save image in program model using request response """
         image_url = 'https://www.example.com'
         program = ProgramFactory(card_image_url=image_url, card_image=None)
@@ -828,9 +828,9 @@ class TestDownloadAndSaveImage(TestCase):
         assert program.card_image is not None
 
     @mock.patch('course_discovery.apps.course_metadata.utils.get_file_from_drive_link')
-    def test_download_and_save_program_image_with_invalid_content_type_using_drive_link(self, mock_get_file_from_drive_link):  # pylint: disable=line-too-long
+    def test_download_and_save_program_image__with_invalid_content_type_using_drive_link(self, mock_get_file_from_drive_link):  # pylint: disable=line-too-long
         """ Verify that download_and_save_program_image will not save image in program model using drive link """
-        image_url = 'https://docs.google.com/uc?id=abcd123id'
+        image_url = 'https://drive.google.com/file/d/abcd12345/view?usp=sharing'
         program = ProgramFactory(card_image_url=image_url, card_image=None)
         download_and_save_program_image(program, program.card_image_url, data_field='image', headers=None)
         mock_get_file_from_drive_link.assert_called_once_with(program.card_image_url)
@@ -839,7 +839,7 @@ class TestDownloadAndSaveImage(TestCase):
         assert not bool(program.card_image)
 
     @responses.activate
-    def test_download_and_save_program_image_with_invalid_content_type_using_request_library(self):
+    def test_download_and_save_program_image__with_invalid_content_type_using_request_library(self):
         """ Verify that download_and_save_program_image will not save image in program model using request response """
         image_url = 'https://www.example.com/image.pdf'
         program = ProgramFactory(card_image_url=image_url, card_image=None)
