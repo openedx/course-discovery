@@ -1,7 +1,6 @@
 import datetime
 import logging
 import random
-import re
 import string
 import uuid
 from tempfile import NamedTemporaryFile
@@ -22,7 +21,7 @@ from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.constants import DRIVE_LINK_PATTERNS, IMAGE_TYPES
+from course_discovery.apps.course_metadata.constants import IMAGE_TYPES
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
@@ -714,8 +713,6 @@ def download_and_save_course_image(course, image_url, data_field='image', header
     in the data field mentioned, defaulting to course card image.
     """
     try:
-        image_url = get_downloadable_url_from_drive_link(image_url)
-
         if is_google_drive_url(image_url):
             content_type, content = get_file_from_drive_link(image_url)
             extension = IMAGE_TYPES.get(content_type)
@@ -774,23 +771,12 @@ def convert_svg_to_png_from_url(image_url):
         return None
 
 
-def get_downloadable_url_from_drive_link(file_path):
-    """
-    Helper method to get the downloadable url from a drive link
-    """
-    URL = 'https://docs.google.com/uc?id={file_id}'
-    parsed_url = urlparse(file_path)
-    if parsed_url.hostname == 'drive.google.com':
-        file_id = parsed_url.path.split('/')[3]
-        return URL.format(file_id=file_id)
-    return file_path
-
-
 def is_google_drive_url(url):
     """
     Helper method to check if the file url is a drive url or not
     """
-    return any(re.match(pattern, url) for pattern in DRIVE_LINK_PATTERNS)
+    parsed_url = urlparse(url)
+    return parsed_url.hostname == 'drive.google.com'
 
 
 def download_and_save_program_image(program, image_url, data_field='image', headers=None):
@@ -800,8 +786,6 @@ def download_and_save_program_image(program, image_url, data_field='image', head
     """
     # TODO: refactor and merge program image download to use the same code as course image download
     try:
-        image_url = get_downloadable_url_from_drive_link(image_url)
-
         if is_google_drive_url(image_url):
             content_type, content = get_file_from_drive_link(image_url)
             extension = IMAGE_TYPES.get(content_type)
