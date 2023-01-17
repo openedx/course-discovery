@@ -21,7 +21,7 @@ from stdimage.models import StdImageFieldFile
 
 from course_discovery.apps.core.models import SalesforceConfiguration
 from course_discovery.apps.core.utils import serialize_datetime
-from course_discovery.apps.course_metadata.constants import IMAGE_TYPES
+from course_discovery.apps.course_metadata.constants import ALLOWED_ANCHOR_TAG_ATTRIBUTES, IMAGE_TYPES
 from course_discovery.apps.course_metadata.exceptions import (
     EcommerceSiteAPIClientException, MarketingSiteAPIClientException
 )
@@ -662,11 +662,12 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
                 self.in_lang_span = False
 
         if tag == 'a':
-            # override the default behavior of html2text to include all attributes from attr_dict for <a> tags
+            # override the default behavior of html2text to include only allowed tags from attr_dict for <a> tags
             # because by default it only includes the href and title attributes
             if attrs and start and 'href' in dict(attrs):
                 self.outtextf('<a')
-                for attr, value in dict(attrs).items():
+                filtered_attrs_list = [(attr, value) for attr, value in dict(attrs).items() if attr in ALLOWED_ANCHOR_TAG_ATTRIBUTES]  # pylint: disable=line-too-long
+                for attr, value in filtered_attrs_list:
                     self.outtextf(f' {attr}="{value}"')
                 self.outtextf('>')
             if not start:
