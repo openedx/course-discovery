@@ -150,7 +150,7 @@ def extract_plain_text_from_rich_text(rich_text_dict):
     text_list = []
     for key, value in rich_text_dict.items():
         if key == 'value':
-            text_list.append(value)
+            text_list.append(value.strip())
         elif isinstance(value, dict):  # recursive call if the value is a nested dict
             text_list += extract_plain_text_from_rich_text(value)
         elif isinstance(value, list):  # recursive call if the value is a nested list
@@ -164,7 +164,7 @@ def rich_text_to_plain_text(rich_text):
     Converts rich text from Contentful to plain text.
     Plain text resides in the dict with 'value' as dict key name.
     """
-    return ''.join(extract_plain_text_from_rich_text(rich_text))
+    return ' '.join(extract_plain_text_from_rich_text(rich_text))
 
 
 def get_modules_list(entry):
@@ -351,7 +351,10 @@ def fetch_and_transform_bootcamp_contentful_data():
     return transformed_bootcamp_data
 
 
-def get_aggregated_data_from_contentful_data(data, product_uuid):
+def aggregate_contentful_data(data, product_uuid):
+    """
+    Text data extracted from Contentful to be used in EMSI/Lightcast for product skills.
+    """
     if (data is None) or (product_uuid not in data):
         return None
 

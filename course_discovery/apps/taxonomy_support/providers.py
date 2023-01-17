@@ -21,8 +21,7 @@ from taxonomy.providers import CourseMetadataProvider, ProgramMetadataProvider, 
 from course_discovery.apps.core.api_client.lms import LMSAPIClient
 from course_discovery.apps.core.models import Partner
 from course_discovery.apps.course_metadata.contentful_utils import (
-    fetch_and_transform_bootcamp_contentful_data, fetch_and_transform_degree_contentful_data,
-    get_aggregated_data_from_contentful_data
+    aggregate_contentful_data, fetch_and_transform_bootcamp_contentful_data, fetch_and_transform_degree_contentful_data
 )
 from course_discovery.apps.course_metadata.models import Course, Program
 
@@ -45,7 +44,7 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
             'title': course.title,
             'short_description': course.short_description,
             'full_description': (
-                get_aggregated_data_from_contentful_data(contentful_data, str(course.uuid)) or course.full_description
+                aggregate_contentful_data(contentful_data, str(course.uuid)) or course.full_description
             ),
         } for course in courses]
 
@@ -64,7 +63,7 @@ class DiscoveryCourseMetadataProvider(CourseMetadataProvider):
                     'title': course.title,
                     'short_description': course.short_description,
                     'full_description': (
-                        get_aggregated_data_from_contentful_data(contentful_data, str(course.uuid)) or
+                        aggregate_contentful_data(contentful_data, str(course.uuid)) or
                         course.full_description
                     ),
                 }
@@ -87,7 +86,7 @@ class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
             'title': program.title,
             'subtitle': program.subtitle,
             'overview': (
-                get_aggregated_data_from_contentful_data(contentful_data, str(program.uuid)) or
+                aggregate_contentful_data(contentful_data, str(program.uuid)) or
                 program.overview
             ),
         } for program in programs]
@@ -106,7 +105,7 @@ class DiscoveryProgramMetadataProvider(ProgramMetadataProvider):
                     'title': program.title,
                     'subtitle': program.subtitle,
                     'overview': (
-                        get_aggregated_data_from_contentful_data(contentful_data, str(program.uuid)) or
+                        aggregate_contentful_data(contentful_data, str(program.uuid)) or
                         program.overview
                     ),
                 }
