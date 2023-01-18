@@ -18,7 +18,7 @@ django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch
     # via -r requirements/github.in
 docutils==0.19
     # via sphinx
-edx-sphinx-theme==3.0.0
+edx-sphinx-theme==3.1.0
     # via -r requirements/docs.in
 elasticsearch==7.13.4
     # via
@@ -37,7 +37,7 @@ importlib-metadata==6.0.0
     # via sphinx
 jinja2==3.1.2
     # via sphinx
-markupsafe==2.1.1
+markupsafe==2.1.2
     # via jinja2
 packaging==23.0
     # via sphinx
