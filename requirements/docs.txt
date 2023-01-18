@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/docs.txt requirements/docs.in
 #
-alabaster==0.7.12
+alabaster==0.7.13
     # via sphinx
 babel==2.11.0
     # via sphinx
@@ -12,7 +12,7 @@ certifi==2022.12.7
     # via
     #   elasticsearch
     #   requests
-charset-normalizer==2.1.1
+charset-normalizer==3.0.1
     # via requests
 django-elasticsearch-dsl @ git+https://github.com/django-es/django-elasticsearch-dsl.git@0e92e01c6ef74d2fe329965deee5f4b25da7ec87
     # via -r requirements/github.in
@@ -45,9 +45,9 @@ pygments==2.14.0
     # via sphinx
 python-dateutil==2.8.2
     # via elasticsearch-dsl
-pytz==2022.7
+pytz==2022.7.1
     # via babel
-requests==2.28.1
+requests==2.28.2
     # via sphinx
 six==1.16.0
     # via
