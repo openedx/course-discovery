@@ -35,9 +35,9 @@ beautifulsoup4==4.11.1
     #   taxonomy-connector
 billiard==3.6.4.0
     # via celery
-boto3==1.26.50
+boto3==1.26.51
     # via django-ses
-botocore==1.29.50
+botocore==1.29.51
     # via
     #   boto3
     #   s3transfer
@@ -297,7 +297,7 @@ edx-drf-extensions==8.2.0
     # via
     #   -c requirements/constraints.txt
     #   -r requirements/base.in
-edx-event-bus-kafka==3.5.1
+edx-event-bus-kafka==3.6.0
     # via -r requirements/base.in
 edx-opaque-keys[django]==2.3.0
     # via
@@ -335,7 +335,7 @@ gevent==22.10.2
     # via -r requirements/production.in
 google-api-core==2.11.0
     # via google-api-python-client
-google-api-python-client==2.72.0
+google-api-python-client==2.73.0
     # via -r requirements/base.in
 google-auth==2.16.0
     # via
@@ -398,7 +398,7 @@ lxml==4.9.2
     #   zeep
 markdown==3.4.1
     # via -r requirements/base.in
-markupsafe==2.1.1
+markupsafe==2.1.2
     # via jinja2
 mysqlclient==2.1.1
     # via -r requirements/production.in
