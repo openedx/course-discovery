@@ -626,6 +626,10 @@ class UtilsTests(TestCase):
         # pylint: disable=line-too-long
         ('<a href="https://yahoo.com" target="_blank" rel="noopener">link</a>', '<p><a href="https://yahoo.com" rel="noopener" target="_blank">link</a></p>'),
 
+        # Make sure not to add data-ol-has-click-handler attribute to anchor tags if they are in attributes list
+        # pylint: disable=line-too-long
+        ('<p>please visit this <a title="less go" href="https://google.com" data-ol-has-click-handler="true">link</a></p>', '<p>please visit this <a href="https://google.com" title="less go">link</a></p>'),
+
         # And make sure we strip what we should
         ('<p class="float">Class</p>', '<p>Class</p>'),
         ('<p style="float">Inline Style</p>', '<p>Inline Style</p>'),

@@ -15,6 +15,8 @@ IMAGE_TYPES = {
     'image/svg+xml': 'svg'  # SVG image will be converted into PNG, not stored as SVG
 }
 
+ALLOWED_ANCHOR_TAG_ATTRIBUTES = ['href', 'title', 'target', 'rel']
+
 DRIVE_LINK_PATTERNS = [r"https://docs\.google\.com/uc\?id=\w+",
                        r"https://drive\.google\.com/file/d/\w+/view?usp=sharing"]
 
