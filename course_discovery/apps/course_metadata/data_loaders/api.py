@@ -22,6 +22,7 @@ from course_discovery.apps.course_metadata.models import (
     Course, CourseEntitlement, CourseRun, CourseRunType, CourseType, Organization, Program, ProgramType, Seat, SeatType,
     Video
 )
+from course_discovery.apps.course_metadata.toggles import BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK
 from course_discovery.apps.course_metadata.utils import push_to_ecommerce_for_course_run, subtract_deadline_delta
 
 logger = logging.getLogger(__name__)
@@ -162,7 +163,7 @@ class CoursesApiDataLoader(AbstractDataLoader):
         end_has_updated = validated_data.get('end') != run.end
         self._update_instance(official_run, validated_data, suppress_publication=True)
         self._update_instance(draft_run, validated_data, suppress_publication=True)
-        if end_has_updated:
+        if BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK.is_enabled() or end_has_updated:
             self._update_verified_deadline_for_course_run(official_run)
             self._update_verified_deadline_for_course_run(draft_run)
             has_upgrade_deadline_override = run.seats.filter(upgrade_deadline_override__isnull=False)
@@ -229,9 +230,12 @@ class CoursesApiDataLoader(AbstractDataLoader):
     def _update_verified_deadline_for_course_run(self, course_run):
         seats = course_run.seats.filter(type=Seat.VERIFIED) if course_run and course_run.end else []
         for seat in seats:
+            previous_upgrade_deadline = seat.upgrade_deadline
             seat.upgrade_deadline = subtract_deadline_delta(
                 seat.course_run.end, settings.PUBLISHER_UPGRADE_DEADLINE_DAYS
             )
+            logger.info(f"Upgrade deadline updated from {previous_upgrade_deadline} to {seat.upgrade_deadline} for "
+                        f"course run {course_run.key}, draft: {course_run.draft}")
             seat.save()
 
     def _update_instance(self, instance, validated_data, **kwargs):
