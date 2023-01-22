@@ -89,6 +89,7 @@ class CourseFilter(filters.FilterSet):
     course_run_statuses = CharListFilter(method='filter_by_course_run_statuses')
     editors = CharListFilter(field_name='editors__user__pk', lookup_expr='in', distinct=True)
     course_type = filters.CharFilter(method='filter_by_course_type')
+    timestamp = filters.DateTimeFilter(field_name='data_modified_timestamp', lookup_expr='gte')
 
     class Meta:
         model = Course
@@ -154,6 +155,7 @@ class ProgramFilter(FilterSetMixin, filters.FilterSet):
     type = filters.CharFilter(field_name='type__translations__name_t', lookup_expr='iexact')
     types = CharListFilter(field_name='type__slug', lookup_expr='in')
     uuids = UUIDListFilter()
+    timestamp = filters.DateTimeFilter(field_name='data_modified_timestamp', lookup_expr='gte')
 
     class Meta:
         model = Program
