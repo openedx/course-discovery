@@ -6,7 +6,7 @@
 # Translators:
 # Translators:
 # 926782667597d71479677e8aab0ad4dc_106149a, 2020
-# Abdessamad Derraz <derraz.abdessamad@gmail.com>, 2021
+# Abdessamad Derraz <derraz.abdessamad@gmail.com>, 2021,2023
 # Alexandre DS <alexandre@cleverm8.com>, 2020
 # alexis swyngedauw, 2022
 # 0169fee580ff5de3f9b7241d14f30af9_5f30934 <1948a2319336319ed4429b6139c8c1c2_916898>, 2020
@@ -20,6 +20,7 @@
 # Mireille Cabuay, 2018
 # moocit-france <contact@moocit.fr>, 2016-2018
 # Morgane Picard <picard.morgane@gmail.com>, 2016
+# Pierre Mailhot <pierre.mailhot@gmail.com>, 2023
 # Pierre TASSEL <pierre.tassel@outlook.fr>, 2016
 # rafcha <raphael.chay@gmail.com>, 2018
 # Richard Moch <richard.moch@gmail.com>, 2017
@@ -34,7 +35,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-09-25 20:36+0000\n"
 "PO-Revision-Date: 2016-05-25 15:41+0000\n"
-"Last-Translator: alexis swyngedauw, 2022\n"
+"Last-Translator: Abdessamad Derraz <derraz.abdessamad@gmail.com>, 2021,2023\n"
 "Language-Team: French (http://www.transifex.com/open-edx/edx-platform/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1273,29 +1274,29 @@ msgstr ""
 #: apps/course_metadata/models.py:2486
 msgid ""
 "A field to override Organization short code alias specific for this program."
-msgstr "Un champ pour remplacer l&#39;alias de code abrégé de l&#39;organisation spécifique à ce programme."
+msgstr "Un champ pour remplacer l'alias de code abrégé de l'organisation spécifique à ce programme."
 
 #: apps/course_metadata/models.py:2493
 msgid "A field to override Organization logo specific for this program."
-msgstr "Un champ pour remplacer le logo de l&#39;organisation spécifique à ce programme."
+msgstr "Un champ pour remplacer le logo de l'organisation spécifique à ce programme."
 
 #: apps/course_metadata/models.py:2497
 msgid ""
 "Primary subject field specific for this program. Useful field in case there "
 "are no courses associated with this program."
-msgstr "Domaine principal spécifique à ce programme. Champ utile s&#39;il n&#39;y a pas de cours associés à ce programme."
+msgstr "Domaine principal spécifique à ce programme. Champ utile s'il n'y a pas de cours associés à ce programme."
 
 #: apps/course_metadata/models.py:2502
 msgid ""
 "Level type specific for this program. Useful field in case there are no "
 "courses associated with this program."
-msgstr "Type de niveau spécifique à ce programme. Champ utile s&#39;il n&#39;y a pas de cours associés à ce programme."
+msgstr "Type de niveau spécifique à ce programme. Champ utile s'il n'y a pas de cours associés à ce programme."
 
 #: apps/course_metadata/models.py:2507
 msgid ""
 "Language code specific for this program. Useful field in case there are no "
 "courses associated with this program."
-msgstr "Code de langue spécifique à ce programme. Champ utile s&#39;il n&#39;y a pas de cours associés à ce programme."
+msgstr "Code de langue spécifique à ce programme. Champ utile s'il n'y a pas de cours associés à ce programme."
 
 #: apps/course_metadata/models.py:2520
 msgid ""
@@ -1405,11 +1406,11 @@ msgstr "Nombre de cours sur la carte de recherche (ex. «11 cours»"
 
 #: apps/course_metadata/models.py:3063
 msgid "The redirect URL of the degree on external site"
-msgstr "L&#39;URL de redirection du diplôme sur le site externe"
+msgstr "L'URL de redirection du diplôme sur le site externe"
 
 #: apps/course_metadata/models.py:3068
 msgid "The URL of the landing page on external site"
-msgstr "L&#39;URL de la page de destination sur le site externe"
+msgstr "L'URL de la page de destination sur le site externe"
 
 #: apps/course_metadata/models.py:3103
 msgid "Bell"
@@ -1866,7 +1867,7 @@ msgstr "Le statut actif/inactif de ce parcours."
 
 #: apps/learner_pathway/models.py:119
 msgid "Learner Pathway"
-msgstr "Parcours de l&#39;apprenant"
+msgstr "Parcours de l'apprenant"
 
 #: apps/learner_pathway/models.py:120
 msgid "Learner Pathways"
@@ -1878,27 +1879,27 @@ msgstr "Nombre minimum de nœuds pour terminer cette étape du chemin"
 
 #: apps/learner_pathway/models.py:170
 msgid "Learner Pathway Step"
-msgstr "Étape du parcours de l&#39;apprenant"
+msgstr "Étape du parcours de l'apprenant"
 
 #: apps/learner_pathway/models.py:171
 msgid "Learner Pathway Steps"
-msgstr "Étapes du parcours de l&#39;apprenant"
+msgstr "Étapes du parcours de l'apprenant"
 
 #: apps/learner_pathway/models.py:238
 msgid "Learner Pathway Course"
-msgstr "Cours sur le parcours de l&#39;apprenant"
+msgstr "Cours sur le parcours de l'apprenant"
 
 #: apps/learner_pathway/models.py:239
 msgid "Learner Pathway Courses"
-msgstr "Cours du parcours de l&#39;apprenant"
+msgstr "Cours du parcours de l'apprenant"
 
 #: apps/learner_pathway/models.py:276
 msgid "Learner Pathway Program"
-msgstr "Programme de parcours d&#39;apprentissage"
+msgstr "Programme de parcours d'apprentissage"
 
 #: apps/learner_pathway/models.py:277
 msgid "Learner Pathway Programs"
-msgstr "Programmes de parcours d&#39;apprentissage"
+msgstr "Programmes de parcours d'apprentissage"
 
 #: apps/publisher/models.py:34
 msgid "Organization Role"
