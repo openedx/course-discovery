@@ -666,7 +666,9 @@ class HTML2TextWithLangSpans(html2text.HTML2Text):
             # because by default it only includes the href and title attributes
             if attrs and start and 'href' in dict(attrs):
                 self.outtextf('<a')
-                filtered_attrs_list = [(attr, value) for attr, value in dict(attrs).items() if attr in ALLOWED_ANCHOR_TAG_ATTRIBUTES]  # pylint: disable=line-too-long
+                filtered_attrs_list = [
+                    (attr, value) for attr, value in dict(attrs).items() if attr in ALLOWED_ANCHOR_TAG_ATTRIBUTES
+                ]
                 for attr, value in filtered_attrs_list:
                     self.outtextf(f' {attr}="{value}"')
                 self.outtextf('>')
@@ -737,7 +739,7 @@ def download_and_save_course_image(course, image_url, data_field='image', header
             if data_field == 'image':
                 course.image.save(filename, ContentFile(content))
             elif data_field == 'organization_logo_override':
-                image_file = ContentFile(response.content)
+                image_file = ContentFile(content)
                 if extension == 'svg':
                     filename = '{uuid}.png'.format(uuid=str(course.uuid))
                     image_file = convert_svg_to_png_from_url(image_url)
