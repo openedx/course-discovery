@@ -220,6 +220,9 @@ class TestCourse(TestCase):
         self.assertEqual(course.additional_metadata.start_date, additional_metadata.start_date)
         self.assertEqual(course.additional_metadata.registration_deadline, additional_metadata.registration_deadline)
         self.assertEqual(course.additional_metadata.product_meta, additional_metadata.product_meta)
+        self.assertEqual(course.additional_metadata.product_status, additional_metadata.product_status)
+        self.assertEqual(course.additional_metadata.external_course_marketing_type,
+                         additional_metadata.external_course_marketing_type)
         assert course.additional_metadata.end_date == additional_metadata.end_date
         assert course.additional_metadata.product_status == ExternalProductStatus.Published
 

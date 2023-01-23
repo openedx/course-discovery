@@ -71,3 +71,12 @@ class ExternalProductStatus(DjangoChoices):
     """
     Archived = ChoiceItem('archived', _('Archived'))
     Published = ChoiceItem('published', _('Published'))
+
+
+class ExternalCourseMarketingType(DjangoChoices):
+    """
+    Course Types for external courses marketing type.
+    """
+    ShortCourse = ChoiceItem('short_course', _('Short Course'))
+    Sprint = ChoiceItem('sprint', _('Sprint'))
+    CourseStack = ChoiceItem('course_stack', _('Course Stack'))
