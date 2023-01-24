@@ -1,4 +1,5 @@
 import datetime
+import json
 import re
 import urllib
 from unittest import mock
@@ -910,21 +911,25 @@ class TestGEAGAPIAccesToken(TestCase):
 
     def mock_geag_api_token_response(self, status=200, token_type='Bearer', expires_in=3600, access_token=''):
         """ Mocks the response from the getsmarter API. """
-        body = {
+        body={
             'token_type': token_type,
             'expires_in': expires_in,
             'access_token': access_token
         }
         responses.add(responses.POST, self.url, json=body, status=status)
-        return self.url, body
+        return body
+
+    def tearDown(self):
+        responses.reset()
+        return super().tearDown()
 
     @responses.activate
     @mock.patch('course_discovery.apps.course_metadata.utils.logger.info')
     def test_get_access_token__with_valid_credentials(self, mock_logger):
         """ Verify that get_access_token returns access token. """
-        _, body = self.mock_geag_api_token_response(access_token='test_access_token')
+        response = self.mock_geag_api_token_response(access_token='test_access_token')
         token = get_geag_api_access_token(self.client_id, self.client_secret, self.access_token_url, self.auth_url)
-        assert token == body['access_token']
+        assert token == response['access_token']
         mock_logger.assert_called_once_with('Successfully retrieved access token for getsmarter API.')
         assert token is not None
 
