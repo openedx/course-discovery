@@ -911,7 +911,7 @@ class TestGEAGAPIAccesToken(TestCase):
 
     def mock_geag_api_token_response(self, status=200, token_type='Bearer', expires_in=3600, access_token=''):
         """ Mocks the response from the getsmarter API. """
-        body={
+        body = {
             'token_type': token_type,
             'expires_in': expires_in,
             'access_token': access_token
