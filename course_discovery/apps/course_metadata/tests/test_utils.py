@@ -1,5 +1,4 @@
 import datetime
-import json
 import re
 import urllib
 from unittest import mock
