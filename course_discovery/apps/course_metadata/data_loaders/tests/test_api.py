@@ -11,6 +11,7 @@ from django.core.management import CommandError
 from django.http.response import HttpResponse
 from django.test import TestCase
 from edx_django_utils.cache import TieredCache
+from edx_toggles.toggles.testutils import override_waffle_switch
 from pytz import UTC
 from slumber.exceptions import HttpClientError
 
@@ -27,6 +28,8 @@ from course_discovery.apps.course_metadata.models import (
 from course_discovery.apps.course_metadata.tests.factories import (
     CourseEntitlementFactory, CourseFactory, CourseRunFactory, OrganizationFactory, SeatFactory, SeatTypeFactory
 )
+from course_discovery.apps.course_metadata.toggles import BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK
+from course_discovery.apps.course_metadata.utils import subtract_deadline_delta
 
 LOGGER_PATH = 'course_discovery.apps.course_metadata.data_loaders.api.logger'
 
@@ -222,15 +225,97 @@ class CoursesApiDataLoaderTests(DataLoaderTestMixin, TestCase):
         assert CourseRun.objects.count() == expected_num_course_runs
 
         # Verify multiple calls to ingest data do NOT result in data integrity errors.
-        self.loader.ingest()
+        with mock.patch(LOGGER_PATH) as mock_logger:
+            self.loader.ingest()
+
         calls = [
             mock.call(run2),
             mock.call(run3),
         ]
+        updated_run2_upgrade_deadline = run2.seats.first().upgrade_deadline
+
+        mock_logger.info.assert_any_call(
+            f"Upgrade deadline updated from {original_run2_deadline} to "
+            f"{updated_run2_upgrade_deadline} for course run {run2.key}, draft: False"
+        )
         mock_push_to_ecomm.assert_has_calls(calls)
         # Make sure the verified seat with a course run end date is changed
-        assert original_run2_deadline != run2.seats.first().upgrade_deadline
+        assert original_run2_deadline != updated_run2_upgrade_deadline
         # Make sure the credit seat with a course run end date is unchanged
+        assert run3.seats.first().upgrade_deadline is None
+
+    @responses.activate
+    @mock.patch('course_discovery.apps.course_metadata.data_loaders.api.push_to_ecommerce_for_course_run')
+    def test_ingest_verified_deadline_with_bypass_end_date_check(self, mock_push_to_ecomm):
+        """
+        Verify that LMS data loader will invoke upgrade deadline update method regardless of
+        end date changes if bypass switch is active.
+        """
+        TieredCache.dangerous_clear_all_tiers()
+        api_data = self.mock_api()
+        assert Course.objects.count() == 0
+        assert CourseRun.objects.count() == 0
+
+        self.loader.ingest()
+        self.assert_api_called(4)
+        runs = CourseRun.objects.all()
+
+        # Run with a verified entitlement but no change in end date will retain the upgrade deadline
+        # value of run.end - 10 days
+        run1 = runs[0]
+        run1.seats.add(SeatFactory(
+            course_run=run1,
+            type=SeatTypeFactory.verified(),
+            upgrade_deadline=subtract_deadline_delta(run1.end, 10),
+        ))
+        run1.save()
+        original_run1_deadline = run1.seats.first().upgrade_deadline
+
+        # Run with a verified entitlement, and the end date has changed
+        run2 = runs[1]
+        run2.seats.add(SeatFactory(
+            course_run=run2,
+            type=SeatTypeFactory.verified(),
+            upgrade_deadline=datetime.datetime.now(pytz.UTC),
+        ))
+        original_run2_deadline = run2.seats.first().upgrade_deadline
+        run2.end = datetime.datetime.now(pytz.UTC)
+        run2.save()
+
+        # Run with a credit entitlement, and the end date has changed
+        run3 = runs[2]
+        run3.seats.add(SeatFactory(
+            course_run=run3,
+            type=SeatTypeFactory.credit(),
+            upgrade_deadline=None,
+        ))
+        run3.end = datetime.datetime.now(pytz.UTC)
+        run3.save()
+
+        # Verify the CourseRuns were created correctly
+        expected_num_course_runs = len(api_data)
+        assert CourseRun.objects.count() == expected_num_course_runs
+
+        with override_waffle_switch(BYPASS_LMS_DATA_LOADER__END_DATE_UPDATED_CHECK, active=True):
+            with mock.patch(LOGGER_PATH) as mock_logger:
+                self.loader.ingest()
+
+        calls = [
+            mock.call(run2),
+            mock.call(run3),
+        ]
+        updated_run1_upgrade_deadline = run1.seats.first().upgrade_deadline
+        mock_logger.info.assert_any_call(
+            f"Upgrade deadline updated from {original_run1_deadline} to "
+            f"{updated_run1_upgrade_deadline} for course run {run1.key}, draft: False"
+        )
+        mock_logger.info.assert_any_call(
+            f"Upgrade deadline updated from {original_run2_deadline} to "
+            f"{run2.seats.first().upgrade_deadline} for course run {run2.key}, draft: False"
+        )
+
+        mock_push_to_ecomm.assert_has_calls(calls)
+        assert original_run1_deadline == updated_run1_upgrade_deadline
         assert run3.seats.first().upgrade_deadline is None
 
     @responses.activate
