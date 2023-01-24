@@ -1,31 +1,21 @@
 FROM ubuntu:focal as app
 
+ENV DEBIAN_FRONTEND noninteractive
 # System requirements.
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && \
-	apt-get upgrade -qy
-RUN apt-get install --yes \
-	git \
-	language-pack-en \
-	python3-venv \
-	python3.8-dev \
-	python3.8-venv \
-	build-essential \
-	libffi-dev \
-	libmysqlclient-dev \
-	libxml2-dev \
-	libxslt1-dev \
-	libjpeg-dev \
-	libssl-dev \
-	libcairo2-dev
-
-RUN rm -rf /var/lib/apt/lists/*
-
-ENV VIRTUAL_ENV=/venv
-RUN python3.8 -m venv $VIRTUAL_ENV
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
-RUN pip install pip==20.2.3 setuptools==50.3.0 nodeenv
+RUN apt update && \
+  apt-get install -qy \ 
+  curl \
+  # required by bower installer
+  git \
+  language-pack-en \
+  build-essential \
+  python3.8-dev \
+  python3-virtualenv \
+  python3.8-distutils \
+  libmysqlclient-dev \
+  libssl-dev \
+  libcairo2-dev && \
+  rm -rf /var/lib/apt/lists/*
 
 # Use UTF-8.
 RUN locale-gen en_US.UTF-8
@@ -33,43 +23,76 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
-# Make necessary directories and environment variables.
-RUN mkdir -p /edx/var/discovery/staticfiles
-RUN mkdir -p /edx/var/discovery/media
-ENV DJANGO_SETTINGS_MODULE course_discovery.settings.production
+ARG COMMON_APP_DIR="/edx/app"
+ARG COMMON_CFG_DIR="/edx/etc"
+ARG DISCOVERY_SERVICE_NAME="discovery"
+ARG DISCOVERY_APP_DIR="${COMMON_APP_DIR}/${DISCOVERY_SERVICE_NAME}"
+ARG DISCOVERY_VENV_DIR="${COMMON_APP_DIR}/${DISCOVERY_SERVICE_NAME}/venvs/${DISCOVERY_SERVICE_NAME}"
+ARG DISCOVERY_CODE_DIR="${DISCOVERY_APP_DIR}/${DISCOVERY_SERVICE_NAME}"
+ARG DISCOVERY_NODEENV_DIR="${DISCOVERY_APP_DIR}/nodeenvs/${DISCOVERY_SERVICE_NAME}"
+
+ENV PATH "${DISCOVERY_VENV_DIR}/bin:${DISCOVERY_NODEENV_DIR}/bin:$PATH"
+ENV DISCOVERY_CFG "/edx/etc/discovery.yml"
+ENV DISCOVERY_CODE_DIR "${DISCOVERY_CODE_DIR}"
+ENV DISCOVERY_APP_DIR "${DISCOVERY_APP_DIR}"
+
+RUN virtualenv -p python3.8 --always-copy ${DISCOVERY_VENV_DIR}
+
+# No need to activate discovery venv as it is already in path
+RUN pip install nodeenv
+
+RUN nodeenv ${DISCOVERY_NODEENV_DIR} --node=16.14.0 --prebuilt && npm install -g npm@8.5.x
 
 # Working directory will be root of repo.
-WORKDIR /edx/app/discovery
+WORKDIR ${DISCOVERY_CODE_DIR}
 
 # Copy just JS requirements and install them.
 COPY package.json package.json
 COPY package-lock.json package-lock.json
-RUN nodeenv /edx/app/nodeenv --node=16.14.2 --npm=8.5.x --prebuilt
-ENV PATH /edx/app/nodeenv/bin:${PATH}
-RUN npm install --production
 COPY bower.json bower.json
-RUN ./node_modules/.bin/bower install --allow-root --production
+RUN npm install --production && ./node_modules/.bin/bower install --allow-root --production
 
-# Copy just Python requirements & install them.
-COPY requirements/ requirements/
-RUN pip install -r requirements/production.txt
+# Expose canonical Discovery port
+EXPOSE 18381
+EXPOSE 8381
+
+FROM app as prod
+
+ENV DJANGO_SETTINGS_MODULE "course_discovery.settings.production"
+
+COPY requirements/production.txt ${DISCOVERY_CODE_DIR}/requirements/production.txt
+
+RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/production.txt
 
 # Copy over rest of code.
 # We do this AFTER requirements so that the requirements cache isn't busted
 # every time any bit of code is changed.
 COPY . .
 
-# Expose canonical Discovery port
-EXPOSE 8381
-
 CMD gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
 
-FROM app as newrelic
-RUN pip install newrelic
-CMD newrelic-admin run-program gunicorn --bind=0.0.0.0:8381 --workers 2 --max-requests=1000 -c course_discovery/docker_gunicorn_configuration.py course_discovery.wsgi:application
+FROM app as dev
+
+ENV DJANGO_SETTINGS_MODULE "course_discovery.settings.devstack"
+
+COPY requirements/local.txt ${DISCOVERY_CODE_DIR}/requirements/local.txt
+COPY requirements/django.txt ${DISCOVERY_CODE_DIR}/requirements/django.txt
+
+RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/django.txt
+RUN pip install -r ${DISCOVERY_CODE_DIR}/requirements/local.txt
+
+# Devstack related step for backwards compatibility
+RUN touch ${DISCOVERY_APP_DIR}/discovery_env
+
+# Copy over rest of code.
+# We do this AFTER requirements so that the requirements cache isn't busted
+# every time any bit of code is changed.
+COPY . .
+
+CMD while true; do python ./manage.py runserver 0.0.0.0:8381; sleep 2; done
 
 ###########################################################
 # Define k8s target
-FROM app as kubernetes
+FROM prod as kubernetes
 ENV DISCOVERY_SETTINGS='kubernetes'
 ENV DJANGO_SETTINGS_MODULE="course_discovery.settings.$DISCOVERY_SETTINGS"
