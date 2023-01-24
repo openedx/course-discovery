@@ -67,7 +67,7 @@ def delegate_attributes(cls):
                      'product_max_effort', 'product_min_effort', 'active_run_key', 'active_run_start',
                      'active_run_type', 'owners', 'program_types', 'course_titles', 'tags',
                      'product_organization_short_code_override', 'product_organization_logo_override', 'skills',
-                     'product_meta_title', 'contentful_fields'
+                     'product_meta_title', 'product_display_on_org_page', 'contentful_fields'
                      ]
     object_id_field = ['custom_object_id', ]
     fields = product_type_fields + search_fields + facet_fields + ranking_fields + result_fields + object_id_field
@@ -342,6 +342,11 @@ class AlgoliaProxyCourse(Course, AlgoliaBasicModelFieldsMixin):
         return None
 
     @property
+    def product_display_on_org_page(self):
+        # Only courses display on organization pages
+        return self.product_type == 'Course'
+
+    @property
     def should_index(self):
         """Only index courses in the edX catalog with a non-hidden advertiseable course run, at least one owner, and
         a marketing url slug"""
@@ -506,6 +511,14 @@ class AlgoliaProxyProgram(Program, AlgoliaBasicModelFieldsMixin):
         ):
             return get_location_restriction(self.location_restriction)
         return ALGOLIA_EMPTY_LIST
+
+    @property
+    def product_display_on_org_page(self):
+        # Legacy programs always display on organization pages
+        if not self.is_2u_degree_program:
+            return True
+        else:
+            return getattr(self.degree, 'display_on_org_page', False)
 
     @property
     def availability_level(self):

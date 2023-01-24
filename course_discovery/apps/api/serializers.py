@@ -1832,7 +1832,7 @@ class DegreeSerializer(BaseModelSerializer):
             'micromasters_long_title', 'micromasters_long_description',
             'micromasters_background_image', 'micromasters_org_name_override', 'costs_fine_print',
             'deadlines_fine_print', 'hubspot_lead_capture_form_id', 'additional_metadata',
-            'specializations', 'program_duration_override'
+            'specializations', 'program_duration_override', 'display_on_org_page'
         )
 
     def get_micromasters_path(self, degree):

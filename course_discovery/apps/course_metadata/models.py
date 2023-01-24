@@ -3174,6 +3174,10 @@ class Degree(Program):
         null=True,
     )
     specializations = SortedManyToManyField(Specialization, blank=True, null=True)
+    display_on_org_page = models.BooleanField(
+        null=False, default=False,
+        help_text=_('Designates whether the degree should be displayed on the owning organization\'s page')
+    )
 
     class Meta:
         verbose_name_plural = "Degrees"
