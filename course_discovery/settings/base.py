@@ -602,7 +602,6 @@ EMSI_API_BASE_URL = 'https://emsiservices.com'
 EMSI_CLIENT_ID = ''
 EMSI_CLIENT_SECRET = ''
 
-
 ################################### BEGIN CELERY ###################################
 
 # Message configuration
@@ -656,6 +655,20 @@ GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {
   'AUTH_PROVIDER_X509_CERT_URL': '',
   'CLIENT_X509_CERT_URL': ''
 }
+
+# Settings related to the GEAG API client for communicating with GetSmarter API
+GETSMARTER_API_CREDENTIALS = {
+  'client_id': '',
+  'client_secret' : '',
+  'scope' : 'geag/products.read',
+  'accessTokenUrl' : '',
+  'tokenName' : 'GEAG Access Token',
+  'client_authentication' : 'header',
+  'grant_type' : 'client_credentials',
+  'authUrl' : '',
+  'addTokenTo' : 'header',
+}
+GETSMARTER_API_TIMEOUT = 10
 
 PRODUCT_METADATA_MAPPING = {
     'EXECUTIVE_EDUCATION': {

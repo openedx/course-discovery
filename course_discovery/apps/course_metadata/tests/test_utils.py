@@ -26,8 +26,9 @@ from course_discovery.apps.course_metadata.tests.factories import (
 from course_discovery.apps.course_metadata.tests.mixins import MarketingSiteAPIClientTestMixin
 from course_discovery.apps.course_metadata.utils import (
     calculated_seat_upgrade_deadline, clean_html, convert_svg_to_png_from_url, create_missing_entitlement,
-    download_and_save_course_image, download_and_save_program_image, ensure_draft_world, is_google_drive_url,
-    serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api, transform_skills_data
+    download_and_save_course_image, download_and_save_program_image, ensure_draft_world, get_geag_api_access_token,
+    is_google_drive_url, serialize_entitlement_for_ecommerce_api, serialize_seat_for_ecommerce_api,
+    transform_skills_data
 )
 
 
@@ -806,7 +807,7 @@ class TestDownloadAndSaveImage(TestCase):
         """ Verify that download_and_save_course_image will not save image in course model """
         image_url = 'https://www.example.com/image.pdf'
         course = CourseFactory(card_image_url=image_url, image=None)
-        image_url, _ = self.mock_image_response(status=200, body=b'invalid', content_type='text/plain', url=image_url)  # pylint: disable=line-too-long
+        image_url, _ = self.mock_image_response(status=200, body=b'invalid', content_type='text/plain', url=image_url)
         assert download_and_save_course_image(course, course.card_image_url, data_field='image', headers=None) is False
         course.refresh_from_db()
         assert course.card_image_url == image_url
@@ -896,3 +897,43 @@ class TestDownloadAndSaveImage(TestCase):
         assert course.organization_logo_override is not None
         assert course.organization_logo_override.read() == self.IMG_CONTENT
         assert str(course.uuid) in course.organization_logo_override.name
+
+
+class TestGEAGAPIAccesToken(TestCase):
+    """ Tests for GEA GAPI access token. """
+    def setUp(self):
+        self.url = 'https://test.getsmarter.com/oauth2/token'
+        self.client_id = 'test_client_id'
+        self.client_secret = 'test_client_secret'
+        self.access_token_url = 'test.getsmarter.com/oauth2/token'
+        self.auth_url = 'https://test.geag.auth.com/oauth2/token'
+
+    def mock_geag_api_token_response(self, status=200, token_type='Bearer', expires_in=3600, access_token=''):
+        """ Mocks the response from the getsmarter API. """
+        body = {
+            'token_type': token_type,
+            'expires_in': expires_in,
+            'access_token': access_token
+        }
+        responses.add(responses.POST, self.url, json=body, status=status)
+        return self.url, body
+
+    @responses.activate
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger.info')
+    def test_get_access_token__with_valid_credentials(self, mock_logger):
+        """ Verify that get_access_token returns access token. """
+        _, body = self.mock_geag_api_token_response(access_token='test_access_token')
+        token = get_geag_api_access_token(self.client_id, self.client_secret, self.access_token_url, self.auth_url)
+        assert token == body['access_token']
+        mock_logger.assert_called_once_with('Successfully retrieved access token for getsmarter API.')
+        assert token is not None
+
+    @responses.activate
+    @mock.patch('course_discovery.apps.course_metadata.utils.logger.error')
+    def test_get_geag_api_access_token__with_invalid_client_id(self, mock_logger):
+        """ Verify that get_access_token returns None when client_id is invalid. """
+        _ = self.mock_geag_api_token_response(access_token=None, token_type=None, expires_in=None, status=400)
+        token = get_geag_api_access_token('invalid_client_id', self.client_secret, self.access_token_url, self.auth_url)
+        msg = 'Failed to retrieve access token for getsmarter API. Status code: %s'
+        mock_logger.assert_called_once_with(msg, 400)
+        assert token is None

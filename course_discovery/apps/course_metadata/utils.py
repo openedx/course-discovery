@@ -880,3 +880,27 @@ def transform_skills_data(skills_data):
         }
         skills.append(skill_dict)
     return skills
+
+
+def get_geag_api_access_token(client_id, client_secret, acess_token_url, auth_url):
+    """
+    Returns a valid access token for the getsmarter API
+    """
+    url = f'https://{acess_token_url}'
+    access_token = None
+    try:
+        settings.GETSMARTER_API_CREDENTIALS['client_id'] = client_id
+        settings.GETSMARTER_API_CREDENTIALS['client_secret'] = client_secret
+        settings.GETSMARTER_API_CREDENTIALS['accessTokenUrl'] = acess_token_url
+        settings.GETSMARTER_API_CREDENTIALS['authUrl'] = auth_url
+        response = requests.post(url, data=settings.GETSMARTER_API_CREDENTIALS, timeout=settings.GETSMARTER_API_TIMEOUT)
+        if response.status_code == 200:
+            response_dict = dict(response.json())
+            access_token = response_dict.get('access_token')
+            if access_token:
+                logger.info('Successfully retrieved access token for getsmarter API.')
+        else:
+            logger.error('Failed to retrieve access token for getsmarter API. Status code: %s', response.status_code)
+    except requests.exceptions.ConnectionError as ex:
+        logger.error('Failed to retrieve access token for getsmarter API. Connection refused: %s', ex)
+    return access_token
