@@ -899,14 +899,10 @@ class TestDownloadAndSaveImage(TestCase):
         assert str(course.uuid) in course.organization_logo_override.name
 
 
-class TestGEAGAPIAccesToken(TestCase):
-    """ Tests for GEA GAPI access token. """
+class TestGEAGApiAccesToken(TestCase):
+    """ Tests for GEAG API access token. """
     def setUp(self):
-        self.url = 'https://test.getsmarter.com/oauth2/token'
-        self.client_id = 'test_client_id'
-        self.client_secret = 'test_client_secret'
-        self.access_token_url = 'test.getsmarter.com/oauth2/token'
-        self.auth_url = 'https://test.geag.auth.com/oauth2/token'
+        self.url = 'test.getsmarter.com/oauth2/token'
 
     def mock_geag_api_token_response(self, status=200, token_type='Bearer', expires_in=3600, access_token=''):
         """ Mocks the response from the getsmarter API. """
@@ -915,7 +911,7 @@ class TestGEAGAPIAccesToken(TestCase):
             'expires_in': expires_in,
             'access_token': access_token
         }
-        responses.add(responses.POST, self.url, json=body, status=status)
+        responses.add(responses.POST, 'https://' + self.url, json=body, status=status)
         return body
 
     def tearDown(self):
@@ -927,17 +923,17 @@ class TestGEAGAPIAccesToken(TestCase):
     def test_get_access_token__with_valid_credentials(self, mock_logger):
         """ Verify that get_access_token returns access token. """
         response = self.mock_geag_api_token_response(access_token='test_access_token')
-        token = get_geag_api_access_token(self.client_id, self.client_secret, self.access_token_url, self.auth_url)
+        token = get_geag_api_access_token(self.url)
         assert token == response['access_token']
         mock_logger.assert_called_once_with('Successfully retrieved access token for getsmarter API.')
         assert token is not None
 
     @responses.activate
     @mock.patch('course_discovery.apps.course_metadata.utils.logger.error')
-    def test_get_geag_api_access_token__with_invalid_client_id(self, mock_logger):
-        """ Verify that get_access_token returns None when client_id is invalid. """
+    def test_get_geag_api_access_token__with_invalid_credentials(self, mock_logger):
+        """ Verify that get_access_token returns None when invalid credentials are provided. """
         _ = self.mock_geag_api_token_response(access_token=None, token_type=None, expires_in=None, status=400)
-        token = get_geag_api_access_token('invalid_client_id', self.client_secret, self.access_token_url, self.auth_url)
+        token = get_geag_api_access_token(self.url)
         msg = 'Failed to retrieve access token for getsmarter API. Status code: %s'
         mock_logger.assert_called_once_with(msg, 400)
         assert token is None

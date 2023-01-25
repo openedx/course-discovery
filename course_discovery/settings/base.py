@@ -670,6 +670,17 @@ GETSMARTER_API_CREDENTIALS = {
 }
 GETSMARTER_API_TIMEOUT = 10
 
+GETSMARTER_KEYS_MAPPING = {
+    'CLIENT_ID' : 'client_id',
+    'CLIENT_SECRET' : 'client_secret',
+    'SCOPE' : 'scope',
+    'ACCESS_TOKEN_URL' : 'accessTokenUrl',
+    'TOKEN_NAME' : 'tokenName',
+    'CLIENT_AUTHENTICATION' : 'client_authentication',
+    'GRANT_TYPE' : 'grant_type',
+    'AUTH_URL' : 'authUrl',
+}
+
 PRODUCT_METADATA_MAPPING = {
     'EXECUTIVE_EDUCATION': {
         'SHEET_ID': '',
