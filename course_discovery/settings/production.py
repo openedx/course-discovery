@@ -91,3 +91,6 @@ AWS_DEFAULT_ACL = 'public-read'
 
 # Convert dict keys to lowercase
 GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = {k.lower(): v for k, v in GOOGLE_SERVICE_ACCOUNT_CREDENTIALS.items()}
+
+# Mapping of getsmarter api secret keys to required format as some of them are in snake case and some are in camel case
+GETSMARTER_API_CREDENTIALS = {GETSMARTER_KEYS_MAPPING[k]: v for k, v in GETSMARTER_API_CREDENTIALS.items()}
