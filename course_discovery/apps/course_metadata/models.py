@@ -96,18 +96,6 @@ class DraftModelMixin(models.Model):
         abstract = True
 
 
-class Source(TimeStampedModel):
-    """
-    Source Model to find where a course or program originated from.
-    """
-    name = models.CharField(max_length=255, help_text=_('Name of the external source.'))
-    slug = AutoSlugField(
-        populate_from='name', editable=True, slugify_function=uslugify, overwrite_on_add=False,
-        help_text=_('Leave this field blank to have the value generated automatically.')
-    )
-    description = models.CharField(max_length=255, blank=True, help_text=_('Description of the external source.'))
-
-
 class CachedMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -430,6 +418,27 @@ class ProgramType(TranslatableModel, TimeStampedModel):
         return program_type.slug in [
             cls.XSERIES, cls.MICROMASTERS, cls.PROFESSIONAL_CERTIFICATE, cls.PROFESSIONAL_PROGRAM_WL, cls.MICROBACHELORS
         ]
+
+
+class Source(TimeStampedModel):
+    """
+    Source Model to find where a course or program originated from.
+    """
+    name = models.CharField(max_length=255, help_text=_('Name of the external source.'))
+    slug = AutoSlugField(
+        populate_from='name', editable=True, slugify_function=uslugify, overwrite_on_add=False,
+        help_text=_('Leave this field blank to have the value generated automatically.')
+    )
+    description = models.CharField(max_length=255, blank=True, help_text=_('Description of the external source.'))
+    ofac_restricted_program_types = SortedManyToManyField(
+        ProgramType,
+        blank=True,
+        related_name='ofac_restricted_source',
+        help_text=_('Programs of these types will be OFAC restricted')
+    )
+
+    def __str__(self):
+        return self.name
 
 
 class ProgramTypeTranslation(TranslatedFieldsModel):
@@ -2510,6 +2519,11 @@ class FAQ(TimeStampedModel):
 
 
 class Program(PkSearchableMixin, TimeStampedModel):
+    OFAC_RESTRICTION_CHOICES = (
+        ('', '--'),
+        (True, _('Blocked')),
+        (False, _('Unrestricted')),
+    )
     uuid = models.UUIDField(blank=True, default=uuid4, editable=False, unique=True, verbose_name=_('UUID'))
     title = models.CharField(
         help_text=_('The user-facing display title for this Program.'), max_length=255)
@@ -2669,6 +2683,14 @@ class Program(PkSearchableMixin, TimeStampedModel):
         related_name='program_tags',
         help_text=_('Pick a tag/label from the suggestions. To make a new tag, add a comma after the tag name.'),
     )
+
+    has_ofac_restrictions = models.NullBooleanField(
+        blank=True,
+        choices=OFAC_RESTRICTION_CHOICES,
+        default=None,
+        verbose_name=_('Add OFAC restriction text to the FAQ section of the Marketing site'),
+    )
+    ofac_comment = models.TextField(blank=True, help_text='Comment related to OFAC restriction')
 
     objects = ProgramQuerySet.as_manager()
 
